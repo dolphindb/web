@@ -5,22 +5,22 @@ import { useEffect, useState } from 'react'
 import { Layout, Button, Tooltip, Popconfirm, Segmented } from 'antd'
 const { Header } = Layout
 
-import { default as Icon, AppstoreOutlined, BarsOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, BarsOutlined, RedoOutlined, StopOutlined, DownOutlined, UpOutlined, PlayCircleOutlined } from '@ant-design/icons'
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { t, language } from '../../i18n/index.js'
+import { t, language } from '@i18n'
 
-import { NodeType, DdbNodeState, model, storage_keys, type DdbNode } from '../model.js'
+import { NodeType, DdbNodeState, model, storage_keys, type DdbNode } from '@model'
 
-import { OverviewTable } from './table.js'
-import { OverviewCard } from './card.js'
+import { OverviewTable } from './table.tsx'
+import { OverviewCard } from './card.tsx'
 
-import SvgRefresh from './icons/refresh.icon.svg'
-import SvgStart from './icons/start.icon.svg'
-import SvgStop from './icons/stop.icon.svg'
-import SvgExpand from './icons/expand.icon.svg'
-import SvgCollapse from './icons/collapse.icon.svg'
+// import SvgRefresh from './icons/refresh.icon.svg'
+// import SvgStart from './icons/start.icon.svg'
+// import SvgStop from './icons/stop.icon.svg'
+// import SvgExpand from './icons/expand.icon.svg'
+// import SvgCollapse from './icons/collapse.icon.svg'
 
 type DisplayMode = 'table' | 'card'
 
@@ -35,7 +35,7 @@ export function Overview () {
         let flag = true
         ;(async () => {
             while (true) {
-                await delay(10000)
+                await delay(10_000)
                 if (!flag)
                     break
                 await model.get_cluster_perf(false)
@@ -61,19 +61,23 @@ export function Overview () {
     
     return <Layout>
             <Header className='header-bar'>
+                <div className='title'>{node_type === NodeType.single ? t('单机总览') : t('集群总览')}</div>
+                
+                <Segmented<DisplayMode>
+                    value={display_mode}
+                    onChange={mode => {
+                        localStorage.setItem(storage_keys.overview_display_mode, mode)
+                        set_display_mode(mode)
+                    }}
+                    options={[
+                        { label: t('表格视图'), value: 'table', icon: <BarsOutlined /> },
+                        { label: t('卡片视图'), value: 'card', icon: <AppstoreOutlined /> }
+                    ]}
+                />
+                
+                <div className='padding' />
+                
                 <div className='operations'>
-                    <div
-                        className={icon_classname}
-                        onClick={() => {
-                            setSelectedNodeNames([ ])
-                            model.get_cluster_perf(true)
-                        }}
-                    >
-                        <Button className='refresh' size='large' type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh} />}>
-                            <span className='text'>{t('刷新')}</span>
-                        </Button>
-                    </div>
-                    
                     {node_type !== NodeType.single && (
                         <>
                             <div className={icon_classname}>
@@ -114,10 +118,8 @@ export function Overview () {
                                         loading: isStartLoading
                                     }}
                                 >
-                                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登录后再进行启停操作。') : ''}>
                                         <Button
-                                            type='text'
-                                            size='large'
                                             block
                                             loading={isStartLoading}
                                             onClick={() => {
@@ -125,10 +127,7 @@ export function Overview () {
                                             }}
                                             disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
                                             icon={
-                                                <Icon
-                                                    className={'icon-start' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')}
-                                                    component={SvgStart}
-                                                />
+                                                <PlayCircleOutlined />
                                             }
                                         >
                                             {t('启动')}
@@ -176,10 +175,9 @@ export function Overview () {
                                         loading: isStopLoading
                                     }}
                                 >
-                                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登录后再进行启停操作。') : ''}>
                                         <Button
-                                            type='text'
-                                            size='large'
+                                           
                                             block
                                             loading={isStopLoading}
                                             onClick={() => {
@@ -187,10 +185,7 @@ export function Overview () {
                                             }}
                                             disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
                                             icon={
-                                                <Icon
-                                                    className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')}
-                                                    component={SvgStop}
-                                                />
+                                                <StopOutlined />
                                             }
                                         >
                                             {t('停止')}
@@ -209,7 +204,7 @@ export function Overview () {
                                     setExpandedNodes(nodes.filter(node => node.mode === NodeType.agent))
                                 }}
                             >
-                                <Button type='text' size='large' block icon={<Icon className='icon-expand' component={SvgExpand} />}>
+                                <Button block icon={<DownOutlined />}>
                                     {t('全部展开')}
                                 </Button>
                             </div>
@@ -220,29 +215,26 @@ export function Overview () {
                                     setExpandedNodes(nodes)
                                 }}
                             >
-                                <Button type='text' size='large' block icon={<Icon className='icon-collapse' component={SvgCollapse} />}>
+                                <Button block icon={<UpOutlined />}>
                                     {t('全部折叠')}
                                 </Button>
                             </div>
                         </>
                     )}
+                    
+                    <div
+                        className={icon_classname}
+                        onClick={() => {
+                            setSelectedNodeNames([ ])
+                            model.get_cluster_perf(true)
+                        }}
+                    >
+                        <Button className='refresh' block icon={<RedoOutlined />}>
+                            {t('刷新')}
+                        </Button>
+                    </div>
                 </div>
-                
-                <div className='padding' />
-                
-                <Segmented<DisplayMode>
-                    className='display-mode'
-                    value={display_mode}
-                    onChange={mode => {
-                        localStorage.setItem(storage_keys.overview_display_mode, mode)
-                        set_display_mode(mode)
-                    }}
-                    size='large'
-                    options={[
-                        { label: t('表格视图'), value: 'table', icon: <BarsOutlined /> },
-                        { label: t('卡片视图'), value: 'card', icon: <AppstoreOutlined /> }
-                    ]}
-                />
+              
             </Header>
             {display_mode === 'card' ? (
                 <OverviewCard

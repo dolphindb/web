@@ -1340,6 +1340,9 @@
     "结构": {
         "en": "schema"
     },
+    "结构_title": {
+        "en": "Schema"
+    },
     "分区数据": {
         "en": "partition data"
     },
@@ -1803,7 +1806,7 @@
         "en": "Agent"
     },
     "单机总览": {
-        "en": "single node overview"
+        "en": "Single Node Overview"
     },
     "worker 线程总数": {
         "en": "num of worker"
@@ -1892,7 +1895,7 @@
     "代理节点不可跳转": {
         "en": "agent nodes cannot navigate"
     },
-    "当前用户未登录，请登陆后再进行启停操作。": {
+    "当前用户未登录，请登录后再进行启停操作。": {
         "en": "Please log in before this operation."
     },
     "CDN 部署时无法使用配置管理": {
@@ -4871,8 +4874,8 @@
     "集群已安装的最低版本": {
         "en": "Minimum Installed Version"
     },
-    " (与数据库版本不一致，无法加载)": {
-        "en": " (Unable to load due to inconsistent database version)"
+    " (部分节点与数据库版本不一致，无法加载)": {
+        "en": " (Some nodes are inconsistent with the database version and cannot be loaded)"
     },
     "已安装节点": {
         "en": "Nodes Installed"
@@ -5672,6 +5675,9 @@
     "指标参数": {
         "en": "Indicator parameters"
     },
+    "指标版本": {
+        "en": "Indicator version"
+    },
     "建议": {
         "en": "Suggestions"
     },
@@ -5891,5 +5897,830 @@
     },
     "占用内存/未处理的消息数": {
         "en": "Memory Usage / Unprocessed Message Count"
+    },
+    "{{file}} 的提交信息": {
+        "en": "Commit message for {{file}}"
+    },
+    "文件未修改": {
+        "en": "File not modified"
+    },
+    "请输入文件提交路径": {
+        "en": "Please enter the file submission path"
+    },
+    "提交成功": {
+        "en": "Commit Success"
+    },
+    "提交失败": {
+        "en": "Commit Failed"
+    },
+    "提交历史": {
+        "en": "Commit History"
+    },
+    "关闭提交历史": {
+        "en": "Close Commit History"
+    },
+    "查看提交历史": {
+        "en": "View Commit History"
+    },
+    "本地文件，无提交历史": {
+        "en": "Local file, no commit history"
+    },
+    "文件提交路径": {
+        "en": "File Submission Path"
+    },
+    "远程文件有更新，是否获取并覆盖当前编辑的内容": {
+        "en": "The remote file has been updated. Do you want to fetch and overwrite the current content?"
+    },
+    "更新文件": {
+        "en": "Update File"
+    },
+    "未选择代码仓库，请选择一个代码仓库": {
+        "en": "Code repository not selected, please select a code repository"
+    },
+    "文件浏览": {
+        "en": "File Browse"
+    },
+    "未选择代码仓库，请选择一个代码仓库以查看文件": {
+        "en": "Code repository not selected, please select a code repository to view files"
+    },
+    "搜索仓库文件": {
+        "en": "Search repository files"
+    },
+    "今天 {{time}}": {
+        "en": "{{time}}, Today"
+    },
+    "昨天 {{time}}": {
+        "en": "{{time}}, Yesterday"
+    },
+    "fetch 仓库列表失败": {
+        "en": "Failed to fetch repository list"
+    },
+    "获取文件失败，请检查权限": {
+        "en": "Failed to get the file, please check permissions."
+    },
+    "使用 Oauth 登录到 GitLab": {
+        "en": "Use OAuth to log in to GitLab"
+    },
+    "请输入 Client ID!": {
+        "en": "Please enter Client ID!"
+    },
+    "请输入你的 GitLab 应用 Client ID": {
+        "en": "Please enter your GitLab application Client ID"
+    },
+    "请输入 Redirect URL!": {
+        "en": "Please enter the Redirect URL!"
+    },
+    "请输入你的 GitLab 应用 Redirect URL": {
+        "en": "Please enter your GitLab application Redirect URL"
+    },
+    "请输入 GitLab 的路径!": {
+        "en": "Please enter the GitLab path!"
+    },
+    "请输入有效的 URL!": {
+        "en": "Please enter a valid URL!"
+    },
+    "请输入你的 GitLab 根路径，例如: https://gitlab.com": {
+        "en": "Please enter your GitLab root path, for example: https://gitlab.com"
+    },
+    "请输入 GitLab API Root，默认为 /api/v4": {
+        "en": "Please enter the GitLab API Root, the default is /api/v4"
+    },
+    "使用 Access Token 登录到 GitLab": {
+        "en": "Use Access Token to log in to GitLab"
+    },
+    "请输入 Access Token!": {
+        "en": "Please enter Access Token!"
+    },
+    "请输入你的 GitLab Access Token": {
+        "en": "Please enter your GitLab Access Token"
+    },
+    "使用 Access Token 登录到 GitHub": {
+        "en": "Use Access Token to log in to GitHub"
+    },
+    "请输入你的 GitHub Access Token": {
+        "en": "Please enter your GitHub Access Token"
+    },
+    "使用 Oauth 登录到 GitHub": {
+        "en": "Use OAuth to log in to GitHub"
+    },
+    "请输入你的 GitHub 应用 Client ID": {
+        "en": "Please enter your GitHub App Client ID"
+    },
+    "请输入你的 GitHub 应用 Redirect URL": {
+        "en": "Please enter your GitHub App Redirect URL"
+    },
+    "请输入 Client Secret!": {
+        "en": "Please enter your Client Secret!"
+    },
+    "请输入你的 GitHub 应用 Client Secret": {
+        "en": "Please enter your GitHub App Client Secret"
+    },
+    "代码仓库": {
+        "en": "Code Repositories"
+    },
+    "Git 集成": {
+        "en": "Git Integration"
+    },
+    "无法获取仓库列表，请检查权限或：": {
+        "en": "Unable to get the repository list. Please check your permissions or:"
+    },
+    "提交文件 {{file}} 到 {{repo}} 的分支 {{branch}}": {
+        "en": "Commit file {{file}} to branch {{branch}} of {{repo}}"
+    },
+    "提交当前正在编辑的文件 {{file}} 到 {{repo}} 的分支 {{branch}}": {
+        "en": "Commit the currently editing file {{file}} to the {{branch}} branch of {{repo}}"
+    },
+    "分支：{{b}}": {
+        "en": "Branch: {{b}}"
+    },
+    "覆盖远程文件": {
+        "en": "Overwrite remote file"
+    },
+    "远程文件有更新，该提交将覆盖远程文件": {
+        "en": "The remote file has been updated. This commit will overwrite the remote file."
+    },
+    "代码存储失败，请检查代码大小或本地存储空间剩余空间": {
+        "en": "Code saving failed. Please check the code size or the remaining space of local storage."
+    },
+    "获取文件列表失败或仓库为空": {
+        "en": "Failed to get file list or repository is empty"
+    },
+    "只支持在 HTTPS 下使用该登录方式": {
+        "en": "This login method is only supported under HTTPS."
+    },
+    "必须加载 httpClient 插件才能使用该登录方式": {
+        "en": "The httpClient plugin must be loaded to use this login method."
+    },
+    "插件列表:": {
+        "en": "plugins:"
+    },
+    "节点插件:": {
+        "en": "plugin nodes:"
+    },
+    "加载插件": {
+        "en": "Load Plugin"
+    },
+    "确认加载插件至所选择的节点？（当前未安装或已加载的节点会被跳过）": {
+        "en": "Are you sure you want to load the plugin to the selected node? (Nodes that are not currently installed or have already been loaded will be skipped)"
+    },
+    "加载": {
+        "en": "Load"
+    },
+    "加载插件:": {
+        "en": "load plugin:"
+    },
+    "插件加载成功": {
+        "en": "Plugin loaded successfully"
+    },
+    "在下方表格中选择需要加载的插件，以及节点（当前未安装或已加载的节点会被跳过）": {
+        "en": "Select the plugin and nodes to install it. Nodes that haven't installed the plugin or have already loaded it will be skipped."
+    },
+    "安装插件": {
+        "en": "Install Plugin"
+    },
+    "已加载节点": {
+        "en": "Loaded Nodes"
+    },
+    "节点名": {
+        "en": "Node"
+    },
+    "已安装": {
+        "en": "Installed"
+    },
+    "安装版本": {
+        "en": "Installed Version"
+    },
+    "已加载": {
+        "en": "Loaded"
+    },
+    "加载版本": {
+        "en": "Loaded Version"
+    },
+    "获取插件可安装节点:": {
+        "en": "Get the plugin installable node:"
+    },
+    "安装插件:": {
+        "en": "Install the plugin:"
+    },
+    "插件 {{plugin}} 安装成功": {
+        "en": "Plugin {{plugin}} installed successfully"
+    },
+    "如: zip": {
+        "en": "eg: zip"
+    },
+    "离线安装": {
+        "en": "Offline"
+    },
+    "在线安装": {
+        "en": "Online"
+    },
+    "从某节点同步": {
+        "en": "Synchronize from a Node"
+    },
+    "插件 zip 包": {
+        "en": "Plugin Zip"
+    },
+    "插件版本": {
+        "en": "Plugin Version"
+    },
+    "选填，默认安装和当前版本匹配的最新版": {
+        "en": "By default, the latest matching version is installed"
+    },
+    "插件服务器地址": {
+        "en": "Plugin Server"
+    },
+    "选填，参考 installPlugin 函数": {
+        "en": "Plugins repository to download from. Refer to installPlugin function"
+    },
+    "源节点": {
+        "en": "Source Node"
+    },
+    "安装方式": {
+        "en": "Installation"
+    },
+    "目标节点": {
+        "en": "Target Node"
+    },
+    "控制节点不支持库表向导，请跳转到数据节点或计算节点查看。": {
+        "en": "The control node does not support the library table wizard. Please jump to the data node or computing node to view it."
+    },
+    "Git 登录失败": {
+        "en": "Login to Git failed."
+    },
+    "列宽自适应": {
+        "en": "Adaptive column width"
+    },
+    "超长省略": {
+        "en": "Ellipsis"
+    },
+    "查询在线插件列表:": {
+        "en": "Query the online plug-in list:"
+    },
+    "添加失败": {
+        "en": "Add failed"
+    },
+    "getClusterPref 中节点的 agentSite 为空，无法通过 agent 查看日志": {
+        "en": "The agentSite of the node in getClusterPref is empty, and logs cannot be viewed through the agent"
+    },
+    "区间": {
+        "en": "interval"
+    },
+    "频次": {
+        "en": "frequency"
+    },
+    "组列表": {
+        "en": "Group List"
+    },
+    "用户列表": {
+        "en": "User List"
+    },
+    "编译并刷新": {
+        "en": "Compile and Refresh"
+    },
+    " 新增控制节点配置": {
+        "en": "Add Control Node Configuration"
+    },
+    " 新增节点": {
+        "en": "Add Node"
+    },
+    "确认删除选中的 {{num}} 个巡检方案吗？": {
+        "en": "Confirm to delete the selected {{num}} inspection plans?"
+    },
+    "确认删除选中的 {{num}} 条巡检结果吗？": {
+        "en": "Confirm to delete the selected {{num}} inspection results?"
+    },
+    "组名不能为空": {
+        "en": "Group name cannot be empty"
+    },
+    "计算组节点配置不正确": {
+        "en": "The calculation group node configuration is incorrect"
+    },
+    "配置项不能为空": {
+        "en": "The configuration item cannot be empty"
+    },
+    "配置项 {{name}} 的限定词必须包含 %": {
+        "en": "The qualifier for configuration item {{name}} must contain %"
+    },
+    "配置项 {{name}}的值必须包含 <ALIAS>": {
+        "en": "The value of configuration item {{name}} must contain <ALIAS>"
+    },
+    "计算组名称不能与已存在的计算组 {{group}} 存在包含关系": {
+        "en": "The compute group name cannot contain or be contained by the existing group \"{{group}}\""
+    },
+    "移除节点成功": {
+        "en": "Node removed successfully"
+    },
+    "移除节点配置成功，重启集群生效": {
+        "en": "Node configuration removed successfully. Changes take effect after cluster restart"
+    },
+    "全选_button": {
+        "en": "Select All"
+    },
+    "插件名": {
+        "en": "Plugin Name"
+    },
+    "PKEY 数据库引擎不支持 addColumn": {
+        "en": "addColumn is not supported by PKEY database engine"
+    },
+    "流图监控": {
+        "en": "Stream Graph"
+    },
+    "构建中": {
+        "en": "Building"
+    },
+    "错误": {
+        "en": "Error"
+    },
+    "失败": {
+        "en": "Failed"
+    },
+    "销毁中": {
+        "en": "Destroying"
+    },
+    "已销毁": {
+        "en": "Destroyed"
+    },
+    "流图名称": {
+        "en": "Name"
+    },
+    "创建者": {
+        "en": "Created By"
+    },
+    "数据执行次数": {
+        "en": "Execution Count"
+    },
+    "任务数量": {
+        "en": "Task Count"
+    },
+    "总任务数": {
+        "en": "Total Task Count"
+    },
+    "运行中任务数": {
+        "en": "Running Task Count"
+    },
+    "流图列表": {
+        "en": "Stream Graphs"
+    },
+    "任务ID": {
+        "en": "Task ID"
+    },
+    "Schema": {
+        "en": "Schema"
+    },
+    "节点状态": {
+        "en": "Node Status"
+    },
+    "节点详情": {
+        "en": "Node Details"
+    },
+    "子图指标": {
+        "en": "Subgraph Metrics"
+    },
+    "引擎指标": {
+        "en": "Engine Metrics"
+    },
+    "检查点 ID": {
+        "en": "Checkpoint ID"
+    },
+    "子作业 ID": {
+        "en": "Subjob ID"
+    },
+    "收到第一个 Barrier 的时刻": {
+        "en": "First Barrier Received Time"
+    },
+    "Barrier 对齐的时刻": {
+        "en": "Barrier Alignment Time"
+    },
+    "转发 Barrier 时刻": {
+        "en": "Barrier Forwarding Time"
+    },
+    "输入端 Channel 的 ID": {
+        "en": "Input Channel ID"
+    },
+    "快照大小": {
+        "en": "Snapshot Size"
+    },
+    "加载作业信息失败：": {
+        "en": "Failed to load job information"
+    },
+    "没有作业数据": {
+        "en": "No job data"
+    },
+    "加载子作业信息失败：": {
+        "en": "Failed to load subjob information"
+    },
+    "没有子作业数据": {
+        "en": "No subjob data"
+    },
+    "没有配置数据": {
+        "en": "No configuration data"
+    },
+    "作业": {
+        "en": "Job"
+    },
+    "子作业": {
+        "en": "Subjob"
+    },
+    "检查点配置": {
+        "en": "Checkpoint Configuration"
+    },
+    "加载配置数据失败：": {
+        "en": "Failed to load configuration data"
+    },
+    "确认删除流图": {
+        "en": "Are you sure you want to delete this stream graph?"
+    },
+    "吗？此操作不可恢复。": {
+        "en": "This action cannot be undone."
+    },
+    "删除流图": {
+        "en": "Delete Stream Graph"
+    },
+    "删除流图成功": {
+        "en": "Stream graph deleted"
+    },
+    "删除流图失败：": {
+        "en": "Failed to delete stream graph"
+    },
+    "加载失败：": {
+        "en": "Failed to load stream graph details"
+    },
+    "流图详情": {
+        "en": "Stream Graph Details"
+    },
+    "流图 ID": {
+        "en": "Stream Graph ID"
+    },
+    "流图状态": {
+        "en": "Stream Graph Status"
+    },
+    "持续时间": {
+        "en": "Duration"
+    },
+    "执行次数": {
+        "en": "Execution Count"
+    },
+    "无效的流图 ID": {
+        "en": "Invalid Stream Graph ID"
+    },
+    "任务 ID": {
+        "en": "Task ID"
+    },
+    "订阅任务名称": {
+        "en": "Action Name"
+    },
+    "订阅方式": {
+        "en": "Subscription Type"
+    },
+    "加载流任务订阅线程状态失败：": {
+        "en": "Failed to load subscription task thread status"
+    },
+    "流任务订阅线程状态": {
+        "en": "Subscription Task Thread Status"
+    },
+    "概览": {
+        "en": "Overview"
+    },
+    "检查点": {
+        "en": "Checkpoint"
+    },
+    "状态_streaming_flow": {
+        "en": "Status"
+    },
+    "确定要删除当前选中的数据源吗？": {
+        "en": "Are you sure you want to delete the currently selected data source?"
+    },
+    "初始名称": {
+        "en": "Initial Name"
+    },
+    "额外信息": {
+        "en": "Extra"
+    },
+    "下游订阅偏移量": {
+        "en": "Downstream Subscription Offset"
+    },
+    "快照元数据": {
+        "en": "Snapshot Metadata"
+    },
+    "失败原因": {
+        "en": "Failure Reason"
+    },
+    "可用区": {
+        "en": "Available Zone"
+    },
+    "请输入可用区": {
+        "en": "Please input the available zone"
+    },
+    "所属区域": {
+        "en": "Zone"
+    },
+    "请输入所属区域": {
+        "en": "Please input the zone"
+    },
+    "状态_streaming-graph": {
+        "en": "Status"
+    },
+    "组名只能包含字母、数字、下划线、以及短横线，并且开头首字母必须为大小写英文字母": {
+        "en": "Group names can only contain letters, numbers, underscores, and hyphens, and the first letter must be an uppercase or lowercase English letter."
+    },
+    "用户名只能包含字母、数字、下划线、以及短横线，并且开头首字母必须为大小写英文字母": {
+        "en": "Usernames can only contain letters, numbers, underscores, and hyphens, and the first letter must be an uppercase or lowercase English letter."
+    },
+    "非 svg 背景图": {
+        "en": "Non-svg background image"
+    },
+    "返回的结果需要是表格": {
+        "en": "The returned result needs to be a table"
+    },
+    "svg 背景图": {
+        "en": "svg background image"
+    },
+    "svg 中顶层的 text 元素且含有 id 属性可以被下面的文本映射替换为动态文本;\n有 id 或 class 属性的元素可以设置动态颜色\n数据源的格式为 id, value 两列的表": {
+        "en": "The top-level text element in svg with an id attribute can be replaced with dynamic text by the following text mapping;\nElements with id or class attributes can set dynamic colors\nThe data source format is a table with two columns: id and value"
+    },
+    "粘贴 svg 文件内容": {
+        "en": "Paste the svg file content"
+    },
+    "历史回放": {
+        "en": "History Replay"
+    },
+    "数据映射": {
+        "en": "Data Mapping"
+    },
+    "文本映射": {
+        "en": "Text Mapping"
+    },
+    "一行一个映射，用英文冒号分隔，左边是背景中的文本 id，右边是数据 id，如:\ntext_id_0: data_id_0": {
+        "en": "One mapping per line, separated by colons. The left side is the background text id, and the right side is the data id, such as:\ntext_id_0: data_id_0"
+    },
+    "颜色映射": {
+        "en": "Color Mapping"
+    },
+    "一行一个映射，用英文冒号分隔，左边是背景中的元素选择器，右边是数据 id，如:\nselector_0: data_id_0": {
+        "en": "One mapping per line, separated by colons, with the element selector in the background on the left and the data id on the right, such as:\nselector_0: data_id_0"
+    },
+    "填写用于查询历史回放的脚本，支持 {{time}} 变量": {
+        "en": "Fill in the script for querying historical playback, supporting the {{time}} variable"
+    },
+    "弹窗被浏览器拦截，请设置网页允许弹出式窗口和重定向": {
+        "en": "The pop-up window is blocked by the browser. Please set the web page to allow pop-up windows and redirects."
+    },
+    "从选定的时间开始回放": {
+        "en": "Playback from selected time"
+    },
+    "回放速率": {
+        "en": "Playback Rate"
+    },
+    "回放已到达结束时间，切换回实时模式": {
+        "en": "Playback has reached end time, switch back to real-time mode"
+    },
+    "组态图": {
+        "en": "Configuration"
+    },
+    "最新": {
+        "en": "Latest"
+    },
+    "指标已更新": {
+        "en": "Metrics updated"
+    },
+    "未知错误": {
+        "en": "Unknown error"
+    },
+    "指标": {
+        "en": "Metrics"
+    },
+    "node.properties 中的 metrics 数组长度应该为 1": {
+        "en": "Metrics array length in node.properties should be 1"
+    },
+    "最后检查点 ID": {
+        "en": "Last Checkpoint ID"
+    },
+    "待处理消息": {
+        "en": "Pending Message"
+    },
+    "行计数": {
+        "en": "Line Count"
+    },
+    "计划 ID": {
+        "en": "Plan ID"
+    },
+    "报告 ID": {
+        "en": "Report ID"
+    },
+    "发送人": {
+        "en": "Senders"
+    },
+    "收件人": {
+        "en": "Recipient"
+    },
+    "邮件主题": {
+        "en": "Message Subject"
+    },
+    "发送时间": {
+        "en": "Sending Time"
+    },
+    "发送状态": {
+        "en": "Sending Status"
+    },
+    "发送中": {
+        "en": "Sending"
+    },
+    "发送失败": {
+        "en": "Sending Failed"
+    },
+    "邮件告警历史": {
+        "en": "Mail Alarm History"
+    },
+    "请选择发送状态": {
+        "en": "Please select the sending status"
+    },
+    "搜索": {
+        "en": "Search"
+    },
+    "第 {{start}}-{{end}} 条，共 {{total}} 条": {
+        "en": "{{start}}-{{end}}} of {{total}}"
+    },
+    "没有足够的权限查看作业": {
+        "en": "Not enough permissions to view job"
+    },
+    "使用 url 参数中的用户名密码登录失败，": {
+        "en": "Failed to login using user name and password in url parameters"
+    },
+    "流图 {{name}} 不存在": {
+        "en": "Stream graph {{name}} does not exist"
+    },
+    "流图": {
+        "en": "Stream graph"
+    },
+    "删除流图失败": {
+        "en": "Failed to delete stream graph"
+    },
+    "无可用子图指标": {
+        "en": "No available subgraph indicator"
+    },
+    "无 worker {{task_id}} 的可用子图指标": {
+        "en": "No available subgraph indicator for worker {{task_id}}"
+    },
+    "无可用引擎指标": {
+        "en": "No available engine indicator"
+    },
+    "子图": {
+        "en": "Subgraph"
+    },
+    "流任务订阅": {
+        "en": "Stream task subscription"
+    },
+    "流任务发布": {
+        "en": "Stream task publishing"
+    },
+    "客户端": {
+        "en": "Client"
+    },
+    "流引擎": {
+        "en": "Stream engine"
+    },
+    "License 已过期，请联系管理人员立即更新，避免程序关闭": {
+        "en": "The License has expired, please contact the manager to update it immediately to avoid the program closing"
+    },
+    "License 将在两周内过期，请提醒管理人员及时更新，避免程序过期后自动关闭": {
+        "en": "The License will expire in two weeks, please remind the manager to update it in time to avoid the program closing automatically after it expires"
+    },
+    "授权模块": {
+        "en": "Authorized Module"
+    },
+    "数字用 \",\" 分组显示": {
+        "en": "Numbers use\",\"Group Display"
+    },
+    "{{action}}成功，当前小数位数为：{{decimals}}; 数字分组显示: {{grouping}}": {
+        "en": "{{action}} successful, current decimal digits are: {{decimals}}; Numbers display in groups: {{grouping}}"
+    },
+    "输入应为空或者 0 ~ 20 的整数": {
+        "en": " Input should be empty or an integer from 0 to 20 "
+    },
+    "左快照消息 ID": {
+        "en": " Left snapshot message ID"
+    },
+    "右快照消息 ID": {
+        "en": " Right snapshot message ID"
+    },
+    "httpClient 插件版本与 server 版本的前3位不一致。": {
+        "en": " The httpClient plug-in version is inconsistent with the first 3 bits of the server version. "
+    },
+    "控制节点不支持流计算监控，请跳转到数据节点或计算节点查看流计算监控。": {
+        "en": "The control node does not support stream computing monitoring. Please jump to the data node or compute node to view stream computing monitoring. "
+    },
+    "数据血缘": {
+        "en": "Data Lineage"
+    },
+    "已使用内存": {
+        "en": "Memory used"
+    },
+    "控制节点不支持流图监控，请跳转到数据节点或计算节点查看流图监控。": {
+        "en": "Control node does not support stream graph monitoring. Please jump to the data node or compute node to view stream graph monitoring. "
+    },
+    "张量": {
+        "en": "tensor"
+    },
+    "开": {
+        "en": "on"
+    },
+    "关": {
+        "en": "off"
+    },
+    "监控订阅节点的工作线程状态，以及流图中所有流任务的订阅信息\n": {
+        "en": "Monitor the status of worker threads of subscribing nodes and subscription information of all flow tasks in the flow graph\n"
+    },
+    "监控流任务中所有订阅表对应的发布端连接状态\n": {
+        "en": "Monitor the publisher connection status corresponding to all subscription tables in the flow task\n"
+    },
+    "监控流图中所有流计算引擎的状态\n": {
+        "en": "Monitor the status of all flow calculation engines in the flow graph\n"
+    },
+    "监控流图中所有流表的状态\n": {
+        "en": "Monitor the status of all flow tables in the flow graph\n"
+    },
+    "找不到流表 {{table_name}}，可能已经被删除": {
+        "en": "Stream table {{table_name}} cannot be found. It may have been deleted"
+    },
+    "流表 {{name}} 的血缘关系图": {
+        "en": "Lineage diagram of stream table {{name}}"
+    },
+    "暂无流表": {
+        "en": "No Stream table"
+    },
+    "引擎 {{id}} 已删除": {
+        "en": "Engine {{id}} has been deleted"
+    },
+    "表名和引擎名称隐藏了中间的 .orca_table 和 .orca_engine": {
+        "en": "Table name and engine name hide the middle .orca_table and .orca_engine"
+    },
+    "测试模块": {
+        "en": "Test Module"
+    },
+    "查看数据血缘": {
+        "en": "View Data Lineage"
+    },
+    "例如: 1h, 30m, 1d": {
+        "en": "For example: 1h, 30m, 1d"
+    },
+    "发送测试邮件": {
+        "en": "Send Test Email"
+    },
+    "测试邮件发送成功": {
+        "en": "Test email sent successfully"
+    },
+    "测试邮件发送失败": {
+        "en": "Failed to send test email"
+    },
+    "发送测试邮件失败": {
+        "en": "Failed to send test email"
+    },
+    "测试收件人": {
+        "en": "Test Recipient"
+    },
+    "请输入测试收件人邮箱": {
+        "en": "Please enter the test recipient's email"
+    },
+    "请输入有效的邮箱地址": {
+        "en": "Please enter a valid email address"
+    },
+    "多个邮箱请用逗号分隔": {
+        "en": "Separate multiple emails with commas"
+    },
+    "例如: user1@example.com, user2@example.com": {
+        "en": "e.g.: user1@example.com, user2@example.com"
+    },
+    "邮件语言": {
+        "en": "Email Language"
+    },
+    "中文": {
+        "en": "Chinese"
+    },
+    "英文": {
+        "en": "English"
+    },
+    "请先完整填写邮件配置信息": {
+        "en": "Please complete the email configuration first"
+    },
+    "测试邮件": {
+        "en": "Test Email"
+    },
+    "选填，留空表示不设置阈值": {
+        "en": "Optional, leave blank to not set a threshold"
+    },
+    "{{label}}{{action}}成功": {
+        "en": "{{label}} {{action}} successfully"
+    },
+    "查看流计算图相关信息，通过流图监控模块，用户可以直观监控通过 Orca 创建的流图任务及其运行状态，帮助用户实时掌握各流图的任务数量、执行次数和当前状态等。点击流图名称跳转至详情页面，查看具体任务结构与执行情况。": {
+        "en": "View relevant information on stream calculation charts. Through the Stream Graph Module, users can intuitively monitor steam graph tasks created through Orca and their running status, helping users grasp the number of tasks, execution times and current status of each stream graph in real time. Click on the stream chart name to jump to the details page to view the specific task structure and execution status. "
+    },
+    "查看数据库表、计算引擎的血缘关系，清晰地展示节点的上游拓扑结构，帮助用户直观地理解数据流动路径，从而快速定位问题。": {
+        "en": " View the blood relationship between database tables and calculation engines, clearly display the upstream topology of nodes, and help users intuitively understand the data flow path, thereby quickly locating problems. "
+    },
+    "OAuth 登录": {
+        "en": "OAuth Login"
+    },
+    "确认删除流图 {{name}} 吗？\n此操作不可恢复。": {
+        "en": "Confirm deletion of stream graph {{name}}? \nThis operation is irreversible."
     }
 }

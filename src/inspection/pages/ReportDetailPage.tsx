@@ -1,4 +1,4 @@
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 import { Affix, Button, Collapse, Descriptions, Spin, Table, Typography } from 'antd'
 import useSWR from 'swr'
 
@@ -12,7 +12,7 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { useParams } from 'react-router'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { safe_json_parse } from '@/dashboard/utils.ts'
 
@@ -21,7 +21,7 @@ import { inspection } from '@/inspection/model.ts'
 import { MetricGroups, ReportLables } from '@/inspection/constants.ts'
 import { LogModal } from '@/inspection/modals/LogModal.tsx'   
 import { FailedStatus, SuccessStatus } from '@/inspection/pages/InspectionListPage.tsx'
-import { BackButton } from '@/components/BackButton.tsx'
+import { BackButton } from '@components/BackButton.tsx'
 
 const { Title } = Typography
 
@@ -73,6 +73,7 @@ export function ReportDetailPage () {
     
     const abnormal_columns = [
         { title: t('指标名'), dataIndex: 'displayName', key: 'displayName' },
+        { title: t('指标版本'), dataIndex: 'metricVersion', key: 'metricVersion' },
         { title: t('指标分类'), dataIndex: 'group', key: 'group', render: (group: number) => MetricGroups[group] },
         { title: t('开始时间'), dataIndex: 'startTime', key: 'startTime' },
         { title: t('运行时间'), dataIndex: 'runningTime', key: 'runningTime', render: (runningTime: bigint) => delta2str(Number(runningTime)) },
@@ -91,7 +92,7 @@ export function ReportDetailPage () {
         
         try {
              // 保存原始标题
-            const originalTitle = document.title
+            const old_title = document.title
             
             // 设置新标题（这可能会影响某些浏览器生成的PDF文件名）
             document.title = t('巡检报告_{{id}}', { id: reportId })
@@ -121,7 +122,7 @@ export function ReportDetailPage () {
     
             // 打印完成后移除样式
             document.head.removeChild(style)
-            document.title = originalTitle
+            document.title = old_title
         } catch (error) {
             model.message.error(t('打印失败'), error)
         } finally {
@@ -256,6 +257,11 @@ function DetailDescription ({
                         children: <div style={{ whiteSpace: 'pre-wrap' }}>{metric.desc}</div>,
                         span: 4,
                     }], {
+                        key: 'metricVersion',
+                        label: t('指标版本'),
+                        children: metric.metricVersion,
+                    },
+                    {
                         key: 'startTime',
                         label:  t('开始时间'),
                         children: n.startTime,
@@ -326,13 +332,14 @@ function Detail ({
     
     if (extra && !ds) 
         return null
-    return Array.isArray(ds) 
+    return Array.isArray(ds) && ds.length > 0
         ? 
         <Table 
             columns={Object.keys(ds[0]).map(k => ({ 
                 title: k, 
                 dataIndex: k, 
                 key: k, 
+                minWidth: 150,
                 render: (str: string) => <div style={{ whiteSpace: 'pre-wrap' }}>{str}</div> }
             ))} 
             dataSource={ds}

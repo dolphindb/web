@@ -1,16 +1,19 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Modal, Form, Input, message } from 'antd'
+import { Modal, Form, Input } from 'antd'
 import { useCallback } from 'react'
 
 import { useBoolean } from 'ahooks'
 
-import { request } from '../../../guide/utils.ts'
-import { safe_json_parse } from '../../../dashboard/utils.ts'
+import { download_url } from 'xshell/utils.browser.js'
 
-import { t } from '../../../../i18n/index.js'
-import { download_file } from '../../../utils.ts'
+import { request } from '@/guide/utils.ts'
+import { safe_json_parse } from '@/dashboard/utils.ts'
 
-interface IProps { 
+import { t } from '@i18n'
+import { model } from '@model'
+
+
+interface IProps {
     table: string
     code: string
 }
@@ -34,7 +37,7 @@ export const ExportFileModal = NiceModal.create((props: IProps) => {
             else
                 text = (safe_json_parse(new TextDecoder().decode((await request('dbms_executeQuery', { code }))))).csvContent
             
-            download_file(`${name}.csv`, URL.createObjectURL(new Blob(
+            download_url(`${name}.csv`, URL.createObjectURL(new Blob(
                 [
                     new Uint8Array([0xEF, 0xBB, 0xBF]),
                     text
@@ -44,7 +47,7 @@ export const ExportFileModal = NiceModal.create((props: IProps) => {
                 
             action.setFalse()
             modal.hide()
-            message.success(t('导出成功'))
+            model.message.success(t('导出成功'))
         } catch { 
             action.setFalse()
         }
@@ -63,7 +66,7 @@ export const ExportFileModal = NiceModal.create((props: IProps) => {
     >
         <Form form={form}>
             <Form.Item rules={[{ required: true, message: t('请输入文件名') }]} name='name' label={t('文件名')} initialValue={table}>
-                <Input addonAfter='.csv' placeholder={t('请输入文件名')} />
+                <Input suffix='.csv' placeholder={t('请输入文件名')} />
             </Form.Item>
         </Form>
     </Modal>

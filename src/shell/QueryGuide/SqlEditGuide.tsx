@@ -5,7 +5,7 @@ import { Button, Space, Tooltip, message } from 'antd'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { Editor } from '../../components/Editor/index.js'
 

@@ -1,29 +1,23 @@
 import './index.scss'
 
-import { Checkbox, type PaginationProps, Table, type TableProps, Empty } from 'antd'
+import { Checkbox, type PaginationProps, Table, Empty } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 
-import { type ColumnProps, type ColumnsType } from 'antd/es/table'
+import { type ColumnsType } from 'antd/es/table'
 
 import { isNumber } from 'lodash'
 
-import classNames from 'classnames'
+import cn from 'classnames'
 
 import {  BasicFormFields }  from '../../ChartFormFields/BasicFormFields.js'
 import { BasicTableFields } from '../../ChartFormFields/BasicTableFields.js'
-import { type Widget } from '../../model.js'
 import { type ITableConfig } from '../../type.js'
 
 
 import { format_number, format_time, parse_text } from '../../utils.ts'
+import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 
-
-
-interface IProps extends TableProps<any> { 
-    widget: Widget
-    data_source: any[]
-}
 
 function get_cell_color (val, threshold, total) { 
     
@@ -50,8 +44,8 @@ function get_cell_color (val, threshold, total) {
 }
 
 
-export function DBTable (props: IProps) {
-    const { widget, data_source = [ ], ...otherProps } = props
+export function DBTable (props: GraphComponentProps) {
+    const { widget, data_source: { data } } = props
     const [selected_cols, set_select_cols] = useState([ ])
     
     const config = useMemo(() => widget.config as ITableConfig, [widget.config])
@@ -60,17 +54,14 @@ export function DBTable (props: IProps) {
     
     
     useEffect(() => { set_select_cols(show_cols?.map(item => item.col)) }, [show_cols])
-    
-    const radio_group_options = useMemo(() => {
-        return show_cols?.map(col => ({
+        
+    const radio_group_options = useMemo(() => show_cols?.map(col => ({
             label: col.display_name || col.col,
             value: col.col,
             key: col.col
-        }))
-    }, [show_cols])
+        })), [show_cols])
     
-    const columns = useMemo<ColumnsType<any>>(() => {
-        return selected_cols
+    const columns = useMemo<ColumnsType<any>>(() => selected_cols
             .map(col_name => show_cols.find(item => item.col === col_name))
             .map(col => {
                 const {
@@ -91,20 +82,20 @@ export function DBTable (props: IProps) {
                 
                 const col_config = {
                     dataIndex: name,
-                    width: width || 200,
+                    width,
                     title: display_name || name,
                     key: name,
-                    ellipsis: true,
                     align,
                     sorter: sorter ? {
                         compare: (a, b) => a[name] - b[name],
                     } : false,
                     onCell: record => ({
                         style: {
-                            backgroundColor: isNumber(threshold) ? get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])) : background_color,
+                            backgroundColor: isNumber(threshold) ? get_cell_color(record[name], threshold, data.map(item => item[col?.col])) : background_color,
                             color,
                             border: config.bordered ? '1px solid black' : null,
-                            fontSize: font_size || 14
+                            fontSize: font_size || 14,
+                            wordBreak: width ? 'break-all' as const : undefined
                         }
                     }),
                     onHeaderCell: () => ({ style: header_style }),
@@ -118,8 +109,8 @@ export function DBTable (props: IProps) {
                     }
                 
                 return col_config
-            })
-    }, [ selected_cols, data_source, show_cols, config])
+            }), [selected_cols, data, show_cols, config])
+            
     
     const pagination = useMemo<PaginationProps | false>(() => { 
         if (!config.pagination.show)
@@ -127,18 +118,21 @@ export function DBTable (props: IProps) {
             
         else
             return {
-                position: ['bottom'],
                 defaultPageSize: 5,
                 pageSizeOptions: [5, 10, 15, 20],
                 size: 'small',
                 showSizeChanger: true,
                 showQuickJumper: true,
-                hideOnSinglePage: true
+                hideOnSinglePage: true,
+                style: {
+                    marginBottom: 0
+                }
             }
-    }, [config, data_source])
+    }, [config, data])
     
     
     return <div className='dashboard-table-wrapper'>
+        
         {
             config.title && <h2
                 style={{ fontSize: config.title_size }}
@@ -148,25 +142,31 @@ export function DBTable (props: IProps) {
             </h2>
         }
         
-        { config.need_select_cols && <Checkbox.Group
-            onChange={ val => { set_select_cols(val) }  }
-            value={selected_cols}
-            options={radio_group_options}
-            className='table-radio-group' /> }
+        { 
+            config.need_select_cols && <Checkbox.Group
+                onChange={ val => { set_select_cols(val) }  }
+                value={selected_cols}
+                options={radio_group_options}
+                className='table-radio-group' 
+            /> 
+        }
+        
         
         {
             selected_cols?.length ?
                 <Table
+                    className={cn('dashboard-table', {
+                        'dashboard-table-with-pagination': pagination
+                    })}
                     bordered={config.bordered}
-                    scroll={{ x: '100%' }}
+                    scroll={{ x: config.max_content ? 'max-content' : undefined }}
                     columns={columns}
-                    dataSource={config.is_reverse ? data_source.toReversed() : data_source}
+                    dataSource={config.is_reverse ? data.toReversed() : data}
                     pagination={pagination}
                     rowKey={() => genid()}
-                    rowClassName={classNames({
+                    rowClassName={cn({
                         'table-row-with-border': config.bordered
                     })}
-                    {...otherProps}
                 />
             :
                 <Empty className='empty-table' />
@@ -175,10 +175,9 @@ export function DBTable (props: IProps) {
 }
 
 
-export function DBTableConfigForm (props: { col_names: string[] }) { 
-    const { col_names = [ ] } = props
+export function DBTableConfigForm ({ data_source: { cols } }: GraphConfigProps) { 
     return <>
         <BasicFormFields type='table' />
-        <BasicTableFields  col_names={col_names}/>
+        <BasicTableFields col_names={cols}/>
     </>
 }

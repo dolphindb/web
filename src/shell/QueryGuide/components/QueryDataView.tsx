@@ -2,7 +2,7 @@ import { Alert, Spin, Typography } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 
 import { Table } from '../../../obj.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { model } from '../../../model.js'
 
 
@@ -48,27 +48,28 @@ export function QueryDataView (props: IProps) {
                 <>
                     { total === 20000000 &&  <Typography.Text>{t('当前数据量已达 2000 万行的预览上限，此处仅显示部分截断数据。') }</Typography.Text>}
                     <Table
-                    obj={data[1]}
-                    ctx='page'
-                    show_bottom_bar={false}
-                    pagination={{
-                        total: data[0].value,
-                        showTotal: total => t('共 {{total}} 条数据', { total }),
-                        pageSizeOptions: [10, 20],
-                        pageSize: pagination.page_size,
-                        showSizeChanger: true,
-                        current: pagination.page,
-                        defaultCurrent: 1,
-                        onChange: (page, pageSize) => {
-                            set_pagination({ page, page_size: pageSize })
-                            get_query_data(page, pageSize)
-                        }
-                    }}
+                        obj={data[1]}
+                        ctx='page'
+                        show_bottom_bar={false}
+                        product_name={model.product_name}
+                        pagination={{
+                            total: data[0].value,
+                            showTotal: total => t('共 {{total}} 条数据', { total }),
+                            pageSizeOptions: [10, 20],
+                            pageSize: pagination.page_size,
+                            showSizeChanger: true,
+                            current: pagination.page,
+                            defaultCurrent: 1,
+                            onChange: (page, pageSize) => {
+                                set_pagination({ page, page_size: pageSize })
+                                get_query_data(page, pageSize)
+                            }
+                        }}
                     />
                     </>
                     :
                     <Alert
-                        message={t('错误信息')}
+                        title={t('错误信息')}
                         description={error}
                         type='error'
                         showIcon

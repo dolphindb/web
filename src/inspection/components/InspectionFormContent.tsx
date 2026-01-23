@@ -1,4 +1,4 @@
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 import { Button, Form, Input, Select, Space, Switch, TimePicker, Tooltip } from 'antd'
 import dayjs from 'dayjs'
 
@@ -14,8 +14,8 @@ import { MetricTable } from '@/inspection/components/MetricTable.tsx'
 interface InspectionFormContentProps {
     plan?: Plan
     view_only: boolean
-    metrics_with_nodes: Map<string, MetricsWithStatus>
-    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void
+    metrics_with_nodes: MetricsWithStatus[]
+    set_checked_metrics: (metrics: MetricsWithStatus[]) => void
     execute_node_names: string[]
     inspection_form: any
 }

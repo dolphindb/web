@@ -1,18 +1,3 @@
-def getPluginDir() {
-    ver = version()
-    pluginDir = getConfig("pluginDir")
-    if ((like(ver, "%LINUX%") and !pluginDir.startsWith("/")) or (like(ver, "%WIN%") and regexFind  (pluginDir, "^[a-zA-Z]:") != 0)) {
-        nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf)
-        if (nodeCnt > 1) {
-            pluginDir = "../" + pluginDir
-        } else {
-            pluginDir = "./" + pluginDir
-        }
-    }
-    
-    return pluginDir
-}
-
 def canConfigureEmail() {
     ret = dict(STRING, ANY)
     ret["errCode"] = 0
@@ -114,7 +99,11 @@ def getJobStatusEx(jobId) {
             sleep(100)
         }
     }
-    lastErr = iif(lastErr.form()==0, lastErr, lastErr.last())
+    if (lastErr.form() == 0) {
+        lastErr = string(lastErr)
+    } else {
+        lastErr = string(lastErr.last())
+    }
     throw "getJobStatus failed after trying 10 times, last error: " + lastErr
 }
 
@@ -128,8 +117,22 @@ def getJobReturnEx(jobId, blocking=false) {
             sleep(100)
         }
     }
-    lastErr = iif(lastErr.form()==0, lastErr, lastErr.last())
+    if (lastErr.form()==0) {
+        lastErr = string(lastErr)
+    } else {
+        lastErr = string(lastErr.last())
+    }
     throw "getJobReturn failed after trying 10 times, last error: " + lastErr
+}
+
+def createUpdateHistoryTable() {
+    tb = table(1:0, `webVersion`updateTime, [STRING, TIMESTAMP])
+    return createTable(database("dfs://autoInspection"), tb, "updateHistory", sortColumns="updateTime")
+}
+
+def createEmailHistoryTable() {
+    tb = table(1:0, `planId`reportId`subject`userId`recipient`sendTime`status`errMsg, [STRING, STRING, STRING, STRING, STRING, TIMESTAMP, SYMBOL, STRING])
+    return createPartitionedTable(database("dfs://autoInspection"), tb, "emailHistory", partitionColumns=["planId", "sendTime"], sortColumns="sendTime")
 }
 
 def initDfs() {
@@ -152,18 +155,16 @@ def initDfs() {
 
     tb = table(1:0, `reportId`planId`metricName`metricVersion`metricParams`node`jobId`startTime`endTime`success`detail`extraDetail`suggestion, [STRING, STRING, STRING, INT, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, BOOL, BLOB, BLOB, STRING])
     pt5 = createPartitionedTable(db, tb, "reportDetails", ["planId", "startTime"], sortColumns="startTime")
+
+    createUpdateHistoryTable()
+
+    createEmailHistoryTable()
 }
 
-def newMetric(name, displayName, group, desc, nodes, script, params=NULL, version=0, language="cn") {
-    print("new metric: " + name)
-    name_ = name
-    cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == name_
-    if (cnt > 0) {
-        throw "duplicated metric name: " + name
-    }
+def parseMetricParams(params) {
     params_ = params
     if (params.type() == STRING) { 
-        if (params != "null") { // 若为非 "null" 字符串，检查是否为合法 json
+        if (params != """") { // 若为非 """" 字符串，检查是否为合法 json
             params__ = fromStdJson(params)
             for (param in params__) {
                 // param = params__[0]
@@ -191,7 +192,26 @@ def newMetric(name, displayName, group, desc, nodes, script, params=NULL, versio
         params_ = toStdJson(params)
     }
 
-    nodes_ = iif(nodes.form() == 1, nodes.concat(","), string(nodes))
+    return params_
+}
+
+def newMetric(name, displayName, group, desc, nodes, script, params=NULL, version=0, language="cn") {
+    print("new metric: " + name)
+    name_ = name
+    version_ = version
+    language_ = language
+    cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == name_ and version == version_ and language == language_
+    if (cnt > 0) {
+        print("duplicated metric, ignore! Name: " + name + ", version: " + string(version) + ", language: " + language)
+        return
+    }
+    params_ = parseMetricParams(params)
+
+    if (nodes.form() == 1) {
+        nodes_ = nodes.concat(",")
+    } else {
+        nodes_ = string(nodes)
+    }
     ts = now()
     metric = table(
         name as name,
@@ -216,49 +236,73 @@ def updateMetric(name_, displayName_, group_, desc_, nodes, script_, params_, la
     if (isVoid(desc_) and isVoid(nodes) and isVoid(script_)) {
         throw "at least one of desc, nodes and script should not be empty"
     }
-    if (!isVoid(params_)) {
-        if (params_.form() != 5) {
-            throw "param must be a dict"
-        }
-    }
-    cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == name_
-    if (cnt > 0) {
+    params__ = parseMetricParams(params_)
+    pt = loadTable("dfs://autoInspection", "metrics")
+    cnt = exec count(*) from pt where name == name_
+    if (cnt == 0) {
         throw "metric name: " + name_ + " not found"
     }
 
-    pt = loadTable("dfs://autoInspection", "metrics")
+    // 基于最新version的记录来更新指标
+    tb = select * from pt where name == name_ order by version desc limit 1
+    // 如果script内容没变化，不更新
+    if (script_ == tb.script.first()) {
+        return
+    }
+    print("start to update metric: " + name_)
     if (!isVoid(displayName_)) {
-        update pt set displayName = displayName_ where name == name_
+        update tb set displayName = displayName_ where name == name_
     }
     if (!isVoid(group_)) {
-        update pt set group = group_ where name == name_
+        update tb set group = group_ where name == name_
     }
     if (!isVoid(desc_)) {
-        update pt set desc = desc_ where name == name_
+        update tb set desc = desc_ where name == name_
     }
     if (!isVoid(nodes)) {
-        nodes_ = iif(nodes.form() == 1, nodes.concat(","), string(nodes))
-        update pt set nodes = nodes_ where name == name_
+        if (nodes.form() == 1) {
+            nodes_ = nodes.concat(",")
+        } else {
+            nodes_ = string(nodes)
+        }
+        update tb set nodes = nodes_ where name == name_
     }
     if (!isVoid(script_)) {
-        update pt set script = script_ where name == name_
+        update tb set script = script_ where name == name_
     }
     if (!isVoid(params_)) {
-        update pt set params = toStdJson(params_) where name == name_
+        update tb set params = params__ where name == name_
     }
     if (!isVoid(language_)) {
-        update pt set language = language_ where name == name_
+        update tb set language = language_ where name == name_
     }
-    update pt set version = version + 1 where name == name_
-    ts = now()
-    update pt set updateTime = ts where name == name_
+    update tb set version = version + 1 where name == name_ // version 自增
+    update tb set updateTime = now() where name == name_
+    // 以append的方式更新
+    pt.append!(tb)
+}
+
+def updateMetricsFromFile(filepath) {
+    fin = file(filepath)
+    metrics = fin.readObject()
+    fin.close()
+    pt = loadTable("dfs://autoInspection", "metrics")
+
+    for (item in metrics) {
+        cnt = exec count(*) from pt where name == item.name
+        if (cnt == 0) {
+            newMetric(item.name, item.displayName, item.group, item.desc, item.nodes, item.script, item.params, item.language)
+        } else {
+            updateMetric(item.name, item.displayName, item.group, item.desc, item.nodes, item.script, item.params, item.language)
+        }
+    }
 }
 
 def generateDefaultMetricParams(planId) {
     planId_ = planId
     params = dict(STRING, ANY)
 
-    startTime = exec last(startTime) from loadTable("dfs://autoInspection",  "reports") where planId == planId_ order by startTime desc
+    startTime = exec last(startTime) from loadTable("dfs://autoInspection",  "reports") where planId == planId_ and endTime != NULL order by startTime desc
     endTime = now()
     if (isNull(startTime)) {
         frequency = exec last(frequency) from loadTable("dfs://autoInspection",  "plans") where id == planId_ order by startTime desc
@@ -290,7 +334,20 @@ def updateMetricParams(mutable params, planId, metricName) {
     params_ = fromStdJson(params_)
     if (!isVoid(params_)) {
         for (key in params_.keys()) {
+            if (isVoid(params_[key]) || isNull(params_[key])) { // 前端可能会传 NULL 参数值，无视
+                continue
+            }
             params[key] = params_[key]
+        }
+    }
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        try{
+            params["startTime"] = temporalAdd(now(), duration("-" + params["timeRange"]))
+            params["endTime"] = now()
+        }catch(ex){
+            err = "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like '7s', '1d', '3M', etc. Error message: " + snippet(ex)
+            print(err)
+            print("Parameters, startTime and endTime, still use default setting.")
         }
     }
 }
@@ -317,12 +374,15 @@ def extractUsedParams(params, metricName) {
     return usedParams
 }
 
-def runMetric(name, script, mutable params) {
+def runMetric(name, script, func, mutable params) {
     print("start to run metric: " + name + " on node: " + getNodeAlias())
     print("params: ")
     print(string(params))
     print("script: ")
-    l = iif(script.strlen() > 20, 20, script.strlen())
+    l = script.strlen()
+    if (script.strlen() > 50) {
+        l = 50
+    }
     print(string(script)[0:l])
     success = false
     detail = NULL
@@ -330,8 +390,7 @@ def runMetric(name, script, mutable params) {
     extraDetail = NULL
 
     try {
-        runScript(script)
-        ret = funcByName(name)(params)
+        ret = func(params)
         if (ret.size() == 5) {
             success, detail, suggestion, extraDetail, params = ret
         } else if (ret.size() == 4) {
@@ -347,7 +406,11 @@ def runMetric(name, script, mutable params) {
         }
     } catch(err) {
         success = false
-        detail = iif(err.form() == 0, string(err), string(err).last())
+        if (err.form() == 0) {
+            detail = string(err)
+        } else {
+            detail = string(err).last()
+        }
     }
 
     if (!success) {
@@ -379,7 +442,12 @@ def runPlanInner(planId, reportId) {
     writeLog("autoInspection: start to run plan: " + string(planId))
     ts = reportId.split("_").last()
     planId_ = planId
-    planDetails = select a.metricName as metricName, a.nodes as nodes, a.params as params, b.script as script, b.version as metricVersion from loadTable("dfs://autoInspection", "planDetails") a left join loadTable("dfs://autoInspection", "metrics") b on a.metricName == b.name where a.planId == planId_
+    planDetails = select a.metricName as metricName, a.nodes as nodes, a.params as params, b.script as script, b.version as metricVersion from loadTable("dfs://autoInspection", "planDetails") as a left join loadTable("dfs://autoInspection", "metrics") as b on a.metricName == b.name and a.metricVersion == b.version where a.planId == planId_
+    // metricVersion 设为空的 planDetail，自动选最大版本的指标
+    maxVersionMetrics = select * from loadTable("dfs://autoInspection", "metrics") context by name csort version desc limit 1
+    planDetails1 = select a.metricName, a.nodes, a.params, b.script, b.version as metricVersion from planDetails as a left join maxVersionMetrics as b on a.metricName == b.name where a.metricVersion == NULL 
+    planDetails2 = select * from planDetails where metricVersion != NULL 
+    planDetails = unionAll(planDetails1, planDetails2, true)
 
     defaultParams = generateDefaultMetricParams(planId)
     params = defaultParams
@@ -387,14 +455,15 @@ def runPlanInner(planId, reportId) {
         // item = planDetails[0]
         name = item["metricName"]
         print("start to run metric: " + name)
-        nodes = iif(
-            isNull(item["nodes"]), 
-            [getNodeAlias()], // 未配置执行节点时，直接在当前数据节点执行
-            item["nodes"].split(",")
-        )
+        if (isNull(item["nodes"])) {
+            nodes = [getNodeAlias()]
+        } else {
+            nodes = item["nodes"].split(",")
+        }
         print("nodes: ", nodes)
         script = item["script"]
         version = item["metricVersion"]
+        params = dict(STRING, ANY)  
         for (key in defaultParams.keys()) {
             params[key] = defaultParams[key] // 重置默认参数值
         }
@@ -402,14 +471,19 @@ def runPlanInner(planId, reportId) {
         usedParams = extractUsedParams(params, name) // 提取出 metrics 表里定义的参数字段
 
         jobIds = []$STRING
+        runScript(script)
         for (node in nodes) {
             name_ = strReplace(name, "::", "") // 例如指标名 checkConfigs::commonDolphinDBConfig 特殊处理
             jobId_ = "runMetric_" + name_ + "_" + version + "_" + ts
-            jobId = rpc(node, submitJob, jobId_, reportId, runMetric{name, script, usedParams})
+            jobId = rpc(node, submitJob, jobId_, reportId, runMetric{name, script, funcByName(name), usedParams})
             jobIds.append!(jobId)
         }
         print("job ids: ", jobIds)
-        usedParamsJson = toStdJson(iif(usedParams.keys().size() == 0, NULL, usedParams))
+        if (usedParams.keys().size() == 0) {
+            usedParamsJson = toStdJson(NULL)
+        } else {
+            usedParamsJson = toStdJson(usedParams)
+        }
         for (i in 0..(nodes.size()-1)) {
             jobId = jobIds[i]
             node = nodes[i]
@@ -423,7 +497,11 @@ def runPlanInner(planId, reportId) {
                 }
             } catch(err) {
                 success = false
-                detail = string(iif(err.form()==0, err, err.last()))
+                if (err.form() == 0) {
+                    detail = string(err)
+                } else {
+                    detail = string(err.last())
+                }
                 extraDetail = string(NULL)
                 suggestion = string(NULL)
                 print("run metric failed! Node: " + node + ", job id: " + jobId + ", error: " + detail)
@@ -450,8 +528,16 @@ def runPlanInner(planId, reportId) {
     }
 }
 
-def generateEmail(reportInfo) {
-    subject = "DolphinDB Health Check Alert - " + reportInfo["name"]
+def generateEmailInEnglish(reportInfo) {
+    language_ = "en"
+    status = "Alerts Detected"
+    if (reportInfo["success"]) {
+        status = "All Clear"
+    }
+    subject = "DolphinDB Health Check Alert - " + reportInfo["name"] + ". Status: " + status
+    if (!bool(reportInfo["success"])) {
+        subject += ", Alerts Triggered: " + string(reportInfo["failedNum"]) + "/" + string(reportInfo["totalNum"])
+    }
     body = ""
     body += "Health Check ID: " + reportInfo["planId"] + "<br>"
     body += "Check Name: " + reportInfo["name"] + "<br>"
@@ -459,10 +545,61 @@ def generateEmail(reportInfo) {
     body += "Initiated By: " + reportInfo["user"] + "<br>"
     body += "Start Time: " + string(reportInfo["startTime"]) + "<br>"
     body += "End Time: " + string(reportInfo["endTime"]) + "<br>"
-    body += "Status: " + iif(reportInfo["success"], "All Clear", "Alerts Detected") + "<br>"
+    body += "Status: " + status + "<br>"
     body += "Total Metrics: " + string(reportInfo["totalNum"]) + "<br>"
     body += "Alerts Triggered: " + string(reportInfo["failedNum"]) + "<br>"
+    if (reportInfo["failedNum"] > 0) {
+        failedMetricNames = exec distinct(metricName) from loadTable("dfs://autoInspection", "reportDetails") where reportId == reportInfo["id"] and success == false
+        failedMetricDisplayNames = exec distinct(displayName) from loadTable("dfs://autoInspection", "metrics") where name in failedMetricNames and language == language_
+        if (failedMetricDisplayNames.size() > 0) {
+            body += "Failed Metrics: " + failedMetricDisplayNames.concat(", ") + "<br>"
+        }
+    }
+    // 注意：中信特殊版本 web 不支持这个 URL
+    body += "http://" + getNodeHost() + ":" + string(getNodePort()) + "/inspection/report/" + string(reportInfo["id"]) + "<br>"
     return (subject, body)
+}
+
+def generateEmailInChinese(reportInfo) {
+    language_ = "cn"
+    status = "Alerts Detected"
+    if (reportInfo["success"]) {
+        status = "All Clear"
+    }
+    subject = "DolphinDB 定时巡检告警，巡检名称：" + reportInfo["name"] + "。状态: " + status
+    if (!bool(reportInfo["success"])) {
+        subject += ", 异常指标数: " + string(reportInfo["failedNum"]) + "/" + string(reportInfo["totalNum"])
+    }
+    body = ""
+    body += "巡检 ID：" + reportInfo["planId"] + "<br>"
+    body += "巡检名称：" + reportInfo["name"] + "<br>"
+    body += "巡检描述：" + reportInfo["desc"] + "<br>"
+    body += "提交人：" + reportInfo["user"] + "<br>"
+    body += "开始时间：" + string(reportInfo["startTime"]) + "<br>"
+    body += "结束时间：" + string(reportInfo["endTime"]) + "<br>"
+    body += "状态：" + status + "<br>"
+    body += "总指标数：" + string(reportInfo["totalNum"]) + "<br>"
+    body += "异常指标数：" + string(reportInfo["failedNum"]) + "<br>"
+    if (reportInfo["failedNum"] > 0) {
+        failedMetricNames = exec distinct(metricName) from loadTable("dfs://autoInspection", "reportDetails") where reportId == reportInfo["id"] and success == false
+        failedMetricDisplayNames = exec distinct(displayName) from loadTable("dfs://autoInspection", "metrics") where name in failedMetricNames and language == language_
+        if (failedMetricDisplayNames.size() > 0) {
+            body += "异常指标名称：" + failedMetricDisplayNames.concat(", ") + "<br>"
+        }
+    }
+    // 注意：中信特殊版本 web 不支持这个 URL
+    body += "http://" + getNodeHost() + ":" + string(getNodePort()) + "/inspection/report/" + string(reportInfo["id"]) + "<br>"
+    return (subject, body)
+}
+
+def generateEmail(reportInfo, language="cn") {
+    if (language == "cn") {
+        return generateEmailInChinese(reportInfo)
+    } else if (language == "en") {
+        return generateEmailInEnglish(reportInfo)
+    } else { // 默认英文
+        return generateEmailInEnglish(reportInfo)
+    }
 }
 
 def createSMTPMsg(userId, recipient, subject, content){
@@ -489,7 +626,7 @@ def loadAlertConfig() {
         value = s[1]
         if (key in ["inspectionAlertEnabled", "inspectionAlertStdSMTPMsgEnabled"]) {
             ret[key] = bool(value) 
-        } else if (key in ["inspectionAlertUserId", "inspectionAlertPwd", "inspectionAlertSMTPEmailName", "inspectionAlertSMTPHost"]) {
+        } else if (key in ["inspectionAlertUserId", "inspectionAlertPwd", "inspectionAlertSMTPEmailName", "inspectionAlertSMTPHost", "inspectionAlertLanguage"]) {
             ret[key] = string(value)
         } else if (key in ["inspectionAlertSMTPPort"]) {
             ret[key] = int(value)
@@ -504,7 +641,11 @@ def sendReportEmailInner(planInfo, reportInfo, alertConfig) {
         try {
             loadPlugin("httpClient")
         } catch(err) {
-            err_ = iif(err.form() == 0, string(err), string(err).last())
+            if (err.form() == 0) {
+                err_ = string(err)
+            } else {
+                err_ = string(err).last()
+            }
             throw "try to load httpClient plugin failed: " + err_
         }
     }
@@ -512,28 +653,49 @@ def sendReportEmailInner(planInfo, reportInfo, alertConfig) {
         funcByName("httpClient::emailSmtpConfig")(alertConfig["inspectionAlertSMTPEmailName"], alertConfig["inspectionAlertSMTPHost"], alertConfig["inspectionAlertSMTPPort"])
     }
     
-    subject, content = generateEmail(reportInfo)
+    subject, content = generateEmail(reportInfo, alertConfig["inspectionAlertLanguage"])
     userId = alertConfig["inspectionAlertUserId"]
     pwd = alertConfig["inspectionAlertPwd"]
     recipient = planInfo["alertRecipient"].split(",")
+    planId_ =  planInfo["id"]
+    reportId_ = reportInfo["id"]
+    history = table(
+        planId_ as planId,
+        reportId_ as reportId,
+        subject as subject,
+        userId as userId,
+        planInfo["alertRecipient"] as recipient,
+        now() as sendTime,
+        "sending" as status,
+        string(NULL) as errMsg
+    )
+    writeLog("autoInspection: 2")
+    pt = loadTable("dfs://autoInspection", "emailHistory")
+    pt.append!(history)
     if (alertConfig["inspectionAlertStdSMTPMsgEnabled"]) {
         smtpMsg = createSMTPMsg(userId, recipient, subject, content)
         funcByName("httpClient::sendEmail")(userId, pwd, recipient, , , smtpMsg)
     } else {
         funcByName("httpClient::sendEmail")(userId, pwd, recipient, subject, content)
     }
+    update pt set status = "sent" where planId == planId_ and reportId == reportId_
 
     return (userId, subject, recipient)
 }
 
 def sendReportEmail(planInfo, reportInfo, alertConfig) {
-    planId = planInfo["id"]
-    writeLog("autoInspection: start to send alert email, plan id: " + planId)
+    planId_ = planInfo["id"]
+    writeLog("autoInspection: start to send alert email, plan id: " + planId_)
     try {
         userId, subject, recipient = sendReportEmailInner(planInfo, reportInfo, alertConfig)
-        writeLog("autoInspection: send alert email successfully, plan id: " + planId + ", subject: \"" + subject + "\", userId: " + userId + ", recipient: " + recipient.concat(","))
+        writeLog("autoInspection: send alert email successfully, plan id: " + planId_ + ", subject: \"" + subject + "\", userId: " + userId + ", recipient: " + recipient.concat(","))
     } catch(err) {
-        writeLog("autoInspection: alert failed, plan id: " + planId + ", err msg: " + string(err).last())
+        writeLog("autoInspection: alert failed, plan id: " + planId_ + ", err msg: " + string(err).last())
+        try {
+            update loadTable("dfs://autoInspection", "emailHistory") set status = "failed", errMsg = string(err).last() where planId == planId_ and reportId = reportInfo["id"]
+        } catch(err) {
+            writeLog("autoInspection: update email history failed, plan id: " + planId_ + ", err msg: " + string(err).last())
+        }
     }
 }
 
@@ -547,7 +709,10 @@ def runPlan(planId, blocking=false) {
     if (validNodes.size() == 0) {
         throw "failed to find a valid node, please check nodes' aliveness by getClusterPerf()"
     }
-    enabledNode = iif(isNull(planInfo.enabledNode), validNodes.first(), planInfo.enabledNode)
+    enabledNode = planInfo.enabledNode
+    if (isNull(planInfo.enabledNode)) {
+        enabledNode = validNodes.first()
+    }
     name = planInfo["name"]
     desc = planInfo["desc"]
 
@@ -667,9 +832,12 @@ def enablePlan(id) {
     return jobId
 }
 
-def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled=false, enabledNode=NULL, alertEnabled=false, alertRecipient=NULL, runNow=false, id=NULL) {
+def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, scheduleTime, enabled=false, enabledNode=NULL, alertEnabled=false, alertRecipient=NULL, runNow=false, id=NULL) {
     print("start to create plan: " + name)
-    id_ = iif(isNull(id), string(long(now())), id)
+    id_ = string(id)
+    if (isNull(id)) {
+        id_ = string(long(now()))
+    }
     cnt = exec count(*) from loadTable("dfs://autoInspection", "plans") where id == id_
     if (cnt > 0) {
         throw "duplicated id: " + id_
@@ -682,6 +850,20 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
     }
     if (metrics.size() != params.size()) {
         throw "metrics' size must be same as params' size"
+    }
+    versions_ = []$INT
+    if (metrics.size() != versions.size()) {
+        throw "metrics' size must be same as versions' size"
+    } else {
+        for (i in til(versions.size())) {
+            if (!isNull(versions[i])) {
+                cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == metrics[i] and version == versions[i]
+                if (cnt == 0) {
+                    throw "metric not found, name: " + metrics[i] + ", version: " + versions[i]
+                }
+            }
+            versions_.append!(int(versions[i]))
+        }
     }
     if (scheduleTime.form() == 0) {
         if (isNull(scheduleTime)) {
@@ -754,19 +936,38 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
     if (validNodes.size() == 0) {
         throw "failed to find a valid node, please check nodes' aliveness by getClusterPerf()"
     }
-    enabledNode_ = iif(isNull(enabledNode), validNodes.first(), string(enabledNode))
+    enabledNode_ = string(enabledNode)
+    if (isNull(enabledNode)) {
+        enabledNode_ = validNodes.first()
+    }
     if (!in(enabledNode_, validNodes)) {
         throw "plan can only be created on data node or compute node"
     }
 
-    days_ = iif(days.form() == 1, days.concat(","), days)
+    if (days.form() == 1) {
+        daysString = days.concat(",")
+    } else {
+        daysString = string(days)
+    }
     user = getCurrentSessionAndUser()[1]
     startDate = today()
     endDate = temporalAdd(today(), 100y)
-    scheduleTime_ = minute(iif(scheduleTime.form()==0, [scheduleTime], scheduleTime))
+    if (scheduleTime.form()==0) {
+        scheduleTime_ = [minute(scheduleTime)]$MINUTE
+    } else {
+        scheduleTime_ = minute(scheduleTime)
+    }
     enabled_ = false // 新建时默认填入 false，如果传入了 enabled = true，会在之后创建定时任务后 update 为 true
-    alertEnabled_ = iif(isNull(alertEnabled), false, bool(alertEnabled))
-    alertRecipient_ = iif(alertRecipient.form()==0, string(alertRecipient), string(alertRecipient).strip().concat(","))
+    alertEnabled_ = false
+    if (!isNull(alertEnabled)) {
+        alertEnabled_ = bool(alertEnabled)
+    }
+    if (alertRecipient.form()==0) {
+        alertRecipient_ = string(alertRecipient)
+    } else {
+        alertRecipient_ = string(alertRecipient).strip().concat(",")
+    }
+    scheduleTime_ = array(MINUTE[], 0).append!([scheduleTime_])
     plan = table(
         id_ as id,
         name as name,
@@ -775,8 +976,8 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
         startDate as startDate,
         endDate as endDate,
         frequency as frequency,
-        days_ as days,
-        array(MINUTE[], 0).append!([scheduleTime_]) as scheduleTime,
+        daysString as days,
+        scheduleTime_ as scheduleTime,
         enabled_ as enabled,
         enabledNode_ as enabledNode,
         alertEnabled_ as alertEnabled,
@@ -798,15 +999,14 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
     planDetails = table(
         take(id_, n) as planId,
         metrics as metricName,
+        versions_ as metricVersion,
         nodes_ as nodes,
         params_ as params
     )
-    metricsInfo = select max(version) as version from loadTable("dfs://autoInspection", "metrics") group by name
-    planDetails = select planId, metricName, version, nodes, params from planDetails left join metricsInfo on planDetails.metricName == metricsInfo.name
     loadTable("dfs://autoInspection", "plans").append!(plan)
     loadTable("dfs://autoInspection", "planDetails").append!(planDetails)
 
-    if (enabled) {
+    if (enabled_) {
         try {
             enablePlan(id_)
         } catch(err) {
@@ -847,7 +1047,11 @@ def disablePlan(id) {
 }
 
 def deletePlan(id) {
-    id_ = iif(id.form() == 0, [id], id)
+    if (id.form() == 0) {
+        id_ = string([id])
+    } else {
+        id_ = string(id)
+    }
     plans = select * from loadTable("dfs://autoInspection", "plans") where id in id_
     delete from loadTable("dfs://autoInspection", "plans") where id in id_
     delete from loadTable("dfs://autoInspection", "planDetails") where planId in id_
@@ -862,16 +1066,20 @@ def deletePlan(id) {
     }
 }
 
-def updatePlan(id, name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, enabledNode, alertEnabled, alertRecipient, runNow=false) {
+def updatePlan(id, name, desc, metrics, versions, nodes, params, frequency, days, scheduleTime, enabled, enabledNode, alertEnabled, alertRecipient, runNow=false) {
     deletePlan(id)
-    return createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, enabledNode, alertEnabled, alertRecipient, runNow, id)
+    return createPlan(name, desc, metrics, versions, nodes, params, frequency, days, scheduleTime, enabled, enabledNode, alertEnabled, alertRecipient, runNow, id)
 }
 
 def getPlans(planId=NULL, enabled=NULL, page=NULL, pageLimit=NULL, searchPattern=NULL) {
     if (page != NULL and pageLimit == NULL or page == NULL and pageLimit != NULL) {
         throw "page and pageLimit must be NULL or not at the same time"
     }
-    planId_ = iif(planId.form()==0, [planId], planId)
+    if (planId.form()==0) {
+        planId_ = string([planId])
+    } else {
+        planId_ = string(planId)
+    }
     whereCond = [<1==1>]
     whereCond_ = [<!isNull(endTime)>]
 
@@ -889,7 +1097,7 @@ def getPlans(planId=NULL, enabled=NULL, page=NULL, pageLimit=NULL, searchPattern
     cnt = sql(sqlCol("*", count), loadTable("dfs://autoInspection", "plans"), whereCond, exec=true).eval()
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "plans"), whereCond).eval()
     reports = sql(sqlCol("*"), loadTable("dfs://autoInspection", "reports"), whereCond_, groupBy=sqlCol("planId"), groupFlag=0, csort=sqlCol("endTime"), ascSort=0, limit=1).eval()
-    res = select res.id, res.name, res.desc, res.user, res.enabledNode, res.startDate, res.endDate, res.frequency, res.days, res.scheduleTime, res.enabled, res.alertEnabled, res.alertRecipient, reports.id as lastReportId from res left semijoin reports on res.id == reports.planId
+    res = select res.id, res.name, res.desc, res.user, res.enabledNode, res.startDate, res.endDate, res.frequency, res.days, res.scheduleTime, res.enabled, res.alertEnabled, res.alertRecipient, reports.id as lastReportId from res as res left semijoin reports as reports on res.id == reports.planId
     if (page != NULL) {
         startIndex = (page - 1) * pageLimit
         endIndex = page * pageLimit
@@ -909,7 +1117,7 @@ def getPlanDetails(planId=NULL, language="cn") {
     }
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "planDetails"), whereCond).eval()
     metricsInfo = select * from loadTable("dfs://autoInspection", "metrics") where name in distinct(res["metricName"]) and language == language_
-    res = select a.planId, a.metricName, a.metricVersion, a.nodes, a.params, b.displayName, b.language from res a left semijoin metricsInfo b on a.metricName == b.name and a.metricVersion == b.version
+    res = select a.planId, a.metricName, a.metricVersion, a.nodes, a.params, b.displayName, b.language from res as a left semijoin metricsInfo as b on a.metricName == b.name and a.metricVersion == b.version
 
     return res
 }
@@ -966,7 +1174,11 @@ def getReports(planId=NULL, reportId=NULL, startTime=NULL, endTime=NULL, success
 }
 
 def deleteReports(id) {
-    id_ = iif(id.form()==0, [id], id)
+    if (id.form()==0) {
+        id_ = string([id])
+    } else {
+        id_ = string(id)
+    }
     delete from loadTable("dfs://autoInspection", "reports") where id in id_
     delete from loadTable("dfs://autoInspection", "reportDetails") where reportId in id_
 }
@@ -982,7 +1194,7 @@ def getReportDetailsOfMetrics(reportId=NULL, language="cn") {
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "reportDetails"), whereCond).eval()
     res = select first(metricVersion) as metricVersion, concat(node, ",") as nodes, min(startTime) as startTime, max(endTime) as endTime, all(success) as success, first(metricParams) as metricParams from res group by reportId, metricName
     metrics = select * from loadTable("dfs://autoInspection", "metrics") where name in res["metricName"] and language == language_
-    res = select reportId, metricName, metrics.displayName, metrics.group, metricVersion, desc, iif(isNull(metrics.nodes), NULL, res.nodes) as nodes, startTime, endTime, endTime - startTime as runningTime, script, success, metricParams from res left join metrics on res.metricName = metrics.name and res.metricVersion = metrics.version
+    res = select reportId, metricName, metrics.displayName, metrics.group, metricVersion, desc, iif(isNull(metrics.nodes), string(NULL), string(res.nodes)) as nodes, startTime, endTime, endTime - startTime as runningTime, script, success, metricParams from res as res left join metrics as metrics on res.metricName = metrics.name and res.metricVersion = metrics.version
 
     return res
 }
@@ -996,7 +1208,7 @@ def getReportDetailsOfNodes(reportId=NULL, language="cn") {
         whereCond = <reportId == reportId_>
     }
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "reportDetails"), whereCond).eval()
-    res = select reportId, jobId, metricName, b.displayName as metricDisplayName, group, metricVersion, a.node as node, startTime, endTime, endTime - startTime as runningTime, success, detail, extraDetail, suggestion from res a left join loadTable("dfs://autoInspection", "metrics") b on a.metricName == b.name and a.metricVersion == b.version where b.language == language_
+    res = select reportId, jobId, metricName, b.displayName as metricDisplayName, group, metricVersion, a.node as node, startTime, endTime, endTime - startTime as runningTime, success, detail, extraDetail, suggestion from res as a left join loadTable("dfs://autoInspection", "metrics") as b on a.metricName == b.name and a.metricVersion == b.version where b.language == language_
 
     return res
 }
@@ -1004,10 +1216,10 @@ def getReportDetailsOfNodes(reportId=NULL, language="cn") {
 def getMetrics(name=NULL, language="cn") {
     name_ = name
     language_ = language
-    whereCond = <language == language_>
+    whereCond = [<language == language_>]
 
     if (!isNull(name_)) {
-        whereCond = <name == name_>
+        whereCond.append!(<name == name_>)
     }
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "metrics"), whereCond).eval()
     nodes_ = []$STRING
@@ -1046,5 +1258,232 @@ def cancelRunningPlan(reportId) {
         cnt += 1
     } while(cnt <= 30)
     
-    throw "delete report failed after trying 30 times, report id: " + reportId + ", last error: " + string(iif(lastErr.form()==0, lastErr, lastErr.last()))
+    if (lastErr.form() == 0) {
+        lastErr_ =  string(lastErr)
+    } else {
+        lastErr_ = string(lastErr.last())
+    }
+    throw "delete report failed after trying 30 times, report id: " + reportId + ", last error: " + lastErr_
+}
+
+def areMetricsUpdated(webVersion_) {
+    if (!existsTable("dfs://autoInspection", "updateHistory")) {
+        createUpdateHistoryTable()
+    }
+    cnt = exec count(*) from loadTable("dfs://autoInspection", "updateHistory") where webVersion == webVersion_
+    return cnt > 0
+}
+
+def setMetricsUpdated(webVersion_) {
+    if (!existsTable("dfs://autoInspection", "updateHistory")) {
+        createUpdateHistoryTable()
+    }
+    cnt = exec count(*) from loadTable("dfs://autoInspection", "updateHistory") where webVersion == webVersion_
+    if (cnt > 0) {
+        return
+    }
+
+    tb = table(webVersion_ as webVersion, now() as updateTime)
+    loadTable("dfs://autoInspection", "updateHistory").append!(tb)
+}
+
+def getEmailHistory(planId_=NULL, reportId_=NULL, userId_=NULL, recipient_=NULL, startTime_=NULL, endTime_=NULL, status_=NULL) {
+    if (!existsTable("dfs://autoInspection", "emailHistory")) {
+        createEmailHistoryTable()
+    }
+    whereCond = []
+    if (!isVoid(planId_)) {
+        whereCond.append!(<planId == planId_>)
+    }
+    if (!isVoid(reportId_)) {
+        whereCond.append!(<reportId == reportId_>)
+    }
+    if (!isVoid(userId_)) {
+        whereCond.append!(<userId == userId_>)
+    }
+    if (!isVoid(recipient_)) {
+        whereCond.append!(expr(sqlCol("recipient"),like,"%"+recipient_+"%"))
+    }
+    if (!isVoid(startTime_)) {
+        whereCond.append!(<sendTime >= timestamp(startTime_)>)
+    }
+    if (!isVoid(endTime_)) {
+        whereCond.append!(<sendTime <= timestamp(endTime_)>)
+    }
+    if (!isVoid(status_)) {
+        whereCond.append!(<status == status_>)
+    }
+    ret = sql(sqlCol("*"), loadTable("dfs://autoInspection", "emailHistory"), whereCond, orderBy=sqlCol("sendTime"), ascOrder=0).eval()
+
+    return ret
+}
+
+// 发送测试邮件接口
+// 参数：
+// testRecipient: STRING - 测试收件人（多个邮箱用逗号分隔，必填）
+// language: STRING - 邮件语言（"cn"中文/"en"英文，默认"cn"）
+def sendTestEmail(testRecipient, language="cn") {
+    ret = dict(STRING, ANY)
+    ret["errCode"] = 0
+    ret["errMsg"] = ""
+
+    try {
+        alertConfig = loadAlertConfig()
+
+        requiredConfigKeys = [
+            "inspectionAlertSMTPEmailName",  
+            "inspectionAlertSMTPHost",       
+            "inspectionAlertSMTPPort",       
+            "inspectionAlertUserId",         
+            "inspectionAlertPwd"             
+        ]
+
+        missingKeys = []$STRING
+        for (key in requiredConfigKeys) {
+            if (isVoid(alertConfig[key]) || isNull(alertConfig[key]) || alertConfig[key] == "") {
+                missingKeys.append!(key)
+            }
+        }
+        if (missingKeys.size() > 0) {
+            throw iif(  
+                language == "cn",  
+                "邮件配置不完整,缺少必填字段:" + missingKeys.concat(", "),  
+                "Email configuration incomplete, missing required fields:" + missingKeys.concat(", ")  
+            )  
+        }
+
+        if (isVoid(testRecipient) || isNull(testRecipient) || testRecipient.strip() == "") {
+            throw iif(  
+                language == "cn",  
+                "测试收件人不能为空,请输入邮箱地址（多个用逗号分隔）",  
+                "Test recipient cannot be empty, please enter email address(es) (separate multiple with commas)"  
+            )  
+        }
+
+        recipients = testRecipient.split(",").strip()
+        if (recipients.size() == 0) {
+            throw iif(  
+                language == "cn",  
+                "测试收件人格式错误,多个邮箱请用逗号分隔（例如:a@xxx.com,b@xxx.com）",  
+                "Test recipient format error, please separate multiple emails with commas (e.g., a@xxx.com,b@xxx.com)"  
+            )
+        }
+
+        subject = iif(
+            language == "cn",
+            "DolphinDB 定时巡检 - 邮件配置测试",
+            "DolphinDB Auto Inspection - Email Configuration Test"
+        )
+
+        body = iif(
+            language == "cn",
+            "<h3>DolphinDB 定时巡检邮件测试通知</h3><br>" +
+            "这是一封测试邮件，用于验证定时巡检的邮件配置是否正常。<br><br>" +
+            "【配置信息】<br>" +
+            "- 发件人邮箱：" + alertConfig["inspectionAlertSMTPEmailName"] + "<br>" +
+            "- SMTP服务器：" + alertConfig["inspectionAlertSMTPHost"] + ":" + string(alertConfig["inspectionAlertSMTPPort"]) + "<br>" +
+            "- 测试时间：" + string(now()) + "<br><br>" +
+            "【说明】<br>" +
+            "- 若收到此邮件，说明邮件配置正确。",
+            
+            "<h3>DolphinDB Auto Inspection - Email Test Notification</h3><br>" +
+            "This is a test email to verify the email configuration of auto inspection.<br><br>" +
+            "[Configuration Info]<br>" +
+            "- Sender Email: " + alertConfig["inspectionAlertSMTPEmailName"] + "<br>" +
+            "- SMTP Server: " + alertConfig["inspectionAlertSMTPHost"] + ":" + string(alertConfig["inspectionAlertSMTPPort"]) + "<br>" +
+            "- Test Time: " + string(now()) + "<br><br>" +
+            "[Note]<br>" +
+            "- If you receive this email, the email configuration is correct."
+        )
+
+        if (defs("httpClient::emailSmtpConfig").size() == 0 || defs("httpClient::sendEmail").size() == 0) {
+            try {
+                loadPlugin("httpClient")
+            } catch(pluginErr) {
+                if (pluginErr.form() == 0) {
+                    errMsg = string(pluginErr)
+                } else {
+                    errMsg = string(pluginErr.last())
+                }
+                throw iif(  
+                    language == "cn",  
+                    "加载httpClient插件失败,无法发送邮件:" + errMsg,  
+                    "Failed to load httpClient plugin, cannot send email:" + errMsg  
+                )  
+            }
+        }
+
+        emailDomain = alertConfig["inspectionAlertSMTPEmailName"].split("@")[1]
+        funcByName("httpClient::emailSmtpConfig")(
+            emailDomain, 
+            alertConfig["inspectionAlertSMTPHost"],       
+            alertConfig["inspectionAlertSMTPPort"]      
+        )
+
+        testPlanId = "TEST_EMAIL_PLAN"
+        testReportId = "TEST_EMAIL_" + string(long(now())) 
+        
+        emailHistory = table(
+            testPlanId as planId,
+            testReportId as reportId,
+            subject as subject,
+            alertConfig["inspectionAlertUserId"] as userId,
+            testRecipient as recipient, 
+            now() as sendTime,
+            "sending" as status,       
+            string(NULL) as errMsg      
+        )
+        emailHistoryTable = loadTable("dfs://autoInspection", "emailHistory")
+        emailHistoryTable.append!(emailHistory)
+
+        smtpMsg = createSMTPMsg(
+            alertConfig["inspectionAlertUserId"],  
+            recipients,                          
+            subject,                               
+            body                                   
+        )
+
+        funcByName("httpClient::sendEmail")(  
+            alertConfig["inspectionAlertUserId"],  
+            alertConfig["inspectionAlertPwd"],     
+            recipients,                           
+            ,                                     
+            ,                                     
+            smtpMsg                              
+        )
+
+        update emailHistoryTable set 
+            status = "sent",
+            errMsg = string(NULL) 
+        where planId == testPlanId and reportId == testReportId
+        writeLog("Test email sent successfully: recipient=" + testRecipient + ", subject=" + subject)
+        ret["errMsg"] = "Test email sent, please check (recipient: " + testRecipient + ")"
+
+    } catch(err) {
+        if (err.form() == 0) {
+            errMsg = string(err)
+        } else {
+            errMsg = string(err.last())
+        }
+        
+        if (existsTable("dfs://autoInspection", "emailHistory")) {
+            try {
+                update loadTable("dfs://autoInspection", "emailHistory") set 
+                    status = "failed",  
+                    errMsg = errMsg 
+                where planId == "TEST_EMAIL_PLAN" and reportId.startsWith("TEST_EMAIL_")
+            } catch(updateErr) {
+                writeLog("Failed to update email history: " + string(updateErr.last()))
+            }
+        }
+        writeLog("Test email sending failed: " + errMsg)
+        ret["errCode"] = 1
+        ret["errMsg"] = iif(  
+            language == "cn",  
+            "测试邮件发送失败: " + errMsg,  
+            "Test email sending failed: " + errMsg  
+        )
+    }
+
+    return ret
 }

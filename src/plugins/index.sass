@@ -12,7 +12,7 @@ $label-width: 110px
         display: flex
         
         gap: 20px
-            
+    
     .plugins-table
         flex: 1
         min-height: 0px
@@ -90,8 +90,12 @@ $label-width: 110px
                 font-weight: bold
                 margin-right: 20px
         
-        .select-plugin-id, .form-input
-            width: 290px
+        .select-plugin-id, .form-input, .select-plugin-server
+            width: 320px
+            
+        &.en
+            .select-plugin-id, .form-input, .select-plugin-server
+                width: 520px
         
         .submit-line
             display: flex
@@ -100,6 +104,9 @@ $label-width: 110px
             
             .install-button
                 margin-left: auto
+        
+        .select-all
+            margin-right: 24px
         
     
     .plugins-sync-modal

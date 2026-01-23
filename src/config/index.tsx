@@ -4,9 +4,9 @@ import { useState } from 'react'
 
 import { Tabs } from 'antd'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
-import { model } from '@/model.js'
+import { model, NodeType } from '@model'
 
 import { ControllerConfig } from './ControllerConfig.js'
 import { NodesManagement } from './NodesManagement.js'
@@ -21,28 +21,28 @@ import SvgGroup from './icons/group.icon.svg'
 
 export function Config () {
     const [tab_key, set_tab_key] = useState<'controller_config' | 'nodes_config' | 'nodes_management'>('controller_config')
-    const { v3 } = model.use(['v3'])
+    
+    const single = model.node_type === NodeType.single
     
     return <Tabs
-        type='card'
         accessKey={tab_key}
         onChange={set_tab_key as any}
         items={[
-            {
+            !single && {
                 key: 'controller_config',
                 label: (
                     <div className='tab-header'>
-                        <SvgControllerConfig />
+                        <SvgControllerConfig style={{ fill: 'currentcolor' }} />
                         {t('控制节点配置')}
                     </div>
                 ),
                 children: <ControllerConfig />
             },
-            {
+            !single && {
                 key: 'nodes_management',
                 label: (
                     <div className='tab-header'>
-                        <SvgNodesManagement />
+                        <SvgNodesManagement style={{ fill: 'currentcolor' }}/>
                         {t('集群节点管理')}
                     </div>
                 ),
@@ -52,22 +52,22 @@ export function Config () {
                 key: 'nodes_config',
                 label: (
                     <div className='tab-header'>
-                        <SvgNodesConfig />
+                        <SvgNodesConfig style={{ fill: 'currentcolor' }}/>
                         {t('集群节点配置')}
                     </div>
                 ),
                 children: <NodesConfig />
             },
-            ... v3 ? [{
+            !single && {
                 key: 'compute_group_config',
                 label: (
                     <div className='tab-header'>
-                        <SvgGroup />
+                        <SvgGroup style={{ fill: 'currentcolor' }}/>
                         {t('计算组配置')}
                     </div>
                 ),
                 children: <ComputeGroupConfig />
-            }] : [ ]
-        ]}
+            }
+        ].filter(Boolean)}
     />
 }

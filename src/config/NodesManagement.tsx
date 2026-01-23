@@ -1,6 +1,6 @@
-import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType } from '@ant-design/pro-components'
-import { AutoComplete, Button, message, Popconfirm } from 'antd'
+import { AutoComplete, Button, Popconfirm } from 'antd'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
 import useSWR from 'swr'
@@ -9,8 +9,10 @@ import { DdbDatabaseError, DdbInt } from 'dolphindb/browser.js'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 import { DdbNodeState, model, NodeType } from '../model.js'
+
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
 
 import { config } from './model.js'
 import { type ClusterNode, type NodesConfig } from './type.js'
@@ -21,16 +23,12 @@ import { GroupAddModal, type GroupConfigDatatype, type GroupNodesDatatype } from
 export function NodesManagement () {
     const [search_key, set_search_key] = useState('')
     const [search_value, set_search_value] = useState('')
-    const { v3 } = model.use(['v3'])
     
     const { mutate, data } = useSWR('/get/nodes', async () => {
             const data = await config.get_cluster_nodes()
             const nodes = strs_2_nodes(data)
+            console.log(_2_strs(nodes))
             return { nodes, data_key: (new Date()).toISOString() }
-        },
-        { 
-            revalidateOnFocus: true,
-            revalidateOnReconnect: true,
         }
     )
     
@@ -46,18 +44,24 @@ export function NodesManagement () {
         const [, , alias] = rest.split(':')
         const this_node = nodes.find(n => n.name === alias)
         if (this_node?.state === DdbNodeState.online) {
-            message.error(t('无法移除在线节点，请到集群总览中停止后移除'))
+            model.message.error(t('无法移除在线节点，请到集群总览中停止后移除'))
             return
         }
-        if (this_node && this_node.mode === NodeType.computing) // 必须是计算节点才能在线删除
+        let is_compute_node = false
+        if (this_node && this_node.mode === NodeType.computing) { // 必须是计算节点才能在线删除
             await model.ddb.call('removeNode', [this_node.name])
-            
+            model.message.success(t('移除节点成功'))
+            is_compute_node = true
+        }    
         const new_nodes = _2_strs(all_nodes).filter(nod => nod !== node_id)
         await config.save_cluster_nodes(new_nodes)
         await mutate()
+        if (!is_compute_node) 
+            model.message.success(t('移除节点配置成功，重启集群生效'))
+        
     }, [all_nodes])
     
-    async function save_node_impl ({ rowKey, host, port, alias, mode, group }, changed_alias, is_add, old_alias) {
+    async function save_node_impl ({ rowKey, host, port, alias, mode, group, zone }, changed_alias, is_add, old_alias) {
         try {
             
             // 1、检查别名是否重复
@@ -71,7 +75,7 @@ export function NodesManagement () {
             const duplicate = all_nodes.find(node => node.host === host && node.port === port)
             // 如果找到重复的节点，除非找到的这个恰好就是我们正在修改的节点，否则报错
             if (duplicate && !(old_alias === duplicate.alias)) {
-                message.error(t('集群中已存在主机名和端口号相同的节点'))
+                model.message.error(t('集群中已存在主机名和端口号相同的节点'))
                 throw new Error(t('集群中已存在主机名和端口号相同的节点'))
             }
             
@@ -79,6 +83,9 @@ export function NodesManagement () {
                 const add_node_arg = [host, new DdbInt(Number(port)), alias, true, mode]
                 if (group)
                     add_node_arg.push(group)
+                else
+                    add_node_arg.push('')
+                add_node_arg.push(zone)
                 const perf = await model.get_cluster_perf(false)
                 if (perf.findIndex(node => node.name === alias) < 0) // perf 里面没有相同别名的节点，才可以添加
                     if (mode === 'agent')
@@ -96,14 +103,14 @@ export function NodesManagement () {
                             model.message.error(t('新增节点失败，服务端报错：') + err.message)
                             throw new Error(t('新增节点失败，服务端报错：') + err.message)
                         }        
-                await config.save_cluster_nodes([...node_strs, `${host}:${port}:${alias},${mode},${group}`,])    
+                await config.save_cluster_nodes([...node_strs, `${host}:${port}:${alias},${mode},${group},${zone}`,])    
                 if (mode === 'controller')
                     model.message.success(t('保存成功，重启集群生效'))
             }
             else  // 修改
                  {
                     const idx = all_nodes.findIndex(node => node.alias === old_alias)
-                    await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode},${group}`))
+                    await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode},${group},${zone}`))
                     model.message.success(t('保存成功，重启集群生效'))
                 }
             mutate()
@@ -140,9 +147,9 @@ export function NodesManagement () {
         for (const node_to_add of group_nodes_to_add)
             if (perf.findIndex(node => node.name === node_to_add.alias) < 0)
                 try {
-                    await model.ddb.call('addNode', [node_to_add.host, new DdbInt(Number(node_to_add.port)), node_to_add.alias, true, 'computenode', group_name])
+                    await model.ddb.call('addNode', [node_to_add.host, new DdbInt(Number(node_to_add.port)), node_to_add.alias, true, 'computenode', group_name, node_to_add.zone])
                 } catch (e) {
-                    message.error(t('新增节点失败，服务端报错：') + e.message)
+                    model.message.error(t('新增节点失败，服务端报错：') + e.message)
                     return { success: false, message: t('新增节点失败，服务端报错：') + e.message }
                 }
         await config.load_configs()
@@ -156,7 +163,7 @@ export function NodesManagement () {
         await config.change_configs(configs)
         await config.load_configs()
         const node_strs = _2_strs(all_nodes)
-        const new_nodes = group_nodes_to_add.map(node => `${node.host}:${node.port}:${node.alias},computenode,${group_name}`)
+        const new_nodes = group_nodes_to_add.map(node => `${node.host}:${node.port}:${node.alias},computenode,${group_name},${node.zone}`)
         const new_node_strs = [...node_strs, ...new_nodes]
         const unique_node_strs = Array.from(new Set(new_node_strs))
         await config.save_cluster_nodes(unique_node_strs)
@@ -176,7 +183,7 @@ export function NodesManagement () {
         //         can_delete = false
         
         if (!can_delete) {
-            message.error(t('组内有在线节点，请到集群总览中停止节点后移除'))
+            model.message.error(t('组内有在线节点，请到集群总览中停止节点后移除'))
             return
         }
         await config.load_configs()
@@ -201,15 +208,21 @@ export function NodesManagement () {
         const nodes = search_filtered_nodes.filter(node => node.computeGroup === group)
         return <div key={group}>
             <div key={group} className='group-title'>
-                {group} <Button onClick={() => {
-                    model.modal.confirm({
-                        title: t('确认删除'),
-                        content: t('确定要删除计算组 {{group}} 吗？', { group }), // 使用占位符替换组名
-                        onOk: async () => {
-                            await delete_group(group)
-                        },
-                    })
-                }} type='link'>{t('删除计算组')}</Button>
+                {group} 
+                <Button
+                    style={{ marginLeft: 'auto' }}
+                    icon={<DeleteOutlined />}
+                    onClick={() => {
+                        model.modal.confirm({
+                            title: t('确定要删除计算组 {{group}} 吗？', { group }), // 使用占位符替换组名
+                            onOk: async () => {
+                                await delete_group(group)
+                            },
+                            okButtonProps: { danger: true }
+                        })
+                    }}
+                    danger
+                >{t('删除计算组')}</Button>
             </div>
             <NodeTable key={`${data_key}_group_${group}`} nodes={nodes} group={group} onSave={save_node_impl} onDelete={delete_nodes} />
         </div>
@@ -217,25 +230,6 @@ export function NodesManagement () {
     
     return <div className='nodes-management'>
         <div className='search-line'>
-            <Button
-                icon={<ReloadOutlined />}
-                onClick={async () => {
-                    await mutate()
-                    set_search_key('')
-                    set_search_value('')
-                    model.message.success(t('刷新成功'))
-                }}
-            >
-                {t('刷新')}
-            </Button>
-            {v3 && <Button
-                icon={<PlusOutlined />}
-                onClick={async () => {
-                    NiceModal.show(GroupAddModal, { on_save: add_group })
-                }}
-            >
-                {t('新建计算组')}
-            </Button>}
             <div className='search-comp'>
                 <AutoComplete<string>
                     showSearch
@@ -256,6 +250,23 @@ export function NodesManagement () {
                     }))} />
                 <Button icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }} />
             </div>
+            <Button
+                icon={<PlusOutlined />}
+                type='primary'
+                onClick={async () => {
+                    NiceModal.show(GroupAddModal, { on_save: add_group })
+                }}
+            >
+                {t('新建计算组')}
+            </Button>
+            <RefreshButton
+                onClick={async () => {
+                    await mutate()
+                    set_search_key('')
+                    set_search_value('')
+                    model.message.success(t('刷新成功'))
+                }}
+           />
         </div>
         <div className='table-padding'>
             {/* 被搜索筛选了，且没有非计算组节点，不展示 */}
@@ -375,6 +386,21 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                 }
             },
             {
+                title: t('所属区域'),
+                dataIndex: 'zone',
+                key: 'zone',
+                fieldProps: {
+                    placeholder: t('请输入所属区域'),
+                    type: 'string',
+                },
+                formItemProps: {
+                    rules: [{
+                        required: false,
+                        message: t('请输入所属区域')
+                    }]
+                }
+            },
+            {
                 title: t('操作'),
                 valueType: 'option',
                 key: 'actions',
@@ -393,9 +419,11 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                     <Popconfirm
                         title={t('确认删除此节点？')}
                         key='delete'
+                        okButtonProps={{ danger: true }}
                         onConfirm={async () => onDelete(record.id as string)}>
                         <Button
-                            type='link'
+                            variant='link'
+                            color='danger'
                         >
                             {t('删除')}
                         </Button>
@@ -413,18 +441,21 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
         actionRef={actionRef}
         recordCreatorProps={
             {
-                position: 'bottom',
-                record: () => ({
+                position: 'bottom', // @ts-ignore
+                record: () => ({ 
                     id: String(Date.now()),
                     host: '',
                     port: '',
+                    zone: '',
                     alias: '',
-                    mode: ''
+                    mode: '',
                 }),
-                creatorButtonText: t('新增节点'),
+                type: 'default',
+                variant: 'outlined',
+                creatorButtonText: t(' 新增节点'),
                 onClick: () => {
                     const tbody = document.querySelector('.ant-table-body')
-                    setTimeout(() => tbody.scrollTop = tbody.scrollHeight, 1)
+                    setTimeout(() => { tbody.scrollTop = tbody.scrollHeight }, 1)
                 }
             }
         }
@@ -433,11 +464,11 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
         editable={
             {
                 type: 'single',
-                onSave: async (rowKey, { host, port, alias, mode }, originRow) => {
+                onSave: async (rowKey, { host, port, alias, mode, zone }, originRow) => {
                     try {
                         const changed_alias = originRow.alias !== alias
                         const is_add = originRow.alias === ''
-                        await onSave({ rowKey, host, port, alias, mode, group: group || '' }, changed_alias, is_add, originRow.alias)
+                        await onSave({ rowKey, host, port, alias, mode, zone, group: group || '' }, changed_alias, is_add, originRow.alias)
                     } catch (error) {
                         model.show_error({ error })
                         throw error
@@ -452,6 +483,10 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                         throw error
                     }
                 },
+                actionRender: (row, config, defaultDom) => [
+                    defaultDom.save,
+                    defaultDom.cancel
+                ],
                 deletePopconfirmMessage: t('确认删除此节点？'),
                 saveText:
                     <Button
@@ -463,7 +498,8 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                     </Button>,
                 deleteText:
                     <Button
-                        type='link'
+                        variant='link'
+                        color='danger'
                         key='delete'
                         className='mr-btn'
                     >

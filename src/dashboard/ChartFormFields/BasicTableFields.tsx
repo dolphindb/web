@@ -4,11 +4,11 @@ import { Col, Collapse, Form, Input, InputNumber, Row, Select, Space } from 'ant
 
 import { type CollapseProps } from 'antd/lib'
 
-import { t } from '../../../i18n/index.js'
-import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
+import { t } from '@i18n'
 
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
+import { StringColorPicker } from '@components/StringColorPicker/index.tsx'
 
-import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 import { convert_list_to_options } from '../utils.ts'
 
 import { format_time_options } from './constant.js'
@@ -36,7 +36,7 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                                 <Input />
                             </Form.Item>
                             <Form.Item label={t('列宽')} name={[field.name, 'width']}>
-                                <InputNumber addonAfter='px'/>
+                                <InputNumber suffix='px'/>
                             </Form.Item>
                             
                              

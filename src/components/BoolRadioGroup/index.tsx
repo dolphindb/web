@@ -1,7 +1,7 @@
 import { Radio, type RadioChangeEvent, type RadioGroupProps } from 'antd'
 import { useCallback } from 'react'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 interface IBoolRadioGroupProps extends Omit<RadioGroupProps, 'value' | 'onChange'> {
     value?: boolean

@@ -6,12 +6,14 @@ import { useMemo } from 'react'
 
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
-import { t } from '../../../i18n/index.js'
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+import { t } from '@i18n'
+
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
+import { StringColorPicker } from '@components/StringColorPicker/index.tsx'
 
 import { concat_name_path, convert_list_to_options } from '../utils.ts'
-import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
-import { StringColorPicker } from '../../components/StringColorPicker/index.js'
+
 
 import { WidgetChartType, dashboard } from '../model.js'
 
@@ -51,41 +53,43 @@ const axis_position_options = [
 ]
 
 export function BasicFormFields () { 
-    
     return <Collapse
-        items={[{
-            key: 'basic',
-            label: t('基本属性'),
-            children: <div className='axis-wrapper'>
-                <Form.Item name='title' label={ t('标题') } initialValue={ t('标题') }>
-                    <Input />
-                </Form.Item>
-                <Form.Item name='title_size' label='标题字号'>
-                    <InputNumber addonAfter='px'/>
-                </Form.Item>
-                
-                <PaddingSetting />
-                <Form.Item name='with_tooltip' label={t('气泡提示')} initialValue>
-                    <BoolRadioGroup />
-                </Form.Item>
-                <Form.Item name='x_datazoom' label={t('X 轴缩略轴')} initialValue>
-                    <BoolRadioGroup />
-                </Form.Item>
-                <Form.Item name='y_datazoom' label={t('Y 轴缩略轴')} initialValue={false}>
-                    <BoolRadioGroup />
-                </Form.Item>
-            </div>,
-            forceRender: true
-        },
-        {
-            key: 'variable',
-            label: t('变量设置'),
-            children: <VariableSetting />, 
-            forceRender: true
-        }]} />
+        items={[
+            {
+                key: 'basic',
+                label: t('基本属性'),
+                children: <div className='axis-wrapper'>
+                    <Form.Item name='title' label={ t('标题') } initialValue={ t('标题') }>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name='title_size' label='标题字号'>
+                        <InputNumber suffix='px'/>
+                    </Form.Item>
+                    
+                    <PaddingSetting />
+                    <Form.Item name='with_tooltip' label={t('气泡提示')} initialValue>
+                        <BoolRadioGroup />
+                    </Form.Item>
+                    <Form.Item name='x_datazoom' label={t('X 轴缩略轴')} initialValue>
+                        <BoolRadioGroup />
+                    </Form.Item>
+                    <Form.Item name='y_datazoom' label={t('Y 轴缩略轴')} initialValue={false}>
+                        <BoolRadioGroup />
+                    </Form.Item>
+                </div>,
+                forceRender: true
+            },
+            {
+                key: 'variable',
+                label: t('变量设置'),
+                children: <VariableSetting />, 
+                forceRender: true
+            }
+        ]}
+    />
 }
 
-function AxisItem (props: IAxisItem) { 
+function AxisItem (props: IAxisItem) {
     const { name_path, col_names = [ ], list_name, initial_values } = props
     
     return <>
@@ -100,7 +104,7 @@ function AxisItem (props: IAxisItem) {
             <Input />
         </Form.Item>
         <Form.Item name={concat_name_path(name_path, 'fontsize')} label={t('字号')} initialValue={12}>
-            <InputNumber addonAfter='px' />
+            <InputNumber suffix='px' />
         </Form.Item>
         {/* 类目轴从col_name中获取data */}
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>

@@ -1,6 +1,18 @@
-clearEnv()
-initDfs()
+if (!existsDatabase("dfs://autoInspection")) {
+    clearEnv()
+    initDfs()
+} else {
+    // 添加旧版本没有的表
+    if (!existsTable("dfs://autoInspection", "updateHistory")) {
+        createUpdateHistoryTable()
+    }
+    if (!existsTable("dfs://autoInspection", "emailHistory")) {
+        createEmailHistoryTable()
+    }
+}
 go
+metrics = select * from loadTable("dfs://autoInspection", "metrics")
+language = "cn"
 
 // ------------- group 0 ------------------
 name = "nodeStatus"
@@ -20,7 +32,11 @@ def nodeStatus(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script, params)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 
 name = "licenseExpiration"
 displayName = "license 有效期"
@@ -39,7 +55,11 @@ def licenseExpiration(params=NULL) {
     return (true, res, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "connectionNum"
@@ -59,7 +79,11 @@ def connectionNum(params) {
     return (true, "外部连接数: " + string(connectionNum) + " 小于 maxConnections 配置值: " + string(maxConnectionNum) + " * 90%", NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "nodeVersion"
@@ -69,7 +93,7 @@ desc = "检查各个节点版本是否一致。"
 nodes = NULL
 script = '
 def nodeVersion(params) {
-    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1 and iif(mode==2, isLeader, true)
     ver = pnodeRun(version, nodes)
     insert into ver values (getControllerAlias(), rpc(getControllerAlias(), version))
     cnt = select distinct(value) from ver
@@ -79,7 +103,11 @@ def nodeVersion(params) {
     return (true, version(), NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "pluginVersion"
@@ -88,21 +116,6 @@ group = "0"
 desc = "检查集群版本与插件版本是否一致。"
 nodes = NULL
 script = '
-def getPluginDir() {
-        ver = version()
-        pluginDir = getConfig("pluginDir")
-        if ((like(ver, "%LINUX%") and !pluginDir.startsWith("/")) or (like(ver, "%WIN%") and regexFind  (pluginDir, "^[a-zA-Z]:") != 0)) {
-            nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf)
-            if (nodeCnt > 1) {
-                pluginDir = "../" + pluginDir
-            } else {
-                pluginDir = "./" + pluginDir
-            }
-        }
-        
-        return pluginDir
-}
-
 def pluginVersion(params) {
     listPluginsInner = def() {
         pluginDir = getPluginDir()
@@ -129,7 +142,7 @@ def pluginVersion(params) {
         return ret
     }
     
-    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1 and iif(mode==2, isLeader, true)
     info = pnodeRun(listPluginsInner)
     cnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf) where mode == 3
     if (cnt == 0) {
@@ -158,7 +171,1715 @@ def pluginVersion(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+name = "partitionDBCheck"
+displayName = "冒烟测试：分区数据库创建"
+group = "0"
+desc = "检查各类型分区数据库能否正常创建，测试会创建以dfs://smokingTest为前缀的测试库。"
+nodes = NULL
+script = '
+def partitionDBCheck(params = NULL) {
+    configs = [
+        dict(`type`dbName`partitionParams, ["RANGE", "dfs://smokingTest_partitionDBcheck_range", 0 5 10]),
+        dict(`type`dbName`partitionParams, ["HASH", "dfs://smokingTest_partitionDBcheck_hash", [INT, 2]]),
+        dict(`type`dbName`partitionParams, ["VALUE", "dfs://smokingTest_partitionDBcheck_value", 2000.01M..2016.12M]),
+        dict(`type`dbName`partitionParams, ["LIST", "dfs://smokingTest_partitionDBcheck_list", [`IBM`ORCL`MSFT, `GOOG`FB]]),
+        dict(`type`dbName`partitionParams, [
+            "COMPO", 
+            "dfs://smokingTest_partitionDBcheck_compo", 
+            [
+                dict(`partType`partValues, ["VALUE", 2017.08.07..2017.08.11]),  
+                dict(`partType`partValues, ["RANGE", 0 50 100])                
+            ]
+        ])
+    ]
+
+    resultTb = table(1:0, `partitionType`DatabasePath`testResult`testMessage, [STRING, STRING, STRING, STRING])
+    allSuccess = true
+
+    for (cfg in configs) {
+        partType = cfg["type"]
+        dbName = cfg["dbName"]
+        partitionParams = cfg["partitionParams"]
+        success = "失败"
+        errMsg = ""
+
+        try {
+            if (existsDatabase(dbName)) {
+                dropDatabase(dbName)
+            }
+
+            if (partType == "RANGE") {
+                db = database(dbName, RANGE, partitionParams)
+            } else if (partType == "HASH") {
+                db = database(dbName, HASH, partitionParams)
+            } else if (partType == "VALUE") {
+                db = database(dbName, VALUE, partitionParams)
+            } else if (partType == "LIST") {
+                db = database(dbName, LIST, partitionParams)
+            } else if (partType == "COMPO") {
+                dbDate = database(, VALUE, partitionParams[0]["partValues"])
+                dbID = database(, RANGE, partitionParams[1]["partValues"])
+                db = database(dbName, COMPO, [dbDate, dbID])
+            }
+
+            if (existsDatabase(dbName)) {
+                success = "成功"
+                errMsg = "成功创建" + partType + "分区数据库"
+            } else {
+                success = "失败"
+                errMsg = "创建" + partType + "分区数据库失败"
+            }
+        } catch (err) {
+            success = "失败"
+            errMsg = snippet(err)
+            allSuccess = false
+        }
+
+        if (existsDatabase(dbName)) {
+            dropDatabase(dbName)
+        }
+        tableInsert(resultTb, (partType, dbName, success, errMsg))
+    }
+
+    if (allSuccess) {
+        detail = "所有分区类型的数据库创建测试通过。"
+        suggestion = NULL
+    } else {
+        failedTb = select * from resultTb where testResult == "失败"
+        detail = select partitionType as "创建失败的分区类型" from failedTb
+        suggestion = "请检查：1. 数据库路径权限；2. 分区参数格式；3. DolphinDB 版本是否支持该分区类型。"
+    }
+    resultTb.rename!(`分区类型`数据库路径`测试结果`测试信息)  
+    return (allSuccess, detail, suggestion, resultTb)
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+name = "partitionAddTest"
+displayName = "冒烟测试：增加分区功能"
+group = "0"
+desc = "测试给值分区或范围分区的组合数据库增加分区的功能，包括值分区添加和范围分区添加，测试会创建以dfs://smokingTest为前缀的测试库。"
+nodes = NULL
+script = '
+def partitionAddTest(params = NULL) {
+    resultTb = table(1:0, `partitionType`testResult`testMessage, [STRING, STRING, STRING])
+    allSuccess = true
+    testDbName = "dfs://smokingTest_partitionAddTest_DbName"
+    tbName = "smokingTest_partitionAddTest_tbName"
+    
+    try {
+        if (existsDatabase(testDbName)) {
+            dropDatabase(testDbName)
+        }
+        
+        n = 10000
+        ID = rand(50..59, n)
+        dates = 2024.08.07..2024.08.11
+        date = rand(dates, n)
+        x = rand(10.0, n)
+        t = table(ID, date, x)
+        
+        dbID = database(, RANGE, 50 100)
+        dbDate = database(, VALUE, 2024.08.07..2024.08.11)
+        db = database(testDbName, COMPO, [dbID, dbDate])
+        pt = db.createPartitionedTable(t, tbName, `ID`date)
+        pt.append!(t)
+        
+        try {
+            originalDatePartitions = schema(database(testDbName)).partitionSchema[1]
+            addValuePartitions(database(testDbName), 2024.08.06, 1)
+            updatedDatePartitions = schema(database(testDbName)).partitionSchema[1]
+
+            if (updatedDatePartitions.size() == originalDatePartitions.size() + 1 && 
+                2024.08.06 in updatedDatePartitions) {
+                tableInsert(resultTb, ("值分区添加", "成功", "值分区添加成功"))
+            } else {
+                tableInsert(resultTb, ("值分区添加", "失败", "值分区添加失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("值分区添加", "失败", snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            originalRangePartitions = schema(database(testDbName)).partitionSchema[0]
+            addRangePartitions(database(testDbName), 100 150 200 250, 0)
+            updatedRangePartitions = schema(database(testDbName)).partitionSchema[0]
+            expectedNewPartitions = [50, 100, 150, 200, 250]
+            if (updatedRangePartitions.size() == expectedNewPartitions.size() && 
+                eqObj(updatedRangePartitions, expectedNewPartitions)) {
+                tableInsert(resultTb, ("范围分区添加", "成功", "范围分区添加成功"))
+            } else {
+                tableInsert(resultTb, ("范围分区添加", "失败", "范围分区添加失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("范围分区添加", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+    } catch (err) {
+        tableInsert(resultTb, ("分区添加", "失败", snippet(err)))
+        allSuccess = false
+    } 
+
+    if (existsDatabase(testDbName)) {
+        dropDatabase(testDbName)
+    }
+    
+    if (allSuccess) {
+        detail = "所有分区添加功能测试通过。"
+        suggestion = NULL
+    } else {
+        failedTb = select * from resultTb where testResult == "失败"
+        detail = select partitionType as "添加失败的分区类型" from failedTb
+        suggestion = "请检查：1. 数据库权限；2. 分区添加语法是否正确；3. 目前支持值分区和范围分区的添加，或包含值分区和范围分区的复合分区添加。"
+    }
+    resultTb.rename!(`分区类型`测试结果`测试信息)
+    return (allSuccess, detail, suggestion, resultTb)
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+
+name = "distributedTableCheck"
+displayName = "冒烟测试：分布式表创建"
+group = "0"
+desc = "检查分区表和维度表是否能正常创建，测试会创建以dfs://smokingTest为前缀的测试库。"
+nodes = NULL
+script = '
+def distributedTableCheck(params = NULL) {
+    resultTb = table(1:0, `tableType`DatabasePath`tableName`testResult`testMessage, [STRING, STRING, STRING, STRING, STRING])
+    allSuccess = true
+    
+    try {
+        testDbName = "dfs://smokingTest_distributedTableCheck_DbName"
+        testTbName = "smokingTest_distributedTableCheck"
+        testPtName = testTbName + "_testPartitionedTable"
+        testDtName = testTbName + "_testDimensionTable"
+        if (existsDatabase(testDbName)) {
+            dropDatabase(testDbName)
+        }
+        db = database(directory=testDbName, partitionType=VALUE, partitionScheme=2023.01.01..2023.12.31, engine=\'TSDB\')  
+    
+        try {
+            schemaTb = table(1:0, `date`time`sym`price, [DATE,TIME,SYMBOL,DOUBLE])  
+            pt = db.createPartitionedTable(table=schemaTb, tableName=testPtName, partitionColumns=`date, sortColumns=`time)  
+            
+            if (existsTable(testDbName, testPtName)) {
+                tableInsert(resultTb, ("分区表", testDbName, testPtName, "成功", "分区表创建成功"))
+            } else {
+                tableInsert(resultTb, ("分区表", testDbName, testPtName, "失败", "分区表创建失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("分区表", testDbName, testPtName, "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+        try {
+            dt = db.createDimensionTable(table=schemaTb, tableName=testDtName, sortColumns=`sym`time) 
+            
+            if (existsTable(testDbName, testDtName)) {
+                tableInsert(resultTb, ("维度表", testDbName, testDtName, "成功", "维度表创建成功"))
+            } else {
+                tableInsert(resultTb, ("维度表", testDbName, testDtName, "失败", "维度表创建失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("维度表", testDbName, testDtName, "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+    } catch (err) {
+        tableInsert(resultTb, ("创建表失败", testDbName, "分布式表创建过程出现错误", "失败", snippet(err)))
+        allSuccess = false
+    }
+    
+    if (existsDatabase(testDbName)) {
+        dropDatabase(testDbName)
+    }
+    
+    if (allSuccess) {
+        detail = "分布式表创建测试通过。"
+        suggestion = NULL
+    } else {
+        failedTb = select * from resultTb where testResult == "失败"
+        detail = select tableType as "创建失败的表类型", DatabasePath as "数据库路径", tableName as "表名" from failedTb
+        suggestion = "请检查：1. 数据库权限；2. 表结构定义；3. DolphinDB 版本是否支持相关功能。"
+    }
+    resultTb.rename!(`表类型`数据库路径`表名`测试结果`测试信息)
+    return (allSuccess, detail, suggestion, resultTb)
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+name = "dataInsertTest"
+displayName = "冒烟测试：数据插入功能"
+group = "0"
+desc = "测试三种数据插入方式：INSERT INTO语句、append!函数和tableInsert函数，测试会创建以dfs://smokingTest为前缀的测试库。"
+nodes = NULL 
+script = '
+def dataInsertTest(params = NULL) {
+    resultTb = table(1:0, `InsertMethod`testResult`testMessage, [STRING, STRING, STRING])
+    allSuccess = true
+    
+    try {
+        try {
+            t = table(1:0, `id`sym`val, [INT,STRING,DOUBLE])
+            INSERT INTO t (id,val) VALUES (1,7.6)
+            if (t.size() == 1 && t.id[0] == 1 && t.val[0] == 7.6) {
+                tableInsert(resultTb, ("INSERT INTO 语句", "成功", "数据插入成功"))
+            } else {
+                tableInsert(resultTb, ("INSERT INTO 语句", "失败", "数据插入失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("INSERT INTO 语句", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+        try {
+            t = table(1:0, `id`sym`val, [INT,SYMBOL,DOUBLE])
+            tmp = table(1..10 as id, take(`A001`B001,10) as sym, rand(10.0,10) as val)
+            append!(t, tmp)
+            
+            if (t.size() == 10) {
+                tableInsert(resultTb, ("append! 函数", "成功", "数据插入成功"))
+            } else {
+                tableInsert(resultTb, ("append! 函数", "失败", "数据插入失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("append! 函数", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+        try {
+            testDbName = "dfs://smokingTest_dataInsertTest_testDbName"
+            testPtName = "smokingTest_dataInsertTest_testPartitionedTable"
+            if (existsDatabase(testDbName)) {
+                dropDatabase(testDbName)
+            }
+            db = database(testDbName, VALUE, 1..10)
+            schemaTb = table(1:0, `id`sym`val, [INT,SYMBOL,DOUBLE])
+            t = db.createPartitionedTable(schemaTb, testPtName, `id)
+            
+            tmp = table(1..10 as id, take(`A`B,10) as sym, rand(10.0,10) as val)
+            tableInsert(t, tmp)
+            
+            pt = loadTable(testDbName, testPtName)
+
+            count_result = exec count(*) from pt  
+            if (count_result == 10) {
+                tableInsert(resultTb, ("tableInsert 函数", "成功", "数据插入成功"))
+            } else {
+                tableInsert(resultTb, ("tableInsert 函数", "失败", "数据插入失败"))
+                allSuccess = false
+            }
+            
+            if (existsDatabase(testDbName)) {
+                dropDatabase(testDbName)
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("tableInsert 函数", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+    } catch (err) {
+        tableInsert(resultTb, ("数据插入出现错误", "失败", snippet(err)))
+        allSuccess = false
+    }
+    
+    if (allSuccess) {
+        detail = "所有数据插入方式测试通过。" 
+        suggestion = NULL
+    } else {
+        failedTb = select * from resultTb where testResult == "失败"
+        detail = select InsertMethod as "测试失败的数据插入方式" from failedTb
+        suggestion = "请检查：1. 数据库权限；2. 插入数据是否对应表结构；3. DolphinDB 版本是否支持相关功能。"
+    }
+    resultTb.rename!(`数据插入方式`测试结果`测试信息)
+    return (allSuccess, detail, suggestion, resultTb)
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+
+name = "dataTypeCompatibility"
+displayName = "冒烟测试：检查数据类型兼容性" 
+group = "0" 
+desc = "测试DolphinDB支持的所有主要数据类型在分布式环境下的创建、插入和查询兼容性，测试会创建以dfs://smokingTest为前缀的测试库。" 
+nodes = NULL
+script = '
+def dataTypeCompatibility(params = NULL) { 
+    resultTb = table(1:0, `dataTypeInsert`testResult`testMessage, [STRING, STRING, STRING])
+    allSuccess = true
+    testDbName = "dfs://smokingTest_dataTypeCompatibility_testDbName"
+    tbName = "smokingTest_dataTypeCompatibility_dataTypeTable"
+
+    try {
+        if (existsDatabase(testDbName)) {
+            dropDatabase(testDbName)
+        }
+        
+        db = database(testDbName, VALUE, 2022.01.01..2022.02.01, ,`TSDB)
+        dataTypeDemoTable = table(
+            array(BOOL, 0) as BoolType,
+            array(CHAR, 0) as CharType,
+            array(DECIMAL32(2), 0) as Decimal32Type,
+            array(DECIMAL64(4), 0) as Decimal64Type,
+            array(DECIMAL128(6), 0) as Decimal128Type,
+            array(SHORT, 0) as ShortType,
+            array(INT, 0) as IntType,
+            array(LONG, 0) as LongType,
+            array(DATE, 0) as DateType,
+            array(MONTH, 0) as MonthType,
+            array(TIME, 0) as TimeType,
+            array(MINUTE, 0) as MinuteType,
+            array(SECOND, 0) as SecondType,
+            array(DATETIME, 0) as DatetimeType,
+            array(TIMESTAMP, 0) as TimestampType,
+            array(NANOTIME, 0) as NanotimeType,
+            array(NANOTIMESTAMP, 0) as NanotimestampType,
+            array(FLOAT, 0) as FloatType,
+            array(DOUBLE, 0) as DoubleType,
+            array(SYMBOL, 0) as SymbolType,
+            array(STRING, 0) as StringType,
+            array(UUID, 0) as UuidType,
+            array(BLOB, 0) as BlobType,
+            array(DOUBLE[], 0) as ArrayVectorType)
+        
+        pt = db.createPartitionedTable(table=dataTypeDemoTable, tableName=tbName, partitionColumns=`DateType, sortColumns=`SymbolType)
+
+        try {
+            strShort = "hello"
+            d = dict(1..10000, rand(1.0, 10000))
+            strLong = toStdJson(d)
+            tableInsert(dataTypeDemoTable, true false, 12.34 56.78, 123.4567 890.1234, 123.456789 987.654321, \'B\' \'S\', 66h 88h, 66 88, 12345678910 123456789100, 2022.01.01 2022.02.01, 2022.01M 2022.02M, 09:30:00.000 13:00:00.000, 09:30m 13:00m, 09:30:00 13:00:00, 2022.01.01 09:30:00 2022.01.02T13:00:00, 2022.01.01 09:30:00.000 2022.01.02T13:00:00.000, 09:30:00.008007006 13:00:00.008007006, 2022.01.01 09:30:00.008007006 2022.01.02T13:00:00.008007006, 6.6 8.8, 6.66666 8.8888, `SZ000001`SZ000002, "文字说明" "Text description", [uuid("5d212a78-cc48-e3b1-4235-b4d91473ee87"), uuid("5d212a78-cc48-e3b1-4235-b4d91473ee86")], [blob(strShort), blob(strLong)], [[6.6, 8.8], [6.6, 8.8, 5.5]])
+            loadTable(testDbName, tbName).append!(dataTypeDemoTable)
+            
+            tableInsert(resultTb, ("主要数据类型插入", "成功", "数据插入成功"))
+        } catch (err) {
+            tableInsert(resultTb, ("主要数据类型插入", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+        try {
+            t = select * from loadTable(testDbName, tbName)
+            
+            if (t.size() == 2) {
+                tableInsert(resultTb, ("插入结果确认", "成功", "数据确认成功"))
+            } else {
+                tableInsert(resultTb, ("插入结果确认", "失败", "数据确认失败，数据条数：" + snippet(t.size())))
+                allSuccess = false
+            }
+            
+            expectedColumns = `BoolType`CharType`Decimal32Type`Decimal64Type`Decimal128Type`ShortType`IntType`LongType`DateType`MonthType`TimeType`MinuteType`SecondType`DatetimeType`TimestampType`NanotimeType`NanotimestampType`FloatType`DoubleType`SymbolType`StringType`UuidType`BlobType`ArrayVectorType
+            for (col in expectedColumns) {
+                if (notIn(col, t.keys())) {
+                    tableInsert(resultTb, ("数据类型列 -" + col, "失败", col + "不存在"))
+                    allSuccess = false
+                }
+            }
+            
+        } catch (err) {
+            tableInsert(resultTb, ("插入结果确认", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+    } catch (err) {
+        tableInsert(resultTb, ("数据兼容性测试出错", "失败", snippet(err)))
+        allSuccess = false
+    } 
+
+    if (existsDatabase(testDbName)) {
+        dropDatabase(testDbName)
+    }
+
+    if (allSuccess) {
+        detail = "所有数据类型兼容性测试通过。"
+        suggestion = NULL
+    } else {
+        failedTb = select * from resultTb where testResult == "失败"
+        detail = select dataTypeInsert as "测试失败的内容" from failedTb
+        suggestion = "请检查：1. DolphinDB版本是否支持所有数据类型；2. 数据库权限；3. 系统资源。"
+    }
+    resultTb.rename!(`数据类型插入`测试结果`测试信息)
+    return (allSuccess, detail, suggestion, resultTb)
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+
+name = "queryTest"
+displayName = "冒烟测试：查询功能"
+group = "0"
+desc = "测试查询功能，包括简单查询、条件查询、排序查询、聚合查询、分组查询、连接查询等，测试会创建以dfs://smokingTest为前缀的测试库。"
+nodes = NULL
+script = '
+def queryTest(params = NULL) {
+    resultTb = table(1:0, `queryType`testResult`testMessage, [STRING, STRING, STRING])
+    allSuccess = true
+    testDbName = "dfs://smokingTest_queryTest_testDbName"
+    tradesTableName = "smokingTest_queryTest_tradesTable"
+    quotesTableName = "smokingTest_queryTest_quotesTable"
+    infosTable = "smokingTest_queryTest_infosTable"
+    try {
+        if (existsDatabase(testDbName)) {
+            dropDatabase(testDbName)
+        }
+        
+        dates=2019.01.01..2019.01.31
+        syms="A"+string(1..30)
+        sym_range=cutPoints(syms,3)
+        db1=database("",VALUE,dates)
+        db2=database("",RANGE,sym_range)
+        db=database(testDbName,COMPO,[db1,db2])
+        
+        n=10000
+        datetimes=2019.01.01T00:00:00..2019.01.31T23:59:59
+        t=table(take(datetimes,n) as trade_time,take(syms,n) as sym,rand(1000,n) as qty,rand(500.0,n) as price)
+        pt1=db.createPartitionedTable(t,tradesTableName,`trade_time`sym).append!(t)
+
+        n=200
+        t2=table(take(datetimes,n) as trade_time,take(syms,n) as sym,rand(500.0,n) as bid,rand(500.0,n) as offer)
+        pt2=db.createPartitionedTable(t2,quotesTableName,`trade_time`sym).append!(t2)
+
+        t3=table(syms as sym,take(0 1,30) as type)
+        pt3=db.createTable(t3,infosTable).append!(t3)
+
+        tradesTable = loadTable(testDbName, tradesTableName)
+        quotesTable = loadTable(testDbName, quotesTableName)
+        infosTable = loadTable(testDbName, infosTable)
+        
+        try {
+            t = select * from tradesTable where sym == "A1"
+            if (t.size() >= 1 && t[0].sym == "A1") {
+                tableInsert(resultTb, ("where语句", "成功", "where语句 条件查询成功"))
+            } else {
+                tableInsert(resultTb, ("where语句", "失败", "where语句 条件查询失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("where语句", "失败", snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            res1 = select top 2:5 * from tradesTable order by price desc
+            if (res1.size() != 3) {
+                tableInsert(resultTb, ("top syntax", false, "query result verify failed"))
+                allSuccess = false
+            } else {
+                for (i in 0 : (res1.size()-1)) {
+                    if (res1[i].price < res1[i + 1].price) {
+                        tableInsert(resultTb, ("order by + top 语句", "失败", "order by+top语法 排序查询结果错误"))
+                        allSuccess = false
+                        break
+                    }
+                }
+                tableInsert(resultTb, ("order by + top 语句", "成功", "order by+top语法 排序查询结果正确"))
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("order by + top 语句", "失败", snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            res2 = select * from tradesTable order by price desc limit 3
+            if (res2.size() != 3) {
+                tableInsert(resultTb, ("order by + limit 语句", "失败", "order by+limit语法 排序查询结果错误"))
+                allSuccess = false
+            } else {
+                for (i in 0 : (res2.size()-1)) {
+                    if (res2[i].price < res2[i + 1].price) {
+                        tableInsert(resultTb, ("order by + limit 语句", "失败", "order by+limit语法 排序查询结果错误"))
+                        allSuccess = false
+                        break
+                    }
+                }
+                tableInsert(resultTb, ("order by + limit 语句", "成功", "order by+limit语法 排序查询结果正确"))
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("order by + limit 语句", "失败", snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            t = select * from ej(tradesTable, quotesTable, `trade_time`sym)
+            expectedCols = `trade_time`sym`qty`price`bid`offer  
+            actualCols = t.keys()
+            if (t.size() >= 0 && all(expectedCols in actualCols) && actualCols.size() == expectedCols.size()) {
+                tableInsert(resultTb, ("ej 语句", "成功", "ej语句 关联查询结果正确"))
+            } else {
+                tableInsert(resultTb, ("ej 语句", "失败", "ej语句 关联查询结果错误"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("ej 语句", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+        try {
+            t = select * from lj(tradesTable, infosTable, `sym)
+            if (t.size() >= 0 && `type in t.keys()) {
+                tableInsert(resultTb, ("lj 语句", "成功", "lj语句 关联查询结果正确"))
+            } else {
+                tableInsert(resultTb, ("lj 语句", "失败", "lj语句 关联查询结果错误"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("lj 语句", "失败", snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            t = select max(price) as maxPrice, sym from tradesTable group by sym, minute(trade_time)
+            expectedCols = `minute_trade_time`maxPrice`sym
+            actualCols = t.keys()
+            if (t.size() >= 0 && all(expectedCols in actualCols) && actualCols.size() == expectedCols.size()) {
+                tableInsert(resultTb, ("group by 语句", "成功", "group by语句 分组查询结果正确"))
+            } else {
+                tableInsert(resultTb, ("group by 语句", "失败", "group by语句 分组查询结果错误"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("group by 语句", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+        try {
+            t = select sym, price, qty, wavg(price,qty) as wvap, sum(qty) as totalqty from tradesTable context by sym
+            if (t.size() >= 0 && `wvap in t.keys() && `totalqty in t.keys()) {
+                tableInsert(resultTb, ("context by 语句", "成功", "context by语句 分组查询结果正确"))
+            } else {
+                tableInsert(resultTb, ("context by 语句", "失败", "context by语句 分组查询结果错误"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("context by 语句", "失败", snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            t = exec avg(offer) from quotesTable pivot by minute(trade_time), sym
+            if (t.size() >= 0 && form(t) == 3 && t.rows() > 0) {
+                tableInsert(resultTb, ("pivot by + exec 语句", "成功", "pivot by+exec语句 分组查询结果正确"))
+            } else {
+                tableInsert(resultTb, ("pivot by + exec 语句", "失败", "pivot by+exec语句 分组查询结果错误"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("pivot by + exec 语句", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+    } catch (err) {
+        tableInsert(resultTb, ("查询过程出错", "失败", snippet(err)))
+        allSuccess = false
+    }
+
+    if (existsDatabase(testDbName)) {
+        dropDatabase(testDbName)
+    }
+
+    if (allSuccess) {
+        detail = "所有查询功能测试通过。"
+        suggestion = NULL
+    } else {
+        failedTb = select * from resultTb where testResult == "失败"
+        detail = select queryType as "测试失败的查询类型" from failedTb
+        suggestion = "请检查：1. 查询语法是否正确；2. DolphinDB版本；3.数据库权限。"
+    }
+    resultTb.rename!(`查询类型`测试结果`测试信息)
+    return (allSuccess, detail, suggestion, resultTb)
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+name = "dataUpdateTest"
+displayName = "冒烟测试：数据更新功能"
+group = "0"
+desc = "测试四种数据更新方式：UPDATE语句、upsert!函数、update!函数和replaceColumn!函数，测试会创建以dfs://smokingTest为前缀的测试库。"
+nodes = NULL
+script = '
+def dataUpdateTest(params = NULL) {
+    resultTb = table(1:0, `updateType`testResult`testMessage, [STRING, STRING, STRING])
+    allSuccess = true
+    testDbName = "dfs://smokingTest_dataUpdateTest_testDbName"
+    tbName = "smokingTest_dataUpdateTest_testTbName"
+    try {
+        if (existsDatabase(testDbName)) {
+            dropDatabase(testDbName)
+        }
+        
+        t = table(2023.10.01 + take(0..9,100) as date, take(["A001","B001","C001","D001"],100) as sym, 1..100 as val)
+        db = database(testDbName, partitionType=VALUE, partitionScheme=2023.10.01..2023.10.10)
+        pt = db.createPartitionedTable(table=t, tableName=tbName, partitionColumns=`date)
+        pt.append!(t)
+        
+        try {
+            UPDATE pt SET val=102 WHERE date=2023.10.02
+            checkResult = exec val from pt where date=2023.10.02
+            expectedResult = take(102, checkResult.size())
+            if (all(checkResult == expectedResult)) {
+                tableInsert(resultTb, ("UPDATE 语句", "成功", "UPDATE 语句 数据更新成功"))
+            } else {
+                tableInsert(resultTb, ("UPDATE 语句", "失败", "UPDATE 语句 数据更新失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("UPDATE 语句", "失败", snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            t1 = table(2023.10.03..2023.10.05 as date, ["X001","Y001","Z001"] as sym, 66 77 88 as val)
+            upsert!(obj=pt, newData=t1, keyColNames=`sym)
+            checkResult = exec val from pt where sym in [`X001,`Y001,`Z001]
+            expectedResult = [66, 77, 88]
+            if (all(checkResult == expectedResult)) {
+                tableInsert(resultTb, ("upsert! 函数", "成功", "upsert! 数据更新成功"))
+            } else {
+                tableInsert(resultTb, ("upsert! 函数", "失败", "upsert! 数据更新失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("upsert! 函数", "失败", snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            update!(table=t, colNames="val", newValues=<val+2>, filter=[<date=2023.10.03>,<sym="A001">])
+            checkResult = exec val from t where date=2023.10.03 and sym="A001"
+            expectedResult = [15, 35, 55, 75, 95]
+            if (all(checkResult == expectedResult)) {
+                tableInsert(resultTb, ("update! 函数", "成功", "update! 数据更新成功"))
+            } else {
+                tableInsert(resultTb, ("update! 函数", "失败", "update! 数据更新失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("update! 函数", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+        try {
+            replaceColumn!(table=t, colName="val", newCol=101..200)
+            checkResult = exec val from t
+            expectedResult = 101..200
+            if (all(checkResult == expectedResult)) {
+                tableInsert(resultTb, ("replaceColumn! 函数", "成功", "replaceColumn! 数据更新成功"))
+            } else {
+                tableInsert(resultTb, ("replaceColumn! 函数", "失败", "replaceColumn! 数据更新失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("replaceColumn! 函数", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+    } catch (err) {
+        tableInsert(resultTb, ("数据更新出错", "失败", snippet(err)))
+        allSuccess = false
+    }
+
+    if (existsDatabase(testDbName)) {
+        dropDatabase(testDbName)
+    }
+    
+    if (allSuccess) {
+        detail = "所有数据更新方式测试通过。"
+        suggestion = NULL
+    } else {
+        failedTb = select * from resultTb where testResult == "失败"
+        detail = select updateType as "测试失败的数据更新方式" from failedTb
+        suggestion = "请检查：1. 数据库权限；2. 更新语法是否正确；3. DolphinDB 版本兼容性。"
+    }
+    resultTb.rename!(`更新方式`测试结果`测试信息)
+    return (allSuccess, detail, suggestion, resultTb)
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+name = "deleteFunctionTest"
+displayName = "冒烟测试：删除功能"
+group = "0"
+desc = "测试分布式数据库的各类删除功能，即删除数据、分区、表、数据库，测试会创建以dfs://smokingTest为前缀的测试库。"
+nodes = NULL
+script = '
+def deleteFunctionTest(params = NULL) {
+    resultTb = table(1:0, `deleteType`testResult`testMessage, [STRING, STRING, STRING])
+    allSuccess = true
+    testDbName = "dfs://smokingTest_deleteFunctionTest_testDbName"
+    tbName = "smokingTest_deleteFunctionTest_testTbName"
+    
+    try {
+        if (existsDatabase(testDbName)) {
+            dropDatabase(testDbName)
+        }
+        
+        n = 10000
+        ID = rand(150, n)
+        dates = 2024.08.07..2024.08.11
+        date = rand(dates, n)
+        x = rand(10.0, n)
+        t = table(ID, date, x)
+        
+        dbDate = database(, VALUE, dates)
+        dbID = database(, RANGE, 0 50 100 150)
+        db = database(testDbName, COMPO, [dbDate, dbID])
+        pt = db.createPartitionedTable(t, tbName, `date`ID)
+        pt.append!(t)
+        
+        try {
+            delete from pt where date < 2024.08.08
+            afterDeleteCount = exec count(*) from pt
+            if (afterDeleteCount < n) {
+                tableInsert(resultTb, ("delete语句", "成功", "delete语句 删除数据成功"))
+            } else {
+                tableInsert(resultTb, ("delete语句", "失败", "delete语句 删除数据失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("delete语句", "失败", snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            truncate(dbUrl=testDbName, tableName=tbName)
+            afterTruncateCount = exec count(*) from pt
+            if (afterTruncateCount == 0) {
+                tableInsert(resultTb, ("truncate函数", "成功", "truncate语句 数据清空成功"))
+            } else {
+                tableInsert(resultTb, ("truncate函数", "失败", "truncate语句 数据清空失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("truncate函数", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+        try {
+            pt.append!(t)
+            dropPartition(dbHandle=database(testDbName), partitionPaths=2024.08.07, tableName=tbName, deleteSchema=true)
+            schemas = schema(database(testDbName))
+            datePartitions = schemas.partitionSchema[0]
+            if (!(2024.08.07 in datePartitions)) {
+                tableInsert(resultTb, ("dropPartition函数", "成功", "dropPartition语句 分区删除成功"))
+            } else {
+                tableInsert(resultTb, ("dropPartition函数", "失败", "dropPartition语句 分区删除失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("dropPartition函数", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+        try {
+            dropTable(db, tbName)
+            if (!existsTable(testDbName, tbName)) {
+                tableInsert(resultTb, ("dropTable函数", "成功", "dropTable语句 表删除成功"))
+            } else {
+                tableInsert(resultTb, ("dropTable函数", "失败", "dropTable语句 表删除失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("dropTable函数", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+        try {
+            dropDatabase(testDbName)
+            if (!existsDatabase(testDbName)) {
+                tableInsert(resultTb, ("dropDatabase函数", "成功", "dropDatabase语句 数据库删除成功"))
+            } else {
+                tableInsert(resultTb, ("dropDatabase函数", "失败", "dropDatabase语句 数据库删除失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("dropDatabase函数", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+    } catch (err) {
+        tableInsert(resultTb, ("删除测试出错", "失败", snippet(err)))
+        allSuccess = false
+    } 
+
+    if (allSuccess) {
+        detail = "所有删除功能测试通过。"
+        suggestion = NULL
+    } else {
+        failedTb = select * from resultTb where testResult == "失败"
+        detail = select deleteType as "测试失败的删除类型" from failedTb
+        suggestion = "请检查：1. 数据库权限；2. 删除语法是否正确；3. 目标对象是否存在。"
+    }
+    resultTb.rename!(`删除类型`测试结果`测试信息)
+    return (allSuccess, detail, suggestion, resultTb)
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+name = "functionViewTest"
+displayName = "冒烟测试：函数视图功能"
+group = "0"
+desc = "测试函数视图的创建、查询和删除功能，测试会创建以smokingTest为前缀的测试函数视图。"
+nodes = NULL
+script = '
+def functionViewTest(params = NULL) {
+    resultTb = table(1:0, `testType`testResult`testMessage, [STRING, STRING, STRING])
+    allSuccess = true
+
+    testFuncName = "smokingTest_functionViewTest_myFunc_"
+    funcDefStr = "def " + testFuncName + "() { print \'myFunc\' }"  
+    
+    try {
+        existingViews = getFunctionViews()
+        if (testFuncName in existingViews.name) {
+            dropFunctionView(name=testFuncName)
+        }
+
+        try {
+
+            runScript(funcDefStr) 
+            go
+            dynamicFunc = funcByName(testFuncName)
+            addFunctionView(udf=dynamicFunc)
+
+            views = getFunctionViews()
+            if (testFuncName in views.name) {
+                tableInsert(resultTb, ("函数视图的创建", "成功", "创建成功"))
+            } else {
+                tableInsert(resultTb, ("函数视图的创建", "失败", "创建失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("函数视图的创建", "失败", snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            views = getFunctionViews()
+            if (form(views) == TABLE && testFuncName in views.name) {
+                tableInsert(resultTb, ("函数视图的查询", "成功", "查询成功"))
+            } else {
+                tableInsert(resultTb, ("函数视图的查询", "失败", "查询失败或视图不存在"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("函数视图的查询", "失败", snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            dropFunctionView(name=testFuncName)
+            views = getFunctionViews()
+            if (!(testFuncName in views.name)) {
+                tableInsert(resultTb, ("函数视图的删除", "成功", "删除成功"))
+            } else {
+                tableInsert(resultTb, ("函数视图的删除", "失败", "删除失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("函数视图的删除", "失败", snippet(err)))
+            allSuccess = false
+        }
+        
+    } catch (err) {
+        tableInsert(resultTb, ("函数视图基础功能测试出错", "失败", snippet(err)))
+        allSuccess = false
+    } 
+    if (allSuccess) {
+        detail = "函数视图基础功能测试通过。"
+        suggestion = NULL
+    } else {
+        failedTb = select * from resultTb where testResult == "失败"
+        detail = select testType as "测试失败的功能" from failedTb
+        suggestion = "请检查：1. 函数定义是否正确；2. 用户权限是否足够；3. 函数视图名称是否已存在或符合命名规范。"
+    }
+    resultTb.rename!(`测试类型`测试结果`测试信息)
+    return (allSuccess, detail, suggestion, resultTb)
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+name = "permissionManagementTest"
+displayName = "冒烟测试：用户权限管理功能"
+group = "0"
+desc = "测试用户权限管理功能，包括用户登录、创建用户、删除用户、密码管理、组管理、权限控制等功能，测试会创建以smokingTest为前缀的测试用户和测试组。"
+nodes = NULL
+script = '
+def permissionManagementTest(params = NULL) {
+    resultTb = table(1:0, `testType`testResult`testMessage, [STRING, STRING, STRING])
+    allSuccess = true
+    testUserName = "smokingTest_Manage_testUser"
+    testGroupName = "smokingTest_Manage_testGroup"
+
+    if (testUserName in getUserList()) deleteUser(testUserName)
+    if (testGroupName in getGroupList()) deleteGroup(testGroupName)
+
+    try {
+        try {
+            createUser(testUserName, "Qb0507#$")
+            userList = getUserList()
+            if (testUserName in userList) {
+                tableInsert(resultTb, ("创建用户功能", "成功", "用户 " + testUserName + " 创建成功"))
+            } else {
+                tableInsert(resultTb, ("创建用户功能", "失败", "用户 " + testUserName + " 创建失败（不在用户列表中）"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("创建用户功能", "失败", "创建用户异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            userList = getUserList()
+            if (form(userList) == 1 && userList.size() > 0) {
+                tableInsert(resultTb, ("查看用户列表功能", "成功", "用户列表查询成功（用户数量：" + snippet(userList.size()) + "）"))
+            } else {
+                tableInsert(resultTb, ("查看用户列表功能", "失败", "用户列表查询失败或为空"))
+                allSuccess = false
+            }
+            userAccess = getUserAccess(testUserName)
+            if (form(userAccess) == 6 && userAccess.size() > 0) {
+                tableInsert(resultTb, ("查看用户权限功能", "成功", "用户 " + testUserName + " 权限查询成功"))
+            } else {
+                tableInsert(resultTb, ("查看用户权限功能", "失败", "用户 " + testUserName + " 权限查询失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("查看用户列表和权限功能", "失败", "查看用户列表和权限异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            createGroup(testGroupName)
+            groupList = getGroupList()
+            if (testGroupName in groupList) {
+                tableInsert(resultTb, ("创建用户组功能", "成功", "用户组 " + testGroupName + " 创建成功"))
+            } else {
+                tableInsert(resultTb, ("创建用户组功能", "失败", "用户组 " + testGroupName + " 创建失败（不在用户组列表中）"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("创建用户组功能", "失败", "创建用户组异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            addGroupMember(testUserName, testGroupName)
+            groupMembers = getUsersByGroupId(testGroupName)
+            if (testUserName in groupMembers) {
+                tableInsert(resultTb, ("添加用户到组功能", "成功", "用户 " + testUserName + " 已成功添加到用户组 " + testGroupName))
+            } else {
+                tableInsert(resultTb, ("添加用户到组功能", "失败", "用户 " + testUserName + " 未成功添加到用户组 " + testGroupName))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("添加用户到组功能", "失败", "添加用户到组异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            deleteGroupMember(testUserName, testGroupName)
+            groupMembers = getUsersByGroupId(testGroupName)
+            if (!(testUserName in groupMembers)) {
+                tableInsert(resultTb, ("删除组成员功能", "成功", "用户 " + testUserName + " 已成功从用户组 " + testGroupName + " 删除"))
+            } else {
+                tableInsert(resultTb, ("删除组成员功能", "失败", "用户 " + testUserName + " 未成功从用户组 " + testGroupName + " 删除（仍在用户组成员列表中）"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("删除组成员功能", "失败", "删除组成员异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            deleteGroup(testGroupName)
+            groupList = getGroupList()
+            if (!(testGroupName in groupList)) {
+                tableInsert(resultTb, ("删除用户组功能", "成功", "用户组 " + testGroupName + " 删除成功"))
+            } else {
+                tableInsert(resultTb, ("删除用户组功能", "失败", "用户组 " + testGroupName + " 删除失败（仍在用户组列表中）"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("删除用户组功能", "失败", "删除用户组异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            grant(testUserName, DBOBJ_CREATE, "*")
+            userAccess = getUserAccess(testUserName)
+            hasGrantPerm = (userAccess.DBOBJ_CREATE[0] == "allow")
+            if (hasGrantPerm) {
+                tableInsert(resultTb, ("权限赋予功能", "成功", "赋予用户" + testUserName + " DBOBJ_CREATE 权限成功"))
+            } else {
+                tableInsert(resultTb, ("权限赋予功能", "失败", "赋予用户" + testUserName + " DBOBJ_CREATE 权限失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("权限赋予功能", "失败", "赋予用户" + testUserName + " DBOBJ_CREATE 权限异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            revoke(testUserName, DBOBJ_CREATE,"*")
+            userAccess = getUserAccess(testUserName)
+            hasRevokePerm = (userAccess.DBOBJ_CREATE[0] == "none")
+            if (hasRevokePerm) {
+                tableInsert(resultTb, ("权限撤销功能", "成功", "撤销用户" + testUserName + " DBOBJ_CREATE 权限成功"))
+            } else {
+                tableInsert(resultTb, ("权限撤销功能", "失败", "撤销用户" + testUserName + " DBOBJ_CREATE 权限失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("权限撤销功能", "失败", "撤销用户" + testUserName + " DBOBJ_CREATE 权限异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            deny(testUserName, DBOBJ_CREATE,"*")
+            userAccess = getUserAccess(testUserName)
+            hasDenyPerm = (userAccess.DBOBJ_CREATE[0] == "deny")
+            if (hasDenyPerm) {
+                tableInsert(resultTb, ("权限禁止功能", "成功", "禁止用户" + testUserName + " DBOBJ_CREATE 权限成功"))
+            } else {
+                tableInsert(resultTb, ("权限禁止功能", "失败", "禁止用户" + testUserName + " DBOBJ_CREATE 权限失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("权限禁止功能", "失败", "禁止用户" + testUserName + " DBOBJ_CREATE 权限异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            deleteUser(testUserName)
+            userList = getUserList()
+            if (!(testUserName in userList)) {
+                tableInsert(resultTb, ("删除用户功能", "成功", "用户 " + testUserName + " 删除成功"))
+            } else {
+                tableInsert(resultTb, ("删除用户功能", "失败", "用户 " + testUserName + " 删除失败（仍在用户列表中）"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("删除用户功能", "失败", "删除用户异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+    } catch (err) {
+        tableInsert(resultTb, ("用户权限管理异常", "失败", snippet(err)))
+        allSuccess = false
+    } 
+
+    if (testUserName in getUserList()) deleteUser(testUserName)
+    if (testGroupName in getGroupList()) deleteGroup(testGroupName)
+
+    if (allSuccess) {
+        detail = "用户权限管理所有测试项通过。"
+        suggestion = NULL
+    } else {
+        failedItems = select * from resultTb where testResult == "失败"
+        detail = select testType as "测试失败的功能" from failedItems
+        suggestion = "建议检查：1. 超级管理员权限；2. 用户/组操作语法；3. 权限范围与对象的有效性。"
+    }
+    resultTb.rename!(`测试类型`测试结果`测试信息)
+    return (allSuccess, detail, suggestion, resultTb)
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+name = "jobManagementTest"
+displayName = "冒烟测试：作业管理测试"
+group = "0"
+desc = "测试作业管理功能，主要针对批处理作业和定时作业管理的基础功能。"
+nodes = NULL
+script = '
+def batchJobFuncName(n) {
+    s = 0; 
+    for (x in 1..n) { 
+        s += sum(sin(rand(1.0, 100000000) - 0.5))
+        if (x % 10 == 0) { 
+            print(\'Batch job iteration \' + x + \': \' + s)
+        } 
+    } 
+    return s
+}
+def scheduledJobFuncName(){
+    print(\'test scheduled job at\' + now())
+    return now()
+}
+go
+def jobManagementTest(params = NULL) {
+    resultTb = table(1:0, `testType`testResult`testMessage, [STRING, STRING, STRING])
+    allSuccess = true
+    testId = "test_"
+
+    try {
+        // BatchJobTest
+        batchJobId = ""
+        try {
+            batchJobId = submitJob(testId + "_batch", "BatchJobTest", batchJobFuncName, 100)
+            if (batchJobId != "") {
+                tableInsert(resultTb, ("批作业提交功能", "成功", "批作业成功提交, ID为：" + batchJobId))
+            } else {
+                tableInsert(resultTb, ("批作业提交功能", "失败", "批作业成功失败, ID为：" + batchJobId))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("批作业提交功能", "失败", "批作业提交失败, ID为：" + batchJobId + ", 错误信息：" + snippet(err)))
+            allSuccess = false
+        }
+        
+        try {
+            if (batchJobId != "") {
+                sleep(1000) 
+                jobStatusTable = getJobStatus(batchJobId)
+                if (jobStatusTable.size() > 0 && form(jobStatusTable) == 6) {
+                    tableInsert(resultTb, ("批作业状态查询功能", "成功", "批作业状态查询成功"))
+                } else {
+                    tableInsert(resultTb, ("批作业状态查询功能", "失败", "批作业状态查询失败"))
+                    allSuccess = false
+                }
+            } else {
+                tableInsert(resultTb, ("批作业状态查询功能", "失败", "不能获取作业状态"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("批作业状态查询功能", "失败", "获取作业状态失败"))
+            allSuccess = false
+        }
+        
+        try {
+            if (batchJobId != "") {
+                jobMsg = getJobMessage(batchJobId)
+                if (jobMsg != "") {
+                    tableInsert(resultTb, ("批作业信息查询功能", "成功", "批作业信息查询成功"))
+                } else {
+                    tableInsert(resultTb, ("批作业信息查询功能", "失败", "批作业信息查询失败"))
+                    allSuccess = false
+                }
+            } else {
+                tableInsert(resultTb, ("批作业信息查询功能", "失败", "不能获取作业信息"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("批作业信息查询功能", "失败", "获取作业信息失败"))
+            allSuccess = false
+        }
+        
+        try {
+            if (batchJobId != "") {
+                jobStatusTable = getJobStatus(batchJobId)
+                if (jobStatusTable.size() > 0 && form(jobStatusTable) == 6 && jobStatusTable.endTime[0] == NULL) {
+                    cancelJob(batchJobId) 
+                    sleep(5000) 
+                    updatedStatus = getJobStatus(batchJobId)
+                    if (updatedStatus.size() > 0 && updatedStatus.errorMsg[0] != NULL) {  
+                        errorMsg = updatedStatus.errorMsg[0]  
+                        if (strpos(errorMsg, "The task was cancelled") >= 0) {  
+                            tableInsert(resultTb, ("批作业取消功能", "成功", "作业取消成功，取消信息为：" + errorMsg))  
+                        } else {  
+                            tableInsert(resultTb, ("批作业取消功能", "失败", "作业取消失败，未知错误，错误信息：" + errorMsg))  
+                            allSuccess = false  
+                        }  
+                    } else {  
+                        tableInsert(resultTb, ("批作业取消功能", "失败", "作业取消失败，作业状态检查后未取消，错误信息：" + errorMsg))  
+                        allSuccess = false  
+                    }
+                } else {
+                    tableInsert(resultTb, ("批作业取消功能", "成功", "作业已完成或不存在，无需取消：" + jobStatusTable))
+                }
+            } else {
+                tableInsert(resultTb, ("批作业取消功能", "失败", "不能取消作业，作业ID为空"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("批作业取消功能", "失败", "取消作业失败，错误信息：" + snippet(err)))
+            allSuccess = false
+        }
+        
+        // ScheduleJobTest
+        scheduledJobId = testId + "_scheduled"
+        try {
+            startMinute = minute(now())
+            scheduleJob(scheduledJobId, "scheduledJobTest", scheduledJobFuncName, [startMinute, startMinute + 5, startMinute + 10], today(), today(), \'D\')
+            tableInsert(resultTb, ("定时作业提交功能", "成功", "定时作业成功提交, ID为：" + scheduledJobId))
+        } catch (err) {
+            tableInsert(resultTb, ("定时作业提交功", "失败", "定时作业成功提交失败, 错误信息：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            scheduledJobs = getScheduledJobs()
+            if (scheduledJobId in scheduledJobs.jobId) {
+                tableInsert(resultTb, ("定时作业查询功能", "成功", "定时作业查询成功, ID：" + scheduledJobId))
+            } else {
+                tableInsert(resultTb, ("定时作业查询功能", "失败", "查询不到ID：" + scheduledJobId))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("定时作业查询功能", "失败", "定时作业查询失败, ID：" + scheduledJobId + ", 错误信息：" + snippet(err)))
+            allSuccess = false
+        }
+        
+        try {
+            if (scheduledJobId != "") {
+                deleteScheduledJob(scheduledJobId)
+                scheduledJobs = getScheduledJobs()
+                if (notIn(scheduledJobId, scheduledJobs.jobId)) {
+                    tableInsert(resultTb, ("定时作业删除功能", "成功", "定时作业删除成功, ID：" + scheduledJobId))
+                } else {
+                    tableInsert(resultTb, ("定时作业删除功能", "失败", "定时作业删除失败, ID：" + scheduledJobId))
+                    allSuccess = false
+                }
+            } else {
+                tableInsert(resultTb, ("定时作业删除功能", "失败", "不能删除定时作业，ID为空"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("定时作业删除功能", "失败", "定时作业删除失败, ID：" + scheduledJobId + ", 错误信息：" + snippet(err)))
+            allSuccess = false
+        }
+        
+    } catch (err) {
+        tableInsert(resultTb, ("作业管理测试出错", "失败", snippet(err)))
+        allSuccess = false
+    }
+    
+    if (allSuccess) {
+        detail = "作业管理所有测试项通过。"
+        suggestion = NULL
+    } else {
+        failedItems = select * from resultTb where testResult == "失败"
+        detail = select testType as "测试失败的功能" from failedItems
+        suggestion = "建议检查：1. 节点权限配置；2. 作业执行资源是否充足；3. 时间设置是否合理。"
+    }
+    resultTb.rename!(`测试类型`测试结果`测试信息)
+    return (allSuccess, detail, suggestion, resultTb)
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+name = "dataStreamTest"
+displayName = "冒烟测试：流数据表基础功能测试"
+group = "0" 
+desc = "以有状态算子响应式引擎为例测试流数据的发布/订阅/监控/删除/插入/过滤全流程，测试会创建以smokingTest为前缀的流数据表、响应式引擎、订阅、过滤。"
+nodes = NULL  
+script = '
+@state
+def priceChange(lastPrice){
+    return lastPrice \\ prev(lastPrice) - 1
+}
+go
+def dataStreamTest(params = NULL) {
+    resultTb = table(1:0, `testType`testResult`testMessage, [STRING, STRING, STRING])
+    allSuccess = true
+
+    testPrefix = "smokingTest_dataStreamTest"
+
+    tickTableName = testPrefix + "_tick"
+    resultTableName = testPrefix + "_resultTable"
+    resultTableName2 = testPrefix + "_resultTable2"
+    pubTableName = testPrefix + "_pubTable"
+    engineName = testPrefix + "_reactiveDemo"
+    subActionName = testPrefix + "_subAction"
+    filterSubActionName = testPrefix + "_dataFilter"
+    filterCodes = symbol(`000001SZ`000002SZ)
+
+    try{ dropStreamEngine(engineName) } catch(ex){ print("") }
+    if (existsStreamTable(tickTableName)) dropStreamTable(tickTableName)
+    if (existsStreamTable(resultTableName)) dropStreamTable(resultTableName)
+    if (existsStreamTable(pubTableName)) dropStreamTable(pubTableName)
+    if (existsStreamTable(resultTableName2)) dropStreamTable(resultTableName2)
+
+    try {
+        try {
+            tickTable = streamTable(1:0, `securityID`datetime`lastPrice`openPrice, [SYMBOL,TIMESTAMP,DOUBLE,DOUBLE])
+            share(tickTable, tickTableName)
+
+            resultTable = streamTable(10000:0, `securityID`datetime`factor, [SYMBOL, TIMESTAMP, DOUBLE])
+            share(resultTable, resultTableName)
+
+            pubTable = streamTable(1:0, `code`tradetime`price`volume, [SYMBOL,TIMESTAMP,DOUBLE,INT])
+            share(pubTable, pubTableName)
+            setStreamTableFilterColumn(streamTable=pubTable, columnName="code")
+
+            resultTable2=streamTable(1:0, `code`tradetime`price`volume, [SYMBOL,TIMESTAMP,DOUBLE,INT])
+            share(resultTable2, resultTableName2)
+
+            streamTables = getStreamTables()
+            if (tickTableName in streamTables.name && resultTableName in streamTables.name && pubTableName in streamTables.name && resultTableName2 in streamTables.name) {
+                tableInsert(resultTb, ("创建流数据表功能", "成功", "所有流数据表创建成功"))
+            } else {
+                tableInsert(resultTb, ("创建流数据表功能", "失败", "不能找到所有流数据表在getStreamTables()中"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("创建流数据表功能", "失败", "创建流数据表失败，异常信息：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            createReactiveStateEngine(
+                name=engineName,
+                metrics=<[datetime, priceChange(lastPrice)]>,  
+                dummyTable=objByName(tickTableName), 
+                outputTable=objByName(resultTableName), 
+                keyColumn="securityID" 
+            )
+            engineStat = getStreamEngineStat()
+            if (engineName in engineStat.ReactiveStreamEngine.name) {
+                tableInsert(resultTb, ("创建响应式流引擎功能", "成功", "响应式流引擎已创建"))
+            } else {
+                tableInsert(resultTb, ("创建响应式流引擎功能", "失败", "不能找到响应式流引擎在getStreamEngineStat()中"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("创建响应式流引擎功能", "失败", "创建响应式流引擎失败，异常信息：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            subscribeTable(
+                tableName=tickTableName,
+                actionName=subActionName,
+                handler=getStreamEngine(engineName),
+                msgAsTable=true,
+                offset=-1
+            )
+            pubTables = getStreamingStat().pubTables
+            if (tickTableName in pubTables.tableName && subActionName in pubTables.actions) {
+                tableInsert(resultTb, ("订阅流数据表功能", "成功", "成功订阅表 " + tickTableName + " 与操作名 " + subActionName))
+            } else {
+                tableInsert(resultTb, ("订阅流数据表功能", "失败", "订阅创建成功但未在getStreamingStat().pubTables中找到"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("订阅流数据表功能", "失败", "订阅创建失败，异常信息：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            securityID = ["AA", "AA", "BB", "AA"]
+            dateTime = [2024.06.02T09:00:00.000, 2024.06.02T09:01:00.000, 2024.06.02T09:03:00.000, 2024.06.02T09:04:00.000]
+            lastPrice = [9.99, 1.58, 5.37, 9.82]
+            openPrice = [10.05, 1.50, 5.25, 9.70]
+            simulateData = table(securityID, dateTime, lastPrice, openPrice)
+            tableInsert(tickTableName, simulateData)
+            res = select * from resultTable
+            if (resultTable.size() >= 0) {
+                tableInsert(resultTb, ("插入流数据表数据功能", "成功", "成功插入表 " + tickTableName + " 数据"))
+            } else {
+                tableInsert(resultTb, ("插入流数据表数据功能", "失败", "插入表 " + tickTableName + " 数据失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("插入流数据表数据功能", "失败", "插入表 " + tickTableName + " 数据失败，异常信息：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            subscribeTable(
+                tableName=pubTableName,
+                actionName=filterSubActionName,
+                handler=resultTable2,
+                msgAsTable=true,
+                offset=-1,
+                batchSize=2000,
+                throttle=0.01,
+                reconnect=true,
+                filter=filterCodes
+            )
+            pubTables = getStreamingStat().pubTables
+            if (pubTableName in pubTables.tableName && filterSubActionName in pubTables.actions) {
+                tableInsert(resultTb, ("过滤流数据表订阅功能", "成功", "成功订阅过滤表 " + pubTableName + " 与操作名 " + filterSubActionName))
+            } else {
+                tableInsert(resultTb, ("过滤流数据表订阅功能", "失败", "订阅创建成功但未在getStreamingStat().pubTables中找到"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("过滤流数据表订阅功能", "失败", "订阅创建失败，异常信息：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            tableInsert(pubTableName, "000001SZ", 2023.12.15T09:30:00.000, 10.5, 200)
+            tableInsert(pubTableName, "000002SZ", 2023.12.15T09:31:00.000, 10.6, 1000)
+            tableInsert(pubTableName, "000003SZ", 2023.12.15T09:32:00.000, 10.7, 600)
+            tableInsert(pubTableName, "000004SZ", 2023.12.15T09:33:00.000, 10.8, 800)
+            tableInsert(pubTableName, "000005SZ", 2023.12.15T09:34:00.000, 10.7, 500)
+            tableInsert(pubTableName, "000006SZ", 2023.12.15T09:35:00.000, 10.6, 1200)
+
+            sleep(1000)
+            tmp = select * from resultTable2
+            if (all(filterCodes in tmp.code)) {
+                tableInsert(resultTb, ("流数据表订阅过滤数据更新", "成功", "过滤表 " + pubTableName + " 订阅结果验证通过"))
+            } else {
+                tableInsert(resultTb, ("流数据表订阅过滤数据更新", "失败", "过滤表 " + pubTableName + " 订阅结果验证失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("流数据表订阅过滤数据更新", "失败", "验证过滤表 " + pubTableName + " 订阅结果失败，异常信息：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            unsubscribeTable(tableName=tickTableName, actionName=subActionName)
+            unsubscribeTable(tableName=pubTableName, actionName=filterSubActionName)
+            pubTables = getStreamingStat().pubTables
+            if (!(tickTableName in pubTables.tableName && filterSubActionName in pubTables.actions)) {
+                tableInsert(resultTb, ("取消订阅流数据表功能", "成功", "成功取消订阅表 " + tickTableName + " 与操作名 " + subActionName))
+            } else {
+                tableInsert(resultTb, ("取消订阅流数据表功能", "失败", "取消订阅表 " + tickTableName + " 与操作名 " + subActionName + " 失败，当前订阅状态：" + snippet(pubTables)))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("取消订阅流数据表功能", "失败", "取消订阅表 " + tickTableName + " 与操作名 " + subActionName + " 失败，异常信息：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            try{ dropStreamEngine(engineName) } catch(ex){ print(ex) }
+            dropCount = 0
+            if (existsStreamTable(tickTableName)) { dropStreamTable(tickTableName); dropCount +=1 }
+            if (existsStreamTable(resultTableName)) { dropStreamTable(resultTableName); dropCount +=1 }
+            if (existsStreamTable(pubTableName)) { dropStreamTable(pubTableName); dropCount +=1 }
+            if (existsStreamTable(resultTableName2)) { dropStreamTable(resultTableName2); dropCount +=1 }
+            remainingTables = getStreamTables().name
+            hasRemaining = tickTableName in remainingTables || resultTableName in remainingTables || pubTableName in remainingTables || resultTableName2 in remainingTables
+            if (dropCount == 4 && !hasRemaining) {
+                tableInsert(resultTb, ("删除流数据表功能", "成功", "成功删除表 " + tickTableName + "、" + resultTableName + "、" + pubTableName + "、" + resultTableName2))
+            } else {
+                errMsg = "failed to delete Stream Table, expected 4 tables deleted, but actually " + snippet(dropCount) + " tables deleted"
+                if (hasRemaining) errMsg += ", remaining table(s)：" + snippet(remainingTables)
+                tableInsert(resultTb, ("删除流数据表功能", "失败", errMsg))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("删除流数据表功能", "失败", "删除流数据表功能失败，异常信息：" + snippet(err)))
+            allSuccess = false
+        }
+    } catch (err) {
+        tableInsert(resultTb, ("流数据表功能测试异常", "失败", snippet(err)))
+        allSuccess = false
+    } 
+
+    if (allSuccess) {
+        detail = "流数据表功能完整流程测试通过。" 
+        suggestion = NULL
+    } else {
+        failedItems = select * from resultTb where testResult == "失败"
+        detail = select testType as "测试失败的功能" from failedItems
+        suggestion = "建议检查：1. 流表权限是否足够；2. 引擎参数（分组列/指标）是否正确；3. 订阅过滤条件格式是否符合要求；4. 数据插入后是否等待引擎处理（sleep时间）。"
+    }
+    resultTb.rename!(`测试类型`测试结果`测试信息)
+    return (allSuccess, detail, suggestion, resultTb)
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+name = "backupRestoreTest"
+displayName = "冒烟测试：数据备份恢复测试"
+group = "0"
+desc = "测试数据备份和恢复功能，包括备份、恢复、校验等，测试会在本地节点的主目录下创建以smokingTest为前缀的目录和以dfs://smokingTest为前缀的测试库。"
+nodes = NULL
+script = '
+def backupRestoreTest(params = NULL) {  
+    resultTb = table(1:0, `testType`testResult`testMessage, [STRING, STRING, STRING])
+    allSuccess = true  
+
+    backupDir = getHomeDir() + "./smokingTest"  
+    testDBName = "dfs://smokingTest_backupRestoreTest_testDB"  
+    testTableName = "smokingTest_backupRestoreTest_testTable" 
+
+    if (existsDatabase(testDBName)) dropDatabase(testDBName)  
+    if (exists(backupDir)) rmdir(backupDir, true)  
+      
+    try {  
+        n=1000000
+        ID=rand(100, n)
+        dates=2017.08.07..2017.08.11
+        date=rand(dates, n)
+        x=rand(10.0, n)
+        t=table(ID, date, x)
+
+        dbDate = database(, VALUE, 2017.08.07..2017.08.11)
+        dbID=database(, RANGE, 0 50 100);
+        db = database(testDBName, COMPO, [dbDate, dbID])
+        pt = db.createPartitionedTable(t, testTableName, `date`ID)
+        pt.append!(t)
+          
+        // BACKUP_BY_SQL
+        try {
+            backup(backupDir, <select * from loadTable(testDBName, testTableName) where date>2017.08.10>,true)
+            statusTable = getBackupStatus()
+            backupList = getBackupList(backupDir,testDBName,testTableName)
+            x = getBackupMeta(backupDir,testDBName, "/20170811/0_50", testTableName)
+            y = loadBackup(backupDir,testDBName, "/20170811/0_50", testTableName)
+            if (statusTable[0].type == "BACKUP_BY_SQL" && statusTable[0].percentComplete == 100 && backupList.size() == 2 && backupList[backupList.chunkID == x.chunkID].rows == x.rows == y.size()){
+                tableInsert(resultTb, ("通过sql语句备份", "成功", "备份成功"))  
+            } else {
+                tableInsert(resultTb, ("通过sql语句备份", "失败", "备份失败"))  
+                allSuccess = false  
+            }
+        } catch (err) {  
+            tableInsert(resultTb, ("通过sql语句备份", "失败", snippet(err)))  
+            allSuccess = false  
+        }  
+        
+        if (exists(backupDir)) rmdir(backupDir, true)  
+
+        // BACKUP_BY_COPY_FILE
+        try {  
+            backup(backupDir, testDBName, true)
+            statusTable = getBackupStatus()
+            backupList = getBackupList(backupDir,testDBName,testTableName)
+            x = getBackupMeta(backupDir,testDBName, "/20170810/0_50", testTableName)
+            y = checkBackup(backupDir, testDBName, testTableName)
+            if (statusTable[0].type == "BACKUP_BY_COPY_FILE" && statusTable[0].percentComplete == 100 && backupList.size() == 10 && backupList[backupList.chunkID == x.chunkID].rows == x.rows && y.size() == 0){
+                tableInsert(resultTb, ("通过文件复制备份", "成功", "备份成功"))  
+            } else {
+                tableInsert(resultTb, ("通过文件复制备份", "失败", "备份失败"))  
+                allSuccess = false  
+            }
+        } catch (err) {  
+            tableInsert(resultTb, ("通过文件复制备份", "失败", snippet(err)))  
+            allSuccess = false  
+        }
+
+        if (existsDatabase(testDBName)) dropDatabase(testDBName)
+        
+        // migrate 
+        try {
+            migrate(backupDir, testDBName, testTableName) 
+            z = exec count(*) from loadTable(testDBName, testTableName)
+            statusTable = getBackupStatus()
+            if (existsDatabase(testDBName) && statusTable[0].type == "RESTORE_BY_COPY_FILE" && statusTable[0].percentComplete == 100 && z == n){
+                tableInsert(resultTb, ("migrate 函数", "成功", "migrate 函数 数据恢复成功"))  
+            } else {
+                tableInsert(resultTb, ("migrate 函数", "失败", "migrate 函数 数据恢复失败"))  
+                allSuccess = false  
+            }
+        } catch (err) {  
+            tableInsert(resultTb, ("migrate 函数", "失败", snippet(err)))  
+            allSuccess = false  
+        }
+        
+        // restore
+        try {
+            tempTableName = testTableName + "_temp"
+            temp = db.createPartitionedTable(t, tempTableName, `date`ID)  
+            restore(backupDir, testDBName, testTableName, "%20170810%", true, temp)
+            z = exec count(*) from loadTable(testDBName, tempTableName)
+            statusTable = getBackupStatus()
+            if (existsTable(testDBName, tempTableName) && statusTable[0].type == "RESTORE_BY_COPY_FILE" && statusTable[0].percentComplete == 100 && z > 0){
+                tableInsert(resultTb, ("restore 函数", "成功", "restore 函数 数据恢复成功"))  
+            } else {
+                tableInsert(resultTb, ("restore 函数", "失败", "restore 函数 数据恢复失败"))  
+                allSuccess = false  
+            }
+        } catch (err) {  
+            tableInsert(resultTb, ("restore 函数", "失败", snippet(err)))  
+            allSuccess = false  
+        }
+          
+    } catch (err) {  
+        tableInsert(resultTb, ("备份恢复功能异常", "失败", snippet(err)))  
+        allSuccess = false  
+    } 
+
+    if (existsDatabase(testDBName)) dropDatabase(testDBName)  
+    if (exists(backupDir)) rmdir(backupDir, true)  
+      
+    if (allSuccess) {  
+        detail = "数据备份恢复所有测试项通过。"
+        suggestion = NULL
+    } else {
+        failedItems = select * from resultTb where testResult == "失败"
+        detail = select testType as "测试失败的功能" from failedItems
+        suggestion = "建议检查：1. 备份路径权限和磁盘空间 2.参数设置和返回任务信息的函数使用是否符合官方文档要求。"
+    }
+    resultTb.rename!(`测试类型`测试结果`测试信息)
+    return (allSuccess, detail, suggestion, resultTb)
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 // -------------------------- group 1 ------------------------------
@@ -181,7 +1902,10 @@ def recoveryStatus(mutable params){
         return (true, NULL, NULL)
     }
 
-    checkInterval = iif(isVoid(params["checkInterval"]), 10000, int(params["checkInterval"]))
+    checkInterval = 10000
+    if (!isVoid(params["checkInterval"])) {
+        checkInterval = int(params["checkInterval"])
+    }
     sleep(checkInterval)
     
     inProcessTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where Status=="In-Progress";
@@ -197,7 +1921,11 @@ def recoveryStatus(mutable params){
 params = [
     dict(`name`type, ["checkInterval", "INT"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "diskUsage"
@@ -220,7 +1948,11 @@ def diskUsage(params) {
     return (true, "磁盘使用率 " + roundDiskUsage.format("0.00") + "% 小于 volumeUsageThreshold 配置项 " + round(threshold*100, 2) + "%。", NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "memUsage"
@@ -238,7 +1970,11 @@ def memUsage(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "levelFileIndexCacheStatus"
@@ -255,7 +1991,11 @@ def levelFileIndexCacheStatus(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "chunksStatus"
@@ -273,7 +2013,11 @@ def chunksStatus(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "chunksVersion"
@@ -300,7 +2044,11 @@ def chunksVersion(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "chunksCid"
@@ -325,7 +2073,11 @@ def chunksCid(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "replicaNum"
@@ -350,7 +2102,11 @@ def replicaNum(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "replicaRowNum"
@@ -359,7 +2115,8 @@ group = "1"
 desc = "检查在指定的 startTime 到 endTime 之间，是否存在副本数据条数不一致，仅统计有写入的副本。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。配置 timeRange 可以自动计算 startTime 和 endTime。格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等，若格式填写错误则 startTime 和 endTime 用默认值。"
 nodes = NULL
 script = '
 def getChunkidNode(nodes, replicas, chunkIds){
@@ -393,13 +2150,18 @@ def addBadChunkId(mutable badChunkId,chunkId,rowNum){
     return 1;
 }
 def replicaRowNum(params){
-    if(getConfig().dfsReplicationFactor<2){
+    if(int(getConfig().dfsReplicationFactor)<2){
         return (true, "节点副本数小于 2，无法进行校验。", NULL)
     }
-    startTime= params["startTime"]
-    endTime= params["endTime"]
-    nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode==0;
+    
+    startTime = params["startTime"]
+    endTime = params["endTime"]
+
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode==0 or mode==3;
     controllerChunks=select * from rpc(getControllerAlias(),getClusterChunksStatus) where lastUpdated>=startTime and lastUpdated<=endTime;
+    if (controllerChunks.chunkId.size() == 0) {
+        return (true, NULL, NULL)
+    }
     chunkidNode=getChunkidNode(nodes,controllerChunks.replicas,controllerChunks.chunkId);
     chunkidNodeRowArray=array(ANY);
     select addNodeResult(chunkidNodeRowArray,first(node),chunkId) from chunkidNode group by node;
@@ -407,17 +2169,25 @@ def replicaRowNum(params){
     badChunkId=array(ANY);
     select addBadChunkId(badChunkId,first(chunkId),rowNum) from chunkidNodeRow group by chunkId;
     if(badChunkId.size()>0){
-        badChunkId_ = iif(badChunkId.size()>10, badChunkId[:10], badChunkId)
+        badChunkId_ = badChunkId
+        if(badChunkId.size()>10) {
+            badChunkId_ = badChunkId[:10]
+        }
         return false,"存在 "+badChunkId.size()+" 个不一致的副本。","请使用 deleteReplicas 删除错误副本并使用 copyReplicas 拷贝正确副本恢复。", badChunkId_.concat(", ");
     }
     return true,"所有分区副本数完全一致","";
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, toStdJson(params))
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "errorLogs"
@@ -427,6 +2197,7 @@ desc = "检查指定时间范围内（startTime 到 endTime）是否存在 ERROR
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。配置 timeRange 可以自动计算 startTime 和 endTime。格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等，若格式填写错误则 startTime 和 endTime 用默认值。
 - logLevel：STRING 数组，统计的日志等级，可取值：ERROR，WARNING。"
 nodes = [0, 2, 3, 4]
 script = '
@@ -436,7 +2207,9 @@ def getServerLogEx(startTime, endTime) {
     logFile = getConfig("logFile")
     s = logFile.split("/")
     logDir = s[:(s.size()-1)].concat("/")
-    logDir = iif(isNull(logDir), "./", logDir)
+    if (isNull(logDir)) {
+        logDir = "./"
+    }
     nodeAlias = getNodeAlias()
     cnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf) where mode == 3
     if (cnt == 1) {
@@ -450,7 +2223,8 @@ def getServerLogEx(startTime, endTime) {
     update logFiles set startTime = move(endTime, 1)
     delete from logFiles where endTime != NULL and endTime < startTime_
     delete from logFiles where startTime != NULL and startTime > endTime_
-    ret = table(1:0, `ts`threadId`level`line, [NANOTIMESTAMP, STRING, SYMBOL, BLOB])
+    errorCnt = 0
+    warningCnt = 0
     print(logFiles["filename"])
     for (filename in logFiles["filename"]) {
         print(filename)
@@ -490,12 +2264,22 @@ def getServerLogEx(startTime, endTime) {
             levels = tb["line"].split(" ").at(2)
             levels = levels.substr(1, levels.strlen()-2)
             update tb set level = levels
-            reorderColumns!(tb, ret.schema().colDefs.name)
-            ret.append!(tb)
+            if ((ts.last() > startTime_ and ts.first() < startTime_) or (ts.first() < endTime_ and ts.last() > endTime_)) {
+                delete from tb where ts < startTime_ or ts > endTime_
+            }
+            
+            cnt = exec count(*) from tb where level == "ERROR"
+            errorCnt += cnt
+            cnt = exec count(*) from tb where level == "WARNING"
+            warningCnt += cnt
+            print(errorCnt + ", " + warningCnt)
         } while(numByte==maxByteSize);
         fin.close()
     }
-    delete from ret where ts < startTime_ or ts > endTime_
+    ret = table(1:0, `level`count, [STRING, LONG])
+    insert into ret values ("ERROR", errorCnt)
+    insert into ret values ("WARNING", warningCnt)
+    
     return ret
 }
 
@@ -504,21 +2288,28 @@ def errorLogs(params) {
     endTime = params["endTime"]
 
     logs = getServerLogEx(startTime, endTime)
-    ret = select count(*) as count from logs where level in params["logLevel"] group by level
+    ret = select * from logs where level in params["logLevel"] and count > 0
+    cnt = exec count(*) from ret where count > 0
 
-    if (ret.size() > 0) {
+    if (cnt > 0) {
         return (false, ret, "请检查该节点的运行日志内容。")
     } else {
-        return (true, NULL, NULL)
+        return (true, ret, NULL)
     }
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"]),
     dict(`name`type`options, ["logLevel", "SYMBOL", ["ERROR", "WARNING"]])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+version = 1
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "queryElapsed"
@@ -527,18 +2318,25 @@ group = "1"
 desc = "统计在指定时间范围内（startTime 到 endTime）执行的耗时最长的前10条 SQL。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。配置 timeRange 可以自动计算 startTime 和 endTime。格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等，若格式填写错误则 startTime 和 endTime 用默认值。
+- elapsedThresholdMs：DOUBLE，查询耗时阈值（单位：毫秒），当查询耗时超过此阈值时返回错误。可选参数。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def queryElapsed(params) {
+
+    thresholdMs = params["elapsedThresholdMs"]
+
     startTime_ = params["startTime"]
     endTime_ = params["endTime"]
-    
-    getQueryLogInner = def() {
+
+    getQueryLogInner = def(startTime_, endTime_) {
 		logDir = getConfig("logFile").split("/")
 		logDir = logDir[:(logDir.size()-1)].concat("/")
-        logDir = iif(isNull(logDir), "./", logDir)
-        logFiles = files(logDir, "%_job.log")
+        if (isNull(logDir)) {
+            logDir = "./"
+        }
+        logFiles = select * from files(logDir, "%_job.log") where isDir == false order by filename asc
         schema = table(
             ["node","userId","sessionId","jobId","rootId","type","level","startTime","endTime","jobDesc","errorMsg"] as name,
             [
@@ -549,36 +2347,68 @@ def queryElapsed(params) {
         )
         
 		if (logFiles.size() == 0) {
-			throw "Error: no query log found in " + logDir + ", maybe you haven\'t run any sql yet."
+			throw "Error: no job log found in " + logDir + ", maybe you haven\'t run any sql yet."
 		}
-	
-        logs = table(1:0, schema["name"], schema["type"])
+        addColumn(logFiles, `startTime`endTime, [TIMESTAMP, TIMESTAMP])
+        update logFiles set endTime = temporalParse(substr(filename, 0, 14), "yyyyMMddHHmmss")
+        update logFiles set startTime = move(endTime, 1)
+        if (!isNull(startTime_)) {
+            delete from logFiles where endTime != NULL and endTime < startTime_
+        }
+        if (!isNull(endTime_)) {
+            delete from logFiles where startTime != NULL and startTime > endTime_
+        }
+        
+        ret = table(1:0, schema["name"], schema["type"])
+        addColumn(ret, "elapseMs", DOUBLE)
+        reorderColumns!(ret, ["elapseMs"])
         for (filename in logFiles["filename"]) {
             filePath = logDir + "/" + filename
-            logs.append!(loadText(filePath, schema=schema))
+            logs = loadText(filePath, schema=schema)
+            if (!isNull(startTime_)) {
+                logs = select * from logs where startTime >= nanotimestamp(startTime_)
+            }
+            if (!isNull(endTime_)) {
+                logs = select * from logs where endTime <= nanotimestamp(endTime_)
+            }
+            res = select (endTime - startTime) \\ 1000 \\ 1000 as elapseMs, * from logs where type == "Q" order by (endTime - startTime) desc limit 10
+            ret.append!(res)
         }
 	
-		return logs
+		return ret
 	}
 
     nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
-    ret = pnodeRun(getQueryLogInner, nodes)
-    if (!isNull(startTime_)) {
-        ret = select * from ret where startTime >= nanotimestamp(startTime_)
-    }
-    if (!isNull(endTime_)) {
-        ret = select * from ret where endTime <= nanotimestamp(endTime_)
-    }
+    ret = pnodeRun(getQueryLogInner{startTime_, endTime_}, nodes)
     
-    res = select (endTime - startTime) \\ 1000 \\ 1000 as elapseMs, * from ret where type == "Q" order by (endTime - startTime) desc limit 10
+    res = select * from ret where type == "Q" order by elapseMs desc limit 10
+
+    
+    if (!isVoid(thresholdMs) && !isNull(thresholdMs)) {  
+        slowQueries = select * from res where elapseMs > thresholdMs  
+        if (slowQueries.size() > 0) {  
+            errorMsg = "发现 " + snippet(slowQueries.size()) + " 条查询耗时超过阈值 " + snippet(thresholdMs) + " 毫秒"  
+            slowQueryInfo = exec (userId + "@" + node + ": " + string(elapseMs) + "ms") from slowQueries  
+            return (false, errorMsg, "查询耗时超过阈值的用户ID和节点: " + slowQueryInfo.concat("\n"))  
+        }  
+    }
+
+	
 	return (true, res, NULL)
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
-    dict(`name`type, ["endTime", "TIMESTAMP"])
+    dict(`name`type, ["endTime", "TIMESTAMP"]),
+    dict(`name`type, ["elapsedThresholdMs", "DOUBLE"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+version = 1
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "mostQueriedDFSTables"
@@ -587,7 +2417,9 @@ group = "1"
 desc = "统计在指定时间范围内（startTime 到 endTime）访问次数最多的前10个库表。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。配置 timeRange 可以自动计算 startTime 和 endTime。格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等，若格式填写错误则 startTime 和 endTime 用默认值。
+- queryCountThreshold：LONG，库表查询次数阈值，当查询次数超过此阈值时返回错误。可选参数。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def mostQueriedDFSTables(params) {
@@ -595,13 +2427,17 @@ def mostQueriedDFSTables(params) {
         return (false, "未配置 enableDFSQueryLog=true。", "请配置 enableDFSQueryLog=true 以支持该项检查。")
     }
     
+    queryCountThreshold = params["queryCountThreshold"]
+    
     startTime_ = params["startTime"]
     endTime_ = params["endTime"]
     
-    getQueryLogInner = def() {
+    getQueryLogInner = def(startTime_, endTime_) {
 		logDir = getConfig("logFile").split("/")
 		logDir = logDir[:(logDir.size()-1)].concat("/")
-        logDir = iif(isNull(logDir), "./", logDir)
+        if (isNull(logDir)) {
+            logDir = "./"
+        }
         logFiles = files(logDir, "%_query.log")
         schema = table(
             ["node","userId","sessionId","jobId","rootId","type","level","time","database","table","jobDesc"] as name,
@@ -610,92 +2446,152 @@ def mostQueriedDFSTables(params) {
 		if (logFiles.size() == 0) {
 			throw "Error: no query log found in " + logDir + ", maybe you haven\'t run any sql yet."
 		}
-        logs = table(1:0, schema["name"], schema["type"])
+        addColumn(logFiles, `startTime`endTime, [TIMESTAMP, TIMESTAMP])
+        update logFiles set endTime = temporalParse(substr(filename, 0, 14), "yyyyMMddHHmmss")
+        update logFiles set startTime = move(endTime, 1)
+        if (!isNull(startTime_)) {
+            delete from logFiles where endTime != NULL and endTime < startTime_
+        }
+        if (!isNull(endTime_)) {
+            delete from logFiles where startTime != NULL and startTime > endTime_
+        }
+        
+        ret = table(1:0, `database`table`count, [STRING, STRING, LONG])
         for (filename in logFiles["filename"]) {
             filePath = logDir + "/" + filename
-            logs.append!(loadText(filePath, schema=schema))
+            logs = loadText(filePath, schema=schema)
+            if (!isNull(startTime_)) {
+                logs = select * from logs where time >= nanotimestamp(startTime_)
+            }
+            if (!isNull(endTime_)) {
+                logs = select * from logs where time <= nanotimestamp(endTime_)
+            }
+            delete from logs where database == NULL
+            res = select count(*) as count from logs group by database, table order by count desc limit 10
+            ret.append!(res)
         }
-		return logs
+		return ret
 	}
     nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
-    ret = pnodeRun(getQueryLogInner, nodes)
-    if (!isNull(startTime_)) {
-        ret = select * from ret where time >= nanotimestamp(startTime_)
-    }
-    if (!isNull(endTime_)) {
-        ret = select * from ret where time <= nanotimestamp(endTime_)
-    }
+    ret = pnodeRun(getQueryLogInner{startTime_, endTime_}, nodes) 
+    ret = select sum(count) as count from ret group by database, table order by count desc limit 10
     
-    delete from ret where database == NULL
-    ret = select count(*) as count from ret group by database, table order by count desc limit 10
-    
+    if (!isVoid(queryCountThreshold) && !isNull(queryCountThreshold)) {  
+        highFrequencyTables = select * from ret where count > queryCountThreshold  
+        if (highFrequencyTables.size() > 0) {  
+            errorMsg = "发现 " + snippet(highFrequencyTables.size()) + " 个库表访问次数超过阈值 " + snippet(queryCountThreshold) + " 次"  
+            tableInfo = exec (database + "." + table + " (" + string(count) + " 次)") from highFrequencyTables  
+            return (false, errorMsg, "库表访问次数超过阈值的库表有：" + tableInfo.concat("\n"))  
+        }  
+    }
+
 	return (true, ret, NULL)
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
-    dict(`name`type, ["endTime", "TIMESTAMP"])
+    dict(`name`type, ["endTime", "TIMESTAMP"]),
+    dict(`name`type, ["queryCountThreshold", "LONG"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+version = 1
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "DFSTableDiskUsage"
-displayName = "统计数据库大小前10名"
+displayName = "数据库写入量前10名"
 group = "1"
-desc = "统计在指定时间范围内（startTime 到 endTime）有访问记录的数据库大小前10名。
+desc = "统计在指定时间范围内（startTime 到 endTime）数据库写入量前10名。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。配置 timeRange 可以自动计算 startTime 和 endTime。格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等，若格式填写错误则 startTime 和 endTime 用默认值。
+- diskUsageThresholdGB：DOUBLE，数据库表磁盘使用量阈值（单位：GB），当磁盘使用量超过此阈值时返回错误。可选参数。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
-def dfsPath2tableName(dfsPath){
+def dfsPath2tableName(node, chunkId, dfsPath){
     fields=dfsPath.split("/");
-    dbUrl="dfs://"+fields[1];
+    dbUrl="dfs:/" + rpc(node, getDBIdByTabletChunk{chunkId})
     res=exec tableName from listTables(dbUrl) where physicalIndex=last(fields);
     return dbUrl,res[0];
 }
- 
+
 def DFSTableDiskUsage(params) {
+
+    thresholdGB = params["diskUsageThresholdGB"]
+
     startTime = params["startTime"]
     endTime = params["endTime"]
-    res = keyedTable(`dbName`tbName, 1:0, `dbName`tbName, [STRING, STRING])
-    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime
-    for (item in meta) {
-        dfsPath = item["file"]
-        dbName, tbName = dfsPath2tableName(dfsPath)
-        insert into res values (dbName, tbName)
-    }
-    delete from res where tbName == NULL
-    if (res.size() == 0) {
+
+    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith("domain") and !file.endsWith(".tbl")
+    if (meta.size() == 0) {
         return (true, NULL, NULL)
     }
+    addColumn(meta, `dbName`tbName, [STRING, STRING])
+    dbNames = []$STRING
+    tbNames = []$STRING
+    for (item in meta) {
+        chunkId = item["chunkId"]
+        dfsPath = item["file"]
+        node = item["replicas"].split(",").first().split(":").first()
+        dbName, tbName = dfsPath2tableName(node, chunkId, dfsPath)
+        dbNames.append!(dbName)
+        tbNames.append!(tbName)
+    }
+    update meta set dbName = dbNames
+    update meta set tbName = tbNames
+    
     f = def(item) {
+        // item = meta[0]
+        chunkPath = item["file"]
         dbName = item["dbName"]
         tbName = item["tbName"]
         nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0 or mode == 3
-        diskGB = select sum(diskUsage\\1024\\1024\\1024) diskGB
-                    from pnodeRun(getTabletsMeta{"/"+substr(dbName, 6)+"/%", tbName, true, -1}, nodes)
-        diskGB = double(diskGB["diskGB"].first())
+        diskGB = select sum(double(diskUsage)\\1024\\1024\\1024) diskGB
+                    from pnodeRun(getTabletsMeta{chunkPath, tbName, true, -1}, nodes)
+        diskGB = diskGB["diskGB"].first()
         return table(
             dbName as dbName,
             tbName as tbName,
+            chunkPath as chunkPath,
             diskGB as diskGB
         )
     }
-    res_ = unionAll(peach(f, res))
-    delete from res_ where diskGB == 0
-    res_ = select top 10 * from res_ order by diskGB desc
-    if (res_.size() == 0) {
+    ret = unionAll(peach(f, meta), false, true)
+    delete from ret where diskGB == 0 or isNull(diskGB)
+    ret = select sum(diskGB) as diskGB from ret group by dbName, tbName order by diskGB desc limit 10
+    if (ret.size() == 0) {
         return (true, NULL, NULL)
     }
-    return (true, res_, NULL)
+
+    if (!isVoid(thresholdGB) && !isNull(thresholdGB)) {  
+        oversizedTables = select * from ret where diskGB > thresholdGB  
+        if (oversizedTables.size() > 0) {  
+            errorMsg = "发现 " + snippet(oversizedTables.size()) + " 个数据库表写入量超过阈值 " + snippet(thresholdGB) + " GB"  
+            oversizedInfo = exec (dbName + "." + tbName + " (" + string(diskGB) + " GB)") from oversizedTables  
+            return (false, errorMsg, "请检查异常数据库" + snippet(oversizedInfo.concat("\n")))  
+        }  
+    }
+
+    return (true, ret, NULL)
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
-    dict(`name`type, ["endTime", "TIMESTAMP"])
+    dict(`name`type, ["endTime", "TIMESTAMP"]),
+    dict(`name`type, ["diskUsageThresholdGB", "DOUBLE"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+version = 1
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "biggestChunks"
@@ -704,26 +2600,33 @@ group = "1"
 desc = "统计在指定时间范围内（startTime 到 endTime）有写入记录的分区大小前10名。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。配置 timeRange 可以自动计算 startTime 和 endTime。格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等，若格式填写错误则 startTime 和 endTime 用默认值。
+- sizeThresholdGB：DOUBLE，分区大小阈值（单位：GB），当分区大小超过此阈值时返回错误。可选参数。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
-def dfsPath2tableName(dfsPath){
+def dfsPath2tableName(node, chunkId, dfsPath){
     fields=dfsPath.split("/");
-    dbUrl="dfs://"+fields[1];
+    dbUrl="dfs:/" + rpc(node, getDBIdByTabletChunk{chunkId})
     res=exec tableName from listTables(dbUrl) where physicalIndex=last(fields);
     return dbUrl,res[0];
 }
 
 def biggestChunks(params) {
+
+    threshold = params["sizeThresholdGB"]
+
     startTime = params["startTime"]
     endTime = params["endTime"]
+
     res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
-    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime
+    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith(".tbl") and !file.endsWith("/domain")
     
     for (item in meta) {
+        node = item["replicas"].split(",").first().split(":").first()
         chunkId = item["chunkId"]
         dfsPath = item["file"]
-        dbName, tbName = dfsPath2tableName(dfsPath)
+        dbName, tbName = dfsPath2tableName(node, chunkId, dfsPath)
         insert into res values (dbName, tbName, dfsPath, chunkId)
     }
     delete from res where tbName == NULL
@@ -740,14 +2643,28 @@ def biggestChunks(params) {
     update res set diskGB = res_
     res = select * from res order by diskGB desc limit 10
 
+    if (!isVoid(threshold) && !isNull(threshold)) {  
+        oversizedChunks = select * from res where diskGB > threshold  
+        if (oversizedChunks.size() > 0) {  
+            errorMsg = "发现 " + snippet(oversizedChunks.size()) + " 个分区大小超过阈值 " + snippet(threshold) + " GB"  
+            oversizedInfo = exec (dbName + "." + tbName + " (" + string(diskGB) + " GB)") from oversizedChunks  
+            return (false, errorMsg, "建议检查以下分区大小是否异常：\n" + snippet (oversizedInfo.concat("\n"))) 
+        }  
+    } 
     return (true, res, NULL)
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
-    dict(`name`type, ["endTime", "TIMESTAMP"])
+    dict(`name`type, ["endTime", "TIMESTAMP"]),
+    dict(`name`type, ["sizeThresholdGB", "DOUBLE"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "sortKeyCount"
@@ -756,12 +2673,13 @@ group = "1"
 desc = "检查在指定时间范围内（startTime 到 endTime）有写入记录的表的排序键是否过多。当排序键过多时，需要进行哈希降维。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。配置 timeRange 可以自动计算 startTime 和 endTime。格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等，若格式填写错误则 startTime 和 endTime 用默认值。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
-def dfsPath2tableName(dfsPath){
+def dfsPath2tableName(node, chunkId, dfsPath){
     fields=dfsPath.split("/");
-    dbUrl="dfs://"+fields[1];
+    dbUrl="dfs:/" + rpc(node, getDBIdByTabletChunk{chunkId})
     res=exec tableName from listTables(dbUrl) where physicalIndex=last(fields);
     return dbUrl,res[0];
 }
@@ -769,13 +2687,15 @@ def dfsPath2tableName(dfsPath){
 def sortKeyCount(params) {
     startTime = params["startTime"]
     endTime = params["endTime"]
-    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime
-    
+
+    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith(".tbl") and !file.endsWith("/domain")
+
     res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
     for (item in meta) {
+        node = item["replicas"].split(",").first().split(":").first()
         chunkId = item["chunkId"]
         dfsPath = item["file"]
-        dbName, tbName = dfsPath2tableName(dfsPath)
+        dbName, tbName = dfsPath2tableName(node, chunkId, dfsPath)
         insert into res values (dbName, tbName, dfsPath, chunkId)
     }
     ret = table(1:0, `dbName`tbName`maxSortKeyEntryCount, [STRING, STRING, INT])
@@ -799,10 +2719,16 @@ def sortKeyCount(params) {
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+version = 1
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "checkConfigs::commonDolphinDBConfig"
@@ -977,13 +2903,13 @@ def parseConfigs(rawConfigs) {
             item = rawConfigs["cluster.nodes"][i]
             s1 = item.split(":")
             if (s1.size() != 3 and s1.size() != 4) {
-                throw "cluster.nodes 行非法：" + item
+                throw "cluster.nodes 行非法，以\':\'划分的元素数应该为 3 或 4：" + item
             }
             host = s1[0]
             port = int(s1[1])
             s2 = s1[2].split(",")
-            if (s2.size() != 2 and s2.size() != 3) {
-                throw "cluster.nodes 行非法：" + item
+            if (s2.size() != 2 and s2.size() != 3 and s2.size() != 4) {
+                throw "cluster.nodes 行非法，以\',\'划分的元素数应该为 2, 3 或 4：" + item
             }
             nodeAlias = s2[0]
             nodeType = s2[1]
@@ -1020,7 +2946,10 @@ def getAgentConfigs(parsedConfigs, nodeAlias=NULL) {
         throw "no agent.cfg for mode: " + parsedConfigs["mode"]
     }
 
-    nodeAlias_ = iif(isNull(nodeAlias), parsedConfigs["agent.cfg"].keys().first(), nodeAlias)
+    nodeAlias_ = nodeAlias
+    if(isNull(nodeAlias)) {
+        nodeAlias_ = parsedConfigs["agent.cfg"].keys().first()
+    }
     return parsedConfigs["agent.cfg"][nodeAlias_]
 }
 
@@ -1087,7 +3016,11 @@ def getConfigEx(parsedConfigs, key, nodeAlias) {
         }
     }
 
-    return iif(isNull(ret2), ret1, ret2)
+    if (isNull(ret2)) {
+        return ret1
+    } else {
+        return ret2
+    }
 }
 
 def getClusterConfigsEx(parsedConfigs, key) {
@@ -1168,12 +3101,12 @@ def persistenceDir(parsedConfigs) {
     }
 
     key = "persistenceDir"
-    clusterNodes = select * from readConfigs::getClusterConfigsEx(parsedConfigs, key)
-    res = select count(*) as count from clusterNodes where value != NULL group by host, value
+    clusterNodes = select * from readConfigs::getClusterConfigsEx(parsedConfigs, key) where value != NULL and strpos(value, "<ALIAS>") == -1
+    res = select count(*) as count from clusterNodes group by host, value
     res = select * from res where count > 1
     if (res.size() > 0) {
         errInfo = select host, nodeAlias, value from res inner join clusterNodes on res.host == clusterNodes.host and res.value == clusterNodes.value
-        throw "存在同一台机器上的不同数据节点的 " + key + " 配置了相同的值：\n" + string(errInfo)
+        throw "存在同一台机器上的不同数据节点的 " + key + " 配置了相同的值：\n" + snippet(errInfo)
     }
 }
 
@@ -1188,7 +3121,7 @@ def newValuePartitionPolicy(parsedConfigs) {
 
     res = select * from readConfigs::getClusterConfigsEx(parsedConfigs, "newValuePartitionPolicy") where value != "add"
     if (res.size() > 0) {
-        throw "建议将 newValuePartitionPolicy 配置项配置为 add，当前值：\n" + res
+        throw "建议将 newValuePartitionPolicy 配置项配置为 add，当前值：\n" + snippet(res)
     }
 }
 
@@ -1200,14 +3133,14 @@ def checkSites(parsedConfigs) {
     nodeAliases = exec nodeAlias from readConfigs::getClusterNodes(parsedConfigs, "controller")
     controllerCnt = nodeAliases.size()
     for (nodeAlias in nodeAliases) {
-        cfgs = readConfigs::getAgentConfigs(parsedConfigs, nodeAlias)
+        cfgs = readConfigs::getControllerConfigs(parsedConfigs, nodeAlias)
         if (isVoid(cfgs)) {
             continue
         }
         localSite = cfgs["localSite"]
         s = localSite.split(":")
         if (s.size() != 3) {
-            throw "控制节点 " + nodeAlias + " 的 localSite 格式非法：" + localSite + localSite
+            throw "控制节点 " + nodeAlias + " 的 localSite 格式非法：" + localSite
         }
         
         host_ = s[0]
@@ -1244,9 +3177,9 @@ def checkSites(parsedConfigs) {
         }
 
         controllerSite = cfgs["controllerSite"]
-        s = localSite.split(":")
+        s = controllerSite.split(":")
         if (s.size() != 3) {
-            throw "代理节点 " + nodeAlias + " 的 controllerSite 格式非法：" + localSite
+            throw "代理节点 " + nodeAlias + " 的 controllerSite 格式非法：" + controllerSite
         }
 
         host_ = s[0]
@@ -1268,7 +3201,7 @@ def checkSites(parsedConfigs) {
             controllerNodeAliases = []$STRING
             for (item in s_) {
                 s = item.split(":")
-                if (s_.size() != 4) {
+                if (s.size() != 4) {
                     throw "代理节点 " + nodeAlias + " 的 sites 格式非法"
                 }
 
@@ -1357,7 +3290,7 @@ def lanCluster(parsedConfigs) {
     }
     v = set(lanCluster.values())
     if (v.size() != 1) {
-        throw "集群中所有节点的 lanCluster 配置值不一致：\n" + lanCluster
+        throw "集群中所有节点的 lanCluster 配置值不一致：\n" + snippet(lanCluster)
     } else {
         lanCluster = lanCluster.values().first()
     }
@@ -1491,6 +3424,9 @@ def commonDolphinDBConfig(params) {
 
     ret = table(1:0, `project`errMsg, [STRING, STRING])
     for (funcName in funcNames) {
+        if (funcName == "checkConfigs::jsrpc") {
+            continue
+        }
         try {
             funcByName(funcName)(parsedConfigs)
         } catch(err) {
@@ -1509,7 +3445,172 @@ def commonDolphinDBConfig(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+name = "replicaDomain"
+displayName = "多副本domain一致性检查"
+group = "1"
+desc = "检查多副本domain是否一致。"
+nodes = NULL
+params = NULL
+script = '
+def replicaDomain(params=NULL) {
+    dfsReplicationFactor = int(getConfig("dfsReplicationFactor"))
+    if (isNull(dfsReplicationFactor) or dfsReplicationFactor == 1) { // 单副本不用检查
+        return (true, NULL, NULL)
+    }
+    
+    getDatabaseSchema = def (dbName) {
+        return database(dbName).schema()
+    }
+
+    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where file.endsWith("domain")
+    ret = table(1:0, ["库名", "domain路径", "副本节点1", "副本节点2", "是否一致"], [STRING, STRING, STRING, STRING, BOOL])
+
+    idx = 1
+    for (row in meta) {
+        dfsPath = row["file"]
+        print("checking " + dfsPath + ", " + string(idx) + "/" + string(meta.size()))
+        dbName = "dfs:/" + dfsPath.substr(0, (dfsPath.strlen() - 7))
+        nodes = each(first, row["replicas"].split(",").split(":"))
+        if (nodes.size() <= 1) { // 单副本这里不检查，在 replicaNum 指标检查
+            idx += 1
+            continue
+        }
+    
+        sc = rpc(nodes[0], getDatabaseSchema, dbName)
+      
+        for (i in 1:nodes.size()) {
+            sc_ = rpc(nodes[i], getDatabaseSchema, dbName)
+            for (key in sc.keys()) {
+                res = true
+                if (sc[key].form() >= 0 and sc[key].form() <= 3) {
+                    res = eqObj(sc[key], sc_[key])
+                } else if (sc[key].form() == 6) {
+                    res = all(each(eqObj, sc[key].values(), sc_[key].values()))
+                } else { // 不支持比较的类型，跳过
+                   continue
+                } 
+               if(!res) {
+                    break
+               }
+            }
+            if (!res) {
+                print("error: " + dbName + ", "  + dfsPath + ", " + nodes[0] + ", " + nodes[i] + ", " + res)
+                insert into ret values (dbName, dfsPath, nodes[0], nodes[i], res)
+             }
+        }
+        
+        idx += 1
+    }
+    
+    print(ret)
+    
+   if (ret.size() == 0) {
+        return (true, NULL, NULL)
+    } else {
+        return (false, ret, "请联系 DolphinDB 技术支持排查 domain 文件一致性。")
+    }
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+name = "replicaColNum"
+displayName = "多副本列数一致性检查"
+group = "1"
+desc = "检查多副本列数是否一致。
+参数说明：
+- startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。配置 timeRange 可以自动计算 startTime 和 endTime。格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等，若格式填写错误则 startTime 和 endTime 用默认值。"
+nodes = NULL
+script = '
+def replicaColNum(params){
+    dfsReplicationFactor = int(getConfig("dfsReplicationFactor"))
+    if (isNull(dfsReplicationFactor) or dfsReplicationFactor == 1) {
+        return (true, NULL, NULL)
+    }
+    
+    ret = table(1:0, ["库名", "表名", "dfsPath", "副本节点1", "副本节点2", "是否一致"], [STRING, STRING, STRING,STRING, STRING, BOOL])
+
+    startTime = params["startTime"]
+    endTime = params["endTime"]
+
+
+    controllerChunks = select chunkId from rpc(getControllerAlias(),getClusterChunksStatus) where lastUpdated >= startTime and lastUpdated <= endTime and replicaCount >= 2
+    
+    print("controllerChunks.size(): " + controllerChunks.size() )
+    iCnt = 1
+    if(controllerChunks.size() == 0) {
+         return (true, NULL, NULL)
+    }
+    
+    allNodeChunks = select string(chunkId) as chunkId, tablename, dfsPath, latestPhysicalDir, node from pnodeRun(getTabletsMeta{top=-1}) where chunkId in uuid(controllerChunks.chunkId)
+  
+    for(controllerChunkId in controllerChunks) {
+        print("controllerChunkId[" + iCnt + "] = " +  string(controllerChunkId.chunkId))
+        iCnt += 1
+       
+        nodeChunks = select chunkId, tablename, dfsPath, latestPhysicalDir, node from allNodeChunks where chunkId = controllerChunkId.chunkId
+        if(nodeChunks.size() == 0) {
+            continue
+        }
+       
+        colNameArray = array(ANY, 2)
+        colNameArray[0] =  rpc(
+            nodeChunks[0].node, 
+            readTabletChunk,
+            nodeChunks[0].chunkId, 
+            "dfs:/" + rpc(nodeChunks[0].node,getDBIdByTabletChunk, nodeChunks[0].chunkId), 
+            nodeChunks[0].dfsPath,
+            nodeChunks[0].tablename, 
+            0,
+            -1).schema().colDefs.name.sort!()
+        
+        for(i in 1:nodeChunks.size()) {  
+            colNameArray[i] = rpc(
+            nodeChunks[i].node, 
+            readTabletChunk,
+            nodeChunks[i].chunkId, 
+            "dfs:/" + rpc(nodeChunks[i].node, getDBIdByTabletChunk,nodeChunks[i].chunkId), 
+            nodeChunks[i].dfsPath,
+            nodeChunks[i].tablename, 
+            0,
+            -1).schema().colDefs.name.sort!()
+            
+            if(!eqObj(colNameArray[0], colNameArray[i])) {
+                ret.append!("dfs:/" + getDBIdByTabletChunk(nodeChunks[0].chunkId),  nodeChunks[0].tablename, nodeChunks[0].dfsPath, nodeChunks[0].node, nodeChunks[i].node, false)
+            }
+        }
+    }
+    
+     if (ret.size() == 0) {
+        return (true, NULL, NULL)
+    } else {
+        return (false, ret, "请联系 DolphinDB 技术支持排查副本列数一致性。")
+    }
+}
+'
+params = [
+    dict(`name`type, ["timeRange", "STRING"]),
+    dict(`name`type, ["startTime", "TIMESTAMP"]),
+    dict(`name`type, ["endTime", "TIMESTAMP"])
+]
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 // -------------- group 2 -------------------
@@ -1519,7 +3620,8 @@ group = "2"
 desc = "检查指定时间范围内（startTime 到 endTime）是否生成了 core 文件。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。配置 timeRange 可以自动计算 startTime 和 endTime。格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等，若格式填写错误则 startTime 和 endTime 用默认值。"
 nodes = [0, 2, 3, 4]
 script = '
 def coredump(params) {
@@ -1532,6 +3634,7 @@ def coredump(params) {
     
     startTime = params["startTime"]
     endTime = params["endTime"]
+    
     tmpFilename = "autoInspection_coredump_" + getNodeAlias() + "_" + temporalFormat(now(), "yMdHmsSSS") + "_tmp.txt"
     shell("cat /proc/sys/kernel/core_pattern > " + tmpFilename)
     f = file(tmpFilename)
@@ -1584,10 +3687,15 @@ def coredump(params) {
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "commonSystemConfig"
@@ -1733,5 +3841,145 @@ def commonSystemConfig(params) {
 params = [
     dict(`name`type`options, ["logLevel", "SYMBOL", ["ERROR", "WARNING"]])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+
+name = "replicaTbl"
+displayName = "检查多副本tbl文件是否一致"
+group = "1"
+desc = "检查多副本tbl文件的一致性。"
+nodes = NULL
+script = '
+def replicaTbl(params=NULL) {
+    dfsReplicationFactor = int(getConfig("dfsReplicationFactor"))
+    if (isNull(dfsReplicationFactor) or dfsReplicationFactor == 1) { // 单副本不用检查
+        return (true, NULL, NULL)
+    }
+    
+    getDBTableSchema = def (dbName, tbName) {
+        return loadTable(dbName, tbName).schema()
+    }
+
+    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where file.endsWith(".tbl")
+    ret = table(1:0, ["库名", "tbl路径", "副本节点1", "副本节点2", "是否一致"], [STRING, STRING, STRING, STRING, BOOL])
+    idx = 0
+    for (row in meta) {
+        // row = meta[0]
+        dfsPath = row["file"]
+        print("checking " + dfsPath + ", " + string(idx) + "/" + string(meta.size()))
+        s = dfsPath.split("/")
+        dbName = "dfs://" + s[1..(s.size()-2)].concat("/");
+        tbName = s.last().split(".").first()
+        nodes = each(first, row["replicas"].split(",").split(":"))
+        if (nodes.size() <= 1) { // 单副本这里不检查，在 replicaNum 指标检查
+            continue
+        }
+        
+        // 比较每个节点的schema是否完全相同
+        sc = rpc(nodes[0], getDBTableSchema, dbName, tbName)
+        for (i in (1..(nodes.size()-1))) {
+            // i = 1
+            sc_ = rpc(nodes[i], getDBTableSchema, dbName, tbName)
+            for (key in sc.keys()) {
+                res = false
+                if (sc[key].form() >= 0 and sc[key].form() <= 3) {
+                    res = eqObj(sc[key], sc_[key])
+                } else if (sc[key].form() == 6) {
+                    res = all(each(eqObj, sc[key].values(), sc_[key].values()))
+                } else { // 不支持比较的类型，跳过
+                    continue
+                }
+            }
+            if (!res) {
+                   print("error: " + dfsPath + ", " + nodes[0] + ", " + nodes[i])
+                   insert into ret values (dbName, dfsPath, nodes[0], nodes[i], false)
+                }else{
+                	insert into ret values (dbName, dfsPath, nodes[0], nodes[i], true)
+                	}
+        }
+        idx += 1
+    }
+    if (sum(ret[`是否一致])==ret.size()) {
+        return (true, NULL, NULL)
+    } else {
+        return (false, ret, "请联系 DolphinDB 技术支持排查 tbl 文件一致性。")
+    }
+}
+'
+params = NULL
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
+name = "checkRangeExp"
+displayName = "检查RANGE分区是否即将到期"
+group = "1"
+desc = "检查RANGE分区是否即将到期。"
+nodes = NULL
+script = '
+def checkRangeExp(params = NULL){
+    ret = table(1:0,["数据库","分区类型","RANGE分区到期时间"],[STRING,STRING,DATE])
+    allDatabases = getDFSDatabases()
+    if (allDatabases.size()==0) {
+        return (true, NULL, NULL)
+    }
+    num = allDatabases.size()-1
+    
+    for(i in 0 .. num){
+        db = database(allDatabases[i])  
+        dbSchema = schema(db)
+        partitionType = dbSchema["partitionTypeName"]
+        partitionSchema = dbSchema["partitionSchema"]
+        temporalType = `DATE`MONTH`DATETIME`TIMESTAMP`NANOTIME`NANOTIMESTAMP`DATEHOUR
+        if (partitionType.form()==0) {
+            partitionType_ = [partitionType]
+        } else {
+            partitionType_ = partitionType
+        }
+        if (partitionSchema.form()==0) {
+            partitionSchema_ = [partitionSchema]
+        } else {
+            partitionSchema_ = partitionSchema
+        }
+        if(at(partitionType_=="RANGE").size()>0){
+            rangeLoc = at(partitionType_=="RANGE").size()-1
+            for(one in 0..rangeLoc){   //若有多个RANGE分区，依次检查
+                    // one = 0
+                    rangeNum = at(partitionType_=="RANGE")[one]
+                    typestr_ = partitionSchema_[rangeNum][0].typestr()
+                    if(typestr_ in temporalType) {
+                        if (typestr_ == "MONTH") {
+                            dateExp = max(date(partitionSchema_[rangeNum]+1)-1)
+                        } else {
+                            dateExp = max(date(partitionSchema_[rangeNum]))
+                        }
+                        if(dateExp - today()<=10){
+                            type = iif(partitionType.form()==0,"RANGE分区","COMPO分区")
+                            insert into ret values(allDatabases[i],type,dateExp)
+                        }
+                    }
+                }
+        }
+    }
+    if(ret.size()==0){
+        return (true, NULL, NULL)
+    }else{
+        return (false, ret, "请检查数据库范围分区到期时间，及时新增分区。")
+    }
+}
+'
+params = NULL
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go

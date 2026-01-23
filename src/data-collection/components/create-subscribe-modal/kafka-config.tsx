@@ -1,24 +1,25 @@
 import useSWR from 'swr'
 
-import { AutoComplete, Button, Col, Form, Input, Row, Select, Space, Tooltip } from 'antd'
+import { AutoComplete, Button, Col, Form, Input, Row, Select, Space, Tooltip, Typography } from 'antd'
 
 
 import { DeleteOutlined, FileTextOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 
-import Link from 'antd/es/typography/Link.js'
 
 import { get } from 'lodash'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 import { request } from '../../utils.ts'
 import { kafka_params_doc_link } from '../../constant.js'
 
-import { FormDependencies } from '@/components/formily/FormDependcies/index.js'
+import { FormDependencies } from '@components/FormDependencies/index.js'
 
 const DEFAULT_DATA = {
     consumerCfgList: [ ]
 }
+
+const { Link } = Typography
 
 export function KafkaConfig () {
     const { data = DEFAULT_DATA } = useSWR(
@@ -39,8 +40,7 @@ export function KafkaConfig () {
         <Form.List name='consumerCfg' initialValue={[{ key: 'group.id' } ]}>
             {(fields, { add, remove }) => <>
                 {
-                    fields.map((field, idx) => {
-                        return <Row key={field.name} className='kafka-params-item' gutter={[16, 0]}>
+                    fields.map((field, idx) => <Row key={field.name} className='kafka-params-item' gutter={[16, 0]}>
                             <Col span={11}>
                                 <Form.Item label={t('参数')} name={[field.name, 'key']} rules={[{ required: true, message: t('请选择参数') }]}>
                                     <AutoComplete 
@@ -83,8 +83,7 @@ export function KafkaConfig () {
                             <Col span={2}>
                                 <Button icon={<DeleteOutlined />} type='link' disabled={idx === 0} danger className='delete-icon-btn' onClick={() => { remove(field.name) }} />
                             </Col>
-                        </Row>
-                    }) 
+                        </Row>) 
                 }
             <Button icon={<PlusOutlined />} type='dashed' block onClick={() => { add() }}>
                 {t('增加消费参数配置')}

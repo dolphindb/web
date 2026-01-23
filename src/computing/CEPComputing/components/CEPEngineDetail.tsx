@@ -1,17 +1,25 @@
 import '../index.scss'
 
-import { Badge, Descriptions, type DescriptionsProps, Radio, Table, type TableColumnsType, Space, Empty, Typography, Select, Input, Pagination, Spin, Button } from 'antd'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { RedoOutlined, SearchOutlined, SendOutlined } from '@ant-design/icons'
+import { Badge, Descriptions, type DescriptionsProps, Radio, type TableColumnsType, Space, Empty, Typography, Select, Input, Spin, Button } from 'antd'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { SearchOutlined, SendOutlined } from '@ant-design/icons'
 import { DDB, type StreamingMessage } from 'dolphindb/browser.js'
 import NiceModal from '@ebay/nice-modal-react'
 import cn from 'classnames'
+import { strcmp } from 'xshell/utils.browser.js'
+
+import { t } from '@i18n'
+
+import useSWR from 'swr'
 
 import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from '../type.js'
-import { t } from '../../../../i18n/index.js'
-import { get_dataview_info } from '../api.js'
 import { model } from '../../../model.js'
-import { stream_formatter } from '../../../dashboard/utils.ts'
+
+import { DDBTable } from '@components/DDBTable/index.tsx'
+
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
+
+import { get_dataview_info } from '../api.ts'
 
 import { SendEventModal } from './SendEventModal.js'
 
@@ -80,6 +88,7 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
             dataIndex: 'subEngineName',
             title: t('名称'),
             width: 150,
+            ellipsis: true,
             fixed: 'left',
         },
         {
@@ -149,7 +158,7 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
         <Descriptions items={info_items} column={6} layout='vertical' colon={false} />
         
         <h3>{t('子引擎信息')}</h3>
-        <Table
+        <DDBTable
             size='small'
             className='sub-engine-table'
             tableLayout='fixed'
@@ -172,51 +181,60 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
 
 
 function DataView ({ info }: { info: ICEPEngineDetail }) {
-    
-    const { ddb: { username, password } } = model
     // 缓存连接，每次选择 dataview 的时候新建连接，订阅 dataview 的流表，切换的时候关闭
-    const [cep_ddb, set_cep_ddb] = useState<DDB>()
-    const [loading, set_loading] = useState(false)
-    // 用于存储每个 key 对应的数据，初始化的时候或者接受到流表推送的时候更新
-    const [key_data_map, set_key_data_map] = useState<Record<string, Record<string, string>>>({ })
+    const subscribe_ref = useRef<{
+        ddb: DDB
+        table: string
+    }>(null)
+    
+    const [dataview, set_dataview] = useState<string>()
+    
     // 当前选中的 key
-    const [selected_key, set_selected_key] = useState<string>()
-    // dataview 的所有 key
-    const [view_keys, set_view_keys] = useState<string[]>([ ])
-    const [key_info, set_key_info] = useState({
-        // 与 view_keys 可能会有不同，因为做了模糊搜索
-        keys: [ ],
-        page: 1,
-        page_size: 10
-    })
+    const [selected_key, set_selected_key] = useState<string>( )
+    // 搜索框的值
+    const [search_key, set_search_key] = useState<string>()
     
-    
-    useEffect(() => {
-        return () => { cep_ddb?.disconnect?.() }
-    }, [cep_ddb])
-    
-    const reset = useCallback(() => { 
-        set_key_info({
-            keys: [ ],
-            page: 1,
-            page_size: 10
-        })
-        set_key_data_map({ })
-        set_view_keys([ ])
-    }, [ ])
-    
-    useEffect(() => { 
-        reset()
+     // 引擎变更，重置所有状态
+     useEffect(() => {
+        set_selected_key(undefined)
+        set_dataview(undefined)
+        set_search_key(undefined)
+        subscribe_ref.current?.ddb?.disconnect()
+        subscribe_ref.current = null
     }, [info.engineStat.name])
     
     
-    // 订阅流表
-    const on_subscribe = useCallback(async (streaming_table: string, key_column: string) => { 
-        // 订阅前取消上个 dataview 的订阅
-        cep_ddb?.disconnect()
+    // 组件卸载，断开连接
+    useEffect(() => 
+        () => { subscribe_ref.current?.ddb?.disconnect() },
+        [ ])
+    
+    const { data: keys = [ ], mutate, isLoading: loading } = useSWR(
+        dataview ? ['get_dataview_info', dataview] : null,
+        async () => {
+            const { table = [ ], key_cols = [ ] } = await get_dataview_info(info.engineStat.name, dataview) 
+            // dataview 的输出流表
+            const output_table_name = info.dataViewEngines.find(item => item.name === dataview).outputTableName
+            // 如果输出流表与当前订阅的流表不同，则重新订阅流表
+            if (subscribe_ref.current?.table !== output_table_name && output_table_name) 
+                subscribe_streaming_table(output_table_name)
+                  
+            // 生成 key 列表
+            return table.map(item => {
+                const label = key_cols?.map(key => `${key}: ${item[key]}`).join('  ') 
+                // value 用于存储当前 key 对应的行
+                return { label, value: item }
+            })
+        }
+    )
+    
+    async function subscribe_streaming_table (streaming_table: string) { 
+        subscribe_ref.current?.ddb?.disconnect()
         
-        const cep_streaming_ddb = new DDB(model.ddb.url, {
-            autologin: !!username,
+        const { ddb: { url, username, password, ticket } } = model
+        
+        const cep_streaming_ddb = new DDB(url, {
+            ticket,
             username,
             password,
             streaming: {
@@ -226,104 +244,84 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                         console.error(message.error)
                         return
                     }
-                    
-                    const streaming_data = stream_formatter(message.obj, 0, message.data.columns)
-    
-                    for (let item of streaming_data)  
-                        set_key_data_map(data => ({ ...data, [item[key_column]]: item }))                    
+                    // 检测到流表更新，重新更新 dataview 截面信息
+                    mutate()
                 }
             }
         })
         await cep_streaming_ddb.connect()
-        set_cep_ddb(cep_streaming_ddb)
-    }, [cep_ddb, info])
+        subscribe_ref.current = { 
+            ddb: cep_streaming_ddb,
+            table: streaming_table
+        }
+    }
     
-    // 选择 dataview
-    const on_select = useCallback(async name => {         
-        set_loading(true)
-        const { table, keys, key_col } = await get_dataview_info(info.engineStat.name, name) 
-        set_view_keys(keys)
-        
-        set_key_info(val => ({ ...val, keys }))
-        
-        const key_map = { }
-        for (let key of keys)  
-            key_map[key] = table.find(view_item => view_item[key_col] === key)
-        
-        set_key_data_map(key_map)
-        const output_table_name = info.dataViewEngines.find(item => item.name === name).outputTableName
-        on_subscribe(output_table_name, key_col)
-        
-        set_loading(false)
-        
-    }, [info])
-    
-    const on_search_key = useCallback((e:  React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const name = e.target.value
-        if (!name)
-            set_key_info(val => ({ ...val, keys: view_keys }))
-        set_key_info(val => ({ ...val, page: 1, keys: view_keys.filter(item => item.includes(name)) }))
-    }, [view_keys])
-    
-    const table_data_source = useMemo(() => {
-        if (!selected_key)
-            return [ ]
-        // 将宽表转化为窄表
-        return Object.entries(key_data_map?.[selected_key] ?? { }).map(([name, value]) => ({ name, value }))
-    }, [key_data_map, selected_key])
     
     return <div className='data-view-info'>
         <div>
             <Select
-                allowClear
                 className='data-view-select'
                 placeholder={t('请选择数据视图')}
-                options={info?.dataViewEngines?.map(item => ({
-                    label: item.name,
-                    value: item.name
-                }))}
-                onSelect={on_select}
-                onClear={() => {
-                    reset()
-                    cep_ddb?.disconnect?.()
+                value={dataview}
+                // dataview 名称按照字母序排序
+                options={(info.dataViewEngines ?? [ ])
+                    .sort((a, b) => strcmp(a.name, b.name))
+                    .map(item => ({
+                        label: item.name,
+                        value: item.name
+                    }))
+                }
+                onSelect={value => {
+                    set_dataview(value)
+                    set_selected_key(undefined)
                 }}
                 showSearch
             />
             <div className='data-view-key-wrapper'>
-                <Input className='data-view-key-search-input' placeholder={t('请输入要查询的 key')} suffix={<SearchOutlined />} onChange={on_search_key}/>
+                <Input 
+                    className='data-view-key-search-input' 
+                    placeholder={t('请输入要查询的 key')} 
+                    suffix={<SearchOutlined />} 
+                    onChange={e => { set_search_key(e.target.value) }}
+                />
                 <Spin spinning={loading}> 
-                    {
-                        !!key_info.keys.length ? <>
+                    {   
+                        keys.length ? <div className='key-list'>
                             {
-                                key_info.keys
-                                    .slice((key_info.page - 1) * key_info.page_size, key_info.page * key_info.page_size)
-                                    .map(key => <div
-                                        key={key}
-                                        className={cn('data-view-key-item', { 'data-view-key-item-active': key === selected_key })}
-                                        onClick={() => { set_selected_key(key) }}
+                                 (search_key ? keys.filter(item => item.label.includes(search_key)) : keys).map(item => <div
+                                        key={item.label}
+                                        title={item.label}
+                                        className={cn(
+                                            'data-view-key-item', 
+                                            { 'data-view-key-item-active': item.label === selected_key }
+                                        )}
+                                        onClick={() => { 
+                                            set_selected_key(item.label)
+                                        }}
                                     >
-                                        {key}
+                                        {item.label}
                                     </div>)
+                                
                             }
-                            <Pagination
-                                simple
-                                size='small'
-                                onChange={(page, page_size) => { set_key_info(val => ({ ...val, page, page_size })) }}
-                                defaultCurrent={key_info.page}
-                                total={key_info.keys.length}
-                                hideOnSinglePage
-                            />
-                        </>
+                        </div>
                         : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
                     }
                 </Spin>
             </div>
         <div />
         </div>
-        <Table
+        <DDBTable
             size='small'
             className='data-view-table'
-            dataSource={table_data_source}
+            dataSource={Object.entries(keys.find(item => item.label === selected_key)?.value ?? { })
+                .map(([name, value]) => {
+                    if (['string', 'number'].includes(typeof value) || value === null)
+                        return { name, value }
+                    else if (typeof value === 'bigint')
+                        return { name, value: value.toString() }
+                    else
+                        return { name, value: JSON.stringify(value) }
+                })}
             rowKey='name'
             columns={[
                 { title: t('名称'), dataIndex: 'name', width: 300 },
@@ -375,7 +373,7 @@ export function CEPEngineDetail (props: IProps) {
             
             <Space>
                 <Button onClick={on_send_event} icon={<SendOutlined />}>{t('发送事件到引擎')}</Button>
-                {page === EngineDetailPage.INFO && <Button onClick={on_refresh} icon={<RedoOutlined />}>{t('刷新')}</Button>}
+                {page === EngineDetailPage.INFO && <RefreshButton onClick={on_refresh}  />}
             </Space>
         </div>
         { view }

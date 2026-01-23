@@ -5,13 +5,13 @@ import { InputNumber, Popover, Switch } from 'antd'
 
 import { DdbForm } from 'dolphindb/browser.js'
 
-import { Editor } from '@/components/Editor/index.js'
+import { Editor } from '@components/Editor/index.js'
 
 import { dashboard } from '../model.js'
 
 import { use_monaco_insert } from '@/hooks.ts'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { DataView } from './DataView.js'
 
@@ -53,8 +53,8 @@ export function SqlEditor ({
     
     return <>
         <div className='sqleditor'>
-            <div className='sqleditor-main' style={{  height: (show_preview ? '40%' : '100%') }}>
-                <Editor 
+            <div className='sqleditor-main' style={{ height: show_preview ? '40%' : '100%' }}>
+                <Editor
                     readonly={loading}
                     enter_completion
                     on_mount={(editor, monaco) => {

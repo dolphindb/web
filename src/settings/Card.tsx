@@ -2,11 +2,10 @@ import { Button, Popconfirm } from 'antd'
 
 import type { ReactElement } from 'react'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
-import './index.sass'
-import { model } from '../model.js'
-import { config } from '../config/model.js'
+import { model } from '@model'
+import { config } from '@/config/model.ts'
 
 
 export function Card ({
@@ -14,8 +13,8 @@ export function Card ({
     icon,
     label,
     description,
-    activate_prompt,
-    deactivate_prompt,
+    activate_prompt = t('您确定要启用此功能吗'),
+    deactivate_prompt = t('您确定要停用此功能吗'),
     on_activate,
     on_deactivate,
 }: {
@@ -23,15 +22,15 @@ export function Card ({
     icon: ReactElement
     label: string
     description: string
-    activate_prompt: string
-    deactivate_prompt: string
-    on_activate: () => void | Promise<void>
-    on_deactivate: () => void | Promise<void>
+    activate_prompt?: string
+    deactivate_prompt?: string
+    on_activate?: () => void | Promise<void>
+    on_deactivate?: () => void | Promise<void>
 }) {
     const { enabled_modules } = model.use(['enabled_modules'])
     
     const active = enabled_modules.has(module_key)
-    const active_label = active ? t('停用') : t('启用')
+    const action = active ? t('停用') : t('启用')
     
     return <div className='card'>
         <div className='left'>
@@ -43,23 +42,39 @@ export function Card ({
         </div>
         <div className='right'>
             <Popconfirm
+                okButtonProps={{ danger: active }}
                 title={active ? deactivate_prompt : activate_prompt}
                 onConfirm={async () => {
                     let enabled_modules_ = new Set(enabled_modules)
                     
                     if (active) {
-                        await on_deactivate()
+                        await on_deactivate?.()
                         enabled_modules_.delete(module_key)
                     } else {
-                        await on_activate()
+                        await on_activate?.()
                         enabled_modules_.add(module_key)
                     }
                     
-                    await config.change_configs([['webModules', { key: 'webModules', name: 'webModules', value: Array.from(enabled_modules_).join(','), qualifier: '' }]])
+                    if (enabled_modules_.size)
+                        await config.change_configs([
+                            [
+                                'webModules', 
+                                {
+                                    key: 'webModules',
+                                    name: 'webModules',
+                                    value: Array.from(enabled_modules_).join(','), 
+                                    qualifier: ''
+                                }
+                            ]
+                        ])
+                    else {  // 为空时不能保存为 webModules= ，必须删除这个配置项
+                        config.delete_config('webModules')
+                        await config.save_configs()
+                    }
                     
                     model.set({ enabled_modules: enabled_modules_ })
                     
-                    model.message.success(active ? t('{{label}}停用成功', { label }) : t('{{label}}启用成功', { label }) )
+                    model.message.success(t('{{label}}{{action}}成功', { label, action }))
                 }}
                 okText={t('确定')}
                 cancelText={t('取消')}
@@ -69,7 +84,7 @@ export function Card ({
                     type='primary'
                     danger={active}
                 >
-                    {active_label}
+                    {action}
                 </Button>
             </Popconfirm>
         </div>

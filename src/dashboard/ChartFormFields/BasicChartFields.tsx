@@ -6,18 +6,18 @@ import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { get } from 'lodash'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 import { concat_name_path } from '../utils.ts'
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../components/FormDependencies/index.js'
 
 
 
 import { WidgetChartType, dashboard } from '@/dashboard/model.js'
 
-import { BoolRadioGroup } from '@/components/BoolRadioGroup/index.js'
-import { StringDatePicker } from '@/components/StringDatePicker/index.js'
-import { StringTimePicker } from '@/components/StringTimePicker.js'
-import { StringColorPicker } from '@/components/StringColorPicker/index.js'
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.js'
+import { StringDatePicker } from '@components/StringDatePicker/index.js'
+import { StringTimePicker } from '@components/StringTimePicker.js'
+import { StringColorPicker } from '@components/StringColorPicker/index.js'
 
 import { axis_position_options, axis_type_options, format_time_options } from './constant.js'
 import { AxisType, type IAxisItem, type IYAxisItemValue, ITimeFormat } from './type.js'
@@ -80,7 +80,7 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
             initialValue={12}
             hidden={hidden_fields?.includes('fontsize')}
         >
-            <InputNumber addonAfter='px'/>
+            <InputNumber suffix='px'/>
         </Form.Item>
         
         <Form.Item label={t('字体颜色')} name={concat_name_path(name_path, 'font_color')}>

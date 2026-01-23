@@ -4,19 +4,19 @@ import { DDB, type DdbType, type DdbObj, type DdbValue, DdbForm, type DdbTable }
 import { cloneDeep } from 'lodash'
 import copy from 'copy-to-clipboard'
 
+import { t } from '@i18n'
+import { model } from '@model'
 
-import { type Widget, dashboard } from '../model.js'
-import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse, get_sql_col_type_map, get_streaming_col_type_map } from '../utils.ts'
-import { model, storage_keys } from '../../model.js'
-import { get_variable_copy_infos, paste_variables, unsubscribe_variable } from '../Variable/variable.js'
-import { t } from '../../../i18n/index.js'
+import { type Widget, dashboard } from '@/dashboard/model.ts'
+import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse, get_sql_col_type_map, get_streaming_col_type_map } from '@/dashboard/utils.ts'
+import { get_variable_copy_infos, paste_variables, unsubscribe_variable } from '@/dashboard/Variable/variable.ts'
 
 
 export type DataType = { }[]
 
 export type DataSourcePropertyType = string | number | boolean | string[] | DataType
 
-export type ExportDataSource = {
+export interface ExportDataSource {
     id: string
     name: string
     type: DdbForm
@@ -28,63 +28,86 @@ export type ExportDataSource = {
     variables: string[]
     error_message: string
     ddb: string
+    
     /** sql 模式专用 */
     auto_refresh: boolean
+    
     /** sql 模式专用 */
     code: string
+    
     /** sql 模式专用 */
     interval: number
+    
     /** sql 模式专用 */
     timer: null
+    
     /** stream 模式专用 */
     filter: boolean
+    
     /** stream 模式专用 */
     stream_table: string
+    
     /** stream 模式专用 */
     filter_column: string
+    
     /** stream 模式专用 */
     filter_expression: string
+    
     /** stream 模式专用 */
     ip: string
 }
 
 
-export class DataSource extends Model<DataSource>  {
+export class DataSource <TDataRow = any> extends Model<DataSource<any>>  {
     id: string
+    
     name: string
+    
     type: DdbForm
+    
     mode: 'sql' | 'stream' = 'sql'
+    
     max_line: number = null
-    data: DataType = [ ]
+    
+    data: TDataRow[] = [ ]
+    
     cols: string[] = [ ]
+    
     /** map 类型，存储了每一列对应的 DDB 类型 ID */
     type_map: Record<string, DdbType>
+    
     deps: Set<string> = new Set()
+    
     variables: Set<string> = new Set()
+    
     error_message = ''
+    
     ddb: DDB
-    /** sql 模式专用 */
+    
+    // --- sql 模式专用
     auto_refresh = false
-    /** sql 模式专用 */
+    
     code = ''
-    /** sql 模式专用 */
+    
     interval = 1
-    /** sql 模式专用 */
+    
     timer: NodeJS.Timeout
-    /** stream 模式专用 */
+    
+    // --- stream 模式专用
     filter = false
-    /** stream 模式专用 */
+    
     stream_table = ''
-    /** stream 模式专用 */
-    filter_column = ''    
-    /** stream 模式专用 */
+    
+    filter_column = ''
+    
     filter_expression = ''
-    /** stream 模式专用 */
+    
     ip = ''
     
     
     constructor (id: string, name: string, type: DdbForm) {
         super()
+        
         this.id = id
         this.name = name
         this.type = type
@@ -96,9 +119,11 @@ export function find_data_source_index (source_id: string): number {
     return data_sources.findIndex(data_source => data_source.id === source_id)
 } 
 
+
 export function get_data_source (source_id: string): DataSource {
     return data_sources[find_data_source_index(source_id)] || new DataSource('', '', DdbForm.table)
 }
+
 
 export async function save_data_source ( new_data_source: DataSource, code?: string, filter_column?: string, filter_expression?: string ) {
     const id = new_data_source.id
@@ -232,7 +257,6 @@ export function rename_data_source (source_id: string, new_name: string) {
 
 export async function subscribe_data_source (widget_option: Widget, source_id: string, message = true) {
     const data_source = get_data_source(source_id)
-    console.log(data_source, widget_option, 'source_id')
     
     if (widget_option.source_id && !widget_option.source_id.includes(source_id))
         unsubscribe_data_source(widget_option)  
@@ -282,15 +306,19 @@ export async function execute (source_id: string) {
     switch (data_source.mode) {
         case 'sql':
             try {
-                const { type, result } = await dashboard.execute_code(parse_code(data_source.code, data_source), data_source.ddb || model.ddb)
+                const { type, result } = await dashboard.execute_code(
+                    parse_code(data_source.code, data_source),
+                    data_source.ddb || model.ddb)
+                
                 switch (type) {
                     case 'success':
-                        // 暂时只支持table
+                        // 暂时只支持 table
                         if (typeof result === 'object' && result)
                             data_source.set({
                                 data: sql_formatter(result, data_source.max_line),
                                 cols: get_cols(result),
-                                type_map: get_sql_col_type_map(result as unknown as DdbTable),
+                                // 仅 table 有此字段
+                                type_map: result.form === DdbForm.table ? get_sql_col_type_map(result as unknown as DdbTable) : undefined,
                                 error_message: ''
                             })        
                         else
@@ -299,15 +327,16 @@ export async function execute (source_id: string) {
                                 cols: [ ],
                                 error_message: ''
                             })
+                        
                         if (data_source.deps.size && !data_source.timer && data_source.auto_refresh) 
                             create_interval(data_source)
                         
                         break
+                    
                     case 'error':
-                        throw new Error(result as string) 
+                        throw new Error(result as string)
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 // 切换 dashboard 会关闭轮询的连接，若该连接中仍有排队的任务，此处会抛出“连接被关闭”的错误，此处手动过滤
                 if (!data_source.auto_refresh || data_source.ddb)
                     dashboard.message.error(`${error.message} ${data_source.name}`)
@@ -318,9 +347,8 @@ export async function execute (source_id: string) {
                 })
                 clear_data_source(data_source)
             }
-            finally {
-                break
-            }
+            
+            break
         case 'stream':
             if (data_source.deps.size) 
                 await subscribe_stream(data_source)
@@ -329,48 +357,27 @@ export async function execute (source_id: string) {
 
 
 async function create_sql_connection (): Promise<DDB> {
-    const params = new URLSearchParams(location.search)
-    const connection = new DDB(
-        (model.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
-            '://' + model.hostname +
-            
-            // model.port 可能是空字符串
-            (model.port ? `:${model.port}` : '') +
-            
-            // 检测 ddb 是否通过 nginx 代理，部署在子路径下
-            (location.pathname === '/dolphindb/' ? '/dolphindb/' : ''),
-        {
-            autologin: false,
-            verbose: model.verbose,
-            sql: model.sql
-        }
-    )
+    const { ddb: { url, username, password, ticket } } = model
     
-    await connection.connect()
-    const ticket = localStorage.getItem(storage_keys.ticket)
-    if (ticket)
-        await connection.call('authenticateByTicket', [ticket], { urgent: true })
-    else {
-        const { ddb: { username, password } } = model
-        await connection.call('login', [username, password], { urgent: true })
-    }
-    return connection
+    return new DDB(url, {
+        verbose: model.verbose,
+        sql: model.sql,
+        ticket,
+        username,
+        password
+    })
 }
 
 
 function create_interval (data_source: DataSource) {
-    try {
-        if (data_source.auto_refresh) {  
-            const interval_id = setInterval(async () => {
-                await execute(data_source.id)  
-            }, data_source.interval * 1000)
-            
-            data_source.set({ timer: interval_id })
-        }
-    } catch (error) {
-        dashboard.message.error(`${data_source.name} ${t('轮询启动失败')}`)
-        return error
-    }
+    data_source.set({
+        timer: setInterval(
+            async () => {
+                await execute(data_source.id)
+            },
+            data_source.interval * 1000
+        )
+    })
 }
 
 
@@ -378,7 +385,6 @@ async function subscribe_stream (data_source: DataSource) {
     clear_data_source(data_source)
     
     try {
-        const { ddb: { username, password } } = model
         let column: DdbObj<DdbValue>
         if (data_source.filter_column) {
             const { type, result } = await dashboard.execute_code(parse_code(data_source.filter_column, data_source))
@@ -389,11 +395,15 @@ async function subscribe_stream (data_source: DataSource) {
                 throw new Error(result as string)
         }
         
-        const stream_connection = new DDB(
-            (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + data_source.ip,
+        // 这里连接的节点 ip 是集群内的，ticket 能使用
+        const { ddb: { username, password, ticket } } = model
+        
+        let sddb = new DDB(
+            `ws${location.protocol === 'https:' ? 's' : ''}://${data_source.ip}`,
             {
                 username,
                 password,
+                ticket,
                 streaming: {
                     table: data_source.stream_table,
                     filters: data_source.filter
@@ -417,10 +427,11 @@ async function subscribe_stream (data_source: DataSource) {
                         }   
                     }
                 }
-            }
-        )
-        await stream_connection.connect()
-        data_source.set({ data: [ ], cols: await get_stream_cols(data_source.stream_table), ddb: stream_connection })
+            })
+        
+        await sddb.connect()
+        
+        data_source.set({ data: [ ], cols: await get_stream_cols(data_source.stream_table), ddb: sddb })
     } catch (error) {
         console.error(error)
         dashboard.message.error(`${t('无法订阅到流数据表')} ${data_source.stream_table} (${error.message})`)
@@ -458,8 +469,7 @@ export async function get_stream_filter_col (table: string): Promise<string> {
 
 export async function export_data_sources (): Promise<ExportDataSource[]> {
     return cloneDeep(data_sources).map(
-        data_source => {
-            return { 
+        data_source => ({ 
                 ...data_source, 
                 timer: null,
                 ddb: null,
@@ -467,8 +477,7 @@ export async function export_data_sources (): Promise<ExportDataSource[]> {
                 data: [ ],
                 deps: Array.from(data_source.deps),
                 variables: [ ]
-            }
-        }
+            })
     )
 }
 
@@ -531,7 +540,7 @@ export function copy_data_source (source_id: string) {
     try {
         copy(JSON.stringify(get_data_source_copy_infos(source_id)))
         dashboard.message.success(t('复制成功'))
-     } catch (e) {
+     } catch {
         dashboard.message.error(t('复制失败'))
     }
 }

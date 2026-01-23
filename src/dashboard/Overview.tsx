@@ -2,7 +2,7 @@ import './Overview.sass'
 
 import { useEffect, useState } from 'react'
 import { Button, Input, Modal, Table, Popconfirm, Spin, Tag, Typography } from 'antd'
-import { DeleteOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
+import { DeleteOutlined, DownloadOutlined, PlusOutlined } from '@ant-design/icons'
 import { downloadZip } from 'client-zip'
 import cn from 'classnames'
 
@@ -11,13 +11,18 @@ import { use_modal } from 'react-object-model/hooks.js'
 import { genid, vercmp } from 'xshell/utils.browser.js'
 
 import { model } from '../model.js'
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
+
+import { DDBTable } from '@components/DDBTable/index.tsx'
+
+import { TableOperations } from '@components/TableOperations/index.tsx'
 
 import { dashboard, DashboardPermission } from './model.js'
 import { check_name } from './utils.ts'
-import { Import } from './Import/Import.js'
+import { Import } from './components/Import.tsx'
 import { Share } from './Share/Share.js'
 import { Doc } from './components/Doc.js'
+
 
 
 export function Overview () {
@@ -32,7 +37,6 @@ export function Overview () {
     
     let creator = use_modal()
     let editor = use_modal()
-    let deletor = use_modal()
     let copyor = use_modal()
     let configer = use_modal()
     
@@ -60,8 +64,7 @@ export function Overview () {
     
     useEffect(() => {
         if (params.get('create') === '1') {
-            const new_id = genid()
-            set_new_dashboard_id(new_id)                
+            set_new_dashboard_id(Math.trunc(genid() / 4))                
             set_new_dashboard_name('')
             creator.open()
         }
@@ -84,6 +87,28 @@ export function Overview () {
         document.body.removeChild(a)
     }
     
+    
+    async function  on_batch_delete () {
+        model.modal.confirm({
+            title: t('确认删除选中的 {{length}} 个数据面板吗？', { length: selected_dashboard_ids.length }),
+            okButtonProps: { danger: true },
+            onOk: async () => {
+                try {
+                    selected_dashboard_ids.forEach(dashboard_id => {
+                        const config = dashboard.configs.find(config => config.id === dashboard_id)
+                        if (config?.permission !== DashboardPermission.own)
+                            throw new Error(t('您没有删除 {{name}} 的权限', { name: config.name })) 
+                    })
+                    
+                    await dashboard.delete_dashboard_configs(selected_dashboard_ids, false)
+                    set_selected_dashboard_ids([ ])
+                    model.message.success(t('删除成功'))
+                } catch (error) {
+                    model.show_error({ error })
+                }
+            }
+        })
+    }
     
     return <div className='dashboard-overview'>
             <Modal
@@ -167,30 +192,6 @@ export function Overview () {
             </Modal>
             
             <Modal
-                open={deletor.visible}
-                onCancel={deletor.close}
-                onOk={async () => {
-                        try {
-                            selected_dashboard_ids.forEach(dashboard_id => {
-                                const config = dashboard.configs.find(config => config.id = dashboard_id)
-                                if (config?.permission !== DashboardPermission.own)
-                                    throw new Error(t('您没有删除 {{name}} 的权限', { name: config.name })) 
-                            })
-                            
-                            await dashboard.delete_dashboard_configs(selected_dashboard_ids, false)
-                            set_selected_dashboard_ids([ ])
-                            model.message.success(t('删除成功'))
-                        } catch (error) {
-                            model.show_error({ error })
-                        } finally {
-                            deletor.close()
-                        }
-                    }
-                }
-                title={t('确认删除选中的 {{length}} 个数据面板吗？', { length: selected_dashboard_ids.length })}
-             />
-            
-            <Modal
                 open={copyor.visible}
                 onCancel={copyor.close}
                 onOk={async () => {
@@ -200,7 +201,7 @@ export function Overview () {
                         return
                     }
                     
-                    const copy_dashboard = dashboard.generate_new_config(genid(), copy_dashboard_name, current_dashboard.data)
+                    const copy_dashboard = dashboard.generate_new_config(Math.trunc(genid() / 4), copy_dashboard_name, current_dashboard.data)
                     await dashboard.add_dashboard_config(copy_dashboard, false)
                     model.message.success(t('创建副本成功'))
                     
@@ -216,7 +217,9 @@ export function Overview () {
                 />
             </Modal>
             
-            <Table
+            <DDBTable
+                title={t('数据面板')}
+                big_title
                 rowSelection={{
                     selectedRowKeys: selected_dashboard_ids,
                     onChange: (selectedRowKeys: React.Key[]) => {
@@ -261,175 +264,130 @@ export function Overview () {
                         dataIndex: '',
                         key: 'actions',
                         width: 450,
-                        render: ({ key, permission }) => <div className='action'>
-                            {
-                                (permission !== DashboardPermission.view)
-                                    && <>
-                                        <a
-                                            onClick={() => {
-                                                let config = configs.find(({ id }) => id === key)
-                                                dashboard.set({ config, editing: true, save_confirm: true })
-                                                model.goto(`/dashboard/${config.id}`)
-                                            }}
-                                        >
-                                            {t('编辑')}
-                                        </a>
-                                        
-                                        <a
-                                            onClick={async () => single_file_export(key)}
-                                        >
-                                            {t('导出')}
-                                        </a>
-                                        
-                                        <a
-                                            onClick={() => {
-                                                let config = configs.find(({ id }) => id === key)
-                                                set_current_dashboard(config)
-                                                set_copy_dashboard_name(config.name)
-                                                copyor.open()
-                                            }}
-                                        >
-                                            {t('创建副本')}
-                                        </a>
-                                    </>
-                            }
-                            {
-                                permission === DashboardPermission.own 
-                                    ? <>
-                                        <a
-                                            onClick={() => {
-                                                let current_row_config = configs.find(({ id }) => id === key)
-                                                set_current_dashboard(current_row_config)
-                                                editor.open()
-                                                set_edit_dashboard_name(current_row_config?.name)
-                                            }}
-                                        >
-                                            {t('修改名称')}
-                                        </a>
-                                        <Share dashboard_ids={[key]} trigger_type='text'/>
-                                        <Popconfirm
-                                            title={t('删除')}
-                                            okButtonProps={{ danger: true }}
-                                            description={t('确定删除 {{name}} 吗？', { name: configs.find(({ id }) => id === key).name })}
-                                            onConfirm={async () => {
-                                                if (!configs.length) {
-                                                    dashboard.message.error(t('当前 dashboard 列表为空'))
-                                                    return
-                                                }
-                                                
-                                                dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
-                                                
-                                                await dashboard.delete_dashboard_configs([key], false)
-                                                set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
-                                                model.message.success(t('删除成功'))
-                                            }}
-                                        >
-                                            <Typography.Link type='danger'>
-                                                {t('删除')}
-                                            </Typography.Link>
-                                        </Popconfirm>
-                                    </>
-                                    : <>
-                                        {/* <Popconfirm
-                                            title='撤销'
-                                            description={`确定撤销 ${configs.find(({ id }) => id === key).name} 的权限吗？`}
-                                            onConfirm={async () => 
-                                                if (!configs.length) {
-                                                    dashboard.message.error(t('当前 dashboard 列表为空'))
-                                                    return
-                                                }
-                                                
-                                                dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
-                                                
-                                                await dashboard.revoke(key)
-                                                set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
-                                                model.message.success(t('撤销成功'))
-                                            }
-                                            okText={t('确认撤销')}
-                                            cancelText={t('取消')}
-                                        >
-                                            <a  className='delete'>
-                                                {t('撤销')}
-                                            </a>
-                                        </Popconfirm> */}
-                                    </> 
-                            }
-                        </div>
+                        render: ({ key }) => <TableOperations>
+                            <Typography.Link
+                                onClick={() => {
+                                    let config = configs.find(({ id }) => id === key)
+                                    dashboard.set({ config, editing: true, save_confirm: true })
+                                    model.goto(`/dashboard/${config.id}`)
+                                }}
+                            >
+                                {t('编辑')}
+                            </Typography.Link>
+                            
+                            <Typography.Link onClick={async () => single_file_export(key)}>
+                                {t('导出')}
+                            </Typography.Link>
+                            
+                            <Typography.Link
+                                onClick={() => {
+                                    let config = configs.find(({ id }) => id === key)
+                                    set_current_dashboard(config)
+                                    set_copy_dashboard_name(config.name)
+                                    copyor.open()
+                                }}
+                            >
+                                {t('创建副本')}
+                            </Typography.Link>
+                            <Typography.Link
+                                onClick={() => {
+                                    let current_row_config = configs.find(({ id }) => id === key)
+                                    set_current_dashboard(current_row_config)
+                                    editor.open()
+                                    set_edit_dashboard_name(current_row_config?.name)
+                                }}
+                            >
+                                {t('修改名称')}
+                            </Typography.Link>
+                            <Share dashboard_ids={[key]} trigger_type='text'/>
+                            <Popconfirm
+                                title={t('删除')}
+                                okButtonProps={{ danger: true }}
+                                description={t('确定删除 {{name}} 吗？', { name: configs.find(({ id }) => id === key).name })}
+                                onConfirm={async () => {
+                                    if (!configs.length) {
+                                        dashboard.message.error(t('当前 dashboard 列表为空'))
+                                        return
+                                    }
+                                    
+                                    dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
+                                    
+                                    await dashboard.delete_dashboard_configs([key], false)
+                                    set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
+                                    model.message.success(t('删除成功'))
+                                }}
+                            >
+                                <Typography.Link type='danger'>
+                                    {t('删除')}
+                                </Typography.Link>
+                            </Popconfirm>
+                        </TableOperations>
                     }
                 ]}
+                buttons={<>
+                    <Button
+                        type='primary'
+                        icon={<PlusOutlined />}
+                        onClick={() => {
+                            set_new_dashboard_id(Math.trunc(genid() / 4))                
+                            set_new_dashboard_name('')
+                            creator.open()
+                        }}
+                    >
+                        {t('新建')}
+                    </Button>
+                    
+                    <Import type='button'/>
+                    
+                    <Button
+                        icon={<DownloadOutlined />}
+                        onClick={async () => {
+                            if (selected_dashboard_ids && !selected_dashboard_ids.length) {
+                                model.message.error(t('请选择至少一个面板进行导出'))
+                                return
+                            }
+                                
+                            if (selected_dashboard_ids.length === 1) {
+                                single_file_export(selected_dashboard_ids[0])
+                                return
+                            }
+                            const files = [ ]
+                            for (let config_id of selected_dashboard_ids) {
+                                const config = configs.find(({ id }) => id === config_id)
+                                
+                                if (config.permission === DashboardPermission.view)
+                                    throw new Error(t('您没有导出 {{name}} 的权限', { name: config.name }))
+                                
+                                files.push({ name: `dashboard.${config.name}.json`, lastModified: new Date(), input: new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }) })
+                            }
+                            const zip = await downloadZip(files).blob()
+                            let a = document.createElement('a')
+                            a.download = `${model.username}.dashboards.zip`
+                            a.href =  URL.createObjectURL(zip)
+                            document.body.appendChild(a)
+                            a.click()
+                            document.body.removeChild(a)
+                        }}
+                    >
+                        {t('批量导出')}
+                    </Button>
+                    
+                    <Share
+                        dashboard_ids={selected_dashboard_ids}
+                        trigger_type='button'
+                        />
+                
+                    <Button
+                        danger
+                        icon={<DeleteOutlined />}
+                        disabled={!selected_dashboard_ids?.length}
+                        onClick={on_batch_delete}
+                    >
+                        {t('批量删除')}
+                    </Button>   
+                </>}
                 dataSource={configs?.map(({ id, ...others }) => ({ key: id, id, ...others }))}
                 pagination={false}
-                title={() => <div className='title'>
-                        <h2>{t('数据面板')}</h2>
-                        <div className='toolbar'>
-                        <Button
-                                type='primary'
-                                icon={<PlusOutlined />}
-                                onClick={() => {
-                                    const new_id = genid()
-                                    set_new_dashboard_id(new_id)                
-                                    set_new_dashboard_name('')
-                                    creator.open()
-                                }}
-                            >
-                                {t('新建')}
-                            </Button>
-                            
-                            <Import type='button'/>
-                            
-                            <Button
-                                icon={<UploadOutlined />}
-                                onClick={async () => {
-                                    if (selected_dashboard_ids && !selected_dashboard_ids.length) {
-                                        model.message.error(t('请选择至少一个面板进行导出'))
-                                        return
-                                    }
-                                        
-                                    if (selected_dashboard_ids.length === 1) {
-                                        single_file_export(selected_dashboard_ids[0])
-                                        return
-                                    }
-                                    const files = [ ]
-                                    for (let config_id of selected_dashboard_ids) {
-                                        const config = configs.find(({ id }) => id === config_id)
-                                        
-                                        if (config.permission === DashboardPermission.view)
-                                            throw new Error(t('您没有导出 {{name}} 的权限', { name: config.name }))
-                                        
-                                        files.push({ name: `dashboard.${config.name}.json`, lastModified: new Date(), input: new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' }) })
-                                    }
-                                    const zip = await downloadZip(files).blob()
-                                    let a = document.createElement('a')
-                                    a.download = `${model.username}.dashboards.zip`
-                                    a.href =  URL.createObjectURL(zip)
-                                    document.body.appendChild(a)
-                                    a.click()
-                                    document.body.removeChild(a)
-                                }}
-                            >
-                                {t('批量导出')}
-                            </Button>
-                            
-                            <Share
-                                dashboard_ids={selected_dashboard_ids}
-                                trigger_type='button'
-                             />
-                        
-                            <Button
-                                danger
-                                icon={<DeleteOutlined />}
-                                onClick={() => {
-                                    if (!selected_dashboard_ids || !selected_dashboard_ids.length) {
-                                        model.message.error(t('请至少选中一个数据面板后再删除'))
-                                        return
-                                    } 
-                                    deletor.open()
-                                }}
-                            >
-                                {t('批量删除')}
-                            </Button>    
-                        </div>
-                    </div>}
             />
         </div>
 }

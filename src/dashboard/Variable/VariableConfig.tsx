@@ -9,7 +9,7 @@ import { use_modal } from 'react-object-model/hooks.js'
 
 import { dashboard } from '../model.js'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { VariableList } from './VariableList.js'
 import { VariableEditor } from './VariableEditor.js'
@@ -88,8 +88,8 @@ export function VariableConfig () {
         <Modal 
             title={t('配置变量')}
             width='80%' 
-            destroyOnClose
-            className='variable'
+            destroyOnHidden
+            className='variable-modal'
             open={visible}
             onCancel={handle_close} 
             maskClosable={false}

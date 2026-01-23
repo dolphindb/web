@@ -4,13 +4,14 @@ import { use_modal } from 'react-object-model/hooks.js'
 import Icon from '@ant-design/icons'
 import { useEffect, useState } from 'react'
 
+import { download_url } from 'xshell/utils.browser.js'
+
 import { DdbInt, type DdbObj, type DdbTableObj, type DdbVectorValue } from 'dolphindb/browser.js'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 import { DdbObjRef } from '../obj.js'
 
 import { shell } from '../shell/model.js'
-import { download_file } from '../utils.ts'
 import { model } from '../model.js'
 
 import SvgExport from './icons/export.icon.svg'
@@ -26,7 +27,7 @@ export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbV
     
     useEffect(() => {
         form.setFieldsValue({
-            name: info.name || t('表格'),
+            name: info.name || 'table',
             scope: 'all',
             start: 0,
             end: info.rows - 1
@@ -62,16 +63,21 @@ export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbV
                     
                     await shell.define_get_csv_content()
                     
-                    download_file(
+                    download_url(
                         `${name}.csv`,
                         URL.createObjectURL(new Blob(
                             [
                                 new Uint8Array([0xEF, 0xBB, 0xBF]),
-                                (await model.ddb.call('get_csv_content', [(info instanceof DdbObjRef) ? info.name : info, new DdbInt(start), new DdbInt(end)])).value as Uint8Array
-                            ], 
-                            { type: 'text/plain' }
-                        ))
-                    )
+                                await model.ddb.invoke<Uint8Array<ArrayBuffer>>(
+                                    'get_csv_content',
+                                    [
+                                        info instanceof DdbObjRef ? info.name : info,
+                                        new DdbInt(start), 
+                                        new DdbInt(end)
+                                    ],
+                                    { chars: 'binary' })
+                            ],
+                            { type: 'text/csv' })))
                 } finally {
                     set_loading(false)
                     close()
@@ -84,7 +90,7 @@ export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbV
         >
             <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 18 }} disabled={loading}>
                 <Form.Item rules={[{ required: true, message: t('请输入文件名') }]} name='name' label={t('文件名')}>
-                    <Input addonAfter='.csv' placeholder={t('请输入文件名')} />
+                    <Input suffix='.csv' placeholder={t('请输入文件名')} />
                 </Form.Item>
                 {info.rows > 0 && <>
                     <Form.Item name='scope' label={t('导出范围')} initialValue='all'>

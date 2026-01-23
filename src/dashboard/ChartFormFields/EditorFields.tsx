@@ -4,7 +4,7 @@ import { Collapse, Form, Input } from 'antd'
 
 import { useMemo } from 'react'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 export function EditorFields () { 
     

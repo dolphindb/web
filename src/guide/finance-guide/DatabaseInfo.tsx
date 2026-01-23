@@ -2,11 +2,13 @@ import { Button, Form, Input, InputNumber, Radio, Select } from 'antd'
 
 import { useCallback, useEffect } from 'react'
 
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../components/FormDependencies/index.js'
 
 import { request } from '../utils.ts'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
+
+import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
 
 import { ExistDBSelect } from './components/ExistedDBSelect.js'
 import { CUSTOM, DAILY_INCREASE_DATA_OPTIONS } from './constant.js'
@@ -38,7 +40,6 @@ export function DatabaseInfo (props: IProps) {
     return <Form
         onFinish={on_submit}
         form={form}
-        labelAlign='left'
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
     >
@@ -71,7 +72,7 @@ export function DatabaseInfo (props: IProps) {
                                     }
                                 }
                             ]}>
-                            <Input addonBefore='dfs://' placeholder={t('请输入库名')} />
+                            <Input prefix='dfs://' placeholder={t('请输入库名')} />
                         </Form.Item>
                         <Form.Item label={t('日增量')} name={['dailyTotalNum', 'gap']} rules={[{ required: true, message: t('请选择日增量') }]}>
                             <Select options={DAILY_INCREASE_DATA_OPTIONS} placeholder={t('请选择日增量')} />
@@ -114,10 +115,8 @@ export function DatabaseInfo (props: IProps) {
              }
         </FormDependencies>
         
-        <Form.Item className='btn-group'>
-            <Button type='primary' htmlType='submit'>{t('下一步')}</Button>
-        </Form.Item>
-        
-        
+        <BottomFixedFooter>
+            <Button type='primary' onClick={form.submit}>{t('下一步')}</Button>
+        </BottomFixedFooter>
     </Form>
 }

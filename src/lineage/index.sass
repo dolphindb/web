@@ -1,0 +1,182 @@
+@use '../variables'
+
+.lineage
+    --xy-edge-stroke-default: #000000
+    
+    padding: 0px !important
+    
+    height: 100%
+    
+    width: 100%
+    
+    overflow: hidden
+    
+    display: flex
+    flex-direction: column
+    
+    .header
+        padding: 12px
+        
+        width: 100%
+        
+        border-bottom: variables.$border
+        
+        display: flex
+        align-items: center
+        
+        white-space: nowrap
+        
+        .title
+            font-size: 1.5em
+            font-weight: bold
+            flex-shrink: 0
+        
+        .graph-title
+            display: flex
+            align-items: center
+            
+            padding-left: 10px
+            
+            min-width: 0px
+            
+            > .anticon
+                margin-top: 1px
+                
+                margin-right: 8px
+                
+            .name
+                min-width: 0px
+                
+                font-weight: bold
+                font-size: 20px
+                
+                text-overflow: ellipsis
+                
+                overflow: hidden
+            
+        .padding
+            flex: 1
+            
+        .note
+            color: #888888
+            
+            display: flex
+            align-items: center
+            
+            margin-right: 40px
+            
+            margin-left: 40px
+            
+            .anticon
+                margin-right: 4px
+                margin-top: 1px
+                
+    
+    .main
+        flex: 1
+        
+        display: flex
+        
+        overflow-y: hidden
+        
+        .ant-empty
+            margin-top: 200px
+        
+        .list
+            height: 100%
+            
+            border-right: variables.$border
+            
+            overflow-y: auto
+            
+            .item
+                padding: 12px 12px 12px 12px
+                
+                display: flex
+                align-items: center
+                
+                cursor: pointer
+                
+                width: 100%
+                
+                .text
+                    text-overflow: ellipsis
+                    
+                    white-space: nowrap
+                    
+                    overflow: hidden
+                
+                &.selected
+                    font-weight: bold
+                
+                .anticon
+                    margin-right: 8px
+                    margin-top: 2px
+        
+.lineage-graph.react-flow
+    --xy-edge-stroke-default: #444444
+    --xy-edge-stroke-width-default: 0.5
+    
+    height: 100%
+    
+    overflow: hidden
+    
+    .react-flow__edge.selectable
+        cursor: unset
+        
+    .react-flow__handle
+        visibility: hidden
+        
+    .mynode
+        display: flex
+        align-items: center
+        border: 1px solid
+        border-left: 4px solid
+        
+        .icon
+            padding: 8px
+            
+            width: 40px
+            
+            border-right: 1px solid
+            
+            display: flex
+            align-items: center
+            justify-content: center
+            
+            height: 100%
+            
+            .anticon
+                margin-top: 3px
+            
+        .name
+            padding: 8px
+            
+            flex: 1
+            min-width: 0px
+            
+            display: flex
+            align-items: center
+            justify-content: center
+            
+            .text
+                flex-shrink: 1
+                min-width: 0px
+                overflow: hidden
+                text-overflow: ellipsis
+            
+            .anticon
+                margin-left: 4px
+            
+        &.engine-type
+            color: #fb6ab0
+            border-color: #fb6ab0
+            
+            &.deleted
+                color: #aaaaaa
+                border-color: #aaaaaa
+            
+        &.table-type
+            color: #4559c9
+            border-color: #4559c9
+    

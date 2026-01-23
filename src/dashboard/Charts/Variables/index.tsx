@@ -1,13 +1,7 @@
 import './index.scss'
-import { useMemo } from 'react'
 
 import { VariableForm } from '../../GraphItem/VariableForm.js'
-import { type Widget } from '../../model.js'
-
-interface IProps { 
-    widget: Widget
-    data_source: any
-}
+import type { GraphComponentProps } from '@/dashboard/graphs.js'
 
 interface IVariableConfig { 
     title?: string
@@ -20,13 +14,10 @@ interface IVariableConfig {
 }
 
 
-export function Variables (props: IProps) { 
+export function Variables ({ widget }: GraphComponentProps) { 
+    const config = widget.config as IVariableConfig
     
-    const { widget } = props
-    
-    const config = useMemo(() => widget.config as IVariableConfig, [widget.config])
-    
-    return <>
+    return <div className='variable-chart-wrapper'>
         {
             config?.title &&
                 <div className='variable-title' style={{ fontSize: config.title_size ?? 18, fontWeight: 500 }}>
@@ -34,12 +25,12 @@ export function Variables (props: IProps) {
                 </div>
         }
          <VariableForm
-            className='variable-chart-wrapper'
+            className='variable-chart-form'
             ids={config?.variable_ids}
             cols={config?.variable_cols}
             with_search_btn={config?.with_search_btn}
             search_btn_label={config?.search_btn_label }
             label_col={config?.variable_form_label_col ? Math.floor(config?.variable_form_label_col * 24 / 100) : 6}
         />
-    </>
+    </div>
 }

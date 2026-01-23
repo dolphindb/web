@@ -1,8 +1,8 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { t } from '@i18n/index.ts'
+
 import { Button, DatePicker, Form, Input, InputNumber, Modal, Select } from 'antd'
 
-import { isEmpty } from 'lodash'
+import { cloneDeep, isEmpty } from 'lodash'
 
 import dayjs, { type Dayjs } from 'dayjs'
 
@@ -10,14 +10,15 @@ import { useMemo } from 'react'
 
 import { DdbType } from 'dolphindb/browser'
  
-import { DDB_TYPE_MAP } from '@/utils.ts'
+import { DDB_TYPE_MAP } from '@utils'
+import { t } from '@i18n'
 
 import type { MetricParam, MetricsWithStatus } from '@/inspection/type.ts'
 
 interface EditParamModalProps {
     metric: MetricsWithStatus
-    checked_metrics: Map<string, MetricsWithStatus>
-    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void 
+    checked_metrics: MetricsWithStatus[]
+    set_checked_metrics: (metrics: MetricsWithStatus[]) => void 
 }
 
 export const EditParamModal = NiceModal.create(({ 
@@ -26,21 +27,29 @@ export const EditParamModal = NiceModal.create(({
     set_checked_metrics 
 }: EditParamModalProps) => {
     const modal = useModal()   
+    const [form] = Form.useForm()
     
-    const init_metric = useMemo(() => {
-        const { selected_params, params } = metric
-        let formatted_params: Record<string, string | Dayjs | null> = { }
-        if (selected_params !== null && typeof selected_params === 'object' && !isEmpty(metric.selected_params)) 
+    function formatMetricData (metricData: MetricsWithStatus) {
+        const { selected_params, params } = metricData
+        let formatted_params: Record<string, string | Dayjs | number | null> = { }
+        if (selected_params !== null && typeof selected_params === 'object' && !isEmpty(metricData.selected_params))
             for (const [key, value] of Object.entries(selected_params)) {
                 let param = params.get(key)
                 if (param.type === 'TIMESTAMP')
                     formatted_params[key] = value ?  dayjs(value) : null
+                else if (param.type === 'DOUBLE' || param.type === 'LONG' || param.type === 'INT')
+                    // 数值类型保持为数值
+                    formatted_params[key] = value !== null && value !== undefined && value !== '' ? Number(value) : null
                 else
                     formatted_params[key] = value
             }
          
-        return { ...metric, selected_params: formatted_params }
-    }, [metric])
+        return { ...metricData, selected_params: formatted_params }
+    }
+    
+    const init_metric = useMemo(() => formatMetricData(metric), [metric])
+    
+    const version_options = checked_metrics.filter(m => m.name === metric.name).map(m => m.version).map(v => ({ label: v !== null ? v : t('最新'), value: v }))
     
     return <Modal
         className='edit-param-modal'       
@@ -54,15 +63,24 @@ export const EditParamModal = NiceModal.create(({
         cancelText={t('取消')}
     >
         <Form 
+            form={form}
             initialValues={init_metric} 
             labelCol={{ span: 3 }} 
             wrapperCol={{ span: 21 }}
             onFinish={values => {
-                let new_checked_metrics = new Map(checked_metrics)
-                new_checked_metrics.set(metric.name, 
-                    { ...new_checked_metrics.get(metric.name), 
-                        selected_nodes: values.selected_nodes, 
-                        selected_params: values.selected_params })
+                let new_checked_metrics = cloneDeep(checked_metrics)
+                // 先把同名指标的 checked 都设为 false，后面根据这个指标的版本来决定设置哪个为 true
+                new_checked_metrics.forEach(m => {
+                    if (m.name === metric.name)
+                        m.checked = false
+                })
+                // 然后把这个版本的设一下
+                const this_metric = new_checked_metrics.find(m => m.name === metric.name && m.version === values.version)
+                Object.assign(this_metric, {
+                    checked: true,
+                    selected_nodes: values.selected_nodes, 
+                    selected_params: values.selected_params 
+                })
                 set_checked_metrics(new_checked_metrics)
                 modal.hide()
             }}
@@ -72,6 +90,22 @@ export const EditParamModal = NiceModal.create(({
                 label={<h3 className='form-item-label'>{t('名称')}</h3>} 
                 >
                 <Input readOnly style={{ cursor: 'not-allowed' }}/>
+            </Form.Item>
+            
+            <Form.Item
+                name='version'
+                initialValue={metric.version}
+                label={<h3 className='form-item-label'>{t('版本')}</h3>}
+                >
+                <Select
+                    options={version_options}
+                    onChange={version => {
+                        const newMetric = checked_metrics.find(m => m.name === metric.name && m.version === version)
+                        if (newMetric) 
+                            form.setFieldsValue(formatMetricData(newMetric))
+                        
+                    }}
+                />
             </Form.Item>
             
             <Form.Item 
@@ -108,26 +142,34 @@ export const EditParamModal = NiceModal.create(({
                 {
                     [...metric.params.values()].map((param: MetricParam) => {
                         const { type, name } = param
-                        
                         return  <Form.Item 
-                                    name={['selected_params', name]}   
-                                    label={name}
-                                    labelAlign='left'
-                                    labelCol={{ span: 3 }}
-                                    wrapperCol={{ span: 21 }}
-                                    >
-                                {type === DDB_TYPE_MAP[DdbType.timestamp] ? 
-                                    <DatePicker
-                                        showTime 
-                                    /> : 
-                                    type === DDB_TYPE_MAP[DdbType.symbol_extended] ? 
-                                            <Select
-                                                mode='multiple'
-                                                options={param.options.map(op => ({
-                                                    value: op,
-                                                    label: op
-                                            }))}
-                                            /> :  <InputNumber/>}
+                            name={['selected_params', name]}   
+                            label={name}
+                            labelCol={{ span: 3 }}
+                            wrapperCol={{ span: 21 }}
+                        >
+                            {type === DDB_TYPE_MAP[DdbType.timestamp] ?
+                                <DatePicker showTime />
+                            :
+                                type === DDB_TYPE_MAP[DdbType.symbol] || type === DDB_TYPE_MAP[DdbType.symbol_extended]
+                                    ? <Select
+                                        mode='multiple'
+                                        options={param.options.map(op => ({
+                                                value: op,
+                                                label: op
+                                        }))} />
+                                    : type === 'DURATION' || type === 'STRING'
+                                    ? <Input style={{ width: 207 }} placeholder={type === 'DURATION' ? t('例如: 1h, 30m, 1d') : ''} />
+                                    : (type === DDB_TYPE_MAP[DdbType.double] ||
+                                       type === DDB_TYPE_MAP[DdbType.long] ||
+                                       type === DDB_TYPE_MAP[DdbType.int])
+                                    ? <InputNumber
+                                        style={{ width: 207 }}
+                                        placeholder={t('选填，留空表示不设置阈值')}
+                                      />
+                                    :  <InputNumber
+                                        style={{ width: 207 }}
+                                    />}
                             </Form.Item>
                       
                     })

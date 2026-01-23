@@ -4,10 +4,12 @@ import type { DdbType } from 'dolphindb/browser.js'
 import { get, uniq } from 'lodash'
 import { useMemo, useState, useCallback } from 'react'
 
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
+
+import { DDB_TYPE_MAP } from '@utils'
+
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
-import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
-import { DDB_TYPE_MAP } from '@/utils.ts'
+import { FormDependencies } from '../../../components/FormDependencies/index.js'
 import { AxisItem, YAxis, Series, ThresholdFormFields } from '../../ChartFormFields/BasicChartFields.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { SeriesItem } from '../../ChartFormFields/components/SeriesItem.js'
@@ -64,7 +66,7 @@ const series_match_type_options = [
 // 时序图不需要配置 y 轴，默认为数据轴
 export function CompositeChartConfig () {
     const { widget } = dashboard.use(['widget']) 
-    const type = useMemo(() => widget.type, [widget])
+    const { type } = widget
     const [update, set_update] = useState({ })
     
     const force_update = useCallback(() => { set_update({ }) }, [ ])
@@ -75,19 +77,15 @@ export function CompositeChartConfig () {
     const automatic_mode = Form.useWatch('automatic_mode', form)
     
     // 所有数据源类型 map
-    const type_map = useMemo<Record<string, DdbType>>(() => { 
-        return widget.source_id.reduce((prev, id) => ({ ...prev, ...get_data_source(id).type_map }), { })
-    }, [update, widget.source_id])
+    const type_map = useMemo<Record<string, DdbType>>(() => widget.source_id.reduce((prev, id) => ({ ...prev, ...get_data_source(id).type_map }), { }), [update, widget.source_id])
     
     // 所有数据源数值类型列名
-    const col_options = useMemo(() => { 
-        return convert_list_to_options(
+    const col_options = useMemo(() => convert_list_to_options(
             uniq(widget.source_id.reduce((prev, id) => { 
                 const cols = uniq(get_data_source(id).cols).filter(col => VALUE_TYPES.includes(type_map[col]))
                 return prev.concat(cols)
             }, [ ]))
-        )
-    }, [update, widget.source_id, type_map])
+        ), [update, widget.source_id, type_map])
     
     
     return <>
@@ -126,7 +124,7 @@ export function CompositeChartConfig () {
                 forceRender: true,
                 children: !automatic_mode
                     ? <Series col_names={[ ]} />
-                    : <Form.List name='series'>
+                    : <Form.List name='series' initialValue={[{ }]}>
                     {(fields, { add, remove }) => { 
                         const items: CollapseProps['items'] = fields.map(field => ({
                             key: `series_${field.name}`,

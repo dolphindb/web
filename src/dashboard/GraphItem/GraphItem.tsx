@@ -1,6 +1,6 @@
-import './index.scss'
+import './index.sass'
 
-import { CloseOutlined, CopyOutlined } from '@ant-design/icons'
+import { CloseOutlined } from '@ant-design/icons'
 
 
 import { useMemo, useRef } from 'react'
@@ -11,11 +11,11 @@ import { Button } from 'antd'
 
 import { WidgetChartType, WidgetType, WidgetTypeWithoutDatasource, dashboard, type Widget } from '../model.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
-import { graph_config } from '../graph-config.js'
+import { graphs } from '../graphs.js'
 
 import ChartSvg from '../icons/chart.svg'
 import { get_data_source } from '../DataSource/date-source.js'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
  
 
 import { copy_widget } from '../utils.ts'
@@ -35,26 +35,27 @@ function get_padding_style (padding: { left: number, right: number, top: number,
 }
 
 function GraphComponent ({ widget }: { widget: Widget }) {
-    
     // 普通图表 source_id 内只有一项，只需要取第一项，复合图表才会有多项
-    const data_source_node = get_data_source(widget.source_id?.[0])
+    const data_source = get_data_source(widget.source_id?.[0])
     
-    const { data = [ ], cols = [ ], type_map = { } } = data_source_node.use(['data', 'cols', 'type_map'])
+    data_source.use(['data', 'cols', 'type_map'])
     
-    const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
+    const Component = graphs[widget.type].component
     
     const { variable_cols, with_search_btn, search_btn_label, variable_form_label_col } = widget.config ?? { }
     
     return <div
-            style={{ padding: get_padding_style(widget.config?.padding) }}
-            className={cn('graph-item-wrapper', {
-                'overflow-visible-wrapper': widget.type === WidgetChartType.EDITOR || widget.type === WidgetChartType.OHLC
-            })}
-        >
-        
+        style={widget.type === WidgetChartType.CONFIGURATION || WidgetChartType.SURFACE
+            ? undefined
+            : { padding: get_padding_style(widget.config?.padding) }}
+        className={cn('graph-item-wrapper', {
+            'overflow-visible-wrapper': widget.type === WidgetChartType.EDITOR || widget.type === WidgetChartType.OHLC,
+            'configuration-wrapper': widget.type === WidgetChartType.CONFIGURATION,
+            'surface-wrapper': widget.type === WidgetChartType.SURFACE
+        })}
+    >
         {
-            (widget.type !== WidgetChartType.VARIABLE && widget.config) &&
-            <VariableForm
+            widget.type !== WidgetChartType.VARIABLE && widget.config && <VariableForm
                 ids={widget.config.variable_ids}
                 cols={variable_cols}
                 with_search_btn={with_search_btn}
@@ -64,7 +65,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
         }
         
         <div className='graph-component'>
-            <Component data_source={data} widget={widget} col_names={cols} type_map={type_map} />
+            <Component data_source={data_source} widget={widget} />
         </div>
     </div>
 }
@@ -95,12 +96,14 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
                 <DataSourceConfig
                     className='edit-data-source-btn'
                     type='link'
+                    icon={null}
+                    size='small'
                     widget={current}
                     text={t('编辑数据源')}
                 />
             }
             {
-                is_active && <Button icon={<CopyOutlined />} className='edit-data-source-btn' type='link' onClick={ () => { copy_widget(widget) }}  >
+                is_active && <Button size='small' className='edit-data-source-btn' type='link' onClick={ () => { copy_widget(widget) }}  >
                     {t('复制') }
                 </Button>
             }

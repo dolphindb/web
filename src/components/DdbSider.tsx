@@ -2,14 +2,19 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
-import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
+import {
+    default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined,
+    ApartmentOutlined
+} from '@ant-design/icons'
 
 import { noop } from 'xshell/prototype.browser.js'
 import { filter_values } from 'xshell/utils.browser.js'
 
-import { language, t } from '@i18n/index.ts'
+import { language, t } from '@i18n'
 
-import { model, type DdbModel, NodeType, storage_keys, default_view } from '@/model.ts'
+import { model, type DdbModel, NodeType, storage_keys, default_view } from '@model'
+
+import { sider_collapsed_width, sider_uncollapsed_width } from '@utils'
 
 
 import SvgOverview from '@/overview/icons/overview.icon.svg'
@@ -31,6 +36,7 @@ import SvgDataCollection from '@/data-collection/icons/data-collection.icon.svg'
 import SvgConnection from '@/data-collection/icons/connection.icon.svg'
 import SvgParserTemplate from '@/data-collection/icons/parser-template.icon.svg'
 import SvgSession from '@/access/icons/session.icon.svg'
+import SvgStreamingGraph from '@/streaming-graph/flow.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -55,7 +61,8 @@ const svgs = {
     'iot-guide': SvgIot,
     'finance-guide': SvgFinance,
     plugins: SvgPlugins,
-    'session-management': SvgSession
+    'session-management': SvgSession,
+    'streaming-graph': SvgStreamingGraph,
 }
 
 
@@ -66,8 +73,13 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 export function DdbSider () {
     const { dev } = model
     
-    const { node_type, collapsed, logined, admin, login_required, client_auth, v1, port, hostname, username } 
-        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'enabled_modules', 'port', 'hostname', 'username'])
+    const {
+        node_type, collapsed, logined, admin, login_required, client_auth, 
+        v1, v3, port, hostname, username, license, enabled_modules, iot
+    } = model.use([
+        'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 
+        'v1', 'v3', 'port', 'hostname', 'username', 'license', 'enabled_modules', 'iot'
+    ])
     
     const [factor_platform, set_factor_platform] = useState(false)
     
@@ -90,11 +102,11 @@ export function DdbSider () {
     }, [logined, username, client_auth])
     
     return <Layout.Sider
-        width={ language === 'zh' ? 150 : 220 }
+        width={sider_uncollapsed_width}
         className='sider'
         theme='light'
         collapsible
-        collapsedWidth={50}
+        collapsedWidth={sider_collapsed_width}
         collapsed={collapsed}
         trigger={<div className={`collapse-trigger ${collapsed ? 'collapsed' : 'expand'}`}>
             {collapsed ? <DoubleRightOutlined className='collapse-icon' /> : <DoubleLeftOutlined className='collapse-icon' />}
@@ -109,7 +121,7 @@ export function DdbSider () {
         }}
     >
         <Menu
-            className={`menu ${admin ? 'module-settings' : ''}`}
+            className='menu'
             mode='inline'
             theme='light'
             selectedKeys={[model.view]}
@@ -131,21 +143,21 @@ export function DdbSider () {
                     icon: <MenuIcon view='overview' />,
                     label: node_type === NodeType.single ? t('单机总览') : t('集群总览'),
                 },
-                ...admin && node_type === NodeType.controller ? [{
+                admin && (node_type === NodeType.controller || model.dev) && {
                     key: 'config',
                     icon: <MenuIcon view='config'/>,
                     label: t('配置管理')
-                }] : [ ],
+                },
                 {
                     key: 'shell',
                     icon: <MenuIcon view='shell' />,
                     label: t('交互编程'),
                 },
-                ... !v1 ? [ {
+                !v1 && {
                     key: 'dashboard',
                     icon: <MenuIcon view='dashboard' />,
                     label: t('数据面板'),
-                }] : [ ],
+                },
                 {
                     key: 'job',
                     icon: <MenuIcon view='job' />,
@@ -156,7 +168,17 @@ export function DdbSider () {
                     icon: <MenuIcon view='computing' />,
                     label: t('流计算监控', { context: 'menu' }),
                 },
-                ... node_type !== NodeType.computing && admin ? [{
+                v3 && logined && (dev || license.product_key === 'ORCA' || enabled_modules.has('streaming-graph')) && {
+                    key: 'streaming-graph',
+                    icon: <MenuIcon view='streaming-graph' />,
+                    label: t('流图监控'),
+                },
+                v3 && logined && (dev || license.product_key === 'ORCA' || enabled_modules.has('lineage')) && {
+                    key: 'lineage',
+                    icon: <ApartmentOutlined className='icon-menu' />,
+                    label: t('数据血缘'),
+                },
+                node_type !== NodeType.computing && admin && {
                     key: 'access',
                     icon: <MenuIcon view='access' />,
                     label: t('权限管理'),
@@ -172,18 +194,18 @@ export function DdbSider () {
                             label: t('组管理'),
                         },
                     ]
-                }] : [ ],
-                ... admin && language === 'zh' ? [{
+                },
+                admin && language === 'zh' && !iot && {
                     key: 'inspection',
                     icon: <MenuIcon view='inspection' />,
                     label: t('定时巡检'),
-                }] : [ ],
+                },
                 {
                     key: 'log',
                     icon: <MenuIcon view='log' />,
                     label: t('日志查看'),
                 },
-                ... node_type !== NodeType.controller ? [{
+                node_type !== NodeType.controller && !iot && {
                     key: 'data-collection',
                     icon: <MenuIcon view='data-collection' />,
                     label: t('数据采集'),
@@ -199,48 +221,46 @@ export function DdbSider () {
                             key: 'parser-template'
                         }
                     ]
-                }] : [ ],
-                ... admin && dev ? [
-                    {
-                        key: 'plugins',
-                        icon: <MenuIcon view='plugins' />,
-                        label: t('插件管理'),
-                }] : [ ],
-                ... factor_platform && node_type !== NodeType.controller ? [{
+                },
+                admin && !iot && {
+                    key: 'plugins',
+                    icon: <MenuIcon view='plugins' />,
+                    label: t('插件管理'),
+                },
+                factor_platform && node_type !== NodeType.controller && !model.dev && {
                     key: 'factor',
                     icon: <MenuIcon view='factor' />,
-                    label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
-                }] : [ ],
-                {
+                    label: <Link className='starfish-link' target='_blank' href={factor_href}>{t('因子平台')}</Link>
+                },
+                enabled_modules.has('finance-guide') && {
                     key: 'finance-guide',
                     label: t('金融库表向导'),
                     title: t('金融库表向导'),
                     icon: <MenuIcon view='finance-guide'/>
                 },
-                {
+                enabled_modules.has('iot-guide') && {
                     key: 'iot-guide',
                     label: t('物联网库表向导'),
                     title: t('物联网库表向导'),
                     icon: <MenuIcon view='iot-guide'/>
                 },
-                ... dev ? [
-                    {
-                        key: 'test',
-                        icon: <ExperimentOutlined className='icon-menu' />,
-                        label: '测试模块'
-                }] : [ ],
-                ... admin ? [
-                    {
-                        key: 'session-management',
-                        icon: <MenuIcon view='session-management'/>,
-                        label: t('会话管理')
-                    },
-                    {
-                        key: 'settings',
-                        icon: <SettingOutlined  className='icon-menu' />,
-                        label: t('功能设置')
-                }] : [ ],
-            ].filter(item => model.is_module_visible(item.key))}
+                dev && {
+                    key: 'test',
+                    icon: <ExperimentOutlined className='icon-menu' />,
+                    label: t('测试模块')
+                },
+                admin && {
+                    key: 'session-management',
+                    icon: <MenuIcon view='session-management'/>,
+                    label: t('会话管理')
+                },
+                admin && !iot && {
+                    key: 'settings',
+                    className: 'settings',
+                    icon: <SettingOutlined className='icon-menu' />,
+                    label: t('功能设置')
+                },
+            ].filter(Boolean)}
         />
     </Layout.Sider>
 }

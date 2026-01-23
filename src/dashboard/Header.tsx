@@ -2,7 +2,7 @@ import './Header.sass'
 
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react'
 import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch } from 'antd'
-import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
+import { CopyOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
 import { genid, unique } from 'xshell/utils.browser.js'
@@ -16,10 +16,10 @@ import type { SwitchProps } from 'antd/lib/index.js'
 import useSWR from 'swr'
 
 import { model, storage_keys } from '../model.js'
-import { t } from '../../i18n/index.js'
-import { CompileAndRefresh } from '../components/CompileAndRefresh.js'
+import { t } from '@i18n'
+import { CompileAndRefresh } from '../components/DDBHeader/CompileAndRefresh.js'
 
-import { HostSelect } from '../components/HostSelect.js'
+import { HostSelect } from '../components/DDBHeader/HostSelect.js'
 
 import { type DashBoardConfig, type Widget, dashboard, DashboardPermission } from './model.js'
 import { DataSourceConfig } from './DataSource/DataSourceConfig.js'
@@ -28,7 +28,7 @@ import { VariableConfig } from './Variable/VariableConfig.js'
 import { export_variables } from './Variable/variable.js'
 
 import { check_name, get_shared_dashboards } from './utils.ts'
-import { Import } from './Import/Import.js'
+import { Import } from './components/Import.tsx'
 import { Share } from './Share/Share.js'
 import { DashboardMode } from './type.js'
 import { SaveConfirmModal } from './components/SaveComfirmModal.js'
@@ -57,7 +57,6 @@ interface DashboardOption {
 
 export function Header () {
     const { editing, widgets, configs = [ ], config, auto_save } = dashboard.use(['editing', 'widgets', 'configs', 'config', 'auto_save'])
-    const [new_dashboard_id, set_new_dashboard_id] = useState<number>()
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
     const [copy_dashboard_name, set_copy_dashboard_name] = useState('')
@@ -135,7 +134,8 @@ export function Header () {
             return
         }
         
-        const new_dashboard_config = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
+        // 接近 Number.MAX_SAFE_INTEGER 的 id 数值 server 无法精确存储
+        const new_dashboard_config = dashboard.generate_new_config(Math.trunc(genid() / 4), new_dashboard_name)
         
         // await dashboard.update_config(new_dashboard_config)
         await dashboard.add_dashboard_config(new_dashboard_config)
@@ -316,7 +316,7 @@ export function Header () {
                             return
                         }
                         
-                        const copy_dashboard = dashboard.generate_new_config(genid(), copy_dashboard_name, config.data)
+                        const copy_dashboard = dashboard.generate_new_config(Math.trunc(genid() / 4), copy_dashboard_name, config.data)
                         await dashboard.add_dashboard_config(copy_dashboard)
                         dashboard.message.success(t('创建副本成功'))
                         
@@ -335,8 +335,6 @@ export function Header () {
                     <Button
                         className='action'
                         onClick={() => {
-                            const new_id = genid()
-                            set_new_dashboard_id(new_id)                
                             set_new_dashboard_name('')
                             add_open()
                         }}
@@ -344,11 +342,34 @@ export function Header () {
                         <FileAddOutlined />
                     </Button>
                 </Tooltip>
-            
+                
+                <Tooltip title={t('修改名称')}>
+                    <Button
+                        className='action' 
+                        onClick={() => { 
+                            edit_open()
+                            set_edit_dashboard_name(config?.name) 
+                        }}
+                    >
+                        <EditOutlined />
+                    </Button>
+                </Tooltip>
+                
                 <Tooltip title={t('保存')}>
                     <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
                 </Tooltip>
-            
+                
+                <Tooltip title={t('创建副本')}>
+                    <Button className='action' onClick={() => {
+                        set_copy_dashboard_name(config.name)
+                        copy_open()    
+                    }}>
+                        <CopyOutlined />
+                    </Button>
+                </Tooltip>
+                
+                <Import type='icon'/>
+                
                 <Tooltip title={t('导出')}>
                     <Button className='action' onClick={async () => {
                         await get_latest_config()
@@ -362,35 +383,17 @@ export function Header () {
                         document.body.appendChild(a)
                         a.click()
                         document.body.removeChild(a)
-                    }}><UploadOutlined /></Button>
+                    }}><DownloadOutlined /></Button>
                 </Tooltip>
-                <Tooltip title={t('创建副本')}>
-                    <Button className='action' onClick={() => {
-                        set_copy_dashboard_name(config.name)
-                        copy_open()    
-                    }}>
-                        <CopyOutlined />
-                    </Button>
-                </Tooltip>
-            
-                <Import type='icon'/>
-                <Tooltip title={t('修改名称')}>
-                    <Button
-                        className='action' 
-                        onClick={() => { 
-                            edit_open()
-                            set_edit_dashboard_name(config?.name) 
-                        }}
-                    >
-                        <EditOutlined />
-                    </Button>
-                </Tooltip>
+                
                 <Share dashboard_ids={[dashboard.config?.id]} trigger_type='icon' />
+                
                 <Popconfirm
                     title={t('删除')}
                     description={t('确定当前 dashboard 删除吗？')}
                     onConfirm={async () => { handle_destroy() }}
                     okText={t('确定')}
+                    okButtonProps={{ variant: 'solid', color: 'danger' }}
                     cancelText={t('取消')}
                 >
                     <Tooltip title={t('删除')}>
@@ -427,7 +430,7 @@ export function Header () {
         
         {
             editing && <div className='configs'>
-                {t('自动拓展页面大小：')}<Switch value={auto_expand} onChange={(checked => { dashboard.on_set_auto_expand(checked) })}/>
+                {t('自动拓展页面大小：')}<Switch size='small' value={auto_expand} onChange={(checked => { dashboard.on_set_auto_expand(checked) })}/>
                 <VariableConfig/>
                 <DataSourceConfig/>
             </div>

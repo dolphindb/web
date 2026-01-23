@@ -1,35 +1,27 @@
-import ReactEChartsCore from 'echarts-for-react/lib/core'
-
-import * as echarts from 'echarts'
+import type * as echarts from 'echarts'
 
 import { useMemo } from 'react'
 
 import { Collapse, Form, InputNumber } from 'antd'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 import { max, min } from 'lodash'
 
-import { useChart } from '../hooks.js'
-import { BoolRadioGroup } from '@/components/BoolRadioGroup/index.js'
-import { StringColorPicker } from '@/components/StringColorPicker/index.js'
-import { AxisFormFields } from '@/dashboard/ChartFormFields/BasicChartFields.js'
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.js'
+import { StringColorPicker } from '@components/StringColorPicker/index.js'
+
+import { AxisItem } from '@/dashboard/ChartFormFields/BasicChartFields.js'
 import { BasicFormFields } from '@/dashboard/ChartFormFields/BasicFormFields.js'
 import { ChartField } from '@/dashboard/ChartFormFields/type.js'
 import { get_data_source } from '@/dashboard/DataSource/date-source.js'
-import type { Widget } from '@/dashboard/model.js'
 import type { IChartConfig, MatrixData } from '@/dashboard/type.js'
 import { format_time, parse_text } from '@/dashboard/utils.js'
+import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.js'
+import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 
-interface IProps { 
-    widget: Widget
-    data_source: any[]
-    cols: string[]
-}
 
-export function HeatMap (props: IProps) { 
-    const { widget } = props
-    
+export function HeatMap ({ widget }: GraphComponentProps) { 
     const config = widget.config as IChartConfig
     
     const node = get_data_source(widget.source_id[0])
@@ -56,6 +48,9 @@ export function HeatMap (props: IProps) {
         const min_data = min(flatten_data) ?? 0
         const max_data = max(flatten_data) ?? 10
         
+        const yAxis = config?.yAxis?.[0]
+        const xAxis = config?.xAxis
+        
         return {
             grid: {
                 bottom: 60,
@@ -67,7 +62,8 @@ export function HeatMap (props: IProps) {
                 textStyle: {
                     color: '#e6e6e6',
                     fontSize: config?.title_size || 18,
-                }
+                },
+                left: 0
             },
             tooltip: {
                 ...config.tooltip,
@@ -88,11 +84,45 @@ export function HeatMap (props: IProps) {
             },
             xAxis: {
                 type: 'category',
-                data: x_data
+                data: x_data,
+                name: xAxis?.name,
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: xAxis?.axis_color || '#6E6F7A',
+                        width: 3
+                    }
+                },
+                axisLabel: {
+                    color: () => xAxis?.font_color || '#6E6F7A',
+                    fontSize: xAxis?.fontsize || 12
+                },
+                nameTextStyle: {
+                    fontSize: xAxis?.fontsize ?? 12
+                }
+                
             },
             yAxis: {
                 type: 'category',
-                data: y_data
+                data: y_data,
+                name: yAxis?.name,
+                show: true,
+                offset: 2,
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: yAxis?.axis_color || '#6E6F7A',
+                        type: 'solid',
+                        width: 2,
+                    }
+                },
+                axisLabel: {
+                    color: () => yAxis?.font_color || '#6E6F7A',
+                    fontSize: yAxis?.fontsize || 12
+                },
+                nameTextStyle: {
+                    fontSize: yAxis?.fontsize ?? 12,
+                },
             },
             visualMap: {
                 min: series[0].min ?? Math.floor(min_data),
@@ -119,23 +149,38 @@ export function HeatMap (props: IProps) {
         } as echarts.EChartsOption
     }, [widget.config, data])
     
-    const ref = useChart(option)
     
-    return <ReactEChartsCore
-        echarts={echarts}
-        ref={ref}
-        option={option}
-        className='dashboard-line-chart'
-        theme='my-theme'
-    />
+    return <DashboardEchartsComponent options={option} not_merge/>
 }
 
 
-export function HeatMapConfigForm ({ col_names }: { col_names: string[] }) {
+const axis_hidden_fields = ['col_name', 'type', 'min', 'max', 'with_zero', 'interval', 'position', 'offset', 'time_format']
+
+export function HeatMapConfigForm ({ data_source: { cols } }: GraphConfigProps) {
     return <>
-        <BasicFormFields type='chart' chart_fields={[ChartField.TOOLTIP]}/>
-        <AxisFormFields col_names={col_names} single />
-        <Collapse items={[{
+        <BasicFormFields type='chart' chart_fields={[ChartField.TOOLTIP]}/>        
+        <Collapse items={[
+            {
+                key: 'x_axis',
+                    label: t('X 轴配置'),
+                    children: <AxisItem name_path='xAxis' col_names={cols} hidden_fields={axis_hidden_fields}/>,
+                forceRender: true,
+            },
+            {
+                key: 'y_axis',
+                label: t('Y 轴配置'),
+                children: <Form.List name='yAxis' initialValue={[{ }]}>
+                    {fields => fields.map(field => <AxisItem 
+                        key={field.name} 
+                        name_path={field.name} 
+                        col_names={cols} 
+                        list_name='yAxis' 
+                        hidden_fields={axis_hidden_fields}
+                    />)}
+                </Form.List>,
+                forceRender: true,
+            },
+            {
             forceRender: true,
             label: t('图配置'),
             children: <>

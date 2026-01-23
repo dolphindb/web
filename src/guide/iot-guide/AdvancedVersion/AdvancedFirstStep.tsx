@@ -5,7 +5,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { BasicInfoFields } from '../../components/BasicInfoFields.js'
 import { type RecommendInfo, type BasicInfoFormValues, type SecondStepInfo, type AdvancedInfos, GuideType, type ExecuteResult, type ServerRecommendInfo } from '../type.js'
 import { request } from '../../utils.ts'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
+import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
 
 interface IProps { 
     info: AdvancedInfos
@@ -52,14 +53,20 @@ export function AdvancedFirstStep (props: IProps) {
     
     return <Form
         form={form}
-        labelAlign='left'
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
         onFinish={on_submit}
     >
         <BasicInfoFields type={GuideType.ADVANCED} />
-        <Form.Item className='btn-group'>
-            <Button loading={loading} htmlType='submit' type='primary'>{ recommend_info.hasAdvancedInfo ? t('下一步') : t('生成脚本')}</Button>
-        </Form.Item>
+        
+        <BottomFixedFooter>
+            <Button 
+                loading={loading} 
+                type='primary'
+                onClick={form.submit}
+            >
+                { recommend_info.hasAdvancedInfo ? t('下一步') : t('生成脚本')}
+            </Button>
+        </BottomFixedFooter>
     </Form>
 }

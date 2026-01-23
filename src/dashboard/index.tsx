@@ -8,26 +8,28 @@ import { useEffect } from 'react'
 import { Button, Popconfirm, Result } from 'antd'
 import * as echarts from 'echarts'
 
-import { Outlet } from 'react-router'
+import { useRoutes } from 'react-router'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-import { NodeType, model } from '@/model.ts'
+import { NodeType, model } from '@model'
 
 
-import { Unlogin } from '@/components/Unlogin.tsx'
+import { Unlogin } from '@components/Unlogin.tsx'
 
 import { InitedState, dashboard } from './model.ts'
 
-import { Doc } from './components/Doc.js'
+import { Doc } from './components/Doc.tsx'
+
+import { DashboardInstancePage } from './Instance.tsx'
+import { Overview } from './Overview.tsx'
 
 import config from './chart.config.json' with { type: 'json' }
-
 
 import backend from './backend.dos'
 
 
-echarts.registerTheme('my-theme', config.theme)
+echarts.registerTheme(config.themeName, config.theme)
 
 
 /** 基于 GridStack.js 开发的拖拽图表可视化面板  
@@ -47,91 +49,98 @@ export function DashBoard () {
     
     useEffect(() => {
         (async () => {
-            try {
-                if (v1)
-                    return
-                else if (!logined) 
-                    dashboard.set({ inited_state: InitedState.unlogined })
-                else if (node_type === NodeType.controller)
-                    dashboard.set({ inited_state: InitedState.control_node })
-                else if ((await model.ddb.call('dashboard_get_version')).value === '1.0.0')
-                    dashboard.set({ inited_state: InitedState.inited })
-            } catch (error) {
-                dashboard.set({ inited_state: InitedState.uninited })
-            }
+            if (v1)
+                return
+            else if (!logined) 
+                dashboard.set({ inited_state: InitedState.unlogined })
+            else if (node_type === NodeType.controller)
+                dashboard.set({ inited_state: InitedState.control_node })
+            else
+                try {
+                    if (await model.ddb.invoke<string>('dashboard_get_version') === '1.0.0')
+                        dashboard.set({ inited_state: InitedState.inited })
+                } catch {
+                    dashboard.set({ inited_state: InitedState.uninited })
+                }
         })()
     }, [logined])
     
     
     useEffect(() => {
-        (async () => { 
-            if (dashboard.inited_state === InitedState.inited) 
-                await dashboard.get_dashboard_configs()
-        })()
+        if (dashboard.inited_state === InitedState.inited) 
+            dashboard.get_dashboard_configs()
     }, [inited_state])
     
-    const component = {
-        [InitedState.hidden]: <></>,
-        [InitedState.uninited]: <Init />,
-        [InitedState.inited]:
-            <Outlet />,
-        [InitedState.control_node]: <Result
+    const element = useRoutes([
+        {
+            index: true,
+            element: <Overview />
+        },
+        {
+            path: ':id',
+            element: <DashboardInstancePage />
+        }
+    ])
+    
+    // 先状态路由，再路径路由
+    return components[inited_state] || /* 当 InitedState.inited */ element
+}
+
+
+function Uninited () {
+    return model.node_type === NodeType.computing ?
+        <Result
             status='warning'
             className='interceptor'
+            title={t('数据面板未初始化，请联系管理员在数据节点完成初始化。')}
+        />
+    : model.admin ?
+        <Result
+            className='init'
+            title={t('请点击下方按钮完成初始化')}
+            subTitle={
+                <>
+                    <p>{t('初始化操作将新增以下数据库表：')}</p>
+                    <p>dfs://dashboardConfigDb/configDtl</p>
+                    <p>{t('以及 11 个以 dashboard_ 开头的函数视图（FunctionView）')}</p>
+                    <p>
+                        {t('提示：初始化后请完善用户相关配置（详见')}
+                        <Doc/>
+                        ）
+                    </p>
+                </>
+            }
+            extra={
+                <Popconfirm
+                    title={t('你确定要初始化数据面板功能吗？')}
+                    onConfirm={async () => { 
+                        await model.ddb.eval(backend)
+                        dashboard.set({ inited_state: InitedState.inited })
+                        model.message.success(t('初始化数据面板成功！'))
+                    }}
+                    okText={t('确定')}
+                    cancelText={t('取消')}
+                    >
+                    <Button type='primary' size='large'>{t('初始化')}</Button>
+                </Popconfirm>
+            }
+        />
+    :
+        <Result
+            className='interceptor'
+            title={t('数据面板功能未初始化，请联系管理员初始化数据面板功能')}
+        />
+}
+
+
+const components = {
+    [InitedState.hidden]: null,
+    [InitedState.uninited]: <Uninited />,
+    [InitedState.control_node]: <Result
+            className='interceptor'
+            status='warning'
             title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
         />,
-        [InitedState.unlogined]: <Unlogin info='数据面板' />
-    }
-    
-    return component[inited_state]
+    [InitedState.unlogined]: <Unlogin info={t('数据面板')} />,
 }
-
-
-function Init () {
-    if (model.node_type === NodeType.computing)
-        return <Result
-                status='warning'
-                className='interceptor'
-                title={t('数据面板未初始化，请联系管理员在数据节点完成初始化。')}
-            />
-    else if (model.admin)
-        return <div className='init'>
-            <Result
-                title={t('请点击下方按钮完成初始化')}
-                subTitle={
-                    <>
-                        <p>{t('初始化操作将新增以下数据库表：')}</p>
-                        <p>dfs://dashboardConfigDb/configDtl</p>
-                        <p>{t('以及 11 个以 dashboard_ 开头的函数视图（FunctionView）')}</p>
-                        <p>
-                            {t('提示：初始化后请完善用户相关配置（详见')}
-                            <Doc/>
-                            ）
-                        </p>
-                    </>
-                }
-                extra={
-                    <Popconfirm
-                        title={t('你确定要初始化数据面板功能吗？')}
-                        onConfirm={async () => { 
-                            await model.ddb.eval(backend)
-                            dashboard.set({ inited_state: InitedState.inited })
-                            model.message.success(t('初始化数据面板成功！'))
-                        }}
-                        okText={t('确定')}
-                        cancelText={t('取消')}
-                        >
-                        <Button type='primary' size='large'>{t('初始化')}</Button>
-                    </Popconfirm>
-                }
-            />
-        </div>
-    else
-        return <Result
-                className='interceptor'
-                title={t('数据面板功能未初始化，请联系管理员初始化数据面板功能')}
-            />
-}
-
-
 

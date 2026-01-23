@@ -1,8 +1,8 @@
 import { CheckCircleFilled, CloseCircleFilled, MinusCircleFilled } from '@ant-design/icons'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-export const NEED_INPUT_ACCESS = ['DB_OWNER', 'QUERY_RESULT_MEM_LIMIT', 'TASK_GROUP_MEM_LIMIT']
+export const NEED_INPUT_ACCESS = new Set(['DB_OWNER', 'QUERY_RESULT_MEM_LIMIT', 'TASK_GROUP_MEM_LIMIT'])
 
 export const ACCESS_TYPE = {
     catalog: ['CATALOG_MANAGE', 'CATALOG_READ', 'CATALOG_WRITE', 'CATALOG_INSERT', 'CATALOG_UPDATE', 'CATALOG_DELETE'],
@@ -12,7 +12,8 @@ export const ACCESS_TYPE = {
     shared: ['TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
     stream: ['TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
     function_view: ['VIEW_EXEC'],
-    script: ['SCRIPT_EXEC', 'TEST_EXEC', 'VIEW_OWNER', 'QUERY_RESULT_MEM_LIMIT', 'TASK_GROUP_MEM_LIMIT']
+    compute_group: ['COMPUTE_GROUP_EXEC'],
+    script: ['SCRIPT_EXEC', 'TEST_EXEC', 'VIEW_OWNER', 'QUERY_RESULT_MEM_LIMIT', 'TASK_GROUP_MEM_LIMIT'],
 }
 
 export const TABLE_NAMES = {
@@ -22,6 +23,7 @@ export const TABLE_NAMES = {
     shared: t('共享内存表'),
     stream: t('流数据表'),
     function_view: t('函数视图'),
+    compute_group: t('计算组'),
     script: t('全局权限')
 }
 
@@ -31,6 +33,7 @@ export const ACCESS_OPTIONS = {
     shared: ['TABLE_WRITE', 'TABLE_READ'],
     stream: ['TABLE_WRITE', 'TABLE_READ'],
     function_view: ACCESS_TYPE.function_view,
+    compute_group: ACCESS_TYPE.compute_group,
     script: ACCESS_TYPE.script
 }
 
@@ -45,3 +48,6 @@ export const STAT_ICONS = {
 export const DATABASES_WITHOUT_CATALOG = '[DATABASES WITHOUT CATALOG]'
 
 export const NAME_CHECK_PATTERN = /^(?![\d_])[\w\d]+$/
+
+/** https://dolphindb1.atlassian.net/wiki/spaces/DolphinDB/pages/1450607195/D20-22935 */
+export const USERNAME_CHECK_PATTERN = /^[a-zA-Z][0-9a-zA-Z\-_]*$/

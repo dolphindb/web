@@ -10,7 +10,7 @@
     
     
     .connection-left-wrapper {
-        width: calc(100% - 360px);
+        width: calc(100% - 320px);
         .empty-content {
             margin-top: calc(50vh - 35px);
         }
@@ -29,13 +29,19 @@
         padding-right: 16px;
         height: 100%;
         overflow-y: auto;
-        width: 360px;
+        width: 320px;
 
         
         .connection-list-title {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            
+            .title {
+                font-size: 1.5em;
+                font-weight: bold;
+                padding: 10px 0px;
+            }
             
             .delete-link {
                 .delete-link-icon {
@@ -60,15 +66,11 @@
         .connection-tree {
             width: 100%;
 
-            .ant-tree-treenode-selected {
-                background-color: #e7f5ff;
-            }
-            
             .ant-tree-node-content-wrapper {
                 display: flex;
                 flex: 1;
                 .ant-tree-title {
-                    height: 48px;
+                    height: 32px;
                     display: flex;
                     align-items: center;
                 }
@@ -78,11 +80,11 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                height: 48px;
+                height: 32px;
                 
                 .connection-tree-label {
                     display: inline-block;
-                    width: 210px;
+                    width: 170px;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;

@@ -1,12 +1,13 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Form, Modal, Select, Typography, message } from 'antd'
+import { Form, Modal, Select, Typography } from 'antd'
 import { useCallback, useMemo } from 'react'
 
 import { DdbDict, DdbType, type  DdbObj } from 'dolphindb/browser.js'
 
 
+import { t } from '@i18n'
+
 import { type ICEPEngineDetail } from '../type.js'
-import { t } from '../../../../i18n/index.js'
 import { model } from '../../../model.js'
 
 import { convertDecimalType } from './DdbObjField.tsx'
@@ -31,7 +32,7 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
             const values = await form.validateFields() 
             const params = new DdbDict(values)
             await model.ddb.call('appendEvent', [name, params])
-            message.success(t('发送成功'))
+            model.message.success(t('发送成功'))
             on_refresh?.()
             modal.hide()
         }
@@ -59,7 +60,7 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
         title={t('发送事件到 {{name}} 引擎', { name })}
         width={700}
     >
-        <Form form={form} colon={false} labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} labelAlign='left'>
+        <Form form={form} colon={false} labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
             <Form.Item label={t('事件类型')} name='eventType' rules={[{ required: true }] }>
                 <Select placeholder={t('请选择事件类型')} options={ eventSchema.map(item => ({ label: item.eventType, value: item.eventType })) } />
             </Form.Item>

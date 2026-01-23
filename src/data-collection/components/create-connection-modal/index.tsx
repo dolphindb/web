@@ -1,15 +1,16 @@
 import './index.scss'
-import { Button, Form, Input, InputNumber, Modal, message } from 'antd'
+import { Form, Input, InputNumber, Modal } from 'antd'
 
 import { useCallback } from 'react'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { request } from '../../utils.ts'
 import { PROTOCOL_MAP, NAME_RULES } from '@/data-collection/constant.ts'
 import { type Connection, Protocol } from '@/data-collection/type.ts'
+import { model } from '@model'
 
 interface IProps {
     editedConnection?: Connection
@@ -28,7 +29,7 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
             await request('dcp_updateConnect', { ...values, id: editedConnection.id })
         else
             await request('dcp_addConnect', { ...values, protocol })   
-        message.success(editedConnection ? t('修改成功') : t('创建成功'))
+        model.message.success(editedConnection ? t('修改成功') : t('创建成功'))
         modal.hide()
         refresh()
     }, [ refresh, protocol ])
@@ -41,10 +42,10 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
         onCancel={modal.hide} 
         afterClose={modal.remove}
         width={800}
-        footer={null}
+        onOk={form.submit}
         className='create-connection-modal'
     >
-        <Form labelAlign='left' labelCol={{ span: 6 }} form={form} onFinish={on_submit} initialValues={editedConnection}>
+        <Form labelCol={{ span: 6 }} form={form} onFinish={on_submit} initialValues={editedConnection}>
             <Form.Item 
                 label={t('名称')} 
                 name='name' 
@@ -81,9 +82,6 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
                     </Form.Item>
                 </>
             }
-            <Form.Item className='submit-btn-form-item'>
-                <Button htmlType='submit' type='primary'>{t('确定')}</Button>
-            </Form.Item>
         </Form>
     </Modal>
 })

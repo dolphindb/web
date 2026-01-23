@@ -108,7 +108,7 @@
 			hashCol = ptCols[at(database(dbName).schema().partitionTypeName==`HASH)]
 		}
 		else{
-			hashCol = iif(database(dbName).schema().partitionTypeName==`HASH, ptCols[0], NULL)
+			hashCol = iif(database(dbName).schema().partitionTypeName==`HASH, ptCols[0], string(NULL))
 		}
 		res=""
 	}

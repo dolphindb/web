@@ -3,12 +3,18 @@
     overflow-y: auto
     
     .actions
-        margin-bottom: 20px
+        padding-top: 10px
         
         display: flex
         
+        .title
+            font-size: 1.5em
+            font-weight: bold
+            margin-right: 20px
+        
         .search
-            margin-left: 20px
+            margin-right: 20px
+            flex: 1
     
     .spin-container
         height: 100%
@@ -16,18 +22,15 @@
         justify-content: center
         align-items: center
     
-    .ant-table
-        overflow-x: auto
+    
+    .cjobs
+        margin-bottom: 20px
+        
+    
         
     .nojobs
         margin-bottom: 20px
     
-    .ant-table-wrapper .ant-table-pagination.ant-pagination
-        margin-bottom: 0px
-    
-    .title
-        margin: 26px 0px
-        line-height: 0.8
         
     .ellipsis
         display: -webkit-box
@@ -35,12 +38,7 @@
         -webkit-line-clamp: 2
         overflow: hidden
     
-    .ant-table-thead
-        white-space: nowrap
-    
-    .ant-table-thead tr td, .ant-table-thead tr th
-        background-color: #f8f8f8
-    
+
     .action-col
         display: flex
         white-space: nowrap
@@ -50,7 +48,7 @@
         overflow: auto
         
 .job-message-modal
-    .ant-modal-content
+    .ant-modal-container
         overflow: auto
         max-height: 80vh
         display: flex

@@ -1,6 +1,6 @@
 import { Form } from 'antd'
 
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 
 export function TooltipFields () { 

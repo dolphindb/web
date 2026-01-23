@@ -5,7 +5,7 @@ export interface Metric {
     displayName: string
     group: number
     desc: string
-    version: string
+    version: number | null
     createTime: string
     updateTime: string
     nodes: string
@@ -15,7 +15,7 @@ export interface Metric {
 
 export interface MetricParam {
     name: string
-    type: 'TIMESTAMP' | 'SYMBOL'
+    type: 'TIMESTAMP' | 'SYMBOL' | 'DURATION' | 'STRING' | 'DOUBLE' | 'LONG' | 'INT'
     options?: string[]
 }
 
@@ -29,6 +29,7 @@ export interface MetricsWithStatus extends Metric {
 export interface PlanDetail {
     planId: string
     metricName: string
+    metricVersion: number | null
     nodes: string
     params: string
 }
@@ -37,6 +38,7 @@ export interface Plan {
     id: string
     name: string
     metrics: string[]
+    versions: (number | null)[]
     nodes: Array<string[] | ''>
     params?: object
     frequency: string
@@ -97,4 +99,16 @@ export interface PlanReportDetailNode {
     detail: string
     extraDetail?: string
     suggestion: string
+}
+
+export interface EmailHistory {
+    id: string
+    planId: string
+    reportId: string
+    userId: string
+    recipient: string
+    subject: string
+    sendTime: string
+    status: 'sending' | 'sent' | 'failed'
+    errorMessage?: string
 }

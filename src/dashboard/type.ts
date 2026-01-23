@@ -170,8 +170,6 @@ export interface IColProperty {
     is_thousandth_place?: boolean
     align?: 'left' | 'center' | 'right'
     sorter?: boolean
-    // multiple?: number
-    
     header_style?: any
 }
 export interface ITableConfig {
@@ -179,6 +177,8 @@ export interface ITableConfig {
     title_size?: number
     bordered: boolean
     col_properties: IColProperty[]
+    /** 是否内容自适应 */
+    max_content?: boolean
     pagination: {
         show: boolean
         pagesize: number

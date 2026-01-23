@@ -1,22 +1,24 @@
 import './index.scss'
 
-import { Collapse, Descriptions, type DescriptionsProps, Form, InputNumber, Select, type CollapseProps, Input, Checkbox, Pagination } from 'antd'
+import { Collapse, Descriptions, type DescriptionsProps, Form, InputNumber, Select, type CollapseProps, Input, Pagination } from 'antd'
 
 import { useMemo, useState } from 'react'
 
-import { isNumber, tail } from 'lodash'
+import { isNumber } from 'lodash'
+
+import { t } from '@i18n'
 
 import { type Widget } from '../../model.js'
 import { convert_list_to_options, format_number, format_time, parse_text } from '../../utils.ts'
 
 
 import { type IDescriptionsConfig } from '../../type.js'
-import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../../components/FormDependencies/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 import { format_time_options } from '../../ChartFormFields/constant.js'
-import { t } from '../../../../i18n/index.js'
+import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 
 
 
@@ -25,13 +27,12 @@ interface IProps {
     data_source: any[]
 }
 
-export function DBDescriptions (props: IProps) {
-    const { data_source = [ ], widget } = props
-    const config = useMemo(() => widget.config as unknown as IDescriptionsConfig, [widget.config])
+export function DBDescriptions ({ data_source: { data }, widget }: GraphComponentProps) {
+    const config = widget.config as any as IDescriptionsConfig
     
     const items = useMemo<DescriptionsProps['items']>(() => { 
         const { col_properties } = widget.config as unknown as IDescriptionsConfig
-        return data_source.map((item, idx) => {
+        return data.map((item, idx) => {
             const { color: custom_color, threshold, time_format, decimal_places, is_thousandth_place, high_to_threshold_color = 'red', low_to_threshold_color = 'green' } = col_properties?.[idx] ?? { }
             let color = null
             if (isNumber(threshold))
@@ -59,8 +60,7 @@ export function DBDescriptions (props: IProps) {
             }
             
         })
-    }, [config, data_source])
-    
+    }, [config, data])
     
     
     return <>
@@ -75,26 +75,27 @@ export function DBDescriptions (props: IProps) {
     </>
 }
 
-export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_names: string[], data_source?: any[] }) { 
+
+export function DBDescriptionsForm ({ data_source: { data, cols } }: GraphConfigProps) {
     const [page, setPage] = useState(1)
     
     return <>
         <BasicFormFields type='description'/>
         <Collapse items={[{
             children: <div className='description-setting-form'>
-                <Form.Item name='label_col' label={t('标签列')} initialValue={col_names[0]}>
-                    <Select options={convert_list_to_options(col_names)} />
+                <Form.Item name='label_col' label={t('标签列')} initialValue={cols[0]}>
+                    <Select options={convert_list_to_options(cols)} />
                 </Form.Item>
-                <Form.Item name='value_col' label={t('值列')} initialValue={col_names[0]}>
-                    <Select options={convert_list_to_options(col_names)} />
+                <Form.Item name='value_col' label={t('值列')} initialValue={cols[0]}>
+                    <Select options={convert_list_to_options(cols)} />
                 </Form.Item>
                 
                 <Form.Item name='label_font_size' label={t('标签字号')}>
-                    <InputNumber addonAfter='px'/>
+                    <InputNumber suffix='px'/>
                 </Form.Item>
                 
                 <Form.Item name='value_font_size' label={t('值字号')}>
-                    <InputNumber addonAfter='px'/>
+                    <InputNumber suffix='px'/>
                 </Form.Item>
                 
                 <Form.Item name='column_num' label={t('每行展示数量')} initialValue={4}>
@@ -104,9 +105,9 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
                     {({ label_col }) => { 
                         if (!label_col)
                             return null
-                        return <Form.List name='col_properties' initialValue={data_source.map(item => ({ label: item[label_col] }))}>
+                        return <Form.List name='col_properties' initialValue={data.map(item => ({ label: item[label_col] }))}>
                             {fields => { 
-                                const labels = data_source.map(item => (item[label_col]))
+                                const labels = data.map(item => (item[label_col]))
                                 const items: CollapseProps['items'] = fields.map((field, idx) => ({
                                     key: idx,
                                     label: labels[field.name],

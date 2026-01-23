@@ -1,10 +1,10 @@
-import './index.scss'
+import './index.sass'
 
 import useSWR from 'swr'
 
-import { Button, message, Result, Spin } from 'antd'
+import { Button, Result, Spin } from 'antd'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 
 import type { DdbObj } from 'dolphindb/browser.js'
@@ -13,12 +13,12 @@ import { useState } from 'react'
 
 import useSWRMutation from 'swr/mutation'
 
-import { model, NodeType } from '@/model.ts'
+import { model, NodeType } from '@model'
 
 import { InitStatus, Protocol } from '@/data-collection/type.ts'
 import { has_data_collection_auth, test_init } from '@/data-collection/api.ts'
 
-import { Unlogin } from '@/components/Unlogin.tsx'
+import { Unlogin } from '@components/Unlogin.tsx'
 
 import code from './script.dos'
 
@@ -56,7 +56,7 @@ export function DataCollection () {
         async () => {
             await model.ddb.execute(code)
             await model.ddb.call('dcp_init')
-            message.success(t('采集平台初始化成功！'))
+            model.message.success(t('采集平台初始化成功！'))
             mutate()
         }
     )
@@ -74,17 +74,22 @@ export function DataCollection () {
     if (data.is_inited === InitStatus.UNKONWN || isValidating )
         return <Spin className='data-collection-spin'/> 
     else if (data.is_inited === InitStatus.NOT_INITED)
-        return admin 
-            ? <Result 
-                title={t('初始化数据采集平台')} 
-                subTitle={<>
-                    {t('初始化操作将新增以下数据库')}
-                    <div>dfs://dataAcquisition</div>
-                </>}
-                extra={<Button type='primary' loading={is_initing} onClick={async () => on_init()}>{t('初始化')}</Button>}
-            /> 
-            : <Result title={t('数据采集平台功能未初始化，请联系管理员初始化数据采集平台功能')} />
-    else if (data.is_inited === InitStatus.INITED) 
+        return admin ?
+                <Result
+                    className='init'
+                    title={t('初始化数据采集平台')} 
+                    subTitle={<>
+                        {t('初始化操作将新增以下数据库')}
+                        <div>dfs://dataAcquisition</div>
+                    </>}
+                    extra={
+                        <Button type='primary' loading={is_initing} onClick={async () => on_init()}>{t('初始化')}</Button>}
+                /> 
+            :
+                <Result
+                    className='init'
+                    title={t('数据采集平台功能未初始化，请联系管理员初始化数据采集平台功能')} />
+    else if (data.is_inited === InitStatus.INITED)
         if (!data.has_auth && !admin)
             return <Result title={t('无库表权限，请联系管理员赋权')} />
         else

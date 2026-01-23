@@ -6,7 +6,7 @@ import cn from 'classnames'
 import { Button, type ButtonProps, Tooltip } from 'antd'
 import copy from 'copy-to-clipboard'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import SVGCopyIcon from './copy.icon.svg'
 import SVGCopiedIcon from './copied.icon.svg'

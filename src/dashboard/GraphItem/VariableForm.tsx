@@ -1,17 +1,17 @@
-import './index.scss'
-import { Button, Col, Form, Input, Row, Select, type SelectProps } from 'antd'
+import './index.sass'
+import { Button, Col, Form, Input, Row, Select } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 
 import classNames from 'classnames'
 
-import { genid } from 'xshell/utils.browser'
+import { genid } from 'xshell/utils.browser.js'
 
-import { type Variable, variables, update_variable_value } from '../Variable/variable.js'
-import { StringDatePicker } from '../../components/StringDatePicker/index.js'
+import { type Variable, variables, update_variable_value } from '../Variable/variable.ts'
+import { StringDatePicker } from '@components/StringDatePicker/index.tsx'
 
 
 import { VariableMode } from '../type.js'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 interface IProps { 
     ids: string[]
@@ -45,6 +45,7 @@ function ControlField ({ variable }: { variable: Variable }) {
             return <Form.Item name={id} label={display_name}>
                 <StringDatePicker allowClear className='data-picker'/>
             </Form.Item>
+        
         case VariableMode.MULTI_SELECT:
             return <Form.Item name={id} label={display_name}>
                <Select 
@@ -53,25 +54,26 @@ function ControlField ({ variable }: { variable: Variable }) {
                     allowClear 
                     mode='multiple' 
                     options={options.map(({ label, key }) => ({ label, value: key }))}
-                    showSearch
-                    optionFilterProp='label'
+                    showSearch={{ optionFilterProp: 'label' }}
                 />
             </Form.Item>
+        
         case VariableMode.SELECT:
             return <Form.Item name={id} label={display_name}>
                 <Select
                     key={key}
                     onBlur={() => { set_key(genid()) } }
-                    optionFilterProp='label'
+                    showSearch={{ optionFilterProp: 'label' }}
                     options={options.map(({ label, key }) => ({ label, value: key }))}
                     allowClear
-                    showSearch
                 />
             </Form.Item>
+        
         case VariableMode.TEXT:
             return <Form.Item name={id} label={display_name}>
                 <Input />
             </Form.Item>
+        
         default:
             return null
     }
@@ -95,7 +97,7 @@ export function VariableForm (props: IProps) {
     }, [ ])
     
     return !!ids.length && <div className={classNames('variable-wrapper', { [className]: true })}>
-        <Form form={form} className='variable-form' onValuesChange={!with_search_btn && on_variables_change} labelCol={{ span: label_col }} labelAlign='left'>
+        <Form form={form} className='variable-form' onValuesChange={!with_search_btn && on_variables_change} labelCol={{ span: label_col }}>
             <Row gutter={[24, 16]}>
                 {ids.map(id => variables_obj[id]).filter(Boolean).map(item => <Col span={24 / cols} key={item?.id}><ControlField variable={item} key={item?.id} /></Col>) }
             </Row>

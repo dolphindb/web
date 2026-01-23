@@ -6,13 +6,13 @@ import { useEffect, useId, useState } from 'react'
 
 import { DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 
-import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../../components/FormDependencies/index.js'
 import { StringDatePicker } from '../../../components/StringDatePicker/index.js'
 import { StringTimePicker } from '../../../components/StringTimePicker.js'
 import { IN, IS_NULL, LIKE, NOT_IN, NOT_LIKE, NOT_NULL, OTHER_OPERATIONS, STRING_OPERATIONS, STRING_TYPES, TIME_TYPES, VALID_DATA_TYPES, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
 import { NodeType, model } from '../../../model.js'
 import { shell } from '../../model.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { ENUM_TYPES, type IColumn } from '../type.js'
 import { concat_name_path, safe_json_parse } from '../../../dashboard/utils.ts'
 
@@ -73,7 +73,7 @@ export function QueryCard (props: IQueryCard) {
                                         .map(item => ({
                                             label: <div className='col-select-label'>
                                                 <span className='table-name'>{item.name}</span>
-                                                <Tag color='processing' bordered={false}>
+                                                <Tag color='processing' variant='filled'>
                                                     {item.data_type}
                                                 </Tag>
                                             </div>,
@@ -175,9 +175,9 @@ export function QueryCard (props: IQueryCard) {
                         
                             <Col span={7}>
                                 <FormDependencies dependencies={[concat_name_path(name_path, name, field.name, 'col'), concat_name_path(name_path, name, field.name, 'opt')]}>
-                                    {value => { 
+                                    {value => {
                                         const item = name_path ? value?.[name_path]?.[name]?.[field.name] : value?.[name]?.[field.name]
-                                        const { col, opt } = item
+                                        const { col, opt } = item || { }
                                         const { data_type } = safe_json_parse(col ?? '{}')
                                         
                                         
@@ -303,13 +303,14 @@ export function QueryForm (props: IProps) {
             <div className='query-conditions-wrapper'>
                 
                 {
-                    !!partition_cols?.length && <>
+                    Boolean(partition_cols?.length) && <>
                         <h4>
                             {t('分区列查询条件')}
                             <Tooltip title={t('必填项，仅支持【且满足】，与”其他查询条件”亦为【且满足】关系。')}>
                                 <QuestionCircleOutlined className='help-icon' />
                             </Tooltip>
                         </h4>
+                        
                         <QueryCard
                             table={table}
                             database={database}
@@ -317,9 +318,10 @@ export function QueryForm (props: IProps) {
                             name='partitionColQuerys'
                             name_path={null}
                         />
+                        
+                        <h4>{t('其他查询条件')}</h4>
                     </>
                 }
-                {!!partition_cols?.length && <h4>{t('其他查询条件')}</h4>}
                 <Form.List name='querys' initialValue={[ ]}>
                     {(fields, { add, remove }) => { 
                         return <div className='querys-wrapper'>

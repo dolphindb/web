@@ -3,11 +3,12 @@ import { get } from 'lodash'
 import { type CollapseProps } from 'antd/lib/index.js'
 import { DeleteOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
+
 import { AxisType, ILineType, ThresholdShowType, ThresholdType } from '../type.js'
 import { concat_name_path } from '../../utils.ts'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
-import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../../components/FormDependencies/index.js'
 import { line_type_options } from '../constant.js'
 import { dashboard } from '../../model.js'
 
@@ -89,7 +90,7 @@ export function ThresholdSettingList () {
                                         <Select options={line_type_options} />
                                     </Form.Item>
                                     <Form.Item label={t('线宽')} initialValue={1} name={concat_name_path(field.name, 'line_width') }>
-                                        <InputNumber addonAfter='px' min={1}/>
+                                        <InputNumber suffix='px' min={1}/>
                                     </Form.Item>
                                 </>
                                 : null
@@ -108,7 +109,7 @@ export function ThresholdSettingList () {
                                             {value => { 
                                                 const type = get(value, concat_name_path(form_list_name, field.name, 'values', value_field, 'type'))
                                                 return <Form.Item name={concat_name_path(value_field.name, 'value')}>
-                                                    <InputNumber addonAfter={type === ThresholdType.PERCENTAGE ? '%' : null} />
+                                                    <InputNumber suffix={type === ThresholdType.PERCENTAGE ? '%' : null} />
                                                 </Form.Item>
                                             } }
                                         </FormDependencies>

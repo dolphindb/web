@@ -14,16 +14,18 @@ import type { MessageInstance } from 'antd/es/message/interface.d.ts'
 import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
 import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { model, show_error, storage_keys } from '../model.js'
 import type { Monaco } from '../components/Editor/index.js'
 import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
 
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
-import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
+import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.ts'
+import type { IConfigurationConfig } from './Charts/Configuration/index.tsx'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.ts'
+import type { SurfaceOptions } from '@components/Surface.tsx'
 
 
 /** 0 表示隐藏dashboard（未查询到结果、 server 版本为 v1 或 language 非中文），1 表示没有初始化，2 表示已经初始化，3 表示为控制节点 */
@@ -176,18 +178,17 @@ export class DashBoardModel extends Model<DashBoardModel> {
         grid.on('change', (event: Event, widgets: GridStackNode[]) => {
             if (widgets?.length)
                 for (const widget of widgets) {
+                    const past_widget = this.widgets.find(({ id }) => id === widget.id)
+                    if (!past_widget)
+                        continue
+                    
                     if (
                         this.config?.data?.canvas?.auto_expand === false
                         && widget.y + widget.h - 1 >= (this.config?.data?.canvas?.page_count ?? 1) * 12
-                    ) {
-                        const past_widget = this.widgets.find(({ id }) => id === widget.id)
-                        grid.update(widget.el, { y: past_widget.y, h: past_widget.h })
-                    }
-                    
-                    Object.assign(
-                        this.widgets.find(({ id }) => id === widget.id),
-                        widget
                     )
+                        grid.update(widget.el, { y: past_widget.y, h: past_widget.h })
+                    
+                    Object.assign(past_widget, widget)
                 }
             this.check_and_change_page()
         })
@@ -255,9 +256,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     dispose () {
-        console.log('dashboard.dispose')
-        
         window.removeEventListener('resize', this.on_resize)
+        this.editing = true
         
         clear_data_sources()
         // 当前选中图表时删除，再次进入会报错，因为没有清空 widget
@@ -396,7 +396,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         this.set({ configs: [config, ...this.configs], config })
         const { id, name, permission, data } = config
         const params = new DdbDict(
-            ({ id: new DdbLong(BigInt(id)), name, permission: new DdbInt(permission), data: JSON.stringify(data) }))
+            ({ id: new DdbLong(id), name, permission: new DdbInt(permission), data: JSON.stringify(data) }))
         await model.ddb.call<DdbVoid>('dashboard_add_config', [params])
         if (render)
             await this.render_with_config(config)
@@ -417,13 +417,13 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const index = this.configs.findIndex(({ id }) => id === config.id)
         this.set({ configs: this.configs.toSpliced(index, 1, config), config })
         const params = new DdbDict(
-            ({ id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
+            ({ id: new DdbLong(config.id), data: JSON.stringify(config.data) })) 
         await model.ddb.call<DdbVoid>('dashboard_edit_config', [params])
     }
     
     
     async rename_dashboard (dashboard_id: number, new_name: string) {
-        await model.ddb.call<DdbVoid>('dashboard_rename_config', [new DdbDict({ id: new DdbLong(BigInt(dashboard_id)), name: new_name })])
+        await model.ddb.call<DdbVoid>('dashboard_rename_config', [new DdbDict({ id: new DdbLong(dashboard_id), name: new_name })])
     
         const index = this.configs.findIndex(({ id }) => id === dashboard_id)
         const config = this.configs[index]
@@ -434,7 +434,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number): Promise<DashBoardConfig> {
-        const { data } = (await model.ddb.invoke('dashboard_get_config', [{ id }]))
+        const data = await model.ddb.invoke('dashboard_get_config', [{ id: String(id) }])
         
         const res: any = data.length
             ? ({
@@ -457,21 +457,21 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
-        const { data = [ ] } = await model.ddb.invoke('dashboard_get_config_list')
-        const configs = data.map(cfg => {
-            // 有些只需要 parse 一次，有些需要 parse 两次
-            let data = typeof cfg.data === 'string' ?  JSON.parse(cfg.data) : new TextDecoder().decode(cfg.data)
-            data = typeof data === 'string' ? JSON.parse(data) : data
-            return { 
-                ...cfg, 
-                id: Number(cfg.id), 
-                data: {
-                    ...data,
-                    // 历史数据的数据源类型统一修改为表格类型
-                    datasources: data.datasources.map(item => ({ type: DdbForm.table, ...item }))
-                }
-            } as DashBoardConfig
-        } ) 
+        const configs = (await model.ddb.invoke('dashboard_get_config_list') || [ ])
+            .map(cfg => {
+                // 有些只需要 parse 一次，有些需要 parse 两次
+                let data = typeof cfg.data === 'string' ?  JSON.parse(cfg.data) : new TextDecoder().decode(cfg.data)
+                data = typeof data === 'string' ? JSON.parse(data) : data
+                return { 
+                    ...cfg, 
+                    id: Number(cfg.id), 
+                    data: {
+                        ...data,
+                        // 历史数据的数据源类型统一修改为表格类型
+                        datasources: data.datasources.map(item => ({ type: DdbForm.table, ...item }))
+                    }
+                } as DashBoardConfig
+            })
         this.set({ configs })
     }
     
@@ -479,8 +479,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     async render_with_config (config: DashBoardConfig) {
         this.set({ loading: true })
         
-        this.set({ config,
-                            
+        this.set({
+            config,
+            
             variables: await import_variables(config.data.variables),
          
             data_sources: await import_data_sources(config.data.datasources),
@@ -611,7 +612,7 @@ export interface DashboardData {
 /** dashboard 中我们自己定义的 Widget，继承了官方的 GridStackWidget，加上额外的业务属性 */
 export interface Widget extends GridStackNode {
     /** 保存 dom 节点，在 widgets 配置更新时将 ref 给传给 react `<div>` 获取 dom */
-    ref: React.MutableRefObject<GridItemHTMLElement>
+    ref: React.RefObject<GridItemHTMLElement>
     
     /** 图表类型 */
     type: WidgetChartType
@@ -623,7 +624,7 @@ export interface Widget extends GridStackNode {
     update_graph?: (data: DataType) => void
     
     /** 图表配置 */
-    config?: (IHeatMapChartConfig | IChartConfig | ITableConfig | ITextConfig | IEditorConfig | IGaugeConfig | IOrderBookConfig) & {
+    config?: (IHeatMapChartConfig | IChartConfig | ITableConfig | ITextConfig | IEditorConfig | IGaugeConfig | IOrderBookConfig | IConfigurationConfig | SurfaceOptions) & {
         variable_ids?: string[]
         variable_cols?: number
         with_search_btn?: boolean
@@ -636,6 +637,9 @@ export interface Widget extends GridStackNode {
             bottom: number
         }
     }
+    
+    /** 在 graph-item 渲染组件和配置组件之间通过 widget 传递数据 */
+    data?: any
 }
 
 
@@ -655,7 +659,9 @@ export enum WidgetType {
     VARIABLE = '变量',
     SCATTER = '散点图',
     COMPOSITE_GRAPH = '多源图',
-    HEATMAP = '热力图'
+    HEATMAP = '热力图',
+    CONFIGURATION = '组态图',
+    SURFACE = '曲面图'
 }
 
 export enum WidgetChartType { 
@@ -675,6 +681,8 @@ export enum WidgetChartType {
     SCATTER = 'SCATTER',
     HEATMAP = 'HEATMAP',
     COMPOSITE_GRAPH = 'COMPOSITE_GRAPH',
+    CONFIGURATION = 'CONFIGURATION',
+    SURFACE = 'SURFACE'
 }
 
 export enum DashboardPermission {

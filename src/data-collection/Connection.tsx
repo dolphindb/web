@@ -10,7 +10,7 @@ import { DeleteOutlined, EditOutlined, FileTextOutlined, LinkOutlined, PlusCircl
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 import { ConnectionDetail } from './components/connection-detail/index.tsx'
 import { CreateConnectionModal } from './components/create-connection-modal/index.tsx'
@@ -138,7 +138,7 @@ export function Connections ({ protocols }: { protocols: Protocol[] }) {
     return <div className='data-collection-wrapper'>
         <div className='connection-list'>
             <div className='connection-list-title'>
-                <h3>{t('连接')}</h3>
+                <div className='title'>{t('连接信息')}</div>
                 <Typography.Link
                     className='delete-link'
                     type='danger'

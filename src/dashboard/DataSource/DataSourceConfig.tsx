@@ -11,11 +11,11 @@ import { DdbForm } from 'dolphindb/browser.js'
 
 import { WidgetChartType, dashboard, type Widget } from '../model.js'
 
-import { parse_code } from '../utils.ts'
+import { get_chart_data_type, parse_code } from '../utils.ts'
 
 import { model } from '../../model.js'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { DataSourceList } from './DataSourceList.js'
 import { SqlEditor } from './SqlEditor.js'
@@ -129,7 +129,7 @@ export function DataSourceConfig (props: IProps) {
         <Modal 
             title={t('配置数据源')}
             width='80%' 
-            destroyOnClose
+            destroyOnHidden
             className='data-source'
             open={visible}
             onCancel={handle_close} 
@@ -172,8 +172,7 @@ export function DataSourceConfig (props: IProps) {
                         key='save'
                         type='primary'
                         disabled={
-                            (widget?.type === WidgetChartType.HEATMAP && current_data_source?.type !== DdbForm.matrix) ||
-                            (widget?.type !== WidgetChartType.HEATMAP && current_data_source?.type === DdbForm.matrix)
+                            widget && get_chart_data_type(widget.type) !== current_data_source?.type
                         }
                         loading={loading === 'save'}
                         onClick={async () => {

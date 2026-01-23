@@ -4,12 +4,12 @@ import { Form, Input, InputNumber, Radio, Select, type SelectProps } from 'antd'
 
 import { useMemo } from 'react'
 
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../components/FormDependencies/index.js'
 
 import { GuideType } from '../iot-guide/type.js'
 import { check_tb_valid, request } from '../utils.ts'
 import { ENUM_TYPES, TIME_TYPES } from '../constant.js'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { SchemaList } from './SchemaList.js'
 
@@ -26,13 +26,8 @@ const DAILY_INCREASE_NUM_OPTIONS: SelectProps['options'] = [
     { label: t('自定义'), value: CUSTOM_VALUE }
 ]
 
-interface IProps { 
-    type: GuideType
-}
 
-
-export function BasicInfoFields (props: IProps) {
-    const { type = GuideType.SIMPLE } = props
+export function BasicInfoFields ({ type = GuideType.SIMPLE }: { type: GuideType } ) {
     /** 简易版：
           非时序数据，无测点数和常用筛选列
           常用筛选列最大选四个，无推荐 */
@@ -40,10 +35,10 @@ export function BasicInfoFields (props: IProps) {
     const is_freq_increase = Form.useWatch('isFreqIncrease', form)
     const total_num = Form.useWatch('totalNum', form) 
     
-    const need_time_col = useMemo(() => { 
+    const need_time_col = useMemo(() =>  
         // 时序数据或者非时序数据但是数据量大于 2000000
-        return is_freq_increase || total_num?.gap === 1 || total_num?.custom > 2000000
-    }, [is_freq_increase, total_num])
+         is_freq_increase || total_num?.gap === 1 || total_num?.custom > 2000000
+    , [is_freq_increase, total_num])
     
     
     return <>
@@ -62,7 +57,7 @@ export function BasicInfoFields (props: IProps) {
                     }
                 }
             ]}>
-            <Input addonBefore='dfs://' placeholder={t('请输入库名')} />
+            <Input prefix='dfs://' placeholder={t('请输入库名')} />
         </Form.Item>
         
         <Form.Item
@@ -155,53 +150,51 @@ export function BasicInfoFields (props: IProps) {
         
         {
             type === GuideType.SIMPLE && <FormDependencies dependencies={['schema']}>
-                {({ schema = [ ] }) => 
+                {({ schema = [ ] }) =>
                     // 时序数据，或者非时序数据，但是数据总量大于200w需要选常用筛选列
-                    need_time_col ? <Form.Item
-                            help={t('请选择两个常用筛选列，第一列需为时间列，第二列需为设备编号列')}
-                            tooltip={t('常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。')}
-                            name='sortColumn'
-                            label={t('常用筛选列')}
-                            required
-                            rules={[
-                                {
-                                    validator: async (_, value = [ ]) => {
-                                        if (!value.length)
-                                            return Promise.reject()
-                                        
-                                        let types = [ ]
-                                        for (let i = 0;  i < value.length;  i++) { 
-                                            const col = schema.find(item => item.colName === value[i])
-                                            if (!col && value[i])
-                                                return Promise.reject(t('表结构中无 {{name}} 列，请修改', { name: value[i] }))
-                                            else
-                                                types.push(col.dataType)
-                                        }                                  
-                                        
-                                        if (types?.[0] && !TIME_TYPES.includes(types[0]))
-                                            return Promise.reject(t('第一个常用筛选列必须为时间类型（DATE、DATETIME、TIMESTAMP、NANOTIMESTAMP）'))
-                                        
-                                        if (types.length !== 2)
-                                            return Promise.reject(t('请选择两个常用筛选列'))
-                                        
-                                        if (types?.[1] && !ENUM_TYPES.includes(types?.[1]))
-                                            return Promise.reject()    
-                                    }
+                    need_time_col && <Form.Item
+                        help={t('请选择两个常用筛选列，第一列需为时间列，第二列需为设备编号列')}
+                        tooltip={t('常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。')}
+                        name='sortColumn'
+                        label={t('常用筛选列')}
+                        required
+                        rules={[
+                            {
+                                validator: async (_, value = [ ]) => {
+                                    if (!value.length)
+                                        return Promise.reject()
+                                    
+                                    let types = [ ]
+                                    for (let i = 0;  i < value.length;  i++) { 
+                                        const col = schema.find(item => item.colName === value[i])
+                                        if (!col && value[i])
+                                            return Promise.reject(t('表结构中无 {{name}} 列，请修改', { name: value[i] }))
+                                        else
+                                            types.push(col.dataType)
+                                    }                                  
+                                    
+                                    if (types?.[0] && !TIME_TYPES.includes(types[0]))
+                                        return Promise.reject(t('第一个常用筛选列必须为时间类型（DATE、DATETIME、TIMESTAMP、NANOTIMESTAMP）'))
+                                    
+                                    if (types.length !== 2)
+                                        return Promise.reject(t('请选择两个常用筛选列'))
+                                    
+                                    if (types?.[1] && !ENUM_TYPES.includes(types?.[1]))
+                                        return Promise.reject()    
                                 }
-                            ]}
-                        >
-                            <Select 
-                                showSearch 
-                                placeholder={t('请选择常用筛选列')}
-                                mode='multiple' 
-                                options={schema.filter(
-                                    item => item?.colName && 
-                                        [...TIME_TYPES, ...ENUM_TYPES].
-                                            includes(item.dataType)).
-                                                map(item => ({ label: item.colName, value: item.colName }))} />
-                        </Form.Item> : null
-                 }
-                
+                            }
+                        ]}
+                    >
+                        <Select 
+                            showSearch 
+                            placeholder={t('请选择常用筛选列')}
+                            mode='multiple' 
+                            options={schema.filter(
+                                item => item?.colName && 
+                                    [...TIME_TYPES, ...ENUM_TYPES].includes(item.dataType))
+                                        .map(item => ({ label: item.colName, value: item.colName }))} />
+                    </Form.Item>
+                }
             </FormDependencies>
         }
     </>

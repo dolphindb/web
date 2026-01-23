@@ -1,7 +1,7 @@
 # DolphinDB Web
 
 <p align='center'>
-    <img src='./src/ddb.svg' alt='DolphinDB Web' width='256'>
+    <img src='./src/icons/ddb.svg' alt='DolphinDB Web' width='256'>
 </p>
 
 <p align='center'>
@@ -83,5 +83,5 @@ pnpm run fix
 # 构建
 pnpm run build
 
-# 生成的文件在 web 目录下
+# 生成的文件在 out/ 目录下
 ```

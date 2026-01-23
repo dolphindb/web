@@ -1,11 +1,10 @@
 import './index.scss'
 
 import { useEffect, useMemo, useState } from 'react'
-import ReactEChartsCore from 'echarts-for-react/lib/core'
-import * as echarts from 'echarts'
+
+import type * as echarts from 'echarts'
 import { pickBy } from 'lodash'
 import { type DdbType } from 'dolphindb/browser.js'
-import type { EChartsInstance } from 'echarts-for-react'
 
 import { AxisType, MatchRuleType, ThresholdType } from '../../ChartFormFields/type.js'
 import { convert_chart_config, get_axis_range } from '../../utils.ts'
@@ -13,7 +12,10 @@ import { type Widget } from '../../model.js'
 import type { ISeriesConfig, IChartConfig } from '../../type.js'
 import { get_data_source } from '../../DataSource/date-source.js'
 
-import { useChart } from '../hooks.js'
+
+import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
+
+import type { GraphComponentProps } from '@/dashboard/graphs.ts'
 
 import { VALUE_TYPES, TIME_TYPES } from './constant.js'
 
@@ -28,23 +30,14 @@ interface ICompositeChartConfig extends Omit<IChartConfig, 'series'> {
     series: ICompositeSeriesConfig[]
 }
 
-interface ICompositeChartProps { 
-    data_source: {}[]
-    col_names: string[]
-    type_map: Record<string, DdbType>
-    widget: Widget
-}
 
-
-
-export function CompositeChart (props: ICompositeChartProps) {
-    const { widget, data_source } = props
+export function CompositeChart ({ widget, data_source: { data } }: GraphComponentProps) {
     const [update, set_update] = useState(null)
     
     const config = useMemo(() => widget.config as ICompositeChartConfig, [widget.config])
     
     
-    const [echart_instance, set_echart_instance] = useState<EChartsInstance>()
+    const [echart_instance, set_echart_instance] = useState<echarts.ECharts>()
     
     // 用来存储阈值对应的轴范围，设置了百分比阈值时使用
     const [axis_range_map, set_axis_range_map] = useState<{ [key: string]: { min: number, max: number } }>()
@@ -56,9 +49,7 @@ export function CompositeChart (props: ICompositeChartProps) {
         set_source_col_map({ }) 
     }, [widget.source_id])
     
-    const type_map = useMemo<Record<string, DdbType>>(() => { 
-        return widget.source_id.reduce((prev, id) => ({ ...prev, ...get_data_source(id).type_map }), { })
-    }, [update, widget.source_id])
+    const type_map = useMemo<Record<string, DdbType>>(() => widget.source_id.reduce((prev, id) => ({ ...prev, ...get_data_source(id).type_map }), { }), [update, widget.source_id])
     
     // 自动画图模式需要存储每个数据源的 X 轴列和数据列
     useEffect(() => {
@@ -78,13 +69,13 @@ export function CompositeChart (props: ICompositeChartProps) {
     }, [type_map, config.automatic_mode, config.x_col_types, widget.source_id])
     
     
-    const option = useMemo(() => { 
+    const option = useMemo<echarts.EChartsOption>(() => { 
         const { automatic_mode, series: series_config = [ ], yAxis = [ ], ...others } = config
         let series = [ ]
         
         // 非自动画图模式
         if (!automatic_mode)
-            return convert_chart_config(widget, data_source, axis_range_map)
+            return convert_chart_config(widget, data, axis_range_map)
         else {
             // 自动模式，查找匹配的数据列规则，设置数据列
             for (let [data_source_id, item] of Object.entries(source_col_map)) {
@@ -130,7 +121,7 @@ export function CompositeChart (props: ICompositeChartProps) {
                 yAxis: yAxis.map(item => ({ ...item, type: AxisType.VALUE })),
                 series,
             }
-            return convert_chart_config({ ...widget, config: time_series_config } as unknown as Widget, data_source, axis_range_map)
+            return convert_chart_config({ ...widget, config: time_series_config } as unknown as Widget, data, axis_range_map)
         }
     }, [config, update, source_col_map, type_map, axis_range_map])
     
@@ -153,17 +144,13 @@ export function CompositeChart (props: ICompositeChartProps) {
             }
     }, [option, echart_instance, config.thresholds])
     
-    const ref = useChart(option)
     
     return <>
         {widget.source_id.map(id => <SingleDataSourceUpdate key={id} source_id={id} force_update={() => { set_update({ }) }}/>) }
-        <ReactEChartsCore
-            echarts={echarts}
-            ref={ref}
-            option={option}
-            className='dashboard-line-chart'
-            theme='my-theme'
-            onChartReady={(ins: EChartsInstance) => { set_echart_instance(ins) }}
+        <DashboardEchartsComponent 
+            options={option} 
+            on_chart_ready={set_echart_instance} 
+            not_merge
         />
     </>
    

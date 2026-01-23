@@ -1,11 +1,15 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { AutoComplete, Button, Input, message, Modal, Popover, Table, Tooltip, type TableProps } from 'antd'
+import { AutoComplete, Button, Input, Modal, Table, Tooltip, type TableProps } from 'antd'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
-import { t } from '../../i18n/index.js'
+import { model } from '@model'
 
-import { config } from './model.ts'
+import { t } from '@i18n'
+
+ 
+import { config, node_configs_options, validate_config } from './model.ts'
+import { strs_2_nodes } from './utils.ts'
 
 
 export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_name: string, group_nodes: GroupNodesDatatype[], group_configs: GroupConfigDatatype[] }) => Promise<{ success: boolean, message?: string }> }) => {
@@ -14,20 +18,43 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
     const [group_name, set_group_name] = useState('')
     const [validating, set_validating] = useState(false)
     
-    const [group_nodes, set_group_nodes] = useState<GroupNodesDatatype[]>([{ key: String((new Date()).getTime()), host: '', port: '', alias: '' }])
+    const [group_nodes, set_group_nodes] = useState<GroupNodesDatatype[]>([{ key: String((new Date()).getTime()), host: '', port: '', alias: '', zone: '' }])
     const [group_configs, set_group_configs] = useState<GroupConfigDatatype[]>([
         { key: 'default1', name: 'computeNodeCacheDir', value: '' },
         { key: 'default2', name: 'computeNodeCacheMeta', value: '' },
-        { key: 'default3', name: 'computeNodeMemCacheSize', value: '1024' },
-        { key: 'default4', name: 'computeNodeDiskCacheSize', value: '65536' },
+        { key: 'default3', name: 'computeNodeMemCacheSize', value: '1' },
+        { key: 'default4', name: 'computeNodeDiskCacheSize', value: '64' },
         { key: 'default5', name: 'enableComputeNodeCacheEvictionFromQueryThread', value: 'true' },
     ])
     const [batch_add_node_count, set_batch_add_node_count] = useState(1)
+    const [compute_groups, set_compute_groups] = useState<string[]>([ ])
     
-    function validate (): boolean {
+    async function update_compute_groups () {
+        const groups: string[] = [ ]
+        const result = await config.get_cluster_nodes() 
+        const nodes = strs_2_nodes(result as any[])
+        for (const node of nodes) 
+            if (node.computeGroup)
+                groups.push(node.computeGroup)
+        set_compute_groups(groups)
+    }
+    
+    useEffect(() => {
+        // 展示时触发更新
+        if (modal.visible) 
+            update_compute_groups()
+        
+    }, [modal.visible])
+    
+    async function validate () {
         if (group_name === '')
-            return false
+            throw new Error(t('组名不能为空'))
+        
+        for (const group of compute_groups) 
+            if (group_name.startsWith(group) || group.startsWith(group_name)) 
+                throw new Error(t('计算组名称不能与已存在的计算组 {{group}} 存在包含关系', { group }))
             
+        
         for (const node of group_nodes) // 非空校验，并且别名必须包含 group_name
             if (node.host === '' 
                 || node.port === '' 
@@ -36,13 +63,14 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
                 || !/^\S+$/.test(node.host)
                 || !/^\S+$/.test(node.alias)
             )
-                return false
+                throw new Error(t('计算组节点配置不正确'))
                 
-        for (const config of group_configs)
+        for (const config of group_configs) {
             if (config.name === '' || config.value === '')
-                return false
+                throw new Error(t('配置项不能为空'))
+            await validate_config(config.name, config.value)
+        }
                 
-        return true
     }
     
     const filter_config = useCallback(
@@ -80,7 +108,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
     function batch_add_empty_node (count: number) {
         const new_nodes = [ ]
         for (let i = 0;  i < count;  i++)
-            new_nodes.push({ key: String((new Date()).getTime() + i), host: '', port: '', alias: '' })
+            new_nodes.push({ key: String((new Date()).getTime() + i), host: '', port: '', alias: '', zone: '' })
         set_group_nodes([...group_nodes, ...new_nodes])
     }
     
@@ -133,12 +161,8 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
             }
         },
         { title: t('端口号'), key: 'port', render: (_, { key, port }) => <Input status={(validating && port === '') ? 'error' : undefined} type='number' placeholder={t('请输入端口号')} value={port} onChange={e => { update_group_node_by_field(key, 'port', e.target.value) }} /> },
-        
-        {
-            title: t('操作'), key: 'operation', render: (_, { key }) => {
-                return <Button type='link' onClick={() => { delete_group_node(key) }}>{t('删除')}</Button>
-            }
-        }
+        { title: t('所属区域'), key: 'zone', render: (_, { key, zone }) => <Input placeholder={t('请输入所属区域')} value={zone} onChange={e => { update_group_node_by_field(key, 'zone', e.target.value) }} /> },
+        { title: t('操作'), key: 'operation', render: (_, { key }) => <Button variant='link' color='danger' onClick={() => { delete_group_node(key) }}>{t('删除')}</Button> }
     ]
     
     const group_configs_columns: TableProps<GroupConfigDatatype>['columns'] = [
@@ -153,16 +177,10 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
                 onChange={e => {
                     update_config_by_field(key, 'name', e)
                 }}
-                options={Object.entries(config.get_config_classification()).map(([cfg_cls, configs]) => ({
-                    label: cfg_cls,
-                    options: Array.from(configs).map(cfg => ({
-                        label: cfg,
-                        value: cfg
-                    }))
-                }))} />
+                options={node_configs_options} />
         },
         { title: t('值'), key: 'value', render: (_, { key, value }) => <Input status={(validating && value === '') ? 'error' : undefined} placeholder={t('请输入值')} value={value} onChange={e => { update_config_by_field(key, 'value', e.target.value) }} /> },
-        { title: t('操作'), key: 'operation', render: (_, { key }) => <Button type='link' onClick={() => { delete_config(key) }}>{t('删除')}</Button> }
+        { title: t('操作'), key: 'operation', render: (_, { key }) => <Button variant='link' color='danger' onClick={() => { delete_config(key) }}>{t('删除')}</Button> }
     ]
     
     
@@ -214,23 +232,25 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
             <Button onClick={batch_add_empty_config}>{t('新增一条配置')}</Button>
         </div>
         <div className='add-nodes' style={{ flexFlow: 'row-reverse' }}>
-            <Button onClick={() => {
+            <Button onClick={async () => {
                 if (group_nodes.length <= 0) {
-                    message.warning(t('请添加至少 1 个节点'))
+                    model.message.warning(t('请添加至少 1 个节点'))
                     return
                 }
-                if (validate())
-                    props.on_save({ group_name, group_nodes, group_configs }).then(r => {
-                    if (r.success)
-                        modal.hide()
-                    })
-                else
+                try {
+                    await validate()
+                } catch (error) {
                     set_validating(true)
+                    throw new Error(error)
+                }
+                const result = await props.on_save({ group_name, group_nodes, group_configs })
+                if (result.success)
+                    modal.hide()
             }} type='primary'>{t('完成')}</Button>
             <Button onClick={modal.hide}>{t('取消')}</Button>
         </div>
     </Modal>
 })
 
-export interface GroupNodesDatatype { key: string, host: string, port: string, alias: string }
+export interface GroupNodesDatatype { key: string, host: string, port: string, alias: string, zone: string }
 export interface GroupConfigDatatype { key: string, name: string, value: string }

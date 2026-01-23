@@ -1,5 +1,6 @@
 .inspection
     height: 100%
+    
     .spin-container
         height: 90vh
         display: flex
@@ -9,16 +10,16 @@
     .inspection-header
         display: flex
         column-gap: 10px
-        margin-bottom: 10px
+        
+        padding: 10px 0px
+        
         .inspection-search
             flex: 1
-            
-    .ant-table-title
-        padding: 8px 0px
-                
-    .ant-table-cell
-        padding: 4px 8px !important
-        
+    
+    .inspection-tables
+        display: flex
+        flex-direction: column
+        gap: 10px
     
     .plan-table-header
         display: flex
@@ -33,14 +34,17 @@
             column-gap: 20px
             align-items: center
         
+    .ant-result.init
+        padding-top: 100px !important 
+        
     .yellow
-        color: #DDDD00
+        color: var(--ant-color-warning)
         
     .green
-        color: #6ED86C
+        color: var(--ant-color-success)
 
     .red
-        color: #EE0000
+        color: var(--ant-color-error)
         
     .report-item-header
         display: flex
@@ -50,6 +54,8 @@
         
         
     .report-detail
+        margin-top: 10px
+        
         scroll-margin-top: 20px
         .report-detail-header
             display: flex
@@ -72,7 +78,7 @@
         .report-summary
             margin: 0px
             .abnormal-count
-                color: #EE0000
+                color: var(--ant-color-error)
 
         .abnormal-table-header
             display: flex
@@ -84,7 +90,7 @@
                 margin-bottom: 0
 
             .abnormal-count
-                color: #EE0000
+                color: var(--ant-color-error)
 
         .group-header
             display: flex
@@ -97,15 +103,12 @@
 
             .abnormal-count
                 &.green
-                    color: #6ED86C
+                    color: var(--ant-color-success)
                 &.red
-                    color: #EE0000
+                    color: var(--ant-color-error)
 
     .add-inspection,
     .edit-inspection
-        .ant-table-title
-            padding: 8px 0px
-            
         h3
             margin-block: 8px
         
@@ -169,7 +172,7 @@
                 align-items: start
                 column-gap: 5px     
                 .email-config-warning
-                    color: #CCCC00
+                    color: var(--ant-color-warning)
                     cursor: pointer
                     margin-top: 14px 
     .intro-container
@@ -202,7 +205,7 @@
                 
         
     .add-param-modal
-        .ant-modal-content
+        .ant-modal-container
             display: flex
             flex-direction: column
             height: 80vh  

@@ -5,16 +5,18 @@ import { get } from 'lodash'
 
 import { useMemo } from 'react'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'
 import { convert_list_to_options } from '../utils.ts'
 
 import { WidgetChartType, dashboard } from '../model.js'
 
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../components/FormDependencies/index.js'
 
-import { DDB_TYPE_MAP } from '@/utils.ts'
+import { DDB_TYPE_MAP } from '@utils'
+
+import type { GraphConfigProps } from '@/dashboard/graphs.ts'
 
 import { TitleFields } from './components/Title.js'
 import { LegendFields } from './components/Legend.js'
@@ -41,7 +43,7 @@ export function VariableSetting () {
             <Select options={convert_list_to_options([1, 2, 3, 4, 6, 8, 12])} allowClear />
         </Form.Item>
         <Form.Item name='variable_form_label_col' label={t('标签占位')} tooltip={t('标签相对单个变量的百分比占位')}>
-            <InputNumber min={20} max={80} addonAfter='%' />
+            <InputNumber min={20} max={80} suffix='%' />
         </Form.Item>
         <Form.Item name='with_search_btn' label={t('查询按钮')} initialValue={false} tooltip={t('不展示查询按钮的情况，表单更新即会进行查询，在变量设置较多的情况下，建议使用查询按钮，点击之后再运行数据源代码')}>
             <BoolRadioGroup />
@@ -56,86 +58,95 @@ export function VariableSetting () {
 export function PaddingSetting () { 
     return <>
         <Form.Item name={['padding', 'top']} label={t('上内边距')} initialValue={12}>
-            <InputNumber addonAfter='px'/>
+            <InputNumber suffix='px'/>
         </Form.Item>
         
         <Form.Item name={['padding', 'bottom']} label={t('下内边距')} initialValue={12}>
-            <InputNumber addonAfter='px'/>
+            <InputNumber suffix='px'/>
         </Form.Item>
         <Form.Item name={['padding', 'left']} label={t('左内边距')} initialValue={12}>
-            <InputNumber addonAfter='px'/>
+            <InputNumber suffix='px'/>
         </Form.Item>
         
         <Form.Item name={['padding', 'right']} label={t('右内边距')} initialValue={12}>
-            <InputNumber addonAfter='px'/>
+            <InputNumber suffix='px'/>
         </Form.Item>
     </>
 }
 
-export function BasicFormFields (props: { type?: 'chart' | 'table' | 'description', chart_fields?: ChartField[] }) { 
+
+export interface BasicFormFieldsProps extends Partial<GraphConfigProps> {
+    type?: 'chart' | 'table' | 'description'
+    chart_fields?: ChartField[]
+}
+
+export function BasicFormFields ({
+    type,
+    chart_fields = [ChartField.LEGEND, ChartField.DATA_ZOOM, ChartField.SPLIT_LINE, ChartField.TOOLTIP]
+}: BasicFormFieldsProps) { 
     const { widget } = dashboard.use(['widget'])
     
-    const { type, chart_fields = [ChartField.LEGEND, ChartField.DATA_ZOOM, ChartField.SPLIT_LINE, ChartField.TOOLTIP] } = props
-    
-    const form = Form.useFormInstance()
-    
-    const FormFields = useMemo(() => {
-        return  <div className='axis-wrapper'>
-            <TitleFields />
-            <WrapperFields />
-            {type === 'chart' && <Form.Item name='animation' label={t('是否开启动画')} initialValue>
+    const FormFields = <div className='axis-wrapper'>
+        <TitleFields />
+        <WrapperFields />
+        {type === 'chart' && <Form.Item name='animation' label={t('是否开启动画')} initialValue>
+            <BoolRadioGroup />
+        </Form.Item>}
+        
+        {widget.type === WidgetChartType.COMPOSITE_GRAPH && <>
+            <Form.Item
+                name='automatic_mode'
+                label={t('自动画图模式')}
+                initialValue={false}
+                tooltip={t('自动画图模式会自动查找各数据源选定类型的列（默认为时间类型）作为 X 轴，各数据源数值列作为数据列，在数据列配置区域可对特定数据列进行个性化配置')}
+            >
                 <BoolRadioGroup />
-            </Form.Item>}
+            </Form.Item>
             
-            {widget.type === WidgetChartType.COMPOSITE_GRAPH && <>
-                <Form.Item
-                    name='automatic_mode'
-                    label={t('自动画图模式')}
-                    initialValue={false}
-                    tooltip={t('自动画图模式会自动查找各数据源选定类型的列（默认为时间类型）作为 X 轴，各数据源数值列作为数据列，在数据列配置区域可对特定数据列进行个性化配置')}
-                >
-                    <BoolRadioGroup />
-                </Form.Item>
-                
-                <FormDependencies dependencies={['automatic_mode']}>
-                    {value => { 
-                        const automatic_mode = get(value, ['automatic_mode'])
-                        const options = Object.entries(DDB_TYPE_MAP).map(([k, v]) => ({
-                            label: v,
-                            value: Number(k)
-                        }))
-                        return automatic_mode
-                            ? <Form.Item label={t('X 轴类型')} name='x_col_types'>
-                                <Select
-                                    mode='multiple'
-                                    showSearch
-                                    options={options}
-                                    placeholder={t('请选择类型')}
-                                    filterOption={(val, option) => val ? option.label.toLowerCase().includes(val.toLowerCase()) : true}
-                                />
-                            </Form.Item>
-                            : null
-                    } }
-                </FormDependencies>
-            
-            </>}
-            
-            
-            
-            
-            {type === 'table' && <>
-                <Form.Item initialValue={false} name='bordered' label={t('展示边框')}>
-                    <BoolRadioGroup />
-                </Form.Item>
-                <Form.Item initialValue name='need_select_cols' label={t('展示列选择')}>
-                    <BoolRadioGroup />
-                </Form.Item>
-                <Form.Item name='is_reverse' label={t('倒序展示')} tooltip={t('流数据开启此功能可将最新的数据插入到表格头部')} initialValue={false}>
-                    <BoolRadioGroup />
-                </Form.Item>
-            </>}
-        </div>
-    }, [type])
+            <FormDependencies dependencies={['automatic_mode']}>
+                {value => { 
+                    const automatic_mode = get(value, ['automatic_mode'])
+                    const options = Object.entries(DDB_TYPE_MAP).map(([k, v]) => ({
+                        label: v,
+                        value: Number(k)
+                    }))
+                    
+                    return Boolean(automatic_mode) && 
+                        <Form.Item label={t('X 轴类型')} name='x_col_types'>
+                            <Select
+                                mode='multiple'
+                                showSearch={{
+                                    filterOption: (val, option) => 
+                                        val ? 
+                                            option.label.toLowerCase().includes(val.toLowerCase())
+                                        :
+                                            true
+                                }}
+                                options={options}
+                                placeholder={t('请选择类型')}
+                            />
+                        </Form.Item>
+                } }
+            </FormDependencies>
+        
+        </>}
+        
+        
+        {type === 'table' && <>
+            <Form.Item initialValue={false} name='bordered' label={t('展示边框')}>
+                <BoolRadioGroup />
+            </Form.Item>
+            <Form.Item initialValue={false} name='max_content' label={t('列宽自适应')}>
+                <BoolRadioGroup />
+            </Form.Item>
+            <Form.Item initialValue name='need_select_cols' label={t('展示列选择')}>
+                <BoolRadioGroup />
+            </Form.Item>
+            <Form.Item name='is_reverse' label={t('倒序展示')} tooltip={t('流数据开启此功能可将最新的数据插入到表格头部')} initialValue={false}>
+                <BoolRadioGroup />
+            </Form.Item>
+        </>}
+    </div>
     
     const chart_items = useMemo < CollapseProps['items']>(() => [
         {

@@ -14,10 +14,10 @@ import { type BasicInfoFormValues } from '../iot-guide/type.js'
 import { convert_list_to_options } from '../../dashboard/utils.ts'
 
 
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../components/FormDependencies/index.js'
 import { model } from '../../model.js'
 import { ARRAY_VECTOR_DATA_TYPES, BASIC_DATA_TYPES, ENUM_TYPES, LOW_VERSION_DATA_TYPES, TIME_TYPES } from '../constant.js'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { UploadFileField } from './UploadFileField.js'
 
@@ -80,10 +80,10 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
         title={t('导入表文件')}
         onOk={on_submit}
         okButtonProps={{ loading }}
-        destroyOnClose
+        destroyOnHidden
         afterClose={modal.remove}
     >
-        <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} labelAlign='left'>
+        <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }}>
             <Form.Item label={t('导入方式')} name='upload_type' initialValue={0}>
                 <Radio.Group>
                     <Radio value={0}>{t('本地导入')}</Radio>
@@ -105,7 +105,6 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
             </FormDependencies>
         </Form>
     </Modal>
-    
 })
 
 
@@ -244,7 +243,9 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, ne
     const validate_schema = useCallback(async (_, values) => {
         if (values.length < 3)
             return Promise.reject(new Error(t('表结构必须大于等于三列')))
+        
         const types = values.filter(item => item?.dataType).map(item => item.dataType)
+        
         // 物联网场景，且为时序数据或者数据总量大于200w的非时序数据
         if (mode === 'ito' 
                 && need_time_col
@@ -252,72 +253,73 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, ne
                             || !types.some(type => ENUM_TYPES.includes(type))))  
             // 物联网场景
             return Promise.reject(new Error(helpTip))
+        
         // 金融场景必须有一列时间列
         else if (mode === 'finance' && !types.some(type => TIME_TYPES.includes(type)))
             return Promise.reject(helpTip)
+        
         return Promise.resolve()
     }, [need_time_col, mode, helpTip])
     
-    return <>
-        <div className='schema-wrapper'>
-            <h4>{t('列配置')}</h4>
-            
-            <Form.List
-                name='schema'
-                initialValue={[{ }, { }, { }]}
-                rules={[{ validator: validate_schema }]}
-            >
-                {(fields, { add, remove }, { errors }) => <>
-                    {fields.map(field => <div className='schema-item' key={field.name}>
-                        <Form.Item
-                            wrapperCol={{ span: 16 }}
-                            labelCol={{ span: 8 }}
-                            label={t('列名')}
-                            name={[field.name, 'colName']}
-                            rules={[
-                                { required: true, message: t('请输入列名'), validateTrigger: 'onChange' },
-                                { validator }
-                            ]}>
-                            <Input placeholder={t('请输入列名')}
-                        />
-                        </Form.Item>
-                        <Form.Item
-                            wrapperCol={{ span: 16 }}
-                            tooltip={t('DECIMAL32 精度有效范围是[0, 9]，DECIMAL64 精度有效范围是[0, 18]，DECIMAL128 精度有效范围是[0,38]')}
-                            labelCol={{ span: 8 }}
-                            label={t('数据类型')}
-                            name={[field.name, 'dataType']}
-                            rules={[{ required: true, message: t('请选择数据类型'), validateTrigger: 'onChange' }]}>
-                            <DataTypeSelect mode={mode} engine={engine} />
-                        </Form.Item>
-                        <Form.Item
-                            wrapperCol={{ span: 16 }}
-                            labelCol={{ span: 8 }}
-                            label={t('备注')}
-                            name={[field.name, 'comment']}
-                        >
-                            <Input placeholder={t('请输入备注')} />
-                        </Form.Item>
-                        {fields.length > 3 && <Tooltip title={t('删除')}><DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }}/></Tooltip> }
-                    </div>)}
-                    <Button onClick={() => { add({ }) }} type='dashed' block icon={<PlusCircleOutlined />}>{t('增加列配置')}</Button>
-                    <Form.ErrorList className='schema-list-error' errors={errors} />
-                </>}
-            </Form.List>
-            
-    
-            <div className='upload-schema-wrapper'>
-                <Typography.Link onClick={on_upload}>
-                    <CloudUploadOutlined className='upload-schema-icon'/>
-                    {t('导入表文件')}
-                </Typography.Link>
-            </div>
+    return <div className='schema-wrapper'>
+        <h4>{t('列配置')}</h4>
         
+        <Form.List
+            name='schema'
+            initialValue={[{ }, { }, { }]}
+            rules={[{ validator: validate_schema }]}
+        >
+            {(fields, { add, remove }, { errors }) => <>
+                {fields.map(field => <div className='schema-item' key={field.name}>
+                    <Form.Item
+                        wrapperCol={{ span: 16 }}
+                        labelCol={{ span: 8 }}
+                        label={t('列名')}
+                        name={[field.name, 'colName']}
+                        rules={[
+                            { required: true, message: t('请输入列名'), validateTrigger: 'onChange' },
+                            { validator }
+                        ]}
+                    >
+                        <Input placeholder={t('请输入列名')} />
+                    </Form.Item>
+                    
+                    <Form.Item
+                        wrapperCol={{ span: 16 }}
+                        labelCol={{ span: 8 }}
+                        tooltip={t('DECIMAL32 精度有效范围是[0, 9]，DECIMAL64 精度有效范围是[0, 18]，DECIMAL128 精度有效范围是[0,38]')}
+                        label={t('数据类型')}
+                        name={[field.name, 'dataType']}
+                        rules={[{ required: true, message: t('请选择数据类型'), validateTrigger: 'onChange' }]}
+                    >
+                        <DataTypeSelect mode={mode} engine={engine} />
+                    </Form.Item>
+                    
+                    <Form.Item
+                        wrapperCol={{ span: 16 }}
+                        labelCol={{ span: 8 }}
+                        label={t('备注')}
+                        name={[field.name, 'comment']}
+                    >
+                        <Input placeholder={t('请输入备注')} />
+                    </Form.Item>
+                    
+                    {fields.length > 3 && <Tooltip title={t('删除')}>
+                        <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }}/>
+                    </Tooltip> }
+                </div>)}
+                
+                <Button onClick={() => { add({ }) }} type='dashed' block icon={<PlusCircleOutlined />}>{t('增加列配置')}</Button>
+                
+                <Form.ErrorList className='schema-list-error' errors={errors} />
+            </>}
+        </Form.List>
+        
+        <div className='upload-schema-wrapper'>
+            <Typography.Link onClick={on_upload}>
+                <CloudUploadOutlined className='upload-schema-icon'/>
+                {t('导入表文件')}
+            </Typography.Link>
         </div>
-        
-        <Typography.Text type='secondary' className='schema-tips'>
-            { helpTip }
-        </Typography.Text>
-        
-    </>
+    </div>
 }

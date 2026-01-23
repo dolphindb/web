@@ -1,8 +1,7 @@
-
-import { CheckOutlined, CloseOutlined, MailOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined, DeleteOutlined, HistoryOutlined, MailOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import NiceModal from '@ebay/nice-modal-react'
-import { t } from '@i18n/index.ts'
-import { Button, DatePicker, Input, Popconfirm, Table, Tooltip, type TableColumnsType } from 'antd'
+import { t } from '@i18n'
+import { Button, DatePicker, Input, Popconfirm, Space, Table, Tooltip, Typography, type TableColumnsType } from 'antd'
 
 import { useEffect, useMemo, useState } from 'react'
 
@@ -12,12 +11,18 @@ import type { Dayjs } from 'dayjs'
 
 import { datetime_format } from 'xshell/utils.browser.js'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { EmailConfigModal } from '@/inspection/modals/EmailConfigModal.tsx'
+import { EmailHistoryModal } from '@/inspection/modals/EmailHistoryModal.tsx'
 import { inspection } from '@/inspection/model.ts'
 import type { Plan, PlanReport } from '@/inspection/type.ts'
 import { LogModal } from '@/inspection/modals/LogModal.tsx'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
+import { DeleteReportsModal } from '@/inspection/components/DeleteReportsModal.tsx'
+import { DeletePlansModal } from '@/inspection/components/DeletePlansModal.tsx'
+import create_metrics_script from '@/inspection/scripts/init.dos'
 
 
 export function InspectionListPage () {
@@ -28,66 +33,82 @@ export function InspectionListPage () {
     const [refresh, set_refresh] = useState(0)
     const refresher = useMemo(() => () => { set_refresh(cnt => cnt + 1) }, [ ])
     
-    return <div>
-            <div className='inspection-header'>
-                <Button 
-                    type='primary'
-                    icon={<PlusOutlined />}
-                    onClick={() => { model.goto('/inspection/plan/new') }}>
-                    {t('新增巡检')}
-                </Button>
-                
-                {!email_config.can_config ? (
-                <Tooltip title={<div style={{ whiteSpace: 'pre-wrap' }}>{email_config.error_msg}</div>}>
-                    <Button
-                        icon={<MailOutlined />}
-                        disabled
-                        onClick={ () => { NiceModal.show(EmailConfigModal) } }>
-                            {t('邮件告警设置')}
-                    </Button>
-                </Tooltip>
-                ) : (
-                    <Button
-                        icon={<MailOutlined />}
-                        disabled={false}
-                        onClick={ () => { NiceModal.show(EmailConfigModal) } }>
-                            {t('邮件告警设置')}
-                    </Button>
-                )}
-                
-            
-                <Button 
-                    icon={<ReloadOutlined />}
-                    onClick={() => {
-                        set_search_input_value('')
-                        set_search_key('')
-                        refresher()
-                        model.message.success(t('刷新成功'))
-                    }}>{t('刷新')}
-                </Button>
-                
-                <Input.Search 
-                    placeholder={t('请输入巡检名称')} 
-                    value={search_input_value}
-                    onChange={e => { set_search_input_value(e.target.value) }}
-                    onSearch={set_search_key} 
-                    className='inspection-search'
-                />
-            </div>
-            
-            {
-            defined &&  
-            <>
-                <PlanListTable enabled search_key={search_key}  refresh={refresh} refresher={refresher}/>
-                <PlanListTable search_key={search_key} refresh={refresh} refresher={refresher}/>
-                <ReportListTable
-                    search_key={search_key} 
-                    refresh={refresh}
-                    refresher={refresher}
-                />
-            </>
+    
+    useEffect(() => {
+        async function checkMetrics () {
+            const metricsUpdated = await model.ddb.invoke('areMetricsUpdated', [WEB_VERSION])
+            if (!metricsUpdated) {
+                await model.ddb.execute(create_metrics_script)
+                await model.ddb.invoke('setMetricsUpdated', [WEB_VERSION])
+                console.log(t('指标已更新'))
+            }
         }
+        checkMetrics()
+    }, [ ])
+    
+    return <>
+        <div className='inspection-header'>
+            <Input.Search 
+                placeholder={t('请输入巡检名称')} 
+                value={search_input_value}
+                onChange={e => { set_search_input_value(e.target.value) }}
+                onSearch={set_search_key} 
+                className='inspection-search'
+            />
+            
+            <Button 
+                type='primary'
+                icon={<PlusOutlined />}
+                onClick={() => { model.goto('/inspection/plan/new') }}>
+                {t('新增巡检')}
+            </Button>
+            
+            {!email_config.can_config ? (
+            <Tooltip title={<div style={{ whiteSpace: 'pre-wrap' }}>{email_config.error_msg}</div>}>
+                <Button
+                    icon={<MailOutlined />}
+                    disabled
+                    onClick={ () => { NiceModal.show(EmailConfigModal) } }>
+                        {t('邮件告警设置')}
+                </Button>
+            </Tooltip>
+            ) : (
+                <Button
+                    icon={<MailOutlined />}
+                    disabled={false}
+                    onClick={ () => { NiceModal.show(EmailConfigModal) } }>
+                        {t('邮件告警设置')}
+                </Button>
+            )}
+            
+            <Button
+                icon={<HistoryOutlined />}
+                onClick={() => { NiceModal.show(EmailHistoryModal) }}>
+                {t('邮件告警历史')}
+            </Button>
+            
+        
+            <RefreshButton 
+                onClick={() => {
+                    set_search_input_value('')
+                    set_search_key('')
+                    refresher()
+                    model.message.success(t('刷新成功'))
+                }}/>
+            
+            
         </div>
+        
+        { defined && <div className='inspection-tables'>
+            <PlanListTable enabled search_key={search_key}  refresh={refresh} refresher={refresher}/>
+            <PlanListTable search_key={search_key} refresh={refresh} refresher={refresher}/>
+            <ReportListTable
+                search_key={search_key} 
+                refresh={refresh}
+                refresher={refresher}
+            />
+        </div> }
+    </>
 }
 
 
@@ -195,11 +216,10 @@ function ReportListTable  ({
             title: t('操作'),
             dataIndex: 'action',
             key: 'action',
-            render: (_, record) => <>
+            fixed: 'right',
+            render: (_, record) => <Space size={10}>
                     {record.success === null && 
-                        <Button
-                            type='link'
-                            danger
+                        <Typography.Link
                             onClick={async () => {
                                 await inspection.cancel_running_plan(record.id)
                                 model.message.success(t('取消执行成功'))
@@ -207,69 +227,73 @@ function ReportListTable  ({
                             }}
                         >
                             {t('取消执行')}
-                        </Button>
+                        </Typography.Link>
                     }
             
-                    <Button
-                        type='link'
+                    <Typography.Link
                         disabled={record.success === null}
                         onClick={() => { model.goto(`/inspection/report/${record.id}`) }}
                     >
                         {t('查看详细报告')}
-                    </Button>
+                    </Typography.Link>
                     
-                    <Button
-                        type='link'
+                    <Typography.Link
                         disabled={!record.startTime}
                         onClick={() => { NiceModal.show(LogModal, { report_id: record.id, node: record.enabledNode }) }}
                     >
                         {t('查看日志')}
-                    </Button>
+                    </Typography.Link>
                     
                     <Popconfirm   
                         title={t('删除巡检结果')} 
                         description={t('确认删除此巡检结果吗？')} 
+                        okButtonProps={{ type: 'primary', danger: true }}
                         onConfirm={async () => { 
                             await inspection.delete_reprorts([record.id])
                             model.message.success(t('删除成功'))
                             refresher()
                         }} >
-                        <Button
-                            type='link'
+                        <Typography.Link
                             disabled={record.success === null}
-                            danger
+                            type='danger'
                         >
                         {t('删除')}
-                        </Button>
+                        </Typography.Link>
                     </Popconfirm> 
-            </>
+                </Space>
                
                 
         },
     ], [ ])
     
-    return <Table 
-                title={() => <div className='report-table-header'>
-                    <div className='report-table-header-left'>
-                        <h2>{t('巡检结果')}</h2>
-                        <DatePicker.RangePicker 
-                            value={dates} 
-                            onChange={set_dates} 
-                            showTime 
-                            placeholder={[t('开始时间'), t('结束时间')]}/>
-                    </div>
-                <Popconfirm   
-                    title={t('批量删除巡检结果')} 
-                    description={t('确认删除选中的巡检结果吗？')} 
-                    onConfirm={async () => {
-                        await inspection.delete_reprorts(ids)
-                        model.message.success(t('批量删除成功'))
-                        set_current_page(1)
-                        refresher()
-                    }} >
-                        <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
-                </Popconfirm>
-                </div>}
+    return <DDBTable
+                scroll={{ x: 'max-content' }}
+                buttons={
+                    <Button 
+                        icon={<DeleteOutlined />} 
+                        danger 
+                        disabled={ids.length === 0}
+                        onClick={() => {
+                            if (ids.length) 
+                                NiceModal.show(DeleteReportsModal, { 
+                                    ids,
+                                    refresher,
+                                    set_current_page 
+                                })
+                            
+                        }}
+                    >
+                        {t('批量删除')}
+                    </Button>
+                }
+                title={t('巡检结果')}
+                filter_form={
+                    <DatePicker.RangePicker 
+                    value={dates} 
+                    onChange={set_dates} 
+                    showTime 
+                    placeholder={[t('开始时间'), t('结束时间')]}/>
+                }
                 onChange={(_, filter, sorter) => {
                     if (filter?.success && filter.success.length > 0) 
                         set_success(Number(filter.success[0]))
@@ -381,43 +405,41 @@ function PlanListTable  ({
             title: t('操作'),
             dataIndex: 'action',
             key: 'action',
+            fixed: 'right',
             render: (_, record) => 
-                <>
+                <Space size={10}>
                      <Popconfirm
                         placement='topLeft'
                         title={t('确定巡检')}
                         description={t('确定立即巡检 {{name}} 吗？', { name: record.name })}
                         okText={t('确定')}
                         cancelText={t('取消')}
+                        okButtonProps={{ type: 'primary' }}
                         onConfirm={async () => {
                             await inspection.run_plan(record.id)
                             model.message.success(t('执行成功'))
                             refresher()
                         }}
                         >
-                        <Button 
-                            type='link'
+                        <Typography.Link 
                             >
                         {t('立即巡检')}
-                        </Button>
+                        </Typography.Link>
                     </Popconfirm>
                    
-                    <Button 
-                        type='link'
+                    <Typography.Link 
                         onClick={() => { model.goto(`/inspection/plan/${record.id}`, { queries: { disabled: '1' } }) }}
                     >
                         {t('查看详情')}
-                    </Button>
+                    </Typography.Link>
                     
-                    <Button 
-                        type='link'
+                    <Typography.Link 
                         disabled={record.lastReportId === ''}
                         onClick={() => { model.goto(`/inspection/report/${record.lastReportId}`) }}
                     >
                         {t('查看最近一次巡检结果')}
-                    </Button>
-                    <Button 
-                        type='link'
+                    </Typography.Link>
+                    <Typography.Link 
                         onClick={async () => {
                             if (enabled) 
                                 await inspection.disable_plan(record.id) 
@@ -429,37 +451,42 @@ function PlanListTable  ({
                         }}
                     >
                         {enabled ?  t('暂停') : t('启用')}
-                    </Button>
+                    </Typography.Link>
                     <Popconfirm 
                         title={t('删除方案')} 
                         description={t('确认删除巡检方案 {{plan}} 吗？', { plan: record.name })} 
+                        okButtonProps={{ type: 'primary', danger: true }}
                         onConfirm={async () => {
                             await inspection.delete_plans([record.id])
                             model.message.success(t('删除成功'))
                             mutate_plans()
                         }} >
-                        <Button type='text' danger >{t('删除')}</Button>
+                        <Typography.Link type='danger' >{t('删除')}</Typography.Link>
                     </Popconfirm> 
-                </>
+                </Space>
         },
     ], [refresher])
     
-    return <Table
-        title={() => 
-            <div className='plan-table-header'>
-                <h2>{enabled ? t('正在执行的巡检计划') : t('待执行的巡检计划')}</h2>
-                <Popconfirm   
-                    title={t('批量删除巡检方案')} 
-                    description={t('确认删除选中的巡检方案吗？')} 
-                    onConfirm={async () => {
-                        await inspection.delete_plans(ids)
-                        model.message.success(t('批量删除成功'))
-                        set_current_page(1)
-                        mutate_plans()
-                    }} >
-                        <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
-                </Popconfirm>
-            </div>}
+    return <DDBTable
+        title={enabled ? t('正在执行的巡检计划') : t('待执行的巡检计划')}
+        scroll={{ x: 'max-content' }}
+        buttons={
+            <Button 
+                icon={<DeleteOutlined />} 
+                danger 
+                disabled={ids.length === 0}
+                onClick={() => {
+                    if (ids.length) 
+                        NiceModal.show(DeletePlansModal, { 
+                            ids,
+                            refresher,
+                            set_current_page
+                        })
+                }}
+            >
+                {t('批量删除')}
+            </Button>
+        }
         rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
         pagination={{
             current: current_page,

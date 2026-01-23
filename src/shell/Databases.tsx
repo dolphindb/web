@@ -9,30 +9,29 @@ import { Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber, Checkbo
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined } from '@ant-design/icons'
+import {
+    default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined, LoadingOutlined, ApartmentOutlined
+} from '@ant-design/icons'
 
+import { noop } from 'xshell/prototype.browser.js'
 import { assert, delay } from 'xshell/utils.browser.js'
 
 
-import {
-    DdbInt,
-    type DdbVectorStringObj,
-    type DdbTableObj,
-    type DdbDictObj
-} from 'dolphindb/browser.js'
+import { DdbInt, type DdbVectorStringObj, type DdbTableObj, type DdbDictObj } from 'dolphindb/browser.js'
 
 
-import { language, t } from '@i18n/index.ts'
+import { language, t } from '@i18n'
 
-import { CopyIconButton } from '@/components/copy/CopyIconButton.tsx'
+import { model, NodeType } from '@model'
 
-import { model, NodeType } from '@/model.ts'
+import { switch_keys } from '@utils'
 
-import { Editor } from '@/components/Editor/index.tsx'
+import { CopyIconButton } from '@components/copy/CopyIconButton.tsx'
+import { Editor } from '@components/Editor/index.tsx'
 
 import { NAME_CHECK_PATTERN } from '@/access/constants.tsx'
+import { lineage, type TableMeta } from '@/lineage/index.tsx'
 
-import { switch_keys } from '@/utils.ts'
 
 import { shell } from './model.ts'
 
@@ -60,24 +59,15 @@ import SvgCatalog from './icons/catalog.icon.svg'
 import SvgCreateCatalog from './icons/create-catalog.icon.svg'
 
 
-
-enum TableKind {
-    /** 维度表 */
-    Table,
-    PartitionedTable
-}
-
-
 export function Databases () {
     const { node, logined, node_type, v3, client_auth, username } = 
         model.use(['node', 'logined', 'node_type', 'v3', 'client_auth', 'username'])
     const { dbs } = shell.use(['dbs'])
-    
     const [db_height, set_db_height] = useState(256)
     
     const [expanded_keys, set_expanded_keys] = useState([ ])
     const [loaded_keys, set_loaded_keys] = useState([ ])
-    const previous_clicked_node = useRef<Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>(undefined)
+    const previous_clicked_node = useRef<TreeNodeType>(undefined)
     
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)
@@ -86,10 +76,11 @@ export function Databases () {
     shell.refresh_db = useCallback(async () => {
         try {
             set_refresh_spin(true)
-            const promise = delay(1000)
-            await shell.load_dbs()
             set_expanded_keys([ ])
             set_loaded_keys([ ])
+            const promise = delay(1000)
+            await shell.load_dbs()
+            
             await promise
         } catch (error) {
             model.show_error({ error })
@@ -210,7 +201,7 @@ export function Databases () {
                                 set_expanded_keys(keys)
                              }}
                             
-                            onClick={async (event, { self: node, type }: EventDataNode<Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
+                            onClick={async (event, { self: node, type }: EventDataNode<TreeNodeType>) => {
                                 const previous = previous_clicked_node.current
                                 if (previous && previous.key !== node.key && previous.type === 'table')
                                     previous.peeked = false
@@ -240,6 +231,7 @@ export function Databases () {
                                     
                                     case 'partition-file':
                                     case 'schema':
+                                    case 'orca-table':
                                         await node.inspect()
                                         break
                                     
@@ -285,18 +277,18 @@ export function Databases () {
                         <a onClick={async () => { await model.goto_login() }}>{t('去登录')}</a>
                     </div>
                 }
-                <SetTableComment />
-                <SetColumnComment />
-                {v3 && <CreateCatalog />}
-                <CreateDatabase />
-                <ConfirmCommand />
+                <TableCommentModal />
+                <ColumnCommentModal />
+                {v3 && <CreateCatalogModal />}
+                <CreateDatabaseModal />
+                <ConfirmCommandModal />
             </div>
         </div>
     </Resizable>
 }
 
 
-function SetTableComment () {
+function TableCommentModal () {
     const { current_node, set_table_comment_modal_visible } = shell.use(['current_node', 'set_table_comment_modal_visible']) as { current_node: Table, set_table_comment_modal_visible: boolean }
     const [form] = Form.useForm()
     
@@ -307,7 +299,7 @@ function SetTableComment () {
     
     if (!current_node)
         return
-        
+    
     let { name, db } = current_node
     
     return <Modal 
@@ -358,7 +350,7 @@ function SetTableComment () {
 }
 
 
-function SetColumnComment () {
+function ColumnCommentModal () {
     const { current_node, set_column_comment_modal_visible } = shell.use(['current_node', 'set_column_comment_modal_visible']) as { current_node: Column, set_column_comment_modal_visible: boolean }
     const [form] = Form.useForm()
     
@@ -419,7 +411,8 @@ function SetColumnComment () {
     </Modal>
 }
 
-function ConfirmCommand () {
+
+function ConfirmCommandModal () {
     const { generated_command, confirm_command_modal_visible } = shell.use(['generated_command', 'confirm_command_modal_visible'])
     const [form] = Form.useForm()
     
@@ -512,59 +505,60 @@ interface CreateDatabaseFormInfo {
     chunkGranularity?: ChunkGranularity | undefined
 }
 
-function CreateCatalog () {
+
+function CreateCatalogModal () {
     const { create_catalog_modal_visible } = shell.use(['create_catalog_modal_visible'])
     const [form] = Form.useForm()
     
     const [loading, set_loading] = useState(false)
     
     return <Modal
-            width='30%'
-            forceRender
-            maskClosable={false}
-            title={t('创建 catalog')} 
-            open={create_catalog_modal_visible} 
-            onOk={async () => { 
-                try {
-                    set_loading(true)
-                    
-                    await form.validateFields()
-                    await model.ddb.invoke('createCatalog', [form.getFieldValue('name')])
-                    
-                    await shell.load_dbs()
-                    
-                    form.resetFields()
-                    shell.set({ create_catalog_modal_visible: false })
-                } catch (error) {
-                    if (error instanceof Error)
-                        throw error
-                    console.error(error)
-                } finally {
-                    set_loading(false)
-                }
-            }} 
-            onCancel={() => {
-                if (loading)
-                    return
+        width='30%'
+        maskClosable={false}
+        title={t('创建 catalog')}
+        open={create_catalog_modal_visible} 
+        onOk={async () => { 
+            try {
+                set_loading(true)
+                
+                await form.validateFields()
+                await model.ddb.invoke('createCatalog', [form.getFieldValue('name')])
+                
+                await shell.load_dbs()
+                
                 form.resetFields()
                 shell.set({ create_catalog_modal_visible: false })
-            }}
-        >
-            <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 18 }} disabled={loading}>
-                <Form.Item 
-                    required
-                    rules={[{ required: true, message: t('请输入名称') }, 
-                            { pattern: NAME_CHECK_PATTERN, message: t('catalog 名称只能包含字母、下划线或数字，并且不能以数字或下划线开头') }]} 
-                    name='name' 
-                    label={t('名称')}
-                >
-                    <Input placeholder={t('请输入名称')} />
-                </Form.Item>
-            </Form>
-        </Modal>
+            } catch (error) {
+                if (error instanceof Error)
+                    throw error
+                console.error(error)
+            } finally {
+                set_loading(false)
+            }
+        }} 
+        onCancel={() => {
+            if (loading)
+                return
+            form.resetFields()
+            shell.set({ create_catalog_modal_visible: false })
+        }}
+    >
+        <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 18 }} disabled={loading}>
+            <Form.Item 
+                required
+                rules={[{ required: true, message: t('请输入名称') }, 
+                        { pattern: NAME_CHECK_PATTERN, message: t('catalog 名称只能包含字母、下划线或数字，并且不能以数字或下划线开头') }]} 
+                name='name'
+                label={t('名称')}
+            >
+                <Input placeholder={t('请输入名称')} />
+            </Form.Item>
+        </Form>
+    </Modal>
 }
 
-function CreateDatabase () {
+
+function CreateDatabaseModal () {
     const { create_database_modal_visible, create_database_partition_count, dbs } = shell.use(['create_database_modal_visible', 'create_database_partition_count', 'dbs'])
     const { node_type, node, v2, v3 } = model.use(['node_type', 'node', 'v2', 'v3'])
     
@@ -572,16 +566,15 @@ function CreateDatabase () {
     const use_catalog = Form.useWatch('use_catalog', form)
     
     const catalogs = useMemo(() => 
-        shell.dbs?.filter(db => db instanceof Catalog)?.map(({ title }) => ({
-            label: title,
-            value: title,
-        })) ?? [ ]
+        shell.dbs?.filter(db => db instanceof Catalog)
+            .map(({ title }) => ({ label: title, value: title }))
+            ?? [ ]
     , [dbs])
     
     
     // We just assume this is always turned on in dolphindb.cfg
-    const enableChunkGranularityConfig = true
-    const shouldRunOnCurrNode = node_type === NodeType.data || node_type === NodeType.single
+    const enable_chunk_granularity_config = true
+    const should_run_on_curr_node = node_type === NodeType.data || node_type === NodeType.single
     
     let runOnNode = node.name
     // @TODO: not supported until we have support for running SQL statements inside anonymous function
@@ -616,7 +609,7 @@ function CreateDatabase () {
                 </a>
             </div>}
     >{
-    shouldRunOnCurrNode &&
+    should_run_on_curr_node &&
         <Form
             className='db-modal-form'
             name='create-database'
@@ -704,7 +697,7 @@ function CreateDatabase () {
                 createDBScript += `\nengine='${table.storageEngine}',\n`
                 createDBScript += `atomic='${table.atomicLevel}'`
                 
-                if (enableChunkGranularityConfig)
+                if (enable_chunk_granularity_config)
                     createDBScript += `,\nchunkGranularity='${table.chunkGranularity}'`
                 
                 // 等后端支持
@@ -744,7 +737,7 @@ function CreateDatabase () {
                                 throw new TypeError(t('数据库路径不能包含双引号'))
                         }
                     }]}>
-                        <Input addonBefore='dfs://' placeholder={t('请输入数据库路径')} />
+                        <Input prefix='dfs://' placeholder={t('请输入数据库路径')} />
                     </Form.Item>
             }
             
@@ -913,7 +906,7 @@ export class Catalog implements DataNode {
     
     isLeaf = false as const
     
-    children: Database[] = [ ]
+    children: (Database | OrcaTable)[] = [ ]
     
     
     constructor (key: string) {
@@ -1008,8 +1001,8 @@ export class Database implements DataNode {
                 {
                     model.admin && 
                         model.node_type !== NodeType.computing && 
-                    <Tooltip title={ t('查看用户权限')} color='grey' destroyTooltipOnHide>
-                        <Icon 
+                    <Tooltip title={t('查看用户权限')} color='grey' destroyOnHidden>
+                        <Icon
                             component={SvgAccess}
                             onClick={async event => { 
                                 event.stopPropagation()
@@ -1018,8 +1011,8 @@ export class Database implements DataNode {
                         />
                     </Tooltip> 
                 }
-                <Tooltip title={enable_create_table ? t('创建数据表') : t('仅支持单机节点和数据节点创建数据表')} color='grey' destroyTooltipOnHide>
-                    <Icon 
+                <Tooltip title={enable_create_table ? t('创建数据表') : t('仅支持单机节点和数据节点创建数据表')} color='grey' destroyOnHidden>
+                    <Icon
                         disabled={!enable_create_table}
                         className={enable_create_table ? '' : 'disabled'}
                         component={SvgCreateTable}
@@ -1032,34 +1025,63 @@ export class Database implements DataNode {
     
     
     async get_schema () {
-        if (!this.schema) {
-            await shell.define_load_database_schema()
-            this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
-                'load_database_schema',
-                // 调用该函数时，数据库路径不能以 / 结尾
-                [this.path.slice(0, -1)],
-                model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
-            )
-        }
-        
-        return this.schema
+        return this.schema ??= await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
+            await model.ddb.define(
+                'def load_database_schema (db_path) {\n' +
+                '    return schema(database(db_path))\n' +
+                '}\n'),
+            // 调用该函数时，数据库路径不能以 / 结尾
+            [this.path.slice(0, -1)],
+            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined)
     }
     
     
     async load_children () {
         if (!this.loaded) {
-            await shell.define_load_table_schema()
-            
-            for (const table_path of this.table_paths) {
-                const table = new Table(this, table_path)
-        
-                await table.init()
-                
-                this.children.push(table)
-            }
-                
-            
+            // 防止连续点击重复加载
             this.loaded = true
+            
+            const dbicon = this.icon
+            let done = false
+            
+            try {
+                // 超过 300ms 显示加载图标
+                delay(300).then(() => {
+                    if (done)
+                        return
+                    
+                    this.icon = <LoadingOutlined />
+                    shell.set({ dbs: [...shell.dbs] })
+                })
+                
+                await shell.define_load_table_schema()
+                
+                this.children = (
+                    await Promise.all(
+                        this.table_paths.map(async table_path => {
+                            let table = new Table(this, table_path)
+                            
+                            // 在某个库下面可能含有一些当前用户无权访问 schema 的表，目前先直接隐藏
+                            // 可能最好的方法是实现一个特殊显示状态（如禁用状态）的表，只有表名
+                            try {
+                                await table.init()
+                                
+                                return table
+                            } catch (error) {
+                                if (error.message.includes('<NoPrivilege>'))
+                                    return null
+                                else
+                                    throw error
+                            }
+                        }))
+                ).filter(Boolean)
+            } catch (error) {
+                this.loaded = false
+                throw error
+            } finally {
+                done = true
+                this.icon = dbicon
+            }
         }
     }
     
@@ -1080,7 +1102,7 @@ export class Database implements DataNode {
 interface SchemaData {
     tableComment: string
     partitionColumnIndex: number
-    colDefs: { data: any[] }
+    colDefs: any[]
 }
 
 
@@ -1131,20 +1153,7 @@ export class Table implements DataNode {
     async init () {
         await this.get_schema()
         
-        this.set_title()
-    }
-    
-    
-    set_title () {
         const enable_create_query = [NodeType.computing, NodeType.single, NodeType.data].includes(model.node_type)
-        
-        const create_query: React.MouseEventHandler<HTMLSpanElement> = e => { 
-            e.stopPropagation()
-            if (enable_create_query)
-                NiceModal.show(QueryGuideModal, { database: this.db.path.slice(0, -1), table: this.name })
-            else
-                return
-        }
         
         this.title = <div className='table-title'>
             <div title={`${this.name}${this.schema_data.tableComment ? ` ${this.schema_data.tableComment.bracket()}` : ''}`}>
@@ -1161,12 +1170,17 @@ export class Table implements DataNode {
                         <EditOutlined />
                     </Tooltip>
                 </div>
+                
                 <Tooltip title={enable_create_query ? t('新建查询') : t('仅单机节点、数据节点和计算节点支持新建查询')} color='grey'>
                     <Icon 
                         disabled={!enable_create_query}
                         className={enable_create_query ? '' : 'disabled'}
                         component={SvgQueryGuide}
-                        onClick={create_query} 
+                        onClick={event => { 
+                            event.stopPropagation()
+                            if (enable_create_query)
+                                NiceModal.show(QueryGuideModal, { database: this.db.path.slice(0, -1), table: this.name })
+                        }} 
                     />
                 </Tooltip>
             </div>
@@ -1174,6 +1188,7 @@ export class Table implements DataNode {
     }
     
     
+    /** 获取 table schema，无权限时会抛出错误，消息中含有 <NoPrivilege> */
     async get_schema () {
         const { db, path } = this
         const schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
@@ -1181,8 +1196,7 @@ export class Table implements DataNode {
             'load_table_schema',
             // 调用该函数时，数据库路径不能以 / 结尾
             [db.path.slice(0, -1), path.slice(db.path.length, -1)],
-            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
-        )
+            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined)
         
         this.schema = schema
         this.schema_data = schema.data<SchemaData>()
@@ -1190,12 +1204,14 @@ export class Table implements DataNode {
     
     
     async inspect () {
-        await shell.define_peek_table()
         let obj = await model.ddb.call(
-            'peek_table',
+            await model.ddb.define(
+                'def peek_table (db_path, tb_name) {\n' +
+                '    return select top 100 * from loadTable(db_path, tb_name)\n' +
+                '}\n'),
             [this.db.path.slice(0, -1), this.name],
-            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
-        )
+            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined)
+        
         obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
     }
@@ -1216,6 +1232,58 @@ export class Table implements DataNode {
                 ... (this.kind === TableKind.Table ? [ ] : [new PartitionRoot(this)]) as [PartitionRoot?]
             ]
         }
+    }
+}
+
+
+export class OrcaTable implements DataNode {
+    type = 'orca-table' as const
+    
+    self: OrcaTable
+    
+    key: string
+    
+    name: string
+    
+    title: React.ReactNode
+    
+    meta: TableMeta
+    
+    className = 'orca-table'
+    
+    icon = <Icon component={SvgTable} />
+    
+    isLeaf = true
+    
+    
+    constructor (meta: TableMeta) {
+        this.meta = meta
+        const { name, fullname } = meta
+        this.key = name
+        this.name = name.slice_from('.')
+        this.self = this
+        
+        this.title = <div className='table-title'>
+            <div title={fullname}>
+                <span> {this.name}</span>
+            </div>
+            <div className='table-actions'>
+                <Tooltip title={t('查看数据血缘')} color='grey'>
+                    <ApartmentOutlined onClick={async event => {
+                        event.stopPropagation()
+                        await lineage.get_lineage(this.meta)
+                        shell.set({ result: { type: 'lineage' } })
+                    }} />
+                </Tooltip>
+            </div>
+        </div>
+    }
+    
+    
+    async inspect () {
+        let obj = await model.ddb.eval(`select top 100 * from ${this.meta.fullname}`)
+        obj.name = `${this.name} (${t('前 100 行')})`
+        shell.set({ result: { type: 'object', data: obj } })
     }
 }
 
@@ -1464,25 +1532,27 @@ export class ColumnRoot implements DataNode {
         this.key = `${table.path}${this.type}/`
         this.title = <div className='column-root-title'>
             {t('列')}
-            <div className='add-column-button' onClick={async event => {
+            { !model.iot && <div className='add-column-button' onClick={async event => {
                 event.stopPropagation()
                 await this.table.db.get_schema()
+                const engineType = this.table.db.schema.data<{ engineType: string }>().engineType
+                if (engineType === 'PKEY') {
+                    model.modal.error({ title: t('PKEY 数据库引擎不支持 addColumn') })
+                    return
+                }
                 NiceModal.show(AddColumnModal, { node: this })
             }}>
                 <Tooltip title={t('添加列')} color='grey'>
                     <Icon component={SvgAddColumn} />
                 </Tooltip>
-            </div>
+            </div> }
         </div>
     }
     
     
     load_children () {
-        if (!this.children) {
-            const schema_coldefs = this.table.schema_data.colDefs.data
-            
-            this.children = schema_coldefs.map(col => new Column(this, col))
-        }
+        this.children ||= this.table.schema_data.colDefs.map(col =>
+            new Column(this, col))
     }
 }
 
@@ -1534,3 +1604,12 @@ export class PartitionRoot implements DataNode {
     }
 }
 
+
+type TreeNodeType = Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema | OrcaTable
+
+
+enum TableKind {
+    /** 维度表 */
+    Table,
+    PartitionedTable
+}

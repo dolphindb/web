@@ -10,7 +10,9 @@ import { model } from '../../model.js'
 
 import { ExecuteResult } from '../iot-guide/type.js'
 import { ReadonlyEditor } from '../../components/ReadonlyEditor/index.js'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
+
+import { BottomFixedFooter } from '@components/BottomFixedFooter/index.js'
 
 import { DownloadConfigModal } from './DownloadConfigModal.js'
 
@@ -43,7 +45,8 @@ export function CodeViewStep (props: IProps) {
     return <div className='code-view-wrapper'>
         <ReadonlyEditor code={code} className='view-code-editor'/>
         
-        <div className='button-group'>
+        
+        <BottomFixedFooter>
             <Space>
                 <Button onClick={on_download}>{t('导出表单配置')}</Button>
                 <Button onClick={back}>{t('上一步')}</Button>
@@ -51,6 +54,6 @@ export function CodeViewStep (props: IProps) {
                     <Button type='primary'>{t('立即执行')}</Button>
                 </Popconfirm>
             </Space>
-        </div>
+        </BottomFixedFooter>
     </div>
  }

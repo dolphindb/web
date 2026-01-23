@@ -4,10 +4,10 @@ import { useMemo } from 'react'
 
 import { get } from 'lodash'
 
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
-import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../../components/FormDependencies/index.js'
 import { get_data_source } from '../../DataSource/date-source.js'
 import { WidgetChartType, dashboard } from '../../model.js'
 import { concat_name_path, convert_list_to_options } from '../../utils.ts'
@@ -163,7 +163,7 @@ export function SeriesItem (props: SeriesItemProps) {
                             <Select options={line_type_options} />
                         </Form.Item>
                         <Form.Item label={t('线宽')} name={concat_name_path(name, 'line_width')}>
-                            <InputNumber addonAfter='px'/>
+                            <InputNumber suffix='px'/>
                         </Form.Item>
                         
                         <Form.Item label={t('是否填充') } initialValue={false} name={[name, 'is_filled']}>

@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { PlusSquareOutlined } from '@ant-design/icons'
 
 import { variables } from '../Variable/variable.js'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 interface IProps extends ButtonProps { 
     on_insert: (val: string) => void

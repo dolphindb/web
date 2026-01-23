@@ -11,7 +11,7 @@ import { DdbForm } from 'dolphindb/browser.js'
 import { genid } from 'xshell/utils.browser.js'
 
 import { sql_formatter } from '../utils.ts'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 import { VariableMode } from '../type.js'
 
 import { dashboard } from '../model.js'
@@ -198,7 +198,6 @@ export function VariableEditor ({
                                                 
                                                 change_current_variable_property(['options'], [new_options])
                                             }
-                                            
                                         } finally {
                                             set_loading(false)
                                         }

@@ -10,7 +10,7 @@ import { type RecommendInfo, type AdvancedInfos, ExecuteResult } from '../type.j
 import { UploadConfigModal } from '../../components/UploadConfigModal.js'
 import { GuideFailResultPage } from '../../components/GuideFailResultPage.js'
 import { GuideSuccessResultPage } from '../../components/GuideSuccessResultPage.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { AdvancedSecondStep } from './AdvancedSecondStep.js'
 import { AdvancedFirstStep } from './AdvancedFirstStep.js'

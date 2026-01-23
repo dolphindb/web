@@ -1,37 +1,27 @@
 import './index.scss'
 
-import ReactEChartsCore from 'echarts-for-react/lib/core'
-import * as echarts from 'echarts'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { type EChartsInstance } from 'echarts-for-react'
-import { useSize } from 'ahooks'
+import { useEffect, useMemo, useState } from 'react'
+import type { ECharts } from 'echarts'
 
 import { convert_chart_config, get_axis_range } from '../../utils.ts'
-import { type Widget } from '../../model.js'
 import { AxisFormFields, SeriesFormFields, ThresholdFormFields } from '../../ChartFormFields/BasicChartFields.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import type { IChartConfig } from '../../type'
 import { ThresholdType } from '../../ChartFormFields/type.js'
-import { useChart } from '../hooks.js'
+import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
+import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 
 
-interface IProps { 
-    widget: Widget
-    data_source: any[]
-}
-
-
-export function Chart (props: IProps) {
-    const { widget, data_source } = props
-    const [echart_instance, set_echart_instance] = useState<EChartsInstance>()
+export function Chart ({ widget, data_source: { data } }: GraphComponentProps) {
+    const [echart_instance, set_echart_instance] = useState<ECharts>()
     
     // 用来存储阈值对应的轴范围
     const [axis_range_map, set_axis_range_map] = useState<{ [key: string]: { min: number, max: number } }>()
     
-    const option = useMemo(
-        () => convert_chart_config(widget, data_source, axis_range_map)
-        , [widget.config, data_source, axis_range_map])
+    const options = useMemo(
+        () => convert_chart_config(widget, data, axis_range_map)
+        , [widget.config, data, axis_range_map])
     
     useEffect(() => {
         const { thresholds = [ ] } = widget.config as IChartConfig
@@ -48,31 +38,22 @@ export function Chart (props: IProps) {
                 if (axis_range_map?.[key]?.min !== min || axis_range_map?.[key]?.max !== max)  
                     set_axis_range_map(val => ({ ...val, [key]: { min, max } }))
             }
-    }, [option, echart_instance])
+    }, [options, echart_instance])
     
     
-    const ref = useChart(option)
-    
-    return <ReactEChartsCore
-        ref={ref}
-        echarts={echarts}
-        option={option}
-        className='dashboard-line-chart'
-        theme='my-theme'
-        onChartReady={(ins: EChartsInstance) => { 
-            set_echart_instance(ins)
-        }}
+    return <DashboardEchartsComponent 
+        on_chart_ready={set_echart_instance} 
+        options={options} 
+        not_merge
     />
 } 
 
 
-export function ChartConfigForm (props: { col_names: string[] } ) {
-    const { col_names = [ ] } = props
-    
+export function ChartConfigForm ({ data_source: { cols } }: GraphConfigProps) {
     return <>
         <BasicFormFields type='chart' />
-        <AxisFormFields col_names={col_names} />
-        <SeriesFormFields col_names={col_names} />
+        <AxisFormFields col_names={cols} />
+        <SeriesFormFields col_names={cols} />
         <ThresholdFormFields />
     </>
 }

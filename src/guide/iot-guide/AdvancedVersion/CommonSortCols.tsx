@@ -6,7 +6,7 @@ import { type SelectProps } from 'antd/lib'
 import { countBy } from 'lodash'
 import { useCallback } from 'react'
 
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 
 interface IProps {
     initial_value?: any
@@ -18,7 +18,6 @@ export function CommonSortCols (props: IProps) {
     const { options, max } = props
     
     const form = Form.useFormInstance()
-    
     
     const validator = useCallback(async (_, value) => { 
         const other_sortkey_info = form.getFieldValue('otherSortKeyInfo') ?? [ ]

@@ -9,20 +9,21 @@ import cn from 'classnames'
 
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
-import { type Widget, dashboard } from '@/dashboard/model.ts'
+import { dashboard } from '@/dashboard/model.ts'
 import type { ITextConfig } from '@/dashboard/type.ts'
 import { variables } from '@/dashboard/Variable/variable.ts'
 import { parse_text } from '@/dashboard/utils.ts'
 import { InsertVariableBtn } from '@/dashboard/DataSource/InsertVariableBtn.tsx'
+import type { GraphComponentProps } from '@/dashboard/graphs.ts'
 
 
 let ReactQuill: (typeof import('react-quill-new'))['default']
 
-export function RichText ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
+export function RichText ({ widget }: GraphComponentProps) {
     const [display_text, set_display_text] = useState((widget.config as ITextConfig)?.value || '')
     const [edit_text, set_edit_text] = useState(display_text)
     

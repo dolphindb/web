@@ -1,6 +1,6 @@
 import { Form, Input, InputNumber } from 'antd'
 
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 
 export function TitleFields () { 
     return <>
@@ -8,8 +8,8 @@ export function TitleFields () {
             <Input />
         </Form.Item>
         
-        <Form.Item name='title_size' label={t('标题字号' )}initialValue={18}>
-            <InputNumber addonAfter='px'/>
+        <Form.Item name='title_size' label={t('标题字号' )} initialValue={18}>
+            <InputNumber suffix='px'/>
         </Form.Item>
     </>
 }

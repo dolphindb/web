@@ -1,6 +1,6 @@
 import './index.scss'
 
-import { Spin, Steps, Typography } from 'antd'
+import { Result, Spin, Steps, Typography } from 'antd'
 import { useCallback, useId, useMemo, useState } from 'react'
 
 import NiceModal from '@ebay/nice-modal-react'
@@ -16,16 +16,16 @@ import { GuideSuccessResultPage } from '../components/GuideSuccessResultPage.js'
 import { UploadConfigModal } from '../components/UploadConfigModal.js'
 
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 
-import { model } from '../../model.js'
+import { model, NodeType } from '../../model.js'
 
 import finance_guide_code from '../finance.dos'
 
 import iot_guide_code from '../iot.dos'
 
-import { Unlogin } from '@/components/Unlogin.tsx'
+import { Unlogin } from '@components/Unlogin.tsx'
 
 import { TableInfo } from './TableInfo.js'
 import { type IFinanceInfo } from './type.js'
@@ -33,7 +33,7 @@ import { DatabaseInfo } from './DatabaseInfo.js'
 
 
 export function FinanceGuide () {
-    const { logined } = model.use(['logined'])
+    const { logined, node_type } = model.use(['logined', 'node_type'])
     
     const [current_step, set_current_step] = useState(0)
     const [info, set_info] = useState<IFinanceInfo>()
@@ -98,6 +98,12 @@ export function FinanceGuide () {
     
     if (!logined)
         return <Unlogin info={t('金融库表向导')} />
+    if (node_type === NodeType.controller)
+        return <Result 
+            className='warning-result' 
+            status='warning' 
+            title={t('控制节点不支持库表向导，请跳转到数据节点或计算节点查看。')} 
+        />
     
     return <Spin spinning={isLoading}>
         <div className='finance-guide-wrapper'>

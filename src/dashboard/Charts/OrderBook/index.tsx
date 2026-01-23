@@ -1,13 +1,8 @@
-import ReactEChartsCore from 'echarts-for-react/lib/core'
-import * as echarts from 'echarts'
+import type * as echarts from 'echarts'
 
 import { useMemo } from 'react'
 
 import { DdbType } from 'dolphindb/browser.js'
-
-import {
-  type EChartsOption,
-} from 'echarts/types/dist/shared.js'
 
 import { dashboard, type Widget } from '../../model.js'
 import { type IOrderBookConfig, type IChartConfig } from '../../type.js'
@@ -17,18 +12,13 @@ import { to_chart_data } from '../../utils.ts'
 import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBookField.js'
 
 
+import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
+
 import { convert_order_book_config, convertDateFormat, type OrderBookTradeData, parsePrice } from './config.js'
+import type { GraphComponentProps } from '@/dashboard/graphs.ts'
 
 
-
-interface IProps { 
-    widget: Widget
-    data_source: OrderBookTradeData[]
-}
-
-
-export function OrderBook (props: IProps) {
-    const { widget, data_source } = props
+export function OrderBook ({ widget, data_source: { data } }: GraphComponentProps<OrderBookTradeData>) {
     
     let { time_rate, market_data_files_num } = widget.config as IOrderBookConfig
     
@@ -36,11 +26,11 @@ export function OrderBook (props: IProps) {
     // let data_length = useRef(0)
     
     // 如果数据格式不匹配，则直接返回
-    if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize)
+    if (!data[0]?.sendingTime && !data[0]?.bidmdEntryPrice && !data[0]?.bidmdEntrySize)
         return
     
     // 样式调整先写死，后面再改
-    const convert_order_config = useMemo((): EChartsOption => {
+    const convert_order_config = useMemo((): echarts.EChartsOption => {
         let orderbook_data = [ ]
         let bar_data = [ ]
         let line_data = [ ]
@@ -63,9 +53,7 @@ export function OrderBook (props: IProps) {
                         // 数据解释: 第一项时间，作为 x 轴；第二项价格，作为 y 轴； 第三栏交易量，tooltip 展示； 第四栏价格档位，tooltip 展示；第五栏交易量，用于排序展示块的颜色深浅
                         entry.push([sendingTime, price[i] * time_rate, to_chart_data(size[i], DdbType.long), is_buy ? `bmd[${i}]` : `omd[${i}]`, size[i]])
             // 对 size 排序，确认颜色深浅
-            entry.sort((a, b) => {
-                return a[4] > b[4] ? 1 : 0 
-            })
+            entry.sort((a, b) => a[4] > b[4] ? 1 : 0)
             entry.forEach((item, index) => {
                 item[4] = is_buy ? index + 1 : -index - 1
             })
@@ -73,7 +61,7 @@ export function OrderBook (props: IProps) {
             return entry
         }
         
-        for (let item of data_source) {
+        for (let item of data) {
             // 由于 arrayvector 改动后被转成了字符串，所以需要先进行 parse 处理
             let bid = formatData(parsePrice(item.bidmdEntryPrice), JSON.parse(item.bidmdEntrySize), convertDateFormat(item.sendingTime), true)
             orderbook_data.push(...bid)
@@ -99,31 +87,23 @@ export function OrderBook (props: IProps) {
         // console.log(line_data)
         
         
-        return convert_order_book_config(widget.config as unknown as IChartConfig & IOrderBookConfig, orderbook_data, line_data, bar_data)
-    }, [data_source, widget.config])   
+        return convert_order_book_config(widget.config as unknown as IChartConfig & IOrderBookConfig, orderbook_data, line_data, bar_data) as echarts.EChartsOption
+    }, [data, widget.config])   
     
     
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
-    return  <ReactEChartsCore
-                echarts={echarts}
-                notMerge={dashboard.editing}
-                option={convert_order_config}
-                theme='my-theme'
-        />
+    return  <DashboardEchartsComponent
+        not_merge={dashboard.editing}
+        options={convert_order_config}
+    />
 }
 
 
-export function OrderConfigForm (props: { col_names: string[] } ) {
-    const { col_names = [ ] } = props
-    
+export function OrderConfigForm () {
     return <>
         <BasicFormFields type='chart' />
         {/* <AxisFormFields col_names={col_names} /> */}
         <OrderFormFields />
     </>
 }
-
-
-
-
 

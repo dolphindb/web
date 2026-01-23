@@ -1,4 +1,4 @@
-import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 import { AutoComplete, Button, Popconfirm } from 'antd'
 
@@ -6,11 +6,13 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { genid, delay, unique } from 'xshell/utils.browser.js'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
 import { model } from '../model.js'
 
-import { config } from './model.js'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
+
+import { config, controller_configs } from './model.js'
 
 import type { ControllerConfig } from './type.js'
 import { _2_strs, strs_2_controller_configs, filter_config } from './utils.ts'
@@ -46,10 +48,7 @@ export function ControllerConfig () {
                     showSearch
                     optionFilterProp='label'
                     filterOption={filter_config}
-                    options={config.get_controller_config().map(config => ({
-                        label: config,
-                        value: config
-                    }))} 
+                    options={controller_configs} 
                 />
         },
         {
@@ -83,10 +82,11 @@ export function ControllerConfig () {
                     {t('编辑')}
                 </Button>,
                 <Popconfirm
+                okButtonProps={{ danger: true }}
                     title={t('确认删除此配置项？')}
                     key='delete'
                     onConfirm={async () => delete_config(record.id as string)}>
-                    <Button type='link'>
+                    <Button variant='link' color='danger'>
                         {t('删除')}
                     </Button>
                 </Popconfirm>
@@ -104,9 +104,11 @@ export function ControllerConfig () {
         rowKey='id'
         actionRef={actionRef}
         columns={cols}
+        className='editable-table'
         params={{ search_value }}
         request={async () => {
-            const value = unique(await config.load_controller_configs())
+            const value = unique(
+                await config.load_controller_configs())
             const configs = strs_2_controller_configs(value)
             set_configs(configs)
             return {
@@ -124,7 +126,9 @@ export function ControllerConfig () {
                     name: '',
                     value: ''
                 }),
-                creatorButtonText: t('新增控制节点配置'),
+                variant: 'outlined',
+                type: 'default',
+                creatorButtonText: t(' 新增控制节点配置'),
                 onClick () {
                     (async () => {
                         let $tbody = document.querySelector('.ant-table-body')
@@ -135,17 +139,6 @@ export function ControllerConfig () {
             }
         }
         toolBarRender={() => [
-            <Button
-                icon={<ReloadOutlined />}
-                onClick={async () => {
-                    await actionRef.current.reload()
-                    set_search_key('')
-                    set_search_value('')
-                    model.message.success(t('刷新成功'))
-                }}
-            >
-                {t('刷新')}
-            </Button>,
             <div className='auto-search'>
                 <AutoComplete<string>
                     showSearch
@@ -160,14 +153,18 @@ export function ControllerConfig () {
                         if (e.key === 'Enter') 
                             set_search_value(search_key)
                     }}
-                    options={config.get_controller_config().map(config => ({
-                        label: config,
-                        value: config
-                        }))
-                        
-                } />
+                    options={controller_configs}
+                />
                 <Button icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }}/>
-            </div>
+            </div>,
+            <RefreshButton
+                onClick={async () => {
+                    await actionRef.current.reload()
+                    set_search_key('')
+                    set_search_value('')
+                    model.message.success(t('刷新成功'))
+                }}
+            />
         ]}
         editable={{
             type: 'single',
@@ -194,6 +191,10 @@ export function ControllerConfig () {
                     throw error
                 }
             },
+            actionRender: (row, config, defaultDom) => [
+                defaultDom.save,
+                defaultDom.cancel
+            ],
             deletePopconfirmMessage: t('确认删除此配置项？'),
             saveText:
                 <Button
@@ -205,7 +206,8 @@ export function ControllerConfig () {
                 </Button>,
             deleteText:
                 <Button
-                    type='link'
+                    variant='link'
+                    color='danger'
                     key='delete'
                     className='mr-btn'
                 >

@@ -7,9 +7,7 @@ import copy from 'copy-to-clipboard'
 import dayjs from 'dayjs'
 
 
-import type { EChartsInstance } from 'echarts-for-react'
-
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
 import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
@@ -101,9 +99,10 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line?: number): any {
                 col_labels: convert_labels(col_num, col_label) ?? Array.from(new Array(col_num).keys()),
                 row_labels: convert_labels(row_num, row_babel) ?? Array.from(new Array(row_num).keys())
             }
+        
         case DdbForm.table:
             const array_vectors = { }
-            let rows = new Array()
+            let rows = [ ]
             let le = obj.le
             for (let i = (max_line && obj.rows > max_line) ? obj.rows - max_line : 0;  i < obj.rows;  i++) {
                 let row = { }
@@ -135,19 +134,20 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line?: number): any {
                             array.push(formatter(type, value[0].data, le, i, { nullstr: true, grouping: false }))
                          
                     offset += length
-                    rows[index][key] = '[' + array.map(item => item).join(',') + ']'
+                    rows[index][key] = `[${array.join(',')}]`
                 })
             }
             
             return rows
+        
         default:
             throw new Error(t('返回结果必须是 table 或 matrix'))
     }
-    
 }
 
-export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols: string[]): Array<{}> {
-    let rows = new Array()
+
+export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols: string[]): any[] {
+    let rows = [ ]
     let array_vectors = { }
     for (let i = (max_line && obj.value[0].rows > max_line) ? obj.value[0].rows - max_line : 0;  i < obj.value[0].rows;  i++) {
         let row = { }
@@ -180,11 +180,13 @@ export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols:
                     array.push(formatter(type, value[0].data, le, i, { nullstr: true, grouping: false }))
                  
             offset += length
-            rows[index][key] = '[' + array.map(item => item).join(',') + ']'
+            rows[index][key] = `[${array.join(',')}]`
         })
     }
+    
     return rows
 }
+
 
 export function get_cols (obj: DdbObj<DdbValue>): Array<string> {
     if (obj.form !== DdbForm.table)
@@ -206,16 +208,11 @@ export function parse_text (code: string): string {
 
 
 export function parse_code (code: string, data_source?: DataSource): string {
-    try {
-        code = code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
-            if (data_source)
-                subscribe_variable(data_source, variable)
-            return get_variable_value(variable.trim())
-        })
-        return code
-    } catch (error) {
-        throw error
-    }
+    return code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
+        if (data_source)
+            subscribe_variable(data_source, variable)
+        return get_variable_value(variable.trim())
+    })
 }
 
 
@@ -231,23 +228,26 @@ export function concat_name_path (...paths: (NamePath | NamePath[])[]): NamePath
     }, [ ])
 }
 
+
 /** type 表示轴类型，传入 0 的时候代表 X 轴，其余时候为 Y 轴 */
-export function get_axis_range (type: number, echart_instance: EChartsInstance, idx: number) { 
-    return echart_instance.getModel().getComponent(type === 0 ? 'xAxis' : 'yAxis', idx).axis.scale._extent
+export function get_axis_range (type: number, echart_instance: echarts.ECharts, idx: number) { 
+    return (echart_instance as any).getModel().getComponent(type === 0 ? 'xAxis' : 'yAxis', idx).axis.scale._extent
 }
+
 
 function get_data_source_cols (data_source_id, col) {
     return get_data_source(data_source_id).data.map(item => item[col])
-} 
+}
+
 
 export function convert_chart_config (
     widget: Widget,
-    data_source: any[],
+    _data: any[],
     axis_range_map?: { [key: string]: { min: number, max: number } }
 ) {
     const { config } = widget
     
-    const { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, thresholds = [ ] } = config as IChartConfig
+    const { title, title_size, splitLine, xAxis = { }, series = [ ], yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, thresholds = [ ] } = config as IChartConfig
     
     function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
@@ -275,12 +275,14 @@ export function convert_chart_config (
         return data_zoom
     }
     
-    function convert_axis (axis: AxisConfig, index?: number) {
-        const axis_config = {
+    function convert_axis (axis: AxisConfig = { type: AxisType.VALUE, name: '', col_name: undefined }, index?: number) {
+        const axis_config: echarts.EChartsOption['xAxis'] = {
             show: true,
             name: axis.name,
-            type: axis.type,
+            type: axis.type ?? 'value',
             interval: axis.interval,
+            nameLocation: 'middle',
+            nameGap: 25,
             splitLine,
             axisLine: {
                 show: true,
@@ -292,7 +294,7 @@ export function convert_chart_config (
                 color: () => axis.font_color || '#6E6F7A',
                 fontSize: axis.fontsize
             },
-            logBase: axis.log_base || 10,
+            logBase: axis.log_base,
             position: axis.position,
             offset: axis.offset,
             alignTicks: true,
@@ -303,7 +305,7 @@ export function convert_chart_config (
             },
             min: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.min : undefined,
             max: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.max : undefined
-        } as echarts.EChartsOption['xAxis']
+        }
         
         return axis_config
     }
@@ -330,7 +332,7 @@ export function convert_chart_config (
             const y_data = get_data_source_cols(data_source_id, col_name).map(y => format_time(y, yAxis[yAxisIndex]?.time_format))
             data = x_data.map((x, idx) => ([x, y_data[idx]]))
         } else  
-            data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
+            data = _data.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
         
         // {b} 代表 xAxis 中的 data，x 轴的数据现在都在 series 中，需要替换
         let end_label_formatter = series?.end_label_formatter
@@ -387,7 +389,7 @@ export function convert_chart_config (
     const valid_thresholds = thresholds.filter(item => item && item.show_type !== ThresholdShowType.NONE)
     
     // 根据阈值，为 series 添加 markArea 或者 markLine
-    for (let threshold of valid_thresholds)  
+    for (let threshold of valid_thresholds)
         // x 轴设置区域
         if (threshold.axis_type === 0) {
             // x 轴只有 1 个，所以直接更改第一个 series 的 markArea 或者 markLine 即可
@@ -440,7 +442,7 @@ export function convert_chart_config (
         else { 
             // 需要根据关联的 Y 轴找到第一个数据列，然后为此数据列设置 markArea 或者 markLine
             const idx = series.findIndex(item => item.yAxisIndex === threshold.axis)
-            let valid_values = threshold.values.filter(item => isFinite(item?.value))
+            let valid_values = threshold?.values?.filter(item => !isNil(item?.value))
             
             if (threshold.type === ThresholdType.PERCENTAGE && axis_range_map) { 
                 // 获取 Y 轴最大值，将阈值转化为绝对值
@@ -482,15 +484,16 @@ export function convert_chart_config (
                 },
             } as any
         }
-    
+        
+        
     return  {
         animation,
         grid: {
             containLabel: true,
-            left: 10,
-            // 如果 series 中设置了 endLabel，需要增加 right 为 endLabel 预留空间
-            right: series?.find(item => item?.end_label) ? 80 : 10,
-            bottom: x_datazoom ? 50 : 10
+            left: 20,
+            // 如果 series 中设置了 endLabel 或者 markLine，需要增加 right 预留 endLabel 和 markLine 右侧标签的展示空间
+            right: series?.some(item => item?.end_label || !!item?.mark_line?.length) ? 80 : 20,
+            bottom: x_datazoom ? 50 : 20
         },
         legend: pickBy({
             show: true,
@@ -516,13 +519,14 @@ export function convert_chart_config (
             textStyle: {
                 color: '#e6e6e6',
                 fontSize: title_size || 18,
-            }
+            },
+            left: 0,
         },
         xAxis: convert_axis(xAxis),
-        yAxis: Array.isArray(yAxis) ? yAxis.filter(item => !!item).map(convert_axis) : convert_axis(yAxis),
+        yAxis: Array.isArray(yAxis) ? yAxis.filter(item => !!item).map(convert_axis) : convert_axis(yAxis ?? { }),
         series: echarts_series,
         dataZoom: convert_data_zoom(x_datazoom, y_datazoom)
-    }
+    } as any as echarts.EChartsOption
 }
 
 
@@ -612,6 +616,7 @@ export async function load_styles (url: string) {
 export function copy_widget (widget: Widget) { 
     if (!widget)
         return
+    
     // 不直接 JSON.stringify(widget) 是因为会报错循环引用
     const copy_text = JSON.stringify({
         widget: {
@@ -625,6 +630,7 @@ export function copy_widget (widget: Widget) {
         },
         ...get_variable_copy_infos(widget.config?.variable_ids || [ ])
     })
+    
     try {
         copy(copy_text)
         dashboard.message.success(t('复制成功'))
@@ -636,7 +642,9 @@ export function copy_widget (widget: Widget) {
 
 export async function paste_widget (event) { 
     try {
-        const paste_widget = safe_json_parse((event.clipboardData).getData('text')).widget
+        const paste_widget = safe_json_parse(
+            (event.clipboardData).getData('text')
+        ).widget
         
         if (!paste_widget)
             return
@@ -686,13 +694,14 @@ export async function get_streaming_col_type_map (table_name: string): Promise<R
         
     return col_types_map
 }
+
+
 export function get_chart_data_type (chart_type: WidgetChartType) {
-    switch (chart_type) { 
-        case WidgetChartType.HEATMAP:
-            return DdbForm.matrix
-        default: 
-            return DdbForm.table
-    }
+    return chart_type === WidgetChartType.HEATMAP ||
+        chart_type === WidgetChartType.SURFACE ?
+            DdbForm.matrix
+        :
+            DdbForm.table
 }
 
 

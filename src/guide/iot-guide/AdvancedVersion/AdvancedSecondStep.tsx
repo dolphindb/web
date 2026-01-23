@@ -4,11 +4,13 @@ import { Button, Form, Radio, Select, Space, Typography } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { type RecommendInfo, type SecondStepInfo, type AdvancedInfos, type ExecuteResult } from '../type.js'
-import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../../components/FormDependencies/index.js'
 
 import { request } from '../../utils.ts'
 import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
+
+import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
 
 import { CommonSortCols } from './CommonSortCols.js'
 
@@ -49,18 +51,14 @@ export function AdvancedSecondStep (props: IProps) {
      }, [info.first?.schema, info?.first?.isFreqIncrease])
     
     // 高阶 常用筛选列只能选择枚举类型
-    const common_sort_options = useMemo(() => { 
-        return info.first.schema
+    const common_sort_options = useMemo(() => info.first.schema
             .filter(item => ENUM_TYPES.includes(item.dataType))
-            .map(item => ({ label: item.colName, value: item.colName }))
-    }, [info.first.schema])
+            .map(item => ({ label: item.colName, value: item.colName })), [info.first.schema])
     
     // 数据时间列选项
-    const time_options = useMemo(() => { 
-        return info.first.schema
+    const time_options = useMemo(() => info.first.schema
         .filter(item => TIME_TYPES.includes(item.dataType))
-        .map(item => ({ label: item.colName, value: item.colName }))
-    }, [ info.first.schema ])
+        .map(item => ({ label: item.colName, value: item.colName })), [ info.first.schema ])
     
     const on_submit = useCallback(async values => { 
         set_loading(true)
@@ -72,7 +70,6 @@ export function AdvancedSecondStep (props: IProps) {
     return <Form
         form={form}
         onFinish={on_submit}
-        labelAlign='left'
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
         initialValues={info?.second}
@@ -170,8 +167,7 @@ export function AdvancedSecondStep (props: IProps) {
    
        
         <FormDependencies dependencies={['engine']}>
-            {({ engine }) => {
-                return engine === 'TSDB' ? <> 
+            {({ engine }) => engine === 'TSDB' ? <> 
                     <Form.Item
                         name='keepDuplicates'
                         label={t('重复数据保留策略')}
@@ -190,17 +186,16 @@ export function AdvancedSecondStep (props: IProps) {
                         <Select options={keep_duplicates_options} />
                     </Form.Item>
                 </>
-            : null
-                
-        } }
+            : null }
         </FormDependencies>
             
         
-        <Form.Item className='btn-group'>
+        <BottomFixedFooter>
             <Space>
                 <Button onClick={back}>{t('上一步')}</Button>
-                <Button loading={loading} type='primary' htmlType='submit'>{t('生成脚本')}</Button>
+                <Button loading={loading} type='primary' onClick={form.submit}>{t('生成脚本')}</Button>
             </Space>
-        </Form.Item>
+        </BottomFixedFooter>
+        
     </Form>
 }

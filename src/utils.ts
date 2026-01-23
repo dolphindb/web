@@ -2,30 +2,16 @@ import { DdbType } from 'dolphindb/browser.js'
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { t } from '@i18n/index.ts'
+import { language, t } from '@i18n'
+
+import { model } from '@model'
 
 
-/** 表单 Form.Item 必填 `<Form.Item {...required}>` */
-export const required = { required: true, rules: [{ required: true }] }
+/** 侧边栏收起状态宽度 */
+export const sider_collapsed_width = 50
 
-
-export function download_file (name: string, url: string) {
-    // 创建一个隐藏的 <a> 元素
-    const a = document.createElement('a')
-    a.style.display = 'none'
-    a.href = url
-    a.download = name
-    
-    // 将 <a> 元素添加到 DOM 中
-    document.body.appendChild(a)
-    
-    // 触发下载
-    a.click()
-    
-    // 下载完成后移除 <a> 元素和 URL 对象
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-}
+/** 侧边栏未收起状态宽度 */
+export const sider_uncollapsed_width = language === 'en' ? 220 : 150
 
 
 export function strip_quotes (str: string) {
@@ -41,7 +27,7 @@ export function strip_quotes (str: string) {
 
 /** 设置 location.href 之后可能会需要一段时间才跳转，这里稍作等待并抛出错误中断流程，
     防止执行后续代码，且不显示报错弹窗 */
-export async function goto_url (url: string) {
+export async function goto_url (url: string): Promise<never> {
     location.href = url
     
     await delay(1000 * 3)
@@ -136,4 +122,14 @@ export function switch_keys <TKey> (keys: TKey[], key: TKey) {
         keys_.push(key)
     
     return keys_
+}
+
+
+export function ns2ms (num: number) {
+    return num / 1_000_000
+}
+
+
+export function upper (str: string) {
+    return model.shf ? str : str.toUpperCase()
 }

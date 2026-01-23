@@ -2,19 +2,25 @@ import './index.sass'
 
 import { useEffect, useRef, useState } from 'react'
 import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile, 
-    type FormInstance, Checkbox, Select, Tooltip} from 'antd'
-import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined } from '@ant-design/icons'
-import { noop } from 'xshell/prototype.browser.js'
-import { log, vercmp } from 'xshell/utils.browser.js'
+    type FormInstance, Checkbox, Select, Tooltip } from 'antd'
+import type { CheckboxGroupProps } from 'antd/es/checkbox/Group.js'
+import { default as Icon, InboxOutlined, CheckOutlined, PlayCircleOutlined } from '@ant-design/icons'
+import { select, noop } from 'xshell/prototype.browser.js'
+import { delay, log, vercmp, required } from 'xshell/utils.browser.js'
 
 import { use_modal, use_rerender, type ModalController } from 'react-object-model/hooks.js'
 
-import { DdbVectorChar, DdbVectorString, type DdbTableData } from 'dolphindb/browser.js'
+import { DdbVectorChar, DdbVectorString } from 'dolphindb/browser.js'
 
-import { t } from '@i18n/index.ts'
-import { required, switch_keys } from '@/utils.ts'
-import { model } from '@/model.ts'
+import { language, t } from '@i18n'
 
+import { switch_keys } from '@utils'
+import { model } from '@model'
+
+
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
+
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
 import script from './index.dos'
 import SvgUpgrade from './upgrade.icon.svg'
@@ -36,12 +42,23 @@ export function Plugins () {
     
     
     async function update_plugins (query?: string) {
-        let plugins = (await ddb.invoke<DdbTableData>('listPlugins'))
-            .data
-            .map<Plugin>(({ plugin, minInstalledVersion, installedNodes, toInstallNodes, loadedNodes, preloadedNodes }) => ({
+        let plugins = (await ddb.invoke<any[]>('listPlugins'))
+            .map<Plugin>(({
+                plugin, 
+                minInstalledVersion: min_version, 
+                maxInstalledVersion: max_version, 
+                installedNodes, 
+                toInstallNodes, 
+                loadedNodes, 
+                preloadedNodes
+            }) => ({
                 id: plugin,
                 
-                min_version: minInstalledVersion,
+                min_version,
+                
+                version_match: 
+                    (min_version as string).startsWith(version_without_fourth) && 
+                    (max_version as string).startsWith(version_without_fourth),
                 
                 installeds: str2arr(installedNodes),
                 
@@ -51,6 +68,7 @@ export function Plugins () {
                 
                 preloadeds: str2arr(preloadedNodes),
             }))
+            .sort((l, r) => Number(l.version_match) - Number(r.version_match))
         
         if (query)
             plugins = plugins
@@ -66,8 +84,7 @@ export function Plugins () {
     async function update_plugin_nodes () {
         set_plugin_nodes(log(
             t('节点插件:'),
-            (await ddb.invoke<DdbTableData>('listPluginsByNodes'))
-                .data
+            (await ddb.invoke<any[]>('listPluginsByNodes'))
                 .map<PluginNode>(({
                     plugin,
                     node,
@@ -104,7 +121,7 @@ export function Plugins () {
     
     
     useEffect(() => {
-        version_without_patch ??= model.version.split('.').slice(0, 2).join('.')
+        version_without_fourth ??= model.version.split('.').slice(0, 3).join('.')
         
         update()
     }, [ ])
@@ -116,6 +133,9 @@ export function Plugins () {
     // 是否有选中的 plugin_node
     let has_selected = false
     
+    // 是否选中了多种不同的插件
+    let npartial_selecteds = 0
+    
     plugins.forEach(plugin => {
         const { selecteds, id } = plugin
         
@@ -125,81 +145,85 @@ export function Plugins () {
         if (nselecteds && nselecteds === nall)
             selected_keys.push(id)
         
-        if (nselecteds)
+        if (nselecteds) {
             has_selected = true
+            ++npartial_selecteds
+        }
         
         plugin.indeterminate = 0 < nselecteds && nselecteds < nall
     })
     
     return <>
-        <div className='actions'>
-            <Popconfirm
-                title={t('加载插件')}
-                description={t('确认加载插件至所选择的节点？（当前已加载的节点会被跳过）')}
-                okText={t('加载')}
-                onConfirm={async () => {
-                    await Promise.all(
-                        plugins.map(async ({ selecteds, id }) =>
-                            selecteds?.length && ddb.invoke<void>('loadPlugins', log(
-                                    t('加载插件:'), 
-                                    [
-                                        id, 
-                                        selecteds.map(({ node }) => node)
-                                    ]))
-                            
-                        ))
-                    
-                    await update()
-                    
-                    model.message.success(t('插件加载成功'))
-                }}
-            >
-                <Tooltip title={t('在下方表格中选择需要加载的插件，以及节点')}>
-                    <Button
-                        className='load'
-                        type='primary'
-                        disabled={!has_selected}
-                        icon={<Icon component={SvgUpgrade} />}
-                    >{t('加载插件')}</Button>
-                </Tooltip>
-            </Popconfirm>
-            
-            <Button
-                className='install'
-                icon={<Icon component={SvgUpgrade} />}
-                onClick={installer.open}
-            >{t('安装插件')}</Button>
-            
-            <InstallModal
-                installer={installer}
-                update={update}
-                id={selected_keys[0]}
-                plugins={plugins}
-                plugin_nodes={plugin_nodes} />
-            
-            <Button
-                className='refresh'
-                icon={<ReloadOutlined/>}
-                onClick={async () => {
-                    await update(rquery.current)
-                }}
-            >{t('刷新')}</Button>
-            
-            <Input.Search
-                className='search'
+        <InstallModal
+            installer={installer}
+            update={update}
+            plugins={plugins}
+            plugin_nodes={plugin_nodes} 
+        />
+        
+        <DDBTable
+            title={t('插件管理')}
+            big_title
+            buttons={<>
+                <Popconfirm
+                    title={t('加载插件')}
+                    description={t('确认加载插件至所选择的节点？（当前未安装或已加载的节点会被跳过）')}
+                    okText={t('加载')}
+                    onConfirm={async () => {
+                        await Promise.all(
+                            plugins.map(async ({ selecteds, id }) => {
+                                if (!selecteds?.length)
+                                    return
+                                
+                                const nodes = selecteds.filter(({ installed }) => installed)
+                                    .map(({ node }) => node)
+                                
+                                if (!nodes.length)
+                                    return
+                                
+                                await ddb.invoke<void>('loadPlugins', log(t('加载插件:'), [id, nodes]))
+                            }))
+                        
+                        await update()
+                        
+                        model.message.success(t('插件加载成功'))
+                    }}
+                >
+                    <Tooltip title={t('在下方表格中选择需要加载的插件，以及节点（当前未安装或已加载的节点会被跳过）')}>
+                        <Button
+                            className='load'
+                            type='primary'
+                            disabled={!has_selected}
+                            icon={<PlayCircleOutlined />}
+                        >{t('加载插件')}</Button>
+                    </Tooltip>
+                </Popconfirm>
+                
+                <Button
+                    className='install'
+                    icon={<Icon component={SvgUpgrade} />}
+                    disabled={npartial_selecteds >= 2}
+                    onClick={installer.open}
+                >{t('安装插件')}</Button>
+                
+                <RefreshButton
+                    onClick={async () => {
+                        await update(rquery.current)
+                    }}
+                />
+            </>}
+            filter_form={<Input.Search
                 placeholder={t('输入关键字后按回车可搜索插件')}
                 allowClear
                 onSearch={async value => {
                     rquery.current = value
                     await update(value)
-                }} />
-        </div>
-        
-        <Table
-            className='plugins-table'
+                }} 
+            />}
             dataSource={plugins}
             rowKey='id'
             pagination={false}
+            scroll={{ y: 'calc(100vh - 220px)' }}
             rowSelection={{
                 selectedRowKeys: selected_keys,
                 
@@ -237,34 +261,33 @@ export function Plugins () {
             }}
             columns={[
                 {
-                    title: t('插件 ID'),
+                    title: t('插件名'),
                     dataIndex: 'id',
                     width: 160,
                 },
                 {
                     title: t('集群已安装的最低版本'), 
-                    width: 500,
-                    render: (_, { min_version }) => {
-                        const match = min_version.startsWith(version_without_patch)
-                        
-                        return <Text type={ match ? undefined : 'danger'}>{min_version}{ !match && t(' (与数据库版本不一致，无法加载)') }</Text>
-                    }
+                    width: 350,
+                    render: (_, { min_version, version_match }) =>
+                        version_match
+                            ? min_version
+                            : <Text type='danger'>{min_version} {t(' (部分节点与数据库版本不一致，无法加载)')}</Text>
                 },
                 {
                     title: t('已安装节点'),
-                    width: 500,
+                    width: 350,
                     render: (_, { installeds }) =>
                         installeds.join(', ')
                 },
                 {
                     title: t('待安装节点'),
-                    width: 500,
+                    width: 350,
                     render: (_, { installables }) =>
                         installables.join(', ')
                 },
                 {
                     title: t('已加载节点'),
-                    width: 500,
+                    width: 350,
                     render: (_, { loadeds }) =>
                         loadeds.join(', ')
                 },
@@ -368,13 +391,11 @@ interface InstallFields {
 function InstallModal ({
     installer,
     update,
-    id,
     plugins,
     plugin_nodes
 }: {
     installer: ModalController
     update: () => Promise<void>
-    id?: string
     plugins: Plugin[]
     plugin_nodes: PluginNode[]
 }) {
@@ -386,6 +407,8 @@ function InstallModal ({
     
     let [installables, set_installables] = useState<string[]>([ ])
     
+    let [remote_plugins, set_remote_plugins] = useState<string[] | undefined>()
+    
     useEffect(() => {
         if (installer.visible)
             (async () => {
@@ -395,10 +418,17 @@ function InstallModal ({
                 
                 set_installables(installables)
                 
-                if (id)
-                    rform.current.setFieldValue('id', id)
+                const { current: form } = rform
                 
-                rform.current.setFieldValue('nodes', installables)
+                let nodes = installables
+                for (const { id, selecteds } of plugins)
+                    if (selecteds?.length) {
+                        nodes = selecteds.map(({ node }) => node)
+                        form.setFieldValue('id', id)
+                        break
+                    }
+                
+                form.setFieldValue('nodes', nodes)
             })()
     }, [installer.visible])
     
@@ -414,18 +444,34 @@ function InstallModal ({
     
     return <Modal
         title={t('安装或更新插件')}
-        className='plugins-install-modal'
+        className={`plugins-install-modal ${language}`}
         open={installer.visible}
         onCancel={installer.close}
         footer={null}
-        width='80%'
+        width={1200}
     >
         <Form<InstallFields>
             ref={rform}
             initialValues={{
                 method: 'offline',
-                id
             } satisfies Partial<InstallFields>}
+            
+            // 切到在线安装时初始化 remote plugins
+            // 修改插件服务器时更新 remote plugins
+            onValuesChange={async (changeds: Partial<InstallFields>) => {
+                if (changeds.method === 'online' && (!remote_plugins || ('server' in changeds))) {
+                    const server: InstallFields['server'] = rform.current.getFieldValue('server')
+                    
+                    set_remote_plugins(log(t('查询在线插件列表:'),
+                        (await ddb.invoke<{ PluginName: string, PluginVersion: string }[]>(
+                            'listRemotePlugins', 
+                            server ? [undefined, server] : undefined
+                        ))
+                            .select('PluginName')
+                    ))
+                }
+            }}
+            
             onFinish={async ({ method, id, nodes, zip, server, source, version }) => {
                 console.log(t('安装插件:'), method, id, nodes)
                 
@@ -465,15 +511,15 @@ function InstallModal ({
                 await update()
             }}
         >
-            <Form.Item<InstallFields> name='method' label='安装方式' {...required}>
+            <Form.Item<InstallFields> name='method' label={t('安装方式')} {...required}>
                 <Radio.Group
                     className='methods'
                     optionType='button'
                     buttonStyle='solid'
                     options={[
-                        { label: '离线安装', value: 'offline' },
-                        { label: '在线安装', value: 'online' },
-                        { label: '从某节点同步', value: 'sync' },
+                        { label: t('离线安装'), value: 'offline' },
+                        { label: t('在线安装'), value: 'online' },
+                        { label: t('从某节点同步'), value: 'sync' },
                     ]}
                 />
             </Form.Item>
@@ -485,25 +531,23 @@ function InstallModal ({
                     if (method === 'offline')
                         return null
                     
-                    return <Form.Item<InstallFields> name='id' label={t('插件 ID')} {...required}>
-                        { method === 'online'
-                            ? <Input className='form-input' placeholder={t('如: zip')} /> 
-                            : <Select
-                                showSearch
-                                allowClear
-                                className='select-plugin-id'
-                                placeholder={t('如: zip')}
-                                options={plugins.map(({ id }) => ({ label: id, value: id }))} /> }
+                    return <Form.Item<InstallFields> name='id' label={t('插件名')} {...required}>
+                        <Select
+                            showSearch
+                            allowClear
+                            className='select-plugin-id'
+                            placeholder={t('如: zip')}
+                            options={
+                                method === 'sync'
+                                    ? plugins.map(({ id }) => ({ label: id, value: id }))
+                                    : remote_plugins?.map(id => ({ label: id, value: id })) || [ ]
+                                } />
                     </Form.Item>
                 }}
             </Form.Item>
             
-            <Form.Item<InstallFields>
-                name='nodes'
-                label='目标节点'
-                {...required}
-            >
-                <Checkbox.Group options={installables} />
+            <Form.Item<InstallFields> name='nodes' label={t('目标节点')} {...required}>
+                <CheckboxGroupWithSelectAll options={installables} />
             </Form.Item>
             
             <Form.Item<InstallFields> noStyle dependencies={['method', 'id']}>{
@@ -514,7 +558,7 @@ function InstallModal ({
                                 <Form.Item<InstallFields>
                                     className='zip-item'
                                     name='zip'
-                                    label='插件 zip 包'
+                                    label={t('插件 zip 包')}
                                     getValueProps={file => ({ fileList: file ? [file] : [ ] })}
                                     getValueFromEvent={({ fileList }) => fileList[0]}
                                     {...required}
@@ -582,19 +626,27 @@ function InstallModal ({
                         
                         case 'online':
                             return <>
-                                <Form.Item<InstallFields> name='version' label='插件版本'>
-                                    <Input className='form-input' placeholder='选填，默认安装和当前版本匹配的最新版' />
+                                <Form.Item<InstallFields> name='version' label={t('插件版本')}>
+                                    <Input className='form-input' placeholder={t('选填，默认安装和当前版本匹配的最新版')} />
                                 </Form.Item>
                                 
-                                <Form.Item<InstallFields> name='server' label='插件服务器地址'>
-                                    <Input className='form-input' placeholder='选填，参考 installPlugin 函数' />
+                                <Form.Item<InstallFields> name='server' label={t('插件服务器地址')}>
+                                    <Select
+                                        className='select-plugin-server'
+                                        placeholder={t('选填，参考 installPlugin 函数')}
+                                        allowClear
+                                        options={[
+                                            'http://plugins.dolphindb.cn/plugins',
+                                            'http://plugins.dolphindb.com/plugins'
+                                        ].map(x => ({ label: x, value: x }))}
+                                    />
                                 </Form.Item>
                             </>
                         
                         case 'sync': {
                             const id: InstallFields['id'] = form.getFieldValue('id')
                             
-                            return <Form.Item<InstallFields> name='source' label='源节点' {...required}>
+                            return <Form.Item<InstallFields> name='source' label={t('源节点')} {...required}>
                                 <Radio.Group options={id 
                                     ? get_plugin_nodes_by_id(id, plugin_nodes)
                                         .filter(({ installed }) => installed)
@@ -619,11 +671,40 @@ function InstallModal ({
 }
 
 
+function CheckboxGroupWithSelectAll ({
+    value,
+    onChange,
+    options
+}: Pick<CheckboxGroupProps, 'value' | 'onChange' | 'options'>) {
+    return <>
+        <Checkbox
+            className='select-all'
+            indeterminate={value?.length > 0 && value.length < options.length}
+            checked={value?.length === options.length}
+            onChange={() => {
+                onChange(
+                    !value?.length || value.length < options.length
+                        ? options
+                        : [ ]
+                )
+            }}
+        >
+          {t('全选', { context: 'button' })}
+        </Checkbox>
+        
+        <Checkbox.Group options={options} value={value} onChange={onChange} />
+    </>
+}
+
+
 interface Plugin {
     id: string
     
     /** 集群已安装的最低版本 */
     min_version: string
+    
+    /** 根据 min_version 计算出的属性 */
+    version_match: boolean
     
     installeds: string[]
     
@@ -642,7 +723,7 @@ interface Plugin {
 
 let script_defined = false
 
-let version_without_patch: string
+let version_without_fourth: string
 
 
 interface PluginNode {

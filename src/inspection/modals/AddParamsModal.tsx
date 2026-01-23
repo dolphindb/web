@@ -1,5 +1,5 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 import { Modal } from 'antd'
 
 import { useState } from 'react'
@@ -9,8 +9,8 @@ import type { MetricsWithStatus } from '@/inspection/type.ts'
 import { MetricTable } from '@/inspection/components/MetricTable.tsx'
 
 interface AddParamsModalProps {
-    checked_metrics: Map<string, MetricsWithStatus>
-    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void 
+    checked_metrics: MetricsWithStatus[]
+    set_checked_metrics: (metrics: MetricsWithStatus[]) => void 
 }
 
 export const AddParamsModal = NiceModal.create(({ 

@@ -1,13 +1,16 @@
 import './index.sass'
 
 import { useEffect, useRef, useState } from 'react'
-import { Pagination, Button } from 'antd'
-import { ReloadOutlined } from '@ant-design/icons'
+import { Pagination } from 'antd'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
-import { model, NodeType } from '@/model.js'
-import { Unlogin } from '@/components/Unlogin.js'
+import { model, NodeType } from '@model'
+
+import { Unlogin } from '@components/Unlogin.js'
+import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
+import { upper } from '@/utils.ts'
 
 const default_length = 50000n
 
@@ -56,24 +59,21 @@ export function Log () {
     return <div className='list themed'>
         <div className='log-title'>
             <div className='log-name'>
-                {node_alias} {t('日志')} ({Number(log_length).to_fsize_str()})
+                {node_alias} {t('日志')} ({upper(Number(log_length).to_fsize_str())})
             </div>
             <div className='space' />
             {!show_login_required_info && (
-                <div>
-                    <Button
-                        className='refresh-button'
-                        icon={<ReloadOutlined/>}
-                        onClick={async () => {
-                            await init()
-                            model.message.success(t('日志刷新成功'))
-                    }}>{t('刷新')}</Button>
-                </div>
+                <RefreshButton
+                    className='refresh-button'
+                    onClick={async () => {
+                        await init()
+                        model.message.success(t('日志刷新成功'))
+                }} />
             )}
         </div>
         {
             show_login_required_info ?
-                <Unlogin info='当前节点日志'/>
+                <Unlogin info={t('当前节点日志')}/>
             :
                 <>
                     <div className='log-block' ref={ref}>
@@ -88,26 +88,28 @@ export function Log () {
                             </div>
                         })}
                     </div>
-                    <Pagination
-                        className='log-pagination'
-                        current={index}
-                        showQuickJumper
-                        showSizeChanger={false}
-                        onChange={(page, page_size) => {
-                            // 重新设置当前显示的 log
-                            const t = log_length - BigInt(page) * default_length
-                            const offset = t > 0 ? t : 0n
-                            const length = t > 0 ? default_length : default_length + t
-                            get_log(length, offset)
-                            set_index(page)
-                            
-                            // log 滑动条滑动到顶端
-                            ref.current?.scrollTo(0, 0)
-                        }}
-                        pageSize={1}
-                        total={Math.ceil(Number(log_length) / Number(default_length))}
-                    />
+                    
                 </>
         }
+        <BottomFixedFooter>
+            <Pagination
+                current={index}
+                showQuickJumper
+                showSizeChanger={false}
+                onChange={(page, page_size) => {
+                    // 重新设置当前显示的 log
+                    const t = log_length - BigInt(page) * default_length
+                    const offset = t > 0 ? t : 0n
+                    const length = t > 0 ? default_length : default_length + t
+                    get_log(length, offset)
+                    set_index(page)
+                    
+                    // log 滑动条滑动到顶端
+                    ref.current?.scrollTo(0, 0)
+                }}
+                pageSize={1}
+                total={Math.ceil(Number(log_length) / Number(default_length))}
+            />
+        </BottomFixedFooter>
     </div>
 }

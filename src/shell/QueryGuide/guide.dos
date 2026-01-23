@@ -150,7 +150,8 @@ def dbms_generateEnumerate(input_json){
     dbName = input_dict["dbName"]
     tbName = input_dict["tbName"]
     col = input_dict["col"]
-    query =  "EXEC " + col + ' FROM ( SELECT ' + col + ' FROM loadTable("' + dbName + '", "' + tbName +  '") LIMIT 100000)' + ' GROUP BY ' + col;
+    // query =  "EXEC " + col + ' FROM ( SELECT ' + col + ' FROM loadTable("' + dbName + '", "' + tbName +  '") LIMIT 100000)' + ' GROUP BY ' + col;
+    query = "EXEC distinct(" + col + ') FROM loadTable("' + dbName + '", "' + tbName +  '") '
     enumList = query.parseExpr().eval()
     newEnumList = array(STRING, 0)
     // 2CHAR, 4INT, 17SYMBOL, 18STRING

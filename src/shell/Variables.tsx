@@ -26,7 +26,7 @@ import {
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
 import { DdbObjRef } from '../obj.js'
 
@@ -59,8 +59,8 @@ export function Variables ({ shared }: { shared?: boolean }) {
         try {
             set_refresh_spin(true)
             const promise = delay(200)
-            await shell.update_vars()
             set_expanded_keys([ ])
+            await shell.update_vars()
             await promise
         } catch (error) {
             model.show_error({ error })
@@ -192,24 +192,15 @@ export function Variables ({ shared }: { shared?: boolean }) {
                     if (!v)
                         return
                     
-                    if (
-                        v.form === DdbForm.chart ||
-                        v.form === DdbForm.dict ||
-                        v.form === DdbForm.matrix ||
-                        v.form === DdbForm.set ||
-                        v.form === DdbForm.table ||
-                        v.form === DdbForm.vector ||
-                        v.form === DdbForm.tensor
-                    )
-                        shell.set({
-                            result: v.obj ? {
-                                type: 'object',
-                                data: v.obj
-                            } : {
-                                type: 'objref',
-                                data: new DdbObjRef(v)
-                            }
-                        })
+                    shell.set({
+                        result: v.obj ? {
+                            type: 'object',
+                            data: v.obj
+                        } : {
+                            type: 'objref',
+                            data: new DdbObjRef(v)
+                        }
+                    })
                 }}
             />
         </div>

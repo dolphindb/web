@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { CheckCircleOutlined, CloseCircleOutlined, MinusCircleOutlined } from '@ant-design/icons'
 
 import { type IColumn } from '../type.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 
 interface IProps {
     cols: IColumn[]
@@ -38,6 +38,6 @@ export function ColSelectTransfer (props: IProps) {
         targetKeys={value ?? [ ]}
         render={item => item.title}
         dataSource={options}
-        operations={[t('增加查询列'), t('删除查询列')]}
+        actions={[t('增加查询列'), t('删除查询列')]}
     />
 }

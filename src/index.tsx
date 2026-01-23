@@ -1,7 +1,7 @@
 import 'xshell/scroll-bar.sass'
 
-import './formily-patch.sass'
 import './index.sass'
+import './index.shf.sass'
 import './pagination.sass'
 
 
@@ -24,17 +24,22 @@ import dayjs from 'dayjs'
 
 import { SWRConfig } from 'swr'
 
-import { language } from '../i18n/index.ts'
+import { use_keydown } from 'react-object-model/hooks.js'
+
+import { language } from '@i18n'
 
 import 'dayjs/locale/zh-cn'
 dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 
-import { model } from './model.ts'
+import { model } from '@model'
 
-import { DdbHeader } from './components/DdbHeader.tsx'
+import { light } from './theme.ts'
+import { apply_favicon } from './utils.common.ts'
+
+import { DdbHeader } from './components/DDBHeader/index.tsx'
 import { DdbSider } from './components/DdbSider.tsx'
+import { HostSelect } from './components/DDBHeader/HostSelect.tsx'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx'
-import { HostSelect } from './components/HostSelect.tsx'
 
 import { Login } from './login/index.tsx'
 import { Overview } from './overview/index.tsx'
@@ -47,8 +52,6 @@ import { Plugins } from './plugins/index.tsx'
 import { Computing } from './computing/index.tsx'
 
 import { DashBoard } from './dashboard/index.tsx'
-import { DashboardInstancePage } from './dashboard/Instance.tsx'
-import { Overview as DashboardOverview } from './dashboard/Overview.tsx'
 import { Inspection } from './inspection/index.tsx'
 import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
@@ -56,7 +59,8 @@ import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
 import { SessionManagement } from './session-management/index.tsx'
 import { Access } from './access/index.tsx'
-
+import { StreamingGraph } from './streaming-graph/index.tsx'
+import { Lineage } from './lineage/index.tsx'
 
 
 createRoot(
@@ -67,20 +71,13 @@ createRoot(
 const locales = { zh, en, ja, ko }
 
 function DolphinDB () {
+    const { shf } = model.use(['shf'])
+    
     return <ConfigProvider
         locale={locales[language] as any}
+        theme={light}
         button={{ autoInsertSpace: false }}
-        theme={{
-            cssVar: true,
-            hashed: false,
-            token: {
-                motion: false,
-                
-                borderRadius: 0,
-                
-                controlOutlineWidth: 0,
-            }
-        }}
+        modal={{ mask: false }}
         renderEmpty={() => <div className='empty-placeholder' />}
     >
         <SWRConfig value={{
@@ -94,7 +91,7 @@ function DolphinDB () {
         }}>
             <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
                 <NiceModal.Provider>
-                    <App className='app'>
+                    <App className={`app ${shf ? 'shf' : ''}`}>
                         <RouterProvider router={router} />
                     </App>
                 </NiceModal.Provider>
@@ -105,7 +102,7 @@ function DolphinDB () {
 
 
 function MainLayout () {
-    const { header, inited, sider } = model.use(['header', 'inited', 'sider'])
+    const { header, inited, sider, shf } = model.use(['header', 'inited', 'sider', 'shf'])
     
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(model, App.useApp())
@@ -118,35 +115,25 @@ function MainLayout () {
     }, [ ])
     
     
+    if (model.local)
+        use_keydown(on_keydown)
+    
     useEffect(() => {
-        if (model.local) {
-            async function on_keydown (event: KeyboardEvent) {
-                const { key, target, ctrlKey: ctrl, altKey: alt } = event
-                
-                if (
-                    key === 'r' && 
-                    (target as HTMLElement).tagName !== 'INPUT' && 
-                    (target as HTMLElement).tagName !== 'TEXTAREA' && 
-                    !ctrl && 
-                    !alt
-                ) {
-                    event.preventDefault()
-                    await model.recompile_and_refresh()
-                }
-            }
-            
-            window.addEventListener('keydown', on_keydown)
-            
-            return () => { window.removeEventListener('keydown', on_keydown) }
-        }
-    }, [ ])
+        if (!inited)
+            return
+        
+        document.title = `${shf ? 'DolphinDB' : model.product_name} - ${model.node_alias}`
+        
+        let link = apply_favicon(shf)
+        
+        return () => { document.head.removeChild(link) }
+    }, [inited, shf])
+    
     
     return inited ?
         <Layout className='root-layout'>
             <RouteListener />
-            { header && <Layout.Header className='ddb-header'>
-                <DdbHeader />
-            </Layout.Header> }
+            { header && <DdbHeader />}
             <Layout className='body' hasSider>
                 { sider && <DdbSider /> }
                 <Layout.Content className='view'>
@@ -199,6 +186,14 @@ const router = createBrowserRouter([
                 element: <Shell />
             },
             {
+              path: 'oauth-github/',
+              element: <Shell /> 
+            },
+            {
+                path: 'oauth-gitlab/',
+                element: <Shell /> 
+            },
+            {
                 path: 'login/',
                 element: <Login />
             },
@@ -235,18 +230,8 @@ const router = createBrowserRouter([
                 element: <Computing />
             },
             {
-                path: 'dashboard/',
-                element: <DashBoard />,
-                children: [
-                    {
-                        index: true,
-                        element: <DashboardOverview />
-                    },
-                    {
-                        path: ':id',
-                        element: <DashboardInstancePage />
-                    },
-                ]
+                path: 'dashboard/*',
+                element: <DashBoard />
             },
             {
                 path: 'access/*',
@@ -275,9 +260,32 @@ const router = createBrowserRouter([
             {
                 path: 'session-management/',
                 element: <SessionManagement />
+            },
+            {
+                path: 'streaming-graph/*',
+                element: <StreamingGraph />
+            },
+            {
+                path: 'lineage/*',
+                element: <Lineage />
             }
         ]
     }], 
     model.assets_root === '/' ? undefined : { basename: model.assets_root }
 )
 
+
+async function on_keydown (event: KeyboardEvent) {
+    const { key, target, ctrlKey: ctrl, altKey: alt } = event
+    
+    if (
+        key === 'r' && 
+        (target as HTMLElement).tagName !== 'INPUT' && 
+        (target as HTMLElement).tagName !== 'TEXTAREA' && 
+        !ctrl && 
+        !alt
+    ) {
+        event.preventDefault()
+        await model.recompile_and_refresh()
+    }
+}

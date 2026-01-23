@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { Form, Select, Input, Collapse, Button, Space, InputNumber } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'
@@ -20,7 +20,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
                     <Input />
                 </Form.Item>
                 <Form.Item name='title_size' label={t('标题字号')} initialValue={18}>
-                    <InputNumber addonAfter='px' />
+                    <InputNumber suffix='px' />
                 </Form.Item>
             <PaddingSetting />
            

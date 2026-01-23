@@ -13,6 +13,7 @@ export type ClusterNode = {
     alias: string
     mode: NodeType
     computeGroup?: string
+    zone?: string
 }
 
 export type NodesConfig = {

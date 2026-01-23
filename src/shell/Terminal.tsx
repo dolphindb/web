@@ -13,7 +13,7 @@ import { delay } from 'xshell/utils.browser.js'
 import type { DdbMessage } from 'dolphindb/browser.js'
 
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
 import { model } from '../model.js'
 
@@ -111,8 +111,9 @@ export function Terminal () {
                 t('按 Ctrl + Shift + E 执行选中代码或全部代码\n') +
                 t('按 Ctrl + D 向下复制行\n') +
                 t('按 Ctrl + Y 删除行\n') +
-                t('按 F1 查看更多编辑器命令')
-            )
+                t('按 F1 查看更多编辑器命令'))
+            
+            shell.pterm.resolve(term)
         })()
         
         return () => {

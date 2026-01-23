@@ -1,7 +1,7 @@
 import './index.scss'
 import { Button, Result } from 'antd'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 interface IProps { 
     back: () => void

@@ -3,7 +3,7 @@ import { CloudUploadOutlined, DeleteOutlined, FileOutlined } from '@ant-design/i
 import { Form, Typography, Upload } from 'antd'
 import { useState } from 'react'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 interface IProps { 
     onChange?: (file: File) => void

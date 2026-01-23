@@ -24,14 +24,17 @@ import {
 } from 'dolphindb/browser.js'
 
 import { delay } from 'xshell/utils.browser.js'
+import { storage } from 'xshell/storage.js'
 
-import { language } from '../i18n/index.js'
+import { language } from '@i18n'
 
 import {
     Obj,
     type DdbObjRef,
     type Remote,
-} from './obj.js'
+} from './obj.tsx'
+
+import { apply_favicon } from './utils.common.ts'
 
 
 const locales = { zh, en, ja, ko }
@@ -46,6 +49,10 @@ export class WindowModel extends Model<WindowModel> {
     ddb?: DDB
     
     options?: InspectOptions
+    
+    product_name = 'DolphinDB'
+    
+    assets_root: string
 }
 
 let model = window.model = new WindowModel()
@@ -70,7 +77,8 @@ function Root () {
 
 
 function DdbObjWindow () {
-    const { obj, objref, remote, ddb, options } = model.use(['obj', 'objref', 'remote', 'ddb', 'options'])
+    const { obj, objref, remote, ddb, options, product_name, assets_root } = model.use(
+        ['obj', 'objref', 'remote', 'ddb', 'options', 'product_name', 'assets_root'])
     
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(model, App.useApp())
@@ -82,7 +90,7 @@ function DdbObjWindow () {
                 if (i >= 10)
                     return
                 await delay(200)
-                i++
+                ++i
             }
             
             (window as any).resolve()
@@ -95,7 +103,7 @@ function DdbObjWindow () {
         
         const { name, form } = obj || objref
         
-        document.title = `${ name || DdbForm[form] } - DolphinDB`
+        document.title = `${ name || DdbForm[form] } - ${product_name}`
         
         ;(async () => {
             await delay(200)
@@ -106,16 +114,29 @@ function DdbObjWindow () {
             
             window.resizeTo(
                 Math.min($table.offsetWidth + 40, screen.width - 100),
-                Math.min($table.offsetHeight + 140,  screen.height - 100),
-            )
+                Math.min($table.offsetHeight + 140,  screen.height - 100))
         })()
-    }, [obj, objref])
+    }, [obj, objref, product_name])
+    
+    useEffect(() => {
+        apply_favicon(storage.getstr('ddb.shf') === '1')
+    }, [ ])
     
     if (!obj && !objref)
-        return <div>DolphinDB Window</div>
+        return null
     
     return <div className='obj-result themed window'>
-        <Obj obj={obj} objref={objref} ctx='window' remote={remote} ddb={ddb} options={options} />
+        <Obj
+            obj={obj}
+            objref={objref}
+            ctx='window'
+            remote={remote}
+            ddb={ddb}
+            options={options}
+            product_name={product_name}
+            assets_root={assets_root}
+            dark={false}
+        />
     </div>
 }
 

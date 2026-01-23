@@ -8,15 +8,15 @@ import type monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 export type Monaco = typeof monacoapi
 export type { monacoapi }
 
-import { MonacoDolphinDBEditor } from 'monaco-dolphindb/react'
+import { MonacoDolphinDBEditor } from 'donaco/react'
 
 import { loadWASM } from 'vscode-oniguruma'
 
 import { request_json } from 'xshell/net.browser.js'
 
-import { t, language } from '../../../i18n/index.js'
+import { t, language } from '@i18n'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 
 // 在 React DevTool 中显示的组件名字
@@ -42,7 +42,7 @@ let docs_initing = false
 
 export function Editor ({
     class_name = 'editor',
-    readonly,
+    readonly = false,
     default_value,
     value,
     height,
@@ -93,10 +93,8 @@ export function Editor ({
             
             acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
             
-            ... readonly ? {
-                readOnly: true,
-                domReadOnly: true,
-            } : { },
+            readOnly: readonly,
+            domReadOnly: readonly,
             
             ...options,
         }),

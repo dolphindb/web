@@ -9,32 +9,41 @@ import type { FitAddon } from '@xterm/addon-fit'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { delta2str, assert, delay, strcmp } from 'xshell/utils.browser.js'
+import { select } from 'xshell/prototype.browser.js'
+import { delta2str, assert, delay, strcmp, defer } from 'xshell/utils.browser.js'
 import { red, blue } from 'xshell/chalk.browser.js'
 
 import {
     DdbForm, SqlStandard, type DdbObj, DdbType, type DdbVectorStringObj, type DdbTableObj,
-    type DdbVectorInt, type DdbVectorLong, 
+    type DdbVectorInt, type DdbVectorLong, DdbFunction, DdbFunctionType
 } from 'dolphindb/browser.js'
 
 
-import { t } from '@i18n/index.js'
-
-import { type DdbObjRef } from '@/obj.js'
-
-import { model, NodeType, storage_keys } from '@/model.js'
-
-import type { Monaco } from '@/components/Editor/index.js'
-
-import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, type Table, Catalog } from './Databases.js'
-
-import { DdbVar } from './Variables.js'
+import { t } from '@i18n'
 
 
-type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }
+import { model, NodeType, storage_keys } from '@model'
+
+import type { Monaco } from '@components/Editor/index.tsx'
+
+import type { DdbObjRef } from '@/obj.tsx' 
+
+import { lineage, type TableMeta } from '@/lineage/index.tsx'
+
+import {
+    Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot,
+    PartitionFile, type Table, Catalog, OrcaTable
+} from './Databases.tsx'
+
+import { DdbVar } from './Variables.tsx'
+
+
+type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef } | { type: 'lineage' }
 
 
 class ShellModel extends Model<ShellModel> {
+    pterm = defer<Terminal>()
+    
     term: Terminal
     
     fit_addon: FitAddon
@@ -56,15 +65,9 @@ class ShellModel extends Model<ShellModel> {
     
     unload_registered = false
     
-    load_table_schema_defined = false
-    
     load_table_variable_schema_defined = false
     
-    load_database_schema_defined = false
-    
     get_access_defined = false
-    
-    peek_table_defined = false
     
     add_column_defined = false
     
@@ -93,7 +96,7 @@ class ShellModel extends Model<ShellModel> {
     confirm_command_modal_visible = false
     
     /** 当前打开的 tab */
-    itab = -1
+    itab = Number(localStorage.getItem(storage_keys.current_tab)) || -1
     
     /** 所有的 tabs */
     tabs: Tab[] = [ ]
@@ -137,17 +140,18 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
-    async eval (code = this.editor.getValue(), istart: number) {
+    async eval (code = this.editor.getValue(), istart: number, print = true) {
         const time_start = dayjs()
         const lines = code.split_lines()
         
-        this.term.write(
-            '\n' +
-            time_start.format('HH:mm:ss.SSS') + '\n' + 
-            (code.trim() ?
-                this.truncate_text(lines).join_lines()
-            : '')
-        )
+        if (print)
+            this.term.write(
+                '\n' +
+                time_start.format('HH:mm:ss.SSS') + '\n' + 
+                (code.trim() ?
+                    this.truncate_text(lines).join_lines()
+                : '')
+            )
         
         this.set({ executing: true })
         
@@ -179,32 +183,33 @@ class ShellModel extends Model<ShellModel> {
                     },
                 })
             
-            this.term.writeln(
-                (() => {
-                    switch (ddbobj.form) {
-                        case DdbForm.chart:
-                        case DdbForm.dict:
-                        case DdbForm.matrix:
-                        case DdbForm.set:
-                        case DdbForm.table:
-                        case DdbForm.vector:
-                        case DdbForm.tensor:
-                            return blue(
-                                ddbobj.inspect_type()
-                            ) + '\n'
-                        
-                        default: {
-                            if (ddbobj.type === DdbType.void)
-                                return ''
+            if (print)
+                this.term.writeln(
+                    (() => {
+                        switch (ddbobj.form) {
+                            case DdbForm.chart:
+                            case DdbForm.dict:
+                            case DdbForm.matrix:
+                            case DdbForm.set:
+                            case DdbForm.table:
+                            case DdbForm.vector:
+                            case DdbForm.tensor:
+                                return blue(
+                                    ddbobj.inspect_type()
+                                ) + '\n'
                             
-                            return ddbobj.toString({ ...model.options, colors: true, nullstr: true, quote: true }) + '\n'
+                            default: {
+                                if (ddbobj.type === DdbType.void)
+                                    return ''
+                                
+                                return ddbobj.toString({ ...model.options, colors: true, nullstr: true, quote: true }) + '\n'
+                            }
                         }
-                    }
-                })() +
-                `(${delta2str(
-                    dayjs().diff(time_start)
-                )})`
-            )
+                    })() +
+                    `(${delta2str(
+                        dayjs().diff(time_start)
+                    )})`
+                )
         } catch (error) {
             let message = error.message as string
             if (message.includes('RefId:'))
@@ -311,6 +316,9 @@ class ShellModel extends Model<ShellModel> {
     
     
     save (code = this.editor?.getValue()) {
+        if (!this.monaco_inited)
+            return
+        
         if (code === undefined) 
             throw new Error('不能保存 undefined 的 code')
         
@@ -319,7 +327,14 @@ class ShellModel extends Model<ShellModel> {
             if (tab)
                 tab.code = code
             this.set({ tabs: [...this.tabs] })
-            localStorage.setItem(`${storage_keys.code}.${this.itab}`, JSON.stringify(tab))
+            try {
+                localStorage.setItem(`${storage_keys.code}.${this.itab}`, JSON.stringify(tab))
+            } catch (error) {
+                model.modal.error({ title: t('代码存储失败，请检查代码大小或本地存储空间剩余空间'), content: error.message })
+                this.remove_tab(this.itab)
+                error.shown = true
+                throw error
+            }
         } else
             localStorage.setItem(storage_keys.code, code)
     }
@@ -328,6 +343,15 @@ class ShellModel extends Model<ShellModel> {
     remove_tab (tab_index: number) {
         this.set({ tabs: this.tabs.filter(t => t.index !== tab_index) })
         localStorage.removeItem(`${storage_keys.code}.${tab_index}`)
+    }
+    
+    remove_git_tabs () {
+        const tabs_with_git = this.tabs.filter(t => t.git)
+        const tabs_with_git_indexies = tabs_with_git.map(t => t.index)
+        this.set({ tabs: this.tabs.filter(t => !t.git) })
+        this.switch_tab(-1)
+        for (const key of tabs_with_git_indexies)
+            localStorage.removeItem(`${storage_keys.code}.${key}`)
     }
     
     
@@ -347,6 +371,77 @@ class ShellModel extends Model<ShellModel> {
         })
         
         this.editor.setValue('')
+    }
+    
+    add_git_tab (
+        file_path: string,
+        file_name: string,
+        code: string,
+        {
+            repo_id,
+            repo_path, 
+            repo_name, 
+            branch = 'main', 
+            sha, 
+            is_history = false, 
+            commit_id
+        }: {
+            repo_id: string
+            repo_path: string
+            repo_name: string
+            branch: string
+            sha: string
+            commit_id: string
+            is_history?: boolean
+        },
+    ) {
+        if (!this.monaco_inited)
+            return
+        
+        // 检查是否存在当前仓库和当前分支的文件，否则只是跳转过去
+        const index = this.tabs.findIndex(t => t.git?.repo_id === repo_id && t.git?.branch === branch && t.git?.file_path === file_path)
+        if (index > -1 && !is_history) {
+            const tab = this.tabs[index]
+            this.switch_tab(tab.index)
+            return
+        }
+        
+        this.save()
+        const index_set = new Set(this.tabs.map(t => t.index))
+        let new_tab_index = 1
+        while (index_set.has(new_tab_index))
+            new_tab_index++
+            
+        const new_tab_name = file_name
+        this.set({
+            itab: new_tab_index,
+            tabs: [...this.tabs, {
+                name: new_tab_name,
+                code,
+                index: new_tab_index,
+                read_only: is_history,
+                git: { repo_id, repo_path, repo_name, branch, file_path, file_name, raw_code: code, sha, commit_id }
+            }]
+        })
+        
+        this.editor.setValue(code)
+    }
+    
+    update_git_tab_code (index: number, code: string, commit_id: string, sha: string) {
+        const tab = this.tabs.find(t => t.index === index)
+        if (!tab || !tab.git)
+            return
+        
+        tab.git.raw_code = code
+        tab.code = code
+        if (sha)
+            tab.git.sha = sha
+        if (commit_id)
+            tab.git.commit_id = commit_id
+        if (this.itab === index)
+            this.editor.setValue(code)
+        this.set({ tabs: [...this.tabs] })
+        this.save()
     }
     
     
@@ -372,9 +467,9 @@ class ShellModel extends Model<ShellModel> {
         for (const key of tab_keys) 
             try {
                 tabs.push(
-                    JSON.parse(localStorage.getItem(key) || '')
-                )
-            } catch (error) {
+                    JSON.parse(
+                        localStorage.getItem(key) || ''))
+            } catch {
                 localStorage.removeItem(key)
             }
         
@@ -386,6 +481,24 @@ class ShellModel extends Model<ShellModel> {
     
     
     async execute (default_selection: 'all' | 'line') {
+        let done = false
+        const show_delay = delay(500)
+        ;(async () => {
+            await show_delay
+            if (!done)
+                this.set({ show_executing: true })
+        })()
+        
+        try {
+            await this.execute_selection(default_selection)
+        } finally {
+            done = true
+            this.set({ show_executing: false })
+        }
+    }
+    
+    
+    async execute_selection (default_selection: 'all' | 'line') {
         const { editor } = this
         
         const selection = editor.getSelection()
@@ -404,6 +517,11 @@ class ShellModel extends Model<ShellModel> {
             istart = selection.startLineNumber
         }
         
+        await this.execute_code(code, istart)
+    }
+    
+    
+    async execute_code (code: string, istart: number) {
         if (code.includes('undef all') || code.includes('undef(all)'))
             if (await model.modal.confirm({ content: t('执行 undef all 会导致 web 部分功能不可用，执行完成后需要刷新才能恢复, 确定执行吗？') }))
                 try {
@@ -435,24 +553,6 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
-    async execute_ (default_selection: 'all' | 'line') {
-        let done = false
-        const show_delay = delay(500)
-        ;(async () => {
-            await show_delay
-            if (!done)
-                this.set({ show_executing: true })
-        })()
-        
-        try {
-            await shell.execute(default_selection)
-        } finally {
-            done = true
-            this.set({ show_executing: false })
-        }
-    }
-    
-    
     async load_dbs () {
         await model.get_cluster_perf(false)
         
@@ -462,18 +562,27 @@ class ShellModel extends Model<ShellModel> {
         if (model.node.mode !== NodeType.single && !model.has_data_nodes_alive()) 
             return
         
+        const hidable = await this.can_hide_sysdb()
+        
         // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能直接使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         // 但对于无数据表的数据库，仍然需要通过 getClusterDFSDatabases 来获取。因此要组合使用
-        const [{ value: table_paths }, { value: db_paths }, ...rest] = await Promise.all([
-            ddb.call<DdbVectorStringObj>('getClusterDFSTables'),
+        const [table_paths, db_paths, catalog_names, orca_tables] = (await Promise.all([
+            ddb.invoke<string[]>('getClusterDFSTables', hidable ? [false] : undefined),
             // 可能因为用户没有数据库的权限报错，单独 catch 并返回空数组
-            ddb.call<DdbVectorStringObj>('getClusterDFSDatabases').catch(() => {
-                console.error('load_dbs: getClusterDFSDatabases error')
-                return { value: [ ] }
-            }),
-            ...v3 ? [ddb.call<DdbVectorStringObj>('getAllCatalogs')] : [ ],
-        ])
+            ddb.invoke<string[]>('getClusterDFSDatabases', hidable ? [false] : undefined)
+                .catch((error) => {
+                    console.log('load_dbs: getClusterDFSDatabases 错误，可能没有权限，忽略:', error.message)
+                    return [ ]
+                }),
+            ...v3 ? [
+                ddb.invoke<string[]>('getAllCatalogs'),
+                lineage.get_tables().catch((error) => {
+                    console.log('getOrcaStreamTableMeta 错误，忽略:', error.message)
+                    return [ ]
+                })
+            ] : [ ]
+        ])) as [string[], string[], string[]?, TableMeta[]?]
         
         // const db_paths = [
         //     'dfs://db1',
@@ -496,35 +605,50 @@ class ShellModel extends Model<ShellModel> {
         //     'dfs://group_with_slash/g1.sg1.db1/tb1'
         // ]
         
-        // 将 db_paths 和 table_paths 合并到 merged_paths 中。db_paths 内可能存在 table_paths 中没有的 db，例如能查到无表的库
-        // 需要手动为 db_paths 中的每个路径加上斜杠结尾
-        const merged_paths = db_paths.map(path => `${path}/`).concat(table_paths).sort()
         
         // 假定所有的 table_name 值都不会以 / 结尾
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
         // 全路径中可能没有组（也就是没有点号），但一定有库和表
         let hash_map = new Map<string, Database | DatabaseGroup>()
-        let catalog_map = new Map<string, Database>()
+        let catalog_databases = new Map<string, Database>()
+        let catalogs = new Map<string, Catalog>()
         let root: (Catalog | Database | DatabaseGroup)[] = [ ]
         
-        if (v3) 
-            await Promise.all(rest[0].value.sort().map(async catalog => {
-                let catalog_node = new Catalog(catalog)
-                root.push(catalog_node)
-                
-                ;(
-                    await ddb.invoke('getSchemaByCatalog', [catalog])
-                ).data
-                    .sort((a, b) => strcmp(a.schema, b.schema))
-                    .map(({ schema, dbUrl }) => {
-                        const db_path = `${dbUrl}/`
-                        const database = new Database(db_path, schema)
-                        catalog_map.set(db_path, database)
-                        catalog_node.children.push(database)
-                    })
-            }))
+        if (v3) {
+            await Promise.all(
+                catalog_names.sort()
+                    .map(async catalog_name => {
+                        let catalog = new Catalog(catalog_name)
+                        catalogs.set(catalog_name, catalog)
+                        root.push(catalog)
+                        
+                        ;(await ddb.invoke<{ schema: string, dbUrl: string }[]>('getSchemaByCatalog', [catalog_name]))
+                            // 图的情况下 dbUrl 为空字符串，比如现在用 demo.orca_graph.tmp 作为一个图的标识了，demo.orca_graph 不是表的概念了
+                            .filter(select('dbUrl'))
+                            .sort((a, b) => strcmp(a.schema, b.schema))
+                            .forEach(({ schema, dbUrl }) => {
+                                const db_path = `${dbUrl}/`
+                                const database = new Database(db_path, schema)
+                                catalog_databases.set(db_path, database)
+                                catalog.children.push(database)
+                            })
+                    }))
+            
+            orca_tables?.forEach(meta => {
+                catalogs.get(meta.name.slice_to('.'))
+                    ?.children
+                    .push(new OrcaTable(meta))
+            })
+        }
         
-        for (const path of merged_paths) {
+        // 将 db_paths 和 table_paths 合并到 merged_paths 中。db_paths 内可能存在 table_paths 中没有的 db，例如能查到无表的库
+        // 需要手动为 db_paths 中的每个路径加上斜杠结尾
+        for (
+            const path of [
+                ... db_paths.map(path => `${path}/`),
+                ... table_paths
+            ].sort()
+        ) {
             // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名
             const index_slash = path.lastIndexOf('/')
             
@@ -533,8 +657,8 @@ class ShellModel extends Model<ShellModel> {
             
             let parent: Catalog | Database | DatabaseGroup | { children: (Catalog | Database | DatabaseGroup)[] } = { children: root }
             
-            if (catalog_map.has(db_path)) 
-                parent = catalog_map.get(db_path)
+            if (catalog_databases.has(db_path)) 
+                parent = catalog_databases.get(db_path)
             else {
                 // for 循环用来处理 database group
                 for (let index = 0;  index = db_path.indexOf('.', index) + 1;  ) {
@@ -565,7 +689,6 @@ class ShellModel extends Model<ShellModel> {
             // 处理 table，如果 table_name 为空表明当前路径是 db_path 则不处理
             if (table_name) 
                 parent.table_paths.push(`${path}/`)
-            
         }
         
         // TEST: 测试多级数据库树
@@ -578,6 +701,17 @@ class ShellModel extends Model<ShellModel> {
         //  }
         
         this.set({ dbs: root })
+    }
+    
+    
+    _can_hide_sysdb?: boolean
+    
+    async can_hide_sysdb () {
+        return this._can_hide_sysdb ??= (
+            await model.ddb.invoke<string>(
+                'syntax', 
+                [new DdbFunction('getClusterDFSTables', DdbFunctionType.SystemFunc)])
+        ).includes('([includeSysTable=')
     }
     
     
@@ -657,16 +791,10 @@ class ShellModel extends Model<ShellModel> {
     
     
     async define_load_table_schema () {
-        if (this.load_table_schema_defined)
-            return
-        
-        await model.ddb.eval(
+        await model.ddb.define(
             'def load_table_schema (db_path, tb_name) {\n' +
             '    return schema(loadTable(db_path, tb_name))\n' +
-            '}\n'
-        )
-        
-        shell.set({ load_table_schema_defined: true })
+            '}\n')
     }
     
     
@@ -681,34 +809,6 @@ class ShellModel extends Model<ShellModel> {
         )
         
         shell.set({ load_table_variable_schema_defined: true })
-    }
-    
-    
-    async define_load_database_schema () {
-        if (this.load_database_schema_defined)
-            return
-        
-        await model.ddb.eval(
-            'def load_database_schema (db_path) {\n' +
-            '    return schema(database(db_path))\n' +
-            '}\n'
-        )
-        
-        shell.set({ load_database_schema_defined: true })
-    }
-    
-    
-    async define_peek_table () {
-        if (this.peek_table_defined)
-            return
-        
-        await model.ddb.eval(
-            'def peek_table (db_path, tb_name) {\n' +
-            '    return select top 100 * from loadTable(db_path, tb_name)\n' +
-            '}\n'
-        )
-        
-        shell.set({ peek_table_defined: true })
     }
     
     
@@ -804,6 +904,18 @@ export interface Tab {
     index: number
     name: string
     code: string
+    read_only?: boolean
+    git?: {
+        repo_id: string
+        repo_path: string
+        repo_name: string
+        branch: string
+        file_path: string
+        file_name: string
+        raw_code: string
+        sha: string
+        commit_id: string
+    }
 }
 
 

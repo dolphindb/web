@@ -1,7 +1,7 @@
 import { Modal, Transfer, Tag } from 'antd'
 import { useState } from 'react'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 type TransferItem = {
     key: string
@@ -76,6 +76,7 @@ export function TransferModal ({
             title={step === 'edit' ? title : confirmTitle}
             onOk={step === 'edit' ? () => { set_step('preview') } : save}
             okText={step === 'edit' ? t('预览修改') : t('确认')}
+            width={1000}
         >
             {step === 'edit' ? (
                 <Transfer
