@@ -1,27 +1,17 @@
-.session-management {
+.session-management-table {
     height: 100%;
     padding: 0px !important;
-    
-    .ant-tabs {
-        
-        .ant-tabs-extra-content {
-            margin-right: 20px;
-        }
-        .ant-tabs-tab {
-            .ant-tabs-tab-btn {
-                font-size: 16px !important;
-            }
-            
-        }
-        
-        
-        .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-            color: #000;
-        }
-        
-        
-        .ant-tabs-content-holder {
-            padding: 0px 20px 20px 20px;
-        }
-    }
+}
+
+.session-management {
+    padding: 0px 10px;
+}
+
+.session-form-select {
+    width: 200px !important;
+}
+
+.session-summary {
+    text-align: end;
+    color: var(--ant-color-text-secondary);
 }

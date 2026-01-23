@@ -1,24 +1,31 @@
 import './index.scss'
 import useSWR from 'swr'
 
-import { useCallback } from 'react'
-import { Popconfirm, Result, Table, Tabs, Typography } from 'antd'
-
-import { t } from '@i18n/index.ts'
+import { useCallback, useState } from 'react'
+import { Button, Form, Input, Popconfirm, Result, Select, Table, Tabs, Typography } from 'antd'
 
 
 import { genid } from 'xshell/utils.browser'
 
 import { DdbLong } from 'dolphindb/browser'
 
-import { uniqBy } from 'lodash'
+import { sum, uniq, uniqBy } from 'lodash'
 
 import dayjs from 'dayjs'
 
 import { useSearchParams } from 'react-router'
 
+import { t } from '@i18n'
+
+import { DDBTable } from '@components/DDBTable/index.tsx'
+
 import { model, NodeType } from '@/model.ts'
 import { Unlogin } from '@/components/Unlogin.tsx'
+
+interface SessionFilterFormValues {
+    type?: string
+    remoteIP?: string[]
+}
 
 interface SessionItem {
     userId: string
@@ -47,32 +54,28 @@ export function SessionManagement () {
     
     const { admin, logined, node_type } = model.use(['admin', 'logined', 'node_type'])
     
-    const [query] = useSearchParams()
-    
-    
     /** 控制节点展所有节点的 session 信息，其他节点仅展示当前节点的 session 信息 */
     const is_controller = node_type === NodeType.controller
+    const [filtered_data, set_filtered_data] = useState<SessionItem[]>([ ])
     
-    const { data: { user_sessions, other_sessions } = { user_sessions: [ ], other_sessions: [ ] }, isLoading, mutate } = useSWR(
+    const { data = [ ], isLoading, mutate } = useSWR(
         admin ? 'session_list' : null,
         async () => {
             const res = is_controller 
-                ? await model.ddb.execute<{ data: SessionItem[] }>(`
+                ? await model.ddb.execute<SessionItem[]>(`
                     nodes=exec name from rpc(getControllerAlias(),getClusterPerf) where mode not in (1,2) and state=1
                     nodesSessionMemoryStat=pnodeRun(getSessionMemoryStat,nodes)
                     crtSessionMemoryStat=rpc(getControllerAlias(),getSessionMemoryStat)
                     update crtSessionMemoryStat set node=getControllerAlias()
                     nodesSessionMemoryStat.append!(crtSessionMemoryStat)
                 `)
-                : await model.ddb.invoke<{ data: SessionItem[] }>('getSessionMemoryStat')
-            const data = res?.data ?? [ ]
-            let user_sessions: SessionItem[] = [ ]
-            let other_sessions: SessionItem[] = [ ]
-            data.forEach(item => item.sessionId ? user_sessions.push(item) : other_sessions.push(item))
-            return {
-                user_sessions,
-                other_sessions
-            }
+                : await model.ddb.invoke<SessionItem[]>('getSessionMemoryStat')
+            const data = res.map(item => ({
+                ...item,
+                type: item.sessionId ? 'user' : 'system'
+            }))
+            set_filtered_data(data)
+            return data
         }
     )
     
@@ -84,133 +87,132 @@ export function SessionManagement () {
         model.message.success(t('会话（ID: {{id}}）关闭成功', { id: session.sessionId.toString() }))
         mutate()
     }, [ ])
+    
      
     if (!logined)
         return <Unlogin info={t('会话管理')} />
     
     if (!admin)
         return <Result status='warning' title='仅管理员可使用会话管理功能'/>
-     
-    return <Tabs 
-        type='card'
-        tabBarExtraContent={<Typography.Link 
-            href={
-                query.get('language') === 'en' 
-                    ? 'https://docs.dolphindb.cn/en/Functions/g/getSessionMemoryStat.html' 
-                    : 'https://docs.dolphindb.cn/zh/funcs/g/getSessionMemoryStat.html'
+   
+    
+    return <div className='session-management'>
+        <DDBTable 
+            className='session-management-table'
+            filter_form={
+                <>
+                    <Form<SessionFilterFormValues> 
+                    layout='inline' 
+                    onValuesChange={(_changed_values, values) => {
+                        const { type, remoteIP = [ ] } = values
+                        if (!type && !remoteIP.length)
+                            return data
+                        console.log(type, remoteIP)
+                        set_filtered_data(data.filter(item => {
+                            if (['system', 'user'].includes(type) && item.type !== type) 
+                                return false
+                            
+                            if (remoteIP.length && !remoteIP.includes(item.remoteIP)) 
+                                return false
+                            return true
+                        }))
+                        
+                }}>
+                    <Form.Item initialValue='all' name='type' label={t('会话类型')}>
+                        <Select 
+                            className='session-form-select' 
+                            options={[
+                                { label: t('所有会话'), value: 'all' },
+                                { label: t('系统缓存'), value: 'system' }, 
+                                { label: t('用户会话'), value: 'user' }
+                            ]}
+                        />
+                    </Form.Item>
+                    <Form.Item name='remoteIP' label={t('节点')}>
+                        <Select 
+                            className='session-form-select' 
+                            mode='multiple'
+                            options={uniq(data.map(item => item.remoteIP)).map(item => ({ label: item, value: item }))} 
+                            allowClear
+                            maxTagCount='responsive'
+                        />
+                    </Form.Item>
+                </Form>
+                <div className='session-summary'>
+                    {t('共 {{count}} 条会话，总占用内存 {{memory}}', { count: filtered_data.length, memory: sum(filtered_data.map(item => Number(item.memSize))).to_fsize_str() })}
+                </div>
+            </>
+                
             }
-            target='_blank'
-        >
-            {t('文档说明')}
-        </Typography.Link>}
-        items={[{
-            label: t('用户会话'),
-            key: 'user-session',
-            children: <Table 
-                scroll={{ x: '100%' }}
-                rowKey={() => genid()}
-                loading={isLoading}
-                dataSource={user_sessions} 
-                columns={[
-                    ...(is_controller ? [{
-                        title: t('节点'),
-                        dataIndex: 'node',
-                        width: 150,
-                        ...get_session_filter_options('node', user_sessions)
-                    }] : [ ]),
-                    {
-                        title: t('用户 ID'),
-                        dataIndex: 'userId',
-                        width: 150,
-                        ...get_session_filter_options('userId', user_sessions)
-                    },
-                    {
-                        title: t('会话 ID'),
-                        dataIndex: 'sessionId',
-                        width: 150,
-                        render: (value: bigint) => value?.toString()
-                    },
-                    {
-                        title: t('占用内存'),
-                        dataIndex: 'memSize',
-                        width: 180,
-                        render: (value: bigint) => value?.toString(),
-                        sorter: (a: SessionItem, b: SessionItem) => Number(a.memSize - b.memSize),
-                    },
-                    {
-                        title: t('客户端 IP'),
-                        dataIndex: 'remoteIP',
-                        width: 150,
-                        ...get_session_filter_options('remoteIP', user_sessions)
-                    },
-                    {
-                        title: t('客户端端口号'),
-                        dataIndex: 'remotePort',
-                        width: 150,
-                        ...get_session_filter_options('remotePort', user_sessions)
-                    },
-                    {
-                        title: t('会话创建时间'),
-                        dataIndex: 'createTime',
-                        width: 200,
-                        showSorterTooltip: false,
-                        sorter: (a: SessionItem, b: SessionItem) => dayjs(a.createTime).valueOf() - dayjs(b.createTime).valueOf()
-                    },
-                    {
-                        title: t('最近一次执行时间'),
-                        dataIndex: 'lastActiveTime',
-                        width: 200,
-                        showSorterTooltip: false,
-                        sorter: (a: SessionItem, b: SessionItem) => dayjs(a.lastActiveTime).valueOf() - dayjs(b.lastActiveTime).valueOf()
-                    },,
-                    {
-                        title: t('操作'),
-                        fixed: 'right',
-                        width: 100,
-                        render: (_, session) => <Popconfirm 
-                            title={t('确定要关闭此会话（ID: {{id}}）吗？', { id: session.sessionId })}
-                            onConfirm={async () => on_close_session(session)}
-                            okButtonProps={{ danger: true }}
-                        >
-                            <Typography.Link type='danger'>{t('关闭')}</Typography.Link>
-                        </Popconfirm>
-                    }]
-                }
-            /> },
-            {
-                label: t('缓存占用情况'),
-                key: 'other-session',
-                children: <Table 
-                    scroll={{ x: '100%' }}
-                    loading={isLoading}
-                    rowKey={() => genid()}
-                    dataSource={other_sessions}
-                    columns={[
-                        ...(
-                            is_controller 
-                            ? [{
-                                title: t('节点'),
-                                dataIndex: 'node',
-                                width: 150,
-                                ...get_session_filter_options('node', other_sessions)
-                            }] 
-                            : [ ]
-                        ),
-                        {
-                            title: t('缓存类型'),
-                            dataIndex: 'userId',
-                            width: 150,
-                            ...get_session_filter_options('userId', other_sessions)
-                        },
-                        {
-                            title: t('占用内存/未处理的消息数'),
-                            dataIndex: 'memSize',
-                            width: 180,
-                            render: (value: bigint) => value?.toString(),
-                            sorter: (a: SessionItem, b: SessionItem) => Number(a.memSize - b.memSize),
-                        },
-                ]}
-                />
+            title={t('会话管理')}
+            scroll={{ x: '100%', y: 'calc(100vh - 220px)' }}
+            rowKey={() => genid()}
+            loading={isLoading}
+            dataSource={filtered_data} 
+            columns={[
+                ...(is_controller ? [{
+                    title: t('节点'),
+                    dataIndex: 'node',
+                    width: 150,
+                    ellipsis: true,
+                }] : [ ]),
+                {
+                    title: t('系统缓存/用户会话'),
+                    dataIndex: 'userId',
+                    width: 150,
+                    ellipsis: true,
+                },
+                {
+                    title: t('会话 ID'),
+                    dataIndex: 'sessionId',
+                    width: 150,
+                    ellipsis: true,
+                    render: (value: bigint) => value?.toString()
+                },
+                {
+                    title: t('占用内存'),
+                    dataIndex: 'memSize',
+                    width: 180,
+                    render: (value: bigint) => value?.to_fsize_str(),
+                    sorter: (a: SessionItem, b: SessionItem) => Number(a.memSize - b.memSize),
+                },
+                {
+                    title: t('客户端 IP'),
+                    dataIndex: 'remoteIP',
+                    width: 150,
+                },
+                {
+                    title: t('客户端端口号'),
+                    dataIndex: 'remotePort',
+                    width: 150,
+                },
+                {
+                    title: t('会话创建时间'),
+                    dataIndex: 'createTime',
+                    width: 200,
+                    showSorterTooltip: false,
+                    sorter: (a: SessionItem, b: SessionItem) => dayjs(a.createTime).valueOf() - dayjs(b.createTime).valueOf()
+                },
+                {
+                    title: t('最近一次执行时间'),
+                    dataIndex: 'lastActiveTime',
+                    width: 200,
+                    showSorterTooltip: false,
+                    sorter: (a: SessionItem, b: SessionItem) => dayjs(a.lastActiveTime).valueOf() - dayjs(b.lastActiveTime).valueOf()
+                },,
+                {
+                    title: t('操作'),
+                    fixed: 'right',
+                    width: 100,
+                    render: (_, session) => session.sessionId ? <Popconfirm 
+                        title={t('确定要关闭此会话（ID: {{id}}）吗？', { id: session.sessionId })}
+                        onConfirm={async () => on_close_session(session)}
+                        okButtonProps={{ danger: true }}
+                    >
+                        <Typography.Link type='danger'>{t('关闭')}</Typography.Link>
+                    </Popconfirm> : null
+            }]
             }
-        ]}/>
+        /> 
+    </div>
 }
