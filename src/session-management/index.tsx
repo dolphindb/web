@@ -2,18 +2,16 @@ import './index.scss'
 import useSWR from 'swr'
 
 import { useCallback, useState } from 'react'
-import { Button, Form, Input, Popconfirm, Result, Select, Table, Tabs, Typography } from 'antd'
+import { Form, Popconfirm, Result, Select, Typography } from 'antd'
 
 
 import { genid } from 'xshell/utils.browser'
 
 import { DdbLong } from 'dolphindb/browser'
 
-import { sum, uniq, uniqBy } from 'lodash'
+import { sum, uniq } from 'lodash'
 
 import dayjs from 'dayjs'
-
-import { useSearchParams } from 'react-router'
 
 import { t } from '@i18n'
 
@@ -23,7 +21,7 @@ import { model, NodeType } from '@/model.ts'
 import { Unlogin } from '@/components/Unlogin.tsx'
 
 interface SessionFilterFormValues {
-    type?: string
+    type?: 'all' | 'system' | 'user'
     remoteIP?: string[]
 }
 
@@ -95,7 +93,6 @@ export function SessionManagement () {
                         const { type, remoteIP = [ ] } = values
                         if (!type && !remoteIP.length)
                             return data
-                        console.log(type, remoteIP)
                         set_filtered_data(data.filter(item => {
                             if (['system', 'user'].includes(type) && item.type !== type) 
                                 return false
@@ -155,7 +152,7 @@ export function SessionManagement () {
                     dataIndex: 'sessionId',
                     width: 150,
                     ellipsis: true,
-                    render: (value: bigint) => value?.toString()
+                    render: (value: bigint) =>  value ? value.toString() : null
                 },
                 {
                     title: t('占用内存'),
