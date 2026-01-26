@@ -382,17 +382,28 @@
                         .collapse-btn
                             align-self: flex-end
                             cursor: pointer
-                        
             
-            .term
-                flex: 1
+            .right-panel
                 min-width: 0px
+                flex-grow: 1
+                flex-shrink: 1
                 
-                .terminal
-                    padding: 10px
-            
-            .term-loading
-                padding: 10px
+                .notification-panel
+                    padding: 0px 10px
+                    overflow-wrap: anywhere
+                    
+                
+                .term-panel
+                    overflow: hidden
+                    .term
+                        height: 100%
+                        width: 100%
+                        
+                        .terminal
+                            padding: 10px
+                    
+                    .term-loading
+                        padding: 10px
         
         /* 括号高亮样式 */
         .monaco-editor, .monaco-diff-editor, .monaco-component 
