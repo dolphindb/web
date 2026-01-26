@@ -6685,5 +6685,17 @@
     },
     "确认删除流图 {{name}} 吗？\n此操作不可恢复。": {
         "en": "Confirm deletion of stream graph {{name}}? \nThis operation is irreversible."
+    },
+    "{{axis}} 轴名称": {
+        "en": "{{axis}} axis name"
+    },
+    "加载中...": {
+        "en": "Loading... "
+    },
+    "已加载全部仓库": {
+        "en": " All repos loaded "
+    },
+    "正在加载仓库列表...": {
+        "en": " Loading repo list... "
     }
 }
