@@ -157,7 +157,7 @@ function RightPanel () {
     
     useEffect(() => {
         (async () => {
-            const fn = 'getMarkdown'
+            const fn = 'getMarkdownStr'
             
             try {
                 // local
