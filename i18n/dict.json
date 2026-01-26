@@ -5861,7 +5861,6 @@
     "自动": {
         "en": "auto"
     },
-    
     "会话管理": {
         "en": "Session Management"
     },
@@ -6722,5 +6721,55 @@
     },
     "确认删除流图 {{name}} 吗？\n此操作不可恢复。": {
         "en": "Confirm deletion of stream graph {{name}}? \nThis operation is irreversible."
+    },
+    "{{axis}} 轴名称": {
+        "en": "{{axis}} axis name",
+        "ja": "",
+        "ko": ""
+    },
+    "会话类型": {
+        "en": "Session type",
+        "ja": "",
+        "ko": ""
+    },
+    "所有会话": {
+        "en": "All sessions",
+        "ja": "",
+        "ko": ""
+    },
+    "系统缓存": {
+        "en": "System cache",
+        "ja": "",
+        "ko": ""
+    },
+    "共 {{count}} 条会话，总占用内存 {{memory}}": {
+        "en": "There are {{count}} sessions, total memory usage is {{memory}}",
+        "ja": "",
+        "ko": ""
+    },
+    "共 {{count}} 条会话，总占用内存 {{memory}}_plural": {
+        "en": "There are {{count}} sessions, total memory usage is {{memory}}",
+        "ja": "",
+        "ko": ""
+    },
+    "系统缓存/用户会话": {
+        "en": "System cache / User session",
+        "ja": "",
+        "ko": ""
+    },
+    "加载中...": {
+        "en": "Loading...",
+        "ja": "",
+        "ko": ""
+    },
+    "已加载全部仓库": {
+        "en": "All repositories loaded",
+        "ja": "",
+        "ko": ""
+    },
+    "正在加载仓库列表...": {
+        "en": "Loading repository list...",
+        "ja": "",
+        "ko": ""
     }
 }
