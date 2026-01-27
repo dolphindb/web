@@ -6756,20 +6756,5 @@
         "en": "System cache / User session",
         "ja": "",
         "ko": ""
-    },
-    "加载中...": {
-        "en": "Loading...",
-        "ja": "",
-        "ko": ""
-    },
-    "已加载全部仓库": {
-        "en": "All repositories loaded",
-        "ja": "",
-        "ko": ""
-    },
-    "正在加载仓库列表...": {
-        "en": "Loading repository list...",
-        "ja": "",
-        "ko": ""
     }
 }

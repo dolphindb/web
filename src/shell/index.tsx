@@ -1,14 +1,20 @@
 import './index.sass'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { Resizable } from 're-resizable'
 
+import { Splitter } from 'antd'
+
 import { DatabaseOutlined } from '@ant-design/icons'
+
+import { marked } from 'marked'
 
 import { delay } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
+
+import { model } from '@model'
 
 import { shell } from './model.ts'
 
@@ -21,6 +27,7 @@ import { Variables } from './Variables.tsx'
 import { Git } from './git/Git.tsx'
 
 import SvgGit from './icons/git.icon.svg'
+
 
 export function Shell () {
     const [editor_state, set_editor_state] = useState({
@@ -134,7 +141,7 @@ export function Shell () {
                     {/* <Editor readonly default_value='objs(true)'/> */}
                 </Resizable>
                 
-                <Terminal />
+                <RightPanel />
             </Resizable>
             
             <DataView/>
@@ -142,3 +149,50 @@ export function Shell () {
     </>
 }
 
+
+function RightPanel () {
+    let [sizes, set_sizes] = useState<(number | string)[]>(['30%', '70%'])
+    
+    let [markdown, set_markdown] = useState('')
+    
+    useEffect(() => {
+        (async () => {
+            const fn = 'getMarkdownStr'
+            
+            try {
+                // local
+                // set_markdown(md)
+                set_markdown(
+                    await model.ddb.invoke(fn))
+            } catch (error) {
+                if (!error.message.includes(`Can't recognize function name ${fn}`))
+                    throw error
+                
+                if (model.dev)
+                    console.log('获取 markdown 出错了:', error.message)
+            }
+        })()
+    }, [ ])
+    
+    return <Splitter
+        className='right-panel'
+        orientation='vertical'
+        onResize={set_sizes}
+        onResizeEnd={async () => {
+            await delay(200)
+            shell.fit_addon?.fit()
+        }}
+    >
+        { Boolean(markdown) && <Splitter.Panel
+            className='notification-panel'
+            size={sizes[0]}
+            collapsible
+        >
+            <div className='markdown' dangerouslySetInnerHTML={{ __html: marked.parse(markdown) }} />
+        </Splitter.Panel> }
+        
+        <Splitter.Panel className='term-panel' size={sizes[1]}>
+            <Terminal />
+        </Splitter.Panel>
+    </Splitter>
+}
