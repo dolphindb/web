@@ -31,6 +31,19 @@ interface SessionItem {
     lastActiveTime?: string
 }
 
+
+const script = `nodes=exec name from rpc(getControllerAlias(),getClusterPerf) where mode not in (1,2) and state=1
+if (count(nodes)>1){
+    nodesSessionMemoryStat=pnodeRun(getSessionMemoryStat,nodes)
+}
+else{
+    nodesSessionMemoryStat = table(1:0,\`userId\`sessionId\`memSize\`remoteIP\`remotePort\`createTime\`lastActiveTime\`node,["STRING","LONG","LONG","IPADDR","INT","TIMESTAMP","timestamp","STRING"])
+}
+crtSessionMemoryStat=rpc(getControllerAlias(),getSessionMemoryStat)
+update crtSessionMemoryStat set node=getControllerAlias()
+nodesSessionMemoryStat.append!(crtSessionMemoryStat)`
+
+
 export function SessionManagement () {
     
     const { admin, logined, node_type } = model.use(['admin', 'logined', 'node_type'])
@@ -38,24 +51,22 @@ export function SessionManagement () {
     /** 控制节点展所有节点的 session 信息，其他节点仅展示当前节点的 session 信息 */
     const is_controller = node_type === NodeType.controller
     const [filtered_data, set_filtered_data] = useState<SessionItem[]>([ ])
+    const [type, set_type] = useState<'all' | 'system' | 'user'>('all')
     
     const { data = [ ], isLoading, mutate } = useSWR(
         admin ? 'session_list' : null,
         async () => {
             const res = is_controller 
-                ? await model.ddb.execute<SessionItem[]>(`
-                    nodes=exec name from rpc(getControllerAlias(),getClusterPerf) where mode not in (1,2) and state=1
-                    nodesSessionMemoryStat=pnodeRun(getSessionMemoryStat,nodes)
-                    crtSessionMemoryStat=rpc(getControllerAlias(),getSessionMemoryStat)
-                    update crtSessionMemoryStat set node=getControllerAlias()
-                    nodesSessionMemoryStat.append!(crtSessionMemoryStat)
-                `)
+                ? await model.ddb.execute<SessionItem[]>(script)
                 : await model.ddb.invoke<SessionItem[]>('getSessionMemoryStat')
-            const data = (res ?? []).map(item => ({
+            const data = (res ?? [ ]).map(item => ({
                 ...item,    
                 type: item.sessionId ? 'user' : 'system'
             }))
-            set_filtered_data(data)
+            if (['system', 'user'].includes(type))
+                set_filtered_data(data.filter(item => item.type === type))
+            else
+                set_filtered_data(data)
             return data
         }
     )
@@ -85,6 +96,7 @@ export function SessionManagement () {
                    {t('会话类型：')}
                    <Select 
                         onSelect={type => {
+                            set_type(type as 'all' | 'system' | 'user')
                             if (['system', 'user'].includes(type))
                                 set_filtered_data(data.filter(item => item.type === type))
                             else
@@ -103,13 +115,15 @@ export function SessionManagement () {
                     {t('共 {{count}} 条会话，总占用内存 {{memory}}', { count: filtered_data.length, memory: sum(filtered_data.map(item => Number(item.memSize))).to_fsize_str() })}
                 </div>
             </>
-                
             }
             title={t('会话管理')}
-            scroll={{ x: '100%', y: 'calc(100vh - 220px)' }}
+            scroll={{ x: '100%', y: 'calc(100vh - 280px)' }}
             rowKey={() => genid()}
             loading={isLoading}
             dataSource={filtered_data} 
+            pagination={{
+                defaultPageSize: 20
+            }}
             columns={[
                 ...(is_controller ? [{
                     title: t('节点'),
