@@ -29,11 +29,12 @@ export function DashboardSurface ({ widget: { config = { } as SurfaceOptions }, 
         return null
     
     const { rows, cols, data } = data_source.data as any as MatrixData
+    const { options } = model
     
     return <Surface
         data={{
-            x: rows?.data(),
-            y: cols?.data(),
+            x: cols?.data(options),
+            y: rows?.data(options),
             z: data
         }}
         options={roptions.current}
