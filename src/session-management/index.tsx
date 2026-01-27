@@ -2,14 +2,14 @@ import './index.scss'
 import useSWR from 'swr'
 
 import { useCallback, useState } from 'react'
-import { Form, Popconfirm, Result, Select, Typography } from 'antd'
+import { Popconfirm, Result, Select, Typography } from 'antd'
 
 
 import { genid } from 'xshell/utils.browser'
 
 import { DdbLong } from 'dolphindb/browser'
 
-import { sum, uniq } from 'lodash'
+import { sum } from 'lodash'
 
 import dayjs from 'dayjs'
 
@@ -90,10 +90,8 @@ export function SessionManagement () {
                    {t('会话类型：')}
                    <Select 
                         onSelect={type => {
-                            if (type === 'system')
-                                set_filtered_data(data.filter(item => item.type === 'system'))
-                            else if (type === 'user')
-                                set_filtered_data(data.filter(item => item.type === 'user'))
+                            if (['system', 'user'].includes(type))
+                                set_filtered_data(data.filter(item => item.type === type))
                             else
                                 set_filtered_data(data)
                         }}
@@ -179,7 +177,7 @@ export function SessionManagement () {
                     >
                         <Typography.Link type='danger'>{t('关闭')}</Typography.Link>
                     </Popconfirm> : null
-            }]
+                }]
             }
         /> 
     </div>
