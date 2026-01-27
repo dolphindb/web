@@ -87,42 +87,25 @@ export function SessionManagement () {
             className='session-management-table'
             filter_form={
                 <>
-                    <Form<SessionFilterFormValues> 
-                    layout='inline' 
-                    onValuesChange={(_changed_values, values) => {
-                        const { type, remoteIP = [ ] } = values
-                        if (!type && !remoteIP.length)
-                            return data
-                        set_filtered_data(data.filter(item => {
-                            if (['system', 'user'].includes(type) && item.type !== type) 
-                                return false
-                            
-                            if (remoteIP.length && !remoteIP.includes(item.remoteIP)) 
-                                return false
-                            return true
-                        }))
-                        
-                }}>
-                    <Form.Item initialValue='all' name='type' label={t('会话类型')}>
-                        <Select 
-                            className='session-form-select' 
-                            options={[
-                                { label: t('所有会话'), value: 'all' },
-                                { label: t('系统缓存'), value: 'system' }, 
-                                { label: t('用户会话'), value: 'user' }
-                            ]}
-                        />
-                    </Form.Item>
-                    <Form.Item name='remoteIP' label={t('节点')}>
-                        <Select 
-                            className='session-form-select' 
-                            mode='multiple'
-                            options={uniq(data.map(item => item.remoteIP)).map(item => ({ label: item, value: item }))} 
-                            allowClear
-                            maxTagCount='responsive'
-                        />
-                    </Form.Item>
-                </Form>
+                   {t('会话类型：')}
+                   <Select 
+                        onSelect={type => {
+                            if (type === 'system')
+                                set_filtered_data(data.filter(item => item.type === 'system'))
+                            else if (type === 'user')
+                                set_filtered_data(data.filter(item => item.type === 'user'))
+                            else
+                                set_filtered_data(data)
+                        }}
+                        className='session-form-select' 
+                        defaultValue='all'
+                        options={[
+                            { label: t('所有会话'), value: 'all' },
+                            { label: t('系统缓存'), value: 'system' }, 
+                            { label: t('用户会话'), value: 'user' }
+                        ]}
+                    />
+                
                 <div className='session-summary'>
                     {t('共 {{count}} 条会话，总占用内存 {{memory}}', { count: filtered_data.length, memory: sum(filtered_data.map(item => Number(item.memSize))).to_fsize_str() })}
                 </div>
