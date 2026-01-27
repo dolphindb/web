@@ -20,11 +20,6 @@ import { DDBTable } from '@components/DDBTable/index.tsx'
 import { model, NodeType } from '@/model.ts'
 import { Unlogin } from '@/components/Unlogin.tsx'
 
-interface SessionFilterFormValues {
-    type?: 'all' | 'system' | 'user'
-    remoteIP?: string[]
-}
-
 interface SessionItem {
     userId: string
     sessionId?: bigint
