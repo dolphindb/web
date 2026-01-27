@@ -1980,13 +1980,22 @@ go
 name = "levelFileIndexCacheStatus"
 displayName = "TSDB 索引内存占用"
 group = "1"
-desc = "检查数据节点 TSDB 索引内存占用是否超过 TSDBLevelFileIndexCacheSize 配置值 * 90%。"
+desc = "检查数据节点 TSDB 索引内存占用是否超过 TSDBLevelFileIndexCacheSize 配置值 + 0.02 的阈值倍数。"
 nodes = [0]
 script = '
 def levelFileIndexCacheStatus(params) {
     res = getLevelFileIndexCacheStatus()
-    if (res["usage"] > res["capacity"] * 0.9) {
-        throw (false, "level file 索引使用的内存 " + res["usage"] + " 字节大于上限 " + res["capacity"] + " 字节 * 90%", "调大 TSDBLevelFileIndexCacheSize 配置值。")
+    thresholdRatio = double(getConfig("TSDBLevelFileIndexCacheSize")) + 0.02
+    if (thresholdRatio <= 0) {
+        maxMemSize = double(getConfig("maxMemSize"))
+        thresholdRatio = 0.05 * maxMemSize
+    } else if (thresholdRatio >= 1) {
+        thresholdRatio = 1
+    }
+    if (res["usage"] > res["capacity"] * thresholdRatio) {
+        throw(false,
+            "level file 索引使用的内存 " + res["usage"] + " 字节大于上限 " + res["capacity"] + " 字节 * " + string(thresholdRatio),
+            "调大 TSDBLevelFileIndexCacheSize 配置值。")
     }
     return (true, NULL, NULL)
 }
