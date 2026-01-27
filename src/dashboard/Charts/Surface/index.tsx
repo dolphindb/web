@@ -3,9 +3,10 @@ import { useRef } from 'react'
 
 import { t } from '@i18n'
 import { model } from '@model'
+import { Surface, axises, type SurfaceOptions } from '@components/Surface.tsx'
 import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 import { TitleFields } from '@/dashboard/ChartFormFields/components/Title.tsx'
-import { Surface, axises, type SurfaceOptions } from '@components/Surface.tsx'
+import type { MatrixData } from '@/dashboard/type.ts'
 
 
 export function DashboardSurface ({ widget: { config = { } as SurfaceOptions }, data_source }: GraphComponentProps) {
@@ -24,9 +25,17 @@ export function DashboardSurface ({ widget: { config = { } as SurfaceOptions }, 
         rconfig.current = config as SurfaceOptions
     }
     
+    if (!(data_source?.data as any)?.data)
+        return null
+    
+    const { rows, cols, data } = data_source.data as any as MatrixData
+    
     return <Surface
-        // data_source.data 是 { data: number[][], row_labels: string[], col_labels: string[] }
-        data={(data_source.data as any)?.data}
+        data={{
+            x: rows?.data(),
+            y: cols?.data(),
+            z: data
+        }}
         options={roptions.current}
         assets_root={model.assets_root} />
 }

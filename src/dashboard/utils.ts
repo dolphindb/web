@@ -10,7 +10,7 @@ import dayjs from 'dayjs'
 import { t } from '@i18n'
 
 import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.js'
-import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
+import { type AxisConfig, type IChartConfig, type ISeriesConfig, type MatrixData } from './type.js'
 import { subscribe_data_source, type DataSource, get_data_source } from './DataSource/date-source.js'
 import { AxisType, ILineType, MarkPresetType, ThresholdShowType, ThresholdType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
@@ -73,11 +73,11 @@ function formatter (type: DdbType, values, le: boolean, index: number, options =
 
 export function sql_formatter (obj: DdbObj<DdbValue>, max_line?: number): any {
     switch (obj.form) {
-        case DdbForm.matrix:
+        case DdbForm.matrix: {
             // 行数、列数
             const { cols: col_num, rows: row_num, value } = obj
             // 行标签、列标签与数据
-            const { cols: col_label, rows: row_babel, data } = value as DdbMatrixValue
+            const { cols, rows, data } = value as DdbMatrixValue
             let matrix_data = [ ]
             for (let i = 0;  i < row_num;  i++) { 
                 let row_data = [ ]
@@ -94,13 +94,17 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line?: number): any {
                     labels.push(formati(obj, i))
                 return labels        
             }
+            
             return {
                 data: matrix_data,
-                col_labels: convert_labels(col_num, col_label) ?? Array.from(new Array(col_num).keys()),
-                row_labels: convert_labels(row_num, row_babel) ?? Array.from(new Array(row_num).keys())
-            }
+                rows,
+                cols,
+                row_labels: convert_labels(row_num, rows) ?? Array.from(new Array(row_num).keys()),
+                col_labels: convert_labels(col_num, cols) ?? Array.from(new Array(col_num).keys())
+            } satisfies MatrixData
+        }
         
-        case DdbForm.table:
+        case DdbForm.table: {
             const array_vectors = { }
             let rows = [ ]
             let le = obj.le
@@ -139,6 +143,7 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line?: number): any {
             }
             
             return rows
+        }
         
         default:
             throw new Error(t('返回结果必须是 table 或 matrix'))
@@ -247,7 +252,7 @@ export function convert_chart_config (
 ) {
     const { config } = widget
     
-    const { title, title_size, splitLine, xAxis = { }, series = [ ], yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, thresholds = [ ] } = config as IChartConfig
+    const { title, title_size, splitLine, xAxis = { } as any, series = [ ], yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, thresholds = [ ] } = config as IChartConfig
     
     function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
