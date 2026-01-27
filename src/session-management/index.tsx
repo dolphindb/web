@@ -51,8 +51,8 @@ export function SessionManagement () {
                     nodesSessionMemoryStat.append!(crtSessionMemoryStat)
                 `)
                 : await model.ddb.invoke<SessionItem[]>('getSessionMemoryStat')
-            const data = res.map(item => ({
-                ...item,
+            const data = (res ?? []).map(item => ({
+                ...item,    
                 type: item.sessionId ? 'user' : 'system'
             }))
             set_filtered_data(data)
