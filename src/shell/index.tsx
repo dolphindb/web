@@ -165,11 +165,20 @@ function RightPanel () {
                 set_markdown(
                     await model.ddb.invoke(fn))
             } catch (error) {
-                if (!error.message.includes(`Can't recognize function name ${fn}`))
-                    throw error
+                const { message } = error as Error
                 
-                if (model.dev)
-                    console.log('获取 markdown 出错了:', error.message)
+                // 忽略函数未定义和无权限
+                if (
+                    message.includes(`Can't recognize function name ${fn}`) ||
+                    message.includes(`No access to view ${fn}`)
+                ) {
+                    if (model.dev)
+                        console.log('获取 markdown 出错了:', error.message)
+                    
+                    return
+                }
+                
+                throw error
             }
         })()
     }, [ ])
