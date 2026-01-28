@@ -151,6 +151,8 @@ export function Shell () {
 
 
 function RightPanel () {
+    let { logined } = model.use(['logined'])
+    
     let [sizes, set_sizes] = useState<(number | string)[]>(['30%', '70%'])
     
     let [markdown, set_markdown] = useState('')
@@ -181,7 +183,7 @@ function RightPanel () {
                 throw error
             }
         })()
-    }, [ ])
+    }, [logined])
     
     return <Splitter
         className='right-panel'
