@@ -154,7 +154,9 @@ export function SessionManagement () {
             loading={isLoading}
             dataSource={filter_data} 
             pagination={{
-                defaultPageSize: 20
+                defaultPageSize: 20,
+                showSizeChanger: true,
+                showQuickJumper: true,
             }}
             columns={[
                 ...(is_controller ? [{
