@@ -172,7 +172,7 @@ export function SessionManagement () {
                 {
                     title: t('会话 ID'),
                     dataIndex: 'sessionId',
-                    width: 150,
+                    width: 200,
                     ellipsis: true,
                     render: (value: bigint) =>  value ? value.toString() : null
                 },
