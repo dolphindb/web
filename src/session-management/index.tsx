@@ -41,7 +41,9 @@ else{
 }
 crtSessionMemoryStat=rpc(getControllerAlias(),getSessionMemoryStat)
 update crtSessionMemoryStat set node=getControllerAlias()
-nodesSessionMemoryStat.append!(crtSessionMemoryStat)`
+nodesSessionMemoryStat.append!(crtSessionMemoryStat)
+nodesSessionMemoryStat
+`
 
 
 export function SessionManagement () {
