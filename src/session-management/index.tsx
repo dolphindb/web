@@ -139,7 +139,7 @@ export function SessionManagement () {
                                 mode='multiple'
                                 options={
                                     unique(data.map(item => item.node))
-                                    .map(node => to_option)}
+                                    .map(to_option)}
                             />
                         </Form.Item>}
                     </Form>
