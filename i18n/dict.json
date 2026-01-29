@@ -6044,15 +6044,6 @@
     "获取文件列表失败或仓库为空": {
         "en": "Failed to get file list or repository is empty"
     },
-    "加载中...": {
-        "en": "Loading... "
-    },
-    "已加载全部仓库": {
-        "en": " All repos loaded "
-    },
-    "正在加载仓库列表...": {
-        "en": " Loading repo list... "
-    },
     "只支持在 HTTPS 下使用该登录方式": {
         "en": "This login method is only supported under HTTPS."
     },
@@ -6735,6 +6726,15 @@
         "en": "{{axis}} axis name",
         "ja": "",
         "ko": ""
+    },
+    "加载中...": {
+        "en": "Loading... "
+    },
+    "已加载全部仓库": {
+        "en": " All repos loaded "
+    },
+    "正在加载仓库列表...": {
+        "en": " Loading repo list... "
     },
     "会话类型：": {
         "en": "Session type: ",
