@@ -1,18 +1,19 @@
-.session-management-table {
-    height: 100%;
-    padding: 0px !important;
-}
-
 .session-management {
     height: 100%;
     padding: 0px 10px;
+    
+    .session-management-table {
+        height: 100%;
+        padding: 0px !important;
+    }
+    
+    .session-summary {
+        text-align: end;
+        color: var(--ant-color-text-secondary);
+    }
+    
+    .session-form-select {
+        width: 200px !important;
+    }
 }
 
-.session-form-select {
-    width: 200px !important;
-}
-
-.session-summary {
-    text-align: end;
-    color: var(--ant-color-text-secondary);
-}

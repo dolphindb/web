@@ -35,7 +35,7 @@ import SvgPlugins from '@/plugins/plugins.icon.svg'
 import SvgDataCollection from '@/data-collection/icons/data-collection.icon.svg'
 import SvgConnection from '@/data-collection/icons/connection.icon.svg'
 import SvgParserTemplate from '@/data-collection/icons/parser-template.icon.svg'
-import SvgSession from '@/access/icons/session.icon.svg'
+import SvgSession from '@/session-management/icons/session.icon.svg'
 import SvgStreamingGraph from '@/streaming-graph/flow.icon.svg'
 
 
