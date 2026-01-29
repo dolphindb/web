@@ -112,7 +112,7 @@ export function SessionManagement () {
         return <Unlogin info={t('会话管理')} />
     
     if (!admin)
-        return <Result status='warning' title='仅管理员可使用会话管理功能'/>
+        return <Result status='warning' title={t('仅管理员可使用会话管理功能')}/>
    
     
     return <div className='session-management'>
