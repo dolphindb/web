@@ -167,6 +167,8 @@ function RightPanel () {
                 set_markdown(
                     await model.ddb.invoke(fn))
             } catch (error) {
+                set_markdown('')
+                
                 const { message } = error as Error
                 
                 // 忽略函数未定义和无权限
