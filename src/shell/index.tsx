@@ -151,6 +151,8 @@ export function Shell () {
 
 
 function RightPanel () {
+    let { username } = model.use(['username'])
+    
     let [sizes, set_sizes] = useState<(number | string)[]>(['30%', '70%'])
     
     let [markdown, set_markdown] = useState('')
@@ -165,14 +167,23 @@ function RightPanel () {
                 set_markdown(
                     await model.ddb.invoke(fn))
             } catch (error) {
-                if (!error.message.includes(`Can't recognize function name ${fn}`))
-                    throw error
+                const { message } = error as Error
                 
-                if (model.dev)
-                    console.log('获取 markdown 出错了:', error.message)
+                // 忽略函数未定义和无权限
+                if (
+                    message.includes(`Can't recognize function name ${fn}`) ||
+                    message.includes(`No access to view ${fn}`)
+                ) {
+                    if (model.dev)
+                        console.log('获取 markdown 出错了:', error.message)
+                    
+                    return
+                }
+                
+                throw error
             }
         })()
-    }, [ ])
+    }, [username])
     
     return <Splitter
         className='right-panel'
