@@ -208,7 +208,7 @@ export function SessionManagement () {
                     width: 200,
                     showSorterTooltip: false,
                     sorter: (a: SessionItem, b: SessionItem) => dayjs(a.lastActiveTime).valueOf() - dayjs(b.lastActiveTime).valueOf()
-                },,
+                },
                 {
                     title: t('操作'),
                     fixed: 'right',
