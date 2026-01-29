@@ -1,4 +1,4 @@
-import type { DdbType } from 'dolphindb/browser.js'
+import type { DdbType, DdbVectorObj } from 'dolphindb/browser.js'
 
 import { type ITimeFormat, type AxisType, type ILineType, type Position, type ThresholdType, type ThresholdShowType } from './ChartFormFields/type.js'
 
@@ -271,6 +271,8 @@ export interface IGaugeConfig {
 
 export interface MatrixData {
     data: number[][]
+    rows: DdbVectorObj
+    cols: DdbVectorObj
     row_labels: string[]
     col_labels: string[]
 }

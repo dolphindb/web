@@ -1,132 +1,48 @@
-import './index.sass'
-
-import { useEffect, useRef } from 'react'
 import { Collapse, Form, Input } from 'antd'
-import { useSize } from 'ahooks'
-
-import { delay, load_script } from 'xshell/utils.browser.js'
+import { useRef } from 'react'
 
 import { t } from '@i18n'
-import { dark_background } from '@theme'
 import { model } from '@model'
-import type { GraphComponentProps } from '@/dashboard/graphs.ts'
+import { Surface, axises, type SurfaceOptions } from '@components/Surface.tsx'
+import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 import { TitleFields } from '@/dashboard/ChartFormFields/components/Title.tsx'
+import type { MatrixData } from '@/dashboard/type.ts'
 
 
-let Plotly: typeof import('plotly.js-dist-min')
-
-
-export function Surface ({ widget, data_source }: GraphComponentProps) {
-    const config = widget.config as ISurfaceConfig
+export function DashboardSurface ({ widget: { config = { } as SurfaceOptions }, data_source }: GraphComponentProps) {
+    let rconfig = useRef<SurfaceOptions>({ } as SurfaceOptions)
+    let roptions = useRef<SurfaceOptions>({ } as SurfaceOptions)
     
-    const { data } = data_source
-    
-    let rdiv = useRef<HTMLDivElement>(undefined)
-    
-    let size = useSize(rdiv)
-    
-    let rinited = useRef<boolean>(false)
-    
-    
-    useEffect(() => {
-        let { current: div } = rdiv
-        
-        ;(async () => {
-            const pdelay = delay(100)
-            
-            if (!Plotly) {
-                await load_script(`${model.assets_root}vendors/plotly.js-dist-min/plotly.min.js`)
-                ;({ default: Plotly } = await import('plotly.js-dist-min'))
-            }
-            
-            await pdelay
-            
-            Plotly.newPlot(
-                div,
-                get_data(data),
-                get_layout(
-                    { width: div.clientWidth, height: div.clientHeight },
-                    config))
-            
-            rinited.current = true
-        })()
-        
-        return () => { Plotly?.purge(div) }
-    }, [ ])
-    
-    
-    useEffect(() => {
-        if (!rinited.current || !size)
-            return
-        
-        Plotly.react(
-            rdiv.current,
-            get_data(data),
-            get_layout(size, config))
-    }, [size, config, data])
-    
-    return <div className='surface' ref={rdiv} />
-}
-
-
-function get_data (data: any) {
-    return [{
-        type: 'surface',
-        // { data: number[][], row_labels: string[], col_labels: string[] }
-        z: data.data
-    }] satisfies Plotly.Data[]
-}
-
-
-function get_layout (
-    { width, height }: { width: number, height: number },
-    config: ISurfaceConfig
-): Partial<Plotly.Layout> {
-    const { title, title_size } = config
-    
-    return {
-        width,
-        height,
-        
-        title: {
-            yanchor: 'top',
-            y: 5,
-            text: title,
-            font: {
-                color: '#ffffff',
-                size: title_size || 13
-            }
-        },
-        
-        scene: Object.fromEntries(
-            axises.map(a => {
-                const axis = `${a}axis`
-                
-                return [axis, {
-                    title: { text: config[axis] },
-                    gridcolor: '#888888'
-                } satisfies Partial<Plotly.SceneAxis>]
-            })),
-        
-        margin: {
-            l: 0,
-            r: 0,
-            b: 0,
-            t: 35
-        },
-        
-        paper_bgcolor: dark_background, // 图表外部背景
-        plot_bgcolor: dark_background, // 绘图区域背景
-        font: {
-            // 默认文字颜色
-            color: '#ffffff',
-            ... model.shf ? { family: 'MyFont' } : { }
+    // widget.config 更新后，重新计算 options，不用 useState 避免无效渲染
+    // widget.config 未更新时，复用之前计算的 roptions，保证传递给 Surface 的 options 引用不变
+    if (config !== rconfig.current) {
+        roptions.current = {
+            dark: true,
+            ... config,
+            ... model.shf ? { font: 'MyFont' } : { }
         }
+        
+        rconfig.current = config as SurfaceOptions
     }
+    
+    if (!(data_source?.data as any)?.data)
+        return null
+    
+    const { rows, cols, data } = data_source.data as any as MatrixData
+    const { options } = model
+    
+    return <Surface
+        data={{
+            x: cols?.data(options),
+            y: rows?.data(options),
+            z: data
+        }}
+        options={roptions.current}
+        assets_root={model.assets_root} />
 }
 
 
-export function SurfaceConfig () {
+export function SurfaceConfig (props: GraphConfigProps) {
     return <Collapse
         items={[
             {
@@ -135,26 +51,13 @@ export function SurfaceConfig () {
                 forceRender: true,
                 children: <div className='axis-wrapper'>
                     <TitleFields />
-                    {axises.map(a => 
+                    {axises.map(a =>
                         <AxisNameField axis={a} key={a} />)}
                 </div>
             }
         ]}
     />
 }
-
-
-export interface ISurfaceConfig {
-    title?: string
-    title_size?: number
-    
-    xaxis?: string
-    yaxis?: string
-    zaxis?: string
-}
-
-
-const axises = ['x', 'y', 'z'] as const
 
 
 function AxisNameField ({ axis }: { axis: 'x' | 'y' | 'z' }) {

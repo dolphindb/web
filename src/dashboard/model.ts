@@ -25,6 +25,7 @@ import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextCon
 import type { IConfigurationConfig } from './Charts/Configuration/index.tsx'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.ts'
+import type { SurfaceOptions } from '@components/Surface.tsx'
 
 
 /** 0 表示隐藏dashboard（未查询到结果、 server 版本为 v1 或 language 非中文），1 表示没有初始化，2 表示已经初始化，3 表示为控制节点 */
@@ -623,7 +624,7 @@ export interface Widget extends GridStackNode {
     update_graph?: (data: DataType) => void
     
     /** 图表配置 */
-    config?: (IHeatMapChartConfig | IChartConfig | ITableConfig | ITextConfig | IEditorConfig | IGaugeConfig | IOrderBookConfig | IConfigurationConfig) & {
+    config?: (IHeatMapChartConfig | IChartConfig | ITableConfig | ITextConfig | IEditorConfig | IGaugeConfig | IOrderBookConfig | IConfigurationConfig | SurfaceOptions) & {
         variable_ids?: string[]
         variable_cols?: number
         with_search_btn?: boolean

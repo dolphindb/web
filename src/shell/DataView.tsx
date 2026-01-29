@@ -26,12 +26,21 @@ export function DataView () {
             
             const { data } = result
             
+            // local
+            // if (data.form === DdbForm.chart) {
+            //     let v = (data as DdbObj).value as DdbChartValue
+            //     v.type = DdbChartType.surface
+            // }
+            
             return <Obj
                 ddb={model.ddb}
                 ctx='embed'
                 options={options}
                 ExportCsv={ExportCsv}
                 product_name={product_name}
+                assets_root={model.assets_root}
+                font={model.shf ? 'MyFont' : undefined}
+                dark={false}
                 {...type === 'object' ?
                     { obj: data as DdbObj<DdbValue> }
                 :

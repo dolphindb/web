@@ -9,6 +9,15 @@ export function DataView () {
     const { options, product_name } = model.use(['options', 'product_name'])
     
     return <div className='dataview obj-result embed'>{
-        result ? <Obj obj={result.data} ddb={model.ddb} ctx='dashboard' options={options} product_name={product_name} /> : null
+        Boolean(result) && <Obj
+            obj={result.data}
+            ddb={model.ddb}
+            ctx='dashboard'
+            options={options}
+            product_name={product_name}
+            assets_root={model.assets_root}
+            font={model.shf ? 'MyFont' : undefined}
+            dark
+        />
     }</div>
 }
