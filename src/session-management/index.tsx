@@ -5,11 +5,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { Form, Popconfirm, Result, Select, Typography } from 'antd'
 
 
-import { genid } from 'xshell/utils.browser'
+import { genid, to_option, unique } from 'xshell/utils.browser.js'
 
-import { DdbLong } from 'dolphindb/browser'
-
-import { sum, uniq } from 'lodash'
+import { DdbLong } from 'dolphindb/browser.js'
 
 import dayjs from 'dayjs'
 
@@ -35,18 +33,19 @@ interface SessionItem {
 }
 
 
-const controller_script = `nodes=exec name from rpc(getControllerAlias(),getClusterPerf) where mode not in (1,2) and state=1
-if (count(nodes)>1){
-    nodesSessionMemoryStat=pnodeRun(getSessionMemoryStat,nodes)
-}
-else{
-    nodesSessionMemoryStat = table(1:0,\`userId\`sessionId\`memSize\`remoteIP\`remotePort\`createTime\`lastActiveTime\`node,["STRING","LONG","LONG","IPADDR","INT","TIMESTAMP","timestamp","STRING"])
-}
-crtSessionMemoryStat=rpc(getControllerAlias(),getSessionMemoryStat)
-update crtSessionMemoryStat set node=getControllerAlias()
-nodesSessionMemoryStat.append!(crtSessionMemoryStat)
-nodesSessionMemoryStat
-` 
+const controller_script =
+    '    nodes=exec name from rpc(getControllerAlias(),getClusterPerf) where mode not in (1,2) and state=1\n' +
+    '    if (count(nodes)>1){\n' +
+    '        nodesSessionMemoryStat=pnodeRun(getSessionMemoryStat,nodes)\n' +
+    '    }\n' +
+    '    else{\n' +
+    '        nodesSessionMemoryStat = table(1:0,`userId`sessionId`memSize`remoteIP`remotePort`createTime`lastActiveTime`node,["STRING","LONG","LONG","IPADDR","INT","TIMESTAMP","timestamp","STRING"])\n' +
+    '    }\n' +
+    '    crtSessionMemoryStat=rpc(getControllerAlias(),getSessionMemoryStat)\n' +
+    '    update crtSessionMemoryStat set node=getControllerAlias()\n' +
+    '    nodesSessionMemoryStat.append!(crtSessionMemoryStat)\n' +
+    '    nodesSessionMemoryStat\n' +
+    '    \n'
 
 interface FilterFormValues {
     type: 'all' | 'system' | 'user'
@@ -56,7 +55,6 @@ interface FilterFormValues {
 
 
 export function SessionManagement () {
-    
     const { admin, logined, node_type } = model.use(['admin', 'logined', 'node_type'])
     
     const [form] = Form.useForm<FilterFormValues>()
@@ -73,7 +71,7 @@ export function SessionManagement () {
                 ? await model.ddb.execute<SessionItem[]>(controller_script)
                 : await model.ddb.invoke<SessionItem[]>('getSessionMemoryStat')
             const data = (res ?? [ ]).map(item => ({
-                ...item,    
+                ...item,
                 type: item.sessionId ? 'user' as const : 'system' as const
             }))
             return data 
@@ -113,7 +111,7 @@ export function SessionManagement () {
     
     if (!admin)
         return <Result status='warning' title='仅管理员可使用会话管理功能'/>
-   
+    
     
     return <div className='session-management'>
         <DDBTable 
@@ -137,14 +135,24 @@ export function SessionManagement () {
                                 allowClear
                                 className='session-form-select' 
                                 mode='multiple'
-                                options={ uniq(data.map(item => item.node)).map(node => ({ label: node, value: node }))}
+                                options={
+                                    unique(data.map(item => item.node))
+                                    .map(node => to_option)}
                             />
                         </Form.Item>}
                     </Form>
                    
                 
                 <div className='session-summary'>
-                    {t('共 {{count}} 条会话，总占用内存 {{memory}}', { count: filter_data.length, memory: upper(sum(filter_data.map(item => Number(item.memSize))).to_fsize_str()) })}
+                    {t('共 {{count}} 条会话，总占用内存 {{memory}}', {
+                        count: filter_data.length,
+                        memory: upper(
+                                filter_data.map(item => Number(item.memSize))
+                                    .sum(0)
+                                    .to_fsize_str()
+                            )
+                        }
+                    )}
                 </div>
             </>
             }
@@ -208,7 +216,7 @@ export function SessionManagement () {
                     width: 200,
                     showSorterTooltip: false,
                     sorter: (a: SessionItem, b: SessionItem) => dayjs(a.lastActiveTime).valueOf() - dayjs(b.lastActiveTime).valueOf()
-                },,
+                },
                 {
                     title: t('操作'),
                     fixed: 'right',
