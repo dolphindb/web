@@ -176,8 +176,8 @@ function RightPanel () {
                     message.includes(`Can't recognize function name ${fn}`) ||
                     message.includes(`No access to view ${fn}`)
                 ) {
-                    if (model.dev)
-                        console.log('获取 markdown 出错了:', error.message)
+                    // if (model.dev)
+                    //     console.log('获取 markdown 出错了:', error.message)
                     
                     return
                 }
