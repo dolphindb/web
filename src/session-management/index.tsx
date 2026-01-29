@@ -159,6 +159,7 @@ export function SessionManagement () {
             </>
             }
             title={t('会话管理')}
+            big_title
             scroll={{ x: '100%', y: 'calc(100vh - 280px)' }}
             rowKey={() => genid()}
             loading={isLoading}

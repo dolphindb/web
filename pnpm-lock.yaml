@@ -132,8 +132,8 @@ importers:
         specifier: ^9.3.2
         version: 9.3.2
       xshell:
-        specifier: ^1.3.34
-        version: 1.3.34(react-dom@19.2.4(react@19.2.4))
+        specifier: ^1.3.35
+        version: 1.3.35(react-dom@19.2.4(react@19.2.4))
     devDependencies:
       '@types/js-cookie':
         specifier: ^3.0.6
@@ -145,8 +145,8 @@ importers:
         specifier: ^4.17.23
         version: 4.17.23
       '@types/node':
-        specifier: ^25.0.10
-        version: 25.0.10
+        specifier: ^25.1.0
+        version: 25.1.0
       '@types/plotly.js-dist-min':
         specifier: ^2.3.4
         version: 2.3.4
@@ -1657,8 +1657,8 @@ packages:
   '@types/node-sass@4.11.3':
     resolution: {integrity: sha512-wXPCn3t9uu5rR4zXNSLasZHQMuRzUKBsdi4MsgT8uq4Lp1gQQo+T2G23tGj4SSgDHeNBle6vGseZtM2XV/X9bw==}
 
-  '@types/node@25.0.10':
-    resolution: {integrity: sha512-zWW5KPngR/yvakJgGOmZ5vTBemDoSqF3AcV/LrO5u5wTWyEAVVh+IT39G4gtyAkh3CtTZs8aX/yRM82OfzHJRg==}
+  '@types/node@25.1.0':
+    resolution: {integrity: sha512-t7frlewr6+cbx+9Ohpl0NOTKXZNV9xHRmNOvql47BFJKcEG1CxtxlPEEe+gR9uhVWM4DwhnvTF110mIL4yP9RA==}
 
   '@types/plotly.js-dist-min@2.3.4':
     resolution: {integrity: sha512-ISwLFV6Zs/v3DkaRFLyk2rvYAfVdnYP2VVVy7h+fBDWw52sn7sMUzytkWiN4M75uxr1uz1uiBioePTDpAfoFIg==}
@@ -3996,10 +3996,6 @@ packages:
     resolution: {integrity: sha512-jdcWhqJjxyYxRcXa30qImF3PZea1GpNwdKxUac28T28+GodptH4XihPuRlgCY0hITIEQVnw8DtQ81Fb6fomBaw==}
     engines: {node: '>=10'}
 
-  source-map-js@1.0.2:
-    resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
-    engines: {node: '>=0.10.0'}
-
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
@@ -4437,8 +4433,8 @@ packages:
     resolution: {integrity: sha512-3sFIGLiaDP7rTO4xh3g+b3AzhYDIUGGywE/WsmqzJWDxus5aJXVnPTNC/6L+r2WzrwXqVOdD262OaO+cEyPMSQ==}
     engines: {node: '>=20'}
 
-  xshell@1.3.34:
-    resolution: {integrity: sha512-J9a3FjbW6dWm++BWQSRqWdCXWjepyRK5U9+Gx8/Yv8+xGoSfJnoixTIjQYPbuJkLfo9SW6/4Qvhq0V0s4/EQ7A==}
+  xshell@1.3.35:
+    resolution: {integrity: sha512-E9I3H3yy8f/WkofC7CRyCF7bSRAby7oaZu2gUOIMpDZvd0qzCAa+kmXHIKFn46tZW/jYvoXrGbbZNdhVoMEt1g==}
     hasBin: true
 
   xtend@4.0.2:
@@ -6229,16 +6225,16 @@ snapshots:
 
   '@types/accepts@1.3.5':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.1.0
 
   '@types/body-parser@1.19.2':
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 25.0.10
+      '@types/node': 25.1.0
 
   '@types/connect@3.4.35':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.1.0
 
   '@types/content-disposition@0.5.5': {}
 
@@ -6247,7 +6243,7 @@ snapshots:
       '@types/connect': 3.4.35
       '@types/express': 4.17.17
       '@types/keygrip': 1.0.2
-      '@types/node': 25.0.10
+      '@types/node': 25.1.0
 
   '@types/d3-color@3.1.3': {}
 
@@ -6288,7 +6284,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.17.33':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.1.0
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
 
@@ -6324,7 +6320,7 @@ snapshots:
       '@types/http-errors': 2.0.1
       '@types/keygrip': 1.0.2
       '@types/koa-compose': 3.2.5
-      '@types/node': 25.0.10
+      '@types/node': 25.1.0
 
   '@types/lodash@4.17.23': {}
 
@@ -6338,9 +6334,9 @@ snapshots:
 
   '@types/node-sass@4.11.3':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.1.0
 
-  '@types/node@25.0.10':
+  '@types/node@25.1.0':
     dependencies:
       undici-types: 7.16.0
 
@@ -6364,7 +6360,7 @@ snapshots:
 
   '@types/sass-loader@8.0.10':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.1.0
       '@types/node-sass': 4.11.3
       '@types/webpack': 4.41.33
       sass: 1.97.3
@@ -6372,7 +6368,7 @@ snapshots:
   '@types/serve-static@1.15.0':
     dependencies:
       '@types/mime': 3.0.1
-      '@types/node': 25.0.10
+      '@types/node': 25.1.0
 
   '@types/source-list-map@0.1.2': {}
 
@@ -6386,13 +6382,13 @@ snapshots:
 
   '@types/webpack-sources@3.2.0':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.1.0
       '@types/source-list-map': 0.1.2
       source-map: 0.7.4
 
   '@types/webpack@4.41.33':
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.1.0
       '@types/tapable': 1.0.8
       '@types/uglify-js': 3.17.1
       '@types/webpack-sources': 3.2.0
@@ -7100,12 +7096,12 @@ snapshots:
   css-tree@2.2.1:
     dependencies:
       mdn-data: 2.0.28
-      source-map-js: 1.0.2
+      source-map-js: 1.2.1
 
   css-tree@2.3.1:
     dependencies:
       mdn-data: 2.0.30
-      source-map-js: 1.0.2
+      source-map-js: 1.2.1
 
   css-what@6.1.0: {}
 
@@ -7244,7 +7240,7 @@ snapshots:
       dayjs: 1.11.19
       ipaddr.js: 2.3.0
       tslib: 2.8.1
-      xshell: 1.3.34(react-dom@19.2.4(react@19.2.4))
+      xshell: 1.3.35(react-dom@19.2.4(react@19.2.4))
     transitivePeerDependencies:
       - '@rspack/core'
       - '@swc/core'
@@ -8034,7 +8030,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.1.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -9026,7 +9022,7 @@ snapshots:
     dependencies:
       chokidar: 4.0.0
       immutable: 5.0.2
-      source-map-js: 1.0.2
+      source-map-js: 1.2.1
     optionalDependencies:
       '@parcel/watcher': 2.4.1
 
@@ -9136,14 +9132,12 @@ snapshots:
 
   sortobject@4.16.0: {}
 
-  source-map-js@1.0.2: {}
-
   source-map-js@1.2.1: {}
 
   source-map-loader@5.0.0(webpack@5.104.1):
     dependencies:
       iconv-lite: 0.6.3
-      source-map-js: 1.0.2
+      source-map-js: 1.2.1
       webpack: 5.104.1
 
   source-map-support@0.5.21:
@@ -9682,7 +9676,7 @@ snapshots:
       is-wsl: 3.1.0
       powershell-utils: 0.1.0
 
-  xshell@1.3.34(react-dom@19.2.4(react@19.2.4)):
+  xshell@1.3.35(react-dom@19.2.4(react@19.2.4)):
     dependencies:
       '@babel/core': 7.28.6
       '@babel/parser': 7.28.6
