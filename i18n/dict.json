@@ -6765,5 +6765,8 @@
         "en": "System cache / User session",
         "ja": "",
         "ko": ""
+    },
+    "仅管理员可使用会话管理功能": {
+        "en": "Only administrators can use the session management function"
     }
 }
