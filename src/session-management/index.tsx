@@ -34,6 +34,7 @@ interface SessionItem {
 
 
 const controller_script =
+    'def get_nodes_session_memory_stat () {\n' +
     '    nodes=exec name from rpc(getControllerAlias(),getClusterPerf) where mode not in (1,2) and state=1\n' +
     '    if (count(nodes)>1){\n' +
     '        nodesSessionMemoryStat=pnodeRun(getSessionMemoryStat,nodes)\n' +
@@ -44,8 +45,9 @@ const controller_script =
     '    crtSessionMemoryStat=rpc(getControllerAlias(),getSessionMemoryStat)\n' +
     '    update crtSessionMemoryStat set node=getControllerAlias()\n' +
     '    nodesSessionMemoryStat.append!(crtSessionMemoryStat)\n' +
-    '    nodesSessionMemoryStat\n' +
-    '    \n'
+    '    return nodesSessionMemoryStat\n' +
+    '}\n' +
+    'get_nodes_session_memory_stat()\n'
 
 interface FilterFormValues {
     type: 'all' | 'system' | 'user'
