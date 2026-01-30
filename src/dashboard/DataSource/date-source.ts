@@ -230,9 +230,8 @@ export function delete_data_source (source_id: string): number {
 function check_name (source_id: string, new_name: string) {
     if (data_sources.find(data_source => data_source.name === new_name && data_source.id !== source_id)) 
         throw new Error(t('该数据源名已存在'))
-    else if (new_name.length > 10)
-        throw new Error(t('数据源名长度不能大于10'))
-    else if (new_name.length === 0)
+    
+    if (new_name.length === 0)
         throw new Error(t('数据源名不能为空'))
 }
 
