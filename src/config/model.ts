@@ -207,13 +207,14 @@ export const node_configs = {
     ],
     [t('流订阅')]: [
         'maxSubConnections', 'maxSubQueueDepth', 'persistOffsetDir', 'subExecutorPooling', 'subExecutors', 
-        'subPort', 'subThrottle', 'streamingHAMode', 'streamingSQLExecutors', 'maxStreamingSQLQueriesPerTable', 
+        'subPort', 'subThrottle', 'streamingHAMode', 'streamingHALogDir', 'streamingSQLExecutors', 'maxStreamingSQLQueriesPerTable', 
         'streamingRaftLearners', 'streamingRaftGroups', 'crossClusterRaftWorkerNum'
     ],
     [t('系统')]: [
         'console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 
         'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 
-        'enableShellFunction', 'enablePKEYEngine', 'enableInsertStatementForDFSTable'
+        'enableShellFunction', 'enablePKEYEngine', 'enableInsertStatementForDFSTable', 'enableORCA', 'mvccTableRaftGroups',
+        'mvccTableHADir', 'mvccTableCheckpointInterval'
     ],
     [t('计算组')]: [
         'computeNodeCacheDir', 'computeNodeCacheMeta', 'computeNodeMemCacheSize', 'computeNodeDiskCacheSize',
