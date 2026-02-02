@@ -265,7 +265,9 @@ export const controller_configs = ([
     'enableClientAuth',
     'computeNodeCachingDelay',
     'computeNodeCachingQueryThreshold',
-    'enableComputeNodePrefetchData'
+    'enableComputeNodePrefetchData',
+    'enableORCA',
+    'clusterName'
 ] as const).map(to_option)
 
 
