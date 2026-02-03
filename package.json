@@ -41,7 +41,7 @@
         "@xterm/xterm": "5.5.0",
         "@xyflow/react": "^12.10.0",
         "ahooks": "^3.9.6",
-        "antd": "^6.2.2",
+        "antd": "^6.2.3",
         "classnames": "^2.5.1",
         "client-zip": "^2.5.0",
         "copy-to-clipboard": "^3.3.3",

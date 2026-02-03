@@ -6723,9 +6723,7 @@
         "en": "Confirm deletion of stream graph {{name}}? \nThis operation is irreversible."
     },
     "{{axis}} 轴名称": {
-        "en": "{{axis}} axis name",
-        "ja": "",
-        "ko": ""
+        "en": "{{axis}} axis name"
     },
     "加载中...": {
         "en": "Loading... "
@@ -6737,36 +6735,30 @@
         "en": " Loading repo list... "
     },
     "会话类型：": {
-        "en": "Session type: ",
-        "ja": "",
-        "ko": ""
+        "en": "Session type: "
     },
     "所有会话": {
-        "en": "All sessions",
-        "ja": "",
-        "ko": ""
+        "en": "All sessions"
     },
     "系统缓存": {
-        "en": "System cache",
-        "ja": "",
-        "ko": ""
+        "en": "System cache"
     },
     "共 {{count}} 条会话，总占用内存 {{memory}}": {
-        "en": "There are {{count}} sessions, total memory usage is {{memory}}",
-        "ja": "",
-        "ko": ""
+        "en": "There are {{count}} sessions, total memory usage is {{memory}}"
     },
     "共 {{count}} 条会话，总占用内存 {{memory}}_plural": {
-        "en": "There are {{count}} sessions, total memory usage is {{memory}}",
-        "ja": "",
-        "ko": ""
+        "en": "There are {{count}} sessions, total memory usage is {{memory}}"
     },
     "系统缓存/用户会话": {
-        "en": "System cache / User session",
-        "ja": "",
-        "ko": ""
+        "en": "System cache / User session"
     },
     "仅管理员可使用会话管理功能": {
         "en": "Only administrators can use the session management function"
+    },
+    "会话类型": {
+        "en": "Session Type"
+    },
+    "曲面图": {
+        "en": "Surface"
     }
 }
