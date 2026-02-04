@@ -654,7 +654,7 @@ function EngineTableStatsTable ({ engine }: { engine: boolean }) {
     return <DDBTable
         className='publish-stats-table'
         title={engine ? t('流引擎') : t('流表')}
-        help={helps.tables}
+        help={engine ? helps.engines : helps.tables}
         dataSource={metrics}
         size='small'
         rowKey={engine ? 'name' : 'TableName'}
