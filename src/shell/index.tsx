@@ -52,6 +52,9 @@ export function Shell () {
     const [tab_key, set_tab_key] = useState('shell')
     const is_git = tab_key === 'git'
     
+    if (!shell.ddb)
+        shell.init()
+    
     return <>
         {/* 左侧三个面板 */}
         <Resizable

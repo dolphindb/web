@@ -12,10 +12,11 @@ import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { select } from 'xshell/prototype.browser.js'
 import { delta2str, assert, delay, strcmp, defer } from 'xshell/utils.browser.js'
 import { red, blue } from 'xshell/chalk.browser.js'
+import { storage } from 'xshell/storage.js'
 
 import {
-    DdbForm, SqlStandard, type DdbObj, DdbType, type DdbVectorStringObj, type DdbTableObj,
-    type DdbVectorInt, type DdbVectorLong, DdbFunction, DdbFunctionType
+    DDB, DdbForm, SqlStandard, type DdbObj, DdbType, type DdbVectorStringObj, type DdbTableObj,
+    type DdbVectorInt, type DdbVectorLong, DdbFunction, DdbFunctionType, type DdbLanguage
 } from 'dolphindb/browser.js'
 
 
@@ -42,6 +43,11 @@ type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjR
 
 
 class ShellModel extends Model<ShellModel> {
+    language: DdbLanguage
+    
+    /** 当前 language 对应的 DDB 连接 */
+    ddb: DDB
+    
     pterm = defer<Terminal>()
     
     term: Terminal
@@ -96,12 +102,64 @@ class ShellModel extends Model<ShellModel> {
     confirm_command_modal_visible = false
     
     /** 当前打开的 tab */
-    itab = Number(localStorage.getItem(storage_keys.current_tab)) || -1
+    itab = Number(storage.getstr(storage_keys.current_tab)) || -1
     
     /** 所有的 tabs */
     tabs: Tab[] = [ ]
     
     monaco_inited = false
+    
+    
+    init () {
+        this.set_language(
+            storage.getstr(storage_keys.shell_language) || 'dolphindb')
+    }
+    
+    
+    /** 切换编程语言，设置 this.ddb 连接 */
+    set_language (language: DdbLanguage) {
+        if (this.language === language)
+            return this.ddb
+        
+        // 只有首次初始化时跳过设置 localStorage
+        if (this.language) {
+            storage.setstr(storage_keys.shell_language, language)
+            
+            // 可能搞个 ddbs 缓存更好？再说吧
+            if (this.language !== 'dolphindb')
+                this.ddb.disconnect()
+        }
+        
+        const { ddb } = model
+        
+        let ddb_: DDB
+        
+        if (language !== 'dolphindb') {
+            const { username, password, ticket, verbose } = ddb
+            
+            ddb_ = new DDB(ddb.url, {
+                // 如果有 ticket，则认为能够自动登录，并启用，否则禁用，尝试一下用户名密码登录
+                autologin: Boolean(ticket),
+                username,
+                password,
+                ticket,
+                verbose,
+                python: language === 'python',
+                kdb: language === 'kdb'
+            })
+            
+            if (!ticket)
+                ddb_.invoke('login', [username, password])
+                    .catch(error => {
+                        console.log(t('ddb 无 ticket，尝试通过密码 login 失败'))
+                    })
+        }
+        
+        this.set({
+            language,
+            ddb: language === 'dolphindb' ? ddb : ddb_
+        })
+    }
     
     
     truncate_text (lines: string[]) {
@@ -159,7 +217,7 @@ class ShellModel extends Model<ShellModel> {
             // TEST
             // throw new Error('xxxxx. RefId: S00001. xxxx RefId:S00002')
             
-            let ddbobj = await model.ddb.eval(
+            let ddbobj = await this.ddb.eval(
                 `line://${istart}\n` +
                 `${code.replaceAll('\r\n', '\n')}`
             )
@@ -231,7 +289,7 @@ class ShellModel extends Model<ShellModel> {
     
     
     async update_vars () {
-        let objs = await model.ddb.call('objs', [true])
+        let objs = await this.ddb.call('objs', [true])
         
         const vars_data = objs
             .to_rows()
@@ -294,8 +352,8 @@ class ShellModel extends Model<ShellModel> {
         let immutables = vars_data.filter(v => v.form === DdbForm.scalar || v.form === DdbForm.pair)
         
         if (immutables.length) {
-            const { value: values } = await model.ddb.eval<DdbObj<DdbObj[]>>(
-                `(${immutables.map(({ name }) => name).join(', ')}, 0)${model.ddb.python ? '.toddb()' : ''}`
+            const { value: values } = await this.ddb.eval<DdbObj<DdbObj[]>>(
+                `(${immutables.map(({ name }) => name).join(', ')}, 0)${this.ddb.python ? '.toddb()' : ''}`
             )
             
             for (let i = 0;  i < values.length - 1;  i++) {

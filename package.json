@@ -46,7 +46,7 @@
         "client-zip": "^2.5.0",
         "copy-to-clipboard": "^3.3.3",
         "dayjs": "^1.11.19",
-        "dolphindb": "^3.1.37",
+        "dolphindb": "^3.1.38",
         "donaco": "^1.0.9",
         "echarts": "^6.0.0",
         "filenamify": "^7.0.1",
@@ -70,6 +70,6 @@
         "tslib": "^2.8.1",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.3.2",
-        "xshell": "^1.3.38"
+        "xshell": "^1.3.39"
     }
 }

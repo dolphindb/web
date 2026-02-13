@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { Input, Switch, Tooltip } from 'antd'
+import { Input, Select, Switch, Tooltip } from 'antd'
 import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined } from '@ant-design/icons'
 
 import { storage } from 'xshell/storage.js'
@@ -19,10 +19,10 @@ import { ExecuteAction } from './ExecuteAction.tsx'
 
 export function ShellEditor ({ collapser }) {
     const [minimap, set_minimap] = useState(() => 
-        storage.getstr(storage_keys.minimap) === '1')
+        storage.get_bool(storage_keys.minimap))
     
     const [enter_completion, set_enter_completion] = useState(() => 
-        storage.getstr(storage_keys.enter_completion) === '1')
+        storage.get_bool(storage_keys.enter_completion))
     
     const [collapsed, set_collapsed] = useState(false)
     
@@ -129,7 +129,7 @@ export function ShellEditor ({ collapser }) {
                     checked={minimap}
                     onChange={checked => {
                         set_minimap(checked)
-                        localStorage.setItem(storage_keys.minimap, checked ? '1' : '0')
+                        storage.set_bool(storage_keys.minimap, checked)
                     }}
                 />
                 
@@ -139,9 +139,11 @@ export function ShellEditor ({ collapser }) {
                     checked={enter_completion}
                     onChange={checked => {
                         set_enter_completion(checked)
-                        localStorage.setItem(storage_keys.enter_completion, checked ? '1' : '0')
+                        storage.set_bool(storage_keys.enter_completion, checked)
                     }}
                 />
+                
+                <LanguageSelect />
                 
                 <SelectSqlModal/>
             </div>
@@ -428,5 +430,25 @@ function SettingSwitch ({
             />
         </span>
     </Tooltip>
+}
+
+
+function LanguageSelect () {
+    const { language } = shell.use(['language'])
+    
+    return <span className='setting'>
+        <span className='title'>{t('编程语言:')}</span>
+        <Select
+            className='select-language'
+            value={language}
+            size='small'
+            options={[
+                { value: 'dolphindb', label: 'DolphinDB' },
+                { value: 'kdb', label: 'KDB' },
+                { value: 'python', label: 'Python' }
+            ]}
+            onChange={value => { shell.set_language(value) }}
+        />
+    </span>
 }
 

@@ -356,7 +356,7 @@ export async function execute (source_id: string) {
 
 
 async function create_sql_connection (): Promise<DDB> {
-    const { ddb: { url, username, password, ticket } } = model
+    const { url, username, password, ticket } = model.ddb
     
     return new DDB(url, {
         verbose: model.verbose,

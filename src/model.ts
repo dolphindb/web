@@ -1289,6 +1289,7 @@ export const storage_keys = {
     enter_completion: 'ddb.editor.enter_completion',
     sql: 'ddb.sql',
     language: 'ddb.language',
+    shell_language: 'ddb.shell.language',
     dashboard_autosave: 'ddb.dashboard.autosave',
     overview_display_mode: 'ddb.overview.display_mode',
     overview_display_columns: 'ddb.overview.display_columns',

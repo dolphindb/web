@@ -40,9 +40,9 @@ export function SelectSqlModal () {
         <span className='setting sql' title={t('设置当前代码执行的 SQL 标准')}>
             <span className='text' title={t('SQL 标准')}>SQL:</span>
             <Select
+                className='select-sql'
                 value={SqlStandard[model.sql]}
                 size='small'
-                className='select-sql'
                 suffixIcon={<Icon className='arrow-down' component={SvgArrowDown} />}
                 onSelect={ value => {
                     ref_selected_sql.current = value
