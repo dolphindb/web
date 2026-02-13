@@ -83,7 +83,7 @@ export const AccessModal = NiceModal.create<Props>(({ database }) => {
                 width={1000}
                 open={modal.visible}
                 onCancel={modal.hide}
-                maskClosable={false}
+                mask={{ closable: false }}
                 title={t('查看数据库 {{db_name}} 用户权限', { db_name: database.key })}
                 afterClose={modal.remove}
                 footer={null}

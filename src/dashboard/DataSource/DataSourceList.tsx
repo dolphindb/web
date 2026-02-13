@@ -61,7 +61,7 @@ export const CreateDataSourceModal = NiceModal.create(
         return <Modal
             destroyOnHidden
             open={modal.visible}
-            maskClosable={false}
+            mask={{ closable: false }}
             onCancel={modal.hide}
             afterClose={modal.remove}
             onOk={on_create}

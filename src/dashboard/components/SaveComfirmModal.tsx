@@ -22,7 +22,7 @@ export const SaveConfirmModal = NiceModal.create((props: ModalProps) => {
     return <Modal
         open={modal.visible}
         afterClose={() => { modal.remove() }}
-        maskClosable={false}
+        mask={{ closable: false }}
         onCancel={on_cancel}
         onOk={on_ok}
         okText={t('保存')}

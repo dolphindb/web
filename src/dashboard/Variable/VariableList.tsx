@@ -118,7 +118,7 @@ export function VariableList ({
             <Modal
                 style={{ top: '200px' }}
                 open={add_visible}
-                maskClosable={false}
+                mask={{ closable: false }}
                 onCancel={() => {
                     add_close()
                     set_new_name('')

@@ -514,7 +514,7 @@ function CreateCatalogModal () {
     
     return <Modal
         width='30%'
-        maskClosable={false}
+        mask={{ closable: false }}
         title={t('创建 catalog')}
         open={create_catalog_modal_visible} 
         onOk={async () => { 

@@ -63,7 +63,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
         {triggers[type]}
         <Modal 
             open={confirm_visible}
-            maskClosable={false}
+            mask={{ closable: false }}
             onCancel={confirm_close}
             onOk={async () => {
                 confirm_close()
@@ -93,7 +93,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
          />
         <Modal 
             open={import_visible}
-            maskClosable={false}
+            mask={{ closable: false }}
             closeIcon={false}
             title={`${import_config?.name} ${t('已存在')}`} 
             footer={[
@@ -130,7 +130,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
         />
         <Modal 
             open={rename_visible}
-            maskClosable={false}
+            mask={{ closable: false }}
             onCancel={() => {
                 rename_close()
                 resolve_lock.current()

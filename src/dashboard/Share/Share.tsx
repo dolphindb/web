@@ -126,7 +126,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
 //             className={trigger_type === 'icon' ? 'share dark' : 'share'}
 //             open={visible}
 //             onCancel={close}
-//             maskClosable={false}
+//             mask={{ closable: false }}
 //             styles={{ mask: { backgroundColor: 'rgba(84,84,84,0.5)' } }}
 //             afterOpenChange={async () => {
 //                 if (dashboard_ids.length === 1)

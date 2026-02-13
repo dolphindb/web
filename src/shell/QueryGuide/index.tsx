@@ -48,7 +48,7 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
     
     return <>
         <Modal
-            maskClosable={false}
+            mask={{ closable: false }}
             destroyOnHidden
             footer={footer}
             title={database + '/' + table}

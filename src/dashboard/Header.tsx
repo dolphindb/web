@@ -285,7 +285,7 @@ export function Header () {
             
             {editing && <>
                 <Modal open={add_visible}
-                    maskClosable={false}
+                    mask={{ closable: false }}
                     onCancel={add_close}
                     onOk={handle_add}
                     closeIcon={false}
@@ -298,7 +298,7 @@ export function Header () {
                 </Modal>
             
                 <Modal open={edit_visible}
-                    maskClosable={false}
+                    mask={{ closable: false }}
                     onCancel={edit_close}
                     onOk={handle_edit}
                     closeIcon={false}

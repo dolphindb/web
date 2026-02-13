@@ -46,7 +46,7 @@ export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbV
         <Modal
             width='50%'
             forceRender
-            maskClosable={false}
+            mask={{ closable: false }}
             title={t('导出 CSV')} 
             open={visible} 
             okButtonProps={{ loading }}
