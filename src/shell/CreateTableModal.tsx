@@ -603,7 +603,7 @@ export const CreateTableModal = NiceModal.create<Props>(props => {
         width={1000}
         open={modal.visible}
         onCancel={modal.hide}
-        maskClosable={false}
+        mask={{ closable: false }}
         title={t('创建数据表')}
         afterClose={modal.remove}
         footer={null}

@@ -395,7 +395,7 @@ export function OverviewTable ({
                 {tables}
             </div>
         </Dropdown>
-        <Modal className='col-selection-modal' open={visible} onCancel={close} maskClosable={false} title={t('配置展示列')} footer={false}>
+        <Modal className='col-selection-modal' open={visible} onCancel={close} mask={{ closable: false }} title={t('配置展示列')} footer={false}>
             <Checkbox 
                 indeterminate={displayCols.length > 0 && displayCols.length < allCols.length} 
                 onChange={e => { handleColsChange(e.target.checked ? allCols : [ ]) }} 

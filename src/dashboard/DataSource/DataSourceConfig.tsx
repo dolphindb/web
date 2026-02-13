@@ -133,7 +133,7 @@ export function DataSourceConfig (props: IProps) {
             className='data-source'
             open={visible}
             onCancel={handle_close} 
-            maskClosable={false}
+            mask={{ closable: false }}
             styles={{ mask: { backgroundColor: 'rgba(84,84,84,0.5)' } }}
             afterOpenChange={() => {
                 let idx = 0
