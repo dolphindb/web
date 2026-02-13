@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { Input, Switch } from 'antd'
+import { Input, Switch, Tooltip } from 'antd'
 import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined } from '@ant-design/icons'
 
 import { storage } from 'xshell/storage.js'
@@ -123,27 +123,25 @@ export function ShellEditor ({ collapser }) {
             </div>
             
             <div className='settings'>
-                <span className='setting' title={t('控制是否显示缩略图')}>
-                    <span className='text'>{t('代码地图:')}</span>
-                    <Switch
-                        checked={minimap}
-                        size='small'
-                        onChange={ checked => {
-                            set_minimap(checked)
-                            localStorage.setItem(storage_keys.minimap, checked ? '1' : '0')
-                        }} />
-                </span>
+                <SettingSwitch
+                    title={t('代码地图:')}
+                    help={t('控制是否显示缩略图')}
+                    checked={minimap}
+                    onChange={checked => {
+                        set_minimap(checked)
+                        localStorage.setItem(storage_keys.minimap, checked ? '1' : '0')
+                    }}
+                />
                 
-                <span className='setting' title={t('控制除了 Tab 键以外，Enter 键是否同样可以接受建议。这能减少“插入新行”和“接受建议”命令之间的歧义。')}>
-                    <span className='text'>{t('回车补全:')}</span>
-                    <Switch
-                        checked={enter_completion}
-                        size='small'
-                        onChange={ checked => {
-                            set_enter_completion(checked)
-                            localStorage.setItem(storage_keys.enter_completion, checked ? '1' : '0')
-                        }} />
-                </span>
+                <SettingSwitch
+                    title={t('回车补全:')}
+                    help={t('控制除了 Tab 键以外，Enter 键是否同样可以接受建议。这能减少"插入新行"和"接受建议"命令之间的歧义。')}
+                    checked={enter_completion}
+                    onChange={checked => {
+                        set_enter_completion(checked)
+                        localStorage.setItem(storage_keys.enter_completion, checked ? '1' : '0')
+                    }}
+                />
                 
                 <SelectSqlModal/>
             </div>
@@ -406,5 +404,29 @@ export function Tab ({
             <CloseOutlined style={{ fontSize: 12 }} />
         </div>}
     </div>
+}
+
+
+function SettingSwitch ({
+    title,
+    help,
+    checked,
+    onChange,
+}: {
+    title: string
+    help: string
+    checked: boolean
+    onChange: (checked: boolean) => void
+}) {
+    return <Tooltip title={help}>
+        <span className='setting'>
+            <span className='title'>{title}</span>
+            <Switch
+                checked={checked}
+                size='small'
+                onChange={onChange}
+            />
+        </span>
+    </Tooltip>
 }
 
