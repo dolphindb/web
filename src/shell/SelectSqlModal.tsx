@@ -11,13 +11,20 @@ import { use_modal } from 'react-object-model/hooks.js'
 import { storage_keys, model } from '../model.js'
 import { t } from '@i18n'
 
+import { shell } from './model.ts'
+
 import SvgArrowDown from '../components/icons/arrow.down.icon.svg'
 
 
 export function SelectSqlModal () {
+    const { language } = shell.use(['language'])
+    
     const { visible, open, close } = use_modal()
     
     let ref_selected_sql = useRef<string>(undefined)
+    
+    if (language !== 'dolphindb')
+        return
     
     return <>
         <Modal
