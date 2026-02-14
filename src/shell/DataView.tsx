@@ -33,7 +33,8 @@ export function DataView () {
             // }
             
             return <Obj
-                ddb={model.ddb}
+                ddb={shell.ddb}
+                ddb_language={shell.ddb?.language}
                 ctx='embed'
                 options={options}
                 ExportCsv={ExportCsv}

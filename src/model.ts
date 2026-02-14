@@ -1240,6 +1240,10 @@ export class DdbModel extends Model<DdbModel> {
 
 export const envs = [
     {
+        label: 'kdb',
+        value: '192.168.0.114:8766'
+    },
+    {
         label: '测试单机.剑波',
         value: '192.168.0.54:8848'
     },

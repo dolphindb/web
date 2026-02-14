@@ -12,6 +12,7 @@ export function DataView () {
         Boolean(result) && <Obj
             obj={result.data}
             ddb={model.ddb}
+            ddb_language='dolphindb'
             ctx='dashboard'
             options={options}
             product_name={product_name}

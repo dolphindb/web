@@ -26,27 +26,10 @@ import { genid, seq, assert, delay, unique } from 'xshell/utils.browser.js'
 
 
 import {
-    DDB,
-    DdbObj,
-    DdbForm,
-    DdbType,
-    DdbChartType,
-    nulls,
-    formati,
-    format,
-    type InspectOptions,
-    type DdbValue,
-    type DdbVectorValue,
-    type DdbMatrixValue,
-    type DdbChartValue,
-    type DdbDictObj,
-    type DdbVectorObj,
-    type DdbTableObj,
-    type DdbMatrixObj,
-    type DdbChartObj,
-    type StreamingMessage,
-    ddb_tensor_bytes,
-    type DdbTensorObj
+    DDB, DdbObj, DdbForm, DdbType, DdbChartType, nulls, formati, format, ddb_tensor_bytes,
+    type InspectOptions, type DdbValue, type DdbVectorValue, type DdbMatrixValue,
+    type DdbChartValue, type DdbDictObj, type DdbVectorObj, type DdbTableObj,
+    type DdbMatrixObj, type DdbChartObj, type StreamingMessage, type DdbTensorObj, type DdbLanguage
 } from 'dolphindb/browser.js'
 
 import { t } from '@i18n'
@@ -87,6 +70,7 @@ export interface ObjOptions <TDdbValue extends DdbValue = DdbValue> {
     ctx?: Context
     remote?: Remote
     ddb?: DDB
+    ddb_language: DdbLanguage
     options?: InspectOptions
     product_name: string
     ExportCsv?: React.FC<{ info: DdbTableObj | DdbObjRef<DdbObj<DdbVectorValue>[]> }>
@@ -107,7 +91,8 @@ export function Obj ({
     product_name,
     assets_root,
     font,
-    dark
+    dark,
+    ddb_language = 'dolphindb'
 }: ObjOptions) {
     const info = obj || objref
     const View = views[info.form] || Default
@@ -124,6 +109,7 @@ export function Obj ({
         assets_root={assets_root}
         font={font}
         dark={dark}
+        ddb_language={ddb_language}
     />
 }
 
@@ -547,6 +533,7 @@ function Vector ({
     ctx,
     remote,
     ddb,
+    ddb_language,
     options,
     product_name,
     assets_root
@@ -601,7 +588,10 @@ function Vector ({
                 const script = (form === DdbForm.set || rows === 0) ?
                     name
                 :
-                    `${name}[${offset}..${Math.min(offset + page_size, rows) - 1}]`
+                    ddb_language === 'kdb' ? 
+                        `(${offset};${page_size}) sublist ${name}`
+                    :
+                        `${name}[${offset}..${Math.min(offset + page_size, rows) - 1}]`
                 
                 console.log(`${DdbForm[form]}.fetch:`, script)
             

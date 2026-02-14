@@ -219,8 +219,7 @@ class ShellModel extends Model<ShellModel> {
             
             let ddbobj = await this.ddb.eval(
                 `line://${istart}\n` +
-                `${code.replaceAll('\r\n', '\n')}`
-            )
+                `${code.replaceAll('\r\n', '\n')}`)
             
             if (model.dev || model.verbose)
                 console.log('执行代码返回了:', ddbobj.data())
@@ -289,86 +288,81 @@ class ShellModel extends Model<ShellModel> {
     
     
     async update_vars () {
-        let objs = await this.ddb.call('objs', [true])
+        let { ddb } = this
         
-        const vars_data = objs
-            .to_rows()
-            .map(
-                ({
-                    name,
-                    type,
-                    form,
-                    rows,
-                    columns,
-                    bytes,
-                    shared,
-                    extra
-                }: {
-                    name: string
-                    type: string
-                    form: string
-                    rows: number
-                    columns: number
-                    bytes: bigint
-                    shared: boolean
-                    extra: string
-                }) => ({
-                    name,
-                    type: (() => {
-                        const _type = type.toLowerCase()
-                        return _type.endsWith('[]') ? DdbType[_type.slice(0, -2)] + 64 : DdbType[_type]
-                    })(),
-                    form: (() => {
-                        const _form = form.toLowerCase()
-                        switch (_form) {
-                            case 'dictionary':
-                                return DdbForm.dict
-                                
-                            case 'sysobj':
-                                return DdbForm.object
-                                
-                            default:
-                                return DdbForm[_form]
-                        }
-                    })(),
-                    rows,
-                    cols: columns,
-                    bytes,
-                    shared,
-                    extra,
-                    obj: undefined as DdbObj,
-                    options: model.options,
-                })
-            )
-            .filter(
-                v =>
-                    v.name !== 'pnode_run' &&
-                    !(
-                        v.form === DdbForm.object &&
-                        (v.name === 'list' || v.name === 'tuple' || v.name === 'dict' || v.name === 'set' || v.name === '_ddb')
-                    )
-            )
-            
+        const vars_data = (
+            await ddb.invoke<{
+                name: string
+                type: string
+                form: string
+                rows: number
+                columns: number
+                bytes: bigint
+                shared: boolean
+                extra: string
+            }[]>('objs', [true])
+        ).map(({
+            name,
+            type,
+            form,
+            rows,
+            columns,
+            bytes,
+            shared,
+            extra
+        }) => ({
+            name,
+            type: (() => {
+                const _type = type.toLowerCase()
+                return _type.endsWith('[]') ? DdbType[_type.slice(0, -2)] + 64 : DdbType[_type]
+            })(),
+            form: (() => {
+                const _form = form.toLowerCase()
+                switch (_form) {
+                    case 'dictionary':
+                        return DdbForm.dict
+                        
+                    case 'sysobj':
+                        return DdbForm.object
+                        
+                    default:
+                        return DdbForm[_form]
+                }
+            })(),
+            rows,
+            cols: columns,
+            bytes,
+            shared,
+            extra,
+            obj: undefined as DdbObj,
+            options: model.options,
+        })).filter(v => !(
+            v.name === 'pnode_run' ||
+            ddb.python && v.form === DdbForm.object && pyobjs.has(v.name) ||
+            ddb.kdb && (v.name === 'Q' || v.name === 'ddb')
+        ))
+        
         let immutables = vars_data.filter(v => v.form === DdbForm.scalar || v.form === DdbForm.pair)
         
         if (immutables.length) {
-            const { value: values } = await this.ddb.eval<DdbObj<DdbObj[]>>(
-                `(${immutables.map(({ name }) => name).join(', ')}, 0)${this.ddb.python ? '.toddb()' : ''}`
-            )
+            const { value: values } = await ddb.eval<DdbObj<DdbObj[]>>(
+                [
+                    ...immutables.select('name'), 
+                    ddb.kdb ? '()' : '0'  // 确保生成 any vector
+                ].join(ddb.kdb ? '; ' : ', ').bracket() + 
+                (ddb.python ? '.toddb()' : ''))
             
-            for (let i = 0;  i < values.length - 1;  i++) {
+            for (let i = 0, len = values.length - 1;  i < len;  ++i) {
                 immutables[i].obj = values[i]
                 
                 // 此处需要用变量值的类型来替换 objs(true) 中获取的变量的类型，因为当变量类型为 string 且变量值很长时，server 返回的变量值的类型是 blob
                 immutables[i].type = values[i].type
-            }  
+            }
         }
         
         
         this.set({
-            vars: vars_data.map(data => 
-                new DdbVar(data)
-            )
+            vars: vars_data.map(data => new DdbVar(data))
         })
     }
     
@@ -956,6 +950,9 @@ class ShellModel extends Model<ShellModel> {
         this.set({ get_access_defined: true })
     }
 }
+
+
+const pyobjs = new Set(['list', 'tuple', 'dict', 'set', '_ddb', 'Exception', 'AssertRaise', 'PyBox'])
 
 
 export interface Tab {

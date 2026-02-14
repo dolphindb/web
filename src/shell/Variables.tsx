@@ -30,7 +30,7 @@ import { t } from '@i18n'
 
 import { DdbObjRef } from '../obj.js'
 
-import { model, NodeType } from '../model.js'
+import { model } from '../model.js'
 
 import { shell } from './model.js'
 
@@ -417,7 +417,7 @@ class TreeDataItem implements DataNode {
     }) {
         const name = typeof title === 'string' ? (/^([\w\u4e00-\u9fa5]+)/.exec(title)?.[1] || title) : ''
         
-        this.title = <>{typeof title === 'string' ? (
+        this.title = <>{typeof title === 'string' ?
             <>
                 <div className='info'>
                     <span className='name'>{name}</span>
@@ -425,7 +425,7 @@ class TreeDataItem implements DataNode {
                 </div>
                 {suffix}
             </>
-        ) : title}</>
+         : title}</>
         
         this.key = key
         this.children = children
