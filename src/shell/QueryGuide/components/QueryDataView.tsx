@@ -52,6 +52,9 @@ export function QueryDataView (props: IProps) {
                         ctx='page'
                         show_bottom_bar={false}
                         product_name={model.product_name}
+                        ddb_language='dolphindb'
+                        assets_root={model.assets_root}
+                        dark={false}
                         pagination={{
                             total: data[0].value,
                             showTotal: total => t('共 {{total}} 条数据', { total }),
