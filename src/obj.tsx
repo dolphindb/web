@@ -781,6 +781,7 @@ export function Table ({
     show_bottom_bar = true,
     product_name,
     assets_root,
+    ddb_language,
     ...others
 }: ObjOptions<DdbTableObj['value']> & {
     show_bottom_bar?: boolean
@@ -817,7 +818,10 @@ export function Table ({
                 rows === 0 && offset === 0 ||
                 offset < rows
             ) {
-                const script = `select * from ${name} limit ${offset}, ${page_size}`
+                const script = ddb_language === 'kdb' ?
+                    `(${offset};${page_size}) sublist ${name}`
+                :
+                    `select * from ${name} limit ${offset}, ${page_size}`
                 
                 console.log('table.fetch:', script)
                 
