@@ -2,10 +2,9 @@
     "name": "dolphindb-web",
     "type": "module",
     "scripts": {
-        "install.ci": "pnpm ci --include=dev",
         "typecheck": "tsc --noEmit",
-        "dev": "node --experimental-transform-types ./commands.ts dev",
-        "build": "node --experimental-transform-types ./commands.ts build",
+        "dev": "node ./commands.ts dev",
+        "build": "node ./commands.ts build",
         "scan": "i18n-scan",
         "lint": "eslint \"**/*.{ts,tsx}\"",
         "fix": "eslint --fix \"**/*.{ts,tsx}\""
