@@ -120,6 +120,8 @@ export class DdbObjRef <T extends DdbValue = DdbValue> {
     
     node: string
     
+    ddb_language: DdbLanguage
+    
     // --- by objs(true)
     name: string
     
