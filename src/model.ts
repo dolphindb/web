@@ -659,8 +659,10 @@ export class DdbModel extends Model<DdbModel> {
         
         const logined = username !== username_guest
         
+        const user_changed = username !== this.username
+        
         // 用户修改时，配置也会跟着改，这里需要重新拉一次
-        if (username !== this.username) {
+        if (user_changed) {
             admin ??= logined && (
                 await this.ddb.invoke<{ isAdmin: boolean }[]>('getUserAccess', undefined, urgent)
             )[0].isAdmin
@@ -682,6 +684,17 @@ export class DdbModel extends Model<DdbModel> {
             localStorage.setItem(storage_keys.username, username)
             localStorage.setItem(storage_keys.ticket, ticket)
         }
+        
+        // 同步 ddb 用户状态变更到 shell.ddb
+        if (user_changed)
+            (async () => {
+                let { shell } = await import('@/shell/model.ts')
+                if (shell.ddb && shell.ddb !== this.ddb)
+                    if (logined)
+                        shell.ddb.login_by_ticket(ticket)
+                    else
+                        shell.ddb.invoke('logout')
+            })()
         
         return username
     }

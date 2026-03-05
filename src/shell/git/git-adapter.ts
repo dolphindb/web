@@ -1,5 +1,3 @@
-import { isArray } from 'lodash'
-
 import dayjs from 'dayjs'
 
 import { t } from '@i18n'
@@ -113,7 +111,7 @@ export class GitLabAdapter implements IGitAdapter {
                 `${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/tree?path=${encodeURIComponent(file_path)}&ref=${branch}&per_page=1000`,
                 this.get_fetch_options()
             ).then(async res => res.json())
-            if (!isArray(result))
+            if (!Array.isArray(result))
                 throw new Error('Invalid response')
             return result
         } catch (error) {
