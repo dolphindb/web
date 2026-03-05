@@ -278,7 +278,7 @@ export class GitHubAdapter implements IGitAdapter {
             const resp = await fetch(`${this.root_url}${this.api_root}/user/repos?per_page=${currentPerPage}&page=${currentPage}`, this.get_fetch_options())
             const result = await resp.json()
             
-            if (isArray(result)) {
+            if (Array.isArray(result)) {
                 // GitHub在Link响应头中提供分页信息
                 const linkHeader = resp.headers.get('Link') || ''
                 const hasNextPage = linkHeader.includes('rel="next"')
@@ -368,7 +368,7 @@ export class GitHubAdapter implements IGitAdapter {
         const content = this.decodeBase64ToUtf8(result.content)
         
         const commit_history = await this.get_commit_history(repo, file_path, ref)
-        const commits = (isArray(commit_history) ? commit_history : [ ])
+        const commits = (Array.isArray(commit_history) ? commit_history : [ ])
             .sort((a, b) => dayjs(b.committed_date).diff(dayjs(a.committed_date)))
             
         const commit_id = commits[0]?.id ?? ''
@@ -407,7 +407,7 @@ export class GitHubAdapter implements IGitAdapter {
     async get_commit_history (repo_path: string, file_path: string, ref?: string): Promise<ICommitHistoryItem[]> {
         const resp = await fetch(`${this.root_url}${this.api_root}/repos/${repo_path}/commits?path=${file_path}&sha=${ref}&_=${Date.now()}`, this.get_fetch_options())
         let result = await resp.json()
-        if (!isArray(result))
+        if (!Array.isArray(result))
             result = [ ]
         const ret = result.map((item: any) => ({
             id: item.sha,
