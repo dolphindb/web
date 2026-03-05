@@ -202,10 +202,14 @@ export class DdbModel extends Model<DdbModel> {
         
         this.shf = (pshf || storage.getstr(storage_keys.shf)) === '1'
         
+        const { pathname } = location
+        
         // 确定 assets_root
-        if (this.test)
+        if (pathname.startsWith(subpath))
+            this.assets_root = subpath
+        else if (this.test)
             for (const web_path of ['/web/', '/main/'])
-                if (location.pathname.startsWith(web_path)) {
+                if (pathname.startsWith(web_path)) {
                     this.assets_root = web_path
                     break
                 }
@@ -261,7 +265,7 @@ export class DdbModel extends Model<DdbModel> {
                 (port ? `:${port}` : '') +
                 
                 // 检测 ddb 是否通过 nginx 代理，部署在子路径下
-                (location.pathname === '/dolphindb/' ? '/dolphindb/' : ''),
+                (pathname.startsWith(subpath) ? subpath : ''),
             {
                 autologin: false,
                 verbose: this.verbose,
@@ -269,7 +273,7 @@ export class DdbModel extends Model<DdbModel> {
             }
         )
         
-        const { header, sider } = this.get_header_sider(location.pathname, params)
+        const { header, sider } = this.get_header_sider(pathname, params)
         this.header = header
         this.sider = sider
         
@@ -1295,6 +1299,8 @@ export const envs = [
     }
 ].map(({ label, value }) => ({ label, value, title: value }))
 
+
+const subpath = '/dolphindb/' as const
 
 export const storage_keys = {
     ticket: 'ddb.ticket',
