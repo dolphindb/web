@@ -6760,5 +6760,14 @@
     },
     "曲面图": {
         "en": "Surface"
+    },
+    "ddb 无 ticket，尝试通过密码 login 失败": {
+        "en": "ddb has no ticket, attempt to login using password failed"
+    },
+    "控制除了 Tab 键以外，Enter 键是否同样可以接受建议。这能减少\"插入新行\"和\"接受建议\"命令之间的歧义。": {
+        "en": "Controls whether the Enter key in addition to the Tab key can also accept suggestions. This reduces the ambiguity between the\"Insert new line\" and\"Accept suggestion\" commands. "
+    },
+    "编程语言:": {
+        "en": "Programming Language:"
     }
 }
