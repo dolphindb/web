@@ -688,6 +688,7 @@ export class DdbModel extends Model<DdbModel> {
         // 同步 ddb 用户状态变更到 shell.ddb
         if (user_changed)
             (async () => {
+                // 不能直接静态导入，否则会循环依赖
                 let { shell } = await import('@/shell/model.ts')
                 if (shell.ddb && shell.ddb !== this.ddb)
                     if (logined)
