@@ -144,7 +144,7 @@ export class GitLabAdapter implements IGitAdapter {
             const resp = await fetch(`${this.root_url}${this.api_root}/projects?per_page=${currentPerPage}&membership=true&page=${currentPage}`, this.get_fetch_options())
             const result = await resp.json()
             
-            if (isArray(result)) {
+            if (Array.isArray(result)) {
                 // GitLab在响应头中提供分页信息
                 const totalCount = parseInt(resp.headers.get('X-Total') || '0', 10)
                 const totalPages = parseInt(resp.headers.get('X-Total-Pages') || '1', 10)
