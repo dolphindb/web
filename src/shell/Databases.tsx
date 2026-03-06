@@ -7,13 +7,12 @@ import cn from 'classnames'
 
 import { Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber, Checkbox } from 'antd'
 
-import type { DataNode, EventDataNode } from 'antd/es/tree'
+import type { DataNode, EventDataNode } from 'antd/es/tree/index.js'
 
 import {
     default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined, LoadingOutlined, ApartmentOutlined
 } from '@ant-design/icons'
 
-import { noop } from 'xshell/prototype.browser.js'
 import { assert, delay } from 'xshell/utils.browser.js'
 
 
@@ -36,10 +35,10 @@ import { lineage, type TableMeta } from '@/lineage/index.tsx'
 import { shell } from './model.ts'
 
 
-import { CreateTableModal } from './CreateTableModal.js'
-import { AddColumnModal } from './AddColumnModal.js'
-import { AccessModal } from './AccessModal.js'
-import { QueryGuideModal } from './QueryGuide/index.js'
+import { CreateTableModal } from './CreateTableModal.tsx'
+import { AddColumnModal } from './AddColumnModal.tsx'
+import { AccessModal } from './AccessModal.tsx'
+import { QueryGuideModal } from './QueryGuide/index.tsx'
 
 import SvgDatabase from './icons/database.icon.svg'
 import SvgCreateDatabase from './icons/create-database.icon.svg'
