@@ -26,9 +26,9 @@ import { SWRConfig } from 'swr'
 
 import { use_keydown } from 'react-object-model/hooks.js'
 
+import 'dayjs/locale/zh-cn'
 import { language } from '@i18n'
 
-import 'dayjs/locale/zh-cn'
 dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 
 import { model } from '@model'

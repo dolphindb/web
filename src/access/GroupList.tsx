@@ -6,12 +6,12 @@ import { DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import { Button, Flex, Input, Popconfirm, Typography, type TableColumnType } from 'antd'
 const { Link } = Typography
 
+import useSWR from 'swr'
+
 
 import NiceModal from '@ebay/nice-modal-react'
 
 import { t, language } from '@i18n'
-
-import useSWR from 'swr'
 
 import { model } from '@model'
 

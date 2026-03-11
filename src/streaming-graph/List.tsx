@@ -4,11 +4,10 @@ import { Typography, Tooltip, type TableColumnsType } from 'antd'
 const { Text } = Typography
 
 import { t } from '@i18n'
+import { model } from '@model'
 
 import { StatusTag, StatusType } from '@components/tags/index.tsx'
 import { DDBTable } from '@components/DDBTable/index.tsx'
-
-import { model } from '@model'
 
 import { RefreshButton } from '@components/RefreshButton/index.tsx'
 import { sgraph, graph_statuses, type StreamGraphMeta, type StreamGraphStatus } from './model.ts'
