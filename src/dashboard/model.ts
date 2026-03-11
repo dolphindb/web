@@ -1,31 +1,24 @@
 import { createRef } from 'react'
-
 import { Model } from 'react-object-model'
-
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
-
 import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbLong, DdbDict, DdbInt } from 'dolphindb/browser.js'
-
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
-
 import { assert, genid } from 'xshell/utils.browser.js'
-
 import type { MessageInstance } from 'antd/es/message/interface.d.ts'
 import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
 import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 
 import { t } from '@i18n'
+import { model, show_error, storage_keys } from '@model'
+import type { Monaco } from '@components/Editor/index.tsx'
+import type { FormatErrorOptions } from '@components/GlobalErrorBoundary.tsx'
+import type { SurfaceOptions } from '@components/Surface.tsx'
 
-import { model, show_error, storage_keys } from '../model.js'
-import type { Monaco } from '../components/Editor/index.js'
-import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
-
-import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
+import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.ts'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.ts'
 import type { IConfigurationConfig } from './Charts/Configuration/index.tsx'
-import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
+import { type Variable, import_variables, type ExportVariable } from './Variable/variable.ts'
 import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.ts'
-import type { SurfaceOptions } from '@components/Surface.tsx'
 
 
 /** 0 表示隐藏dashboard（未查询到结果、 server 版本为 v1 或 language 非中文），1 表示没有初始化，2 表示已经初始化，3 表示为控制节点 */

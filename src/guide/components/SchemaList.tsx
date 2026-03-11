@@ -2,24 +2,19 @@ import './index.scss'
 
 import { CloudUploadOutlined, DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { Button, Form, Input, InputNumber, Modal, Radio, Select, Tooltip, Typography } from 'antd'
-
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-
 import { countBy, isNumber } from 'lodash'
 
-import { check_tb_valid, request } from '../utils.ts'
-import { type BasicInfoFormValues } from '../iot-guide/type.js'
-import { convert_list_to_options } from '../../dashboard/utils.ts'
-
-
-import { FormDependencies } from '../../components/FormDependencies/index.js'
-import { model } from '../../model.js'
-import { ARRAY_VECTOR_DATA_TYPES, BASIC_DATA_TYPES, ENUM_TYPES, LOW_VERSION_DATA_TYPES, TIME_TYPES } from '../constant.js'
 import { t } from '@i18n'
+import { model } from '@model'
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
+import { check_tb_valid, request } from '@/guide/utils.ts'
+import { type BasicInfoFormValues } from '@/guide/iot-guide/type.ts'
+import { convert_list_to_options } from '@/dashboard/utils.ts'
+import { ARRAY_VECTOR_DATA_TYPES, BASIC_DATA_TYPES, ENUM_TYPES, LOW_VERSION_DATA_TYPES, TIME_TYPES } from '@/guide/constant.ts'
 
-import { UploadFileField } from './UploadFileField.js'
+import { UploadFileField } from './UploadFileField.tsx'
 
 interface ISchemaUploadModal { 
     on_apply: (values) => void

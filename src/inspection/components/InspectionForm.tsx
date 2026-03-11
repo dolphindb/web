@@ -1,23 +1,17 @@
-import { t } from '@i18n'
 import dayjs from 'dayjs'
 import { useState, useMemo } from 'react'
 import useSWR from 'swr'
 import { Button, Form,  Switch, Tooltip } from 'antd'
 import { isEmpty, isObject } from 'lodash'
-
 import { DdbType } from 'dolphindb/browser'
 
+import { t } from '@i18n'
 import { model, NodeType } from '@model'
-
 import { DDB_TYPE_MAP } from '@utils'
-
-import { inspection } from '@/inspection/model.ts'
-
-import type { Metric, MetricsWithStatus, Plan } from '@/inspection/type.ts'
-
-import { InspectionFormContent } from '@/inspection/components/InspectionFormContent.tsx'
-
 import { BackButton } from '@components/BackButton.tsx'
+import { inspection } from '@/inspection/model.ts'
+import type { Metric, MetricsWithStatus, Plan } from '@/inspection/type.ts'
+import { InspectionFormContent } from '@/inspection/components/InspectionFormContent.tsx'
 
 
 

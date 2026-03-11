@@ -3,8 +3,8 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
 import { Modal } from 'antd'
 
-import { ReadonlyEditor } from '../../../components/ReadonlyEditor/index.js'
-import type { IParserTemplate } from '../../type.js'
+import { ReadonlyEditor } from '@components/ReadonlyEditor/index.tsx'
+import type { IParserTemplate } from '@/data-collection/type.ts'
 
 interface IProps {
     template: IParserTemplate

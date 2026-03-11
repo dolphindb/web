@@ -3,11 +3,10 @@ import { Input, Modal, Tree, Typography } from 'antd'
 import { CopyOutlined, DeleteOutlined, EditOutlined, FileOutlined, ToolOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { dashboard } from '../model.js'
-
 import { t } from '@i18n'
+import { dashboard } from '@/dashboard/model.ts'
 
-import { create_variable, delete_variable, rename_variable, type Variable, type VariablePropertyType, variables, copy_variables, paste_variables } from './variable.js'
+import { create_variable, delete_variable, rename_variable, type Variable, type VariablePropertyType, variables, copy_variables, paste_variables } from './variable.ts'
 
 
 interface PropsType {

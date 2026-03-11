@@ -1,28 +1,17 @@
 import { type ReactElement, useCallback, useMemo, useState, useEffect } from 'react'
-
 import { Button, Form, Space, Tooltip } from 'antd'
-
 import NiceModal from '@ebay/nice-modal-react'
 
 import { t } from '@i18n'
+import { ReadonlyEditor } from '@components/ReadonlyEditor/index.tsx'
+import { request } from '@/guide/utils.ts'
 
-import { request } from '../../guide/utils.ts'
-
-import { ReadonlyEditor } from '../../components/ReadonlyEditor/index.js'
-
-import { QueryForm } from './components/QueryForm.js'
-
-
-
-import { type IQueryInfos } from './type.js'
+import { QueryForm } from './components/QueryForm.tsx'
+import { type IQueryInfos } from './type.ts'
 import { transform_query } from './utils.ts'
-
-
-import { QueryDataView } from './components/QueryDataView.js'
-
-
-import { ExportFileModal } from './components/ExportFileModal.js'
-import { guide_query_model } from './model.js'
+import { QueryDataView } from './components/QueryDataView.tsx'
+import { ExportFileModal } from './components/ExportFileModal.tsx'
+import { guide_query_model } from './model.ts'
 
 interface IProps { 
     database: string
@@ -40,13 +29,11 @@ export function QueryGuide (props: IProps) {
     
     const [form] = Form.useForm<IQueryInfos>()
     
-    const view_map = useMemo(() => { 
-        return {
+    const view_map = useMemo(() => ({
             0: <QueryForm {...props} form={form} />,
             1: <ReadonlyEditor code={code} className='query-code-view' />,
             2: <QueryDataView set_total={set_total} code={code} />
-        }
-    }, [code])
+        }), [code])
     
     const to_next_step = useCallback(() => { 
         set_current_step(current_step + 1)

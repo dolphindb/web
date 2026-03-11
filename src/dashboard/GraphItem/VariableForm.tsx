@@ -1,17 +1,14 @@
 import './index.sass'
+
 import { Button, Col, Form, Input, Row, Select } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
-
 import classNames from 'classnames'
-
 import { genid } from 'xshell/utils.browser.js'
 
-import { type Variable, variables, update_variable_value } from '../Variable/variable.ts'
-import { StringDatePicker } from '@components/StringDatePicker/index.tsx'
-
-
-import { VariableMode } from '../type.js'
 import { t } from '@i18n'
+import { StringDatePicker } from '@components/StringDatePicker/index.tsx'
+import { type Variable, variables, update_variable_value } from '@/dashboard/Variable/variable.ts'
+import { VariableMode } from '@/dashboard/type.ts'
 
 interface IProps { 
     ids: string[]

@@ -1,6 +1,6 @@
 import type { DdbType, DdbVectorObj } from 'dolphindb/browser.js'
 
-import { type ITimeFormat, type AxisType, type ILineType, type Position, type ThresholdType, type ThresholdShowType } from './ChartFormFields/type.js'
+import { type ITimeFormat, type AxisType, type ILineType, type Position, type ThresholdType, type ThresholdShowType } from './ChartFormFields/type.ts'
 
 export interface AxisConfig { 
     name: string

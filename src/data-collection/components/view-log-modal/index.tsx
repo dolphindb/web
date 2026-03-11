@@ -6,8 +6,8 @@ import { List, Modal, Typography } from 'antd'
 import useSWR from 'swr'
 
 import { t } from '@i18n'
-import { request } from '../../utils.ts'
-import type { Protocol } from '../../type.js'
+import { request } from '@/data-collection/utils.ts'
+import type { Protocol } from '@/data-collection/type.ts'
 
 interface IProps {
     protocol: Protocol

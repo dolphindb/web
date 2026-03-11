@@ -1,10 +1,10 @@
-import { t } from '@i18n'
 import { Input, Button } from 'antd'
 import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 
+import { t } from '@i18n'
 import { model } from '@model'
-import { shell } from '../model.ts'
+import { shell } from '@/shell/model.ts'
 
 import { get_token, git_provider } from './git-provider.ts'
 import { FileHistory } from './FileHistory.tsx'

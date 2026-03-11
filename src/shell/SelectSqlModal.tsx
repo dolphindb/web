@@ -1,19 +1,14 @@
 import { useRef } from 'react'
-
 import { Modal, Select } from 'antd'
-
 import { default as Icon, WarningFilled  } from '@ant-design/icons'
-
 import { SqlStandard } from 'dolphindb/browser.js'
-
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { storage_keys, model } from '../model.js'
 import { t } from '@i18n'
+import { storage_keys, model } from '@model'
+import SvgArrowDown from '@components/icons/arrow.down.icon.svg'
 
 import { shell } from './model.ts'
-
-import SvgArrowDown from '../components/icons/arrow.down.icon.svg'
 
 
 export function SelectSqlModal () {

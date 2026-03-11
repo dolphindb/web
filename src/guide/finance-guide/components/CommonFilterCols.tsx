@@ -1,12 +1,13 @@
 import './index.scss'
+
 import { Button, Form, InputNumber, Select, Tooltip } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { useCallback, useMemo } from 'react'
 import { countBy } from 'lodash'
 
-import { type ITableInfo } from '../type'
-import { TIME_TYPES } from '../../constant.js'
 import { t } from '@i18n'
+import { type ITableInfo } from '@/guide/finance-guide/type.ts'
+import { TIME_TYPES } from '@/guide/constant.ts'
 
 interface IProps { 
     schema: ITableInfo['schema']

@@ -3,11 +3,11 @@ import { useMemo } from 'react'
 
 import { isNil, pickBy } from 'lodash'
 
-import { LabelsFormFields, SeriesFormFields } from '../../ChartFormFields/RadarChartFields.js'
-import { type IChartConfig } from '../../type.js'
-import { parse_text } from '../../utils.ts'
-import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
-import { ChartField } from '../../ChartFormFields/type.js'
+import { LabelsFormFields, SeriesFormFields } from '@/dashboard/ChartFormFields/RadarChartFields.tsx'
+import { type IChartConfig } from '@/dashboard/type.ts'
+import { parse_text } from '@/dashboard/utils.ts'
+import { BasicFormFields } from '@/dashboard/ChartFormFields/BasicFormFields.tsx'
+import { ChartField } from '@/dashboard/ChartFormFields/type.ts'
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 

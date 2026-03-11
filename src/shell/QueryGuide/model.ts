@@ -1,8 +1,8 @@
 import { Model } from 'react-object-model'
 
-import { model } from '../../model.js'
+import { model } from '@model'
 
-import { type IQueryInfos } from './type.js'
+import { type IQueryInfos } from './type.ts'
 import query_guide_code from './guide.dos'
 
 export class GuideQueryModel extends Model<GuideQueryModel> { 

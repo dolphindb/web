@@ -8,7 +8,7 @@ import { model } from '@model'
 import { access } from '@/access/model.ts'
 
 
-import type { Access, AccessCategory } from '@/access/types.js'
+import type { Access, AccessCategory } from '@/access/types.ts'
 
 
 

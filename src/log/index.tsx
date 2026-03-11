@@ -4,13 +4,11 @@ import { useEffect, useRef, useState } from 'react'
 import { Pagination } from 'antd'
 
 import { t } from '@i18n'
-
 import { model, NodeType } from '@model'
-
-import { Unlogin } from '@components/Unlogin.js'
+import { upper } from '@utils'
+import { Unlogin } from '@components/Unlogin.tsx'
 import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
 import { RefreshButton } from '@components/RefreshButton/index.tsx'
-import { upper } from '@/utils.ts'
 
 const default_length = 50000n
 

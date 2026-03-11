@@ -115,14 +115,12 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
     
     
     // 组件卸载时清理 interval
-    useEffect(() => {
-        return () => {
+    useEffect(() => () => {
             if (rplaying.current) {
                 clearInterval(rplaying.current)
                 set_playing(0)
             }
-        }
-    }, [ ])
+        }, [ ])
     
     
     return <div className='configuration-diagram'>

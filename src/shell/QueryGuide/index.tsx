@@ -7,12 +7,12 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
 import { t } from '@i18n'
 
-import { QueryGuideType } from './type.js'
-import { QueryGuide } from './QueryGuide.js'
-import { SqlEditGuide } from './SqlEditGuide.js'
+import { QueryGuideType } from './type.ts'
+import { QueryGuide } from './QueryGuide.tsx'
+import { SqlEditGuide } from './SqlEditGuide.tsx'
 
 
-import { guide_query_model } from './model.js'
+import { guide_query_model } from './model.ts'
 
 interface IProps { 
     database: string

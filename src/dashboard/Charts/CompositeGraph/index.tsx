@@ -6,18 +6,18 @@ import type * as echarts from 'echarts'
 import { pickBy } from 'lodash'
 import { type DdbType } from 'dolphindb/browser.js'
 
-import { AxisType, MatchRuleType, ThresholdType } from '../../ChartFormFields/type.js'
-import { convert_chart_config, get_axis_range } from '../../utils.ts'
-import { type Widget } from '../../model.js'
-import type { ISeriesConfig, IChartConfig } from '../../type.js'
-import { get_data_source } from '../../DataSource/date-source.js'
+import { AxisType, MatchRuleType, ThresholdType } from '@/dashboard/ChartFormFields/type.ts'
+import { convert_chart_config, get_axis_range } from '@/dashboard/utils.ts'
+import { type Widget } from '@/dashboard/model.ts'
+import type { ISeriesConfig, IChartConfig } from '@/dashboard/type.ts'
+import { get_data_source } from '@/dashboard/DataSource/date-source.ts'
 
 
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 
 import type { GraphComponentProps } from '@/dashboard/graphs.ts'
 
-import { VALUE_TYPES, TIME_TYPES } from './constant.js'
+import { VALUE_TYPES, TIME_TYPES } from './constant.ts'
 
 
 interface ICompositeSeriesConfig extends ISeriesConfig { 

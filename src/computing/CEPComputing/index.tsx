@@ -4,11 +4,11 @@ import { useCallback, useEffect, useState } from 'react'
 import { Empty, Spin } from 'antd'
 import cn from 'classnames'
 
-import { CEPEngineList } from './components/CEPEngineList.js'
-import { CEPEngineDetail } from './components/CEPEngineDetail.js'
+import { CEPEngineList } from './components/CEPEngineList.tsx'
+import { CEPEngineDetail } from './components/CEPEngineDetail.tsx'
 
-import type { ICEPEngineDetail, CEPEngineItem } from './type.js'
-import { get_cep_engine_detail, get_cep_engine_list } from './api.js'
+import type { ICEPEngineDetail, CEPEngineItem } from './type.ts'
+import { get_cep_engine_detail, get_cep_engine_list } from './api.ts'
 
 export function CEPComputing () { 
     // 当前选中的引擎名称

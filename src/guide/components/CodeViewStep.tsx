@@ -2,19 +2,15 @@ import './index.scss'
 
 import { Button, Popconfirm, Space } from 'antd'
 import { useCallback } from 'react'
-
 import NiceModal from '@ebay/nice-modal-react'
 
-import { model } from '../../model.js'
-
-
-import { ExecuteResult } from '../iot-guide/type.js'
-import { ReadonlyEditor } from '../../components/ReadonlyEditor/index.js'
 import { t } from '@i18n'
+import { model } from '@model'
+import { ReadonlyEditor } from '@components/ReadonlyEditor/index.tsx'
+import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
+import { ExecuteResult } from '@/guide/iot-guide/type.ts'
 
-import { BottomFixedFooter } from '@components/BottomFixedFooter/index.js'
-
-import { DownloadConfigModal } from './DownloadConfigModal.js'
+import { DownloadConfigModal } from './DownloadConfigModal.tsx'
 
 interface IProps { 
     code: string

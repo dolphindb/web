@@ -4,13 +4,12 @@ import { type CollapseProps } from 'antd/lib/index.js'
 import { DeleteOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-
-import { AxisType, ILineType, ThresholdShowType, ThresholdType } from '../type.js'
-import { concat_name_path } from '../../utils.ts'
-import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
-import { FormDependencies } from '../../../components/FormDependencies/index.js'
-import { line_type_options } from '../constant.js'
-import { dashboard } from '../../model.js'
+import { StringColorPicker } from '@components/StringColorPicker/index.tsx'
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
+import { AxisType, ILineType, ThresholdShowType, ThresholdType } from '@/dashboard/ChartFormFields/type.ts'
+import { concat_name_path } from '@/dashboard/utils.ts'
+import { line_type_options } from '@/dashboard/ChartFormFields/constant.ts'
+import { dashboard } from '@/dashboard/model.ts'
 
 
 const show_type_options = [
@@ -98,8 +97,7 @@ export function ThresholdSettingList () {
                     </FormDependencies>
                     
                     <Form.List initialValue={[{ }]} name={concat_name_path(field.name, 'values')}>
-                        {(fields, { remove, add }) => { 
-                            return <div className='threshold-list'>
+                        {(fields, { remove, add }) => <div className='threshold-list'>
                                 {
                                     fields.map(value_field => <div key={value_field.name} className='threshold-item'>
                                         <Form.Item name={concat_name_path(value_field.name, 'color')}>
@@ -122,8 +120,7 @@ export function ThresholdSettingList () {
                                         {t('增加阈值')}
                                     </Typography.Link>
                                 </div>
-                            </div>
-                        } }
+                            </div> }
                     </Form.List>
                 </>
             }))

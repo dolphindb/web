@@ -1,16 +1,11 @@
 import { Tag, Popover, Descriptions, Card } from 'antd'
-
-import { t } from '@i18n'
-
 import dayjs from 'dayjs'
-
 import { date_format } from 'xshell/utils.browser.js'
-
 import { useEffect } from 'react'
 
-import { config } from '@/config/model.ts'
-
+import { t } from '@i18n'
 import { model, storage_keys, type DdbLicense, LicenseType } from '@model'
+import { config } from '@/config/model.ts'
 
 
 

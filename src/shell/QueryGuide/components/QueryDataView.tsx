@@ -1,9 +1,9 @@
 import { Alert, Spin, Typography } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 
-import { Table } from '../../../obj.js'
 import { t } from '@i18n'
-import { model } from '../../../model.js'
+import { model } from '@model'
+import { Table } from '@/obj.tsx'
 
 
 interface IProps { 

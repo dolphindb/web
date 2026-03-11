@@ -2,11 +2,11 @@ import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
 
-import { dashboard } from '../model.js'
-import { type DataSource, execute } from '../DataSource/date-source.js'
-import { safe_json_parse } from '../utils.ts'
 import { t } from '@i18n'
-import { VariableMode } from '../type.js'
+import { dashboard } from '@/dashboard/model.ts'
+import { type DataSource, execute } from '@/dashboard/DataSource/date-source.ts'
+import { safe_json_parse } from '@/dashboard/utils.ts'
+import { VariableMode } from '@/dashboard/type.ts'
 
 export type ExportVariable = {
     id: string

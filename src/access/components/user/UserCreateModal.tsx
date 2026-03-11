@@ -1,15 +1,11 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Form, Input, Modal, Select, Switch } from 'antd'
-
-import { language, t } from '@i18n'
-
 import { useSWRConfig } from 'swr'
 
+import { language, t } from '@i18n'
 import { model } from '@model'
-
-import { access } from '@/access/model.js'
-import { USERNAME_CHECK_PATTERN } from '@/access/constants.js'
-
+import { access } from '@/access/model.ts'
+import { USERNAME_CHECK_PATTERN } from '@/access/constants.tsx'
 import { use_groups } from '@/access/hooks/use-groups.ts'
 
 

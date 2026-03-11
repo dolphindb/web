@@ -1,34 +1,22 @@
 import './index.sass'
 
 import { type Dispatch, type ReactNode, type SetStateAction, useEffect, useState } from 'react'
-
 import { Button, Tabs, Tooltip, Spin, Result, type TableColumnType, Input, Modal, List, Typography, Space } from 'antd'
-
 import { WarningOutlined, FormatPainterOutlined, TableOutlined, DeploymentUnitOutlined, ControlOutlined, MinusCircleOutlined, DeleteOutlined } from '@ant-design/icons'
-
 import type { SortOrder } from 'antd/es/table/interface.js'
-
 import { use_modal } from 'react-object-model/hooks.js'
-
 import { type DDB } from 'dolphindb/browser.js'
 
-import { model, NodeType } from '../model.js'
-
-import { TableCellDetail } from '../components/TableCellDetail/index.js'
-
 import { t } from '@i18n'
-
-import { Unlogin } from '../components/Unlogin.js'
-
-import { RefreshButton } from '@components/RefreshButton/index.js'
-
-import { DDBTable } from '@components/DDBTable/index.js'
-
+import { model, NodeType } from '@model'
 import { upper } from '@utils'
+import { TableCellDetail } from '@components/TableCellDetail/index.tsx'
+import { Unlogin } from '@components/Unlogin.tsx'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
-import { computing, leading_cols, expanded_cols } from './model.js'
-
-import { CEPComputing } from './CEPComputing/index.js'
+import { computing, leading_cols, expanded_cols } from './model.ts'
+import { CEPComputing } from './CEPComputing/index.tsx'
 
 
 export function Computing () {

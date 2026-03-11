@@ -2,30 +2,20 @@ import './ParserTemplates.sass'
 
 import useSWR from 'swr'
 import { useCallback, useMemo, useState } from 'react'
-
 import { Button, Popconfirm, Tooltip, Typography, type TableProps } from 'antd'
-
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
-
 import NiceModal from '@ebay/nice-modal-react'
 
 import { t } from '@i18n'
-
+import { model } from '@model'
+import { DDBTag } from '@components/tags/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
+import { TableOperations } from '@components/TableOperations/index.tsx'
 import { format_time } from '@/dashboard/utils.ts'
 
-
-import { model } from '@model'
-
-import { DDBTag } from '@components/tags/index.tsx'
-
-import { DDBTable } from '@components/DDBTable/index.tsx'
-
-import { TableOperations } from '@components/TableOperations/index.tsx'
-
 import { request } from './utils.ts'
-import { type IParserTemplate } from './type.js'
+import { type IParserTemplate } from './type.ts'
 import { ParserTemplateModal } from './components/create-parser-template-modal/index.tsx'
-
 import { get_parser_templates } from './api.ts'
 import { PROTOCOL_MAP } from './constant.ts'
 

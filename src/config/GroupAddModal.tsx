@@ -1,13 +1,10 @@
 import NiceModal from '@ebay/nice-modal-react'
 import { AutoComplete, Button, Input, Modal, Table, Tooltip, type TableProps } from 'antd'
-
 import { useCallback, useEffect, useState } from 'react'
 
+import { t } from '@i18n'
 import { model } from '@model'
 
-import { t } from '@i18n'
-
- 
 import { config, node_configs_options, validate_config } from './model.ts'
 import { strs_2_nodes } from './utils.ts'
 

@@ -1,26 +1,19 @@
 import './index.sass'
 
 import { CloseOutlined } from '@ant-design/icons'
-
-
 import { useMemo, useRef } from 'react'
-
 import cn from 'classnames'
-
 import { Button } from 'antd'
 
-import { WidgetChartType, WidgetType, WidgetTypeWithoutDatasource, dashboard, type Widget } from '../model.js'
-import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
-import { graphs } from '../graphs.js'
-
-import ChartSvg from '../icons/chart.svg'
-import { get_data_source } from '../DataSource/date-source.js'
 import { t } from '@i18n'
- 
+import { WidgetChartType, WidgetType, WidgetTypeWithoutDatasource, dashboard, type Widget } from '@/dashboard/model.ts'
+import { DataSourceConfig } from '@/dashboard/DataSource/DataSourceConfig.tsx'
+import { graphs } from '@/dashboard/graphs.ts'
+import ChartSvg from '@/dashboard/icons/chart.svg'
+import { get_data_source } from '@/dashboard/DataSource/date-source.ts'
+import { copy_widget } from '@/dashboard/utils.ts'
 
-import { copy_widget } from '../utils.ts'
-
-import { VariableForm } from './VariableForm.js'
+import { VariableForm } from './VariableForm.tsx'
 
 
 function get_padding_style (padding: { left: number, right: number, top: number, bottom: number }) { 

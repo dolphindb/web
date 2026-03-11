@@ -1,17 +1,14 @@
 import './GlobalErrorBoundary.sass'
 
 import { Component, type PropsWithChildren } from 'react'
-
 import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.js'
-
 import { empty } from 'xshell/prototype.browser.js'
-
 import type { Model } from 'react-object-model'
 import { Button, Result } from 'antd'
 
-import { model } from '../model.js'
-import { dashboard } from '../dashboard/model.js'
 import { t } from '@i18n'
+import { model } from '@model'
+import { dashboard } from '@/dashboard/model.ts'
 
 
 

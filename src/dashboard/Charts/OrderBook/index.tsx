@@ -1,21 +1,15 @@
 import type * as echarts from 'echarts'
-
 import { useMemo } from 'react'
-
 import { DdbType } from 'dolphindb/browser.js'
 
-import { dashboard, type Widget } from '../../model.js'
-import { type IOrderBookConfig, type IChartConfig } from '../../type.js'
-import { to_chart_data } from '../../utils.ts'
-
-
-import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBookField.js'
-
-
+import { dashboard, type Widget } from '@/dashboard/model.ts'
+import { type IOrderBookConfig, type IChartConfig } from '@/dashboard/type.ts'
+import { to_chart_data } from '@/dashboard/utils.ts'
+import { OrderFormFields, BasicFormFields } from '@/dashboard/ChartFormFields/OrderBookField.tsx'
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
-
-import { convert_order_book_config, convertDateFormat, type OrderBookTradeData, parsePrice } from './config.js'
 import type { GraphComponentProps } from '@/dashboard/graphs.ts'
+
+import { convert_order_book_config, convertDateFormat, type OrderBookTradeData, parsePrice } from './config.tsx'
 
 
 export function OrderBook ({ widget, data_source: { data } }: GraphComponentProps<OrderBookTradeData>) {

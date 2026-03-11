@@ -1,27 +1,18 @@
 import './index.sass'
 
 import useSWR from 'swr'
-
 import { Button, Result, Spin } from 'antd'
-
-import { t } from '@i18n'
-
-
 import type { DdbObj } from 'dolphindb/browser.js'
-
 import { useState } from 'react'
-
 import useSWRMutation from 'swr/mutation'
 
+import { t } from '@i18n'
 import { model, NodeType } from '@model'
-
+import { Unlogin } from '@components/Unlogin.tsx'
 import { InitStatus, Protocol } from '@/data-collection/type.ts'
 import { has_data_collection_auth, test_init } from '@/data-collection/api.ts'
 
-import { Unlogin } from '@components/Unlogin.tsx'
-
 import code from './script.dos'
-
 import { ParserTemplates } from './ParserTemplates.tsx'
 import { Connections } from './Connection.tsx'
 import { protocols } from './constant.ts'

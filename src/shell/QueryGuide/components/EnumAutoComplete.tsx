@@ -3,7 +3,7 @@ import { AutoComplete, type AutoCompleteProps } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 
 import { t } from '@i18n'
-import { query_enums } from '../utils.ts'
+import { query_enums } from '@/shell/QueryGuide/utils.ts'
 
 interface IProps extends AutoCompleteProps { 
     table: string

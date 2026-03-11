@@ -1,23 +1,16 @@
 import './index.scss'
 
 import type * as echarts from 'echarts'
-
 import { Button, Collapse, Form, Input, InputNumber, Select } from 'antd'
-
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
-
 import { useMemo } from 'react'
 
 import { t } from '@i18n'
-
-import { dashboard } from '../../model.js'
-import { convert_list_to_options, format_number, parse_text } from '../../utils.ts'
-
-import { type IGaugeConfig } from '../../type.js'
-
-
-import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
-import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
+import { StringColorPicker } from '@components/StringColorPicker/index.tsx'
+import { dashboard } from '@/dashboard/model.ts'
+import { convert_list_to_options, format_number, parse_text } from '@/dashboard/utils.ts'
+import { type IGaugeConfig } from '@/dashboard/type.ts'
+import { BasicFormFields } from '@/dashboard/ChartFormFields/BasicFormFields.tsx'
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 

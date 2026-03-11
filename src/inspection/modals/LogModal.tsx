@@ -1,9 +1,9 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { t } from '@i18n'
 import { Editor } from '@monaco-editor/react'
 import { Modal } from 'antd'
 import useSWR from 'swr'
 
+import { t } from '@i18n'
 import { inspection } from '@/inspection/model.ts'
 
 interface LogModalProps {

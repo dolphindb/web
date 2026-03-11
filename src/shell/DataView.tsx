@@ -1,10 +1,8 @@
 import { type DdbObj, type DdbValue } from 'dolphindb/browser.js'
 
-import { Obj, type DdbObjRef } from '@/obj.tsx'
-
 import { model } from '@model'
-
 import { ExportCsv } from '@components/ExportCsv.tsx'
+import { Obj, type DdbObjRef } from '@/obj.tsx'
 import { LineageGraph } from '@/lineage/index.tsx'
 
 import { shell } from './model.ts'

@@ -1,10 +1,9 @@
 import { Select } from 'antd'
 import useSWR from 'swr'
-
 import { useCallback, useEffect, useState } from 'react'
 
-import { query_enums } from '../utils.ts'
 import { t } from '@i18n'
+import { query_enums } from '@/shell/QueryGuide/utils.ts'
 
 interface IProps { 
     table: string

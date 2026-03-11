@@ -1,15 +1,12 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
-
 import { Form, Select, Spin } from 'antd'
-
 import useSWR from 'swr'
 
-import { type ITableInfo, type IFinanceInfo } from '../type.js'
-import { request } from '../../utils.ts'
-
-import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'
-import { CUSTOM } from '../constant.js'
 import { t } from '@i18n'
+import { type ITableInfo, type IFinanceInfo } from '@/guide/finance-guide/type.ts'
+import { request } from '@/guide/utils.ts'
+import { ENUM_TYPES, TIME_TYPES } from '@/guide/constant.ts'
+import { CUSTOM } from '@/guide/finance-guide/constant.ts'
 
 interface IProps { 
     info: IFinanceInfo

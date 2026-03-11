@@ -1,10 +1,9 @@
 import { Model } from 'react-object-model'
-
 import { check, map_keys } from 'xshell/utils.browser.js'
 import { DdbFunction, DdbFunctionType, type DdbTableData } from 'dolphindb/browser.js'
 
-import { model } from '@model'
 import { t } from '@i18n'
+import { model } from '@model'
 
 
 class StreamingGraph extends Model<StreamingGraph> {

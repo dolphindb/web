@@ -1,16 +1,11 @@
-import { t } from '@i18n'
-
 import { Alert, Button, Spin } from 'antd'
-
 import NiceModal from '@ebay/nice-modal-react'
-
 import { useEffect, useState, useRef, useCallback } from 'react'
- 
-import { storage_keys } from '@model'
 
+import { t } from '@i18n'
+import { storage_keys } from '@model'
 import { shell } from '@/shell/model.ts'
- 
- 
+
 import { git_provider } from './git-provider.ts'
 import { GitHubAccessTokenModal, GitHubOauthModal, GitLabAccessTokenModal, GitLabOauthModal } from './GitModals.tsx'
 import { format_friendly_date } from './get-auth-url.ts'

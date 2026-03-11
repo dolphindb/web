@@ -3,12 +3,12 @@ import { useMemo } from 'react'
 
 import { isNil, pickBy } from 'lodash'
 
-import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
-import { type IChartConfig, type ISeriesConfig } from '../../type.js'
+import { OhlcFormFields } from '@/dashboard/ChartFormFields/OhlcChartFields.tsx'
+import { type IChartConfig, type ISeriesConfig } from '@/dashboard/type.ts'
 
-import { MarkPresetType } from '../../ChartFormFields/type.js'
-import { format_time, parse_text } from '../../utils.ts'
-import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
+import { MarkPresetType } from '@/dashboard/ChartFormFields/type.ts'
+import { format_time, parse_text } from '@/dashboard/utils.ts'
+import { BasicFormFields } from '@/dashboard/ChartFormFields/BasicFormFields.tsx'
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 

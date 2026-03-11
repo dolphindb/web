@@ -1,13 +1,12 @@
 import { ShareAltOutlined } from '@ant-design/icons'
 import { Button, Tooltip, notification } from 'antd'
 import { useCallback } from 'react'
-
 import copy from 'copy-to-clipboard'
 
-import { dashboard } from '../model.js'
 import { t } from '@i18n'
-import { model } from '../../model.js'
-import { DASHBOARD_SHARED_SEARCH_KEY } from '../constant.js'
+import { model } from '@model'
+import { dashboard } from '@/dashboard/model.ts'
+import { DASHBOARD_SHARED_SEARCH_KEY } from '@/dashboard/constant.ts'
 
 interface IProps {
     dashboard_ids: number[]

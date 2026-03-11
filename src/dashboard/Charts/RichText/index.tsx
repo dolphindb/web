@@ -1,18 +1,16 @@
-import './index.sass'
 import 'react-quill-new/dist/quill.core.css'
 import 'react-quill-new/dist/quill.snow.css'
+
+import './index.sass'
 
 import { Button, Modal } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
 import cn from 'classnames'
-
 import { use_modal } from 'react-object-model/hooks.js'
 
 import { t } from '@i18n'
-
 import { model } from '@model'
-
 import { dashboard } from '@/dashboard/model.ts'
 import type { ITextConfig } from '@/dashboard/type.ts'
 import { variables } from '@/dashboard/Variable/variable.ts'

@@ -1,25 +1,18 @@
+import './index.sass'
+
 import { Radio, Result, Spin } from 'antd'
 import { useId, useState } from 'react'
-
 import useSWR from 'swr'
 
 import { t } from '@i18n'
-
-
-import { model, NodeType } from '../../model.js'
-
-import finance_guide_code from '../finance.dos'
-import iot_guide_code from '../iot.dos'
-
-import './index.sass'
-
-
-
+import { model, NodeType } from '@model'
 import { Unlogin } from '@components/Unlogin.tsx'
+import finance_guide_code from '@/guide/finance.dos'
+import iot_guide_code from '@/guide/iot.dos'
 
-import { GuideType } from './type.js'
-import { SimpleVersion } from './SimpleVersion/index.js'
-import { AdvancedVersion } from './AdvancedVersion/index.js'
+import { GuideType } from './type.ts'
+import { SimpleVersion } from './SimpleVersion/index.tsx'
+import { AdvancedVersion } from './AdvancedVersion/index.tsx'
 
 const VersionMap = {
     [GuideType.SIMPLE]: <SimpleVersion />,

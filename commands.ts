@@ -104,7 +104,7 @@ async function dev () {
     
     
     process_stdin(
-        async (key) => {
+        async key => {
             switch (key) {
                 case 'r':
                     try {
@@ -127,13 +127,13 @@ async function dev () {
         stop
     )
     
-    const url = `http://localhost:8432/`
+    const url = 'http://localhost:8432/'
     
     const info = `${url}\n`.blue.underline
     
     console.log(
         '\n' +
-        `开发服务器启动成功，请使用浏览器打开:\n`.green +
+        '开发服务器启动成功，请使用浏览器打开:\n'.green +
         info +
         '终端快捷键:\n' +
         'r: 重新编译\n' +

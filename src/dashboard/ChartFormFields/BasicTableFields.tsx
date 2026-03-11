@@ -9,9 +9,9 @@ import { t } from '@i18n'
 import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
 import { StringColorPicker } from '@components/StringColorPicker/index.tsx'
 
-import { convert_list_to_options } from '../utils.ts'
+import { convert_list_to_options } from '@/dashboard/utils.ts'
 
-import { format_time_options } from './constant.js'
+import { format_time_options } from './constant.ts'
 
 export function BasicTableFields ({ col_names }: { col_names: string[] }) {
     const form = Form.useFormInstance()

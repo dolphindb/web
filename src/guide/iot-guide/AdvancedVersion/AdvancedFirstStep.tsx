@@ -1,12 +1,11 @@
 import { Button, Form } from 'antd'
-
 import { useCallback, useEffect, useState } from 'react'
 
-import { BasicInfoFields } from '../../components/BasicInfoFields.js'
-import { type RecommendInfo, type BasicInfoFormValues, type SecondStepInfo, type AdvancedInfos, GuideType, type ExecuteResult, type ServerRecommendInfo } from '../type.js'
-import { request } from '../../utils.ts'
 import { t } from '@i18n'
 import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
+import { BasicInfoFields } from '@/guide/components/BasicInfoFields.tsx'
+import { type RecommendInfo, type BasicInfoFormValues, type SecondStepInfo, type AdvancedInfos, GuideType, type ExecuteResult, type ServerRecommendInfo } from '@/guide/iot-guide/type.ts'
+import { request } from '@/guide/utils.ts'
 
 interface IProps { 
     info: AdvancedInfos

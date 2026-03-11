@@ -4,20 +4,15 @@ import { default as React, useCallback, useContext, useMemo, useState, useEffect
 import NiceModal from '@ebay/nice-modal-react'
 import { Button, Modal, Result, type SelectProps, Spin, Form, Input, InputNumber, Select, Table, Checkbox, Space, Row, Col } from 'antd'
 import { mapKeys, isFunction } from 'lodash'
-
 import { DdbType, type DdbObj } from 'dolphindb/browser.js'
-
 import { use_rerender } from 'react-object-model/hooks.js'
-
 import { DownOutlined, UpOutlined } from '@ant-design/icons'
- 
+
 import { t } from '@i18n'
-
+import { model } from '@model'
 import { type DDBColumnTypeNames } from '@utils'
-import { CopyIconButton } from '../components/copy/CopyIconButton.js'
-import { model } from '../model.js'
-
-import { Editor } from '../components/Editor/index.js'
+import { CopyIconButton } from '@components/copy/CopyIconButton.tsx'
+import { Editor } from '@components/Editor/index.tsx'
 
 import { type Database } from './Databases.tsx'
 

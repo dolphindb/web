@@ -1,12 +1,10 @@
 
 import useSWR from 'swr'
-
-import { model } from '@model'
-
 import { unique } from 'xshell/utils.browser'
 
-import { access } from '../model.ts'
-import type { AccessCategory, AccessRole } from '../types.ts'
+import { model } from '@model'
+import { access } from '@/access/model.ts'
+import type { AccessCategory, AccessRole } from '@/access/types.ts'
 import { config } from '@/config/model.ts'
 import { strs_2_nodes } from '@/config/utils.ts'
 import { ACCESS_TYPE } from '@/access/constants.tsx'

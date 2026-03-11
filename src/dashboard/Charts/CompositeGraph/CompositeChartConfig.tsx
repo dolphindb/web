@@ -8,19 +8,19 @@ import { t } from '@i18n'
 
 import { DDB_TYPE_MAP } from '@utils'
 
-import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
-import { FormDependencies } from '../../../components/FormDependencies/index.js'
-import { AxisItem, YAxis, Series, ThresholdFormFields } from '../../ChartFormFields/BasicChartFields.js'
-import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
-import { SeriesItem } from '../../ChartFormFields/components/SeriesItem.js'
-import { AxisType, MatchRuleType } from '../../ChartFormFields/type.js'
-import { get_data_source } from '../../DataSource/date-source.js'
-import { dashboard } from '../../model.js'
-import { convert_list_to_options, concat_name_path } from '../../utils.ts'
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
+import { AxisItem, YAxis, Series, ThresholdFormFields } from '@/dashboard/ChartFormFields/BasicChartFields.tsx'
+import { BasicFormFields } from '@/dashboard/ChartFormFields/BasicFormFields.tsx'
+import { SeriesItem } from '@/dashboard/ChartFormFields/components/SeriesItem.tsx'
+import { AxisType, MatchRuleType } from '@/dashboard/ChartFormFields/type.ts'
+import { get_data_source } from '@/dashboard/DataSource/date-source.ts'
+import { dashboard } from '@/dashboard/model.ts'
+import { convert_list_to_options, concat_name_path } from '@/dashboard/utils.ts'
 
-import { VALUE_TYPES } from './constant.js'
+import { VALUE_TYPES } from './constant.ts'
 
-import { SingleDataSourceUpdate } from './index.js'
+import { SingleDataSourceUpdate } from './index.tsx'
 
 
 const series_match_type_options = [

@@ -1,10 +1,8 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { t } from '@i18n'
 import { Modal } from 'antd'
-
 import { useState } from 'react'
 
-
+import { t } from '@i18n'
 import type { MetricsWithStatus } from '@/inspection/type.ts'
 import { MetricTable } from '@/inspection/components/MetricTable.tsx'
 

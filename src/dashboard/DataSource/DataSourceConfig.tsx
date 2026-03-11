@@ -2,26 +2,19 @@ import './index.sass'
 
 import { useCallback, useRef, useState, useEffect, useMemo } from 'react'
 import { cloneDeep } from 'lodash'
-
 import { Button, Modal, type ButtonProps, Tabs } from 'antd'
 import { DatabaseOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/hooks.js'
-
 import { DdbForm } from 'dolphindb/browser.js'
 
-import { WidgetChartType, dashboard, type Widget } from '../model.js'
-
-import { get_chart_data_type, parse_code } from '../utils.ts'
-
-import { model } from '../../model.js'
-
 import { t } from '@i18n'
+import { model } from '@model'
+import { WidgetChartType, dashboard, type Widget } from '@/dashboard/model.ts'
+import { get_chart_data_type, parse_code } from '@/dashboard/utils.ts'
 
-import { DataSourceList } from './DataSourceList.js'
-import { SqlEditor } from './SqlEditor.js'
-import { StreamEditor } from './StreamEditor.js'
-
-
+import { DataSourceList } from './DataSourceList.tsx'
+import { SqlEditor } from './SqlEditor.tsx'
+import { StreamEditor } from './StreamEditor.tsx'
 import {
     data_sources,
     find_data_source_index, 
@@ -30,7 +23,7 @@ import {
     subscribe_data_source, 
     type DataSource,
     type DataSourcePropertyType,
-} from './date-source.js'
+} from './date-source.ts'
 
 
 

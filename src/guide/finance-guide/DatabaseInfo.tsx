@@ -1,18 +1,14 @@
 import { Button, Form, Input, InputNumber, Radio, Select } from 'antd'
-
 import { useCallback, useEffect } from 'react'
 
-import { FormDependencies } from '../../components/FormDependencies/index.js'
-
-import { request } from '../utils.ts'
-
 import { t } from '@i18n'
-
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
 import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
+import { request } from '@/guide/utils.ts'
 
-import { ExistDBSelect } from './components/ExistedDBSelect.js'
-import { CUSTOM, DAILY_INCREASE_DATA_OPTIONS } from './constant.js'
-import { type IDatabaseInfo, type IFinanceInfo } from './type.js'
+import { ExistDBSelect } from './components/ExistedDBSelect.tsx'
+import { CUSTOM, DAILY_INCREASE_DATA_OPTIONS } from './constant.ts'
+import { type IDatabaseInfo, type IFinanceInfo } from './type.ts'
 
 interface IProps { 
     info: IFinanceInfo

@@ -2,29 +2,24 @@ import './index.scss'
 
 import { Collapse, type CollapseProps, Form, InputNumber, Select, Input } from 'antd'
 import { get } from 'lodash'
-
 import { useMemo } from 'react'
 
 import { t } from '@i18n'
-import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
-import { variables } from '../Variable/variable.js'
-import { convert_list_to_options } from '../utils.ts'
-
-import { WidgetChartType, dashboard } from '../model.js'
-
-import { FormDependencies } from '../../components/FormDependencies/index.js'
-
 import { DDB_TYPE_MAP } from '@utils'
-
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
+import { variables } from '@/dashboard/Variable/variable.ts'
+import { convert_list_to_options } from '@/dashboard/utils.ts'
+import { WidgetChartType, dashboard } from '@/dashboard/model.ts'
 import type { GraphConfigProps } from '@/dashboard/graphs.ts'
 
-import { TitleFields } from './components/Title.js'
-import { LegendFields } from './components/Legend.js'
-import { TooltipFields } from './components/Tooltip.js'
-import { SplitLineFields } from './components/SplitLine.js'
-import { DataZoomFields } from './components/DataZoom.js'
-import { WrapperFields } from './components/Wrapper.js'
-import { ChartField } from './type.js'
+import { TitleFields } from './components/Title.tsx'
+import { LegendFields } from './components/Legend.tsx'
+import { TooltipFields } from './components/Tooltip.tsx'
+import { SplitLineFields } from './components/SplitLine.tsx'
+import { DataZoomFields } from './components/DataZoom.tsx'
+import { WrapperFields } from './components/Wrapper.tsx'
+import { ChartField } from './type.ts'
 
 
 

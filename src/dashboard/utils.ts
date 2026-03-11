@@ -9,12 +9,12 @@ import dayjs from 'dayjs'
 
 import { t } from '@i18n'
 
-import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.js'
-import { type AxisConfig, type IChartConfig, type ISeriesConfig, type MatrixData } from './type.js'
-import { subscribe_data_source, type DataSource, get_data_source } from './DataSource/date-source.js'
-import { AxisType, ILineType, MarkPresetType, ThresholdShowType, ThresholdType } from './ChartFormFields/type.js'
-import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
-import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.js'
+import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.ts'
+import { type AxisConfig, type IChartConfig, type ISeriesConfig, type MatrixData } from './type.ts'
+import { subscribe_data_source, type DataSource, get_data_source } from './DataSource/date-source.ts'
+import { AxisType, ILineType, MarkPresetType, ThresholdShowType, ThresholdType } from './ChartFormFields/type.ts'
+import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.ts'
+import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.ts'
 
 
 export function format_time (time: string, format: string) {

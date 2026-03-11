@@ -5,23 +5,19 @@ import { Button, Input, Modal, Table, Popconfirm, Spin, Tag, Typography } from '
 import { DeleteOutlined, DownloadOutlined, PlusOutlined } from '@ant-design/icons'
 import { downloadZip } from 'client-zip'
 import cn from 'classnames'
-
-
 import { use_modal } from 'react-object-model/hooks.js'
 import { genid, vercmp } from 'xshell/utils.browser.js'
 
-import { model } from '../model.js'
 import { t } from '@i18n'
-
+import { model } from '@model'
 import { DDBTable } from '@components/DDBTable/index.tsx'
-
 import { TableOperations } from '@components/TableOperations/index.tsx'
 
-import { dashboard, DashboardPermission } from './model.js'
+import { dashboard, DashboardPermission } from './model.ts'
 import { check_name } from './utils.ts'
 import { Import } from './components/Import.tsx'
-import { Share } from './Share/Share.js'
-import { Doc } from './components/Doc.js'
+import { Share } from './Share/Share.tsx'
+import { Doc } from './components/Doc.tsx'
 
 
 

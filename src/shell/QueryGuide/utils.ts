@@ -1,7 +1,7 @@
-import { safe_json_parse } from '../../dashboard/utils.ts'
-import { request } from '../../guide/utils.ts'
+import { safe_json_parse } from '@/dashboard/utils.ts'
+import { request } from '@/guide/utils.ts'
 
-import { type Query } from './type.js'
+import { type Query } from './type.ts'
 
 export function transform_query (query: Query) {
     return query.map(item => { 

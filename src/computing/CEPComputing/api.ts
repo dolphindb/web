@@ -1,7 +1,7 @@
-import { safe_json_parse, sql_formatter } from '../../dashboard/utils.ts'
-import { model } from '../../model.js'
+import { model } from '@model'
+import { safe_json_parse, sql_formatter } from '@/dashboard/utils.ts'
 
-import { type ICEPEngineDetail, type CEPEngineItem, type DataViewEngineItem, type IServerEngineDetail } from './type.js'
+import { type ICEPEngineDetail, type CEPEngineItem, type DataViewEngineItem, type IServerEngineDetail } from './type.ts'
 
 
 export async function get_cep_engine_list () { 

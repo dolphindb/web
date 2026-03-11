@@ -1,11 +1,10 @@
 import { Select } from 'antd'
 import { type SelectProps } from 'antd/lib'
 import { useId, useState } from 'react'
-
 import useSWR from 'swr'
 
-import { model } from '../../../model.js'
 import { t } from '@i18n'
+import { model } from '@model'
 
 export function ExistDBSelect (props: SelectProps) {
     

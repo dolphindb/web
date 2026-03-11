@@ -1,23 +1,18 @@
 import type * as echarts from 'echarts'
-
 import { useMemo } from 'react'
-
 import { Collapse, Form, InputNumber } from 'antd'
-
-import { t } from '@i18n'
-
 import { max, min } from 'lodash'
 
-import { BoolRadioGroup } from '@components/BoolRadioGroup/index.js'
-import { StringColorPicker } from '@components/StringColorPicker/index.js'
-
-import { AxisItem } from '@/dashboard/ChartFormFields/BasicChartFields.js'
-import { BasicFormFields } from '@/dashboard/ChartFormFields/BasicFormFields.js'
-import { ChartField } from '@/dashboard/ChartFormFields/type.js'
-import { get_data_source } from '@/dashboard/DataSource/date-source.js'
-import type { IChartConfig, MatrixData } from '@/dashboard/type.js'
-import { format_time, parse_text } from '@/dashboard/utils.js'
-import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.js'
+import { t } from '@i18n'
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
+import { StringColorPicker } from '@components/StringColorPicker/index.tsx'
+import { AxisItem } from '@/dashboard/ChartFormFields/BasicChartFields.tsx'
+import { BasicFormFields } from '@/dashboard/ChartFormFields/BasicFormFields.tsx'
+import { ChartField } from '@/dashboard/ChartFormFields/type.ts'
+import { get_data_source } from '@/dashboard/DataSource/date-source.ts'
+import type { IChartConfig, MatrixData } from '@/dashboard/type.ts'
+import { format_time, parse_text } from '@/dashboard/utils.ts'
+import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 
 

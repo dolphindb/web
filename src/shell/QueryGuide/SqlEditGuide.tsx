@@ -7,11 +7,11 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { t } from '@i18n'
 
-import { Editor } from '../../components/Editor/index.js'
+import { Editor } from '@components/Editor/index.tsx'
 
-import { QueryDataView } from './components/QueryDataView.js'
-import { ExportFileModal } from './components/ExportFileModal.js'
-import { guide_query_model } from './model.js'
+import { QueryDataView } from './components/QueryDataView.tsx'
+import { ExportFileModal } from './components/ExportFileModal.tsx'
+import { guide_query_model } from './model.ts'
 
 interface IProps { 
     database: string
@@ -29,8 +29,7 @@ export function SqlEditGuide (props: IProps) {
     const [code, set_code] = useState(guide_query_model.use(['code']).code ?? `SELECT * FROM loadTable("${database}", "${table}")`)
     
     
-    const view_map = useMemo(() => { 
-        return {
+    const view_map = useMemo(() => ({
             0: <div className='query-code-editor'>
                 <Editor
                     enter_completion
@@ -43,8 +42,7 @@ export function SqlEditGuide (props: IProps) {
                 />
             </div>,
             1: <QueryDataView code={code} set_total={set_total} />,
-        }
-    }, [code])
+        }), [code])
     
     const to_next_step = useCallback(() => { 
         set_current_step(current_step + 1)

@@ -5,14 +5,14 @@ import { useMemo } from 'react'
 import { get } from 'lodash'
 
 import { t } from '@i18n'
-import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
-import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
-import { FormDependencies } from '../../../components/FormDependencies/index.js'
-import { get_data_source } from '../../DataSource/date-source.js'
-import { WidgetChartType, dashboard } from '../../model.js'
-import { concat_name_path, convert_list_to_options } from '../../utils.ts'
-import { chart_type_options, mark_point_options, mark_line_options, line_type_options } from '../constant.js'
-import { ILineType } from '../type.js'
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
+import { StringColorPicker } from '@components/StringColorPicker/index.tsx'
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
+import { get_data_source } from '@/dashboard/DataSource/date-source.ts'
+import { WidgetChartType, dashboard } from '@/dashboard/model.ts'
+import { concat_name_path, convert_list_to_options } from '@/dashboard/utils.ts'
+import { chart_type_options, mark_point_options, mark_line_options, line_type_options } from '@/dashboard/ChartFormFields/constant.ts'
+import { ILineType } from '@/dashboard/ChartFormFields/type.ts'
 
 interface SeriesItemProps { 
     /** 选传，外层包裹了 Form.List 时为 field.name */

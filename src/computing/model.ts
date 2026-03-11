@@ -1,9 +1,8 @@
 import { Model } from 'react-object-model'
-
 import { type DdbObj, urgent } from 'dolphindb/browser.js'
 
-import { model } from '@model'
 import { t } from '@i18n'
+import { model } from '@model'
 
 import script from './index.dos'
 

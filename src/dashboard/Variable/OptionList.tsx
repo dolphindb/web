@@ -6,11 +6,11 @@ import { genid } from 'xshell/utils.browser.js'
 import { DeleteOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import { VariableMode } from '../type.js'
+import { VariableMode } from '@/dashboard/type.ts'
 
-import { dashboard } from '../model.js'
+import { dashboard } from '@/dashboard/model.ts'
 
-import { type Variable, type VariablePropertyType, type OptionType } from './variable'
+import { type Variable, type VariablePropertyType, type OptionType } from './variable.ts'
 
 type EditableTableProps = Parameters<typeof Table>[0]
 

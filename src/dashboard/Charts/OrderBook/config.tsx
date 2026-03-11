@@ -2,8 +2,8 @@ import {
     type EChartsOption,
 } from 'echarts/types/dist/shared.js'
 
-import { type IOrderBookConfig } from '../../type'
-import { parse_text } from '../../utils.ts'
+import { type IOrderBookConfig } from '@/dashboard/type.ts'
+import { parse_text } from '@/dashboard/utils.ts'
 
 export function convert_order_book_config (config: IOrderBookConfig, orderbook_data, line_data, bar_data): EChartsOption {
     let { title, with_tooltip, time_rate, title_size, with_split_line, bar_color, line_color } = config
@@ -25,12 +25,10 @@ export function convert_order_book_config (config: IOrderBookConfig, orderbook_d
         tooltip: {
             show: with_tooltip,
             position: 'top',
-            formatter: params => {
-                return `${params.data[0]}
+            formatter: params => `${params.data[0]}
                 ${(params.data[1] / time_rate).toFixed(4)}
                 ${params.data[2]}
                 ${params.data[3]}`
-            }
         },
         grid: [
             // 热力图    
@@ -76,9 +74,7 @@ export function convert_order_book_config (config: IOrderBookConfig, orderbook_d
                 show: with_split_line
                 },
                 axisLabel: {
-                    formatter: params => {
-                        return (params / time_rate).toFixed(2)
-                    }
+                    formatter: params => (params / time_rate).toFixed(2)
                 },
                 axisLine: {
                 show: true
@@ -179,9 +175,7 @@ export function parsePrice (dataString: string) {
     
     const data = dataString.slice(1, dataString.length - 2)
     const arr = data.split(',')
-    return arr.map(item => {
-        return item !== '' ? item : null
-    })
+    return arr.map(item => item !== '' ? item : null)
 }
 
 export interface OrderBookTradeData {

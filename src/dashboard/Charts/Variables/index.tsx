@@ -1,7 +1,7 @@
 import './index.scss'
 
-import { VariableForm } from '../../GraphItem/VariableForm.js'
-import type { GraphComponentProps } from '@/dashboard/graphs.js'
+import { VariableForm } from '@/dashboard/GraphItem/VariableForm.tsx'
+import type { GraphComponentProps } from '@/dashboard/graphs.ts'
 
 interface IVariableConfig { 
     title?: string

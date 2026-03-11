@@ -1,18 +1,16 @@
 import './index.scss'
-import { Button, Form, Radio, Select, Space, Typography } from 'antd'
 
+import { Button, Form, Radio, Select, Space, Typography } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { type RecommendInfo, type SecondStepInfo, type AdvancedInfos, type ExecuteResult } from '../type.js'
-import { FormDependencies } from '../../../components/FormDependencies/index.js'
-
-import { request } from '../../utils.ts'
-import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'
 import { t } from '@i18n'
-
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
 import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
+import { type RecommendInfo, type SecondStepInfo, type AdvancedInfos, type ExecuteResult } from '@/guide/iot-guide/type.ts'
+import { request } from '@/guide/utils.ts'
+import { ENUM_TYPES, TIME_TYPES } from '@/guide/constant.ts'
 
-import { CommonSortCols } from './CommonSortCols.js'
+import { CommonSortCols } from './CommonSortCols.tsx'
 
 interface IProps { 
     info: AdvancedInfos

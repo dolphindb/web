@@ -1,18 +1,12 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-
 import { Button, DatePicker, Form, Input, InputNumber, Modal, Select } from 'antd'
-
 import { cloneDeep, isEmpty } from 'lodash'
-
 import dayjs, { type Dayjs } from 'dayjs'
-
 import { useMemo } from 'react'
-
 import { DdbType } from 'dolphindb/browser'
- 
-import { DDB_TYPE_MAP } from '@utils'
-import { t } from '@i18n'
 
+import { t } from '@i18n'
+import { DDB_TYPE_MAP } from '@utils'
 import type { MetricParam, MetricsWithStatus } from '@/inspection/type.ts'
 
 interface EditParamModalProps {

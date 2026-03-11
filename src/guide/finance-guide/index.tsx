@@ -2,34 +2,23 @@ import './index.scss'
 
 import { Result, Spin, Steps, Typography } from 'antd'
 import { useCallback, useId, useMemo, useState } from 'react'
-
 import NiceModal from '@ebay/nice-modal-react'
-
 import useSWR from 'swr'
 
-import { CodeViewStep } from '../components/CodeViewStep.js'
-
-
-import { ExecuteResult } from '../iot-guide/type.js'
-import { GuideFailResultPage } from '../components/GuideFailResultPage.js'
-import { GuideSuccessResultPage } from '../components/GuideSuccessResultPage.js'
-import { UploadConfigModal } from '../components/UploadConfigModal.js'
-
-
 import { t } from '@i18n'
-
-
-import { model, NodeType } from '../../model.js'
-
-import finance_guide_code from '../finance.dos'
-
-import iot_guide_code from '../iot.dos'
-
+import { model, NodeType } from '@model'
 import { Unlogin } from '@components/Unlogin.tsx'
+import { CodeViewStep } from '@/guide/components/CodeViewStep.tsx'
+import { ExecuteResult } from '@/guide/iot-guide/type.ts'
+import { GuideFailResultPage } from '@/guide/components/GuideFailResultPage.tsx'
+import { GuideSuccessResultPage } from '@/guide/components/GuideSuccessResultPage.tsx'
+import { UploadConfigModal } from '@/guide/components/UploadConfigModal.tsx'
+import finance_guide_code from '@/guide/finance.dos'
+import iot_guide_code from '@/guide/iot.dos'
 
-import { TableInfo } from './TableInfo.js'
-import { type IFinanceInfo } from './type.js'
-import { DatabaseInfo } from './DatabaseInfo.js'
+import { TableInfo } from './TableInfo.tsx'
+import { type IFinanceInfo } from './type.ts'
+import { DatabaseInfo } from './DatabaseInfo.tsx'
 
 
 export function FinanceGuide () {

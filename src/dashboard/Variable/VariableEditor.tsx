@@ -1,27 +1,19 @@
 import dayjs from 'dayjs'
-
 import { Button, DatePicker, Input, Popover, Select } from 'antd'
-
 import { FormOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-
 import { useCallback, useEffect, type Dispatch, type SetStateAction } from 'react'
-
 import { DdbForm } from 'dolphindb/browser.js'
-
 import { genid } from 'xshell/utils.browser.js'
 
-import { sql_formatter } from '../utils.ts'
 import { t } from '@i18n'
-import { VariableMode } from '../type.js'
+import { model } from '@model'
+import { Editor } from '@components/Editor/index.tsx'
+import { sql_formatter } from '@/dashboard/utils.ts'
+import { VariableMode } from '@/dashboard/type.ts'
+import { dashboard } from '@/dashboard/model.ts'
 
-import { dashboard } from '../model.js'
-
-import { model } from '../../model.js'
-
-import { Editor } from '../../components/Editor/index.js'
-
-import { OptionList } from './OptionList.js'
-import { find_value, type OptionType, type Variable, type VariablePropertyType } from './variable.js'
+import { OptionList } from './OptionList.tsx'
+import { find_value, type OptionType, type Variable, type VariablePropertyType } from './variable.ts'
 
 const { TextArea } = Input
 

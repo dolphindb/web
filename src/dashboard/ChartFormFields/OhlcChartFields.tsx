@@ -12,18 +12,18 @@ import { FormDependencies } from '@components/FormDependencies/index.tsx'
 import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
 import { StringColorPicker } from '@components/StringColorPicker/index.tsx'
 
-import { concat_name_path, convert_list_to_options } from '../utils.ts'
+import { concat_name_path, convert_list_to_options } from '@/dashboard/utils.ts'
 
 
-import { WidgetChartType, dashboard } from '../model.js'
+import { WidgetChartType, dashboard } from '@/dashboard/model.ts'
 
-import { chart_type_options, format_time_options, line_type_options, mark_line_options, mark_point_options } from './constant.js'
+import { chart_type_options, format_time_options, line_type_options, mark_line_options, mark_point_options } from './constant.ts'
 
 
-import { AxisType, type IAxisItem, type IYAxisItemValue, Position, ILineType } from './type.js'
+import { AxisType, type IAxisItem, type IYAxisItemValue, Position, ILineType } from './type.ts'
 
-import { PaddingSetting, VariableSetting } from './BasicFormFields.js'
-import { DATE_SELECT_FORMAT } from './BasicChartFields.js'
+import { PaddingSetting, VariableSetting } from './BasicFormFields.tsx'
+import { DATE_SELECT_FORMAT } from './BasicChartFields.tsx'
 
 interface IProps { 
     col_names: string[]

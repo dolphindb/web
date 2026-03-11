@@ -4,11 +4,10 @@ import { Button } from 'antd'
 import { useMemo, useState } from 'react'
 import { debounce } from 'lodash'
 
-import { type Widget, dashboard } from '../../model.js'
-import { Editor } from '../../../components/Editor/index.js'
-
-import { EditorFields } from '../../ChartFormFields/EditorFields.js'
-import { type IEditorConfig } from '../../type.js'
+import { Editor } from '@components/Editor/index.tsx'
+import { type Widget, dashboard } from '@/dashboard/model.ts'
+import { EditorFields } from '@/dashboard/ChartFormFields/EditorFields.tsx'
+import { type IEditorConfig } from '@/dashboard/type.ts'
 
 
 export function DashboardEditor ({ widget }: { widget: Widget }) {

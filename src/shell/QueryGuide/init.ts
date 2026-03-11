@@ -1,4 +1,4 @@
-import { model } from '../../model.js'
+import { model } from '@model'
 
 import code from './guide.dos'
 

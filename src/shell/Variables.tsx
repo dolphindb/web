@@ -1,11 +1,7 @@
 import { default as React, useCallback, useEffect, useState } from 'react'
-
 import { Tooltip, Tree } from 'antd'
-
 import type { DataNode, EventDataNode } from 'antd/es/tree'
-
 import { default as Icon, MinusSquareOutlined, SyncOutlined } from '@ant-design/icons'
-
 import {
     DdbForm,
     type DdbObj,
@@ -22,18 +18,13 @@ import {
     type DdbDictObj,
     type DdbVectorStringObj
 } from 'dolphindb/browser.js'
-
-
 import { delay } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
+import { model } from '@model'
+import { DdbObjRef } from '@/obj.tsx'
 
-import { DdbObjRef } from '../obj.js'
-
-import { model } from '../model.js'
-
-import { shell } from './model.js'
-
+import { shell } from './model.ts'
 import SvgVar from './icons/variable.icon.svg'
 import SvgScalar from './icons/scalar.icon.svg'
 import SvgVector from './icons/vector.icon.svg'

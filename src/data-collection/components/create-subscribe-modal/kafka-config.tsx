@@ -1,19 +1,12 @@
 import useSWR from 'swr'
-
 import { AutoComplete, Button, Col, Form, Input, Row, Select, Space, Tooltip, Typography } from 'antd'
-
-
 import { DeleteOutlined, FileTextOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-
-
 import { get } from 'lodash'
 
 import { t } from '@i18n'
-
-import { request } from '../../utils.ts'
-import { kafka_params_doc_link } from '../../constant.js'
-
-import { FormDependencies } from '@components/FormDependencies/index.js'
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
+import { request } from '@/data-collection/utils.ts'
+import { kafka_params_doc_link } from '@/data-collection/constant.ts'
 
 const DEFAULT_DATA = {
     consumerCfgList: [ ]

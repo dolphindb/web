@@ -5,18 +5,17 @@ import { Form, Input, Collapse, InputNumber } from 'antd'
 
 import { t } from '@i18n'
 
-import { BoolRadioGroup } from '@components/BoolRadioGroup/index.js'
-import { StringColorPicker } from '@components/StringColorPicker/index.js'
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
+import { StringColorPicker } from '@components/StringColorPicker/index.tsx'
 
-import { variables } from '../Variable/variable.js'
+import { variables } from '@/dashboard/Variable/variable.ts'
 
-import { PaddingSetting, VariableSetting } from './BasicFormFields.js'
+import { PaddingSetting, VariableSetting } from './BasicFormFields.tsx'
 
 export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) { 
     const { variable_infos } = variables.use(['variable_infos'])
     
-    const FormFields = useMemo(() => { 
-        return  <div className='axis-wrapper'>
+    const FormFields = useMemo(() => <div className='axis-wrapper'>
             <Form.Item name='title' label={t('标题')} initialValue={t('标题')}>
                 <Input />
             </Form.Item>
@@ -35,8 +34,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
             <Form.Item name='with_split_line' label={t('Y 轴分割线')} initialValue={false}>
                 <BoolRadioGroup />
             </Form.Item>
-        </div>
-    }, [ type, variable_infos ])
+        </div>, [ type, variable_infos ])
     
     return <Collapse items={[{
         key: 'basic',
@@ -54,8 +52,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
 }
 
 export function OrderFormFields () {
-    const FormFields = useMemo(() => { 
-        return  <>
+    const FormFields = useMemo(() => <>
             <Form.Item name='bar_color' label={t('柱状图颜色')} initialValue={null}>
                 <StringColorPicker />
             </Form.Item>
@@ -68,8 +65,7 @@ export function OrderFormFields () {
             <Form.Item label={t('行情数据档数')} name='market_data_files_num' initialValue={10}>
                 <Input type='number'/>
             </Form.Item>
-        </>
-    }, [ ])
+        </>, [ ])
     return <Collapse items={[
         {
             key: 'series',

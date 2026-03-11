@@ -1,24 +1,17 @@
 import './index.scss'
-import useSWR from 'swr'
 
+import useSWR from 'swr'
 import { useCallback, useMemo, useState } from 'react'
 import { Form, Popconfirm, Result, Select, Typography } from 'antd'
-
-
 import { genid, to_option, unique } from 'xshell/utils.browser.js'
-
 import { DdbLong } from 'dolphindb/browser.js'
-
 import dayjs from 'dayjs'
 
 import { t } from '@i18n'
-
-import { DDBTable } from '@components/DDBTable/index.tsx'
-
+import { model, NodeType } from '@model'
 import { upper } from '@utils'
-
-import { model, NodeType } from '@/model.ts'
-import { Unlogin } from '@/components/Unlogin.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
+import { Unlogin } from '@components/Unlogin.tsx'
 
 interface SessionItem {
     userId: string

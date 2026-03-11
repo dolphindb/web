@@ -1,12 +1,10 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { t } from '@i18n'
 import { Button, Form, Input, Modal, Select, Space, Switch } from 'antd'
 import { useState } from 'react'
-
-import { model } from '@model'
- 
 import { use_modal, type ModalController } from 'react-object-model/hooks'
 
+import { t } from '@i18n'
+import { model } from '@model'
 import { config } from '@/config/model.ts'
 import { inspection } from '@/inspection/model.ts'
 

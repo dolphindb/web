@@ -1,5 +1,4 @@
 import { Drawer, Tooltip, type TableColumnsType } from 'antd'
-
 import { useCallback, useEffect, useState } from 'react'
 import {
     ReactFlow, Background, Controls, type Node, type Edge, type NodeTypes, 
@@ -7,15 +6,12 @@ import {
     Handle, ConnectionLineType
 } from '@xyflow/react'
 import dagre from '@dagrejs/dagre'
-
 import { not_empty } from 'xshell/prototype.browser.js'
 
 import { t } from '@i18n'
-
 import { model, type DdbNode, type DdbNodeState } from '@model'
-
-import { node_state_icons } from '@/overview/table.tsx'
 import { DDBTable } from '@components/DDBTable/index.tsx'
+import { node_state_icons } from '@/overview/table.tsx'
 import { engine_table_column_names } from '@/computing/model.ts'
 
 import { type StreamGraph, type GraphNode, type GraphEdge } from './model.ts'

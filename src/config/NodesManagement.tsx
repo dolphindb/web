@@ -10,14 +10,14 @@ import { DdbDatabaseError, DdbInt } from 'dolphindb/browser.js'
 import NiceModal from '@ebay/nice-modal-react'
 
 import { t } from '@i18n'
-import { DdbNodeState, model, NodeType } from '../model.js'
+import { DdbNodeState, model, NodeType } from '@model'
 
 import { RefreshButton } from '@components/RefreshButton/index.tsx'
 
-import { config } from './model.js'
-import { type ClusterNode, type NodesConfig } from './type.js'
+import { config } from './model.ts'
+import { type ClusterNode, type NodesConfig } from './type.ts'
 import { _2_strs, strs_2_nodes, filter_config, get_category } from './utils.ts'
-import { GroupAddModal, type GroupConfigDatatype, type GroupNodesDatatype } from './GroupAddModal.js'
+import { GroupAddModal, type GroupConfigDatatype, type GroupNodesDatatype } from './GroupAddModal.tsx'
 
 
 export function NodesManagement () {

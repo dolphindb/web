@@ -1,31 +1,24 @@
+import 'gridstack/dist/gridstack.css'
+
 import './index.sass'
 
-import 'gridstack/dist/gridstack.css'
 // 行列数为 1 - 11 时需要
 // import 'gridstack/dist/gridstack-extra.css'
 
 import { useEffect } from 'react'
 import { Button, Popconfirm, Result } from 'antd'
 import * as echarts from 'echarts'
-
 import { useRoutes } from 'react-router'
 
 import { t } from '@i18n'
-
 import { NodeType, model } from '@model'
-
-
 import { Unlogin } from '@components/Unlogin.tsx'
 
 import { InitedState, dashboard } from './model.ts'
-
 import { Doc } from './components/Doc.tsx'
-
 import { DashboardInstancePage } from './Instance.tsx'
 import { Overview } from './Overview.tsx'
-
 import config from './chart.config.json' with { type: 'json' }
-
 import backend from './backend.dos'
 
 

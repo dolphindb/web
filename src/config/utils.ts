@@ -2,7 +2,7 @@ import { t } from '@i18n'
 
 import { node_configs } from './model.ts'
 
-import { type NodeType, type ControllerConfig, type ClusterNode } from './type.js'
+import { type NodeType, type ControllerConfig, type ClusterNode } from './type.ts'
 
 export const strs_2_controller_configs = (strs: string[]): ControllerConfig[] =>
     strs.map(str => {

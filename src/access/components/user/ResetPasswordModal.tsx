@@ -1,9 +1,9 @@
 import NiceModal, { useModal, type NiceModalHocProps } from '@ebay/nice-modal-react'
 import { Form, Input, Modal } from 'antd'
 
-import { access } from '../../model.js'
-import { model } from '../../../model.js'
-import { language, t } from '../../../../i18n/index.js'
+import { language, t } from '@i18n'
+import { model } from '@model'
+import { access } from '@/access/model.ts'
 
 interface ResetPasswordModalProps extends NiceModalHocProps {
     name: string

@@ -1,21 +1,15 @@
-import { t } from '@i18n'
 import { Button, Table, Tooltip } from 'antd'
-
 import { useState, useEffect } from 'react'
-
-
 import NiceModal from '@ebay/nice-modal-react'
-
 import { noop } from 'xshell/prototype.browser.js'
-
-
 import { cloneDeep } from 'lodash'
 
+import { t } from '@i18n'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 import { MetricGroups } from '@/inspection/constants.ts'
 import type { MetricsWithStatus } from '@/inspection/type.ts'
 import { EditParamModal } from '@/inspection/modals/EditParamModal.tsx'
 import { AddParamsModal } from '@/inspection/modals/AddParamsModal.tsx'
-import { DDBTable } from '@components/DDBTable/index.tsx'
 
 
 interface MetricTableProps {

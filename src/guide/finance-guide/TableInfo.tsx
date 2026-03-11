@@ -1,26 +1,17 @@
 import { Button, Form, Input, Space } from 'antd'
-
 import { useCallback, useEffect, useState } from 'react'
-
 import useSWR from 'swr'
 
-import { SchemaList } from '../components/SchemaList.js'
-
-import { check_tb_valid, request } from '../utils.ts'
-
-import { model } from '../../model.js'
-
 import { t } from '@i18n'
-
-import { TIME_TYPES } from '../constant.js'
-
+import { model } from '@model'
 import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
+import { SchemaList } from '@/guide/components/SchemaList.tsx'
+import { check_tb_valid, request } from '@/guide/utils.ts'
+import { TIME_TYPES } from '@/guide/constant.ts'
 
-import { type IFinanceInfo } from './type.js'
-
-
-import { PartitionColSelect } from './components/PartitionColSelect.js'
-import { CommonFilterCols } from './components/CommonFilterCols.js'
+import { type IFinanceInfo } from './type.ts'
+import { PartitionColSelect } from './components/PartitionColSelect.tsx'
+import { CommonFilterCols } from './components/CommonFilterCols.tsx'
 
 
 

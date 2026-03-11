@@ -1,7 +1,7 @@
 import { t } from '@i18n'
-import { WidgetChartType, WidgetType } from '../model.js'
+import { WidgetChartType, WidgetType } from '@/dashboard/model.ts'
 
-import { AxisType, ILineType, ITimeFormat, MarkPresetType, Position } from './type.js'
+import { AxisType, ILineType, ITimeFormat, MarkPresetType, Position } from './type.ts'
 
 export const axis_type_options = [{
     label: t('数据轴'),

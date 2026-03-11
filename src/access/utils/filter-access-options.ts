@@ -1,5 +1,5 @@
-import { ACCESS_OPTIONS } from '../constants.tsx'
-import type { AccessCategory } from '../types.ts'
+import { ACCESS_OPTIONS } from '@/access/constants.tsx'
+import type { AccessCategory } from '@/access/types.ts'
 
 export function filter_access_options (
     category: AccessCategory,

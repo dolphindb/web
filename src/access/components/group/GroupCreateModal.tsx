@@ -1,17 +1,12 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Form, Input, Modal, Transfer } from 'antd'
-
 import { useState } from 'react'
-
 import { useSWRConfig } from 'swr'
 
 import { language, t } from '@i18n'
-
-import { access } from '@/access/model.js'
-
 import { model } from '@model'
-
-import { USERNAME_CHECK_PATTERN } from '@/access/constants.js'
+import { access } from '@/access/model.ts'
+import { USERNAME_CHECK_PATTERN } from '@/access/constants.tsx'
 import { use_users } from '@/access/hooks/use-users.ts'
 
 export const GroupCreateModal = NiceModal.create(() => {

@@ -8,13 +8,13 @@ import { genid, delay, unique } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
 
-import { model } from '../model.js'
+import { model } from '@model'
 
 import { RefreshButton } from '@components/RefreshButton/index.tsx'
 
-import { config, controller_configs } from './model.js'
+import { config, controller_configs } from './model.ts'
 
-import type { ControllerConfig } from './type.js'
+import type { ControllerConfig } from './type.ts'
 import { _2_strs, strs_2_controller_configs, filter_config } from './utils.ts'
 
 

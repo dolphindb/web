@@ -17,8 +17,8 @@
             "@utils": ["./src/utils.ts"],
             "@theme": ["./src/theme.ts"],
             "@components/*": ["./src/components/*"],
-            "@test/*": ["./test/*"],
-            "@/*": ["./src/*"]
+            "@/*": ["./src/*"],
+            "@test/*": ["./test/*"]
         },
         
         

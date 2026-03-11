@@ -2,30 +2,21 @@ import './index.scss'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { App, Form, Input, InputNumber, Modal, Select, Switch, Tag, Tooltip } from 'antd'
-
 import { useCallback, useMemo, useState } from 'react'
-
 import { isNil } from 'lodash'
-
 import { QuestionCircleOutlined } from '@ant-design/icons'
-
 import useSWR from 'swr'
 
-import { model } from '@model'
-
 import { t } from '@i18n'
-import { Protocol, type ISubscribe } from '../../type.js'
-import { safe_json_parse } from '../../../dashboard/utils.ts'
-import { FormDependencies } from '../../../components/FormDependencies/index.js'
+import { model } from '@model'
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
+import { NodeSelect } from '@components/node-select/index.tsx'
+import { Protocol, type ISubscribe } from '@/data-collection/type.ts'
+import { safe_json_parse } from '@/dashboard/utils.ts'
+import { create_subscribe, edit_subscribe, get_parser_templates } from '@/data-collection/api.ts'
+import { NAME_RULES } from '@/data-collection/constant.ts'
 
-import { create_subscribe, edit_subscribe, get_parser_templates } from '../../api.js'
-
-import { NodeSelect } from '../../../components/node-select/index.js'
-
-
-import { NAME_RULES } from '@/data-collection/constant.js'
-
-import { KafkaConfig } from './kafka-config.js'
+import { KafkaConfig } from './kafka-config.tsx'
 
 
 interface IProps {

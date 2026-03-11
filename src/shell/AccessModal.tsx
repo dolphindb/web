@@ -8,12 +8,12 @@ import { useEffect, useState } from 'react'
 
 import { t } from '@i18n'
 
-import { model } from '../model.js'
+import { model } from '@model'
 
-import { shell } from './model.js'
+import { shell } from './model.ts'
 
 
-import { type Database } from './Databases.js'
+import { type Database } from './Databases.tsx'
 
 
 interface Props {

@@ -1,17 +1,15 @@
 import './index.scss'
 
 import { Form, Input, InputNumber, Radio, Select, type SelectProps } from 'antd'
-
 import { useMemo } from 'react'
 
-import { FormDependencies } from '../../components/FormDependencies/index.js'
-
-import { GuideType } from '../iot-guide/type.js'
-import { check_tb_valid, request } from '../utils.ts'
-import { ENUM_TYPES, TIME_TYPES } from '../constant.js'
 import { t } from '@i18n'
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
+import { GuideType } from '@/guide/iot-guide/type.ts'
+import { check_tb_valid, request } from '@/guide/utils.ts'
+import { ENUM_TYPES, TIME_TYPES } from '@/guide/constant.ts'
 
-import { SchemaList } from './SchemaList.js'
+import { SchemaList } from './SchemaList.tsx'
 
 const CUSTOM_VALUE = -1
 

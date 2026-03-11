@@ -1,12 +1,13 @@
 import './index.scss'
+
 import { Button, Form } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 
-import { type SimpleInfos, type BasicInfoFormValues, GuideType, type ExecuteResult } from '../type.js'
-import { BasicInfoFields } from '../../components/BasicInfoFields.js'
-import { request } from '../../utils.ts'
 import { t } from '@i18n'
 import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
+import { type SimpleInfos, type BasicInfoFormValues, GuideType, type ExecuteResult } from '@/guide/iot-guide/type.ts'
+import { BasicInfoFields } from '@/guide/components/BasicInfoFields.tsx'
+import { request } from '@/guide/utils.ts'
 
 
 

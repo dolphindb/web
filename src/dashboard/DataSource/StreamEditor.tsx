@@ -2,20 +2,16 @@ import { createElement, useEffect, useRef, useState } from 'react'
 import { Input, Popover, Select, Tree, type MenuProps, InputNumber, Switch, Table } from 'antd'
 import { QuestionCircleOutlined, SearchOutlined, TableOutlined } from '@ant-design/icons'
 import { throttle } from 'lodash'
-
 import { type editor } from 'monaco-editor'
-
 import { to_option } from 'xshell/utils.browser.js'
 
-import { Editor } from '../../components/Editor/index.js'
-
-import { dashboard } from '../model.js'
-import { model } from '../../model.js'
-
-import { use_monaco_insert } from '@/hooks.ts'
 import { t } from '@i18n'
+import { model } from '@model'
+import { Editor } from '@components/Editor/index.tsx'
+import { dashboard } from '@/dashboard/model.ts'
+import { use_monaco_insert } from '@/hooks.ts'
 
-import { InsertVariableBtn } from './InsertVariableBtn.js'
+import { InsertVariableBtn } from './InsertVariableBtn.tsx'
 import { 
     type DataSourcePropertyType, 
     type DataSource, 
@@ -23,7 +19,7 @@ import {
     get_stream_cols, 
     get_data_source,
     get_stream_filter_col
-} from './date-source.js'
+} from './date-source.ts'
 
 
 interface PropsType  { 
@@ -194,13 +190,11 @@ export function StreamEditor ({
                                                 },
                                             ]} 
                                             dataSource={
-                                                current_data_source.cols.map((col, index) => {
-                                                    return {
+                                                current_data_source.cols.map((col, index) => ({
                                                         key: col,
                                                         index: index + 1,
                                                         name: col
-                                                    }
-                                                })
+                                                    }))
                                             } 
                                             bordered
                                             size='small'

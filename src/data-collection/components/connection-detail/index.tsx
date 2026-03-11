@@ -1,41 +1,24 @@
 import './index.scss'
+
 import { Button, Descriptions, Popconfirm, Spin, Switch, Typography } from 'antd'
-
 import { useCallback, useMemo, useState } from 'react'
-
 import type { DescriptionsProps } from 'antd/lib/index.js'
-
 import useSWR from 'swr'
-
 import type { ColumnProps } from 'antd/es/table/Column.js'
-
-
 import { useMemoizedFn } from 'ahooks'
-
-
 import NiceModal from '@ebay/nice-modal-react'
-
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
-
 import dayjs from 'dayjs'
 
-
 import { t } from '@i18n'
-
 import { model } from '@model'
-
+import { DDBTable } from '@components/DDBTable/index.tsx'
+import { TableOperations } from '@components/TableOperations/index.tsx'
 import { request } from '@/data-collection/utils.ts'
-
 import { PROTOCOL_MAP } from '@/data-collection/constant.ts'
-
 import { get_connect_detail, get_parser_templates } from '@/data-collection/api.ts'
 import { type IParserTemplate, Protocol, type ISubscribe } from '@/data-collection/type.ts'
-import { CreateSubscribeModal } from '../create-subscribe-modal/index.tsx'
-
-import { DDBTable } from '@components/DDBTable/index.tsx'
-
-import { TableOperations } from '@components/TableOperations/index.tsx'
-
+import { CreateSubscribeModal } from '@/data-collection/components/create-subscribe-modal/index.tsx'
 
 import { DeleteDescribeModal } from './delete-describe-modal.tsx'
 import { TemplateViewModal } from './parser-template-view-modal.tsx'

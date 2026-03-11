@@ -1,7 +1,7 @@
 import useSWR from 'swr'
 
-import { access } from '@/access/model.js'
-import type { AccessRole } from '@/access/types.js'
+import { access } from '@/access/model.ts'
+import type { AccessRole } from '@/access/types.ts'
 
 
 export function use_access (role: AccessRole, name: string, final: boolean = false) {

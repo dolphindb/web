@@ -1,23 +1,18 @@
 import './index.scss'
 
 import { Collapse, Descriptions, type DescriptionsProps, Form, InputNumber, Select, type CollapseProps, Input, Pagination } from 'antd'
-
 import { useMemo, useState } from 'react'
-
 import { isNumber } from 'lodash'
 
 import { t } from '@i18n'
-
-import { type Widget } from '../../model.js'
-import { convert_list_to_options, format_number, format_time, parse_text } from '../../utils.ts'
-
-
-import { type IDescriptionsConfig } from '../../type.js'
-import { FormDependencies } from '../../../components/FormDependencies/index.js'
-import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
-import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
-import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
-import { format_time_options } from '../../ChartFormFields/constant.js'
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
+import { StringColorPicker } from '@components/StringColorPicker/index.tsx'
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
+import { type Widget } from '@/dashboard/model.ts'
+import { convert_list_to_options, format_number, format_time, parse_text } from '@/dashboard/utils.ts'
+import { type IDescriptionsConfig } from '@/dashboard/type.ts'
+import { BasicFormFields } from '@/dashboard/ChartFormFields/BasicFormFields.tsx'
+import { format_time_options } from '@/dashboard/ChartFormFields/constant.ts'
 import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 
 

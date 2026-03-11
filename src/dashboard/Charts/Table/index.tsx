@@ -10,12 +10,12 @@ import { isNumber } from 'lodash'
 
 import cn from 'classnames'
 
-import {  BasicFormFields }  from '../../ChartFormFields/BasicFormFields.js'
-import { BasicTableFields } from '../../ChartFormFields/BasicTableFields.js'
-import { type ITableConfig } from '../../type.js'
+import {  BasicFormFields }  from '@/dashboard/ChartFormFields/BasicFormFields.tsx'
+import { BasicTableFields } from '@/dashboard/ChartFormFields/BasicTableFields.tsx'
+import { type ITableConfig } from '@/dashboard/type.ts'
 
 
-import { format_number, format_time, parse_text } from '../../utils.ts'
+import { format_number, format_time, parse_text } from '@/dashboard/utils.ts'
 import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 
 

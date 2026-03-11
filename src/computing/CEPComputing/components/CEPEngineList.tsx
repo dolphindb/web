@@ -4,7 +4,7 @@ import { RedoOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 
-import { type ICEPEngineDetail, type CEPEngineItem } from '../type.js'
+import { type ICEPEngineDetail, type CEPEngineItem } from '@/computing/CEPComputing/type.ts'
 
 
 interface IProps { 

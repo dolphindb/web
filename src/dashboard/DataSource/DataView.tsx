@@ -1,6 +1,5 @@
-import { Obj } from '@/obj.tsx'
-
 import { model } from '@model'
+import { Obj } from '@/obj.tsx'
 import { dashboard } from '@/dashboard/model.ts'
 
 

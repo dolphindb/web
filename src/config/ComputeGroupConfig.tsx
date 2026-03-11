@@ -1,25 +1,18 @@
 import './index.sass'
 
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
-
-import { t } from '@i18n'
-
 import { AutoComplete, Button, Popconfirm } from 'antd'
-
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import NiceModal from '@ebay/nice-modal-react'
-
 import useSWR from 'swr'
 
+import { t } from '@i18n'
 import { model } from '@model'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
 
-import { RefreshButton } from '@components/RefreshButton/index.js'
-
-import { filter_config, strs_2_nodes } from './utils.js'
-import { NodesConfigAddModal } from './NodesConfigAddModal.js'
-
+import { filter_config, strs_2_nodes } from './utils.ts'
+import { NodesConfigAddModal } from './NodesConfigAddModal.tsx'
 import { config, node_configs_options, validate_config, validate_qualifier } from './model.ts'
 
 

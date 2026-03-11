@@ -3,27 +3,22 @@ import './index.scss'
 import { useMemo } from 'react'
 import { Form, Select, Input, Collapse, Button, Space, InputNumber, Radio } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
-
 import { get } from 'lodash'
 
 import { t } from '@i18n'
-import { concat_name_path } from '../utils.ts'
-import { FormDependencies } from '../../components/FormDependencies/index.js'
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
+import { StringDatePicker } from '@components/StringDatePicker/index.tsx'
+import { StringTimePicker } from '@components/StringTimePicker.tsx'
+import { StringColorPicker } from '@components/StringColorPicker/index.tsx'
+import { concat_name_path } from '@/dashboard/utils.ts'
+import { WidgetChartType, dashboard } from '@/dashboard/model.ts'
 
-
-
-import { WidgetChartType, dashboard } from '@/dashboard/model.js'
-
-import { BoolRadioGroup } from '@components/BoolRadioGroup/index.js'
-import { StringDatePicker } from '@components/StringDatePicker/index.js'
-import { StringTimePicker } from '@components/StringTimePicker.js'
-import { StringColorPicker } from '@components/StringColorPicker/index.js'
-
-import { axis_position_options, axis_type_options, format_time_options } from './constant.js'
-import { AxisType, type IAxisItem, type IYAxisItemValue, ITimeFormat } from './type.js'
-import { AxisColSelect } from './components/AxisColSelect.js'
-import { SeriesItem } from './components/SeriesItem.js'
-import { ThresholdSettingList } from './components/ThresholdSetting.js'
+import { axis_position_options, axis_type_options, format_time_options } from './constant.ts'
+import { AxisType, type IAxisItem, type IYAxisItemValue, ITimeFormat } from './type.ts'
+import { AxisColSelect } from './components/AxisColSelect.tsx'
+import { SeriesItem } from './components/SeriesItem.tsx'
+import { ThresholdSettingList } from './components/ThresholdSetting.tsx'
 
 
 export const DATE_SELECT_FORMAT = {
@@ -209,8 +204,7 @@ export function Series (props: { col_names?: string[], single?: boolean }) {
             }
         ]}>
         {(fields, { add, remove }) => { 
-            const items = fields.map(field => {
-                return {
+            const items = fields.map(field => ({
                     key: field.name,
                     children: <SeriesItem type={type} col_names={col_names} name={field.name} path='series' />,
                     label: <div className='collapse-label'>
@@ -218,8 +212,7 @@ export function Series (props: { col_names?: string[], single?: boolean }) {
                         { fields.length > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} /> }
                     </div>,
                     forceRender: true
-                }
-            })
+                }))
             
             return <>
                 <Collapse

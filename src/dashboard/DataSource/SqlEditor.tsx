@@ -1,22 +1,16 @@
 import { useEffect } from 'react'
-
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { InputNumber, Popover, Switch } from 'antd'
-
 import { DdbForm } from 'dolphindb/browser.js'
 
-import { Editor } from '@components/Editor/index.js'
-
-import { dashboard } from '../model.js'
-
+import { t } from '@i18n'
+import { Editor } from '@components/Editor/index.tsx'
+import { dashboard } from '@/dashboard/model.ts'
 import { use_monaco_insert } from '@/hooks.ts'
 
-import { t } from '@i18n'
-
-import { DataView } from './DataView.js'
-
-import { type DataSource, type DataSourcePropertyType, get_data_source } from './date-source.js'
-import { InsertVariableBtn } from './InsertVariableBtn.js'
+import { DataView } from './DataView.tsx'
+import { type DataSource, type DataSourcePropertyType, get_data_source } from './date-source.ts'
+import { InsertVariableBtn } from './InsertVariableBtn.tsx'
 
 
 export function SqlEditor ({ 

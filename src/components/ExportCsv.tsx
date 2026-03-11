@@ -1,18 +1,14 @@
 import { Form, Input, InputNumber, Modal, Radio } from 'antd'
-
 import { use_modal } from 'react-object-model/hooks.js'
 import Icon from '@ant-design/icons'
 import { useEffect, useState } from 'react'
-
 import { download_url } from 'xshell/utils.browser.js'
-
 import { DdbInt, type DdbObj, type DdbTableObj, type DdbVectorValue } from 'dolphindb/browser.js'
 
 import { t } from '@i18n'
-import { DdbObjRef } from '../obj.js'
-
-import { shell } from '../shell/model.js'
-import { model } from '../model.js'
+import { model } from '@model'
+import { DdbObjRef } from '@/obj.tsx'
+import { shell } from '@/shell/model.ts'
 
 import SvgExport from './icons/export.icon.svg'
 

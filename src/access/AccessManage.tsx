@@ -1,19 +1,14 @@
 import { Button, Input, Table, type TableColumnType } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-
 import NiceModal from '@ebay/nice-modal-react'
-
-import { t } from '@i18n'
-
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 
+import { t } from '@i18n'
 import { model } from '@model'
-
 import { DDBTable } from '@components/DDBTable/index.tsx'
 
 import { ACCESS_OPTIONS, ACCESS_TYPE, NEED_INPUT_ACCESS, TABLE_NAMES } from './constants.tsx'
 import { access } from './model.ts'
-
 import { AccessAddModal } from './components/access/AccessAddModal.tsx'
 import { AccessRevokeModal } from './components/access/AccessRevokeModal.tsx'
 import { RevokeConfirm } from './components/RevokeConfirm.tsx'

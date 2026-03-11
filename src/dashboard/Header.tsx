@@ -3,35 +3,28 @@ import './Header.sass'
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react'
 import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch } from 'antd'
 import { CopyOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined } from '@ant-design/icons'
-
 import { use_modal } from 'react-object-model/hooks.js'
 import { genid, unique } from 'xshell/utils.browser.js'
-
 import cn from 'classnames'
-
 import NiceModal from '@ebay/nice-modal-react'
-
 import type { SwitchProps } from 'antd/lib/index.js'
-
 import useSWR from 'swr'
 
-import { model, storage_keys } from '../model.js'
 import { t } from '@i18n'
-import { CompileAndRefresh } from '../components/DDBHeader/CompileAndRefresh.js'
+import { model, storage_keys } from '@model'
+import { CompileAndRefresh } from '@components/DDBHeader/CompileAndRefresh.tsx'
+import { HostSelect } from '@components/DDBHeader/HostSelect.tsx'
 
-import { HostSelect } from '../components/DDBHeader/HostSelect.js'
-
-import { type DashBoardConfig, type Widget, dashboard, DashboardPermission } from './model.js'
-import { DataSourceConfig } from './DataSource/DataSourceConfig.js'
-import { clear_data_sources, export_data_sources } from './DataSource/date-source.js'
-import { VariableConfig } from './Variable/VariableConfig.js'
-import { export_variables } from './Variable/variable.js'
-
+import { type DashBoardConfig, type Widget, dashboard, DashboardPermission } from './model.ts'
+import { DataSourceConfig } from './DataSource/DataSourceConfig.tsx'
+import { clear_data_sources, export_data_sources } from './DataSource/date-source.ts'
+import { VariableConfig } from './Variable/VariableConfig.tsx'
+import { export_variables } from './Variable/variable.ts'
 import { check_name, get_shared_dashboards } from './utils.ts'
 import { Import } from './components/Import.tsx'
-import { Share } from './Share/Share.js'
-import { DashboardMode } from './type.js'
-import { SaveConfirmModal } from './components/SaveComfirmModal.js'
+import { Share } from './Share/Share.tsx'
+import { DashboardMode } from './type.ts'
+import { SaveConfirmModal } from './components/SaveComfirmModal.tsx'
 
 
 export function get_widget_config (widget: Widget) {

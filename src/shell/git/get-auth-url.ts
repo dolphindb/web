@@ -1,7 +1,8 @@
-import { t } from '@i18n'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
+
+import { t } from '@i18n'
 
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)

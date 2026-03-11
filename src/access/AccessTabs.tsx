@@ -1,21 +1,17 @@
 import { Tabs, Button, Select, Space } from 'antd'
 import { ArrowLeftOutlined, EyeOutlined, SettingOutlined } from '@ant-design/icons'
 import { useState } from 'react'
-
-import { t } from '@i18n'
-
 import { useLocation, useParams } from 'react-router'
-
 import { useSWRConfig } from 'swr'
 
+import { t } from '@i18n'
 import { model, NodeType } from '@model'
-
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
 import type { AccessRole, AccessCategory } from '@/access/types.ts'
 import { use_users } from '@/access/hooks/use-users.ts'
 import { use_groups } from '@/access/hooks/use-groups.ts'
 import { AccessList } from '@/access/AccessList.tsx'
 import { AccessManage } from '@/access/AccessManage.tsx'
-import { RefreshButton } from '@components/RefreshButton/index.tsx'
 
 
 export function AccessTabs ({

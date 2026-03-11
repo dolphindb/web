@@ -7,11 +7,11 @@ import { Alert } from 'antd'
 import cn from 'classnames'
 
 
-import { language, t } from '../../../i18n/index.js'
+import { language, t } from '@i18n'
 
-import { WidgetTypeWithoutDatasource, dashboard } from '../model.js'
+import { WidgetTypeWithoutDatasource, dashboard } from '@/dashboard/model.ts'
 
-import { GraphSetting } from './GraphSetting.js'
+import { GraphSetting } from './GraphSetting.tsx'
 
 
 export function SettingsPanel (props: { hidden: boolean }) {

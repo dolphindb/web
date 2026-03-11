@@ -1,26 +1,23 @@
 import { Button, Card, Form, type FormInstance, Input, InputNumber, Select, Spin, Tag, Tooltip, Typography, Row, Col, Space } from 'antd'
 import useSWR from 'swr'
-
 import { get, isNumber } from 'lodash'
 import { useEffect, useId, useState } from 'react'
-
 import { DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 
-import { FormDependencies } from '../../../components/FormDependencies/index.js'
-import { StringDatePicker } from '../../../components/StringDatePicker/index.js'
-import { StringTimePicker } from '../../../components/StringTimePicker.js'
-import { IN, IS_NULL, LIKE, NOT_IN, NOT_LIKE, NOT_NULL, OTHER_OPERATIONS, STRING_OPERATIONS, STRING_TYPES, TIME_TYPES, VALID_DATA_TYPES, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
-import { NodeType, model } from '../../../model.js'
-import { shell } from '../../model.js'
 import { t } from '@i18n'
-import { ENUM_TYPES, type IColumn } from '../type.js'
-import { concat_name_path, safe_json_parse } from '../../../dashboard/utils.ts'
+import { NodeType, model } from '@model'
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
+import { StringDatePicker } from '@components/StringDatePicker/index.tsx'
+import { StringTimePicker } from '@components/StringTimePicker.tsx'
+import { IN, IS_NULL, LIKE, NOT_IN, NOT_LIKE, NOT_NULL, OTHER_OPERATIONS, STRING_OPERATIONS, STRING_TYPES, TIME_TYPES, VALID_DATA_TYPES, VALUE_OPERATIONS, VALUE_TYPES } from '@/shell/QueryGuide/constant.ts'
+import { shell } from '@/shell/model.ts'
+import { ENUM_TYPES, type IColumn } from '@/shell/QueryGuide/type.ts'
+import { concat_name_path, safe_json_parse } from '@/dashboard/utils.ts'
+import { guide_query_model } from '@/shell/QueryGuide/model.ts'
 
-import { guide_query_model } from '../model.js'
-
-import { ColSelectTransfer } from './ColSelectTransfer.js'
-import { EnumAutoComplete } from './EnumAutoComplete.js'
-import { EnumSelect } from './EnumSelect.js'
+import { ColSelectTransfer } from './ColSelectTransfer.tsx'
+import { EnumAutoComplete } from './EnumAutoComplete.tsx'
+import { EnumSelect } from './EnumSelect.tsx'
 
 interface IProps { 
     form: FormInstance
@@ -59,8 +56,7 @@ export function QueryCard (props: IQueryCard) {
     const form = Form.useFormInstance()
     
     return <Form.List name={name} initialValue={[{ }]}>
-        {(fields, { add, remove }) => { 
-            return <Card className={className} size='small' title={title}>
+        {(fields, { add, remove }) => <Card className={className} size='small' title={title}>
                 {fields.map(field => <div key={field.name}>
                     {
                         field.name !== 0 && <Typography.Text className='condition-tip' type='secondary'>{t('且满足')}</Typography.Text>}
@@ -244,8 +240,7 @@ export function QueryCard (props: IQueryCard) {
                             </Col>
                         </Row>
                 </div>)}
-            </Card>
-        } }
+            </Card> }
     </Form.List>
 }
 
@@ -323,8 +318,7 @@ export function QueryForm (props: IProps) {
                     </>
                 }
                 <Form.List name='querys' initialValue={[ ]}>
-                    {(fields, { add, remove }) => { 
-                        return <div className='querys-wrapper'>
+                    {(fields, { add, remove }) => <div className='querys-wrapper'>
                             {
                                 fields.map(field =>
                                     <div key={field.name}>
@@ -357,8 +351,7 @@ export function QueryForm (props: IProps) {
                             >
                                 {t('新增条件块')}
                             </Button>
-                        </div>
-                    }}
+                        </div>}
                 </Form.List>
                 
             </div>

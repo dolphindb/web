@@ -6,16 +6,15 @@ import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 
-import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
-import { variables } from '../Variable/variable.js'
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
+import { variables } from '@/dashboard/Variable/variable.ts'
 
-import { PaddingSetting, VariableSetting } from './BasicFormFields.js'
+import { PaddingSetting, VariableSetting } from './BasicFormFields.tsx'
 
 export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) { 
     const { variable_infos } = variables.use(['variable_infos'])
     
-    const FormFields = useMemo(() => { 
-        return <div className='axis-wrapper'>
+    const FormFields = useMemo(() => <div className='axis-wrapper'>
                 <Form.Item name='title' label={t('标题')} initialValue={t('标题')}>
                     <Input />
                 </Form.Item>
@@ -31,8 +30,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
             <Form.Item name='with_tooltip' label={t('气泡提示')} initialValue>
                 <BoolRadioGroup />
             </Form.Item>
-        </div>
-    }, [type, variable_infos])
+        </div>, [type, variable_infos])
     
     return <Collapse items={[{
             key: 'basic',
@@ -56,8 +54,7 @@ function Labels (props: { col_names: string[] }) {
     return <Form.List name='labels' initialValue={[{ col_name: col_names[0] }]}>
         {(fields, { add }) => <>
             {
-                fields.map((field, index) => { 
-                    return <div key={field.name}>
+                fields.map((field, index) => <div key={field.name}>
                             <div className='field-wrapper'>
                                 <Space>
                                     <div className='axis-wrapper'>
@@ -67,8 +64,7 @@ function Labels (props: { col_names: string[] }) {
                                     </div>
                                 </Space>
                             </div>
-                        </div>
-                })
+                        </div>)
             } 
         </>}
     </Form.List>

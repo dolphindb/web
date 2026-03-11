@@ -1,18 +1,14 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Form, Modal, Select, Typography } from 'antd'
 import { useCallback, useMemo } from 'react'
-
 import { DdbDict, DdbType, type  DdbObj } from 'dolphindb/browser.js'
 
-
 import { t } from '@i18n'
-
-import { type ICEPEngineDetail } from '../type.js'
-import { model } from '../../../model.js'
+import { model } from '@model'
+import { type ICEPEngineDetail } from '@/computing/CEPComputing/type.ts'
 
 import { convertDecimalType } from './DdbObjField.tsx'
-
-import { DdbObjField } from './DdbObjField.js'
+import { DdbObjField } from './DdbObjField.tsx'
 
 interface IProps { 
     engine_info: ICEPEngineDetail

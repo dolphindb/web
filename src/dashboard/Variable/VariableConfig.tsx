@@ -2,24 +2,21 @@ import './index.sass'
 
 import { useCallback, useRef, useState, useEffect } from 'react'
 import { cloneDeep } from 'lodash'
-
 import { Button, Modal } from 'antd'
 import { ToolOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { dashboard } from '../model.js'
-
 import { t } from '@i18n'
+import { dashboard } from '@/dashboard/model.ts'
 
-import { VariableList } from './VariableList.js'
-import { VariableEditor } from './VariableEditor.js'
-
+import { VariableList } from './VariableList.tsx'
+import { VariableEditor } from './VariableEditor.tsx'
 import { 
     save_variable, 
     type Variable,
     type VariablePropertyType,
     variables,
-} from './variable.js'
+} from './variable.ts'
 
 
 const save_confirm_config = {

@@ -1,4 +1,4 @@
-import '../index.scss'
+import '@/computing/CEPComputing/index.scss'
 
 import { Badge, Descriptions, type DescriptionsProps, Radio, type TableColumnsType, Space, Empty, Typography, Select, Input, Spin, Button } from 'antd'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -7,21 +7,16 @@ import { DDB, type StreamingMessage } from 'dolphindb/browser.js'
 import NiceModal from '@ebay/nice-modal-react'
 import cn from 'classnames'
 import { strcmp } from 'xshell/utils.browser.js'
-
-import { t } from '@i18n'
-
 import useSWR from 'swr'
 
-import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from '../type.js'
-import { model } from '../../../model.js'
-
+import { t } from '@i18n'
+import { model } from '@model'
 import { DDBTable } from '@components/DDBTable/index.tsx'
-
 import { RefreshButton } from '@components/RefreshButton/index.tsx'
+import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from '@/computing/CEPComputing/type.ts'
+import { get_dataview_info } from '@/computing/CEPComputing/api.ts'
 
-import { get_dataview_info } from '../api.ts'
-
-import { SendEventModal } from './SendEventModal.js'
+import { SendEventModal } from './SendEventModal.tsx'
 
 
 function EngineInfo ({ info }: { info: ICEPEngineDetail }) {

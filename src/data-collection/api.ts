@@ -1,10 +1,8 @@
-import { safe_json_parse } from '@/dashboard/utils.ts'
-
 import { model } from '@model'
+import { safe_json_parse } from '@/dashboard/utils.ts'
 
 import { type ISubscribe, Protocol, type ServerSubscribe, type Connection, type ServerParserTemplate, type IParserTemplate, type ListData, type KeyValueItem, InitStatus } from './type.ts'
 import { request } from './utils.ts'
-
 import dcp_code from './script.dos'
 
 

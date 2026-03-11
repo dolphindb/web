@@ -9,14 +9,14 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { DdbForm } from 'dolphindb/browser.js'
 
 import { t } from '@i18n'
-import { type Widget, WidgetChartType, dashboard } from '../model.js'
-import { DATA_SOURCE_TYPE_MAP } from '../constant.js'
-import { get_chart_data_type } from '../utils.ts'
+import { type Widget, WidgetChartType, dashboard } from '@/dashboard/model.ts'
+import { DATA_SOURCE_TYPE_MAP } from '@/dashboard/constant.ts'
+import { get_chart_data_type } from '@/dashboard/utils.ts'
 
 import {
     create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, 
     type DataSourcePropertyType, copy_data_source, paste_data_source
-} from './date-source.js'
+} from './date-source.ts'
 
 
 interface MenuItemType {

@@ -1,7 +1,7 @@
 import { Form } from 'antd'
 
 import { t } from '@i18n'
-import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
 
 export function DataZoomFields () { 
     return <>

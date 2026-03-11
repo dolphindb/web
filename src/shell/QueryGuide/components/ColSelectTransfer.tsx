@@ -1,10 +1,9 @@
 import { Transfer } from 'antd'
-
 import { useCallback, useMemo, useState } from 'react'
 import { CheckCircleOutlined, CloseCircleOutlined, MinusCircleOutlined } from '@ant-design/icons'
 
-import { type IColumn } from '../type.js'
 import { t } from '@i18n'
+import { type IColumn } from '@/shell/QueryGuide/type.ts'
 
 interface IProps {
     cols: IColumn[]

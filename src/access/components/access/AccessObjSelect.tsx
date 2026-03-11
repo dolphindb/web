@@ -6,9 +6,9 @@ import { t } from '@i18n'
 
 import { model } from '@model'
 
-import { DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS } from '@/access/constants.js'
+import { DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS } from '@/access/constants.tsx'
 
-import type { AccessCategory, AccessRole, AccessRule } from '@/access/types.js'
+import type { AccessCategory, AccessRole, AccessRule } from '@/access/types.ts'
 import { use_access_objs } from '@/access/hooks/use-access-objs.ts'
 
 

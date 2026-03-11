@@ -1,27 +1,20 @@
-import { t } from '@i18n'
 import { Affix, Button, Collapse, Descriptions, Spin, Table, Typography } from 'antd'
 import useSWR from 'swr'
-
 import { useMemo, useRef, useState } from 'react'
-
 import { delay, delta2str } from 'xshell/utils.browser.js'
-
 import { UpOutlined } from '@ant-design/icons'
-
 import NiceModal from '@ebay/nice-modal-react'
-
 import { useParams } from 'react-router'
 
+import { t } from '@i18n'
 import { model } from '@model'
-
+import { BackButton } from '@components/BackButton.tsx'
 import { safe_json_parse } from '@/dashboard/utils.ts'
-
 import type {  PlanReportDetailMetric } from '@/inspection/type.ts'
 import { inspection } from '@/inspection/model.ts'
 import { MetricGroups, ReportLables } from '@/inspection/constants.ts'
-import { LogModal } from '@/inspection/modals/LogModal.tsx'   
+import { LogModal } from '@/inspection/modals/LogModal.tsx'
 import { FailedStatus, SuccessStatus } from '@/inspection/pages/InspectionListPage.tsx'
-import { BackButton } from '@components/BackButton.tsx'
 
 const { Title } = Typography
 

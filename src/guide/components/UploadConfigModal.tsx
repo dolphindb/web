@@ -2,11 +2,10 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Form, Modal } from 'antd'
 import { useCallback } from 'react'
 
-import { safe_json_parse } from '../../dashboard/utils.ts'
-
 import { t } from '@i18n'
+import { safe_json_parse } from '@/dashboard/utils.ts'
 
-import { UploadFileField } from './UploadFileField.js'
+import { UploadFileField } from './UploadFileField.tsx'
 
 interface IProps { 
     apply: (info: any) => void

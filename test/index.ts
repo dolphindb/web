@@ -1,5 +1,5 @@
-import { shell } from '@/shell/model.ts'
 import { model } from '@model'
+import { shell } from '@/shell/model.ts'
 
 export async function test () {
     console.log('--- 测试开始 ---')

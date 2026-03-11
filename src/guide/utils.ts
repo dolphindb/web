@@ -1,5 +1,5 @@
-import { safe_json_parse } from '../dashboard/utils.ts'
-import { model } from '../model.js'
+import { model } from '@model'
+import { safe_json_parse } from '@/dashboard/utils.ts'
 
 export async function request<T> (func: string, params: any) { 
     const res = await model.ddb.call(func, [JSON.stringify(params)])

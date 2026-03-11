@@ -1,13 +1,11 @@
 import { Form, Select, Space } from 'antd'
-
 import { get } from 'lodash'
-
 import { type NamePath } from 'antd/es/form/interface.js'
 
-import { WidgetChartType, dashboard } from '../../model.js'
-import { get_data_source } from '../../DataSource/date-source.js'
-import { concat_name_path, convert_list_to_options } from '../../utils.ts'
-import { FormDependencies } from '../../../components/FormDependencies/index.js'
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
+import { WidgetChartType, dashboard } from '@/dashboard/model.ts'
+import { get_data_source } from '@/dashboard/DataSource/date-source.ts'
+import { concat_name_path, convert_list_to_options } from '@/dashboard/utils.ts'
 
 
 interface IProps { 

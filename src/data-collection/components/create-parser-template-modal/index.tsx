@@ -1,17 +1,15 @@
 import './index.scss'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-
 import { Modal, Form, Input, Select, Segmented, Button } from 'antd'
-
 import { useCallback, useState } from 'react'
 
-import type { IParserTemplate } from '../../type.js'
 import { t } from '@i18n'
-import { request } from '../../utils.ts'
-import { NAME_RULES, PROTOCOL_MAP, protocols, template_code } from '../../constant.js'
-import { Editor } from '../../../components/Editor/index.js'
 import { model } from '@model'
+import { Editor } from '@components/Editor/index.tsx'
+import type { IParserTemplate } from '@/data-collection/type.ts'
+import { request } from '@/data-collection/utils.ts'
+import { NAME_RULES, PROTOCOL_MAP, protocols, template_code } from '@/data-collection/constant.ts'
 
 interface IProps {
     editedTemplate?: IParserTemplate

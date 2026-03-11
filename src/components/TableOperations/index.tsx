@@ -1,5 +1,6 @@
-import { EllipsisOutlined } from '@ant-design/icons'
 import './index.scss'
+
+import { EllipsisOutlined } from '@ant-design/icons'
 import { Popover, Space } from 'antd'
 import { toArray } from 'lodash'
 

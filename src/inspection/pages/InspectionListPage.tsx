@@ -1,25 +1,20 @@
 import { CheckOutlined, CloseOutlined, DeleteOutlined, HistoryOutlined, MailOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import NiceModal from '@ebay/nice-modal-react'
-import { t } from '@i18n'
 import { Button, DatePicker, Input, Popconfirm, Space, Table, Tooltip, Typography, type TableColumnsType } from 'antd'
-
 import { useEffect, useMemo, useState } from 'react'
-
 import useSWR from 'swr'
-
 import type { Dayjs } from 'dayjs'
-
 import { datetime_format } from 'xshell/utils.browser.js'
 
+import { t } from '@i18n'
 import { model } from '@model'
-
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 import { EmailConfigModal } from '@/inspection/modals/EmailConfigModal.tsx'
 import { EmailHistoryModal } from '@/inspection/modals/EmailHistoryModal.tsx'
 import { inspection } from '@/inspection/model.ts'
 import type { Plan, PlanReport } from '@/inspection/type.ts'
 import { LogModal } from '@/inspection/modals/LogModal.tsx'
-import { RefreshButton } from '@components/RefreshButton/index.tsx'
-import { DDBTable } from '@components/DDBTable/index.tsx'
 import { DeleteReportsModal } from '@/inspection/components/DeleteReportsModal.tsx'
 import { DeletePlansModal } from '@/inspection/components/DeletePlansModal.tsx'
 import create_metrics_script from '@/inspection/scripts/init.dos'

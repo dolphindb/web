@@ -1,15 +1,14 @@
 import './index.scss'
+
 import { CopyOutlined } from '@ant-design/icons'
-
-
 import { Button, Tooltip } from 'antd'
 import copy from 'copy-to-clipboard'
 import { useCallback } from 'react'
 import classNames from 'classnames'
 
-import { Editor } from '../Editor/index.js'
 import { t } from '@i18n'
 import { model } from '@model'
+import { Editor } from '@components/Editor/index.tsx'
 
 interface IProps { 
     code: string

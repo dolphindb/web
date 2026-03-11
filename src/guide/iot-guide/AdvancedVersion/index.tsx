@@ -2,18 +2,17 @@ import './index.scss'
 
 import { Steps, Typography } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
-
 import NiceModal from '@ebay/nice-modal-react'
 
-import { CodeViewStep } from '../../components/CodeViewStep.js'
-import { type RecommendInfo, type AdvancedInfos, ExecuteResult } from '../type.js'
-import { UploadConfigModal } from '../../components/UploadConfigModal.js'
-import { GuideFailResultPage } from '../../components/GuideFailResultPage.js'
-import { GuideSuccessResultPage } from '../../components/GuideSuccessResultPage.js'
 import { t } from '@i18n'
+import { CodeViewStep } from '@/guide/components/CodeViewStep.tsx'
+import { type RecommendInfo, type AdvancedInfos, ExecuteResult } from '@/guide/iot-guide/type.ts'
+import { UploadConfigModal } from '@/guide/components/UploadConfigModal.tsx'
+import { GuideFailResultPage } from '@/guide/components/GuideFailResultPage.tsx'
+import { GuideSuccessResultPage } from '@/guide/components/GuideSuccessResultPage.tsx'
 
-import { AdvancedSecondStep } from './AdvancedSecondStep.js'
-import { AdvancedFirstStep } from './AdvancedFirstStep.js'
+import { AdvancedSecondStep } from './AdvancedSecondStep.tsx'
+import { AdvancedFirstStep } from './AdvancedFirstStep.tsx'
 
 export function AdvancedVersion () {
     const [current_step, set_current_step] = useState(0)

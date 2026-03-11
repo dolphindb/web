@@ -1,12 +1,12 @@
 import { CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined } from '@ant-design/icons'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { t } from '@i18n'
 import { Button, DatePicker, Form, Input, Modal, Select, Space, Table, Tag, type TableColumnsType } from 'antd'
 import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 import type { Dayjs } from 'dayjs'
 import { datetime_format } from 'xshell/utils.browser.js'
 
+import { t } from '@i18n'
 import { inspection } from '@/inspection/model.ts'
 import type { EmailHistory } from '@/inspection/type.ts' 
 

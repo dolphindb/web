@@ -1,14 +1,12 @@
-import { t } from '@i18n'
 import { Button, Form, Input, Select, Space, Switch, TimePicker, Tooltip } from 'antd'
 import dayjs from 'dayjs'
-
 import { MinusCircleOutlined, PlusOutlined, WarningOutlined } from '@ant-design/icons'
 
+import { t } from '@i18n'
 import { inspection } from '@/inspection/model.ts'
 import { InspectionFrequencyOptions, WeekDays } from '@/inspection/constants.ts'
 import type { MetricsWithStatus, Plan } from '@/inspection/type.ts'
 import { parse_minute } from '@/inspection/utils.ts'
-
 import { MetricTable } from '@/inspection/components/MetricTable.tsx'
 
 interface InspectionFormContentProps {
