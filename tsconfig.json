@@ -23,7 +23,7 @@
         
         
         // --- module
-        "module": "ESNext", // none, CommonJS, amd, system, umd, es6, es2015, ESNext
+        "module": "ESNext",
         "moduleResolution": "Bundler",
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": false,
@@ -74,7 +74,6 @@
         "noImplicitOverride": true,
         "noUnusedLocals": false,
         "noUnusedParameters": false,
-        "skipLibCheck": true,
+        "skipLibCheck": true
     }
 }
-
