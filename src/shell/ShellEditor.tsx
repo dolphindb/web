@@ -445,7 +445,8 @@ function LanguageSelect () {
             options={[
                 { value: 'dolphindb', label: 'DolphinDB' },
                 { value: 'kdb', label: 'KDB' },
-                { value: 'python', label: 'Python' }
+                // 现在是废弃状态不能用
+                // { value: 'python', label: 'Python' }
             ]}
             onChange={value => { shell.set_language(value) }}
         />
