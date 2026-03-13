@@ -245,16 +245,7 @@ let builder = {
                     // 取 window.ReactQuill 作为 import 的返回值
                     'react-quill': 'ReactQuill',
                 },
-                resolve_alias: {
-                    '@': `${fpd_root}src`,
-                    '@test': `${fpd_root}test`,
-                    '@i18n': `${fpd_root}i18n/index.ts`,
-                    '@model': `${fpd_root}src/model.ts`,
-                    '@utils': `${fpd_root}src/utils.ts`,
-                    '@theme': `${fpd_root}src/theme.ts`,
-                    '@components': `${fpd_root}src/components`,
-                    ... fp_api ? { 'dolphindb/browser.js': fp_api } : { },
-                },
+                resolve_alias: fp_api ? { 'dolphindb/browser.js': fp_api } : undefined,
                 globals: {
                     WEB_VERSION: `${info.version} (${info.time} ${info.hash})`.quote(),
                     PRODUCTION: production ? 'true' : 'false'
