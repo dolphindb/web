@@ -162,10 +162,9 @@ async function dev () {
         })
         
         await remote.connect()
-    } else {
-        const { default: open } = await import('open')
-        await open(url)
-    }
+    } else
+        await (await import('open'))
+            .default(url)
 }
 
 
