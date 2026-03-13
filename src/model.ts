@@ -1258,10 +1258,6 @@ export class DdbModel extends Model<DdbModel> {
 
 export const envs = [
     {
-        label: 'kdb',
-        value: '192.168.0.114:8766'
-    },
-    {
         label: '测试单机.剑波',
         value: '192.168.0.54:8848'
     },
@@ -1280,6 +1276,10 @@ export const envs = [
     {
         label: '我的单机',
         value: 'test.dolphindb.cn:8848'
+    },
+    {
+        label: 'kdb',
+        value: '192.168.0.114:8766'
     },
     {
         label: 'orca',
