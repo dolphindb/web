@@ -1280,7 +1280,7 @@ export const envs = [
         value: 'test.dolphindb.cn:8848'
     },
     {
-        label: 'kdb',
+        label: 'q',
         value: '192.168.0.114:8766'
     },
     {
