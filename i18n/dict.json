@@ -6769,5 +6769,8 @@
     },
     "编程语言:": {
         "en": "Programming Language:"
+    },
+    "调用 getServerLogLength() 返回的结果应该大于 0，实际为: {{actual}}，请检查日志文件是否存在，logFile 配置是否在启动时通过 -logFile 命令行参数配置，配置文件中不能有 logFile 配置": {
+        "en": "The result returned by calling getServerLogLength() should be greater than 0, but it is actually: {{actual}}. Please check whether the log file exists and whether the logFile configuration is configured through the -logFile command-line parameter at startup. LogFile configuration cannot be included in the configuration file"
     }
 }
