@@ -235,8 +235,8 @@ export function DdbObjField ({ type, type_id: server_type_id, placeholder, form,
 
 
 // decimal 规定精度之后 type 会跟精度变化，需要解析出类型和精度
-export function convertDecimalType (type: number) { 
-    const type_id =  type & 0xffff
+export function convertDecimalType (type: number): [DdbType, number] {
+    const type_id = (type & 0xffff) as DdbType
     const scale = (type & (~0x80000000)) >> 16
     return [type_id, scale]
 }

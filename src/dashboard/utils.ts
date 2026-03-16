@@ -43,7 +43,7 @@ function format_unit8 (type: DdbType, values, le: boolean, index: number, length
 }
 
 
-function formatter (type: DdbType, values, le: boolean, index: number, options = { nullstr: false, grouping: false }) {
+function formatter (type: DdbType, values: any, le: boolean, index: number, options = { nullstr: false, grouping: false }) {
     const value = values[index]
     switch (type) {   
         case DdbType.decimal32:
@@ -122,18 +122,18 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line?: number): any {
             
             for (let key in array_vectors) {
                 const array_vector = array_vectors[key]
-                const type = array_vector.type - 64
+                const type = (array_vector.type - 64) as DdbType
                 const value = array_vector.value
                 let offset = 0
                 
                 value[0].lengths.forEach((length: number, index: number) => {
                     let array = [ ]
                     
-                    for (let i = offset;  i < offset + length;  i++) 
+                    for (let i = offset;  i < offset + length;  i++)
                         if (type === DdbType.decimal32 || type === DdbType.decimal64 || type === DdbType.decimal128) {
                             value[0].scale = value.scale
                             array.push(formatter(type, value[0], le, i, { nullstr: true, grouping: false }))
-                        } 
+                        }
                         else
                             array.push(formatter(type, value[0].data, le, i, { nullstr: true, grouping: false }))
                          
@@ -168,7 +168,7 @@ export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols:
     
     for (let key in array_vectors) {
         const array_vector = array_vectors[key]
-        const type = array_vector.type - 64
+        const type = (array_vector.type - 64) as DdbType
         const value = array_vector.value
         const le = value.le
         let offset = 0
@@ -176,11 +176,11 @@ export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols:
         value[0].lengths.forEach((length: number, index: number) => {
             let array = [ ]
             
-            for (let i = offset;  i < offset + length;  i++) 
+            for (let i = offset;  i < offset + length;  i++)
                 if (type === DdbType.decimal32 || type === DdbType.decimal64 || type === DdbType.decimal128) {
                     value[0].scale = value.scale
                     array.push(formatter(type, value[0], le, i, { nullstr: true, grouping: false }))
-                } 
+                }
                 else
                     array.push(formatter(type, value[0].data, le, i, { nullstr: true, grouping: false }))
                  

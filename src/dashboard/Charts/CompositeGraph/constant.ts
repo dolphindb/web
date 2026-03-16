@@ -1,6 +1,6 @@
 import { DdbType } from 'dolphindb/browser.js'
 
-export const TIME_TYPES = [
+export const TIME_TYPES: DdbType[] = [
     DdbType.date,
     DdbType.month,
     DdbType.time,
@@ -15,7 +15,7 @@ export const TIME_TYPES = [
 
 
 
-export const VALUE_TYPES = [
+export const VALUE_TYPES: DdbType[] = [
     DdbType.short,
     DdbType.int,
     DdbType.long,

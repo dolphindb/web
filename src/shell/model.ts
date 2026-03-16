@@ -145,7 +145,7 @@ class ShellModel extends Model<ShellModel> {
                 ticket,
                 verbose,
                 python: language === 'python',
-                kdb: language === 'kdb'
+                q: language === 'q'
             })
             
             if (!ticket)
@@ -339,7 +339,7 @@ class ShellModel extends Model<ShellModel> {
         })).filter(v => !(
             v.name === 'pnode_run' ||
             ddb.python && v.form === DdbForm.object && pyobjs.has(v.name) ||
-            ddb.kdb && (v.name === 'Q' || v.name === 'ddb')
+            ddb.q && (v.name === 'Q' || v.name === 'ddb')
         ))
         
         let immutables = vars_data.filter(v => v.form === DdbForm.scalar || v.form === DdbForm.pair)
@@ -347,9 +347,9 @@ class ShellModel extends Model<ShellModel> {
         if (immutables.length) {
             const { value: values } = await ddb.eval<DdbObj<DdbObj[]>>(
                 [
-                    ...immutables.select('name'), 
-                    ddb.kdb ? '()' : '0'  // 确保生成 any vector
-                ].join(ddb.kdb ? '; ' : ', ').bracket() + 
+                    ...immutables.select('name'),
+                    ddb.q ? '()' : '0'  // 确保生成 any vector
+                ].join(ddb.q ? '; ' : ', ').bracket() +
                 (ddb.python ? '.toddb()' : ''))
             
             for (let i = 0, len = values.length - 1;  i < len;  ++i) {
