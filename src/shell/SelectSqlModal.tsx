@@ -40,7 +40,7 @@ export function SelectSqlModal () {
         </Modal>
         
         <span className='setting sql' title={t('设置当前代码执行的 SQL 标准')}>
-            <span className='text' title={t('SQL 标准')}>SQL:</span>
+            <span className='title' title={t('SQL 标准')}>SQL:</span>
             <Select
                 className='select-sql'
                 value={SqlStandard[model.sql]}
