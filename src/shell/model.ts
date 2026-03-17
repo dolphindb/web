@@ -159,6 +159,9 @@ class ShellModel extends Model<ShellModel> {
             language,
             ddb: language === 'dolphindb' ? ddb : ddb_
         })
+        
+        // 切换语言后切换了连接，刷新一下本地变量
+        this.update_vars()
     }
     
     
