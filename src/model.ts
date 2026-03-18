@@ -1076,7 +1076,7 @@ export class DdbModel extends Model<DdbModel> {
         } else
             length = await this.ddb.invoke<bigint>('getServerLogLength', [this.node_alias])
         
-        check(length >= 0, t('调用 getServerLogLength() 返回的结果应该大于 0，实际为: {{actual}}，请检查日志文件是否存在，logFile 配置是否在启动时通过 -logFile 命令行参数配置，配置文件中不能有 logFile 配置', { actual: Number(length) }))
+        check(length >= 0, t('请确认运行日志文件存在，并在启动命令或脚本（如 startSingle.sh）中通过 -logFile <path> 指定文件路径，不要在配置文件中设置 logFile'))
         
         console.log('get_server_log_length', length)
         
