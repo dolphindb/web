@@ -1,30 +1,5 @@
 # AGENTS.md
 
-## 构建与开发命令
-
-```bash
-# 开发服务器 (端口 8432)
-node ./commands.ts dev
-
-# 生产构建 (可选 --version=xxx 参数)
-node ./commands.ts build --version=1.0.0
-
-# 类型检查
-npm run typecheck
-
-# ESLint 检查与自动修复
-npm run lint
-npm run fix
-
-# i18n 翻译扫描
-npm run scan
-```
-
-开发服务器快捷键:
-- `r`: 重新编译
-- `i`: 打印地址信息
-- `x`: 退出开发服务器
-
 ## 路径别名 (tsconfig.json)
 
 ```typescript
@@ -60,20 +35,9 @@ import { shell } from '@/shell/model'        // ./src/shell/model.ts
 - **空对象/数组**: 使用 `{ }` 和 `[ ]` (带空格)
 - **导入**: 类型导入使用 `import type`
 
-## ESLint 配置
-
-项目使用自定义 ESLint 配置 `xshell/xlint.js`:
-```javascript
-// eslint.config.js
-import { xlint_config } from 'xshell/xlint.js'
-export default [xlint_config]
-```
 
 ## 国际化 (i18n)
-
-- 翻译字典位于 [`i18n/dict.json`](i18n/dict.json)
-- 使用 `t('key')` 函数获取翻译
-- 运行 `npm run scan` 扫描新翻译 key
+- 使用 `t('中文完整文本')` 标记词条，运行时会自动翻译
 
 ## 测试
 
