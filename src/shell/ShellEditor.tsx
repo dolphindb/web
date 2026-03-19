@@ -19,6 +19,8 @@ import { UploadAction } from './UploadAction.tsx'
 
 
 export function ShellEditor ({ collapser }) {
+    const { logined } = model.use(['logined'])
+    
     const [minimap, set_minimap] = useState(() => 
         storage.get_bool(storage_keys.minimap))
     
@@ -121,7 +123,7 @@ export function ShellEditor ({ collapser }) {
         { monaco_inited && <div className='toolbar'>
             <div className='actions'>
                 <ExecuteAction />
-                <UploadAction />
+                { logined && <UploadAction /> }
             </div>
             
             <div className='settings'>
