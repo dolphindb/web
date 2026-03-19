@@ -109,6 +109,9 @@ class ShellModel extends Model<ShellModel> {
     
     monaco_inited = false
     
+    /** ddb 的 home 目录路径 */
+    fpd_home: string
+    
     
     init () {
         this.set_language(
@@ -951,6 +954,13 @@ class ShellModel extends Model<ShellModel> {
             '}\n'
         )
         this.set({ get_access_defined: true })
+    }
+    
+    
+    /** 获取 home 目录路径 */
+    async get_home_dir () {
+        return this.fpd_home ??= (await model.ddb.invoke<string>('getHomeDir'))
+            .fpd
     }
 }
 

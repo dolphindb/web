@@ -22,7 +22,7 @@ import { shell } from '@/shell/model'        // ./src/shell/model.ts
   const { logined, username } = model.use(['logined', 'username'])
   ```
 
-- **DolphinDB 连接**: 通过 `dolphindb/browser.js` 中的 `DDB` 类与后端通信
+- **DolphinDB 连接**: 通过 `dolphindb/browser.js` 中的 `DDB` 类与后端通信，用 model.ddb 可以拿到连接实例，用 .invoke 可以调用 server 侧函数
 
 - **路由**: 使用 `react-router` 的 `createBrowserRouter`
 
@@ -34,6 +34,10 @@ import { shell } from '@/shell/model'        // ./src/shell/model.ts
 - **函数声明**: 名称后要有空格，如 `function foo ()`
 - **空对象/数组**: 使用 `{ }` 和 `[ ]` (带空格)
 - **导入**: 类型导入使用 `import type`
+
+Modal visible 状态用 react-object-model/hooks.js 中的 use_modal 方法，let modal = use_modal()，然后下面再 `<Modal open={modal.visible}> ...`
+
+onClick, onOk 等回调，直接在后面用 onClick={async () => { ... }} 这样 inline 的函数，不要单独声明 handle_click 函数
 
 
 ## 国际化 (i18n)

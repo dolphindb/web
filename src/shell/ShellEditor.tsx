@@ -15,6 +15,7 @@ import { shell, type Tab } from './model.ts'
 
 import { SelectSqlModal } from './SelectSqlModal.tsx'
 import { ExecuteAction } from './ExecuteAction.tsx'
+import { UploadAction } from './UploadAction.tsx'
 
 
 export function ShellEditor ({ collapser }) {
@@ -120,6 +121,7 @@ export function ShellEditor ({ collapser }) {
         { monaco_inited && <div className='toolbar'>
             <div className='actions'>
                 <ExecuteAction />
+                <UploadAction />
             </div>
             
             <div className='settings'>

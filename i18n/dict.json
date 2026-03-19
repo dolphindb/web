@@ -6772,5 +6772,23 @@
     },
     "请确认运行日志文件存在，并在启动命令或脚本（如 startSingle.sh）中通过 -logFile <path> 指定文件路径，不要在配置文件中设置 logFile": {
         "en": "Ensure the runtime log file exists, and set the file path with -logFile <path> in the startup command or script (e.g., startSingle.sh). Do not set logFile in the configuration file."
+    },
+    "上传标签页代码到服务器": {
+        "en": "Upload tab code to server"
+    },
+    "上传": {
+        "en": "Upload"
+    },
+    "无法获取编辑器内容": {
+        "en": "Unable to get editor content"
+    },
+    "上传成功: {{fp}}": {
+        "en": "Upload successful: {{fp}}"
+    },
+    "文件路径": {
+        "en": "File path"
+    },
+    "上传到服务器的文件路径": {
+        "en": "File path uploaded to server"
     }
 }
