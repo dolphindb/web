@@ -23,15 +23,14 @@
         
         
         // --- module
-        "module": "ESNext",
-        "moduleResolution": "Bundler",
+        "module": "esnext",
+        "moduleResolution": "bundler",
         "allowSyntheticDefaultImports": true,
-        "esModuleInterop": false,
         "resolveJsonModule": true,
         "isolatedModules": true,
         
         // --- build
-        "target": "ESNext",
+        "target": "esnext",
         "allowJs": false,
         "checkJs": false,
         "pretty": true,
@@ -67,7 +66,6 @@
         
         // --- type checking
         "strict": false,
-        "alwaysStrict": false,
         "noImplicitAny": false,
         "noImplicitReturns": false,
         "noImplicitThis": true,
