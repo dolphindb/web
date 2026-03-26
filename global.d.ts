@@ -43,6 +43,16 @@ declare module '*.sass' {
     export default classes
 }
 
+declare module '*.css' {
+    const classes: { readonly [key: string]: string }
+    export default classes
+}
+
+declare module '*.scss' {
+    const classes: { readonly [key: string]: string }
+    export default classes
+}
+
 interface Window {
     model?: import('react-object-model').Model<any>
     shell?: import('react-object-model').Model<any>
