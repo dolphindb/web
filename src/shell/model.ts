@@ -48,6 +48,9 @@ class ShellModel extends Model<ShellModel> {
     /** 当前 language 对应的 DDB 连接 */
     ddb: DDB
     
+    /** 缓存 q 的 DDB 连接 */
+    qdb: DDB
+    
     pterm = defer<Terminal>()
     
     term: Terminal
@@ -125,42 +128,46 @@ class ShellModel extends Model<ShellModel> {
             return this.ddb
         
         // 只有首次初始化时跳过设置 localStorage
-        if (this.language) {
+        if (this.language)
             storage.setstr(storage_keys.shell_language, language)
-            
-            // 可能搞个 ddbs 缓存更好？再说吧
-            if (this.language !== 'dolphindb')
-                this.ddb.disconnect()
-        }
-        
-        const { ddb } = model
         
         let ddb_: DDB
+        let qdb = this.qdb
         
-        if (language !== 'dolphindb') {
-            const { username, password, ticket, verbose } = ddb
-            
-            ddb_ = new DDB(ddb.url, {
-                // 如果有 ticket，则认为能够自动登录，并启用，否则禁用，尝试一下用户名密码登录
-                autologin: Boolean(ticket),
-                username,
-                password,
-                ticket,
-                verbose,
-                python: language === 'python',
-                q: language === 'q'
-            })
-            
-            if (!ticket)
-                ddb_.invoke('login', [username, password])
-                    .catch(error => {
-                        console.log(t('ddb 无 ticket，尝试通过密码 login 失败'))
-                    })
-        }
+        if (language === 'dolphindb')
+            ddb_ = model.ddb
+        else if (language === 'q')
+            // 检查是否已有缓存的 q 连接
+            if (qdb)
+                ddb_ = qdb
+            else {
+                const { ddb } = model
+                const { username, password, ticket, verbose } = ddb
+                
+                qdb = ddb_ = new DDB(ddb.url, {
+                    // 如果有 ticket，则认为能够自动登录，并启用，否则禁用，尝试一下用户名密码登录
+                    autologin: Boolean(ticket),
+                    username,
+                    password,
+                    ticket,
+                    verbose,
+                    q: true
+                })
+                
+                if (!ticket)
+                    ddb_.invoke('login', [username, password])
+                        .catch(error => {
+                            console.log(t('ddb 无 ticket，尝试通过密码 login 失败'))
+                        })
+            }
+        else
+            // python 或其他语言
+            throw new Error('todo: 暂未支持 python 语言')
         
         this.set({
             language,
-            ddb: language === 'dolphindb' ? ddb : ddb_
+            ddb: ddb_,
+            qdb
         })
         
         // 切换语言后切换了连接，刷新一下本地变量

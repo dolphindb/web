@@ -1280,6 +1280,10 @@ export const envs = [
         value: 'test.dolphindb.cn:8848'
     },
     {
+        label: 'q.忻玥',
+        value: '192.168.100.14:32102'
+    },
+    {
         label: 'q',
         value: '192.168.0.114:8766'
     },
