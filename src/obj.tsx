@@ -1705,6 +1705,7 @@ export interface ChartConfig {
     titles: DdbChartValue['titles']
     stacking: boolean
     multi_y_axes: boolean
+    auto_scale_y_axes: boolean
     col_labels: string[]
     bin_count: DdbChartValue['bin_count']
     bin_start: DdbChartValue['bin_start']
@@ -1732,6 +1733,7 @@ function Chart ({
         titles: { } as DdbChartValue['titles'],
         stacking: false,
         multi_y_axes: false,
+        auto_scale_y_axes: false,
         col_labels: [ ],
         bin_count: null as DdbChartValue['bin_count'],
         bin_start: null as DdbChartValue['bin_start'],
@@ -1770,7 +1772,7 @@ function Chart ({
                 :
                     DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [objref.node, objref.name])) as DdbChartObj)
             
-            const { multi_y_axes = false } = extras || { }
+            const { multi_y_axes = false, auto_scale_y_axes = false } = extras || { }
             
             const col_labels_ = ((cols_?.value || seq(cols)) as any[]).map(col_label => col_label?.value?.name || col_label)
             
@@ -1879,6 +1881,7 @@ function Chart ({
                 titles,
                 stacking,
                 multi_y_axes,
+                auto_scale_y_axes,
                 col_labels: col_labels_,
                 bin_count,
                 bin_start,
@@ -1930,7 +1933,7 @@ function Chart ({
 
 
 function get_chart_option (config: ChartConfig): echarts.EChartsOption {
-    const { charttype, data, titles, stacking, multi_y_axes, col_labels, bin_count } = config
+    const { charttype, data, titles, stacking, multi_y_axes, auto_scale_y_axes, col_labels, bin_count } = config
     
     const base: echarts.EChartsOption = {
         tooltip: {
@@ -2005,8 +2008,9 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                     yAxis: {
                         type: 'value' as any,
                         name: titles.y_axis,
+                        scale: auto_scale_y_axes,
                         ...axis_style
-                    },
+                    } as echarts.EChartsOption['yAxis'],
                     series: col_labels.map(label => ({
                         name: String(label),
                         type: 'line',
@@ -2025,23 +2029,17 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                         name: titles.x_axis,
                         data: data.map(d => d.row),
                     },
-                    yAxis: col_labels.map((label, index) => {
-                        const isRight = index % 2 === 1 // 判断是否为右侧
-                        const sideOffset = Math.floor(index / 2) * 30 // 每个 Y 轴之间的间隔
-                        
-                        return {
-                            ...axis_style,
-                            type: 'value',
-                            position: isRight ? 'right' : 'left',
-                            offset: sideOffset, // 设置偏移量以避免重叠
-                            name: label,
-                            nameLocation: 'end',
-                            alignTicks: true,
-                            axisLabel: {
-                                margin: 8, // 轴标签的边距
-                            },
-                        } as any
-                    }),
+                    yAxis: col_labels.map((label, index) => ({
+                        ...axis_style,
+                        type: 'value',
+                        position: index % 2 ? 'right' : 'left',
+                        offset: Math.floor(index / 2) * 30,
+                        name: label,
+                        nameLocation: 'end',
+                        alignTicks: true,
+                        axisLabel: { margin: 8 },
+                        scale: auto_scale_y_axes
+                    } as echarts.EChartsOption['yAxis'])) as any,
                     series: col_labels.map((label, index) => ({
                         name: String(label),
                         type: 'line',
@@ -2066,7 +2064,8 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                     ...axis_style,
                     type: 'value' as any,
                     name: titles.y_axis,
-                },
+                    scale: auto_scale_y_axes
+                } as echarts.EChartsOption['yAxis'],
                 series: col_labels.map(label => ({
                     name: label,
                     type: 'bar',
@@ -2130,7 +2129,8 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                     ...axis_style,
                     type: 'value' as any,
                     name: titles.y_axis,
-                },
+                    scale: auto_scale_y_axes,
+                } as echarts.EChartsOption['yAxis'],
                 series: col_labels.map(label => ({
                     name: label,
                     type: 'line',
@@ -2162,7 +2162,8 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                     ...axis_style,
                     type: 'value' as any,
                     name: titles.y_axis,
-                },
+                    scale: auto_scale_y_axes,
+                } as echarts.EChartsOption['yAxis'],
                 series: col_labels.map(label => ({
                     name: label,
                     type: 'scatter',
@@ -2211,7 +2212,8 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                     ...axis_style,
                     type: 'value' as any,
                     name: !titles.y_axis || titles.y_axis === '' ? t('频次') : titles.y_axis,
-                },
+                    scale: auto_scale_y_axes
+                } as echarts.EChartsOption['yAxis'],
                 series: [{
                     type: 'custom',
                     renderItem: (params, api) => ({
@@ -2242,13 +2244,13 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                         ...axis_style,
                         type: 'value' as any,
                         name: titles.y_axis,
-                        scale: true,
+                        scale: auto_scale_y_axes,
                     } as any,
                     {
                         ...axis_style,
                         type: 'value' as any,
                         name: t('成交量'),
-                        scale: true,
+                        scale: auto_scale_y_axes,
                     }
                 ],
                 series: [
