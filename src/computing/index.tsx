@@ -530,19 +530,24 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
             
             break
         case 'persistenceMeta':
-            await Promise.all(selected.map(async (streaming_table_name, idx) => ddb.call('dropStreamTable', [streaming_table_name, raftGroups[idx] ? false : is_admin], urgent)))
+            await Promise.all(selected.map((streaming_table_name, idx) =>
+                ddb.call('dropStreamTable', [streaming_table_name, raftGroups[idx] ? false : is_admin], urgent)))
             
             model.message.success(t('流数据表删除成功'))
             break
         case 'sharedStreamingTableStat':
-            await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name, is_admin], urgent)))
+            await Promise.all(selected.map(streaming_table_name =>
+                ddb.call('dropStreamTable', [streaming_table_name, is_admin], urgent)))
             
             model.message.success(t('流数据表删除成功'))
             break
         case 'engine':
-            await Promise.all(selected.map(async engine_name => ddb.call('dropStreamEngine', [engine_name], urgent)))
+            await Promise.all(selected.map(engine_name =>
+                ddb.call('dropStreamEngine', [engine_name], urgent)))
             
             model.message.success(t('引擎删除成功'))
+            
+            break
     }
     
     await refresher.call(computing)
