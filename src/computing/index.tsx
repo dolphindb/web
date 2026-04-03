@@ -5,7 +5,7 @@ import { Button, Tabs, Tooltip, Spin, Result, type TableColumnType, Input, Modal
 import { WarningOutlined, FormatPainterOutlined, TableOutlined, DeploymentUnitOutlined, ControlOutlined, MinusCircleOutlined, DeleteOutlined } from '@ant-design/icons'
 import type { SortOrder } from 'antd/es/table/interface.js'
 import { use_modal } from 'react-object-model/hooks.js'
-import { type DDB } from 'dolphindb/browser.js'
+import { type DDB, urgent } from 'dolphindb/browser.js'
 
 import { t } from '@i18n'
 import { model, NodeType } from '@model'
@@ -513,33 +513,38 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
             await Promise.all(
                 selected.map(async (pub_table, idx) => {
                     const pub_table_arr = pub_table.split('/')
+                    
                     const [ip, port] = pub_table_arr[0].split(':')
-                    let script = ''
-                    if (raftGroups[idx])
-                        script = `rpc('${model.get_controller_alias()}','unsubscribeTable','${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
-                    else
-                        script =
-                            ip === model.node.host && Number(port) === model.node.port
+                    
+                    await ddb.eval(
+                        raftGroups[idx]
+                            ? `rpc('${model.controller_alias}','unsubscribeTable','${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
+                            : ip === model.node.host && Number(port) === model.node.port
                                 ? `unsubscribeTable(,'${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
-                                : `h=xdb('${ip}',${port})\n` + `unsubscribeTable(h,'${pub_table_arr[1]}','${pub_table_arr[2] || ''}')`
-                    ddb.eval(script, { urgent: true })
+                                : `h=xdb('${ip}',${port})\n` + `unsubscribeTable(h,'${pub_table_arr[1]}','${pub_table_arr[2] || ''}')`,
+                        urgent)
                 })
             )
+            
             model.message.success(t('取消订阅成功'))
+            
             break
         case 'persistenceMeta':
-            await Promise.all(selected.map(async (streaming_table_name, idx) => ddb.call('dropStreamTable', [streaming_table_name, raftGroups[idx] ? false : is_admin], { urgent: true })))
+            await Promise.all(selected.map(async (streaming_table_name, idx) => ddb.call('dropStreamTable', [streaming_table_name, raftGroups[idx] ? false : is_admin], urgent)))
+            
             model.message.success(t('流数据表删除成功'))
             break
         case 'sharedStreamingTableStat':
-            await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name, is_admin], { urgent: true })))
+            await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name, is_admin], urgent)))
+            
             model.message.success(t('流数据表删除成功'))
             break
         case 'engine':
-            await Promise.all(selected.map(async engine_name => ddb.call('dropStreamEngine', [engine_name], { urgent: true })))
-            model.message.success(t('引擎删除成功'))
+            await Promise.all(selected.map(async engine_name => ddb.call('dropStreamEngine', [engine_name], urgent)))
             
+            model.message.success(t('引擎删除成功'))
     }
+    
     await refresher.call(computing)
 }
 
