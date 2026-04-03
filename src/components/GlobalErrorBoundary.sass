@@ -1,15 +1,28 @@
 .global-error-result
+    white-space: break-spaces
+    
+    .ant-result-title
+        max-height: 20vh
+        overflow-y: auto
+    
     .ant-result-subtitle
         color: unset
         text-align: left
         padding: 0px 10%
-        white-space: break-spaces
+        
+        max-height: 50vh
+        overflow-y: auto
+
 
 .modal-error
     top: 60px
     
-    .ant-modal-confirm-content
-        white-space: break-spaces
-        max-height: calc(100vh - 300px)
+    white-space: break-spaces
+    
+    .ant-modal-confirm-title
+        max-height: 20vh
         overflow-y: auto
     
+    .ant-modal-confirm-content
+        max-height: 60vh
+        overflow-y: auto
