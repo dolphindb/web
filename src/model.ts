@@ -1323,7 +1323,7 @@ export const storage_keys = {
     dashboard_autosave: 'ddb.dashboard.autosave',
     overview_display_mode: 'ddb.overview.display_mode',
     overview_display_columns: 'ddb.overview.display_columns',
-    license_notified_date: 'ddb.license.notified_date',
+    license_notified: 'ddb.license.notified_date',
     git_access_code: 'ddb.git.access-code',
     git_client_id: 'ddb.git.client_id',
     git_redirect_url: 'ddb.git.redirect_url',
