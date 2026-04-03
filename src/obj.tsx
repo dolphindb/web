@@ -2036,6 +2036,7 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                         offset: Math.floor(index / 2) * 30,
                         name: label,
                         nameLocation: 'end',
+                        nameGap: 20 + Math.floor(index / 2) * 20,
                         alignTicks: true,
                         axisLabel: { margin: 8 },
                         scale: auto_scale_y_axes
