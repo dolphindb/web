@@ -26,34 +26,26 @@ import { shell } from '@/shell/model'        // ./src/shell/model.ts
 
 - **路由**: 使用 `react-router` 的 `createBrowserRouter`
 
-## 代码风格
+## 代码风格规范、惯用写法
 
-- **命名**: 变量、函数、方法、成员优先使用下划线命名法 (`snake_case`)
-- **字符串**: 优先使用单引号
-- **if/else**: 单条语句时不要大括号，但要换行缩进
-- **函数声明**: 名称后要有空格，如 `function foo ()`
-- **空对象/数组**: 使用 `{ }` 和 `[ ]` (带空格)
-- **导入**: 类型导入使用 `import type`
+命名: 变量、函数、方法、成员优先使用下划线命名法 (`snake_case`)
+字符串: 优先使用单引号
+if/else: 单条语句时不要大括号，但要换行缩进
+函数声明: 名称后要有空格，如 `function foo ()`
+空对象/数组: 使用 `{ }` 和 `[ ]` (带空格)
+导入: 类型导入使用 `import type`
 
 Modal visible 状态用 react-object-model/hooks.js 中的 use_modal 方法，let modal = use_modal()，然后下面再 `<Modal open={modal.visible}> ...`
 
 onClick, onOk 等回调，直接在后面用 onClick={async () => { ... }} 这样 inline 的函数，不要单独声明 handle_click 函数
 
+ddb.invoke 的返回值，通常需要 map_keys<{ 返回类型 }>(返回值) 将 keys 转为 snake_case 后使用
+
 
 ## 国际化 (i18n)
-- 使用 `t('中文完整文本')` 标记词条，运行时会自动翻译
-
-## 测试
-
-测试入口 [`test/index.ts`](test/index.ts):
-- 在开发模式下点击 Header 的 "自动化测试" 按钮执行
-- 通过 `await (await import('@test/index.ts')).test()` 动态导入执行
+- 使用 `t('中文完整文本')` 标记词条，如有需要，使用 {{}} 包裹变量
 
 ## 关键依赖
 
-- `react-object-model`: 状态管理
 - `dolphindb`: DolphinDB JavaScript API
 - `xshell`: 内部工具库 (构建、服务器、工具函数等)
-- `antd`: UI 组件库
-- `@monaco-editor/react`: 代码编辑器
-- `gridstack`: Dashboard 布局

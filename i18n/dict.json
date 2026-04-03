@@ -6790,5 +6790,11 @@
     },
     "上传到服务器的文件路径": {
         "en": "File path uploaded to server"
+    },
+    "License Server 连接断开": {
+        "en": "License Server connection disconnected"
+    },
+    "与 License Server 的连接已断开，剩余可用时间：{{days}} 天 {{hours}} 小时，请尽快恢复连接以避免服务关闭": {
+        "en": "Connection to License Server has been disconnected, remaining available time: {{days}} days {{hours}}, please restore connection as soon as possible to avoid service shutdown"
     }
 }

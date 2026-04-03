@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import dayjs from 'dayjs'
 import { Tag, Popover, Descriptions, Card } from 'antd'
 
-import { date_format } from 'xshell/utils.browser.js'
+import { date_format, map_keys } from 'xshell/utils.browser.js'
 import { storage } from 'xshell/storage.js'
 
 import { t } from '@i18n'
@@ -43,6 +43,7 @@ export function License () {
             expiration_checked = true
             
             const { license } = model
+            let { modal, ddb } = model
             
             const expiration = dayjs(license.expiration)
             const now = dayjs()
@@ -53,33 +54,51 @@ export function License () {
             if (localStorage.getItem(storage_keys.license_notified) === nowstr) 
                 return
             
-            if (license.license_type === LicenseType.LicenseServerVerify) {
-                
-            }
-            
             function onOk () {
                 storage.set(storage_keys.license_notified, nowstr)
+            }
+            
+            const width = 700
+            
+            if (license.license_type === LicenseType.LicenseServerVerify) {
+                const {
+                    is_connected: connected,
+                    seconds_until_shutdown
+                } = map_keys<{
+                    is_connected: boolean
+                    seconds_until_shutdown: number
+                }>(await ddb.invoke('getLicenseServerStatus'))
+                
+                if (!connected) {
+                    modal.error({
+                        title: t('License Server 连接断开'),
+                        content: t('与 License Server 的连接已断开，剩余可用时间：{{days}} 天 {{hours}} 小时，请尽快恢复连接以避免服务关闭', {
+                            days: Math.floor(seconds_until_shutdown / 86400),
+                            hours: Math.floor((seconds_until_shutdown % 86400) / 3600)
+                        }),
+                        width,
+                        onOk
+                    })
+                    
+                    return
+                }
             }
             
             const title = t('License 过期提醒')
             
             if (now.isAfter(expiration, 'day')) {
-                model.modal.error({
-                    title,
-                    content: t('License 已过期，请联系管理人员立即更新，避免程序关闭'),
-                    width: 600,
-                    onOk,
+                modal.error({
+                    title, width, onOk,
+                    content: t('License 已过期，请联系管理人员立即更新，避免程序关闭')
                 })
                 
                 return
             }
             
             if (now.add(2, 'week').isAfter(expiration, 'day'))
-                model.modal.warning({
-                    title,
-                    content: t('License 将在两周内过期，请提醒管理人员及时更新，避免程序过期后自动关闭'),
-                    width: 700,
-                    onOk,
+                modal.warning({
+                    title, width, onOk,
+                    content: t('License 将在两周内过期，请提醒管理人员及时更新，避免程序过期后自动关闭')
                 })
         })()
     }, [admin, license])
