@@ -27,12 +27,17 @@ const authorizations = {
 }
 
 export function License () {
-    const { version, version_full, license, admin, shf } = model.use(['version', 'version_full', 'license', 'admin', 'shf'])
+    const { version, version_full, license, admin, shf, logined } = 
+        model.use(['version', 'version_full', 'license', 'admin', 'shf', 'logined'])
     
     // 在 admin 状态变化时，弹提示
     useEffect(() => {
         if (
-            !model.production ||
+            // 稳定后开发环境可忽略这个提示
+            // !model.production ||
+            
+            !logined ||
+            
             expiration_checked ||
             (!admin && config.get_boolean_config('licenseExpirationWarningAdminOnly')) ||
             !license
@@ -51,7 +56,7 @@ export function License () {
             const nowstr = now.format(date_format)
             
             // 今天展示过了
-            if (localStorage.getItem(storage_keys.license_notified) === nowstr) 
+            if (storage.getstr(storage_keys.license_notified) === nowstr) 
                 return
             
             function onOk () {
@@ -72,12 +77,12 @@ export function License () {
                 if (!connected) {
                     modal.error({
                         title: t('License Server 连接断开'),
+                        width,
+                        onOk,
                         content: t('与 License Server 的连接已断开，剩余可用时间：{{days}} 天 {{hours}} 小时，请尽快恢复连接以避免服务关闭', {
                             days: Math.floor(seconds_until_shutdown / 86400),
                             hours: Math.floor((seconds_until_shutdown % 86400) / 3600)
-                        }),
-                        width,
-                        onOk
+                        })
                     })
                     
                     return
@@ -101,7 +106,7 @@ export function License () {
                     content: t('License 将在两周内过期，请提醒管理人员及时更新，避免程序过期后自动关闭')
                 })
         })()
-    }, [admin, license])
+    }, [admin, logined, license])
     
     if (!license)
         return
