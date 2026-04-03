@@ -68,11 +68,13 @@ export function License () {
             if (license.license_type === LicenseType.LicenseServerVerify) {
                 const {
                     is_connected: connected,
-                    seconds_until_shutdown
+                    seconds_until_shutdown: seconds_long
                 } = map_keys<{
                     is_connected: boolean
-                    seconds_until_shutdown: number
+                    seconds_until_shutdown: bigint
                 }>(await ddb.invoke('getLicenseServerStatus'))
+                
+                const seconds_until_shutdown = Number(seconds_long)
                 
                 if (!connected) {
                     modal.error({
