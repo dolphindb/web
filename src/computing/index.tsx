@@ -5,7 +5,7 @@ import { Button, Tabs, Tooltip, Spin, Result, type TableColumnType, Input, Modal
 import { WarningOutlined, FormatPainterOutlined, TableOutlined, DeploymentUnitOutlined, ControlOutlined, MinusCircleOutlined, DeleteOutlined } from '@ant-design/icons'
 import type { SortOrder } from 'antd/es/table/interface.js'
 import { use_modal } from 'react-object-model/hooks.js'
-import { type DDB, urgent } from 'dolphindb/browser.js'
+import { type DDB, DdbInt, urgent } from 'dolphindb/browser.js'
 
 import { t } from '@i18n'
 import { model, NodeType } from '@model'
@@ -507,17 +507,26 @@ function handle_null (table: Record<string, any>[]) {
 
 
 /** 统一处理删除 */
-async function handle_delete (type: string, selected: string[], ddb: DDB, refresher: () => Promise<void>, is_admin: boolean, raftGroups?: string[]) {
+async function handle_delete (type: string, selected: string[], ddb: DDB, refresher: () => Promise<void>, is_admin: boolean, raft_groups?: string[]) {
     switch (type) {
-        case 'subWorkers':
+        case 'subWorkers': {
             await Promise.all(
                 selected.map(async (pub_table, idx) => {
                     const [addr, table_name, extra = ''] = pub_table.split('/')
                     const [ip, port] = addr.split(':')
                     
-                    if (raftGroups[idx])
-                        await ddb.invoke('unsubscribeTable', [table_name, extra], { node: model.controller_alias, urgent: true })
-                    else
+                    const raft_group_id = raft_groups[idx]
+                    
+                    if (raft_group_id) {
+                        const group_id = new DdbInt(Number(raft_group_id))
+                        
+                        const leader = await ddb.invoke<string>('getStreamingLeader', [group_id])
+                        
+                        await ddb.invoke(
+                            'unsubscribeTable', 
+                            [leader, table_name, extra, undefined, group_id],
+                            { node: leader, urgent: true })
+                    } else
                         await ddb.eval(
                             ip === model.node.host && Number(port) === model.node.port
                                 ? `unsubscribeTable(, '${table_name}', '${extra}')`
@@ -529,9 +538,11 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
             model.message.success(t('取消订阅成功'))
             
             break
+        }
+        
         case 'persistenceMeta':
             await Promise.all(selected.map((streaming_table_name, idx) =>
-                ddb.call('dropStreamTable', [streaming_table_name, raftGroups[idx] ? false : is_admin], urgent)))
+                ddb.call('dropStreamTable', [streaming_table_name, raft_groups[idx] ? false : is_admin], urgent)))
             
             model.message.success(t('流数据表删除成功'))
             break
