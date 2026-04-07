@@ -709,7 +709,7 @@ export class DdbModel extends Model<DdbModel> {
         localStorage.removeItem(storage_keys.ticket)
         localStorage.removeItem(storage_keys.username)
         
-        await this.ddb.invoke('logout', undefined, { urgent: true })
+        await this.ddb.invoke('logout', undefined, urgent)
         
         await this.update_user({
             username: username_guest,
@@ -732,7 +732,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_node_type () {
-        const node_type = await this.ddb.invoke<NodeType>('getNodeType', undefined, { urgent: true })
+        const node_type = await this.ddb.invoke<NodeType>('getNodeType', undefined, urgent)
         this.set({ node_type })
         console.log(t('节点类型:'), NodeType[node_type])
         return node_type
@@ -740,7 +740,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_node_alias () {
-        const node_alias = await this.ddb.invoke<string>('getNodeAlias', undefined, { urgent: true })
+        const node_alias = await this.ddb.invoke<string>('getNodeAlias', undefined, urgent)
         this.set({ node_alias })
         console.log(t('节点名称:'), node_alias)
         return node_alias
@@ -762,7 +762,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_controller_alias () {
-        const controller_alias = await this.ddb.invoke('getControllerAlias', undefined, { urgent: true })
+        const controller_alias = await this.ddb.invoke('getControllerAlias', undefined, urgent)
         this.set({ controller_alias })
         // console.log(t('控制节点:'), controller_alias)
         return controller_alias
@@ -888,7 +888,7 @@ export class DdbModel extends Model<DdbModel> {
             }, 5000)
         
         // 2025.01.03 登录鉴权功能之后 getClusterPerf 没有要求一定要在控制节点执行了
-        nodes = (await this.ddb.invoke<DdbNode[]>('getClusterPerf', [true], { urgent: true }))
+        nodes = (await this.ddb.invoke<DdbNode[]>('getClusterPerf', [true], urgent))
             .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
@@ -1029,7 +1029,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async cancel_console_job (job: DdbJob) {
-        return this.ddb.invoke('cancelConsoleJob', [job.rootJobId], { urgent: true })
+        return this.ddb.invoke('cancelConsoleJob', [job.rootJobId], urgent)
     }
     
     
@@ -1232,7 +1232,7 @@ export class DdbModel extends Model<DdbModel> {
             return this.client_auth
         
         try {
-            const client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
+            const client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, urgent)
             console.log('安全认证:', client_auth)
             this.set({ client_auth })
             return client_auth
