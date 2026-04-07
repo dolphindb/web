@@ -512,17 +512,17 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
         case 'subWorkers':
             await Promise.all(
                 selected.map(async (pub_table, idx) => {
-                    const pub_table_arr = pub_table.split('/')
+                    const [addr, table_name, extra = ''] = pub_table.split('/')
+                    const [ip, port] = addr.split(':')
                     
-                    const [ip, port] = pub_table_arr[0].split(':')
-                    
-                    await ddb.eval(
-                        raftGroups[idx]
-                            ? `rpc('${model.controller_alias}','unsubscribeTable','${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
-                            : ip === model.node.host && Number(port) === model.node.port
-                                ? `unsubscribeTable(,'${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
-                                : `h=xdb('${ip}',${port})\n` + `unsubscribeTable(h,'${pub_table_arr[1]}','${pub_table_arr[2] || ''}')`,
-                        urgent)
+                    if (raftGroups[idx])
+                        await ddb.invoke('unsubscribeTable', [table_name, extra], { node: model.controller_alias, urgent: true })
+                    else
+                        await ddb.eval(
+                            ip === model.node.host && Number(port) === model.node.port
+                                ? `unsubscribeTable(, '${table_name}', '${extra}')`
+                                : `unsubscribeTable(xdb('${ip}', ${port}), '${table_name}', '${extra}')`,
+                            urgent)
                 })
             )
             
