@@ -1,0 +1,40 @@
+import { registerScript } from './index.js';
+import { coldefsConfig } from './coldefs.js';
+import { testsqlConfig } from './testsql.js';
+import { executeConfig } from './execute.js';
+import { executeFileConfig } from './execute_file.js';
+import { showConfig } from './show.js';
+import { skillReadConfig } from './skill_read.js';
+import { docSearchConfig } from './doc_search.js';
+import { docReadConfig } from './doc_read.js';
+import { vfsListConfig } from './vfs_list.js';
+import { vfsCreateConfig } from './vfs_create.js';
+import { vfsReadConfig } from './vfs_read.js';
+import { vfsUpdateConfig } from './vfs_update.js';
+import { vfsDeleteConfig } from './vfs_delete.js';
+import { stepCreateConfig } from './step_create.js';
+import { stepUpdateConfig } from './step_update.js';
+import { stepClearConfig } from './step_clear.js';
+import { workspaceStateReadConfig } from './workspace_state_read.js';
+import { workspaceStateUpdateConfig } from './workspace_state_update.js';
+
+export function initScripts() {
+  registerScript(coldefsConfig);
+  registerScript(testsqlConfig);
+  registerScript(showConfig);
+  registerScript(executeConfig);
+  registerScript(executeFileConfig);
+  registerScript(skillReadConfig);
+  registerScript(docSearchConfig);
+  registerScript(docReadConfig);
+  registerScript(vfsListConfig);
+  registerScript(vfsCreateConfig);
+  registerScript(vfsReadConfig);
+  registerScript(vfsUpdateConfig);
+  registerScript(vfsDeleteConfig);
+  registerScript(stepCreateConfig);
+  registerScript(stepUpdateConfig);
+  registerScript(stepClearConfig);
+  registerScript(workspaceStateReadConfig);
+  registerScript(workspaceStateUpdateConfig);
+}

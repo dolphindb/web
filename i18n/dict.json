@@ -6844,5 +6844,221 @@
     },
     "设置默认字体大小（临时修改可将鼠标移到编辑器区域，通过 ctrl + 滚轮上下 调整）": {
         "en": "Set the default font size (for temporary modifications, you can move the mouse to the editor area and adjust it up and down using ctrl + wheel)"
+    },
+    "智能助手": {
+        "en": "AI Assistant"
+    },
+    "新建对话": {
+        "en": "New Chat"
+    },
+    "发送": {
+        "en": "Send"
+    },
+    "请输入消息...": {
+        "en": "Type a message..."
+    },
+    "后端服务地址": {
+        "en": "Backend Server URL"
+    },
+    "正在思考...": {
+        "en": "Thinking..."
+    },
+    "正在执行工具": {
+        "en": "Running tool"
+    },
+    "空闲": {
+        "en": "Idle"
+    },
+    "暂无对话": {
+        "en": "No conversations"
+    },
+    "请先新建对话": {
+        "en": "Create a new chat to begin"
+    },
+    "智能助手初始化失败，请检查后端服务地址": {
+        "en": "AI Assistant initialization failed, please check backend server URL"
+    },
+    "工具调用": {
+        "en": "Tool Call"
+    },
+    "工具": {
+        "en": "Tool"
+    },
+    "推理过程": {
+        "en": "Reasoning"
+    },
+    "结果": {
+        "en": "Result"
+    },
+    "确定删除此对话？": {
+        "en": "Are you sure you want to delete this conversation?"
+    },
+    "服务设置": {
+        "en": "Server Settings"
+    },
+    "模型配置": {
+        "en": "Provider Settings"
+    },
+    "技能管理": {
+        "en": "Skills Management"
+    },
+    "保存成功": {
+        "en": "Saved successfully"
+    },
+    "连接失败，请检查地址": {
+        "en": "Connection failed, please check the URL"
+    },
+    "加载提供商列表失败": {
+        "en": "Failed to load provider list"
+    },
+    "新建提供商": {
+        "en": "New Provider"
+    },
+    "暂无提供商": {
+        "en": "No providers"
+    },
+    "确定删除此提供商？": {
+        "en": "Are you sure you want to delete this provider?"
+    },
+    "已禁用": {
+        "en": "Disabled"
+    },
+    "请选择一个提供商或新建": {
+        "en": "Select a provider or create a new one"
+    },
+    "编辑提供商": {
+        "en": "Edit Provider"
+    },
+    "提供商名称": {
+        "en": "Provider Name"
+    },
+    "自定义请求头": {
+        "en": "Custom Headers"
+    },
+    "启用": {
+        "en": "Enabled"
+    },
+    "模型列表": {
+        "en": "Models"
+    },
+    "新增模型": {
+        "en": "New Model"
+    },
+    "暂无模型": {
+        "en": "No models"
+    },
+    "默认": {
+        "en": "Default"
+    },
+    "设为默认": {
+        "en": "Set as Default"
+    },
+    "编辑": {
+        "en": "Edit"
+    },
+    "确定删除此模型？": {
+        "en": "Are you sure you want to delete this model?"
+    },
+    "编辑模型": {
+        "en": "Edit Model"
+    },
+    "模型名称": {
+        "en": "Model Name"
+    },
+    "模型代码": {
+        "en": "Model Code"
+    },
+    "上下文窗口": {
+        "en": "Context Window"
+    },
+    "最大输出 Token": {
+        "en": "Max Output Tokens"
+    },
+    "支持工具调用": {
+        "en": "Tool Calling Support"
+    },
+    "额外配置": {
+        "en": "Extra Config"
+    },
+    "已设为默认模型": {
+        "en": "Set as default model"
+    },
+    "设置默认模型失败": {
+        "en": "Failed to set default model"
+    },
+    "创建成功": {
+        "en": "Created successfully"
+    },
+    "保存失败": {
+        "en": "Save failed"
+    },
+    "删除成功": {
+        "en": "Deleted successfully"
+    },
+    "删除失败": {
+        "en": "Delete failed"
+    },
+    "加载技能列表失败": {
+        "en": "Failed to load skill list"
+    },
+    "新建技能": {
+        "en": "New Skill"
+    },
+    "暂无技能": {
+        "en": "No skills"
+    },
+    "确定删除此技能？": {
+        "en": "Are you sure you want to delete this skill?"
+    },
+    "请选择一个技能或新建": {
+        "en": "Select a skill or create a new one"
+    },
+    "编辑技能": {
+        "en": "Edit Skill"
+    },
+    "技能名称": {
+        "en": "Skill Name"
+    },
+    "脚本": {
+        "en": "Script"
+    },
+    "输入技能脚本内容": {
+        "en": "Enter skill script content"
+    },
+    "无描述": {
+        "en": "No description"
+    },
+    "新会话": {
+        "en": "New Chat"
+    },
+    "对话界面": {
+        "en": "Chat"
+    },
+    "工作区状态": {
+        "en": "Workspace State"
+    },
+    "文件列表": {
+        "en": "Files"
+    },
+    "选择模型": {
+        "en": "Select Model"
+    },
+    "暂无状态": {
+        "en": "No state available"
+    },
+    "空工作区": {
+        "en": "Empty workspace"
+    },
+    "在左侧树状图中选择文件以查看": {
+        "en": "Select a file from the tree to view"
+    },
+    "输入消息发送给助手...": {
+        "en": "Type a message to the assistant..."
+    },
+    "请先创建会话": {
+        "en": "Please create a session first"
+    },
+    "工作区": {
+        "en": "Workspace"
     }
 }

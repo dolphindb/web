@@ -4,7 +4,7 @@ import { Layout, Menu, Typography } from 'antd'
 
 import {
     default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined,
-    ApartmentOutlined, AppstoreOutlined
+    ApartmentOutlined, AppstoreOutlined, RobotOutlined
 } from '@ant-design/icons'
 
 import { noop } from 'xshell/prototype.browser.js'
@@ -246,6 +246,11 @@ export function DdbSider () {
                     label: t('物联网库表向导'),
                     title: t('物联网库表向导'),
                     icon: <MenuIcon view='iot-guide'/>
+                },
+                logined && {
+                    key: 'chat',
+                    icon: <RobotOutlined className='icon-menu' />,
+                    label: t('智能助手'),
                 },
                 dev && {
                     key: 'test',

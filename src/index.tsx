@@ -61,6 +61,7 @@ import { SessionManagement } from './session-management/index.tsx'
 import { Access } from './access/index.tsx'
 import { StreamingGraph } from './streaming-graph/index.tsx'
 import { Lineage } from './lineage/index.tsx'
+import { Chat } from './chat/index.tsx'
 
 
 createRoot(
@@ -269,6 +270,10 @@ const router = createBrowserRouter([
             {
                 path: 'lineage/*',
                 element: <Lineage />
+            },
+            {
+                path: 'chat/',
+                element: <Chat />
             }
         ]
     }], 
