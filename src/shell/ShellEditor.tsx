@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Input, InputNumber, Select, Switch, Tooltip } from 'antd'
-import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined } from '@ant-design/icons'
+import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined, RobotOutlined } from '@ant-design/icons'
 
 import { storage } from 'xshell/storage.js'
 
@@ -12,6 +12,8 @@ import { model, storage_keys } from '@model'
 import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 
 import { shell } from './model.ts'
+import { chat_model } from '@/chat/model.ts'
+import { AiTab } from './AiTab.tsx'
 
 import { SelectSqlModal } from './SelectSqlModal.tsx'
 import { ExecuteAction } from './ExecuteAction.tsx'
@@ -35,6 +37,7 @@ export function ShellEditor ({ collapser }) {
     const { itab, tabs, monaco_inited } = shell.use(['itab', 'tabs', 'monaco_inited'])
     const current_tab = tabs.find(t => t.index === itab)
     const readonly = current_tab?.read_only
+    const is_ai_tab = Boolean(current_tab?.chat_id)
     
     // 标签页关闭前自动保存代码
     useEffect(() => {
@@ -121,7 +124,7 @@ export function ShellEditor ({ collapser }) {
                     name: tab.name,
                     closeable: true,
                     renameable: true,
-                    icon: <FileTextOutlined />
+                    icon: tab.chat_id ? <RobotOutlined /> : <FileTextOutlined />
                 }))
             ]}
             active_key={itab}
@@ -134,7 +137,7 @@ export function ShellEditor ({ collapser }) {
             on_add_tab={() => { shell.add_tab() }}
         /> }
         
-        { monaco_inited && <div className='toolbar'>
+        { monaco_inited && !is_ai_tab && <div className='toolbar'>
             <div className='actions'>
                 <ExecuteAction />
                 { logined && <UploadAction /> }
@@ -185,6 +188,34 @@ export function ShellEditor ({ collapser }) {
             
             <div className='padding' />
             
+            <Tooltip title={t('新建 AI 标签页')}>
+                <div
+                    className='collapse-btn ai-tab-btn'
+                    onClick={async () => {
+                        try {
+                            if (!chat_model.workspace_id)
+                                await chat_model.init()
+                            
+                            const result = await chat_model.api_fetch('/api/chats', {
+                                method: 'POST',
+                                body: JSON.stringify({ workspaceId: chat_model.workspace_id })
+                            })
+                            const chat = result.chat
+                            chat_model.set({
+                                chats: [chat, ...chat_model.chats],
+                            })
+                            await shell.add_ai_tab(chat.chatId)
+                        } catch (e) {
+                            console.error('Failed to create AI tab:', e)
+                            model.message?.error(t('创建 AI 标签页失败'))
+                        }
+                    }}
+                >
+                    <RobotOutlined />
+                    <span style={{ marginLeft: 4 }}>{t('AI 标签页')}</span>
+                </div>
+            </Tooltip>
+            
             <div
                 className='collapse-btn'
                 onClick={() => {
@@ -204,7 +235,31 @@ export function ShellEditor ({ collapser }) {
             </div>
         </div> }
         
-        <Editor
+        { monaco_inited && is_ai_tab && <div className='toolbar'>
+            <div className='padding' />
+            
+            <div
+                className='collapse-btn'
+                onClick={() => {
+                    set_collapsed(!collapsed)
+                    collapser(collapsed)
+                }}
+            >
+                {
+                    collapsed ?
+                        <DoubleLeftOutlined />
+                    :
+                        <span>
+                            {t('隐藏终端') + ' '}
+                            <DoubleRightOutlined />
+                        </span>
+                }
+            </div>
+        </div> }
+        
+        {is_ai_tab && <AiTab chat_id={current_tab.chat_id} />}
+        <div style={is_ai_tab ? { display: 'none' } : { flex: 1, minHeight: 0 }}>
+            <Editor
             readonly={readonly}
             
             observe_resize
@@ -272,6 +327,7 @@ export function ShellEditor ({ collapser }) {
                 shell.save(value)
             }}
         />
+        </div>
     </div>
 }
 
@@ -447,4 +503,3 @@ function LanguageSelect () {
         />
     </span>
 }
-

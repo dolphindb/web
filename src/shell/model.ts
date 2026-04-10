@@ -513,6 +513,38 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
+    /** 将当前标签页转为 AI 标签页，或新建一个 AI 标签页 */
+    async add_ai_tab (chat_id: string, name?: string) {
+        if (!this.monaco_inited)
+            return
+        
+        // 检查是否已有该 chatId 的 AI 标签页
+        const existing = this.tabs.find(t => t.chat_id === chat_id)
+        if (existing) {
+            this.switch_tab(existing.index)
+            return
+        }
+        
+        this.save()
+        const index_set = new Set(this.tabs.map(t => t.index))
+        let new_tab_index = 1
+        while (index_set.has(new_tab_index))
+            new_tab_index++
+        
+        const tab_name = name || (t('AI 助手') + ' ' + new_tab_index)
+        this.set({
+            itab: new_tab_index,
+            tabs: [...this.tabs, {
+                name: tab_name,
+                code: '',
+                index: new_tab_index,
+                chat_id,
+            }],
+        })
+        this.editor.setValue('')
+    }
+    
+    
     switch_tab (tab_index: number) {
         if (!this.monaco_inited)
             return
@@ -993,6 +1025,8 @@ export interface Tab {
         sha: string
         commit_id: string
     }
+    /** AI 标签页关联的 chatId */
+    chat_id?: string
 }
 
 

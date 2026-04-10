@@ -7060,5 +7060,23 @@
     },
     "工作区": {
         "en": "Workspace"
+    },
+    "AI 标签页": {
+        "en": "AI Tab"
+    },
+    "AI 助手": {
+        "en": "AI Assistant"
+    },
+    "新建 AI 标签页": {
+        "en": "New AI Tab"
+    },
+    "正在连接 AI 助手...": {
+        "en": "Connecting to AI assistant..."
+    },
+    "输出结果已显示在下方面板": {
+        "en": "Output displayed in the panel below"
+    },
+    "创建 AI 标签页失败": {
+        "en": "Failed to create AI tab"
     }
 }
