@@ -1908,10 +1908,7 @@ function Chart ({
                 assets_root={assets_root}
             />
         :
-            <>
-                <div className='chart-title'>{config.titles.chart}</div>
-                <EChartsComponent option={get_chart_option(config)} />
-            </>
+            <EChartsComponent option={get_chart_option(config)} />
         }
         
         {ctx !== 'window' && <div className='bottom-bar-placeholder' />}
@@ -1932,35 +1929,61 @@ function Chart ({
 }
 
 
+let foreground_color: string
+
+
 function get_chart_option (config: ChartConfig): echarts.EChartsOption {
     const { charttype, data, titles, stacking, multi_y_axes, auto_scale_y_axes, col_labels, bin_count } = config
     
+    foreground_color ??= window.getComputedStyle(document.documentElement)
+        .getPropertyValue('--vscode-editor-foreground')
+        .trim() || '#000000'
+    
     const base: echarts.EChartsOption = {
+        ... (titles.chart && {
+            title: {
+                text: titles.chart,
+                top: 0,
+                left: 'center',
+                textStyle: {
+                    color: foreground_color,
+                    fontSize: 16,
+                    fontWeight: 'normal',
+                    overflow: 'breakAll'
+                }
+            }
+        }),
+        
         tooltip: {
             trigger: 'axis',
             axisPointer: {
                 type: 'cross',
                 label: {
-                    borderRadius: 0,
+                    borderRadius: 0
                 }
             },
-            borderRadius: 0,
+            borderRadius: 0
         },
+        
         legend: {
             data: col_labels.map(String),
             top: 0,
-            right: 0,
+            right: 10,
+            icon: 'rect',
             textStyle: {
-                color: 'var(--vscode-editor-foreground, #000000)'
+                color: foreground_color,
+                overflow: 'breakAll'
             }
         },
+        
         grid: {
-            top: multi_y_axes ? 30 : 15,
+            top: multi_y_axes ? 40 : 20,
             bottom: 0,
             left: 10,
             right: 10,
             outerBoundsMode: 'same',
         },
+        
         animation: false
     }
     
