@@ -1948,14 +1948,14 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
         },
         legend: {
             data: col_labels.map(String),
-            top: 30,
-            right: 30,
+            top: 0,
+            right: 0,
             textStyle: {
                 color: 'var(--vscode-editor-foreground, #000000)'
             }
         },
         grid: {
-            top: 10,
+            top: multi_y_axes ? 30 : 15,
             bottom: 0,
             left: 10,
             right: 10,
