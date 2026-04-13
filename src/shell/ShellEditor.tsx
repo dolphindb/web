@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Input, InputNumber, Select, Switch, Tooltip } from 'antd'
-import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined, RobotOutlined } from '@ant-design/icons'
+import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined, RobotOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { storage } from 'xshell/storage.js'
 
@@ -193,18 +193,17 @@ export function ShellEditor ({ collapser }) {
                     className='collapse-btn ai-tab-btn'
                     onClick={async () => {
                         try {
-                            if (!chat_model.workspace_id)
+                            if (!chat_model.agent_id)
                                 await chat_model.init()
                             
-                            const result = await chat_model.api_fetch('/api/chats', {
-                                method: 'POST',
-                                body: JSON.stringify({ workspaceId: chat_model.workspace_id })
-                            })
-                            const chat = result.chat
-                            chat_model.set({
-                                chats: [chat, ...chat_model.chats],
-                            })
-                            await shell.add_ai_tab(chat.chatId)
+                            if (!chat_model.agent_id) {
+                                model.message?.warning(t('请先在 AI 设置中创建并配置 Agent'))
+                                chat_model.set({ settings_visible: true })
+                                return
+                            }
+                            
+                            const session = await chat_model.create_session()
+                            await shell.add_ai_tab(session.sessionId)
                         } catch (e) {
                             console.error('Failed to create AI tab:', e)
                             model.message?.error(t('创建 AI 标签页失败'))
@@ -238,6 +237,16 @@ export function ShellEditor ({ collapser }) {
         { monaco_inited && is_ai_tab && <div className='toolbar'>
             <div className='padding' />
             
+            <Tooltip title={t('AI 设置')}>
+                <div
+                    className='collapse-btn'
+                    onClick={() => { chat_model.set({ settings_visible: true }) }}
+                >
+                    <SettingOutlined />
+                    <span style={{ marginLeft: 4 }}>{t('AI 设置')}</span>
+                </div>
+            </Tooltip>
+            
             <div
                 className='collapse-btn'
                 onClick={() => {
@@ -257,7 +266,7 @@ export function ShellEditor ({ collapser }) {
             </div>
         </div> }
         
-        {is_ai_tab && <AiTab chat_id={current_tab.chat_id} />}
+        {is_ai_tab && <AiTab session_id={current_tab.chat_id} />}
         <div style={is_ai_tab ? { display: 'none' } : { flex: 1, minHeight: 0 }}>
             <Editor
             readonly={readonly}

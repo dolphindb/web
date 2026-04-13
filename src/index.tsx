@@ -40,6 +40,7 @@ import { DdbHeader } from './components/DDBHeader/index.tsx'
 import { DdbSider } from './components/DdbSider.tsx'
 import { HostSelect } from './components/DDBHeader/HostSelect.tsx'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx'
+import { SettingsModal } from './chat/SettingsModal.tsx'
 
 import { Login } from './login/index.tsx'
 import { Overview } from './overview/index.tsx'
@@ -61,7 +62,6 @@ import { SessionManagement } from './session-management/index.tsx'
 import { Access } from './access/index.tsx'
 import { StreamingGraph } from './streaming-graph/index.tsx'
 import { Lineage } from './lineage/index.tsx'
-import { Chat } from './chat/index.tsx'
 
 
 createRoot(
@@ -136,6 +136,7 @@ function MainLayout () {
         <Layout className='root-layout'>
             <RouteListener />
             { header && <DdbHeader />}
+            <SettingsModal />
             <Layout className='body' hasSider>
                 { sider && <DdbSider /> }
                 <Layout.Content className='view'>
@@ -270,10 +271,6 @@ const router = createBrowserRouter([
             {
                 path: 'lineage/*',
                 element: <Lineage />
-            },
-            {
-                path: 'chat/',
-                element: <Chat />
             }
         ]
     }], 

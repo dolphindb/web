@@ -3,10 +3,8 @@ import { Model } from 'react-object-model'
 import { model, storage_keys } from '@model'
 import { t } from '@i18n'
 
-import { normalize_message } from './utils/message.ts'
 
-
-export type MessageRole = 'system' | 'user' | 'assistant'
+export type MessageRole = 'system' | 'user' | 'assistant' | 'tool'
 
 export type MessageType = 'system' | 'text' | 'tool_call' | 'tool_result' | 'skill_result' | 'tool_error' | 'agent_error'
 
@@ -21,16 +19,29 @@ export interface IMessage {
     reasoning_content?: string
     content_object?: unknown
     name?: string
+    tool_call_id?: string
+    tool_calls?: IToolCall[]
 }
 
 
-export interface IChat {
-    chatId: string
-    workspaceId: string
-    username: string
+export interface IToolCall {
+    id: string
+    type: 'function'
+    function: {
+        name: string
+        arguments: string
+    }
+}
+
+
+export interface ISession {
+    sessionId: string
+    agentId: string
+    bizUserId: string
     title: string
-    providerId: string
-    modelId: string
+    status: number
+    statusName: string
+    llmConfigId?: string
     createTime?: string
     updateTime?: string
 }
@@ -43,38 +54,71 @@ export interface IAgentStatusEvent {
 }
 
 
-export interface IStep {
-    id: string
-    chatId: string
-    stepIndex: number
-    content: string
-    checked: boolean
-    active: boolean
-}
-
-
-export interface IWorkspace {
-    id: string
+export interface ILlmConfig {
+    llmConfigId: string
     name: string
-    current_state: string
+    provider: string
+    model: string
+    endpoint?: string
+    apiKey?: string
+    status: number
+    statusName: string
+    capability?: string
+    defaultParams?: Record<string, unknown>
+    contextWindow?: number
 }
 
 
-export interface IVfsFile {
-    id: string
-    workspaceId: string
-    path: string
+export interface ISkillInfo {
+    skillId: string
+    name: string
+    description?: string
+    status: number
+    statusName: string
+    category?: string
+    displayName?: string
+    version?: string
 }
+
+
+export interface ISkillBinding {
+    skillId: string
+    agentId: string
+    enabled: boolean
+    descOverride?: string
+    skill?: ISkillInfo
+}
+
+
+export interface IAgentInfo {
+    agentId: string
+    agentName: string
+    agentType: string
+    ownerUserId?: string
+    description?: string
+    systemPrompt?: string
+    llmConfigId?: string
+    status: number
+    statusName: string
+    createTime?: string
+    updateTime?: string
+}
+
+
+const AGENT_ID_KEY = 'ddb.chat.agent_id'
+const BIZ_USER_ID_KEY = 'ddb.chat.biz_user_id'
 
 
 class ChatModel extends Model<ChatModel> {
-    server_url = localStorage.getItem('chat.server_url') || 'http://localhost:3012'
+    agent_id = localStorage.getItem(AGENT_ID_KEY) || ''
     
-    workspace_id = ''
+    biz_user_id = localStorage.getItem(BIZ_USER_ID_KEY) || ''
     
-    chats: IChat[] = [ ]
+    agents: IAgentInfo[] = [ ]
     
-    current_chat_id = ''
+    sessions: ISession[] = [ ]
+    
+    current_session_id = ''
     
     messages: IMessage[] = [ ]
     
@@ -82,36 +126,76 @@ class ChatModel extends Model<ChatModel> {
     
     agent_status: IAgentStatusEvent = { status: 'idle' }
     
-    ws: WebSocket | null = null
-    
-    steps: IStep[] = [ ]
+    sse_controller: AbortController | null = null
     
     settings_visible = false
     
     loading = false
     
     
-    get_authorization (): string {
-        const ticket = localStorage.getItem(storage_keys.ticket) || ''
-        const hostname = model.hostname || 'localhost'
-        const port = model.port || '8848'
-        return `${ticket}@ws://${hostname}:${port}`
+    get base_url (): string {
+        const protocol = location.protocol
+        const hostname = model.hostname || location.hostname
+        const port = model.port || location.port
+        return `${protocol}//${hostname}${port ? ':' + port : ''}/agent-bus/v1`
     }
     
     
-    async api_fetch (path: string, options: RequestInit = { }) {
-        const url = `${this.server_url}${path}`
+    async api_fetch (path: string, options: RequestInit = { }): Promise<any> {
+        const url = `${this.base_url}${path}`
+        const token = (localStorage.getItem(storage_keys.agent_bus_token) || '').replace(/[\r\n]/g, '')
         const headers: Record<string, string> = {
             'Content-Type': 'application/json',
-            'Authorization': this.get_authorization(),
-            ...(options.headers as Record<string, string> || { })
+            ...(token ? { Authorization: `Bearer ${token}` } : { }),
+            ...(this.agent_id ? { 'x-agent-id': this.agent_id } : { }),
         }
-        const response = await fetch(url, { ...options, headers })
+        
+        // 合并调用方传入的额外 headers
+        if (options.headers)
+            Object.assign(headers, options.headers)
+        
+        const { headers: _ignored, ...rest_options } = options
+        const response = await fetch(url, { ...rest_options, headers })
+        
+        if (response.status === 403) {
+            this.handle_auth_failed()
+            throw new Error('Access denied')
+        }
+        
         if (!response.ok) {
-            const err = await response.json().catch(() => ({ error: response.statusText }))
-            throw new Error(err.error || response.statusText)
+            const text = await response.text()
+            let parsed: any
+            try { parsed = JSON.parse(text) } catch { parsed = { message: text } }
+            
+            // 检查 BUS_AUTH_FAILED 错误码
+            const error_code = parsed?.error?.code || parsed?.headers?.busErrorCode
+            if (error_code === 'BUS_AUTH_FAILED') {
+                this.handle_auth_failed()
+                throw new Error('Access denied')
+            }
+            
+            throw new Error(parsed?.error?.message || parsed?.message || response.statusText)
         }
-        return response.json()
+        
+        const result = await response.json()
+        
+        if (result.type === 'ERROR') {
+            const error_code = result.error?.code || result.headers?.busErrorCode
+            if (error_code === 'BUS_AUTH_FAILED') {
+                this.handle_auth_failed()
+                throw new Error('Access denied')
+            }
+            throw new Error(result.error?.message || 'Unknown error')
+        }
+        
+        return result.payload ?? result.data ?? result
+    }
+    
+    
+    handle_auth_failed () {
+        console.warn('Agent-bus auth failed, redirecting to login')
+        localStorage.removeItem(storage_keys.agent_bus_token)
+        model.goto_login()
     }
     
     
@@ -119,204 +203,364 @@ class ChatModel extends Model<ChatModel> {
         try {
             this.set({ loading: true })
             
-            await this.api_fetch('/api/healthz')
+            await this.load_agents()
             
-            let workspaces: any
-            try {
-                workspaces = await this.api_fetch('/api/workspaces')
-            } catch {
-                workspaces = { workspaces: [ ] }
-            }
+            // 没有 agent 时不继续初始化，由 UI 引导用户创建
+            if (!this.agent_id)
+                return
             
-            if (workspaces.workspaces?.length > 0)
-                this.set({ workspace_id: workspaces.workspaces[0].id })
-            else {
-                const result = await this.api_fetch('/api/workspaces', {
-                    method: 'POST',
-                    body: JSON.stringify({ name: 'default' })
-                })
-                this.set({ workspace_id: result.workspace?.id || result.id })
-            }
-            
-            await this.load_chats()
+            await this.ensure_biz_user()
+            await this.load_sessions()
         } catch (error) {
             console.error('Chat init failed:', error)
-            model.message?.error(t('智能助手初始化失败，请检查后端服务地址'))
+            model.message?.error(t('AI 助手初始化失败'))
         } finally {
             this.set({ loading: false })
         }
     }
     
     
-    async load_chats () {
-        const result = await this.api_fetch('/api/chats')
-        const chats: IChat[] = result.chats || [ ]
-        chats.sort((a, b) => {
+    /** 加载 agent 列表并选中第一个可用的 ACTIVE agent */
+    async load_agents () {
+        try {
+            const result = await this.api_fetch('/agent/list')
+            const items: IAgentInfo[] = (result.items || [ ]).map((a: any) => ({
+                agentId: a.agentId,
+                agentName: a.agentName || a.agentId,
+                agentType: a.agentType || '',
+                ownerUserId: a.ownerUserId,
+                description: a.description,
+                systemPrompt: a.systemPrompt,
+                llmConfigId: a.llmConfigId,
+                status: a.status,
+                statusName: a.statusName || '',
+                createTime: a.createTime,
+                updateTime: a.updateTime,
+            }))
+            this.set({ agents: items })
+            
+            // 如果缓存的 agent_id 仍然有效，继续使用
+            if (this.agent_id) {
+                const cached = items.find(a => a.agentId === this.agent_id && a.statusName === 'ACTIVE')
+                if (cached)
+                    return
+            }
+            
+            // 选择第一个 ACTIVE agent
+            const active = items.find(a => a.statusName === 'ACTIVE')
+            if (active) {
+                this.set({ agent_id: active.agentId })
+                localStorage.setItem(AGENT_ID_KEY, active.agentId)
+            } else {
+                this.set({ agent_id: '' })
+                localStorage.removeItem(AGENT_ID_KEY)
+            }
+        } catch (e) {
+            console.warn('Failed to list agents:', e)
+            this.set({ agents: [ ], agent_id: '' })
+            localStorage.removeItem(AGENT_ID_KEY)
+        }
+    }
+    
+    
+    /** 注册新 Agent 并激活 */
+    async register_agent (params: {
+        agentName: string
+        agentType: string
+        description?: string
+        systemPrompt?: string
+    }): Promise<IAgentInfo> {
+        const result = await this.api_fetch('/agent/register', {
+            method: 'POST',
+            body: JSON.stringify(params),
+        })
+        
+        const agent_id = result.agentId || result.agent_id || result.id
+        if (!agent_id)
+            throw new Error('Register response missing agentId')
+        
+        // 激活
+        const activated = await this.activate_agent(agent_id)
+        
+        const agent: IAgentInfo = {
+            agentId: activated.agentId || agent_id,
+            agentName: activated.agentName || params.agentName,
+            agentType: activated.agentType || params.agentType,
+            description: activated.description || params.description,
+            systemPrompt: activated.systemPrompt || params.systemPrompt,
+            status: activated.status ?? 1,
+            statusName: activated.statusName || 'ACTIVE',
+            createTime: activated.createTime,
+            updateTime: activated.updateTime,
+        }
+        
+        this.set({
+            agents: [...this.agents, agent],
+            agent_id: agent.agentId,
+        })
+        localStorage.setItem(AGENT_ID_KEY, agent.agentId)
+        
+        return agent
+    }
+    
+    
+    /** 激活 Agent */
+    async activate_agent (agent_id: string) {
+        const result = await this.api_fetch(`/agent/${agent_id}/activate`, { method: 'POST' })
+        
+        // 更新本地列表中的状态
+        const agents = this.agents.map(a =>
+            a.agentId === agent_id
+                ? { ...a, status: result.status ?? 1, statusName: result.statusName || 'ACTIVE' }
+                : a
+        )
+        this.set({ agents, agent_id })
+        localStorage.setItem(AGENT_ID_KEY, agent_id)
+        
+        return result
+    }
+    
+    
+    /** 删除 Agent */
+    async delete_agent (agent_id: string) {
+        await this.api_fetch(`/agent/${agent_id}/delete`, { method: 'POST' })
+        const new_agents = this.agents.filter(a => a.agentId !== agent_id)
+        
+        if (this.agent_id === agent_id) {
+            const next = new_agents.find(a => a.statusName === 'ACTIVE')
+            const next_id = next?.agentId || ''
+            this.set({ agent_id: next_id, agents: new_agents })
+            if (next_id)
+                localStorage.setItem(AGENT_ID_KEY, next_id)
+            else
+                localStorage.removeItem(AGENT_ID_KEY)
+        } else
+            this.set({ agents: new_agents })
+    }
+    
+    
+    /** 选中一个 agent */
+    select_agent (agent_id: string) {
+        this.set({
+            agent_id,
+            sessions: [ ],
+            current_session_id: '',
+            messages: [ ],
+        })
+        localStorage.setItem(AGENT_ID_KEY, agent_id)
+    }
+    
+    
+    async ensure_biz_user () {
+        // 尝试使用缓存的 biz_user_id
+        if (this.biz_user_id)
+            try {
+                await this.api_fetch(`/bizuser/${this.biz_user_id}`)
+                // 确保已授权
+                await this.grant_biz_user_access()
+                return
+            } catch {
+                this.set({ biz_user_id: '' })
+                localStorage.removeItem(BIZ_USER_ID_KEY)
+            }
+        
+        // 注册业务用户
+        try {
+            const result = await this.api_fetch('/bizuser/register', {
+                method: 'POST',
+                body: JSON.stringify({
+                    displayName: model.username || 'web_user'
+                })
+            })
+            this.set({ biz_user_id: result.bizUserId })
+            localStorage.setItem(BIZ_USER_ID_KEY, this.biz_user_id)
+        } catch (e: any) {
+            // 注册失败可能是已存在，尝试从 agent 的业务用户列表获取
+            console.warn('BizUser registration:', e.message)
+            try {
+                const result = await this.api_fetch(`/agent/${this.agent_id}/bizuser/list`)
+                const users = Array.isArray(result) ? result : (result?.items || [ ])
+                if (users.length > 0) {
+                    this.set({ biz_user_id: users[0].bizUserId })
+                    localStorage.setItem(BIZ_USER_ID_KEY, this.biz_user_id)
+                }
+            } catch { }
+        }
+        
+        await this.grant_biz_user_access()
+    }
+    
+    
+    async grant_biz_user_access () {
+        if (!this.agent_id || !this.biz_user_id)
+            return
+        try {
+            await this.api_fetch(`/agent/${this.agent_id}/bizuser/access`, {
+                method: 'POST',
+                body: JSON.stringify({ bizUserId: this.biz_user_id })
+            })
+        } catch {
+            // 已授权则忽略
+        }
+    }
+    
+    
+    async load_sessions () {
+        const params = new URLSearchParams({
+            agentId: this.agent_id,
+            bizUserId: this.biz_user_id,
+            status: '0',
+        })
+        const result = await this.api_fetch(`/session/list?${params}`)
+        const sessions: ISession[] = (result.items || [ ]).map((s: any) => ({
+            sessionId: s.sessionId,
+            agentId: s.agentId,
+            bizUserId: s.bizUserId,
+            title: s.title || t('新会话'),
+            status: s.status,
+            statusName: s.statusName,
+            llmConfigId: s.llmConfigId,
+            createTime: s.createTime,
+            updateTime: s.updateTime,
+        }))
+        sessions.sort((a, b) => {
             const ta = a.updateTime ? Date.parse(a.updateTime) : 0
             const tb = b.updateTime ? Date.parse(b.updateTime) : 0
             return (Number.isFinite(tb) ? tb : 0) - (Number.isFinite(ta) ? ta : 0)
         })
-        this.set({ chats })
+        this.set({ sessions })
     }
     
     
-    async create_chat () {
-        if (!this.workspace_id)
-            return
-        
-        const result = await this.api_fetch('/api/chats', {
+    async create_session (): Promise<ISession> {
+        const result = await this.api_fetch('/session/create', {
             method: 'POST',
-            body: JSON.stringify({ workspaceId: this.workspace_id })
+            body: JSON.stringify({
+                agentId: this.agent_id,
+                bizUserId: this.biz_user_id,
+                title: t('新会话'),
+            })
         })
-        const chat = result.chat
+        const session: ISession = {
+            sessionId: result.sessionId,
+            agentId: result.agentId,
+            bizUserId: result.bizUserId,
+            title: result.title || t('新会话'),
+            status: result.status,
+            statusName: result.statusName,
+            llmConfigId: result.llmConfigId,
+            createTime: result.createTime,
+            updateTime: result.updateTime,
+        }
         this.set({
-            chats: [chat, ...this.chats],
-            current_chat_id: chat.chatId,
+            sessions: [session, ...this.sessions],
+            current_session_id: session.sessionId,
             messages: [ ],
             buffered_messages: [ ],
             agent_status: { status: 'idle' },
-            steps: [ ],
         })
-        this.connect_ws(chat.chatId)
+        return session
     }
     
     
-    async select_chat (chat_id: string) {
-        if (chat_id === this.current_chat_id)
+    async select_session (session_id: string) {
+        if (session_id === this.current_session_id)
             return
         
-        this.disconnect_ws()
+        this.abort_sse()
         
         this.set({
-            current_chat_id: chat_id,
+            current_session_id: session_id,
             messages: [ ],
             buffered_messages: [ ],
             agent_status: { status: 'idle' },
-            steps: [ ],
         })
         
-        const [msgs_result] = await Promise.all([
-            this.api_fetch(`/api/chats/${chat_id}/messages`),
-            this.load_steps(chat_id),
-        ])
-        
-        const raw_messages: unknown[] = msgs_result.messages || [ ]
-        const messages = raw_messages
-            .map(item => normalize_message(item))
-            .filter((item): item is IMessage => item !== null)
+        // 加载历史消息
+        const result = await this.api_fetch(`/session/${session_id}/messages`)
+        const raw_items: any[] = result.items || [ ]
+        const messages = raw_items
+            .map((m: any) => this.map_dolphinx_message(m))
+            .filter((m): m is IMessage => m !== null)
         this.set({ messages })
-        
-        this.connect_ws(chat_id)
     }
     
     
-    async delete_chat (chat_id: string) {
-        await this.api_fetch(`/api/chats/${chat_id}`, { method: 'DELETE' })
-        const new_chats = this.chats.filter(c => c.chatId !== chat_id)
+    async delete_session (session_id: string) {
+        await this.api_fetch(`/session/${session_id}/delete`, { method: 'POST' })
+        const new_sessions = this.sessions.filter(s => s.sessionId !== session_id)
         
-        if (this.current_chat_id === chat_id) {
-            this.disconnect_ws()
+        if (this.current_session_id === session_id) {
+            this.abort_sse()
             this.set({
-                current_chat_id: '',
+                current_session_id: '',
                 messages: [ ],
                 buffered_messages: [ ],
             })
         }
         
-        this.set({ chats: new_chats })
+        this.set({ sessions: new_sessions })
     }
     
     
-    async update_chat_title (chat_id: string, title: string) {
-        await this.api_fetch(`/api/chats/${chat_id}/title`, {
+    async update_session_title (session_id: string, title: string) {
+        await this.api_fetch(`/session/${session_id}`, {
             method: 'PUT',
             body: JSON.stringify({ title }),
         })
-        this.patch_chat(chat_id, { title, updateTime: new Date().toISOString() })
-    }
-    
-    
-    async update_chat_model (chat_id: string, provider_id: string, model_id: string) {
-        await this.api_fetch(`/api/chats/${chat_id}`, {
-            method: 'PUT',
-            body: JSON.stringify({ providerId: provider_id, modelId: model_id }),
-        })
-        this.patch_chat(chat_id, { providerId: provider_id, modelId: model_id, updateTime: new Date().toISOString() })
-    }
-    
-    
-    patch_chat (chat_id: string, patch: Partial<IChat>) {
         this.set({
-            chats: this.chats.map(c =>
-                c.chatId === chat_id ? { ...c, ...patch } : c
+            sessions: this.sessions.map(s =>
+                s.sessionId === session_id ? { ...s, title, updateTime: new Date().toISOString() } : s
             )
         })
     }
     
     
-    async load_steps (chat_id: string) {
-        try {
-            const items: IStep[] = await this.api_fetch(`/api/steps/chat/${chat_id}`)
-            this.set({ steps: Array.isArray(items) ? items.filter(s => s.active) : [ ] })
-        } catch {
-            this.set({ steps: [ ] })
-        }
-    }
-    
-    
-    async load_workspace (workspace_id: string): Promise<IWorkspace | null> {
-        try {
-            return await this.api_fetch(`/api/workspaces/${workspace_id}`)
-        } catch {
+    map_dolphinx_message (m: any): IMessage | null {
+        if (!m)
             return null
+        
+        let message_type: string | undefined
+        switch (m.contentType) {
+            case 'text':
+                message_type = 'text'
+                break
+            case 'tool_call':
+                message_type = 'tool_call'
+                break
+            case 'tool_result':
+                message_type = 'tool_result'
+                break
+            case 'summary':
+                message_type = 'system'
+                break
+            default:
+                message_type = m.contentType
+        }
+        
+        let tool_calls: IToolCall[] | undefined
+        if (m.contentType === 'tool_call' && m.content)
+            try {
+                const parsed = JSON.parse(m.content)
+                if (Array.isArray(parsed))
+                    tool_calls = parsed
+            } catch { }
+        
+        return {
+            msgId: m.messageId || `msg_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+            role: m.role,
+            messageType: message_type,
+            content: m.content || '',
+            tool_call_id: m.toolCallId,
+            tool_calls,
         }
     }
     
     
-    async load_files (workspace_id: string): Promise<IVfsFile[]> {
-        try {
-            const items = await this.api_fetch(`/api/vfs/workspace/${workspace_id}`)
-            return Array.isArray(items) ? items : [ ]
-        } catch {
-            return [ ]
-        }
-    }
-    
-    
-    async load_file_content (workspace_id: string, path: string): Promise<string> {
-        try {
-            const item = await this.api_fetch(`/api/vfs/workspace/${workspace_id}/file?path=${encodeURIComponent(path)}`)
-            return item?.content || ''
-        } catch {
-            return t('文件加载失败')
-        }
-    }
-    
-    
-    async load_provider_options (): Promise<Array<{ value: string, label: string, children: Array<{ value: string, label: string }> }>> {
-        try {
-            const res = await this.api_fetch('/api/providers')
-            const providers = res.providers || [ ]
-            const options = await Promise.all(
-                providers.map(async (p: any) => {
-                    try {
-                        const detail = await this.api_fetch(`/api/providers/${p.providerId}`)
-                        return {
-                            value: p.providerId,
-                            label: p.providerName,
-                            children: (detail.models || [ ]).map((m: any) => ({
-                                value: m.modelId,
-                                label: m.modelName,
-                            })),
-                        }
-                    } catch {
-                        return { value: p.providerId, label: p.providerName, children: [ ] }
-                    }
-                })
-            )
-            return options
-        } catch {
-            return [ ]
+    abort_sse () {
+        if (this.sse_controller) {
+            this.sse_controller.abort()
+            this.sse_controller = null
         }
     }
     
@@ -342,131 +586,424 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    connect_ws (chat_id: string) {
-        this.disconnect_ws()
-        
-        const ws_url = this.server_url.replace(/^http/, 'ws')
-        const ws = new WebSocket(ws_url)
-        
-        ws.onopen = () => {
-            ws.send(JSON.stringify({
-                type: 'subscribe',
-                chatId: chat_id,
-                authorization: this.get_authorization()
-            }))
-        }
-        
-        ws.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data)
-                this.handle_ws_event(data)
-            } catch (e) {
-                console.error('WS message parse error:', e)
-            }
-        }
-        
-        ws.onclose = () => {
-            if (this.ws === ws)
-                this.set({ agent_status: { status: 'idle' } })
-        }
-        
-        ws.onerror = (error) => {
-            console.error('WS error:', error)
-        }
-        
-        this.set({ ws })
-    }
-    
-    
-    disconnect_ws () {
-        if (this.ws) {
-            this.ws.close()
-            this.set({ ws: null })
-        }
-    }
-    
-    
-    handle_ws_event (data: any) {
-        switch (data.type) {
-            case 'state_snapshot':
-                if (data.snapshot) {
-                    const snapshot = data.snapshot
-                    if (snapshot.status?.status)
-                        this.set({ agent_status: snapshot.status })
-                    this.set({ buffered_messages: Array.isArray(snapshot.buffer) ? snapshot.buffer : [ ] })
-                }
-                break
-                
-            case 'message':
-                if (data.chatId === this.current_chat_id && data.message) {
-                    const msg = normalize_message(data.message)
-                    if (msg)
-                        this.upsert_message(msg)
-                }
-                if (data.message?.role === 'user')
-                    this.load_chats().catch(() => { })
-                break
-                
-            case 'message_stream':
-                if (data.chatId === this.current_chat_id && data.message) {
-                    const msg = normalize_message(data.message)
-                    if (msg)
-                        this.upsert_message(msg)
-                }
-                break
-                
-            case 'message_stream_end':
-                if (data.chatId === this.current_chat_id) {
-                    if (data.discard && typeof data.msgId === 'string' && data.msgId.trim())
-                        this.set({ messages: this.messages.filter(m => m.msgId !== data.msgId) })
-                }
-                break
-                
-            case 'buffer_updated':
-                if (data.chatId === this.current_chat_id)
-                    this.set({ buffered_messages: data.buffer || [ ] })
-                break
-                
-            case 'status':
-                if (data.chatId === this.current_chat_id && data.status)
-                    this.set({ agent_status: data.status })
-                break
-                
-            case 'chat_updated':
-                if (data.chat || data.chatId) {
-                    const updated_id = data.chat?.chatId || data.chatId
-                    const title = data.chat?.title || data.title
-                    if (title)
-                        this.patch_chat(updated_id, { title })
-                }
-                break
-            
-            case 'steps_updated':
-                if (data.chatId === this.current_chat_id)
-                    this.load_steps(this.current_chat_id).catch(() => { })
-                break
-        }
-    }
-    
-    
     send_message (content: string) {
-        if (!content.trim() || !this.ws || this.ws.readyState !== WebSocket.OPEN)
+        if (!content.trim() || !this.current_session_id)
             return
         
-        this.ws.send(JSON.stringify({
-            type: 'submit',
-            chatId: this.current_chat_id,
-            content: content.trim(),
-            authorization: this.get_authorization()
-        }))
-        
+        // 添加待发送提示
         this.set({ buffered_messages: [...this.buffered_messages, content.trim()] })
+        
+        // 异步执行 SSE 对话
+        this.do_chat_completions(content.trim()).catch(e => {
+            console.error('Chat completions failed:', e)
+        })
     }
     
     
-    set_server_url (url: string) {
-        localStorage.setItem('chat.server_url', url)
-        this.set({ server_url: url })
+    async do_chat_completions (message: string, tool_results?: Array<{ toolCallId: string, content: string }>) {
+        this.abort_sse()
+        const controller = new AbortController()
+        this.sse_controller = controller
+        
+        // 添加用户消息到 UI（仅新消息时）
+        if (message) {
+            const user_msg: IMessage = {
+                msgId: `user_${Date.now()}`,
+                role: 'user',
+                messageType: 'text',
+                content: message,
+            }
+            this.set({
+                messages: [...this.messages, user_msg],
+                buffered_messages: [ ],
+                agent_status: { status: 'thinking' },
+            })
+        } else
+            this.set({
+                buffered_messages: [ ],
+                agent_status: { status: 'thinking' },
+            })
+        
+        // 创建助手消息占位
+        const assistant_msg_id = `assistant_${Date.now()}`
+        this.set({
+            messages: [...this.messages, {
+                msgId: assistant_msg_id,
+                role: 'assistant',
+                messageType: 'text',
+                content: '',
+            }],
+        })
+        
+        try {
+            const url = `${this.base_url}/chat/completions`
+            const token = localStorage.getItem(storage_keys.agent_bus_token) || ''
+            
+            const body: Record<string, any> = {
+                sessionId: this.current_session_id,
+                stream: true,
+            }
+            if (message)
+                body.message = message
+            if (tool_results)
+                body.toolResults = tool_results
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : { }),
+                    ...(this.agent_id ? { 'x-agent-id': this.agent_id } : { }),
+                },
+                body: JSON.stringify(body),
+                signal: controller.signal,
+            })
+            
+            if (response.status === 403) {
+                this.handle_auth_failed()
+                throw new Error('Access denied')
+            }
+            
+            if (!response.ok) {
+                const err_text = await response.text()
+                let parsed: any
+                try { parsed = JSON.parse(err_text) } catch { }
+                if (parsed?.error?.code === 'BUS_AUTH_FAILED') {
+                    this.handle_auth_failed()
+                    throw new Error('Access denied')
+                }
+                throw new Error(err_text)
+            }
+            
+            // 解析 SSE 流
+            const reader = response.body!.getReader()
+            const decoder = new TextDecoder()
+            let buffer = ''
+            let accumulated_content = ''
+            let finish_tool_calls: IToolCall[] | undefined
+            
+            while (true) {
+                const { done, value } = await reader.read()
+                if (done)
+                    break
+                
+                buffer += decoder.decode(value, { stream: true })
+                
+                const lines = buffer.split('\n')
+                buffer = lines.pop() || ''
+                
+                for (const line of lines) {
+                    if (!line.startsWith('data: '))
+                        continue
+                    const data_str = line.slice(6).trim()
+                    if (!data_str)
+                        continue
+                    
+                    let event: any
+                    try { event = JSON.parse(data_str) } catch { continue }
+                    
+                    switch (event.type) {
+                        case 'STREAM_CHUNK':
+                            if (event.data?.content) {
+                                accumulated_content += event.data.content
+                                this.update_assistant_content(assistant_msg_id, accumulated_content)
+                            }
+                            break
+                        
+                        case 'STREAM_END':
+                            if (event.data?.content)
+                                accumulated_content = event.data.content
+                            if (event.data?.toolCalls?.length > 0)
+                                finish_tool_calls = event.data.toolCalls
+                            this.update_assistant_content(assistant_msg_id, accumulated_content, finish_tool_calls)
+                            break
+                        
+                        case 'ERROR':
+                            throw new Error(event.error?.message || 'Stream error')
+                    }
+                }
+            }
+            
+            // 如果有 tool calls，处理工具调用循环
+            if (finish_tool_calls?.length) {
+                this.set({ agent_status: { status: 'tool_running' } })
+                await this.handle_tool_calls(finish_tool_calls)
+            } else
+                this.set({ agent_status: { status: 'idle' } })
+            
+            // 刷新会话列表以更新标题/时间
+            this.load_sessions().catch(() => { })
+        } catch (e: any) {
+            if (e.name === 'AbortError')
+                return
+            console.error('Chat completions error:', e)
+            this.set({ agent_status: { status: 'error', message: e.message } })
+            
+            // 更新占位消息为错误信息
+            this.update_assistant_content(assistant_msg_id, t('发送失败: {{error}}', { error: e.message }))
+        } finally {
+            if (this.sse_controller === controller)
+                this.sse_controller = null
+        }
+    }
+    
+    
+    update_assistant_content (msg_id: string, content: string, tool_calls?: IToolCall[]) {
+        const idx = this.messages.findIndex(m => m.msgId === msg_id)
+        if (idx < 0)
+            return
+        
+        const next = [...this.messages]
+        next[idx] = {
+            ...next[idx],
+            content,
+            ...(tool_calls ? { tool_calls, messageType: 'tool_call' } : { }),
+        }
+        this.set({ messages: next })
+    }
+    
+    
+    async handle_tool_calls (tool_calls: IToolCall[]) {
+        // 显示工具调用消息
+        for (const tc of tool_calls) {
+            const call_msg: IMessage = {
+                msgId: `tc_${tc.id}`,
+                role: 'assistant',
+                messageType: 'tool_call',
+                content: JSON.stringify([tc]),
+                name: tc.function.name,
+                tool_calls: [tc],
+            }
+            this.set({ messages: [...this.messages, call_msg] })
+        }
+        
+        // 执行工具并收集结果
+        const results: Array<{ toolCallId: string, content: string }> = [ ]
+        
+        for (const tc of tool_calls) {
+            let result_content: string
+            try {
+                result_content = await this.execute_tool(tc)
+            } catch (e: any) {
+                result_content = `Error: ${e.message}`
+            }
+            
+            results.push({ toolCallId: tc.id, content: result_content })
+            
+            // 显示工具结果消息
+            const result_msg: IMessage = {
+                msgId: `tr_${tc.id}`,
+                role: 'tool',
+                messageType: 'tool_result',
+                content: result_content,
+                name: tc.function.name,
+                tool_call_id: tc.id,
+            }
+            this.set({ messages: [...this.messages, result_msg] })
+        }
+        
+        // 发送工具结果继续对话
+        await this.do_chat_completions('', results)
+    }
+    
+    
+    async execute_tool (tc: IToolCall): Promise<string> {
+        const { name, arguments: args_str } = tc.function
+        let args: any
+        try { args = JSON.parse(args_str) } catch { args = { } }
+        
+        // 对于 DolphinDB 脚本执行类工具，通过 model.ddb.invoke 执行
+        switch (name) {
+            case 'execute':
+            case 'run_script': {
+                const script = args.script || args.code || args_str
+                try {
+                    const result = await model.ddb.invoke('exec', [script])
+                    return typeof result === 'string' ? result : JSON.stringify(result)
+                } catch (e: any) {
+                    return `Execution error: ${e.message}`
+                }
+            }
+            default:
+                // 其他工具返回未实现提示，由 LLM 处理
+                return `Tool '${name}' executed with args: ${args_str}`
+        }
+    }
+    
+    
+    // ─── LLM 配置管理 ───
+    
+    async load_llm_configs (): Promise<ILlmConfig[]> {
+        try {
+            const result = await this.api_fetch(`/agent/${this.agent_id}/llm/list`)
+            return (result.items || [ ]).map((item: any) => ({
+                llmConfigId: item.llmConfigId,
+                name: item.name || item.llmConfigId,
+                provider: item.provider || '',
+                model: item.model || '',
+                endpoint: item.endpoint,
+                apiKey: item.apiKey,
+                status: item.status,
+                statusName: item.statusName || '',
+                capability: item.capability,
+                defaultParams: item.defaultParams,
+                contextWindow: item.contextWindow,
+            }))
+        } catch {
+            return [ ]
+        }
+    }
+    
+    
+    async register_llm_config (config: {
+        name: string
+        provider: string
+        model: string
+        endpoint?: string
+        apiKey?: string
+        defaultParams?: Record<string, unknown>
+        contextWindow?: number
+    }): Promise<ILlmConfig> {
+        const result = await this.api_fetch('/llm/config/register', {
+            method: 'POST',
+            body: JSON.stringify(config),
+        })
+        
+        // 自动绑定到当前 agent
+        await this.api_fetch(`/agent/${this.agent_id}/llm/access`, {
+            method: 'POST',
+            body: JSON.stringify({
+                llmConfigId: result.llmConfigId,
+                isDefault: true,
+            }),
+        })
+        
+        return result
+    }
+    
+    
+    async update_llm_config (llm_config_id: string, updates: Record<string, any>): Promise<void> {
+        await this.api_fetch(`/llm/config/${llm_config_id}`, {
+            method: 'PUT',
+            body: JSON.stringify(updates),
+        })
+    }
+    
+    
+    async disable_llm_config (llm_config_id: string): Promise<void> {
+        await this.api_fetch(`/llm/config/${llm_config_id}/disable`, { method: 'POST' })
+    }
+    
+    
+    async unbind_llm_config (llm_config_id: string): Promise<void> {
+        await this.api_fetch(`/agent/${this.agent_id}/llm/access?llmConfigId=${llm_config_id}`, {
+            method: 'DELETE',
+        })
+    }
+    
+    
+    // ─── 技能管理 ───
+    
+    async load_skills (): Promise<ISkillInfo[]> {
+        try {
+            const result = await this.api_fetch('/skill/list')
+            return (result.items || [ ]).map((s: any) => ({
+                skillId: s.skillId,
+                name: s.name || s.skillName,
+                description: s.description,
+                status: s.status,
+                statusName: s.statusName || '',
+                category: s.category,
+                displayName: s.displayName,
+                version: s.version,
+            }))
+        } catch {
+            return [ ]
+        }
+    }
+    
+    
+    async load_skill_bindings (): Promise<ISkillBinding[]> {
+        try {
+            const result = await this.api_fetch(`/skill/${this.agent_id}/bindings`)
+            return (result.items || [ ]).map((b: any) => ({
+                skillId: b.skillId,
+                agentId: b.agentId,
+                enabled: b.enabled !== false,
+                descOverride: b.descOverride,
+                skill: b.skill,
+            }))
+        } catch {
+            return [ ]
+        }
+    }
+    
+    
+    async bind_skill (skill_id: string): Promise<void> {
+        await this.api_fetch('/skill/bind', {
+            method: 'POST',
+            body: JSON.stringify({
+                agentId: this.agent_id,
+                skillId: skill_id,
+            }),
+        })
+    }
+    
+    
+    async unbind_skill (skill_id: string): Promise<void> {
+        await this.api_fetch('/skill/unbind', {
+            method: 'POST',
+            body: JSON.stringify({
+                agentId: this.agent_id,
+                skillId: skill_id,
+            }),
+        })
+    }
+    
+    
+    async toggle_skill_binding (skill_id: string, enabled: boolean): Promise<void> {
+        await this.api_fetch('/skill/binding/enable', {
+            method: 'POST',
+            body: JSON.stringify({
+                agentId: this.agent_id,
+                skillId: skill_id,
+                enabled,
+            }),
+        })
+    }
+    
+    
+    /** 注册新技能（上传 ZIP 技能包） */
+    async register_skill (file: File, overrides?: Record<string, string>): Promise<ISkillInfo> {
+        const buffer = await file.arrayBuffer()
+        const base64 = btoa(
+            new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+        )
+        
+        const body: Record<string, any> = { packageBase64: base64 }
+        if (overrides && Object.keys(overrides).length > 0)
+            body.overrides = overrides
+        
+        const result = await this.api_fetch('/skill/register', {
+            method: 'POST',
+            body: JSON.stringify(body),
+        })
+        return {
+            skillId: result.skillId || result.skill_id || result.id,
+            name: result.name,
+            description: result.description,
+            status: result.status ?? 0,
+            statusName: result.statusName || 'ACTIVE',
+            category: result.category,
+            displayName: result.displayName,
+            version: result.version,
+        }
+    }
+    
+    
+    /** 删除技能 */
+    async delete_skill (skill_id: string): Promise<void> {
+        await this.api_fetch(`/skill/${skill_id}/delete`, { method: 'POST' })
     }
 }
 

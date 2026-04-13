@@ -51,11 +51,11 @@ function route_ddb_obj_to_dataview (obj: DdbObj<DdbValue>) {
 }
 
 
-export function AiTab ({ chat_id }: { chat_id: string }) {
+export function AiTab ({ session_id }: { session_id: string }) {
     const {
-        messages, buffered_messages, agent_status, current_chat_id,
+        messages, buffered_messages, agent_status, current_session_id,
     } = chat_model.use([
-        'messages', 'buffered_messages', 'agent_status', 'current_chat_id',
+        'messages', 'buffered_messages', 'agent_status', 'current_session_id',
     ])
     
     const [input_value, set_input_value] = useState('')
@@ -65,22 +65,20 @@ export function AiTab ({ chat_id }: { chat_id: string }) {
     const should_auto_scroll = useRef(true)
     const last_scroll_top = useRef(0)
     
-    // Init: ensure chat model is initialized, then select this chat
+    // Init: ensure chat model is initialized, then select this session
     useEffect(() => {
         let cancelled = false
         
         ;(async () => {
             try {
-                // 确保 chat_model 已初始化
-                if (!chat_model.workspace_id)
+                if (!chat_model.agent_id)
                     await chat_model.init()
                 
                 if (cancelled)
                     return
                 
-                // 切换到这个 chat
-                if (current_chat_id !== chat_id)
-                    await chat_model.select_chat(chat_id)
+                if (current_session_id !== session_id)
+                    await chat_model.select_session(session_id)
                 
                 set_inited(true)
             } catch (e) {
@@ -89,13 +87,13 @@ export function AiTab ({ chat_id }: { chat_id: string }) {
         })()
         
         return () => { cancelled = true }
-    }, [chat_id])
+    }, [session_id])
     
-    // When tab switches back, re-subscribe to the correct chat
+    // When tab switches back, re-select the correct session
     useEffect(() => {
-        if (inited && current_chat_id !== chat_id)
-            chat_model.select_chat(chat_id).catch(console.error)
-    }, [inited, chat_id])
+        if (inited && current_session_id !== session_id)
+            chat_model.select_session(session_id).catch(console.error)
+    }, [inited, session_id])
     
     // Auto-scroll periodic check
     useEffect(() => {
@@ -161,10 +159,10 @@ export function AiTab ({ chat_id }: { chat_id: string }) {
         should_auto_scroll.current = true
     }
     
-    // Only show messages for our chat
-    const visible_messages = current_chat_id === chat_id ? messages : [ ]
-    const visible_buffered = current_chat_id === chat_id ? buffered_messages : [ ]
-    const visible_status = current_chat_id === chat_id ? agent_status : { status: 'idle' as const }
+    // Only show messages for our session
+    const visible_messages = current_session_id === session_id ? messages : [ ]
+    const visible_buffered = current_session_id === session_id ? buffered_messages : [ ]
+    const visible_status = current_session_id === session_id ? agent_status : { status: 'idle' as const }
     const status_text = get_agent_status_text(visible_status)
     const has_virtual = visible_status.status !== 'idle' || visible_buffered.length > 0
     
