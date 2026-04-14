@@ -32,9 +32,9 @@ function parse_maybe_json (value: unknown): unknown {
     if (
         (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
         (trimmed.startsWith('[') && trimmed.endsWith(']'))
-    ) {
+    ) 
         try { return JSON.parse(trimmed) } catch { return value }
-    }
+    
     
     return value
 }

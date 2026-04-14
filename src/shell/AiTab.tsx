@@ -104,7 +104,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
             el.scrollTo({ top: el.scrollHeight, behavior: 'auto' })
             last_scroll_top.current = el.scrollTop
         }, AUTO_SCROLL_INTERVAL)
-        return () => clearInterval(timer)
+        return () => { clearInterval(timer) }
     }, [ ])
     
     // Scroll on new messages

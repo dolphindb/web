@@ -77,7 +77,7 @@ function get_table_like_summary (payload: unknown): { rows: number, columns: str
         return null
     
     if (Array.isArray(payload.data)) {
-        const rows = payload.data.filter(item => item != null).length
+        const rows = payload.data.filter(item => item !== null && item !== undefined).length
         const first = payload.data[0]
         const columns = is_object_record(first) ? Object.keys(first) : [ ]
         return { rows, columns }

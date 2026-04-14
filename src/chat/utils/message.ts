@@ -1,4 +1,4 @@
-import type { IMessage, MessageType } from '../model.ts'
+import type { IMessage, MessageType } from '@/chat/model.ts'
 
 
 export interface ToolCallViewModel {
@@ -80,7 +80,7 @@ export function to_message_text (value: unknown): string {
     if (typeof value === 'string')
         return value
     
-    if (value == null)
+    if (value === null || value === undefined)
         return ''
     
     if (value instanceof Uint8Array)
@@ -89,7 +89,7 @@ export function to_message_text (value: unknown): string {
     if (value instanceof ArrayBuffer)
         return decode_bytes(Array.from(new Uint8Array(value)))
     
-    if (Array.isArray(value) && value.every((byte) => Number.isInteger(byte) && byte >= 0 && byte <= 255))
+    if (Array.isArray(value) && value.every(byte => Number.isInteger(byte) && byte >= 0 && byte <= 255))
         return decode_bytes(value as number[])
     
     if (typeof value === 'object') {
@@ -97,7 +97,7 @@ export function to_message_text (value: unknown): string {
         if (
             maybe_buffer.type === 'Buffer' &&
             Array.isArray(maybe_buffer.data) &&
-            maybe_buffer.data.every((byte) => Number.isInteger(byte) && byte >= 0 && byte <= 255)
+            maybe_buffer.data.every(byte => Number.isInteger(byte) && byte >= 0 && byte <= 255)
         )
             return decode_bytes(maybe_buffer.data as number[])
         
@@ -113,7 +113,7 @@ export function to_message_text (value: unknown): string {
 
 
 function to_content_object (value: unknown): unknown {
-    if (value == null)
+    if (value === null || value === undefined)
         return undefined
     
     if (typeof value === 'string')
@@ -121,7 +121,7 @@ function to_content_object (value: unknown): unknown {
     
     const text = to_message_text(value)
     const parsed = parse_maybe_json(text)
-    if (parsed != null)
+    if (parsed !== null && parsed !== undefined)
         return parsed
     
     return value
@@ -136,21 +136,21 @@ function parse_tool_call_from_object (value: unknown): ToolCallViewModel | null 
     
     const tool_call = obj.tool_call
     if (typeof tool_call === 'string' && tool_call.trim())
-        return { name: tool_call.trim(), args: obj.args ?? obj.arguments ?? obj.content ?? [] }
+        return { name: tool_call.trim(), args: obj.args ?? obj.arguments ?? obj.content ?? [ ] }
     
     const function_name = obj.function
     if (typeof function_name === 'string' && function_name.trim())
-        return { name: function_name.trim(), args: obj.args ?? obj.arguments ?? obj.content ?? [] }
+        return { name: function_name.trim(), args: obj.args ?? obj.arguments ?? obj.content ?? [ ] }
     
     const tool_name = obj.tool
     if (typeof tool_name === 'string' && tool_name.trim())
-        return { name: tool_name.trim(), args: obj.args ?? obj.arguments ?? obj.content ?? [] }
+        return { name: tool_name.trim(), args: obj.args ?? obj.arguments ?? obj.content ?? [ ] }
     
     const function_call = obj.function_call
     if (function_call && typeof function_call === 'object' && !Array.isArray(function_call)) {
         const name = (function_call as { name?: unknown }).name
         if (typeof name === 'string' && name.trim())
-            return { name: name.trim(), args: (function_call as { arguments?: unknown }).arguments ?? [] }
+            return { name: name.trim(), args: (function_call as { arguments?: unknown }).arguments ?? [ ] }
     }
     
     return null
@@ -161,7 +161,7 @@ export function parse_tool_call (message: IMessage): ToolCallViewModel | null {
     const candidates: unknown[] = [message.content_object ? to_content_object(message.content_object) : null]
     
     const parsed_content = parse_maybe_json(message.content)
-    if (parsed_content != null)
+    if (parsed_content !== null && parsed_content !== undefined)
         candidates.push(parsed_content)
     
     for (const candidate of candidates) {
@@ -265,7 +265,7 @@ function infer_tool_name_from_content (content: string): string | undefined {
     if (!trimmed)
         return undefined
     
-    const failed_match = trimmed.match(/^([a-z_]+)\s+failed:/i)
+    const failed_match = /^([a-z_]+)\s+failed:/i.exec(trimmed)
     if (failed_match?.[1])
         return failed_match[1]
     
@@ -349,7 +349,7 @@ export function normalize_message (item: unknown): IMessage | null {
     const content_object = to_content_object(raw_content_object)
     const reasoning_content = extract_reasoning_content(item)
     const name = to_message_text(Reflect.get(item, 'name')).trim()
-    const has_content_object = content_object != null && (typeof content_object !== 'string' || content_object.trim().length > 0)
+    const has_content_object = content_object !== null && content_object !== undefined && (typeof content_object !== 'string' || content_object.trim().length > 0)
     
     if (message_type === 'system' || role === 'system')
         return null

@@ -3,10 +3,10 @@ type ScriptPayloadObject = {
     content?: unknown
 }
 
-const to_string_arg = (value: unknown): string => {
+function to_string_arg (value: unknown) {
     if (typeof value === 'string')
         return value
-    if (value == null)
+    if (value === null || value === undefined)
         return ''
     return String(value)
 }
@@ -26,7 +26,7 @@ export function normalize_script_args (payload: unknown): string[] {
         if (
             (trimmed.startsWith('[') && trimmed.endsWith(']')) ||
             (trimmed.startsWith('{') && trimmed.endsWith('}'))
-        ) {
+        ) 
             try {
                 const parsed = JSON.parse(trimmed)
                 if (Array.isArray(parsed))
@@ -34,7 +34,7 @@ export function normalize_script_args (payload: unknown): string[] {
                 if (parsed && typeof parsed === 'object')
                     return normalize_script_args(parsed)
             } catch { }
-        }
+        
         
         return [payload]
     }

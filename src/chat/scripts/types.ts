@@ -1,4 +1,4 @@
-import type { IMessage } from '../model.ts'
+import type { IMessage } from '@/chat/model.ts'
 
 
 export type ScriptType = 'execute' | 'coldefs' | 'testsql' | 'show' | 'doc_search' | 'doc_read' | 'skill_read' | string

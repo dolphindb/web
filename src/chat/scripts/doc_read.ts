@@ -8,7 +8,7 @@ const MAX_ALLOWED_CHARS = 150000
 const REQUEST_TIMEOUT_MS = 45_000
 
 
-const to_positive_int = (value: unknown, fallback: number): number => {
+function to_positive_int (value: unknown, fallback: number) {
     if (typeof value === 'number' && Number.isFinite(value)) {
         const integer = Math.trunc(value)
         return integer > 0 ? integer : fallback
@@ -23,7 +23,7 @@ const to_positive_int = (value: unknown, fallback: number): number => {
     return fallback
 }
 
-const clamp_max_chars = (value: unknown): number => {
+function clamp_max_chars (value: unknown) {
     const max_chars = to_positive_int(value, DEFAULT_MAX_CHARS)
     return Math.min(max_chars, MAX_ALLOWED_CHARS)
 }
@@ -165,7 +165,7 @@ function extract_doc_content (html: string, page_url: string): { title: string, 
     
     // 移除不需要的元素
     for (const selector of DROP_SELECTORS)
-        content_root.querySelectorAll(selector).forEach(node => node.remove())
+        content_root.querySelectorAll(selector).forEach(node => { node.remove() })
     
     const title = content_root.querySelector('h1')?.textContent?.trim()
         || doc.querySelector('title')?.textContent?.trim()

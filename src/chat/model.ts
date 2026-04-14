@@ -739,12 +739,12 @@ class ChatModel extends Model<ChatModel> {
                 console.log('[debug] handle_text_tool_call completed')
             } else {
                 // 没有工具调用 → 普通文本回复
-                if (!content.trim() && !reasoning_content.trim()) {
+                if (!content.trim() && !reasoning_content.trim()) 
                     this.update_assistant_content(assistant_msg_id, {
                         content: t('模型返回了空响应'),
                         messageType: 'agent_error',
                     })
-                }
+                
                 this.set({ agent_status: { status: 'idle' } })
             }
             
