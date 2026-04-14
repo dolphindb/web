@@ -1,7 +1,14 @@
 import { Model } from 'react-object-model'
 
-import { model, storage_keys } from '@model'
 import { t } from '@i18n'
+import { model, storage_keys } from '@model'
+
+import { init_scripts } from './scripts/init.ts'
+import { get_script_handler } from './scripts/index.ts'
+import type { ToolContext, ScriptResult } from './scripts/types.ts'
+import { build_system_prompt } from './prompt.ts'
+import { parse_tool_call } from './tool_call_parser.ts'
+import type { ParsedToolCall } from './tool_call_parser.ts'
 
 
 export type MessageRole = 'system' | 'user' | 'assistant' | 'tool'
@@ -108,6 +115,13 @@ export interface IAgentInfo {
 const AGENT_ID_KEY = 'ddb.chat.agent_id'
 const BIZ_USER_ID_KEY = 'ddb.chat.biz_user_id'
 
+/** 最大工具调用轮次，防止无限循环 */
+const MAX_TOOL_TURNS = 20
+
+
+// 初始化工具注册表
+init_scripts()
+
 
 class ChatModel extends Model<ChatModel> {
     agent_id = localStorage.getItem(AGENT_ID_KEY) || ''
@@ -127,6 +141,9 @@ class ChatModel extends Model<ChatModel> {
     agent_status: IAgentStatusEvent = { status: 'idle' }
     
     sse_controller: AbortController | null = null
+    
+    /** 缓存的技能列表，工具续传轮次复用 */
+    _cached_skills: ISkillInfo[] = [ ]
     
     settings_visible = false
     
@@ -600,13 +617,21 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    async do_chat_completions (message: string, tool_results?: Array<{ toolCallId: string, content: string }>) {
-        this.abort_sse()
+    async do_chat_completions (message: string, _unused?: unknown, _tool_turn = 0) {
+        if (_tool_turn > MAX_TOOL_TURNS) {
+            this.set({ agent_status: { status: 'error', message: t('工具调用轮次超过上限') } })
+            return
+        }
+        
+        // 首轮（非工具续传）时才中断上一次 SSE
+        if (_tool_turn === 0)
+            this.abort_sse()
+        
         const controller = new AbortController()
         this.sse_controller = controller
         
         // 添加用户消息到 UI（仅新消息时）
-        if (message) {
+        if (message && _tool_turn === 0) {
             const user_msg: IMessage = {
                 msgId: `user_${Date.now()}`,
                 role: 'user',
@@ -639,14 +664,18 @@ class ChatModel extends Model<ChatModel> {
             const url = `${this.base_url}/chat/completions`
             const token = localStorage.getItem(storage_keys.agent_bus_token) || ''
             
+            // 加载技能列表用于系统提示词
+            const skills = _tool_turn === 0 ? await this.load_skills() : this._cached_skills
+            this._cached_skills = skills
+            
             const body: Record<string, any> = {
                 sessionId: this.current_session_id,
-                stream: true,
+                stream: false,
+                message,
+                assemblyConfig: {
+                    systemPrompt: build_system_prompt(skills),
+                },
             }
-            if (message)
-                body.message = message
-            if (tool_results)
-                body.toolResults = tool_results
             
             const response = await fetch(url, {
                 method: 'POST',
@@ -672,64 +701,52 @@ class ChatModel extends Model<ChatModel> {
                     this.handle_auth_failed()
                     throw new Error('Access denied')
                 }
-                throw new Error(err_text)
+                throw new Error(parsed?.error?.message || err_text)
             }
             
-            // 解析 SSE 流
-            const reader = response.body!.getReader()
-            const decoder = new TextDecoder()
-            let buffer = ''
-            let accumulated_content = ''
-            let finish_tool_calls: IToolCall[] | undefined
+            // 非流式响应：直接解析 JSON
+            const result = await response.json()
+            const data = result.data || result
+            const content = data.content || ''
+            const reasoning_content = data.reasoning_content || data.reasoningContent || ''
+            const tool_calls = data.toolCalls
             
-            while (true) {
-                const { done, value } = await reader.read()
-                if (done)
-                    break
-                
-                buffer += decoder.decode(value, { stream: true })
-                
-                const lines = buffer.split('\n')
-                buffer = lines.pop() || ''
-                
-                for (const line of lines) {
-                    if (!line.startsWith('data: '))
-                        continue
-                    const data_str = line.slice(6).trim()
-                    if (!data_str)
-                        continue
-                    
-                    let event: any
-                    try { event = JSON.parse(data_str) } catch { continue }
-                    
-                    switch (event.type) {
-                        case 'STREAM_CHUNK':
-                            if (event.data?.content) {
-                                accumulated_content += event.data.content
-                                this.update_assistant_content(assistant_msg_id, accumulated_content)
-                            }
-                            break
-                        
-                        case 'STREAM_END':
-                            if (event.data?.content)
-                                accumulated_content = event.data.content
-                            if (event.data?.toolCalls?.length > 0)
-                                finish_tool_calls = event.data.toolCalls
-                            this.update_assistant_content(assistant_msg_id, accumulated_content, finish_tool_calls)
-                            break
-                        
-                        case 'ERROR':
-                            throw new Error(event.error?.message || 'Stream error')
-                    }
-                }
-            }
+            console.log('Chat completions response:', result)
             
-            // 如果有 tool calls，处理工具调用循环
-            if (finish_tool_calls?.length) {
+            this.update_assistant_content(assistant_msg_id, {
+                content,
+                reasoning_content: reasoning_content || undefined,
+            })
+            
+            // 从文本内容或 function calling 格式中解析工具调用
+            console.log('[debug] content length:', content.length, 'toolCalls:', tool_calls)
+            const parsed_call = parse_tool_call(tool_calls, content)
+            console.log('[debug] parsed_call:', parsed_call)
+            
+            if (parsed_call) {
+                console.log('[debug] Tool call detected:', parsed_call.type, 'payload type:', typeof parsed_call.payload)
+                const tool_call_payload = { tool_call: parsed_call.type, args: parsed_call.payload }
+                this.update_assistant_content(assistant_msg_id, {
+                    content: JSON.stringify(tool_call_payload),
+                    reasoning_content: reasoning_content || undefined,
+                    messageType: 'tool_call',
+                    name: parsed_call.type,
+                })
+                
                 this.set({ agent_status: { status: 'tool_running' } })
-                await this.handle_tool_calls(finish_tool_calls)
-            } else
+                console.log('[debug] Calling handle_text_tool_call...')
+                await this.handle_text_tool_call(parsed_call, reasoning_content, _tool_turn)
+                console.log('[debug] handle_text_tool_call completed')
+            } else {
+                // 没有工具调用 → 普通文本回复
+                if (!content.trim() && !reasoning_content.trim()) {
+                    this.update_assistant_content(assistant_msg_id, {
+                        content: t('模型返回了空响应'),
+                        messageType: 'agent_error',
+                    })
+                }
                 this.set({ agent_status: { status: 'idle' } })
+            }
             
             // 刷新会话列表以更新标题/时间
             this.load_sessions().catch(() => { })
@@ -740,7 +757,7 @@ class ChatModel extends Model<ChatModel> {
             this.set({ agent_status: { status: 'error', message: e.message } })
             
             // 更新占位消息为错误信息
-            this.update_assistant_content(assistant_msg_id, t('发送失败: {{error}}', { error: e.message }))
+            this.update_assistant_content(assistant_msg_id, { content: t('发送失败: {{error}}', { error: e.message }) })
         } finally {
             if (this.sse_controller === controller)
                 this.sse_controller = null
@@ -748,86 +765,94 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    update_assistant_content (msg_id: string, content: string, tool_calls?: IToolCall[]) {
+    update_assistant_content (msg_id: string, updates: { content?: string, reasoning_content?: string, tool_calls?: IToolCall[], messageType?: MessageType, name?: string }) {
         const idx = this.messages.findIndex(m => m.msgId === msg_id)
         if (idx < 0)
             return
         
+        const current = this.messages[idx]
         const next = [...this.messages]
         next[idx] = {
-            ...next[idx],
-            content,
-            ...(tool_calls ? { tool_calls, messageType: 'tool_call' } : { }),
+            ...current,
+            ...(updates.content !== undefined ? { content: updates.content } : { }),
+            ...(updates.reasoning_content !== undefined ? { reasoning_content: updates.reasoning_content } : { }),
+            ...(updates.tool_calls ? { tool_calls: updates.tool_calls } : { }),
+            ...(updates.messageType ? { messageType: updates.messageType } : { }),
+            ...(updates.name ? { name: updates.name } : { }),
         }
         this.set({ messages: next })
     }
     
     
-    async handle_tool_calls (tool_calls: IToolCall[]) {
-        // 显示工具调用消息
-        for (const tc of tool_calls) {
-            const call_msg: IMessage = {
-                msgId: `tc_${tc.id}`,
-                role: 'assistant',
-                messageType: 'tool_call',
-                content: JSON.stringify([tc]),
-                name: tc.function.name,
-                tool_calls: [tc],
-            }
-            this.set({ messages: [...this.messages, call_msg] })
+    /** 处理文本解析出的工具调用（text-based tool calling） */
+    async handle_text_tool_call (parsed_call: ParsedToolCall, reasoning_content: string, tool_turn: number) {
+        // 构建 ToolContext
+        const context: ToolContext = {
+            eval: script => model.ddb.eval(script),
+            api_fetch: (path, options) => this.api_fetch(path, options),
         }
         
-        // 执行工具并收集结果
-        const results: Array<{ toolCallId: string, content: string }> = [ ]
+        // 执行工具
+        const handler = get_script_handler(parsed_call.type)
+        console.log('[debug] handler found:', !!handler, 'for type:', parsed_call.type)
+        let script_result: ScriptResult
         
-        for (const tc of tool_calls) {
-            let result_content: string
+        if (handler) {
+            const payload_str = typeof parsed_call.payload === 'string'
+                ? parsed_call.payload
+                : JSON.stringify(parsed_call.payload)
+            console.log('[debug] calling handler with payload_str:', payload_str.slice(0, 200))
             try {
-                result_content = await this.execute_tool(tc)
-            } catch (e: any) {
-                result_content = `Error: ${e.message}`
+                script_result = await handler(parsed_call.type, payload_str, context)
+                console.log('[debug] handler result:', { next_loop: script_result.next_loop, has_message: !!script_result.save_message, messageType: script_result.save_message?.messageType })
+            } catch (e) {
+                console.error('[debug] handler threw:', e)
+                script_result = {
+                    next_loop: true,
+                    save_message: {
+                        msgId: `tool_${Date.now()}`,
+                        role: 'tool',
+                        messageType: 'tool_error',
+                        name: parsed_call.type,
+                        content: `Tool execution error: ${e instanceof Error ? e.message : String(e)}`,
+                    },
+                }
             }
-            
-            results.push({ toolCallId: tc.id, content: result_content })
-            
-            // 显示工具结果消息
+        } else
+            script_result = {
+                next_loop: true,
+                save_message: {
+                    msgId: `tool_${Date.now()}`,
+                    role: 'tool',
+                    messageType: 'tool_error',
+                    name: parsed_call.type,
+                    content: `Tool '${parsed_call.type}' is not supported.`,
+                },
+            }
+        
+        // 显示工具结果消息
+        if (script_result.save_message) {
             const result_msg: IMessage = {
-                msgId: `tr_${tc.id}`,
-                role: 'tool',
-                messageType: 'tool_result',
-                content: result_content,
-                name: tc.function.name,
-                tool_call_id: tc.id,
+                ...script_result.save_message,
+                msgId: script_result.save_message.msgId || `tr_${Date.now()}`,
             }
             this.set({ messages: [...this.messages, result_msg] })
         }
         
-        // 发送工具结果继续对话
-        await this.do_chat_completions('', results)
-    }
-    
-    
-    async execute_tool (tc: IToolCall): Promise<string> {
-        const { name, arguments: args_str } = tc.function
-        let args: any
-        try { args = JSON.parse(args_str) } catch { args = { } }
-        
-        // 对于 DolphinDB 脚本执行类工具，通过 model.ddb.invoke 执行
-        switch (name) {
-            case 'execute':
-            case 'run_script': {
-                const script = args.script || args.code || args_str
-                try {
-                    const result = await model.ddb.invoke('exec', [script])
-                    return typeof result === 'string' ? result : JSON.stringify(result)
-                } catch (e: any) {
-                    return `Execution error: ${e.message}`
-                }
-            }
-            default:
-                // 其他工具返回未实现提示，由 LLM 处理
-                return `Tool '${name}' executed with args: ${args_str}`
+        if (!script_result.next_loop) {
+            this.set({ agent_status: { status: 'idle' } })
+            return
         }
+        
+        // 继续 agent loop：将工具结果作为 user 消息发送回 LLM
+        const tool_result_content = script_result.save_message
+            ? `[${script_result.save_message.messageType}:${parsed_call.type}] ${script_result.save_message.content}`
+            : ''
+        
+        if (tool_result_content)
+            await this.do_chat_completions(tool_result_content, undefined, tool_turn + 1)
+        else
+            this.set({ agent_status: { status: 'idle' } })
     }
     
     
