@@ -60,11 +60,11 @@ importers:
         specifier: ^1.11.20
         version: 1.11.20
       dolphindb:
-        specifier: ^3.1.42
-        version: 3.1.42(react-dom@19.2.5(react@19.2.5))
+        specifier: ^3.1.44
+        version: 3.1.44(react-dom@19.2.5(react@19.2.5))
       donaco:
         specifier: ^1.0.9
-        version: 1.0.9(dolphindb@3.1.42(react-dom@19.2.5(react@19.2.5)))(monaco-editor@0.52.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vscode-oniguruma@2.0.1)(vscode-textmate@9.3.2)
+        version: 1.0.9(dolphindb@3.1.44(react-dom@19.2.5(react@19.2.5)))(monaco-editor@0.52.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vscode-oniguruma@2.0.1)(vscode-textmate@9.3.2)
       echarts:
         specifier: ^6.0.0
         version: 6.0.0
@@ -114,8 +114,8 @@ importers:
         specifier: 3.7.0
         version: 3.7.0(quill-delta@5.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       react-router:
-        specifier: ^7.14.0
-        version: 7.14.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^7.14.1
+        version: 7.14.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
@@ -2375,8 +2375,8 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  dolphindb@3.1.42:
-    resolution: {integrity: sha512-Kf/Vky0NwoHXKC4yoQbYc4S9lT2B2lpunRvilPXID+Lnq6qQywm96eybf+YHtvP9vhFK6pWetEGdnPtlssGUCA==}
+  dolphindb@3.1.44:
+    resolution: {integrity: sha512-9mYXK6hdS47rToGcl48pk4sgJQC4KJq2CNpYtYM4hGeSyB0OzfXIutXMwqh7q5ceBUmkyCMQA/Ab7tHf+OshjA==}
 
   dom-serializer@2.0.0:
     resolution: {integrity: sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==}
@@ -3659,8 +3659,8 @@ packages:
       react: ^16 || ^17 || ^18 || ^19
       react-dom: ^16 || ^17 || ^18 || ^19
 
-  react-router@7.14.0:
-    resolution: {integrity: sha512-m/xR9N4LQLmAS0ZhkY2nkPA1N7gQ5TUVa5n8TgANuDTARbn1gt+zLPXEm7W0XDTbrQ2AJSJKhoa6yx1D8BcpxQ==}
+  react-router@7.14.1:
+    resolution: {integrity: sha512-5BCvFskyAAVumqhEKh/iPhLOIkfxcEUz8WqFIARCkMg8hZZzDYX9CtwxXA0e+qT8zAxmMC0x3Ckb9iMONwc5jg==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -7092,7 +7092,7 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dolphindb@3.1.42(react-dom@19.2.5(react@19.2.5)):
+  dolphindb@3.1.44(react-dom@19.2.5(react@19.2.5)):
     dependencies:
       dayjs: 1.11.20
       ipaddr.js: 2.3.0
@@ -7131,9 +7131,9 @@ snapshots:
       domelementtype: 2.3.0
       domhandler: 5.0.3
 
-  donaco@1.0.9(dolphindb@3.1.42(react-dom@19.2.5(react@19.2.5)))(monaco-editor@0.52.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vscode-oniguruma@2.0.1)(vscode-textmate@9.3.2):
+  donaco@1.0.9(dolphindb@3.1.44(react-dom@19.2.5(react@19.2.5)))(monaco-editor@0.52.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vscode-oniguruma@2.0.1)(vscode-textmate@9.3.2):
     dependencies:
-      dolphindb: 3.1.42(react-dom@19.2.5(react@19.2.5))
+      dolphindb: 3.1.44(react-dom@19.2.5(react@19.2.5))
       monaco-editor: 0.52.2
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.3.2
@@ -8634,7 +8634,7 @@ snapshots:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
 
-  react-router@7.14.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
+  react-router@7.14.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
     dependencies:
       cookie: 1.0.2
       react: 19.2.5

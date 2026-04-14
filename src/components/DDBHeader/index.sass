@@ -51,6 +51,23 @@ $radius: 0px
             font-size: 16px
             cursor: pointer
         
+        .timezone-select.ant-select
+            border: none
+            
+            .anticon
+                color: black
+            
+            .ant-select-selector
+                border: none
+            
+            &.timezone-select-default
+                .ant-select-content
+                    display: none
+                    
+                &.ant-select-sm
+                    --ant-select-padding-horizontal: 0px
+                
+        
         .node-info, .license
             color: var(--header-color)
             padding: 2px var(--header-section-padding)

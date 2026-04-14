@@ -15,7 +15,7 @@ import { storage } from 'xshell/storage.js'
 
 import {
     DDB, DdbObj, SqlStandard, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, DdbDict, urgent
+    DdbDatabaseError, DdbDict, urgent, set_timezone
 } from 'dolphindb/browser.js'
 
 import type { Docs } from 'dolphindb/docs.js'
@@ -287,6 +287,13 @@ export class DdbModel extends Model<DdbModel> {
             mode: this.production ? t('生产') : t('开发'),
             version: WEB_VERSION
         }))
+        
+        // 设置时区
+        const timezone = storage.getstr(storage_keys.timezone)
+        if (timezone) {
+            console.log('设置时区为:', timezone)
+            set_timezone(timezone)
+        }
         
         await Promise.all([
             this.get_node_type(),
@@ -1319,6 +1326,7 @@ export const storage_keys = {
     enter_completion: 'ddb.editor.enter_completion',
     sql: 'ddb.sql',
     language: 'ddb.language',
+    timezone: 'ddb.timezone',
     shell_language: 'ddb.shell.language',
     dashboard_autosave: 'ddb.dashboard.autosave',
     overview_display_mode: 'ddb.overview.display_mode',
