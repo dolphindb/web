@@ -14,7 +14,7 @@ import {
 import { t } from '@i18n'
 
 import { chat_model } from './model.ts'
-import type { ILlmConfig, ISkillInfo, ISkillBinding, IAgentInfo } from './model.ts'
+import type { ILlmConfig, IAgentLlmBinding, ISkillInfo, ISkillBinding, IAgentInfo } from './model.ts'
 
 
 const PROVIDER_OPTIONS = [
@@ -186,7 +186,7 @@ function AgentTab () {
 
 
 function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInfo, is_current: boolean, on_refresh: () => void }) {
-    const [bound_llms, set_bound_llms] = useState<ILlmConfig[]>([ ])
+    const [bound_llms, set_bound_llms] = useState<IAgentLlmBinding[]>([ ])
     const [all_llms, set_all_llms] = useState<ILlmConfig[]>([ ])
     const [bound_skills, set_bound_skills] = useState<ISkillBinding[]>([ ])
     const [all_skills, set_all_skills] = useState<ISkillInfo[]>([ ])
@@ -205,6 +205,9 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
             set_all_llms(global_llms)
             set_bound_skills(skills)
             set_all_skills(global_skills)
+            // 同步刷新工具栏的可选 LLM 下拉列表
+            if (is_current)
+                chat_model.load_selectable_llms(agent.agentId)
         } catch {
             message.error(t('加载绑定信息失败'))
         } finally {
@@ -216,6 +219,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
     
     const bound_llm_ids = new Set(bound_llms.map(l => l.llmConfigId))
     const unbound_llms = all_llms.filter(l => !bound_llm_ids.has(l.llmConfigId) && l.statusName === 'ACTIVE')
+    const sorted_bound_llms = [...bound_llms].sort((a, b) => a.priority - b.priority)
     
     const bound_skill_ids = new Set(bound_skills.map(s => s.skillId))
     const unbound_skills = all_skills.filter(s => !bound_skill_ids.has(s.skillId) && s.statusName === 'ACTIVE')
@@ -274,30 +278,67 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                     children: <div>
                         {/* 已绑定的 LLM */}
                         {bound_llms.length > 0 && <div style={{ marginBottom: 12 }}>
-                            {bound_llms.map(llm =>
+                            {sorted_bound_llms.map(llm =>
                                 <div key={llm.llmConfigId} style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                     padding: '6px 10px', border: '1px solid #f0f0f0', borderRadius: 4, marginBottom: 4,
                                 }}>
-                                    <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4 }}>
                                         <span style={{ fontWeight: 500, fontSize: 13 }}>{llm.name}</span>
-                                        <span style={{ color: '#999', fontSize: 12, marginLeft: 8 }}>{llm.provider}/{llm.model}</span>
+                                        <span style={{ color: '#999', fontSize: 12 }}>{llm.provider}/{llm.model}</span>
+                                        {llm.isDefault && <Tag color='blue'>{t('默认')}</Tag>}
                                     </div>
-                                    <Tooltip title={t('解绑')}>
-                                        <Button
-                                            type='text' size='small' danger
-                                            icon={<DisconnectOutlined />}
-                                            onClick={async () => {
-                                                try {
-                                                    await chat_model.unbind_llm_from_agent(agent.agentId, llm.llmConfigId)
-                                                    message.success(t('已解绑'))
-                                                    await load()
-                                                } catch (err: any) {
-                                                    message.error(err.message || t('解绑失败'))
-                                                }
-                                            }}
-                                        />
-                                    </Tooltip>
+                                    <Space size={4}>
+                                        <Tooltip title={t('优先级（数值越小优先级越高）')}>
+                                            <InputNumber
+                                                size='small'
+                                                min={0}
+                                                value={llm.priority}
+                                                style={{ width: 60 }}
+                                                disabled={llm.isDefault}
+                                                onChange={async (value) => {
+                                                    if (value === null || value === llm.priority)
+                                                        return
+                                                    try {
+                                                        await chat_model.bind_llm_to_agent(agent.agentId, llm.llmConfigId, llm.isDefault, value)
+                                                        await load()
+                                                    } catch (err: any) {
+                                                        message.error(err.message || t('设置失败'))
+                                                    }
+                                                }}
+                                            />
+                                        </Tooltip>
+                                        {!llm.isDefault && <Tooltip title={t('设为默认')}>
+                                            <Button
+                                                type='text' size='small'
+                                                icon={<CheckCircleOutlined />}
+                                                onClick={async () => {
+                                                    try {
+                                                        await chat_model.bind_llm_to_agent(agent.agentId, llm.llmConfigId, true)
+                                                        message.success(t('已设为默认'))
+                                                        await load()
+                                                    } catch (err: any) {
+                                                        message.error(err.message || t('设置失败'))
+                                                    }
+                                                }}
+                                            />
+                                        </Tooltip>}
+                                        <Tooltip title={t('解绑')}>
+                                            <Button
+                                                type='text' size='small' danger
+                                                icon={<DisconnectOutlined />}
+                                                onClick={async () => {
+                                                    try {
+                                                        await chat_model.unbind_llm_from_agent(agent.agentId, llm.llmConfigId)
+                                                        message.success(t('已解绑'))
+                                                        await load()
+                                                    } catch (err: any) {
+                                                        message.error(err.message || t('解绑失败'))
+                                                    }
+                                                }}
+                                            />
+                                        </Tooltip>
+                                    </Space>
                                 </div>
                             )}
                         </div>}

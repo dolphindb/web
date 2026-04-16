@@ -76,6 +76,23 @@ export interface ILlmConfig {
 }
 
 
+/** Agent-LLM 绑定信息，继承 LlmConfigInfo 并包含绑定级别字段 */
+export interface IAgentLlmBinding extends ILlmConfig {
+    isDefault: boolean
+    priority: number
+    accessExtra?: string
+}
+
+
+/** 当前用户在指定 Agent 下可选择的 LLM */
+export interface ISelectableLlmInfo extends ILlmConfig {
+    source: 'agent' | 'user' | 'both'
+    isAgentDefault: boolean
+    participatesInFallback: boolean
+    fallbackPriority: number | null
+}
+
+
 export interface ISkillInfo {
     skillId: string
     name: string
@@ -144,6 +161,12 @@ class ChatModel extends Model<ChatModel> {
     
     /** 缓存的技能列表，工具续传轮次复用 */
     _cached_skills: ISkillInfo[] = [ ]
+    
+    /** 当前 Agent 下用户可选择的 LLM 列表 */
+    selectable_llms: ISelectableLlmInfo[] = [ ]
+    
+    /** 用户显式选择的 LLM 配置 ID（不选则由后端使用 agent 默认） */
+    selected_llm_config_id = ''
     
     settings_visible = false
     
@@ -227,7 +250,10 @@ class ChatModel extends Model<ChatModel> {
                 return
             
             await this.ensure_biz_user()
-            await this.load_sessions()
+            await Promise.all([
+                this.load_sessions(),
+                this.load_selectable_llms(),
+            ])
         } catch (error) {
             console.error('Chat init failed:', error)
             model.message?.error(t('AI 助手初始化失败'))
@@ -363,8 +389,12 @@ class ChatModel extends Model<ChatModel> {
             sessions: [ ],
             current_session_id: '',
             messages: [ ],
+            selected_llm_config_id: '',
+            selectable_llms: [ ],
         })
         localStorage.setItem(AGENT_ID_KEY, agent_id)
+        // 异步加载新 agent 的可选 LLM 列表
+        this.load_selectable_llms(agent_id)
     }
     
     
@@ -450,13 +480,17 @@ class ChatModel extends Model<ChatModel> {
     
     
     async create_session (): Promise<ISession> {
+        const body: Record<string, any> = {
+            agentId: this.agent_id,
+            bizUserId: this.biz_user_id,
+            title: t('新会话'),
+        }
+        if (this.selected_llm_config_id)
+            body.llmConfigId = this.selected_llm_config_id
+        
         const result = await this.api_fetch('/session/create', {
             method: 'POST',
-            body: JSON.stringify({
-                agentId: this.agent_id,
-                bizUserId: this.biz_user_id,
-                title: t('新会话'),
-            })
+            body: JSON.stringify(body),
         })
         const session: ISession = {
             sessionId: result.sessionId,
@@ -475,6 +509,8 @@ class ChatModel extends Model<ChatModel> {
             messages: [ ],
             buffered_messages: [ ],
             agent_status: { status: 'idle' },
+            // 新会话同步 LLM 选择（后端可能返回实际绑定的 llmConfigId）
+            selected_llm_config_id: session.llmConfigId || '',
         })
         return session
     }
@@ -491,6 +527,8 @@ class ChatModel extends Model<ChatModel> {
             messages: [ ],
             buffered_messages: [ ],
             agent_status: { status: 'idle' },
+            // 同步会话级 LLM 选择
+            selected_llm_config_id: this.sessions.find(s => s.sessionId === session_id)?.llmConfigId || '',
         })
         
         // 加载历史消息
@@ -724,6 +762,8 @@ class ChatModel extends Model<ChatModel> {
                     systemPrompt: build_system_prompt(skills),
                 },
             }
+            if (this.selected_llm_config_id)
+                body.llmConfigId = this.selected_llm_config_id
             
             const response = await fetch(url, {
                 method: 'POST',
@@ -942,15 +982,25 @@ class ChatModel extends Model<ChatModel> {
             body: JSON.stringify(config),
         })
         
-        // 自动绑定到当前 agent
-        if (this.agent_id)
+        // 自动绑定到当前 agent（仅当该 agent 尚无绑定时设为默认）
+        if (this.agent_id) {
+            // 直接查询绑定列表，不使用 load_agent_llm_bindings 以避免错误被吞掉
+            let has_existing = false
+            try {
+                const bindings = await this.api_fetch(`/agent/${this.agent_id}/llm/list`)
+                has_existing = (bindings.items || [ ]).length > 0
+            } catch {
+                // 查询失败时保守处理，不设为默认
+                has_existing = true
+            }
             await this.api_fetch(`/agent/${this.agent_id}/llm/access`, {
                 method: 'POST',
                 body: JSON.stringify({
                     llmConfigId: result.llmConfigId,
-                    isDefault: true,
+                    isDefault: !has_existing,
                 }),
             })
+        }
         
         return result
     }
@@ -969,7 +1019,7 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    async load_agent_llm_bindings (agent_id: string): Promise<ILlmConfig[]> {
+    async load_agent_llm_bindings (agent_id: string): Promise<IAgentLlmBinding[]> {
         try {
             const result = await this.api_fetch(`/agent/${agent_id}/llm/list`)
             return (result.items || [ ]).map((item: any) => ({
@@ -984,6 +1034,9 @@ class ChatModel extends Model<ChatModel> {
                 capability: item.capability,
                 defaultParams: item.defaultParams,
                 contextWindow: item.contextWindow,
+                isDefault: item.isDefault ?? false,
+                priority: item.priority ?? 0,
+                accessExtra: item.accessExtra,
             }))
         } catch {
             return [ ]
@@ -991,13 +1044,16 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    async bind_llm_to_agent (agent_id: string, llm_config_id: string, is_default = false): Promise<void> {
+    async bind_llm_to_agent (agent_id: string, llm_config_id: string, is_default = false, priority?: number): Promise<void> {
+        const body: Record<string, any> = {
+            llmConfigId: llm_config_id,
+            isDefault: is_default,
+        }
+        if (priority !== undefined)
+            body.priority = priority
         await this.api_fetch(`/agent/${agent_id}/llm/access`, {
             method: 'POST',
-            body: JSON.stringify({
-                llmConfigId: llm_config_id,
-                isDefault: is_default,
-            }),
+            body: JSON.stringify(body),
         })
     }
     
@@ -1015,6 +1071,43 @@ class ChatModel extends Model<ChatModel> {
         await this.api_fetch(`/agent/${this.agent_id}/llm/access?llmConfigId=${llm_config_id}`, {
             method: 'DELETE',
         })
+    }
+    
+    
+    /** 加载当前用户在指定 Agent 下可显式选择的 LLM 列表 */
+    async load_selectable_llms (agent_id?: string): Promise<ISelectableLlmInfo[]> {
+        const aid = agent_id || this.agent_id
+        if (!aid)
+            return [ ]
+        try {
+            const result = await this.api_fetch(`/agent/${aid}/llm/selectable`)
+            // 防止快速切换 agent 时旧请求覆盖新数据
+            if (aid !== this.agent_id)
+                return [ ]
+            const items: ISelectableLlmInfo[] = (result.items || [ ]).map((item: any) => ({
+                llmConfigId: item.llmConfigId,
+                name: item.name || item.llmConfigId,
+                provider: item.provider || '',
+                model: item.model || '',
+                endpoint: item.endpoint,
+                apiKey: item.apiKey,
+                status: item.status,
+                statusName: item.statusName || '',
+                capability: item.capability,
+                defaultParams: item.defaultParams,
+                contextWindow: item.contextWindow,
+                source: item.source || 'agent',
+                isAgentDefault: item.isAgentDefault ?? false,
+                participatesInFallback: item.participatesInFallback ?? false,
+                fallbackPriority: item.fallbackPriority ?? null,
+            }))
+            this.set({ selectable_llms: items })
+            return items
+        } catch {
+            if (aid === this.agent_id)
+                this.set({ selectable_llms: [ ] })
+            return [ ]
+        }
     }
     
     

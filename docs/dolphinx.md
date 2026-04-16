@@ -4,7 +4,7 @@
 
 作者：qiwei zhu
 
-25
+26
 
 添加反应
 
@@ -14,7 +14,7 @@
 
 Base URL: `/agent-bus/v1/`
 
-传输协议: HTTP (JSON / SSE) 、WebSocket。**注意：如果你要自己开发一个demo，访问dolphinX的各种API接口前，需要先用dolphindb的用户名和密码登录，然后拿到token，随后每次访问API接口都要先带上token（详见demo）**
+传输协议: HTTP (JSON / SSE) 、WebSocket。**注意：如果你要自己开发一个demo，访问dolphinX的各种API接口前，需要认证。具体做法是：先用dolphindb的用户名和密码登录，然后拿到token，随后每次访问API接口都要先带上token（详见demo）**
 
 ## Quick Start
 
@@ -135,6 +135,7 @@ demo2.zip
 * [WebSocket 协议](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#16.-WebSocket-%E5%8D%8F%E8%AE%AE)
   * [连接](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%BF%9E%E6%8E%A5)
   * [消息格式](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F)
+  * [HTTP → WebSocket 参数映射规则](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#HTTP-%E2%86%92-WebSocket-%E5%8F%82%E6%95%B0%E6%98%A0%E5%B0%84%E8%A7%84%E5%88%99)
   * [支持的 Action](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%94%AF%E6%8C%81%E7%9A%84-Action)
 * [数据结构参考](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#17.-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%82%E8%80%83)
   * [AgentInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#AgentInfo)
@@ -166,8 +167,6 @@ demo2.zip
   * [渐进式加载模型（Progressive Disclosure）](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B8%90%E8%BF%9B%E5%BC%8F%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9E%8B%EF%BC%88Progressive-Disclosure%EF%BC%89)
   * [调用控制矩阵](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%B0%83%E7%94%A8%E6%8E%A7%E5%88%B6%E7%9F%A9%E9%98%B5)
   * [注册时的解析流程](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B3%A8%E5%86%8C%E6%97%B6%E7%9A%84%E8%A7%A3%E6%9E%90%E6%B5%81%E7%A8%8B)
-
----
 
 ## 1. 通用约定
 
@@ -259,7 +258,6 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 说明：
 
-* `agentId` 由框架在注册时自动生成；`agent.register` 不接受请求头、query 或 body 中显式传入 `agentId`
 * `memoryConfig.embeddingEnabled` 在 `agent.register` 时完成一次性决策并落库
 * 注册请求未显式传入 `memoryConfig.embeddingEnabled` 时，系统会按默认值 `false` 补齐并持久化
 * 当 `memoryConfig.embeddingEnabled=true` 时，注册时要求系统当前存在且只存在一条 active memory embedding 配置
@@ -814,16 +812,16 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 |
 ```
 
-| ------------------------ | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `role`             | string | 是   | 消息角色：`system`（系统指令）/`user`（用户输入）/`assistant`（LLM 回复）/`tool`（工具执行结果）                                                                                                                                                                             |
-| `contentType`      | string | 否   | 内容类型（默认`text`）。`text`：纯文本。`tool_call`：工具调用，content 为 JSON 格式的 toolCalls 数组。`tool_result`：工具结果，需同时提供 toolCallId。`multimodal`：多模态，content 为 JSON 数组（含 type/text/imageUrl）。`summary`：会话摘要（通常由框架内部写入） |
-| `content`          | string | 否   | 消息内容，格式取决于 contentType                                                                                                                                                                                                                                                             |
-| `toolCallId`       | string | 否   | 工具调用关联 ID。contentType 为`tool_result`时必填，需与 assistant 返回的 tool\_call 中的 id 一致，LLM 据此将工具结果关联到对应的调用                                                                                                                                                    |
-| `llmModel`         | string | 否   | 产生该消息的 LLM 模型名称（通常仅 assistant 消息需要填写）                                                                                                                                                                                                                                   |
-| `promptTokens`     | int    | 否   | 输入 token 数（LLM 返回的 usage 统计），用于 token 消耗计量                                                                                                                                                                                                                                  |
-| `completionTokens` | int    | 否   | 输出 token 数（LLM 返回的 usage 统计），用于 token 消耗计量                                                                                                                                                                                                                                  |
-| `totalTokens`      | int    | 否   | 总 token 数（默认 prompt + completion），同时用于滑动窗口的 token 预算计算                                                                                                                                                                                                                   |
-| `metadata`         | object | 否   | 自定义元数据，JSON 格式                                                                                                                                                                                                                                                                      |
+| ------------------------ | -------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `role`             | string | 是   | 消息角色：`system`（系统指令）/`user`（用户输入）/`assistant`（LLM 回复）/`tool`（工具执行结果）                                                                                                                                                                                                                                                                     |
+| `contentType`      | string | 否   | 内容类型（默认`text`）。`text`：纯文本。`tool_call`：工具调用，content 为 JSON 格式的 toolCalls 数组。`tool_result`：工具结果，需同时提供 toolCallId。`multimodal`：多模态，content 为 JSON 数组（含 type/text/imageUrl）。`summary`：会话摘要（通常由框架内部写入；其`metadata`中记录`summaryUpToSeqNum`、`trigger`、`summaryLlmConfigId`） |
+| `content`          | string | 否   | 消息内容，格式取决于 contentType                                                                                                                                                                                                                                                                                                                                                     |
+| `toolCallId`       | string | 否   | 工具调用关联 ID。contentType 为`tool_result`时必填，需与 assistant 返回的 tool\_call 中的 id 一致，LLM 据此将工具结果关联到对应的调用                                                                                                                                                                                                                                            |
+| `llmModel`         | string | 否   | 产生该消息的 LLM 模型名称（通常仅 assistant 消息需要填写）                                                                                                                                                                                                                                                                                                                           |
+| `promptTokens`     | int    | 否   | 输入 token 数（LLM 返回的 usage 统计），用于 token 消耗计量                                                                                                                                                                                                                                                                                                                          |
+| `completionTokens` | int    | 否   | 输出 token 数（LLM 返回的 usage 统计），用于 token 消耗计量                                                                                                                                                                                                                                                                                                                          |
+| `totalTokens`      | int    | 否   | 总 token 数（默认 prompt + completion），同时用于滑动窗口的 token 预算计算                                                                                                                                                                                                                                                                                                           |
+| `metadata`         | object | 否   | 自定义元数据，JSON 格式                                                                                                                                                                                                                                                                                                                                                              |
 
 **响应:** [MessageInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#messageinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#messageinfo")
 
@@ -881,17 +879,15 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 |
 ```
 
-| ---------------------- | -------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `instructions`   | string | 否   | 额外的摘要指令，追加到摘要 prompt 中（如要求关注特定主题或保留特定信息）                                                          |
-| `llmConfigId`    | string | 否   | 摘要生成使用的 LLM 配置 ID。为空时按优先级选择：`summaryConfig.llmConfigId`>`session.llmConfigId`>`agent.llmConfigId` |
-| `maxMessages`    | int    | 否   | 单次最多处理的消息条数，覆盖`summaryConfig.maxMessagesPerRun`                                                                 |
-| `maxInputTokens` | int    | 否   | 单次摘要请求的最大输入 token 数，覆盖`summaryConfig.maxInputTokens`                                                           |
-| `force`          | bool   | 否   | 是否强制生成（默认 false）。为 true 时忽略`minMessagesSinceLastSummary`阈值限制                                               |
-| `metadata`       | object | 否   | 自定义元数据，JSON 格式。框架只负责透传，可以写入一些自定义的数据，比如触发原因、关联的业务事件等                                 |
+| -------------------- | -------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `instructions` | string | 否   | 额外的摘要指令，追加到摘要 prompt 中（如要求关注特定主题或保留特定信息）                                                                                     |
+| `llmConfigId`  | string | 否   | 本次摘要优先使用的 LLM 配置 ID。为空时优先使用`summaryConfig.summaryLlmConfigId`；若仍为空，则按当前 session owner 在该 agent 下的默认可用 chat 模型解析 |
+| `force`        | bool   | 否   | 是否强制生成（默认 false）。为 true 时按全量 rolling summary 语义执行，不保留 raw tail                                                                       |
+| `metadata`     | object | 否   | 自定义元数据，JSON 格式。框架只负责透传，可以写入一些自定义的数据，比如触发原因、关联的业务事件等                                                            |
 
 **响应:** [SummaryResult](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#summaryresult "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#summaryresult")
 
-`{ "sessionId": "sess_001", "generated": true, "reason": "", "trigger": "manual", "summaryRange": { "fromSeqNum": 1, "toSeqNum": 50, "basedOnSummarySeqNum": 0, "incremental": false }, "basedOnSummarySeqNum": 0, "messageId": "msg_xxx", "sequenceNum": 51, "role": "system", "contentType": "summary", "content": "摘要内容...", ... } `
+`{ "sessionId": "sess_001", "generated": true, "reason": "", "trigger": "manual", "summaryUpToSeqNum": 50, "messageId": "msg_xxx", "sequenceNum": 51, "role": "system", "contentType": "summary", "content": "摘要内容...", "metadata": { "summaryUpToSeqNum": 50, "trigger": "manual", "summaryLlmConfigId": "llm_summary_xxx" } } `
 
 ---
 
@@ -1331,6 +1327,8 @@ overrides 可覆盖字段：`name`, `description`, `version`, `category`, `displ
 
 `GET /agent-bus/v1/skill/{agentId}/catalog `
 
+返回该 agent 绑定的技能中，当前调用用户可见的部分（已剔除被 deny 及不可由 LLM 自动调用的技能）。用于向 LLM 注入 Tier-1 技能概要。
+
 **响应:**
 
 `{ "agentId": "agent_xxx", "userId": "alice", "catalog": [ { "name": "search-database", "description": "Search distributed tables", "argumentHint": "SELECT fields FROM table WHERE condition" }, ... ], "size": 3 } `
@@ -1406,6 +1404,8 @@ overrides 可覆盖字段：`name`, `description`, `version`, `category`, `displ
 
 `POST /agent-bus/v1/chat/completions `
 
+自动组装与手动组装共用同一个 endpoint，通过请求体中是否包含 `assemblyConfig` 字段切换：不带 `assemblyConfig` 走自动组装，带则走手动组装。
+
 ### 自动组装模式 (Auto-Assembly)
 
 **请求体:**
@@ -1422,17 +1422,17 @@ overrides 可覆盖字段：`name`, `description`, `version`, `category`, `displ
  | 说明
 
 
-                                                                                                       |
+                                                                                                                                 |
 ```
 
-| ------------------------ | ------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------- |
-| `sessionId`        | string           | 是       | 会话 ID，必须为 ACTIVE 状态                                                                                    |
-| `message`          | string           | 条件必填 | 用户消息文本，会被自动追加到会话历史中。`message`和`toolResults`至少提供一个                           |
-| `toolResults`      | ToolResult[]     | 条件必填 | 工具执行结果列表，与`message`至少提供一个。框架自动追加为`role=tool`消息后调用 LLM 续传                |
-| `stream`           | bool             | 否       | 是否流式返回（默认 true）。true 时返回 SSE 流，false 时返回完整 JSON                                           |
-| `tools`            | ToolDefinition[] | 否       | 应用层工具定义列表（OpenAI function calling 格式），注入到 LLM 请求中                                          |
-| `activeSkillNames` | string[]         | 否       | 调用方显式要求本次附加的技能名称列表；若提供，框架会加载这些技能的 Tier-2 指令注入本次上下文，但不维护激活状态 |
-| `llmConfigId`      | string           | 否       | 指定本次请求使用的 LLM 配置 ID，临时覆盖 session/agent 默认配置                                                |
+| ------------------------ | ------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `sessionId`        | string           | 是       | 会话 ID，必须为 ACTIVE 状态                                                                                                              |
+| `message`          | string           | 条件必填 | 用户消息文本，会被自动追加到会话历史中。`message`和`toolResults`至少提供一个                                                     |
+| `toolResults`      | ToolResult[]     | 条件必填 | 工具执行结果列表，与`message`至少提供一个。框架自动追加为`role=tool`消息后调用 LLM 续传                                          |
+| `stream`           | bool             | 否       | 是否流式返回（默认 true）。true 时返回 SSE 流，false 时返回完整 JSON                                                                     |
+| `tools`            | ToolDefinition[] | 否       | 应用层工具定义列表（OpenAI function calling 格式），注入到 LLM 请求中                                                                    |
+| `activeSkillNames` | string[]         | 否       | 调用方显式要求本次附加的技能名称列表；若提供，框架会加载这些技能的 Tier-2 指令注入本次上下文，但不维护激活状态                           |
+| `llmConfigId`      | string           | 否       | 指定本次请求使用的 LLM 配置 ID，临时覆盖 session/agent 默认配置(会进行权限校验，因此要确保填写的llmConfigId是当前agent/user有权限使用的) |
 
 ToolResult 结构:
 
@@ -1456,24 +1456,25 @@ ToolResult 结构:
 
 框架自动执行：
 
-1. 如有 `toolResults`：追加 tool\_result 消息到会话
-2. 如有 `message`：追加用户消息到会话
+1. 解析当前轮输入（`toolResults` / `message`）
+2. 解析当前 session 可用的 LLM 配置
 3. 加载 Agent 配置 + 系统提示词
 4. 组装技能目录 (Tier-1)，并在调用方显式传入 `activeSkillNames` 时附加 Tier-2 指令
 5. 检索相关记忆
-6. 获取历史消息窗口
-7. 按 token 预算分配组装完整上下文
-8. 调用 LLM
-9. 追加助手回复到会话（含 token 统计）
-10. 如有需要，异步触发摘要生成
+6. 按当前 agent 的历史模式组装候选上下文： `summary-first` 时使用 `latest summary + raw tail + current turn` `token-window-only` 时使用纯 token 滑窗历史
+7. 若处于 `summary-first` 且候选 prompt 预计达到 `triggerRatio` 阈值，则先同步执行自动摘要并重新组装上下文
+8. 通过硬性上下文窗口检查后，再将当前轮输入追加到会话
+9. 调用 LLM
+10. 追加助手回复到会话（含 token 统计）
 
 说明：
 
 * `toolResults` 只传工具结果、不传 `message` 是合法用法，适用于 tool calling 的续传轮次
-* 当 `message` 和 `toolResults` 同时存在时，框架会按 `toolResults -> message` 的顺序追加到会话，再发起本轮 LLM 调用
+* 当 `message` 和 `toolResults` 同时存在时，框架会按 `toolResults -> message` 的顺序作为当前轮输入参与装配，并在窗口检查通过后按同顺序落库
 * 自动装配中的记忆检索仅使用当前 `message` 作为查询文本；如果本轮只有 `toolResults`，则不会新增一次记忆查询
 * `activeSkillNames` 仅表示本次请求显式附加的 Tier-2；是否在 agent loop 中续传或变更由应用层决定
 * 框架不会基于 Tier-1 catalog 自动推断、激活或恢复 Skill
+* 自动摘要始终排除当前这次 pending turn；当前输入不会同时出现在新 summary 和 current turn 中
 
 **典型 Tool Calling 流程：**
 
@@ -1517,23 +1518,62 @@ ToolResult 结构:
          | 说明
 
 
-                                                                                                                                                                  |
+                                                                               |
 ```
 
-| ------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `systemPrompt`      | string           | 自定义系统提示词，覆盖 agent 默认的 systemPrompt                                                                                                                          |
-| `contextBlocks`     | ContextBlock[]   | 自定义上下文块。每个块包含`name`（标识符）、`content`（注入内容）、`position`（插入位置：`after_system`或`before_history`，默认`before_history`） |
-| `tools`             | ToolDefinition[] | 工具定义列表（OpenAI function calling 格式）                                                                                                                              |
-| `activeSkillNames`  | string[]         | 调用方显式要求附加的 Tier-2 技能名称列表                                                                                                                                  |
-| `excludeSkillNames` | string[]         | 排除的技能名称列表（从 catalog 和 instruction 中移除）                                                                                                                    |
-| `noSkillCatalog`    | bool             | 是否跳过 Tier-1 技能目录注入（默认 false）                                                                                                                                |
-| `compressHistory`   | bool             | 是否在历史截断时注入已有的 session summary（默认 false）                                                                                                                  |
+| ------------------------- | ------------------ | ---------------------------------------------------------------------------------------- |
+| `systemPrompt`      | string           | 自定义系统提示词，覆盖 agent 默认的 systemPrompt                                       |
+| `contextBlocks`     | ContextBlock[]   | 自定义上下文块列表，按`position`插入组装管线（见下方 ContextBlock 结构与消息顺序） |
+| `tools`             | ToolDefinition[] | 工具定义列表（OpenAI function calling 格式）                                           |
+| `activeSkillNames`  | string[]         | 调用方显式要求附加的 Tier-2 技能名称列表                                               |
+| `excludeSkillNames` | string[]         | 排除的技能名称列表（从 catalog 和 instruction 中移除）                                 |
+| `noSkillCatalog`    | bool             | 是否跳过 Tier-1 技能目录注入（默认 false）                                             |
+
+`ContextBlock` 结构:
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ---------------- | -------- | ------ | ----------------------------------------------------------------------------------------------------------- |
+| `name`     | string | 是   | 块标识符，仅用于校验和调试，不注入 prompt                                                                 |
+| `content`  | string | 是   | 注入的文本内容                                                                                            |
+| `position` | string | 否   | 插入位置，可选`after_system`/`before_history`/`before_current_turn`，默认`before_history` |
+
+每个 block 都会作为一条 `role=system` 消息注入；同一位置的多个 block 按数组顺序追加。
+
+**手动组装消息顺序：**
+
+1. system prompt（`assemblyConfig.systemPrompt` 或 agent 默认）
+2. `after_system` 位置的 contextBlocks
+3. 技能目录 Tier-1（若未通过 `noSkillCatalog` 关闭）
+4. 技能指令 Tier-2（来自 `activeSkillNames`）
+5. 记忆检索结果
+6. `before_history` 位置的 contextBlocks
+7. 历史部分（`summary-first` 时为 `latest summary + raw tail`，否则为纯 token 滑窗历史）
+8. `before_current_turn` 位置的 contextBlocks
+9. 本轮输入（`message` / `toolResults`）
+
+说明：
+
+* contextBlocks 的 token 在预算分配早期被预扣，不会被裁剪；过长会挤压历史和记忆预算
+* `after_system` 用于全局规则，`before_history` 用于本轮参考资料，`before_current_turn` 用于必须被 LLM 立即看到的单轮约束或动态快照
 
 ### 非流式响应
 
 当 `stream=false` 时：
 
-`{ "requestId": "req_xxx", "sessionId": "sess_001", "model": "gpt-4", "content": "这是 LLM 的回复...", "toolCalls": [ { "id": "call_xxx", "type": "function", "function": { "name": "search_database", "arguments": "{\"query\":\"SELECT ...\"}" } } ], "finishReason": "stop", "usage": { "promptTokens": 1200, "completionTokens": 300, "totalTokens": 1500 }, "latencyMs": 2500, "metadata": {} } `
+`{ "requestId": "req_xxx", "sessionId": "sess_001", "model": "gpt-4", "llmConfigId": "llm_xxx", "content": "这是 LLM 的回复...", "toolCalls": [ { "id": "call_xxx", "type": "function", "function": { "name": "search_database", "arguments": "{\"query\":\"SELECT ...\"}" } } ], "finishReason": "stop", "usage": { "promptTokens": 1200, "completionTokens": 300, "totalTokens": 1500 }, "latencyMs": 2500, "metadata": {} } `
 
 ### 流式响应 (SSE)
 
@@ -1566,15 +1606,15 @@ ToolResult 结构:
 |
 ```
 
-| ------------------- | ------------------ | ------ | ------------------------------------------------------------------------ |
-| `agentId`     | string           | 是   | Agent ID，用于解析 LLM 配置（从 agent 绑定的 LLM 列表中选择）          |
-| `sessionId`   | string           | 否   | 会话 ID。指定时使用 session 归属用户和 session 级 LLM 配置             |
-| `messages`    | LLMMessage[]     | 是   | 完整的消息列表（由应用层自行构建），直接发送给 LLM，框架不做上下文组装 |
-| `tools`       | ToolDefinition[] | 否   | 工具定义列表（OpenAI function calling 格式）                           |
-| `model`       | string           | 否   | 指定模型名称，覆盖 LLM 配置中的 model                                  |
-| `stream`      | bool             | 否   | 是否流式返回（默认 true）                                              |
-| `llmConfigId` | string           | 否   | 指定使用的 LLM 配置 ID。必须属于当前用户在该 agent 下的有效可选集合    |
-| `requestId`   | string           | 否   | 请求追踪 ID，不指定时自动生成                                          |
+| ------------------- | ------------------ | ------ | --------------------------------------------------------------------------------------- |
+| `agentId`     | string           | 是   | Agent ID，用于解析 LLM 配置（从 agent 绑定的 LLM 列表中选择）                         |
+| `sessionId`   | string           | 否   | 会话 ID。指定时使用 session 归属用户和 session 级 LLM 配置                            |
+| `messages`    | LLMMessage[]     | 是   | 完整的消息列表（由应用层自行构建），直接发送给 LLM，框架不做上下文组装                |
+| `tools`       | ToolDefinition[] | 否   | 工具定义列表（OpenAI function calling 格式）                                          |
+| `model`       | string           | 否   | 指定模型名称，覆盖 LLM 配置中的 model                                                 |
+| `stream`      | bool             | 否   | 是否流式返回（默认 true）                                                             |
+| `llmConfigId` | string           | 否   | 指定使用的 LLM 配置 ID。必须属于当前用户在该 agent 下的有效可选集合（后台会校验权限） |
+| `requestId`   | string           | 否   | 请求追踪 ID，不指定时自动生成                                                         |
 
 LLMMessage 结构:
 
@@ -1599,12 +1639,12 @@ ToolDefinition 结构:
 说明：
 
 * `context/preview` 会按与 `/chat/completions` 相同的规则组装当前轮输入
-* 预览中的 `message` / `toolResults` 仅作为虚拟输入附加到 messages 尾部，不会写入 session
+* 预览中的 `message` / `toolResults` 仅作为 pending turn 参与组装，不会写入 session
 * `activeSkillNames` 仍表示调用方显式附加的 Tier-2，不代表框架自动维护激活状态
 
 **响应:**
 
-`{ "messages": [ { "role": "system", "content": "你是一个..." }, { "role": "user", "content": "历史消息..." }, { "role": "assistant", "content": "历史回复..." }, { "role": "tool", "toolCallId": "call_1", "content": "工具执行结果" }, { "role": "user", "content": "当前问题" } ], "tools": [ ... ], "detail": { "memoriesIncluded": 3, "messagesIncluded": 20, "skillsInCatalog": 5, "activeInstructions": 1, "toolsIncluded": 2, "historyTruncated": true, "summaryIncluded": true, "summaryTriggerSuggested": false }, "tokenBreakdown": { "systemPrompt": 200, "skillCatalog": 150, "skillInstructions": 800, "memoryContext": 300, "historyMessages": 3000, "userMessage": 50, "toolDefinitions": 400 } } `
+`{ "agentId": "agent_001", "sessionId": "sess_001", "userId": "admin", "assemblyMode": "auto", "messages": [ { "role": "system", "content": "你是一个..." }, { "role": "system", "content": "对话摘要：用户之前询问了..." }, { "role": "user", "content": "历史消息..." }, { "role": "assistant", "content": "历史回复..." }, { "role": "tool", "toolCallId": "call_1", "content": "工具执行结果" }, { "role": "user", "content": "当前问题" } ], "tools": [ ... ], "estimatedTokens": 4200, "detail": { "assemblyMode": "auto", "memoriesIncluded": 3, "messagesIncluded": 8, "skillsInCatalog": 5, "activeInstructions": 1, "toolsIncluded": 2, "historyMode": "summary-first", "summaryConfigured": true, "summaryIncluded": true, "summaryUpToSeqNum": 40, "historyFromSeq": 41, "historyToSeq": 48 }, "tokenBreakdown": { "systemPrompt": 200, "skillCatalog": 150, "skillInstructions": 800, "memoryContext": 300, "summaryMessage": 120, "historyMessages": 2200, "externalContext": 180, "toolDefinitions": 400, "userMessage": 50 } } `
 
 **detail 字段说明：**
 
@@ -1620,18 +1660,19 @@ ToolDefinition 结构:
 |
 ```
 
-| ------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `memoriesIncluded`        | int    | 实际注入到上下文中的记忆条数                                                                                             |
-| `messagesIncluded`        | int    | 实际包含的历史消息条数                                                                                                   |
-| `skillsInCatalog`         | int    | Tier-1 技能目录中包含的技能数                                                                                            |
-| `activeInstructions`      | int    | 已加载的 Tier-2 技能指令数                                                                                               |
-| `toolsIncluded`           | int    | 工具定义数量                                                                                                             |
-| `historyTruncated`        | bool   | 历史消息是否被截断（消息数或 token 超出限制时为 true）                                                                   |
-| `summaryIncluded`         | bool   | 是否注入了已有的 session summary（截断 + includeSummary=true + 存在 summary 时）                                         |
-| `summaryTriggerSuggested` | bool   | 是否建议触发摘要生成（截断 + autoTriggerOnTruncate=true + 满足消息数阈值时）                                             |
-| `summaryTriggerReason`    | string | 摘要触发原因：`history_truncated_no_summary`（截断且无摘要）/`history_truncated_summary_stale`（截断且摘要过时） |
-| `historyFromSeq`          | long   | 历史窗口起始序列号                                                                                                       |
-| `historyToSeq`            | long   | 历史窗口结束序列号                                                                                                       |
+| -------------------------- | -------- | ------------------------------------------------------------ |
+| `assemblyMode`       | string | `auto`或`manual`                                   |
+| `memoriesIncluded`   | int    | 实际注入到上下文中的记忆条数                               |
+| `messagesIncluded`   | int    | 实际包含的历史消息条数                                     |
+| `skillsInCatalog`    | int    | Tier-1 技能目录中包含的技能数                              |
+| `activeInstructions` | int    | 已加载的 Tier-2 技能指令数                                 |
+| `toolsIncluded`      | int    | 工具定义数量                                               |
+| `historyMode`        | string | 历史组装模式：`summary-first`或`token-window-only` |
+| `summaryConfigured`  | bool   | 当前 agent 是否配置了摘要模型                              |
+| `summaryIncluded`    | bool   | 本次是否注入了 latest summary                              |
+| `summaryUpToSeqNum`  | long   | 本次使用的 latest summary 覆盖边界；未使用 summary 时为 0  |
+| `historyFromSeq`     | long   | 历史窗口起始序列号                                         |
+| `historyToSeq`       | long   | 历史窗口结束序列号                                         |
 
 **tokenBreakdown 字段说明：**
 
@@ -1652,7 +1693,9 @@ ToolDefinition 结构:
 | `skillCatalog`      | int  | Tier-1 技能目录估算 token 数                                   |
 | `skillInstructions` | int  | Tier-2 技能指令估算 token 数                                   |
 | `memoryContext`     | int  | 记忆内容估算 token 数                                          |
+| `summaryMessage`    | int  | latest summary 估算 token 数                                   |
 | `historyMessages`   | int  | 历史消息估算 token 数                                          |
+| `externalContext`   | int  | contextBlocks 等外部上下文估算 token 数                        |
 | `userMessage`       | int  | 当前用户消息估算 token 数；若本轮仅提供`toolResults`则为 0 |
 | `toolDefinitions`   | int  | 工具定义估算 token 数                                          |
 
@@ -1670,11 +1713,33 @@ WebSocket 端点路径与 HTTP 相同（通过协议升级）。
 
 **请求帧:**
 
-`{ "type": "REQUEST", "msgId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "payload": { "message": "你好", "stream": true } } `
+请求帧只识别下列顶层字段，其它字段一律忽略：
+
+| 字段
+
+```
+| 必填
+
+
+       | 说明
+
+
+                                                                                         |
+```
+
+| ----------------- | ---------------- | -------------------------------------------------------------------------------------------------- |
+| `type`      | 是             | 固定`"REQUEST"`                                                                              |
+| `action`    | 是             | 内部 action 名，见下方对照表                                                                     |
+| `requestId` | 建议           | 客户端生成的请求 ID，服务端会原样回填到响应帧的`correlationId`                               |
+| `agentId`   | 视 action 而定 | 当对应 HTTP 路由含`{agentId}`或接口语义需要时填写                                            |
+| `sessionId` | 视 action 而定 | 当对应 HTTP 路由含`{sessionId}`或接口语义需要时填写                                          |
+| `payload`   | 视 action 而定 | JSON 对象，承载 HTTP 请求体 + HTTP 查询串 + HTTP 路径参数（除`agentId`/`sessionId`以外） |
+
+`{ "type": "REQUEST", "requestId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "payload": { "message": "你好", "stream": true } } `
 
 **响应帧:**
 
-`{ "type": "RESPONSE", "correlationId": "req_001", "action": "chat.completions", "data": { ... } } `
+`{ "type": "RESPONSE", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": { ... } } `
 
 **流式帧:**
 
@@ -1683,6 +1748,48 @@ WebSocket 端点路径与 HTTP 相同（通过协议升级）。
 **错误帧:**
 
 `{ "type": "ERROR", "correlationId": "req_001", "error": { "code": "HANDLER_ERROR", "message": "session not found" } } `
+
+### HTTP → WebSocket 参数映射规则
+
+WebSocket 没有 URL 路径和 HTTP 方法，所以 HTTP 接口里的"路径参数 / 查询串 / 请求体"必须统一折叠进 WebSocket 帧。规则只有两条：
+
+1. `agentId`**​ 和 ​**`sessionId`​**​ 放到帧的顶层字段**​（因为它们是信封级字段，服务端有专门的解析路径）。
+2. **其它所有参数都放进 ​**`payload`，键名与 HTTP 文档里描述的字段名一致：
+   * HTTP 路径里的 `{userId}` / `{memoryId}` / `{llmConfigId}` / `{skillId}` / `{skillName}` / `{id}` → 在 `payload` 里用对应字段（`userId` / `memoryId` / `llmConfigId` / `skillId` / `skillName`，而 `{id}` 按接口语义转成 `agentId` / `sessionId` / `skillId` / `memoryId` / `llmConfigId` 之一）
+   * HTTP 查询串里的 `?status=0&limit=100&offset=20` → 在 `payload` 里写 `"status": 0, "limit": 100, "offset": 20`
+   * HTTP JSON 请求体字段 → 原样放进 `payload`
+
+同一个字段不能在"顶层 + payload"里同时出现且取值不同，否则服务端会以 `agentId in payload conflicts with ...` 之类的错误拒绝。
+
+**示例 1：多个路径参数**
+
+HTTP：
+
+`GET /agent-bus/v1/skill/{agentId}/user/{userId}/denied `
+
+WebSocket：
+
+`{ "type": "REQUEST", "requestId": "req_42", "action": "skill.user.denied", "agentId": "agent_xxx", "payload": { "userId": "business_user_001" } } `
+
+**示例 2：路径参数 + 查询串**
+
+HTTP：
+
+`GET /agent-bus/v1/session/list?agentId=agent_xxx&status=0&limit=50&offset=0 `
+
+WebSocket：
+
+`{ "type": "REQUEST", "requestId": "req_43", "action": "session.list", "agentId": "agent_xxx", "payload": { "status": 0, "limit": 50, "offset": 0 } } `
+
+**示例 3：路径参数 + 请求体**
+
+HTTP：
+
+`PUT /agent-bus/v1/memory/{memoryId} Body: { "importance": 0.8, "category": "note" } `
+
+WebSocket：
+
+`{ "type": "REQUEST", "requestId": "req_44", "action": "memory.update", "payload": { "memoryId": "mem_abc", "importance": 0.8, "category": "note" } } `
 
 ### 支持的 Action
 
@@ -1823,8 +1930,6 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 
 | ------------------------------ | -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `maxContextTokens`       | int    | 128000 | 上下文总 token 上限（通常对齐模型的上下文窗口大小）                                                                                                                                                                                                                                                                                                                                         |
-| `reservedForOutput`      | int    | 4096   | 为模型输出预留的 token 数                                                                                                                                                                                                                                                                                                                                                                   |
-| `maxHistoryMessages`     | int    | 50     | 历史消息最大条数（最小值 1），使用滑动窗口策略                                                                                                                                                                                                                                                                                                                                              |
 | `maxHistoryTokens`       | int    | 0      | 历史消息 token 上限，0 表示自动填满剩余预算，滑动窗口                                                                                                                                                                                                                                                                                                                                       |
 | `includeMemory`          | bool   | true   | 是否在上下文中包含记忆检索结果                                                                                                                                                                                                                                                                                                                                                              |
 | `memoryTopK`             | int    | 5      | 记忆检索返回的最大条数（最小值 1）                                                                                                                                                                                                                                                                                                                                                          |
@@ -1832,7 +1937,6 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 | `includeSkills`          | bool   | true   | 是否包含已激活的 Skill 指令                                                                                                                                                                                                                                                                                                                                                                 |
 | `includeSkillCatalog`    | bool   | true   | 是否注入 Skill 目录（Tier-1 概要）                                                                                                                                                                                                                                                                                                                                                          |
 | `instructionTokenBudget` | int    | 5000   | 已激活 Skill 指令的 token 预算上限                                                                                                                                                                                                                                                                                                                                                          |
-| `includeSummary`         | bool   | true   | 历史截断时是否包含已有的 session summary                                                                                                                                                                                                                                                                                                                                                    |
 | `summaryConfig`          | object | —     | 会话摘要配置，详见[summaryConfig 结构](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#summaryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#summaryconfig") |
 
 ### memoryConfig
@@ -1859,7 +1963,7 @@ Agent 级记忆配置。`memoryConfig.embeddingEnabled` 用于决定该 agent �
 
 ​**预算分配顺序**​（优先级从高到低）：
 
-`总预算 = maxContextTokens - reservedForOutput
+`总预算 = maxContextTokens
 
 1. System Prompt        固定分配
 2. User Message         固定分配（当前消息）
@@ -1870,15 +1974,20 @@ Agent 级记忆配置。`memoryConfig.embeddingEnabled` 用于决定该 agent �
 7. History Window       填满剩余预算
    `
 
+说明：
+
+* 框架内部仍会为 chat 输出预留运行时空间，用于阈值判断和硬性窗口检查
+* 该预留不是 `contextConfig` 的对外字段
+
 **示例：**
 
-`{ "maxContextTokens": 128000, "maxHistoryMessages": 50, "maxHistoryTokens": 8000, "includeMemory": true, "memoryTopK": 5, "includeSkills": true, "summaryConfig": { "enabled": true, "autoTriggerOnTruncate": true, "llmConfigId": "llm_summary_xxx" } } `
+`{ "maxContextTokens": 128000, "maxHistoryTokens": 8000, "includeMemory": true, "memoryTopK": 5, "includeSkills": true, "summaryConfig": { "summaryLlmConfigId": "llm_summary_xxx", "triggerRatio": 0.8, "tailKeepTokens": 0, "onOverflow": "error" } } `
 
 ---
 
 ### summaryConfig
 
-会话摘要配置，嵌套在 `contextConfig.summaryConfig` 中，控制 `SessionSummaryService` 的摘要生成行为。所有字段均为可选。
+会话摘要配置，嵌套在 `contextConfig.summaryConfig` 中，控制历史管理是走 `summary-first` 还是 `token-window-only`。所有字段均为可选。
 
 | 字段
 
@@ -1888,32 +1997,31 @@ Agent 级记忆配置。`memoryConfig.embeddingEnabled` 用于决定该 agent �
 
 | 默认值
 
+```
 | 说明
 
+
+                                                                                              |
 ```
-|
-```
 
-| ----------------------------------- | -------- | -------- | ------------------------------------------------------------------------------------------ |
-| `enabled`                     | bool   | true   | 是否启用摘要生成。设为 false 时调用摘要接口会抛异常                                      |
-| `autoTriggerOnTruncate`       | bool   | false  | 自动装配检测到历史截断时，是否自动触发摘要生成                                           |
-| `llmConfigId`                 | string | —     | 摘要生成使用的 LLM 配置 ID。为空时按以下优先级选择：请求参数 > session 级别 > agent 默认 |
-| `temperature`                 | double | 0.1    | 摘要 LLM 的 temperature                                                                  |
-| `maxOutputTokens`             | int    | 512    | 摘要最大输出 token 数                                                                    |
-| `maxInputTokens`              | int    | 12000  | 单次摘要请求的最大输入 token 数                                                          |
-| `maxMessagesPerRun`           | int    | 80     | 单次摘要处理的最大消息条数                                                               |
-| `minMessagesSinceLastSummary` | int    | 20     | 距离上次摘要后至少新增多少条消息才触发新摘要                                             |
-| `promptTemplate`              | string | —     | 自定义摘要 system prompt。为空时使用内置默认模板                                         |
+| -------------------------- | -------- | --------------- | ------------------------------------------------------------------------------------------------------- |
+| `summaryLlmConfigId` | string | `""`      | 摘要模型配置 ID。为空时不启用摘要模式，历史退化到`token-window-only`                              |
+| `triggerRatio`       | double | `0.8`     | 自动摘要阈值。候选 prompt 预计消耗达到`contextWindow * triggerRatio`时，chat 主链路先执行前置摘要 |
+| `tailKeepTokens`     | int    | `0`       | 自动/手动摘要后保留多少最新 raw 历史 token 不压缩。`0`表示不保留 raw tail                         |
+| `onOverflow`         | string | `"error"` | summary 也无法压缩到窗口内时的处理策略。当前固定为`error`                                         |
+| `promptTemplate`     | string | `""`      | 自定义摘要 system prompt。为空时使用内置模板                                                          |
 
-​**自动触发条件**​（需同时满足）：
+**运行时语义：**
 
-1. 自动装配时历史窗口被截断（`contextWindow.truncated = true`）
-2. `autoTriggerOnTruncate = true`
-3. 不存在可用 summary，或距离上次摘要新增消息数 ≥ `minMessagesSinceLastSummary`
+1. `summaryLlmConfigId` 非空时，历史管理进入 `summary-first`
+2. `summaryLlmConfigId` 为空时，历史管理进入 `token-window-only`
+3. 自动摘要由 `/chat/completions` 主链路同步前置触发
+4. 自动摘要覆盖范围明确排除当前 pending turn
+5. 运行时只读取最新一条 summary，边界由 `summaryUpToSeqNum` 确定
 
 **示例：**
 
-`{ "enabled": true, "autoTriggerOnTruncate": true, "llmConfigId": "llm_summary_xxx", "temperature": 0.1, "maxOutputTokens": 512, "maxInputTokens": 12000, "maxMessagesPerRun": 80, "minMessagesSinceLastSummary": 20 } `
+`{ "summaryLlmConfigId": "llm_summary_xxx", "triggerRatio": 0.8, "tailKeepTokens": 0, "onOverflow": "error", "promptTemplate": "" } `
 
 ---
 
@@ -2208,26 +2316,26 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
   | 说明
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 ```
 
-| ------------------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `messageId`        | string    | 消息唯一 ID，追加时自动生成                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| `sessionId`        | string    | 所属会话 ID                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| `agentId`          | string    | 所属 Agent ID                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `sequenceNum`      | long      | 会话内单调递增序列号，从 1 开始，用于消息排序和范围查询                                                                                                                                                                                                                                                                                                                                                                                            |
-| `role`             | string    | 消息角色：`system`（系统指令）/`user`（用户输入）/`assistant`（LLM 回复）/`tool`（工具执行结果）                                                                                                                                                                                                                                                                                                                                   |
-| `contentType`      | string    | 内容类型，决定上下文组装时的解析方式：`text`（纯文本，直接作为 message.content）/`tool_call`（工具调用，content 为 JSON 格式的 toolCalls 数组，组装时解析为 OpenAI tool\_calls 结构）/`tool_result`（工具结果，组装时 role 强制改为`tool`并附带 toolCallId）/`multimodal`（多模态，content 为 JSON 数组，每项含 type/text/imageUrl）/`summary`（会话摘要，由框架内部写入，用于上下文截断时注入历史概要，不计入普通消息流） |
-| `content`          | string    | 消息内容。格式取决于 contentType：text 和 tool\_result 为纯文本，tool\_call 为 JSON（`{"toolCalls":[...]}`或`[{...}]`），multimodal 为 JSON 数组（`[{"type":"text","text":"..."},{"type":"image_url","imageUrl":"..."}]`）                                                                                                                                                                                                             |
-| `toolCallId`       | string    | 工具调用关联 ID。contentType 为`tool_result`时必填，用于将工具执行结果关联到 assistant 发起的对应 tool\_call（同一个 toolCallId）                                                                                                                                                                                                                                                                                                              |
-| `llmModel`         | string    | 产生该消息的 LLM 模型名称（如`gpt-4`），通常仅 assistant 消息和 summary 消息有此值                                                                                                                                                                                                                                                                                                                                                             |
-| `promptTokens`     | int       | 产生该消息时的输入 token 数（LLM 返回的 usage 统计），用于计量                                                                                                                                                                                                                                                                                                                                                                                     |
-| `completionTokens` | int       | 产生该消息时的输出 token 数（LLM 返回的 usage 统计），用于计量                                                                                                                                                                                                                                                                                                                                                                                     |
-| `totalTokens`      | int       | 总 token 数（通常等于 promptTokens + completionTokens），用于滑动窗口的 token 预算计算                                                                                                                                                                                                                                                                                                                                                             |
-| `metadata`         | object    | 自定义元数据，JSON 格式                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `schemaVersion`    | int       | 行 Schema 版本号                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| `extra`            | string    | 预留扩展字段                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `createTime`       | timestamp | 消息创建时间                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `messageId`        | string    | 消息唯一 ID，追加时自动生成                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `sessionId`        | string    | 所属会话 ID                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `agentId`          | string    | 所属 Agent ID                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `sequenceNum`      | long      | 会话内单调递增序列号，从 1 开始，用于消息排序和范围查询                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `role`             | string    | 消息角色：`system`（系统指令）/`user`（用户输入）/`assistant`（LLM 回复）/`tool`（工具执行结果）                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `contentType`      | string    | 内容类型，决定上下文组装时的解析方式：`text`（纯文本，直接作为 message.content）/`tool_call`（工具调用，content 为 JSON 格式的 toolCalls 数组，组装时解析为 OpenAI tool\_calls 结构）/`tool_result`（工具结果，组装时 role 强制改为`tool`并附带 toolCallId）/`multimodal`（多模态，content 为 JSON 数组，每项含 type/text/imageUrl）/`summary`（会话摘要，由框架内部写入，在`summary-first`模式下作为 latest summary 注入；其`metadata`中记录`summaryUpToSeqNum`、`trigger`、`summaryLlmConfigId`） |
+| `content`          | string    | 消息内容。格式取决于 contentType：text 和 tool\_result 为纯文本，tool\_call 为 JSON（`{"toolCalls":[...]}`或`[{...}]`），multimodal 为 JSON 数组（`[{"type":"text","text":"..."},{"type":"image_url","imageUrl":"..."}]`）                                                                                                                                                                                                                                                                                                          |
+| `toolCallId`       | string    | 工具调用关联 ID。contentType 为`tool_result`时必填，用于将工具执行结果关联到 assistant 发起的对应 tool\_call（同一个 toolCallId）                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `llmModel`         | string    | 产生该消息的 LLM 模型名称（如`gpt-4`），通常仅 assistant 消息和 summary 消息有此值                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `promptTokens`     | int       | 产生该消息时的输入 token 数（LLM 返回的 usage 统计），用于计量                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `completionTokens` | int       | 产生该消息时的输出 token 数（LLM 返回的 usage 统计），用于计量                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `totalTokens`      | int       | 总 token 数（通常等于 promptTokens + completionTokens），用于滑动窗口的 token 预算计算                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `metadata`         | object    | 自定义元数据，JSON 格式                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `schemaVersion`    | int       | 行 Schema 版本号                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `extra`            | string    | 预留扩展字段                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `createTime`       | timestamp | 消息创建时间                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ---
 
@@ -2357,6 +2465,7 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 | `requestId`              | string     | 请求唯一 ID，用于追踪和日志关联                                                                                                                                                                                                                            |
 | `sessionId`              | string     | 所属会话 ID（如果有）                                                                                                                                                                                                                                      |
 | `model`                  | string     | 实际使用的 LLM 模型名称（由 LLM 提供商返回）                                                                                                                                                                                                               |
+| `llmConfigId`            | string     | 实际使用的 LLM 配置 ID                                                                                                                                                                                                                                     |
 | `content`                | string     | LLM 回复的文本内容                                                                                                                                                                                                                                         |
 | `toolCalls`              | ToolCall[] | LLM 发起的工具调用列表。非空时`finishReason`通常为`tool_calls`/`tool_use`，应用层应执行工具并将结果追加为`tool_result`消息                                                                                                                 |
 | `finishReason`           | string     | 结束原因，值取决于 LLM 提供商。OpenAI 系：`stop`（正常结束）/`tool_calls`（需要调用工具）/`length`（达到 max\_tokens 限制）/`content_filter`（内容过滤）。Anthropic 系：`end_turn`/`tool_use`/`max_tokens`/`stop_sequence` |
@@ -2406,17 +2515,13 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 |
 ```
 
-| ----------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sessionId`                         | string | 所属会话 ID                                                                                                                                     |
-| `generated`                         | bool   | 是否实际生成了摘要。为`false`时表示跳过生成（如新消息数未达到`minMessagesSinceLastSummary`阈值），此时看`reason`了解原因            |
-| `reason`                            | string | 未生成摘要的原因说明（`generated=true`时为空）                                                                                              |
-| `trigger`                           | string | 触发方式：`manual`（用户手动调用摘要 API）/`auto`（autoAssemble 检测到历史截断后自动触发）                                              |
-| `summaryRange`                      | object | 本次摘要覆盖的消息范围                                                                                                                          |
-| `summaryRange.fromSeqNum`           | long   | 摘要覆盖的起始消息序列号                                                                                                                        |
-| `summaryRange.toSeqNum`             | long   | 摘要覆盖的结束消息序列号                                                                                                                        |
-| `summaryRange.basedOnSummarySeqNum` | long   | 基于哪条已有摘要做增量更新。为 0 表示首次从头生成                                                                                               |
-| `summaryRange.incremental`          | bool   | 是否为增量摘要。`true`表示在已有摘要基础上追加新消息进行压缩，`false`表示全部重新生成                                                   |
-| 其余 MessageInfo 字段                   | -      | 生成的摘要消息本身的详情（`messageId`、`sequenceNum`、`role="system"`、`contentType="summary"`、`content="摘要内容..."`等） |
+| ------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sessionId`         | string | 所属会话 ID                                                                                                                                     |
+| `generated`         | bool   | 是否实际生成了摘要。为`false`时表示本次没有可压缩的 raw 历史或无需生成，此时看`reason`了解原因                                          |
+| `reason`            | string | 未生成摘要的原因说明（`generated=true`时为空）                                                                                              |
+| `trigger`           | string | 触发方式：`manual`（用户手动调用摘要 API）/`auto`（`/chat/completions`主链路前置自动摘要）                                          |
+| `summaryUpToSeqNum` | long   | 本次生成的 latest summary 覆盖边界。表示该 summary 已覆盖所有`sequenceNum <= summaryUpToSeqNum`的历史消息                                   |
+| 其余 MessageInfo 字段   | -      | 生成的摘要消息本身的详情（`messageId`、`sequenceNum`、`role="system"`、`contentType="summary"`、`content="摘要内容..."`等） |
 
 ---
 
@@ -2596,19 +2701,6 @@ You can use this skill to query DolphinDB distributed tables.
 | Tier 3 | 应用层按需提取时（通过`skill.extractFile`等原语）                  | 包内的脚本、模板、参考文档等                     | 不限             |
 
 ### 调用控制矩阵
-
-| `disable-model-invocation`
-
-| `user-invocable`
-
-| LLM 可自动发现
-
-| 用户可调用
-
-| 描述注入 Tier-1 目录
-
-|
-| -------------------------------- | ---------------------- | ---------------- | ------------ | ---------------------- |
 
 | `disable-model-invocation`
 

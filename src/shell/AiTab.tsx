@@ -76,6 +76,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 else if (chat_model.agents.length === 0)
                     await chat_model.load_agents()
                 
+                // 确保可选 LLM 已加载
+                if (chat_model.agent_id && chat_model.selectable_llms.length === 0)
+                    await chat_model.load_selectable_llms()
+                
                 if (cancelled)
                     return
                 

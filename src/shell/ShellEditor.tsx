@@ -472,11 +472,17 @@ function AiToolbar ({
     collapsed: boolean
     on_toggle_collapsed: () => void
 }) {
-    const { sessions, agents, agent_id } = chat_model.use(['sessions', 'agents', 'agent_id'])
+    const { sessions, agents, agent_id, selectable_llms, selected_llm_config_id } = chat_model.use(['sessions', 'agents', 'agent_id', 'selectable_llms', 'selected_llm_config_id'])
     const session = sessions.find(s => s.sessionId === session_id)
     const title = session?.title || t('新会话')
     
     const active_agents = agents.filter(a => a.statusName === 'ACTIVE')
+    
+    // 构建 LLM 选项，默认模型标注
+    const llm_options = selectable_llms.map(llm => ({
+        value: llm.llmConfigId,
+        label: llm.isAgentDefault ? `${llm.name} (${t('默认')})` : llm.name,
+    }))
     
     return <div className='toolbar ai-toolbar'>
         <div className='ai-toolbar-title' title={title}>
@@ -484,6 +490,18 @@ function AiToolbar ({
         </div>
         
         <div className='padding' />
+        
+        {llm_options.length > 0 && <Select
+            size='small'
+            value={selected_llm_config_id || undefined}
+            placeholder={t('自动选择模型')}
+            allowClear
+            style={{ minWidth: 120, maxWidth: 200, marginRight: 8 }}
+            onChange={(value: string | undefined) => {
+                chat_model.set({ selected_llm_config_id: value || '' })
+            }}
+            options={llm_options}
+        />}
         
         <Select
             size='small'
