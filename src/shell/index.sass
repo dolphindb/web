@@ -395,15 +395,22 @@
                             align-self: flex-end
                             cursor: pointer
                         
-                        .ai-tab-btn
-                            display: flex
-                            align-items: center
-                            margin-right: 12px
-                            padding: 2px 8px
-                            border-radius: 4px
+                        .toolbar-divider
+                            width: 1px
+                            height: 16px
+                            background: #d9d9d9
+                            margin: 0 8px
+                            align-self: center
+                    
+                    .ai-toolbar
+                        .ai-toolbar-title
                             font-size: 13px
-                            &:hover
-                                background: #f0f0f0
+                            color: #333
+                            font-weight: 500
+                            overflow: hidden
+                            text-overflow: ellipsis
+                            white-space: nowrap
+                            max-width: 300px
                     
                     .ai-tab
                         flex: 1
@@ -502,6 +509,56 @@
             border-top: 1px solid #e5e5e5
             
             font-size: 16px
+    .tabs-bar
+        background-color: #f0f0f0
+        height: 30px
+        flex-shrink: 0
+        display: flex
+        
+        .tabs
+            flex: 1
+            min-width: 0
+            height: 100%
+            display: flex
+            overflow-x: auto
+            overflow-y: hidden
+            
+            &::-webkit-scrollbar
+                height: 2px !important
+            
+            &::-webkit-scrollbar-track
+                background: transparent
+            
+            &::-webkit-scrollbar-thumb
+                background: rgba(0, 0, 0, 0.2)
+                
+                &:hover
+                    background: rgba(0, 0, 0, 0.3)
+        
+        .tabs-right-extra
+            flex-shrink: 0
+            display: flex
+            align-items: center
+            border-left: 1px solid #e0e0e0
+            
+            .ai-mode-btn
+                display: flex
+                align-items: center
+                gap: 4px
+                padding: 2px 12px
+                cursor: pointer
+                font-size: 13px
+                color: #444
+                white-space: nowrap
+                height: 100%
+                
+                svg
+                    width: 14px
+                    height: 14px
+                
+                &:hover
+                    background: #e8e8e8
+    
     .tabs
         background-color: #f0f0f0
         height: 30px

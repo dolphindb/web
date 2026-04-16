@@ -73,6 +73,8 @@ export function AiTab ({ session_id }: { session_id: string }) {
             try {
                 if (!chat_model.agent_id)
                     await chat_model.init()
+                else if (chat_model.agents.length === 0)
+                    await chat_model.load_agents()
                 
                 if (cancelled)
                     return

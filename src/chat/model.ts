@@ -533,6 +533,22 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    /** 根据第一条用户消息自动生成会话标题 */
+    async auto_generate_title (message: string) {
+        if (!this.current_session_id)
+            return
+        
+        const MAX_TITLE_LENGTH = 20
+        const trimmed = message.replace(/\s+/g, ' ').trim()
+        const title = trimmed.length > MAX_TITLE_LENGTH
+            ? trimmed.slice(0, MAX_TITLE_LENGTH) + '...'
+            : trimmed
+        
+        if (title)
+            await this.update_session_title(this.current_session_id, title)
+    }
+    
+    
     map_dolphinx_message (m: any): IMessage | null {
         if (!m)
             return null
@@ -563,13 +579,40 @@ class ChatModel extends Model<ChatModel> {
                     tool_calls = parsed
             } catch { }
         
+        const content: string = m.content || ''
+        let name: string | undefined
+        
+        // 文本格式的工具调用检测：dolphinx 存储的 contentType 始终是 text，
+        // 但实际内容可能是 {"tool_call":"name","args":[...]} 格式
+        if (message_type === 'text' && m.role === 'assistant' && content.trim()) {
+            const parsed_call = parse_tool_call(undefined, content)
+            if (parsed_call) {
+                message_type = 'tool_call'
+                name = parsed_call.type
+            }
+        }
+        
+        // 文本格式的工具结果检测：tool result 以 [tool_result:name] 或 [tool_error:name] 前缀发送
+        let display_content = content
+        let display_role = m.role as string
+        if (message_type === 'text' && m.role === 'user' && content.trim()) {
+            const result_match = /^\[(tool_result|tool_error|skill_result):([^\]]+)\]\s*/i.exec(content)
+            if (result_match) {
+                message_type = result_match[1] as string
+                name = result_match[2]
+                display_content = content.slice(result_match[0].length)
+                display_role = 'tool'
+            }
+        }
+        
         return {
             msgId: m.messageId || `msg_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-            role: m.role,
+            role: display_role,
             messageType: message_type,
-            content: m.content || '',
+            content: display_content,
             tool_call_id: m.toolCallId,
             tool_calls,
+            name,
         }
     }
     
@@ -643,6 +686,11 @@ class ChatModel extends Model<ChatModel> {
                 buffered_messages: [ ],
                 agent_status: { status: 'thinking' },
             })
+            
+            // 第一条用户消息时自动生成会话标题
+            const has_prior_user_msg = this.messages.some(m => m.role === 'user')
+            if (!has_prior_user_msg)
+                this.auto_generate_title(message).catch(() => { })
         } else
             this.set({
                 buffered_messages: [ ],
@@ -664,8 +712,8 @@ class ChatModel extends Model<ChatModel> {
             const url = `${this.base_url}/chat/completions`
             const token = localStorage.getItem(storage_keys.agent_bus_token) || ''
             
-            // 加载技能列表用于系统提示词
-            const skills = _tool_turn === 0 ? await this.load_skills() : this._cached_skills
+            // 加载当前 Agent 绑定的技能列表用于系统提示词
+            const skills = _tool_turn === 0 ? await this.load_bound_skills() : this._cached_skills
             this._cached_skills = skills
             
             const body: Record<string, any> = {
@@ -860,7 +908,7 @@ class ChatModel extends Model<ChatModel> {
     
     async load_llm_configs (): Promise<ILlmConfig[]> {
         try {
-            const result = await this.api_fetch(`/agent/${this.agent_id}/llm/list`)
+            const result = await this.api_fetch('/llm/config/list')
             return (result.items || [ ]).map((item: any) => ({
                 llmConfigId: item.llmConfigId,
                 name: item.name || item.llmConfigId,
@@ -895,13 +943,14 @@ class ChatModel extends Model<ChatModel> {
         })
         
         // 自动绑定到当前 agent
-        await this.api_fetch(`/agent/${this.agent_id}/llm/access`, {
-            method: 'POST',
-            body: JSON.stringify({
-                llmConfigId: result.llmConfigId,
-                isDefault: true,
-            }),
-        })
+        if (this.agent_id)
+            await this.api_fetch(`/agent/${this.agent_id}/llm/access`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    llmConfigId: result.llmConfigId,
+                    isDefault: true,
+                }),
+            })
         
         return result
     }
@@ -920,7 +969,49 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    async load_agent_llm_bindings (agent_id: string): Promise<ILlmConfig[]> {
+        try {
+            const result = await this.api_fetch(`/agent/${agent_id}/llm/list`)
+            return (result.items || [ ]).map((item: any) => ({
+                llmConfigId: item.llmConfigId,
+                name: item.name || item.llmConfigId,
+                provider: item.provider || '',
+                model: item.model || '',
+                endpoint: item.endpoint,
+                apiKey: item.apiKey,
+                status: item.status,
+                statusName: item.statusName || '',
+                capability: item.capability,
+                defaultParams: item.defaultParams,
+                contextWindow: item.contextWindow,
+            }))
+        } catch {
+            return [ ]
+        }
+    }
+    
+    
+    async bind_llm_to_agent (agent_id: string, llm_config_id: string, is_default = false): Promise<void> {
+        await this.api_fetch(`/agent/${agent_id}/llm/access`, {
+            method: 'POST',
+            body: JSON.stringify({
+                llmConfigId: llm_config_id,
+                isDefault: is_default,
+            }),
+        })
+    }
+    
+    
+    async unbind_llm_from_agent (agent_id: string, llm_config_id: string): Promise<void> {
+        await this.api_fetch(`/agent/${agent_id}/llm/access?llmConfigId=${llm_config_id}`, {
+            method: 'DELETE',
+        })
+    }
+    
+    
     async unbind_llm_config (llm_config_id: string): Promise<void> {
+        if (!this.agent_id)
+            return
         await this.api_fetch(`/agent/${this.agent_id}/llm/access?llmConfigId=${llm_config_id}`, {
             method: 'DELETE',
         })
@@ -948,9 +1039,12 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    async load_skill_bindings (): Promise<ISkillBinding[]> {
+    async load_skill_bindings (agent_id?: string): Promise<ISkillBinding[]> {
+        const id = agent_id || this.agent_id
         try {
-            const result = await this.api_fetch(`/skill/${this.agent_id}/bindings`)
+            if (!id)
+                return [ ]
+            const result = await this.api_fetch(`/skill/${id}/bindings`)
             return (result.items || [ ]).map((b: any) => ({
                 skillId: b.skillId,
                 agentId: b.agentId,
@@ -964,33 +1058,60 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    async bind_skill (skill_id: string): Promise<void> {
+    /** 加载当前 Agent 绑定且启用的技能列表，用于系统提示词注入 */
+    async load_bound_skills (): Promise<ISkillInfo[]> {
+        try {
+            if (!this.agent_id)
+                return [ ]
+            const bindings = await this.load_skill_bindings(this.agent_id)
+            return bindings
+                .filter(b => b.enabled && b.skill)
+                .map(b => {
+                    const s = b.skill!
+                    return {
+                        skillId: b.skillId || s.skillId,
+                        name: s.name || (s as any).skillName,
+                        description: b.descOverride ?? s.description,
+                        status: s.status,
+                        statusName: s.statusName || '',
+                        category: s.category,
+                        displayName: s.displayName,
+                        version: s.version,
+                    }
+                })
+        } catch {
+            return [ ]
+        }
+    }
+    
+    
+    async bind_skill (skill_id: string, agent_id?: string): Promise<void> {
         await this.api_fetch('/skill/bind', {
             method: 'POST',
             body: JSON.stringify({
-                agentId: this.agent_id,
+                agentId: agent_id || this.agent_id,
                 skillId: skill_id,
             }),
         })
     }
     
     
-    async unbind_skill (skill_id: string): Promise<void> {
+    async unbind_skill (skill_id: string, agent_id?: string): Promise<void> {
         await this.api_fetch('/skill/unbind', {
             method: 'POST',
             body: JSON.stringify({
-                agentId: this.agent_id,
+                agentId: agent_id || this.agent_id,
                 skillId: skill_id,
             }),
         })
     }
     
     
-    async toggle_skill_binding (skill_id: string, enabled: boolean): Promise<void> {
+    async toggle_skill_binding (skill_id: string, enabled: boolean, agent_id?: string): Promise<void> {
         await this.api_fetch('/skill/binding/enable', {
             method: 'POST',
             body: JSON.stringify({
-                agentId: this.agent_id,
+                agentId: agent_id || this.agent_id,
                 skillId: skill_id,
                 enabled,
             }),

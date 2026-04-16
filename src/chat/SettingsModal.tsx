@@ -7,7 +7,7 @@ import {
 import {
     PlusOutlined, DeleteOutlined, EditOutlined,
     SaveOutlined, LinkOutlined, DisconnectOutlined,
-    CheckCircleOutlined, PauseCircleOutlined,
+    CheckCircleOutlined,
     UploadOutlined,
 } from '@ant-design/icons'
 
@@ -32,6 +32,7 @@ function AgentTab () {
     
     const [creating, set_creating] = useState(false)
     const [loading, set_loading] = useState(false)
+    const [selected_agent, set_selected_agent] = useState<IAgentInfo | null>(null)
     const [form, set_form] = useState({
         agentName: '',
         agentType: 'chat',
@@ -51,6 +52,15 @@ function AgentTab () {
     }
     
     useEffect(() => { refresh() }, [ ])
+    
+    // 自动选中当前 agent
+    useEffect(() => {
+        if (!selected_agent && agents.length > 0) {
+            const current = agents.find(a => a.agentId === agent_id)
+            if (current)
+                set_selected_agent(current)
+        }
+    }, [agents, agent_id])
     
     async function handle_create () {
         if (!form.agentName.trim()) {
@@ -75,145 +85,346 @@ function AgentTab () {
         }
     }
     
-    return <div style={{ maxHeight: 520, overflow: 'auto' }}>
-        <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
-            <Button
-                type='dashed'
-                icon={<PlusOutlined />}
-                onClick={() => { set_creating(!creating) }}
-            >
-                {t('新建 Agent')}
-            </Button>
-        </div>
-        
-        {creating && <div style={{
-            border: '1px solid #d9d9d9', borderRadius: 6, padding: 16, marginBottom: 16,
-        }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
-                <div>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('Agent 名称')} *</div>
-                    <Input
-                        value={form.agentName}
-                        onChange={e => { set_form({ ...form, agentName: e.target.value }) }}
-                        placeholder={t('例如: DolphinDB 助手')}
-                    />
-                </div>
-                <div>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('类型')}</div>
-                    <Select
-                        style={{ width: '100%' }}
-                        value={form.agentType}
-                        onChange={val => { set_form({ ...form, agentType: val }) }}
-                        options={[
-                            { value: 'chat', label: 'Chat' },
-                            { value: 'task', label: 'Task' },
-                        ]}
-                    />
-                </div>
-                <div style={{ gridColumn: '1 / -1' }}>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('描述')}</div>
-                    <Input
-                        value={form.description}
-                        onChange={e => { set_form({ ...form, description: e.target.value }) }}
-                        placeholder={t('Agent 描述')}
-                    />
-                </div>
-                <div style={{ gridColumn: '1 / -1' }}>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('系统提示词')}</div>
-                    <Input.TextArea
-                        value={form.systemPrompt}
-                        onChange={e => { set_form({ ...form, systemPrompt: e.target.value }) }}
-                        placeholder={t('系统提示词，会作为对话的首条 system message')}
-                        rows={3}
-                    />
-                </div>
+    const visible_agents = agents.filter(a => a.statusName !== 'DELETED')
+    
+    return <div style={{ display: 'flex', height: 520 }}>
+        {/* 左侧 Agent 列表 */}
+        <div style={{ width: 260, borderRight: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+            <div style={{ padding: '0 12px 12px', borderBottom: '1px solid #f0f0f0' }}>
+                <Button type='dashed' block icon={<PlusOutlined />} onClick={() => { set_creating(!creating) }}>
+                    {t('新建 Agent')}
+                </Button>
             </div>
-            <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                <Button onClick={() => { set_creating(false) }}>{t('取消')}</Button>
-                <Button type='primary' loading={loading} onClick={handle_create}>{t('创建并激活')}</Button>
-            </div>
-        </div>}
-        
-        {loading && !creating
-            ? <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
-            : agents.length === 0
-                ? <Empty description={t('暂无 Agent，请先创建')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                : <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {agents.filter(a => a.statusName !== 'DELETED').map(a =>
-                        <div
-                            key={a.agentId}
-                            style={{
-                                border: `1px solid ${a.agentId === agent_id ? '#1677ff' : '#f0f0f0'}`,
-                                borderRadius: 6,
-                                padding: '12px 16px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                background: a.agentId === agent_id ? '#e6f4ff' : 'transparent',
-                                cursor: 'pointer',
-                            }}
-                            onClick={() => {
-                                if (a.statusName === 'ACTIVE')
-                                    chat_model.select_agent(a.agentId)
-                            }}
-                        >
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                    <span style={{ fontWeight: 500 }}>{a.agentName}</span>
-                                    <Tag color={a.statusName === 'ACTIVE' ? 'green' : 'default'}>
-                                        {a.statusName === 'ACTIVE'
-                                            ? <><CheckCircleOutlined /> {t('活跃')}</>
-                                            : <><PauseCircleOutlined /> {a.statusName}</>
-                                        }
+            
+            <div style={{ flex: 1, overflow: 'auto', padding: '8px 0' }}>
+                {loading && !creating
+                    ? <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
+                    : visible_agents.length === 0
+                        ? <Empty description={t('暂无 Agent')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ padding: 20 }} />
+                        : visible_agents.map(a =>
+                            <div
+                                key={a.agentId}
+                                style={{
+                                    padding: '8px 12px',
+                                    cursor: 'pointer',
+                                    background: selected_agent?.agentId === a.agentId ? '#e6f4ff' : 'transparent',
+                                    borderLeft: selected_agent?.agentId === a.agentId ? '3px solid #1677ff' : '3px solid transparent',
+                                }}
+                                onClick={() => { set_selected_agent(a) }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <span style={{ fontWeight: 500, fontSize: 13 }}>{a.agentName}</span>
+                                    <Tag color={a.statusName === 'ACTIVE' ? 'green' : 'default'} style={{ fontSize: 11 }}>
+                                        {a.statusName === 'ACTIVE' ? t('活跃') : a.statusName}
                                     </Tag>
-                                    {a.agentId === agent_id && <Tag color='blue'>{t('当前')}</Tag>}
+                                    {a.agentId === agent_id && <Tag color='blue' style={{ fontSize: 11 }}>{t('当前')}</Tag>}
                                 </div>
-                                <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
+                                <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>
                                     {a.description || a.agentType}
                                 </div>
                             </div>
-                            <Space size={4}>
-                                {a.statusName !== 'ACTIVE' && <Tooltip title={t('激活')}>
-                                    <Button
-                                        type='text'
-                                        size='small'
-                                        icon={<CheckCircleOutlined />}
-                                        onClick={async e => {
-                                            e.stopPropagation()
-                                            try {
-                                                await chat_model.activate_agent(a.agentId)
-                                                message.success(t('已激活'))
-                                            } catch (err: any) {
-                                                message.error(err.message || t('激活失败'))
-                                            }
-                                        }}
-                                    />
-                                </Tooltip>}
-                                <Popconfirm
-                                    title={t('确定删除此 Agent？')}
-                                    onConfirm={async e => {
-                                        e?.stopPropagation()
-                                        try {
-                                            await chat_model.delete_agent(a.agentId)
-                                            message.success(t('已删除'))
-                                        } catch (err: any) {
-                                            message.error(err.message || t('删除失败'))
-                                        }
-                                    }}
-                                    onCancel={e => { e?.stopPropagation() }}
-                                >
-                                    <Button
-                                        type='text'
-                                        size='small'
-                                        danger
-                                        icon={<DeleteOutlined />}
-                                        onClick={e => { e.stopPropagation() }}
-                                    />
-                                </Popconfirm>
-                            </Space>
+                        )
+                }
+            </div>
+        </div>
+        
+        {/* 右侧详情 */}
+        <div style={{ flex: 1, minWidth: 0, overflow: 'auto', padding: '0 16px' }}>
+            {creating
+                ? <div style={{ padding: '16px 0' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
+                        <div>
+                            <div style={{ marginBottom: 4, fontSize: 13 }}>{t('Agent 名称')} *</div>
+                            <Input
+                                value={form.agentName}
+                                onChange={e => { set_form({ ...form, agentName: e.target.value }) }}
+                                placeholder={t('例如: DolphinDB 助手')}
+                            />
                         </div>
-                    )}
+                        <div>
+                            <div style={{ marginBottom: 4, fontSize: 13 }}>{t('类型')}</div>
+                            <Select
+                                style={{ width: '100%' }}
+                                value={form.agentType}
+                                onChange={val => { set_form({ ...form, agentType: val }) }}
+                                options={[
+                                    { value: 'chat', label: 'Chat' },
+                                    { value: 'task', label: 'Task' },
+                                ]}
+                            />
+                        </div>
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <div style={{ marginBottom: 4, fontSize: 13 }}>{t('描述')}</div>
+                            <Input
+                                value={form.description}
+                                onChange={e => { set_form({ ...form, description: e.target.value }) }}
+                                placeholder={t('Agent 描述')}
+                            />
+                        </div>
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <div style={{ marginBottom: 4, fontSize: 13 }}>{t('系统提示词')}</div>
+                            <Input.TextArea
+                                value={form.systemPrompt}
+                                onChange={e => { set_form({ ...form, systemPrompt: e.target.value }) }}
+                                placeholder={t('系统提示词，会作为对话的首条 system message')}
+                                rows={3}
+                            />
+                        </div>
+                    </div>
+                    <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                        <Button onClick={() => { set_creating(false) }}>{t('取消')}</Button>
+                        <Button type='primary' loading={loading} onClick={handle_create}>{t('创建并激活')}</Button>
+                    </div>
                 </div>
+                : selected_agent
+                    ? <AgentDetailPanel agent={selected_agent} is_current={selected_agent.agentId === agent_id} on_refresh={refresh} />
+                    : <Empty description={t('请选择一个 Agent')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ paddingTop: 100 }} />
+            }
+        </div>
+    </div>
+}
+
+
+function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInfo, is_current: boolean, on_refresh: () => void }) {
+    const [bound_llms, set_bound_llms] = useState<ILlmConfig[]>([ ])
+    const [all_llms, set_all_llms] = useState<ILlmConfig[]>([ ])
+    const [bound_skills, set_bound_skills] = useState<ISkillBinding[]>([ ])
+    const [all_skills, set_all_skills] = useState<ISkillInfo[]>([ ])
+    const [loading, set_loading] = useState(true)
+    
+    async function load () {
+        set_loading(true)
+        try {
+            const [llms, global_llms, skills, global_skills] = await Promise.all([
+                chat_model.load_agent_llm_bindings(agent.agentId),
+                chat_model.load_llm_configs(),
+                chat_model.load_skill_bindings(agent.agentId),
+                chat_model.load_skills(),
+            ])
+            set_bound_llms(llms)
+            set_all_llms(global_llms)
+            set_bound_skills(skills)
+            set_all_skills(global_skills)
+        } catch {
+            message.error(t('加载绑定信息失败'))
+        } finally {
+            set_loading(false)
+        }
+    }
+    
+    useEffect(() => { load() }, [agent.agentId])
+    
+    const bound_llm_ids = new Set(bound_llms.map(l => l.llmConfigId))
+    const unbound_llms = all_llms.filter(l => !bound_llm_ids.has(l.llmConfigId) && l.statusName === 'ACTIVE')
+    
+    const bound_skill_ids = new Set(bound_skills.map(s => s.skillId))
+    const unbound_skills = all_skills.filter(s => !bound_skill_ids.has(s.skillId) && s.statusName === 'ACTIVE')
+    
+    return <div style={{ padding: '12px 0' }}>
+        {/* Agent 基本信息 */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div>
+                <div style={{ fontSize: 16, fontWeight: 500 }}>{agent.agentName}</div>
+                <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
+                    {agent.description || agent.agentType} · {agent.agentId.slice(0, 20)}...
+                </div>
+            </div>
+            <Space size={4}>
+                {!is_current && agent.statusName === 'ACTIVE' && <Button
+                    size='small'
+                    type='primary'
+                    onClick={() => { chat_model.select_agent(agent.agentId) }}
+                >{t('设为当前')}</Button>}
+                {agent.statusName !== 'ACTIVE' && <Button
+                    size='small'
+                    icon={<CheckCircleOutlined />}
+                    onClick={async () => {
+                        try {
+                            await chat_model.activate_agent(agent.agentId)
+                            message.success(t('已激活'))
+                            on_refresh()
+                        } catch (err: any) {
+                            message.error(err.message || t('激活失败'))
+                        }
+                    }}
+                >{t('激活')}</Button>}
+                <Popconfirm
+                    title={t('确定删除此 Agent？')}
+                    onConfirm={async () => {
+                        try {
+                            await chat_model.delete_agent(agent.agentId)
+                            message.success(t('已删除'))
+                            on_refresh()
+                        } catch (err: any) {
+                            message.error(err.message || t('删除失败'))
+                        }
+                    }}
+                >
+                    <Button size='small' danger icon={<DeleteOutlined />}>{t('删除')}</Button>
+                </Popconfirm>
+            </Space>
+        </div>
+        
+        {loading
+            ? <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
+            : <Tabs size='small' items={[
+                {
+                    key: 'llm',
+                    label: t('模型绑定') + ` (${bound_llms.length})`,
+                    children: <div>
+                        {/* 已绑定的 LLM */}
+                        {bound_llms.length > 0 && <div style={{ marginBottom: 12 }}>
+                            {bound_llms.map(llm =>
+                                <div key={llm.llmConfigId} style={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                    padding: '6px 10px', border: '1px solid #f0f0f0', borderRadius: 4, marginBottom: 4,
+                                }}>
+                                    <div>
+                                        <span style={{ fontWeight: 500, fontSize: 13 }}>{llm.name}</span>
+                                        <span style={{ color: '#999', fontSize: 12, marginLeft: 8 }}>{llm.provider}/{llm.model}</span>
+                                    </div>
+                                    <Tooltip title={t('解绑')}>
+                                        <Button
+                                            type='text' size='small' danger
+                                            icon={<DisconnectOutlined />}
+                                            onClick={async () => {
+                                                try {
+                                                    await chat_model.unbind_llm_from_agent(agent.agentId, llm.llmConfigId)
+                                                    message.success(t('已解绑'))
+                                                    await load()
+                                                } catch (err: any) {
+                                                    message.error(err.message || t('解绑失败'))
+                                                }
+                                            }}
+                                        />
+                                    </Tooltip>
+                                </div>
+                            )}
+                        </div>}
+                        
+                        {/* 可绑定的 LLM */}
+                        {unbound_llms.length > 0
+                            ? <div>
+                                <div style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>{t('可用模型配置')}</div>
+                                {unbound_llms.map(llm =>
+                                    <div key={llm.llmConfigId} style={{
+                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                        padding: '6px 10px', border: '1px dashed #d9d9d9', borderRadius: 4, marginBottom: 4,
+                                    }}>
+                                        <div>
+                                            <span style={{ fontSize: 13 }}>{llm.name}</span>
+                                            <span style={{ color: '#999', fontSize: 12, marginLeft: 8 }}>{llm.provider}/{llm.model}</span>
+                                        </div>
+                                        <Tooltip title={t('绑定')}>
+                                            <Button
+                                                type='text' size='small'
+                                                icon={<LinkOutlined />}
+                                                onClick={async () => {
+                                                    try {
+                                                        await chat_model.bind_llm_to_agent(agent.agentId, llm.llmConfigId, bound_llms.length === 0)
+                                                        message.success(t('已绑定'))
+                                                        await load()
+                                                    } catch (err: any) {
+                                                        message.error(err.message || t('绑定失败'))
+                                                    }
+                                                }}
+                                            />
+                                        </Tooltip>
+                                    </div>
+                                )}
+                            </div>
+                            : bound_llms.length === 0 && <Empty description={t('暂无可用模型配置，请先在「模型配置」中创建')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                        }
+                    </div>,
+                },
+                {
+                    key: 'skills',
+                    label: t('技能绑定') + ` (${bound_skills.length})`,
+                    children: <div>
+                        {/* 已绑定的技能 */}
+                        {bound_skills.length > 0 && <div style={{ marginBottom: 12 }}>
+                            {bound_skills.map(binding => {
+                                const skill = binding.skill || all_skills.find(s => s.skillId === binding.skillId)
+                                return <div key={binding.skillId} style={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                    padding: '6px 10px', border: '1px solid #f0f0f0', borderRadius: 4, marginBottom: 4,
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <span style={{ fontWeight: 500, fontSize: 13 }}>{skill?.displayName || skill?.name || binding.skillId}</span>
+                                        <Tag color={binding.enabled ? 'green' : 'default'} style={{ fontSize: 11 }}>
+                                            {binding.enabled ? t('启用') : t('禁用')}
+                                        </Tag>
+                                    </div>
+                                    <Space size={4}>
+                                        <Switch
+                                            size='small'
+                                            checked={binding.enabled}
+                                            onChange={async checked => {
+                                                try {
+                                                    await chat_model.toggle_skill_binding(binding.skillId, checked, agent.agentId)
+                                                    message.success(checked ? t('已启用') : t('已禁用'))
+                                                    await load()
+                                                } catch (err: any) {
+                                                    message.error(err.message || t('操作失败'))
+                                                }
+                                            }}
+                                        />
+                                        <Tooltip title={t('解绑')}>
+                                            <Button
+                                                type='text' size='small' danger
+                                                icon={<DisconnectOutlined />}
+                                                onClick={async () => {
+                                                    try {
+                                                        await chat_model.unbind_skill(binding.skillId, agent.agentId)
+                                                        message.success(t('已解绑'))
+                                                        await load()
+                                                    } catch (err: any) {
+                                                        message.error(err.message || t('解绑失败'))
+                                                    }
+                                                }}
+                                            />
+                                        </Tooltip>
+                                    </Space>
+                                </div>
+                            })}
+                        </div>}
+                        
+                        {/* 可绑定的技能 */}
+                        {unbound_skills.length > 0
+                            ? <div>
+                                <div style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>{t('可用技能')}</div>
+                                {unbound_skills.map(skill =>
+                                    <div key={skill.skillId} style={{
+                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                        padding: '6px 10px', border: '1px dashed #d9d9d9', borderRadius: 4, marginBottom: 4,
+                                    }}>
+                                        <div>
+                                            <span style={{ fontSize: 13 }}>{skill.displayName || skill.name}</span>
+                                            {skill.description && <span style={{ color: '#999', fontSize: 12, marginLeft: 8 }}>{skill.description.slice(0, 40)}</span>}
+                                        </div>
+                                        <Tooltip title={t('绑定')}>
+                                            <Button
+                                                type='text' size='small'
+                                                icon={<LinkOutlined />}
+                                                onClick={async () => {
+                                                    try {
+                                                        await chat_model.bind_skill(skill.skillId, agent.agentId)
+                                                        message.success(t('已绑定'))
+                                                        await load()
+                                                    } catch (err: any) {
+                                                        message.error(err.message || t('绑定失败'))
+                                                    }
+                                                }}
+                                            />
+                                        </Tooltip>
+                                    </div>
+                                )}
+                            </div>
+                            : bound_skills.length === 0 && <Empty description={t('暂无可用技能，请先在「技能管理」中上传')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                        }
+                    </div>,
+                },
+            ]} />
         }
     </div>
 }
@@ -312,7 +523,8 @@ function LlmConfigTab () {
     
     async function remove_config (config_id: string) {
         try {
-            await chat_model.unbind_llm_config(config_id)
+            // 先尝试解绑，失败也继续删除
+            try { await chat_model.unbind_llm_config(config_id) } catch { /* ignore */ }
             await chat_model.disable_llm_config(config_id)
             message.success(t('删除成功'))
             if (selected_id === config_id) {
@@ -323,6 +535,8 @@ function LlmConfigTab () {
             await load()
         } catch (e: any) {
             message.error(e.message || t('删除失败'))
+            // 即使删除失败也刷新列表
+            await load()
         }
     }
     
@@ -505,7 +719,12 @@ function SkillsTab () {
         }
     }
     
-    useEffect(() => { load() }, [ ])
+    const { agent_id } = chat_model.use(['agent_id'])
+    
+    useEffect(() => {
+        if (agent_id)
+            load()
+    }, [agent_id])
     
     if (loading && !creating)
         return <div style={{ textAlign: 'center', padding: 60 }}><Spin /></div>
@@ -721,6 +940,7 @@ export function SettingsModal () {
         destroyOnClose
     >
         <Tabs
+            destroyInactiveTabPane
             items={[
                 {
                     key: 'agent',

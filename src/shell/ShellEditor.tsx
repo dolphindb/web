@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Input, InputNumber, Select, Switch, Tooltip } from 'antd'
-import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined, RobotOutlined, SettingOutlined } from '@ant-design/icons'
+import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { storage } from 'xshell/storage.js'
 
@@ -18,6 +18,8 @@ import { AiTab } from './AiTab.tsx'
 import { SelectSqlModal } from './SelectSqlModal.tsx'
 import { ExecuteAction } from './ExecuteAction.tsx'
 import { UploadAction } from './UploadAction.tsx'
+
+import SvgAi from './icons/ai.icon.svg'
 
 
 export function ShellEditor ({ collapser }) {
@@ -124,7 +126,7 @@ export function ShellEditor ({ collapser }) {
                     name: tab.name,
                     closeable: true,
                     renameable: true,
-                    icon: tab.chat_id ? <RobotOutlined /> : <FileTextOutlined />
+                    icon: tab.chat_id ? <SvgAi /> : <FileTextOutlined />
                 }))
             ]}
             active_key={itab}
@@ -135,6 +137,32 @@ export function ShellEditor ({ collapser }) {
             on_tab_rename={handle_tab_rename}
             show_add_button
             on_add_tab={() => { shell.add_tab() }}
+            right_extra={
+                <div
+                    className='ai-mode-btn'
+                    onClick={async () => {
+                        try {
+                            if (!chat_model.agent_id)
+                                await chat_model.init()
+                            
+                            if (!chat_model.agent_id) {
+                                model.message?.warning(t('请先在 AI 设置中创建并配置 Agent'))
+                                chat_model.set({ settings_visible: true })
+                                return
+                            }
+                            
+                            const session = await chat_model.create_session()
+                            await shell.add_ai_tab(session.sessionId)
+                        } catch (e) {
+                            console.error('Failed to create AI tab:', e)
+                            model.message?.error(t('创建 AI 标签页失败'))
+                        }
+                    }}
+                >
+                    <SvgAi />
+                    <span>{t('AI 模式')}</span>
+                </div>
+            }
         /> }
         
         { monaco_inited && !is_ai_tab && <div className='toolbar'>
@@ -188,33 +216,6 @@ export function ShellEditor ({ collapser }) {
             
             <div className='padding' />
             
-            <Tooltip title={t('新建 AI 标签页')}>
-                <div
-                    className='collapse-btn ai-tab-btn'
-                    onClick={async () => {
-                        try {
-                            if (!chat_model.agent_id)
-                                await chat_model.init()
-                            
-                            if (!chat_model.agent_id) {
-                                model.message?.warning(t('请先在 AI 设置中创建并配置 Agent'))
-                                chat_model.set({ settings_visible: true })
-                                return
-                            }
-                            
-                            const session = await chat_model.create_session()
-                            await shell.add_ai_tab(session.sessionId)
-                        } catch (e) {
-                            console.error('Failed to create AI tab:', e)
-                            model.message?.error(t('创建 AI 标签页失败'))
-                        }
-                    }}
-                >
-                    <RobotOutlined />
-                    <span style={{ marginLeft: 4 }}>{t('AI 标签页')}</span>
-                </div>
-            </Tooltip>
-            
             <div
                 className='collapse-btn'
                 onClick={() => {
@@ -234,37 +235,14 @@ export function ShellEditor ({ collapser }) {
             </div>
         </div> }
         
-        { monaco_inited && is_ai_tab && <div className='toolbar'>
-            <div className='padding' />
-            
-            <Tooltip title={t('AI 设置')}>
-                <div
-                    className='collapse-btn'
-                    onClick={() => { chat_model.set({ settings_visible: true }) }}
-                >
-                    <SettingOutlined />
-                    <span style={{ marginLeft: 4 }}>{t('AI 设置')}</span>
-                </div>
-            </Tooltip>
-            
-            <div
-                className='collapse-btn'
-                onClick={() => {
-                    set_collapsed(!collapsed)
-                    collapser(collapsed)
-                }}
-            >
-                {
-                    collapsed ?
-                        <DoubleLeftOutlined />
-                    :
-                        <span>
-                            {t('隐藏终端') + ' '}
-                            <DoubleRightOutlined />
-                        </span>
-                }
-            </div>
-        </div> }
+        { monaco_inited && is_ai_tab && <AiToolbar
+            session_id={current_tab.chat_id}
+            collapsed={collapsed}
+            on_toggle_collapsed={() => {
+                set_collapsed(!collapsed)
+                collapser(collapsed)
+            }}
+        /> }
         
         {is_ai_tab && <AiTab session_id={current_tab.chat_id} />}
         <div style={is_ai_tab ? { display: 'none' } : { flex: 1, minHeight: 0 }}>
@@ -357,6 +335,7 @@ interface TabsProps {
     on_tab_rename?: (tabId: string | number, newName: string) => void
     show_add_button?: boolean
     on_add_tab?: () => void
+    right_extra?: React.ReactNode
 }
 
 export function Tabs ({
@@ -366,7 +345,8 @@ export function Tabs ({
     on_tab_close,
     on_tab_rename,
     show_add_button = false,
-    on_add_tab
+    on_add_tab,
+    right_extra
 }: TabsProps) {
     let tabs_container_ref = useRef<HTMLDivElement>(undefined)
     
@@ -382,7 +362,7 @@ export function Tabs ({
         return () => { tabs_container_ref.current?.removeEventListener('wheel', on_wheel) }
     }, [ ])
     
-    return <div className='tabs' ref={tabs_container_ref}>
+    const tabs_content = <>
         {tabs.map(tab => 
             <Tab
                 key={tab.key}
@@ -401,6 +381,20 @@ export function Tabs ({
                 <PlusOutlined style={{ fontSize: 12 }} />
             </div>
         }
+    </>
+    
+    if (right_extra)
+        return <div className='tabs-bar'>
+            <div className='tabs' ref={tabs_container_ref}>
+                {tabs_content}
+            </div>
+            <div className='tabs-right-extra'>
+                {right_extra}
+            </div>
+        </div>
+    
+    return <div className='tabs' ref={tabs_container_ref}>
+        {tabs_content}
     </div>
 }
 
@@ -465,6 +459,73 @@ function Tab ({
         >
             <CloseOutlined style={{ fontSize: 12 }} />
         </div>}
+    </div>
+}
+
+
+function AiToolbar ({
+    session_id,
+    collapsed,
+    on_toggle_collapsed,
+}: {
+    session_id: string
+    collapsed: boolean
+    on_toggle_collapsed: () => void
+}) {
+    const { sessions, agents, agent_id } = chat_model.use(['sessions', 'agents', 'agent_id'])
+    const session = sessions.find(s => s.sessionId === session_id)
+    const title = session?.title || t('新会话')
+    
+    const active_agents = agents.filter(a => a.statusName === 'ACTIVE')
+    
+    return <div className='toolbar ai-toolbar'>
+        <div className='ai-toolbar-title' title={title}>
+            {title}
+        </div>
+        
+        <div className='padding' />
+        
+        <Select
+            size='small'
+            value={agent_id || undefined}
+            placeholder={t('选择 Agent')}
+            style={{ minWidth: 120, maxWidth: 200, marginRight: 8 }}
+            disabled={active_agents.length <= 1}
+            onChange={async (value: string) => {
+                chat_model.select_agent(value)
+                await chat_model.load_sessions()
+            }}
+            options={active_agents.map(a => ({
+                value: a.agentId,
+                label: a.agentName,
+            }))}
+        />
+        
+        <Tooltip title={t('AI 设置')}>
+            <div
+                className='collapse-btn'
+                onClick={() => { chat_model.set({ settings_visible: true }) }}
+            >
+                <SettingOutlined />
+                <span style={{ marginLeft: 4 }}>{t('AI 设置')}</span>
+            </div>
+        </Tooltip>
+        
+        <div className='toolbar-divider' />
+        
+        <div
+            className='collapse-btn'
+            onClick={on_toggle_collapsed}
+        >
+            {
+                collapsed
+                    ? <DoubleLeftOutlined />
+                    : <span>
+                        {t('隐藏终端') + ' '}
+                        <DoubleRightOutlined />
+                    </span>
+            }
+        </div>
     </div>
 }
 

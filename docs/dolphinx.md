@@ -4,11 +4,11 @@
 
 作者：qiwei zhu
 
-24
+25
 
 添加反应
 
-注意：所有接口尚处于试用、联调过程中，可能随着用户的反馈会有变动（一般是微调）
+注意：所有接口尚处于试用、联调过程中，可能随着用户的反馈会有变动
 
 这是Agent 框架对外提供的全部接口的说明文档。​**注意，Agent框架不是一个Agent，它只提供了构建一个Agent所必须的组件服务**​。
 
@@ -30,7 +30,7 @@ Base URL: `/agent-bus/v1/`
 
 demo.zip
 
-02 4 2026, 01:22 下午
+10 4 2026, 04:50 下午
 
 ### demo2
 
@@ -40,7 +40,7 @@ demo.zip
 
 demo2.zip
 
-02 4 2026, 04:54 下午
+10 4 2026, 04:50 下午
 
 ## 目录
 
@@ -53,7 +53,7 @@ demo2.zip
   * [响应格式](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%93%8D%E5%BA%94%E6%A0%BC%E5%BC%8F)
   * [分页参数](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%86%E9%A1%B5%E5%8F%82%E6%95%B0)
   * [流式响应 (SSE)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94-(SSE))
-* [2. Agent 管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.-Agent-%E7%AE%A1%E7%90%86)
+* [Agent 管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.-Agent-%E7%AE%A1%E7%90%86)
   * [2.1 注册 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.1-%E6%B3%A8%E5%86%8C-Agent)
   * [2.2 获取 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.2-%E8%8E%B7%E5%8F%96-Agent)
   * [2.3 更新 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.3-%E6%9B%B4%E6%96%B0-Agent)
@@ -61,28 +61,29 @@ demo2.zip
   * [2.5 挂起 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.5-%E6%8C%82%E8%B5%B7-Agent)
   * [2.6 删除 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.6-%E5%88%A0%E9%99%A4-Agent)
   * [2.7 列出 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.7-%E5%88%97%E5%87%BA-Agent)
-  * [2.8 授予 DB 用户权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.8-%E6%8E%88%E4%BA%88-DB-%E7%94%A8%E6%88%B7%E6%9D%83%E9%99%90)
-  * [2.9 撤销 DB 用户权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.9-%E6%92%A4%E9%94%80-DB-%E7%94%A8%E6%88%B7%E6%9D%83%E9%99%90)
-  * [2.10 列出授权](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.10-%E5%88%97%E5%87%BA%E6%8E%88%E6%9D%83)
-* [业务用户 (BizUser) 管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.-%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7-(BizUser)-%E7%AE%A1%E7%90%86)
-  * [3.1 注册业务用户](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.1-%E6%B3%A8%E5%86%8C%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7)
-  * [3.2 获取业务用户](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.2-%E8%8E%B7%E5%8F%96%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7)
-  * [3.3 更新业务用户](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.3-%E6%9B%B4%E6%96%B0%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7)
-  * [3.4 列出业务用户的 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.4-%E5%88%97%E5%87%BA%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E7%9A%84-Agent)
-* [Agent-BizUser 访问控制](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.-Agent-BizUser-%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6)
-  * [4.1 授予业务用户访问权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.1-%E6%8E%88%E4%BA%88%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90)
-  * [4.2 撤销业务用户访问权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.2-%E6%92%A4%E9%94%80%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90)
-  * [4.3 拒绝业务用户访问](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.3-%E6%8B%92%E7%BB%9D%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E8%AE%BF%E9%97%AE)
-  * [4.4 列出 Agent 的业务用户](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.4-%E5%88%97%E5%87%BA-Agent-%E7%9A%84%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7)
+  * [2.8 列出当前用户可访问的 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.8-%E5%88%97%E5%87%BA%E5%BD%93%E5%89%8D%E7%94%A8%E6%88%B7%E5%8F%AF%E8%AE%BF%E9%97%AE%E7%9A%84-Agent)
+  * [2.9 授予 Agent 权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.9-%E6%8E%88%E4%BA%88-Agent-%E6%9D%83%E9%99%90)
+  * [2.10 撤销 Agent 权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.10-%E6%92%A4%E9%94%80-Agent-%E6%9D%83%E9%99%90)
+  * [2.11 列出 Agent 授权](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.11-%E5%88%97%E5%87%BA-Agent-%E6%8E%88%E6%9D%83)
+* [全局访问控制](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.-%E5%85%A8%E5%B1%80%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6)
+  * [3.1 授予全局 AGENT\_ADMIN](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.1-%E6%8E%88%E4%BA%88%E5%85%A8%E5%B1%80-AGENT_ADMIN)
+  * [3.2 撤销全局 AGENT\_ADMIN](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.2-%E6%92%A4%E9%94%80%E5%85%A8%E5%B1%80-AGENT_ADMIN)
+  * [3.3 列出全局 AGENT\_ADMIN](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.3-%E5%88%97%E5%87%BA%E5%85%A8%E5%B1%80-AGENT_ADMIN)
+* [用户 LLM 访问控制](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.-%E7%94%A8%E6%88%B7-LLM-%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6)
+  * [4.1 授予用户全局 LLM 访问权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.1-%E6%8E%88%E4%BA%88%E7%94%A8%E6%88%B7%E5%85%A8%E5%B1%80-LLM-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90)
+  * [4.2 撤销用户全局 LLM 访问权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.2-%E6%92%A4%E9%94%80%E7%94%A8%E6%88%B7%E5%85%A8%E5%B1%80-LLM-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90)
+  * [4.3 列出用户全局 LLM 访问权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.3-%E5%88%97%E5%87%BA%E7%94%A8%E6%88%B7%E5%85%A8%E5%B1%80-LLM-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90)
 * [LLM 配置管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.-LLM-%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86)
   * [5.1 注册 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.1-%E6%B3%A8%E5%86%8C-LLM-%E9%85%8D%E7%BD%AE)
   * [5.2 获取 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.2-%E8%8E%B7%E5%8F%96-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.3 更新 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.3-%E6%9B%B4%E6%96%B0-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.4 禁用 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.4-%E7%A6%81%E7%94%A8-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.3 列出 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.3-%E5%88%97%E5%87%BA-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.4 更新 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.4-%E6%9B%B4%E6%96%B0-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.5 禁用 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.5-%E7%A6%81%E7%94%A8-LLM-%E9%85%8D%E7%BD%AE)
 * [Agent-LLM 绑定](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.-Agent-LLM-%E7%BB%91%E5%AE%9A)
   * [6.1 绑定 LLM 到 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.1-%E7%BB%91%E5%AE%9A-LLM-%E5%88%B0-Agent)
   * [6.2 解绑 LLM](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.2-%E8%A7%A3%E7%BB%91-LLM)
   * [6.3 列出 Agent 的 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.3-%E5%88%97%E5%87%BA-Agent-%E7%9A%84-LLM-%E9%85%8D%E7%BD%AE)
+  * [6.4 列出当前用户在指定 Agent 下可显式选择的 LLM](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.4-%E5%88%97%E5%87%BA%E5%BD%93%E5%89%8D%E7%94%A8%E6%88%B7%E5%9C%A8%E6%8C%87%E5%AE%9A-Agent-%E4%B8%8B%E5%8F%AF%E6%98%BE%E5%BC%8F%E9%80%89%E6%8B%A9%E7%9A%84-LLM)
 * [会话 (Session) 管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#7.-%E4%BC%9A%E8%AF%9D-(Session)-%E7%AE%A1%E7%90%86)
   * [7.1 创建会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#7.1-%E5%88%9B%E5%BB%BA%E4%BC%9A%E8%AF%9D)
   * [7.2 获取会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#7.2-%E8%8E%B7%E5%8F%96%E4%BC%9A%E8%AF%9D)
@@ -120,7 +121,7 @@ demo2.zip
   * [12.3 启用/禁用绑定](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.3-%E5%90%AF%E7%94%A8%2F%E7%A6%81%E7%94%A8%E7%BB%91%E5%AE%9A)
   * [12.4 列出 Agent 的技能绑定](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.4-%E5%88%97%E5%87%BA-Agent-%E7%9A%84%E6%8A%80%E8%83%BD%E7%BB%91%E5%AE%9A)
   * [12.5 获取 Agent 的技能目录 (Tier-1)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.5-%E8%8E%B7%E5%8F%96-Agent-%E7%9A%84%E6%8A%80%E8%83%BD%E7%9B%AE%E5%BD%95-(Tier-1))
-  * [12.6 组装技能上下文](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.6-%E7%BB%84%E8%A3%85%E6%8A%80%E8%83%BD%E4%B8%8A%E4%B8%8B%E6%96%87)
+  * [12.6 组装技能上下文（只读原语）](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.6-%E7%BB%84%E8%A3%85%E6%8A%80%E8%83%BD%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%88%E5%8F%AA%E8%AF%BB%E5%8E%9F%E8%AF%AD%EF%BC%89)
   * [12.7 禁止业务用户使用技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.7-%E7%A6%81%E6%AD%A2%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E4%BD%BF%E7%94%A8%E6%8A%80%E8%83%BD)
   * [12.8 允许业务用户使用技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.8-%E5%85%81%E8%AE%B8%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E4%BD%BF%E7%94%A8%E6%8A%80%E8%83%BD)
   * [12.9 列出业务用户被禁止的技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.9-%E5%88%97%E5%87%BA%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E8%A2%AB%E7%A6%81%E6%AD%A2%E7%9A%84%E6%8A%80%E8%83%BD)
@@ -142,10 +143,12 @@ demo2.zip
   * [summaryConfig](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#summaryConfig)
   * [defaultParams](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#defaultParams)
   * [retryConfig](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#retryConfig)
-  * [BizUserInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#BizUserInfo)
   * [AuthInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#AuthInfo)
+  * [GlobalAccessInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#GlobalAccessInfo)
+  * [UserLlmAccessInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#UserLlmAccessInfo)
   * [LlmConfigInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#LlmConfigInfo)
   * [AgentLlmBindingInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#AgentLlmBindingInfo)
+  * [SelectableLlmInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SelectableLlmInfo)
   * [SessionInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SessionInfo)
   * [MessageInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#MessageInfo)
   * [MemoryEntry](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#MemoryEntry)
@@ -172,7 +175,7 @@ demo2.zip
 
 * Content-Type: `application/json`（技能包上传支持 `multipart` 和 `application/octet-stream`）
 * 公共请求头:
-  * `x-agent-id`: 指定 agentId（可选，与 body/query 中的 agentId 等效，不可冲突）
+  * `x-agent-id`: 指定 agentId（可选，与 body/query 中的 agentId 等效，不可冲突；`agent.register` 不接受该请求头）
   * `x-session-id`: 指定 sessionId（可选）
 
 ### 响应格式
@@ -219,7 +222,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-## 2.<mark>​ Agent 管理</mark>
+## 2. Agent 管理
 
 ### 2.1 注册 Agent
 
@@ -256,6 +259,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 说明：
 
+* `agentId` 由框架在注册时自动生成；`agent.register` 不接受请求头、query 或 body 中显式传入 `agentId`
 * `memoryConfig.embeddingEnabled` 在 `agent.register` 时完成一次性决策并落库
 * 注册请求未显式传入 `memoryConfig.embeddingEnabled` 时，系统会按默认值 `false` 补齐并持久化
 * 当 `memoryConfig.embeddingEnabled=true` 时，注册时要求系统当前存在且只存在一条 active memory embedding 配置
@@ -342,7 +346,40 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 2.8 授予 DB 用户权限
+### 2.8 列出当前用户可访问的 Agent
+
+`GET /agent-bus/v1/agent/accessible `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 默认值
+
+```
+| 说明
+
+
+                                            |
+```
+
+| --------------------- | -------- | -------------------- | ----------------------------------------------------- |
+| `minPermission` | string | `AGENT_INVOKE` | 最低权限过滤：`AGENT_INVOKE`/`AGENT_MANAGE` |
+| `status`        | int    | -1（全部）         | 按状态过滤                                          |
+| `offset`        | int    | 0                  |                                                     |
+| `limit`         | int    | 100                |                                                     |
+
+**响应:**
+
+`{ "items": [ { "...": "AgentInfo", "myPermission": "AGENT_MANAGE", "isOwner": true } ], "offset": 0, "limit": 100, "size": 5 } `
+
+---
+
+### 2.9 授予 Agent 权限
 
 `POST /agent-bus/v1/agent/{agentId}/auth `
 
@@ -362,16 +399,16 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 |
 ```
 
-| ------------------ | -------- | ------ | -------------------------------------------------------------------------------------- |
-| `userId`     | string | 是   | DolphinDB 用户 ID                                                                    |
-| `permission` | string | 是   | 权限级别：`ADMIN`（完全控制）/`MANAGE`（管理配置）/`INVOKE`（只读+调用） |
-| `grantedBy`  | string | 否   | 执行授权的用户 ID（默认为当前登录用户）                                              |
+| ------------------ | -------- | ------ | ------------------------------------------------- |
+| `userId`     | string | 是   | DolphinDB 用户 ID                               |
+| `permission` | string | 是   | 权限级别：`AGENT_MANAGE`/`AGENT_INVOKE` |
+| `grantedBy`  | string | 否   | 执行授权的用户 ID（默认为当前登录用户）         |
 
 **响应:** 当前 agent 的授权列表 `{ items: [AuthInfo, ...], size: N }`
 
 ---
 
-### 2.9 撤销 DB 用户权限
+### 2.10 撤销 Agent 权限
 
 `DELETE /agent-bus/v1/agent/{agentId}/auth?userId=xxx `
 
@@ -381,7 +418,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 2.10 列出授权
+### 2.11 列出 Agent 授权
 
 `GET /agent-bus/v1/agent/{agentId}/auth/list `
 
@@ -389,68 +426,11 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-## 3. 业务用户 (BizUser) 管理
+## 3. 全局访问控制
 
-### 3.1 注册业务用户
+### 3.1 授予全局 `AGENT_ADMIN`
 
-`POST /agent-bus/v1/bizuser/register `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ------------------- | -------- | ------ | ---------- |
-| `displayName` | string | 是   | 显示名称 |
-
-**响应:** [BizUserInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#bizuserinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#bizuserinfo")
-
----
-
-### 3.2 获取业务用户
-
-`GET /agent-bus/v1/bizuser/{bizUserId} `
-
-**响应:** [BizUserInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#bizuserinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#bizuserinfo")
-
----
-
-### 3.3 更新业务用户
-
-`PUT /agent-bus/v1/bizuser/{bizUserId} `
-
-**请求体:** 需要更新的字段（如 `displayName`）
-
-**响应:** [BizUserInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#bizuserinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#bizuserinfo")
-
----
-
-### 3.4 列出业务用户的 Agent
-
-`GET /agent-bus/v1/bizuser/{bizUserId}/agents `
-
-**查询参数:** `offset`, `limit`
-
-**响应:** `{ items: [AgentInfo, ...], offset, limit, size }`
-
----
-
-## 4. Agent-BizUser 访问控制
-
-### 4.1 授予业务用户访问权限
-
-`POST /agent-bus/v1/agent/{agentId}/bizuser/access `
+`POST /agent-bus/v1/admin/access `
 
 **请求体:**
 
@@ -468,28 +448,34 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 |
 ```
 
-| -------------------- | -------- | ------ | ------------------------- |
-| `bizUserId`    | string | 是   | 业务用户 ID             |
-| `grantedBy`    | string | 否   | 授权人                  |
-| `agentProfile` | object | 否   | 用户在该 Agent 下的配置 |
+| ------------------ | -------- | ------ | ----------------------------------------- |
+| `userId`     | string | 是   | DolphinDB 用户 ID                       |
+| `permission` | string | 否   | 当前固定为`AGENT_ADMIN`             |
+| `grantedBy`  | string | 否   | 执行授权的用户 ID（默认为当前登录用户） |
 
-**响应:** 当前 agent 的业务用户列表
-
----
-
-### 4.2 撤销业务用户访问权限
-
-`DELETE /agent-bus/v1/agent/{agentId}/bizuser/access?bizUserId=xxx `
-
-**响应:** 当前 agent 的业务用户列表
+**响应:** `{ items: [GlobalAccessInfo, ...], size: N }`
 
 ---
 
-### 4.3 拒绝业务用户访问
+### 3.2 撤销全局 `AGENT_ADMIN`
 
-`POST /agent-bus/v1/agent/{agentId}/bizuser/deny `
+`DELETE /agent-bus/v1/admin/access?userId=xxx&permission=AGENT_ADMIN `
 
-**请求体:**
+**响应:** `{ items: [GlobalAccessInfo, ...], size: N }`
+
+---
+
+### 3.3 列出全局 `AGENT_ADMIN`
+
+`GET /agent-bus/v1/admin/access `
+
+**响应:** `{ items: [GlobalAccessInfo, ...], size: N }`
+
+## 4. 用户 LLM 访问控制
+
+### 4.1 授予用户全局 LLM 访问权限
+
+`POST /agent-bus/v1/user/{userId}/llm/access `
 
 | 字段
 
@@ -505,21 +491,27 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 |
 ```
 
-| ----------------- | -------- | ------ | ------------- |
-| `bizUserId` | string | 是   | 业务用户 ID |
-| `grantedBy` | string | 否   | 操作人      |
+| ------------------- | -------- | ------ | ----------------------------------------- |
+| `llmConfigId` | string | 是   | LLM 配置 ID                             |
+| `grantedBy`   | string | 否   | 执行授权的用户 ID（默认为当前登录用户） |
 
-**响应:** 当前 agent 的业务用户列表
+**响应:** `{ items: [UserLlmAccessInfo, ...], size: N }`
 
 ---
 
-### 4.4 列出 Agent 的业务用户
+### 4.2 撤销用户全局 LLM 访问权限
 
-`GET /agent-bus/v1/agent/{agentId}/bizuser/list `
+`DELETE /agent-bus/v1/user/{userId}/llm/access?llmConfigId=xxx `
 
-**查询参数:** `offset`, `limit`
+**响应:** `{ items: [UserLlmAccessInfo, ...], size: N }`
 
-**响应:** `{ items: [BizUserInfo, ...], offset, limit, size }`
+---
+
+### 4.3 列出用户全局 LLM 访问权限
+
+`GET /agent-bus/v1/user/{userId}/llm/access `
+
+**响应:** `{ items: [UserLlmAccessInfo, ...], size: N }`
 
 ---
 
@@ -580,7 +572,36 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 5.3 更新 LLM 配置
+### 5.3 列出 LLM 配置
+
+`GET /agent-bus/v1/llm/config/list `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 默认值
+
+| 说明
+
+```
+|
+```
+
+| -------------- | ------ | -------- | ----------------------------------------------------------- |
+| `status` | int  | -1     | 状态过滤：`-1`=全部，`0`=ACTIVE，`1`=DISABLED |
+| `offset` | int  | 0      | 分页起始偏移                                              |
+| `limit`  | int  | 100    | 返回条数上限                                              |
+
+**响应:** `{ items: [LlmConfigInfo, ...], offset, limit, size }`
+
+---
+
+### 5.4 更新 LLM 配置
 
 `PUT /agent-bus/v1/llm/config/{llmConfigId} `
 
@@ -590,7 +611,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 5.4 禁用 LLM 配置
+### 5.5 禁用 LLM 配置
 
 `POST /agent-bus/v1/llm/config/{llmConfigId}/disable `
 
@@ -598,7 +619,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-## 6. <mark>Agent-LLM 绑定</mark>
+## 6. Agent-LLM 绑定
 
 ### 6.1 绑定 LLM 到 Agent
 
@@ -645,6 +666,28 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
+### 6.4 列出当前用户在指定 Agent 下可显式选择的 LLM
+
+`GET /agent-bus/v1/agent/{agentId}/llm/selectable `
+
+说明：
+
+* 该接口面向当前登录用户，不接受 `userId` 或 `targetUserId`
+* 返回当前用户在该 agent 下的有效可选集合：`AgentAllowed ∪ UserGranted`
+* 未指定模型时，运行时仍优先使用 agent 默认模型；fallback 只走 agent 绑定链
+
+**响应:**
+
+`{ "defaultLlmConfigId": "llm_primary", "items": [ { "...": "LlmConfigInfo", "source": "agent", "isAgentDefault": true, "participatesInFallback": true, "fallbackPriority": 0 }, { "...": "LlmConfigInfo", "source": "user", "isAgentDefault": false, "participatesInFallback": false, "fallbackPriority": null } ], "size": 2 } `
+
+`source` 取值：
+
+* `agent`：仅来自 `agent_llm_access`
+* `user`：仅来自 `user_llm_access`
+* `both`：同时来自两者
+
+---
+
 ## 7. 会话 (Session) 管理
 
 ### 7.1 创建会话
@@ -667,12 +710,11 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 |
 ```
 
-| ------------------- | -------- | ------ | --------------------------------------------------------------------------------------------- |
-| `agentId`     | string | 是   | Agent ID，必须处于 ACTIVE 状态                                                              |
-| `bizUserId`   | string | 是   | 业务用户 ID，必须已授权访问该 agent（通过 bizuser/access）                                  |
-| `title`       | string | 否   | 会话标题                                                                                    |
-| `llmConfigId` | string | 否   | 会话级 LLM 配置 ID，覆盖 agent 默认配置。必须是已绑定到该 agent 且状态为 ACTIVE 的 LLM 配置 |
-| `metadata`    | object | 否   | 自定义元数据，JSON 格式，原样存储                                                           |
+| ------------------- | -------- | ------ | ----------------------------------------------------------------- |
+| `agentId`     | string | 是   | Agent ID，必须处于 ACTIVE 状态                                  |
+| `title`       | string | 否   | 会话标题                                                        |
+| `llmConfigId` | string | 否   | 会话级 LLM 配置 ID。必须属于当前用户在该 agent 下的有效可选集合 |
+| `metadata`    | object | 否   | 自定义元数据，JSON 格式，原样存储                               |
 
 **响应:** [SessionInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#sessioninfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#sessioninfo")
 
@@ -732,15 +774,15 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 | 说明
 
 
-                        |
+                                                               |
 ```
 
-| ----------------- | -------- | ------------ | --------------------------------- |
-| `agentId`   | string | x-agent-id | 按 Agent 过滤                   |
-| `bizUserId` | string | -          | 按业务用户过滤                  |
-| `status`    | int    | -1（全部） | 0=ACTIVE, 1=ARCHIVED, 2=DELETED |
-| `offset`    | int    | 0          |                                 |
-| `limit`     | int    | 100        |                                 |
+| -------------------- | -------- | -------------- | ------------------------------------------------------------------------ |
+| `agentId`      | string | x-agent-id   | 按 Agent 过滤                                                          |
+| `targetUserId` | string | 当前登录用户 | 只读过滤目标用户。仅`AGENT_MANAGE`/`AGENT_ADMIN`可查看他人数据 |
+| `status`       | int    | -1（全部）   | 0=ACTIVE, 1=ARCHIVED, 2=DELETED                                        |
+| `offset`       | int    | 0            |                                                                        |
+| `limit`        | int    | 100          |                                                                        |
 
 **响应:** `{ items: [SessionInfo, ...], offset, limit, size }`
 
@@ -875,17 +917,16 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 |
 ```
 
-| ------------------ | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| `agentId`    | string | 是   | 所属 Agent ID                                                                                                                |
-| `bizUserId`  | string | 否   | 业务用户 ID。scope 为`user`时必填，标识该记忆归属的用户                                                                  |
-| `scope`      | string | 否   | 作用域（默认`agent`）：`agent`（agent 级别，所有用户搜索均可命中）/`user`（用户级别，仅该 bizUserId 搜索可命中） |
-| `category`   | string | 是   | 分类标签（如`"fact"`、`"preference"`、`"instruction"`），用于按分类检索和统计                                    |
-| `content`    | string | 是   | 记忆文本内容                                                                                                                 |
-| `importance` | double | 是   | 重要度，取值范围 [0, 1]。参与混合排序                                                                                        |
-| `metadata`   | object | 否   | 自定义元数据，JSON 格式                                                                                                      |
-| `source`     | string | 否   | 来源标识（默认`manual`）：`manual`（手动创建）/`auto_extract`（自动提取）/`api`（API 写入）                  |
-| `sourceRef`  | string | 否   | 来源引用信息（如来源的 sessionId 或 messageId），便于溯源                                                                    |
-| `expireTime` | long   | 否   | 过期时间（毫秒时间戳），为空表示永不过期                                                                                     |
+| ------------------ | -------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `agentId`    | string | 是   | 所属 Agent ID                                                                                                                                       |
+| `scope`      | string | 否   | 作用域（默认`agent`）：`agent`（agent 级别，所有用户可读，仅`AGENT_MANAGE / AGENT_ADMIN`可写）/`user`（用户级别，写入当前登录用户） |
+| `category`   | string | 是   | 分类标签（如`"fact"`、`"preference"`、`"instruction"`），用于按分类检索和统计                                                           |
+| `content`    | string | 是   | 记忆文本内容                                                                                                                                        |
+| `importance` | double | 是   | 重要度，取值范围 [0, 1]。参与混合排序                                                                                                               |
+| `metadata`   | object | 否   | 自定义元数据，JSON 格式                                                                                                                             |
+| `source`     | string | 否   | 来源标识（默认`manual`）：`manual`（手动创建）/`auto_extract`（自动提取）/`api`（API 写入）                                         |
+| `sourceRef`  | string | 否   | 来源引用信息（如来源的 sessionId 或 messageId），便于溯源                                                                                           |
+| `expireTime` | long   | 否   | 过期时间（毫秒时间戳），为空表示永不过期                                                                                                            |
 
 **响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
 
@@ -953,8 +994,8 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 | --------------------- | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `agentId`       | string | 是   | 搜索范围限定的 Agent ID                                                                                                                                                                                                                |
-| `bizUserId`     | string | 否   | 按业务用户过滤。指定时同时搜索 agent 级别和该用户级别的记忆；不指定时只搜索 agent 级别                                                                                                                                                 |
-| `scope`         | string | 否   | 按作用域过滤：`agent`（仅 agent 级别）/`user`（仅用户级别，需同时指定 bizUserId）。不指定时搜索所有可见范围                                                                                                                    |
+| `targetUserId`  | string | 否   | 只读过滤目标用户。未指定时搜索当前登录用户可见的范围；仅`AGENT_MANAGE / AGENT_ADMIN`可查看他人数据                                                                                                                                 |
+| `scope`         | string | 否   | 按作用域过滤：`agent`（仅 agent 级别）/`user`（仅用户级别）。不指定时搜索 agent 级别 + 目标用户的 user 级记忆                                                                                                                  |
 | `category`      | string | 否   | 按分类标签精确过滤                                                                                                                                                                                                                     |
 | `textQuery`     | string | 否   | 全文搜索查询；`RELEVANCE/HYBRID`下同时作为语义查询文本                                                                                                                                                                             |
 | `textMatchMode` | string | 否   | 全文搜索匹配模式（默认`any`）：`any`（匹配任一词）/`all`（匹配所有词）                                                                                                                                                     |
@@ -973,6 +1014,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 * 当 `agent.memoryConfig.embeddingEnabled=true` 时，`memory.search` 由框架内部生成 query embedding，不接受 `embedding`、`embeddingModel`
 * 当 `agent.memoryConfig.embeddingEnabled=false` 时，`RELEVANCE` 直接失败，`HYBRID` 退化为文本/importance/recency 检索
 * 当 `agent.memoryConfig.embeddingEnabled=true` 但 active embedding 配置不可用时，`RELEVANCE` 直接失败，`HYBRID` 退化为文本/importance/recency 检索
+* 当 `scope='agent'` 时，不允许同时传 `targetUserId`
 
 ---
 
@@ -1164,17 +1206,27 @@ overrides 可覆盖字段：`name`, `description`, `version`, `category`, `displ
 
 `{ "skillId": "skill_xxx", "name": "search-database", "description": "Search distributed tables", "instruction": "## Usage Guide\n\nYou can use this skill to..." } `
 
+说明：
+
+* 该接口是 Tier-2 指令体的只读原语。
+* 是否读取、何时注入、如何在 tool loop 中续传，由应用层决定。
+
 ---
 
 ### 11.10 提取技能包文件
 
 `GET /agent-bus/v1/skill/{skillId}/file?filePath=data/schema.json `
 
-**查询参数:** `filePath`（必填，ZIP 内的文件路径）
+**查询参数:** `filePath`（必填，相对 skill 包根目录的 ZIP 内文件路径）
 
 **响应:**
 
 `{ "skillId": "skill_xxx", "filePath": "data/schema.json", "encoding": "base64", "content": "<base64 内容>", "size": 1024 } `
+
+说明：
+
+* 该接口是 Tier-3 资源的只读原语，仅返回原始文件内容。
+* 文件的解释、执行、二次注入和本地落地方式由应用层负责。
 
 ---
 
@@ -1277,17 +1329,15 @@ overrides 可覆盖字段：`name`, `description`, `version`, `category`, `displ
 
 ### 12.5 获取 Agent 的技能目录 (Tier-1)
 
-`GET /agent-bus/v1/skill/{agentId}/catalog?bizUserId=xxx `
-
-**查询参数:** `bizUserId`（可选，用于用户级过滤）
+`GET /agent-bus/v1/skill/{agentId}/catalog `
 
 **响应:**
 
-`{ "agentId": "agent_xxx", "bizUserId": "biz_xxx", "catalog": [ { "name": "search-database", "description": "Search distributed tables", "argumentHint": "SELECT fields FROM table WHERE condition" }, ... ], "size": 3 } `
+`{ "agentId": "agent_xxx", "userId": "alice", "catalog": [ { "name": "search-database", "description": "Search distributed tables", "argumentHint": "SELECT fields FROM table WHERE condition" }, ... ], "size": 3 } `
 
 ---
 
-### 12.6 组装技能上下文
+### 12.6 组装技能上下文（只读原语）
 
 `POST /agent-bus/v1/skill/{agentId}/context `
 
@@ -1308,13 +1358,17 @@ overrides 可覆盖字段：`name`, `description`, `version`, `category`, `displ
 |
 ```
 
-| ------------------------ | ---------- | ------ | ------------------------------------- |
-| `bizUserId`        | string   | 否   | 业务用户 ID                         |
-| `activeSkillNames` | string[] | 否   | 需激活的技能名称列表（加载 Tier-2） |
+| ------------------------ | ---------- | ------ | --------------------------------------------------------------------- |
+| `activeSkillNames` | string[] | 否   | 调用方显式要求附加的技能名称列表（加载 Tier-2）；框架不维护激活状态 |
 
 **响应:**
 
 `{ "catalog": [ SkillCatalogEntry, ... ], "activeInstructions": [ SkillInstruction, ... ], "catalogTokens": 150, "instructionTokens": 800 } `
+
+说明：
+
+* `catalog` 对应 Tier-1，`activeInstructions` 对应调用方显式请求的 Tier-2。
+* 该接口用于应用层显式获取 skill 上下文，不代表框架自动维护 skill 激活闭环。
 
 ---
 
@@ -1322,9 +1376,9 @@ overrides 可覆盖字段：`name`, `description`, `version`, `category`, `displ
 
 `POST /agent-bus/v1/skill/user/deny `
 
-**请求体:** `agentId`, `skillId`, `bizUserId`
+**请求体:** `agentId`, `skillId`, `userId`
 
-**响应:** `{ agentId, bizUserId, skillIds: [...], size }`
+**响应:** `{ agentId, userId, skillIds: [...], size }`
 
 ---
 
@@ -1332,17 +1386,17 @@ overrides 可覆盖字段：`name`, `description`, `version`, `category`, `displ
 
 `POST /agent-bus/v1/skill/user/allow `
 
-**请求体:** `agentId`, `skillId`, `bizUserId`
+**请求体:** `agentId`, `skillId`, `userId`
 
-**响应:** `{ agentId, bizUserId, skillIds: [...], size }`
+**响应:** `{ agentId, userId, skillIds: [...], size }`
 
 ---
 
 ### 12.9 列出业务用户被禁止的技能
 
-`GET /agent-bus/v1/skill/{agentId}/user/{bizUserId}/denied `
+`GET /agent-bus/v1/skill/{agentId}/user/{userId}/denied `
 
-**响应:** `{ agentId, bizUserId, skillIds: [...], size }`
+**响应:** `{ agentId, userId, skillIds: [...], size }`
 
 ---
 
@@ -1368,17 +1422,17 @@ overrides 可覆盖字段：`name`, `description`, `version`, `category`, `displ
  | 说明
 
 
-                                                                                        |
+                                                                                                       |
 ```
 
-| ------------------------ | ------------------ | ---------- | ------------------------------------------------------------------------------------------------- |
-| `sessionId`        | string           | 是       | 会话 ID，必须为 ACTIVE 状态                                                                     |
-| `message`          | string           | 条件必填 | 用户消息文本，会被自动追加到会话历史中。`message`和`toolResults`至少提供一个            |
-| `toolResults`      | ToolResult[]     | 条件必填 | 工具执行结果列表，与`message`至少提供一个。框架自动追加为`role=tool`消息后调用 LLM 续传 |
-| `stream`           | bool             | 否       | 是否流式返回（默认 true）。true 时返回 SSE 流，false 时返回完整 JSON                            |
-| `tools`            | ToolDefinition[] | 否       | 应用层工具定义列表（OpenAI function calling 格式），注入到 LLM 请求中                           |
-| `activeSkillNames` | string[]         | 否       | 需激活的技能名称列表，框架会加载这些技能的 Tier-2 指令注入到上下文中                            |
-| `llmConfigId`      | string           | 否       | 指定本次请求使用的 LLM 配置 ID，临时覆盖 session/agent 默认配置                                 |
+| ------------------------ | ------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------- |
+| `sessionId`        | string           | 是       | 会话 ID，必须为 ACTIVE 状态                                                                                    |
+| `message`          | string           | 条件必填 | 用户消息文本，会被自动追加到会话历史中。`message`和`toolResults`至少提供一个                           |
+| `toolResults`      | ToolResult[]     | 条件必填 | 工具执行结果列表，与`message`至少提供一个。框架自动追加为`role=tool`消息后调用 LLM 续传                |
+| `stream`           | bool             | 否       | 是否流式返回（默认 true）。true 时返回 SSE 流，false 时返回完整 JSON                                           |
+| `tools`            | ToolDefinition[] | 否       | 应用层工具定义列表（OpenAI function calling 格式），注入到 LLM 请求中                                          |
+| `activeSkillNames` | string[]         | 否       | 调用方显式要求本次附加的技能名称列表；若提供，框架会加载这些技能的 Tier-2 指令注入本次上下文，但不维护激活状态 |
+| `llmConfigId`      | string           | 否       | 指定本次请求使用的 LLM 配置 ID，临时覆盖 session/agent 默认配置                                                |
 
 ToolResult 结构:
 
@@ -1405,7 +1459,7 @@ ToolResult 结构:
 1. 如有 `toolResults`：追加 tool\_result 消息到会话
 2. 如有 `message`：追加用户消息到会话
 3. 加载 Agent 配置 + 系统提示词
-4. 组装技能目录 (Tier-1) + 激活技能指令 (Tier-2)
+4. 组装技能目录 (Tier-1)，并在调用方显式传入 `activeSkillNames` 时附加 Tier-2 指令
 5. 检索相关记忆
 6. 获取历史消息窗口
 7. 按 token 预算分配组装完整上下文
@@ -1418,6 +1472,8 @@ ToolResult 结构:
 * `toolResults` 只传工具结果、不传 `message` 是合法用法，适用于 tool calling 的续传轮次
 * 当 `message` 和 `toolResults` 同时存在时，框架会按 `toolResults -> message` 的顺序追加到会话，再发起本轮 LLM 调用
 * 自动装配中的记忆检索仅使用当前 `message` 作为查询文本；如果本轮只有 `toolResults`，则不会新增一次记忆查询
+* `activeSkillNames` 仅表示本次请求显式附加的 Tier-2；是否在 agent loop 中续传或变更由应用层决定
+* 框架不会基于 Tier-1 catalog 自动推断、激活或恢复 Skill
 
 **典型 Tool Calling 流程：**
 
@@ -1468,7 +1524,7 @@ ToolResult 结构:
 | `systemPrompt`      | string           | 自定义系统提示词，覆盖 agent 默认的 systemPrompt                                                                                                                          |
 | `contextBlocks`     | ContextBlock[]   | 自定义上下文块。每个块包含`name`（标识符）、`content`（注入内容）、`position`（插入位置：`after_system`或`before_history`，默认`before_history`） |
 | `tools`             | ToolDefinition[] | 工具定义列表（OpenAI function calling 格式）                                                                                                                              |
-| `activeSkillNames`  | string[]         | 需加载 Tier-2 指令的技能名称列表                                                                                                                                          |
+| `activeSkillNames`  | string[]         | 调用方显式要求附加的 Tier-2 技能名称列表                                                                                                                                  |
 | `excludeSkillNames` | string[]         | 排除的技能名称列表（从 catalog 和 instruction 中移除）                                                                                                                    |
 | `noSkillCatalog`    | bool             | 是否跳过 Tier-1 技能目录注入（默认 false）                                                                                                                                |
 | `compressHistory`   | bool             | 是否在历史截断时注入已有的 session summary（默认 false）                                                                                                                  |
@@ -1510,16 +1566,15 @@ ToolResult 结构:
 |
 ```
 
-| ------------------- | ------------------ | ------ | --------------------------------------------------------------------------- |
-| `agentId`     | string           | 是   | Agent ID，用于解析 LLM 配置（从 agent 绑定的 LLM 列表中选择）             |
-| `sessionId`   | string           | 否   | 会话 ID。指定时可继承 session 级 LLM 配置，且 bizUserId 从 session 中获取 |
-| `bizUserId`   | string           | 否   | 业务用户 ID（未指定 sessionId 时使用）                                    |
-| `messages`    | LLMMessage[]     | 是   | 完整的消息列表（由应用层自行构建），直接发送给 LLM，框架不做上下文组装    |
-| `tools`       | ToolDefinition[] | 否   | 工具定义列表（OpenAI function calling 格式）                              |
-| `model`       | string           | 否   | 指定模型名称，覆盖 LLM 配置中的 model                                     |
-| `stream`      | bool             | 否   | 是否流式返回（默认 true）                                                 |
-| `llmConfigId` | string           | 否   | 指定使用的 LLM 配置 ID，临时覆盖 priority 排序                            |
-| `requestId`   | string           | 否   | 请求追踪 ID，不指定时自动生成                                             |
+| ------------------- | ------------------ | ------ | ------------------------------------------------------------------------ |
+| `agentId`     | string           | 是   | Agent ID，用于解析 LLM 配置（从 agent 绑定的 LLM 列表中选择）          |
+| `sessionId`   | string           | 否   | 会话 ID。指定时使用 session 归属用户和 session 级 LLM 配置             |
+| `messages`    | LLMMessage[]     | 是   | 完整的消息列表（由应用层自行构建），直接发送给 LLM，框架不做上下文组装 |
+| `tools`       | ToolDefinition[] | 否   | 工具定义列表（OpenAI function calling 格式）                           |
+| `model`       | string           | 否   | 指定模型名称，覆盖 LLM 配置中的 model                                  |
+| `stream`      | bool             | 否   | 是否流式返回（默认 true）                                              |
+| `llmConfigId` | string           | 否   | 指定使用的 LLM 配置 ID。必须属于当前用户在该 agent 下的有效可选集合    |
+| `requestId`   | string           | 否   | 请求追踪 ID，不指定时自动生成                                          |
 
 LLMMessage 结构:
 
@@ -1545,6 +1600,7 @@ ToolDefinition 结构:
 
 * `context/preview` 会按与 `/chat/completions` 相同的规则组装当前轮输入
 * 预览中的 `message` / `toolResults` 仅作为虚拟输入附加到 messages 尾部，不会写入 session
+* `activeSkillNames` 仍表示调用方显式附加的 Tier-2，不代表框架自动维护激活状态
 
 **响应:**
 
@@ -1638,74 +1694,75 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 | 对应 HTTP 接口
 
 
-                           |
+                        |
 ```
 
-| ------------------------------- | ---------------------------------------------- |
-| `agent.register`          | POST /agent/register                         |
-| `agent.get`               | GET /agent/{id}                              |
-| `agent.update`            | PUT /agent/{id}                              |
-| `agent.activate`          | POST /agent/{id}/activate                    |
-| `agent.suspend`           | POST /agent/{id}/suspend                     |
-| `agent.delete`            | POST /agent/{id}/delete                      |
-| `agent.list`              | GET /agent/list                              |
-| `agent.auth.grant`        | POST /agent/{id}/auth                        |
-| `agent.auth.revoke`       | DELETE /agent/{id}/auth                      |
-| `agent.auth.list`         | GET /agent/{id}/auth/list                    |
-| `agent.bizuser.grant`     | POST /agent/{id}/bizuser/access              |
-| `agent.bizuser.revoke`    | DELETE /agent/{id}/bizuser/access            |
-| `agent.bizuser.deny`      | POST /agent/{id}/bizuser/deny                |
-| `agent.bizuser.list`      | GET /agent/{id}/bizuser/list                 |
-| `agent.llm.grant`         | POST /agent/{id}/llm/access                  |
-| `agent.llm.revoke`        | DELETE /agent/{id}/llm/access                |
-| `agent.llm.list`          | GET /agent/{id}/llm/list                     |
-| `bizuser.register`        | POST /bizuser/register                       |
-| `bizuser.get`             | GET /bizuser/{id}                            |
-| `bizuser.update`          | PUT /bizuser/{id}                            |
-| `bizuser.agents`          | GET /bizuser/{id}/agents                     |
-| `llm.config.register`     | POST /llm/config/register                    |
-| `llm.config.get`          | GET /llm/config/{id}                         |
-| `llm.config.update`       | PUT /llm/config/{id}                         |
-| `llm.config.disable`      | POST /llm/config/{id}/disable                |
-| `llm.complete`            | POST /llm/complete                           |
-| `llm.usage`               | GET /llm/usage                               |
-| `chat.completions`        | POST /chat/completions                       |
-| `context.preview`         | POST /context/preview                        |
-| `session.create`          | POST /session/create                         |
-| `session.get`             | GET /session/{id}                            |
-| `session.update`          | PUT /session/{id}                            |
-| `session.archive`         | POST /session/{id}/archive                   |
-| `session.delete`          | POST /session/{id}/delete                    |
-| `session.list`            | GET /session/list                            |
-| `session.appendMessage`   | POST /session/{id}/message                   |
-| `session.getMessages`     | GET /session/{id}/messages                   |
-| `session.generateSummary` | POST /session/{id}/summary                   |
-| `memory.store`            | POST /memory/store                           |
-| `memory.get`              | GET /memory/{id}                             |
-| `memory.update`           | PUT /memory/{id}                             |
-| `memory.delete`           | DELETE /memory/{id}                          |
-| `memory.search`           | POST /memory/search                          |
-| `memory.list`             | GET /memory/list                             |
-| `memory.stats`            | GET /memory/stats                            |
-| `skill.register`          | POST /skill/register                         |
-| `skill.get`               | GET /skill/{id}                              |
-| `skill.getByName`         | GET /skill/byName/{name}                     |
-| `skill.update`            | PUT /skill/{id}                              |
-| `skill.disable`           | POST /skill/{id}/disable                     |
-| `skill.deprecate`         | POST /skill/{id}/deprecate                   |
-| `skill.activate`          | POST /skill/{id}/activate                    |
-| `skill.list`              | GET /skill/list                              |
-| `skill.getInstruction`    | GET /skill/{id}/instruction                  |
-| `skill.extractFile`       | GET /skill/{id}/file                         |
-| `skill.bind`              | POST /skill/bind                             |
-| `skill.unbind`            | POST /skill/unbind                           |
-| `skill.binding.enable`    | POST /skill/binding/enable                   |
-| `skill.bindings`          | GET /skill/{agentId}/bindings                |
-| `skill.catalog`           | GET /skill/{agentId}/catalog                 |
-| `skill.context`           | POST /skill/{agentId}/context                |
-| `skill.user.deny`         | POST /skill/user/deny                        |
-| `skill.user.allow`        | POST /skill/user/allow                       |
-| `skill.user.denied`       | GET /skill/{agentId}/user/{bizUserId}/denied |
+| ------------------------------- | ------------------------------------------- |
+| `agent.register`          | POST /agent/register                      |
+| `agent.get`               | GET /agent/{id}                           |
+| `agent.update`            | PUT /agent/{id}                           |
+| `agent.activate`          | POST /agent/{id}/activate                 |
+| `agent.suspend`           | POST /agent/{id}/suspend                  |
+| `agent.delete`            | POST /agent/{id}/delete                   |
+| `agent.list`              | GET /agent/list                           |
+| `agent.auth.grant`        | POST /agent/{id}/auth                     |
+| `agent.auth.revoke`       | DELETE /agent/{id}/auth                   |
+| `agent.auth.list`         | GET /agent/{id}/auth/list                 |
+| `agent.accessible`        | GET /agent/accessible                     |
+| `agent.llm.grant`         | POST /agent/{id}/llm/access               |
+| `agent.llm.revoke`        | DELETE /agent/{id}/llm/access             |
+| `agent.llm.list`          | GET /agent/{id}/llm/list                  |
+| `agent.llm.selectable`    | GET /agent/{id}/llm/selectable            |
+| `admin.access.grant`      | POST /admin/access                        |
+| `admin.access.revoke`     | DELETE /admin/access                      |
+| `admin.access.list`       | GET /admin/access                         |
+| `user.llm.access.grant`   | POST /user/{id}/llm/access                |
+| `user.llm.access.revoke`  | DELETE /user/{id}/llm/access              |
+| `user.llm.access.list`    | GET /user/{id}/llm/access                 |
+| `llm.config.register`     | POST /llm/config/register                 |
+| `llm.config.get`          | GET /llm/config/{id}                      |
+| `llm.config.list`         | GET /llm/config/list                      |
+| `llm.config.update`       | PUT /llm/config/{id}                      |
+| `llm.config.disable`      | POST /llm/config/{id}/disable             |
+| `llm.complete`            | POST /llm/complete                        |
+| `llm.usage`               | GET /llm/usage                            |
+| `chat.completions`        | POST /chat/completions                    |
+| `context.preview`         | POST /context/preview                     |
+| `session.create`          | POST /session/create                      |
+| `session.get`             | GET /session/{id}                         |
+| `session.update`          | PUT /session/{id}                         |
+| `session.archive`         | POST /session/{id}/archive                |
+| `session.delete`          | POST /session/{id}/delete                 |
+| `session.list`            | GET /session/list                         |
+| `session.appendMessage`   | POST /session/{id}/message                |
+| `session.getMessages`     | GET /session/{id}/messages                |
+| `session.generateSummary` | POST /session/{id}/summary                |
+| `memory.store`            | POST /memory/store                        |
+| `memory.get`              | GET /memory/{id}                          |
+| `memory.update`           | PUT /memory/{id}                          |
+| `memory.delete`           | DELETE /memory/{id}                       |
+| `memory.search`           | POST /memory/search                       |
+| `memory.list`             | GET /memory/list                          |
+| `memory.stats`            | GET /memory/stats                         |
+| `skill.register`          | POST /skill/register                      |
+| `skill.get`               | GET /skill/{id}                           |
+| `skill.getByName`         | GET /skill/byName/{name}                  |
+| `skill.update`            | PUT /skill/{id}                           |
+| `skill.disable`           | POST /skill/{id}/disable                  |
+| `skill.deprecate`         | POST /skill/{id}/deprecate                |
+| `skill.activate`          | POST /skill/{id}/activate                 |
+| `skill.list`              | GET /skill/list                           |
+| `skill.getInstruction`    | GET /skill/{id}/instruction               |
+| `skill.extractFile`       | GET /skill/{id}/file                      |
+| `skill.bind`              | POST /skill/bind                          |
+| `skill.unbind`            | POST /skill/unbind                        |
+| `skill.binding.enable`    | POST /skill/binding/enable                |
+| `skill.bindings`          | GET /skill/{agentId}/bindings             |
+| `skill.catalog`           | GET /skill/{agentId}/catalog              |
+| `skill.context`           | POST /skill/{agentId}/context             |
+| `skill.user.deny`         | POST /skill/user/deny                     |
+| `skill.user.allow`        | POST /skill/user/allow                    |
+| `skill.user.denied`       | GET /skill/{agentId}/user/{userId}/denied |
 
 ---
 
@@ -1726,10 +1783,10 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 ```
 
 | --------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `agentId`       | string    | 全局唯一 ID，注册时自动生成，也可通过请求体指定                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `agentId`       | string    | 全局唯一 ID，由框架在注册时自动生成                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `agentName`     | string    | Agent 可读名称，必填                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `agentType`     | string    | 类型标签，自由填写的字符串（如`"chat"`、`"task"`、`"pipeline"`），框架不做枚举限制也不据此分支，仅用于分类展示                                                                                                                                                                                                                                                                                                                      |
-| `ownerUserId`   | string    | 所属 DolphinDB 用户，自动拥有 ADMIN 权限                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `ownerUserId`   | string    | 所属 DolphinDB 用户，隐式拥有该 agent 的`AGENT_MANAGE`                                                                                                                                                                                                                                                                                                                                                                                      |
 | `description`   | string    | Agent 描述信息                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `status`        | int       | 状态值：0=REGISTERED, 1=ACTIVE, 2=SUSPENDED, 3=DELETED                                                                                                                                                                                                                                                                                                                                                                                          |
 | `statusName`    | string    | 状态可读名称：`REGISTERED`（已注册，不可创建会话）/`ACTIVE`（已激活，可正常使用）/`SUSPENDED`（已挂起）/`DELETED`（已删除）                                                                                                                                                                                                                                                                                                     |
@@ -1941,30 +1998,6 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 
 ---
 
-### BizUserInfo
-
-| 字段
-
-```
-| 类型
-
-
-  | 说明
-
-
-                    |
-```
-
-| --------------------- | ----------- | ----------------------------- |
-| `bizUserId`     | string    | 全局唯一 ID，注册时自动生成 |
-| `displayName`   | string    | 业务用户的显示名称          |
-| `schemaVersion` | int       | 行 Schema 版本号            |
-| `extra`         | string    | 预留扩展字段                |
-| `createTime`    | timestamp | 创建时间                    |
-| `updateTime`    | timestamp | 最后更新时间                |
-
----
-
 ### AuthInfo
 
 | 字段
@@ -1976,21 +2009,71 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
   | 说明
 
 
-                                                                                                                                                                                       |
+                                        |
 ```
 
-| --------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `id`            | string    | 授权记录 ID                                                                                                                                                                                    |
-| `userType`      | string    | 用户类型：`DB_USER`（DolphinDB 用户）/`BIZ_USER`（业务用户）                                                                                                                           |
-| `userId`        | string    | 用户 ID（DB 用户 ID 或 bizUserId）                                                                                                                                                             |
-| `agentId`       | string    | 被授权访问的 Agent ID                                                                                                                                                                          |
-| `permission`    | string    | 权限级别。DB 用户支持`ADMIN`（最高权限，完全控制）/`MANAGE`（管理权限，可更新配置）/`INVOKE`（调用权限，只读+调用）。业务用户支持`INVOKE`（允许访问）/`DENIED`（显式拒绝） |
-| `agentProfile`  | object    | 用户在该 Agent 下的个性化配置（业务用户专用）                                                                                                                                                  |
-| `grantedBy`     | string    | 执行授权操作的用户 ID                                                                                                                                                                          |
-| `schemaVersion` | int       | 行 Schema 版本号                                                                                                                                                                               |
-| `extra`         | string    | 预留扩展字段                                                                                                                                                                                   |
-| `createTime`    | timestamp | 授权时间                                                                                                                                                                                       |
-| `expireTime`    | timestamp | 授权过期时间（为空表示永不过期）                                                                                                                                                               |
+| --------------------- | ----------- | ------------------------------------------------- |
+| `id`            | string    | 授权记录 ID                                     |
+| `userId`        | string    | DolphinDB 用户 ID                               |
+| `agentId`       | string    | 被授权访问的 Agent ID                           |
+| `permission`    | string    | 权限级别：`AGENT_MANAGE`/`AGENT_INVOKE` |
+| `grantedBy`     | string    | 执行授权操作的用户 ID                           |
+| `schemaVersion` | int       | 行 Schema 版本号                                |
+| `extra`         | string    | 预留扩展字段                                    |
+| `createTime`    | timestamp | 授权时间                                        |
+| `expireTime`    | timestamp | 授权过期时间（为空表示永不过期）                |
+
+---
+
+### GlobalAccessInfo
+
+| 字段
+
+```
+| 类型
+
+
+  | 说明
+
+
+                         |
+```
+
+| --------------------- | ----------- | ---------------------------------- |
+| `id`            | string    | 授权记录 ID                      |
+| `userId`        | string    | DolphinDB 用户 ID                |
+| `permission`    | string    | 当前固定为`AGENT_ADMIN`      |
+| `grantedBy`     | string    | 执行授权操作的用户 ID            |
+| `schemaVersion` | int       | 行 Schema 版本号                 |
+| `extra`         | string    | 预留扩展字段                     |
+| `createTime`    | timestamp | 授权时间                         |
+| `expireTime`    | timestamp | 授权过期时间（为空表示永不过期） |
+
+---
+
+### UserLlmAccessInfo
+
+| 字段
+
+```
+| 类型
+
+
+  | 说明
+
+
+                         |
+```
+
+| --------------------- | ----------- | ---------------------------------- |
+| `id`            | string    | 授权记录 ID                      |
+| `userId`        | string    | DolphinDB 用户 ID                |
+| `llmConfigId`   | string    | 被授予的全局 LLM 配置 ID         |
+| `grantedBy`     | string    | 执行授权操作的用户 ID            |
+| `schemaVersion` | int       | 行 Schema 版本号                 |
+| `extra`         | string    | 预留扩展字段                     |
+| `createTime`    | timestamp | 授权时间                         |
+| `expireTime`    | timestamp | 授权过期时间（为空表示永不过期） |
 
 ---
 
@@ -2057,6 +2140,30 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 
 ---
 
+### SelectableLlmInfo
+
+继承 LlmConfigInfo 的所有字段，额外包含：
+
+| 字段
+
+```
+| 类型
+
+
+   | 说明
+
+
+                                                 |
+```
+
+| ------------------------------ | ------------ | ---------------------------------------------------------- |
+| `source`                 | string     | 来源：`agent`/`user`/`both`                  |
+| `isAgentDefault`         | bool       | 是否为该 agent 当前默认模型                              |
+| `participatesInFallback` | bool       | 是否参与 agent fallback 链                               |
+| `fallbackPriority`       | int / null | fallback 顺序；仅`participatesInFallback=true`时有值 |
+
+---
+
 ### SessionInfo
 
 | 字段
@@ -2074,8 +2181,8 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 | --------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------- |
 | `sessionId`     | string    | 全局唯一 ID，创建时自动生成                                                                                           |
 | `agentId`       | string    | 所属 Agent ID，创建时指定，不可变更                                                                                   |
-| `bizUserId`     | string    | 所属业务用户 ID，创建时指定，不可变更                                                                                 |
-| `llmConfigId`   | string    | 会话级 LLM 配置 ID，覆盖 agent 默认配置。为空时继承 agent 的默认 LLM。必须是已绑定到 agent 且状态为 ACTIVE 的配置     |
+| `userId`        | string    | 所属 DolphinDB 用户 ID，创建时由当前登录用户确定，不可变更                                                            |
+| `llmConfigId`   | string    | 会话级 LLM 配置 ID。为空时继承 agent 默认模型；非空时必须属于当前用户在该 agent 下的有效可选集合                      |
 | `affinityNode`  | string    | 亲和节点（框架内部分配，不可由用户指定）。该会话的所有写请求会被路由到此节点                                          |
 | `title`         | string    | 会话标题，可通过 updateSession 修改                                                                                   |
 | `status`        | int       | 状态值：0=ACTIVE, 1=ARCHIVED, 2=DELETED                                                                               |
@@ -2141,8 +2248,8 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 | ---------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `memoryId`       | string    | 记忆唯一 ID，存储时自动生成                                                                                                                                              |
 | `agentId`        | string    | 所属 Agent ID                                                                                                                                                            |
-| `bizUserId`      | string    | 所属业务用户 ID。scope 为`agent`时为空（全局可见），scope 为`user`时标识该记忆仅对该用户可见                                                                     |
-| `scope`          | string    | 作用域：`agent`（agent 级别，所有用户的搜索都能命中）/`user`（用户级别，仅该 bizUserId 的搜索可命中）                                                            |
+| `userId`         | string    | scope 为`user`时标识所属用户；scope 为`agent`时为空                                                                                                              |
+| `scope`          | string    | 作用域：`agent`（agent 级别，所有用户可读）/`user`（用户级别，仅该 userId 可读写）                                                                               |
 | `category`       | string    | 分类标签（如`"fact"`、`"preference"`、`"instruction"`），用于按分类检索和统计                                                                                |
 | `content`        | string    | 记忆文本内容                                                                                                                                                             |
 | `importance`     | double    | 重要度，取值范围 [0, 1]。参与混合排序                                                                                                                                    |
@@ -2177,7 +2284,7 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 
 | ------------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `skillId`                | string    | 技能唯一 ID，注册时自动生成                                                                                                                                 |
-| `name`                   | string    | 技能名称，ACTIVE 状态下全局唯一。用于`activeSkillNames`引用和目录展示                                                                                   |
+| `name`                   | string    | 技能名称，ACTIVE 状态下全局唯一。用于应用层`activeSkillNames`引用和目录展示                                                                             |
 | `description`            | string    | 技能描述，在 Tier-1 技能目录中展示，帮助 LLM 判断是否需要该技能                                                                                             |
 | `license`                | string    | 许可证信息                                                                                                                                                  |
 | `compatibility`          | string    | 兼容性说明（如最低框架版本要求）                                                                                                                            |
@@ -2219,8 +2326,8 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 | `id`             | string    | 绑定记录 ID                                                                                   |
 | `agentId`        | string    | 绑定到的 Agent ID                                                                             |
 | `skillId`        | string    | 被绑定的技能 ID                                                                               |
-| `subjectType`    | string    | 绑定主体类型：`AGENT`（agent 级别绑定）/`BIZ_USER`（用户级别绑定）                    |
-| `subjectId`      | string    | 绑定主体 ID（agentId 或 bizUserId）                                                           |
+| `subjectType`    | string    | 绑定主体类型：`AGENT`（agent 级别绑定）/`DB_USER`（用户级限制）                       |
+| `subjectId`      | string    | 绑定主体 ID（agentId 或 DolphinDB userId）                                                    |
 | `enabled`        | bool      | 绑定是否启用。为`false`时该技能对此 agent 不可见（不出现在目录中，指令也不会被加载）      |
 | `descOverride`   | string    | 描述覆盖。非空时在 Tier-1 目录中替代技能原始 description 展示                                 |
 | `configOverride` | object    | 配置覆盖。当前支持覆盖`disableModelInvocation`（bool），可在 agent 级别覆盖技能的默认设置 |
@@ -2333,15 +2440,15 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 |
 ```
 
-| ----------------- | -------- | ------ | ------------------------ |
-| `agentId`   | string | 是   | Agent ID               |
-| `bizUserId` | string | 否   | 按用户过滤             |
-| `startTime` | long   | 否   | 开始时间（毫秒时间戳） |
-| `endTime`   | long   | 否   | 结束时间（毫秒时间戳） |
+| -------------------- | -------- | ------ | -------------------------------------------------------------------------------------------------------- |
+| `agentId`      | string | 是   | Agent ID                                                                                               |
+| `targetUserId` | string | 否   | 只读过滤目标用户。未指定时返回当前登录用户自己的统计；仅`AGENT_MANAGE / AGENT_ADMIN`可查看他人数据 |
+| `startTime`    | long   | 否   | 开始时间（毫秒时间戳）                                                                                 |
+| `endTime`      | long   | 否   | 结束时间（毫秒时间戳）                                                                                 |
 
 **响应:**
 
-`{ "agentId": "agent_xxx", "bizUserId": "", "startTime": 1711699200000, "endTime": 1711785600000, "totalPromptTokens": 50000, "totalCompletionTokens": 15000, "totalTokens": 65000, "requestCount": 100 } `
+`{ "agentId": "agent_xxx", "userId": "alice", "startTime": 1711699200000, "endTime": 1711785600000, "totalPromptTokens": 50000, "totalCompletionTokens": 15000, "totalTokens": 65000, "requestCount": 100 } `
 
 ---
 
@@ -2360,7 +2467,7 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 ```
 
 | -------------------------- | ------------- | -------------------------------------------------------------------------------- |
-| `AUTH_FAILED`        | 403         | 鉴权失败，当前用户无权执行此操作（DB 用户权限不足或业务用户未授权）            |
+| `AUTH_FAILED`        | 403         | 鉴权失败，当前用户无权执行此操作                                               |
 | `UNKNOWN_ACTION`     | 404         | 未知的 action，请求的接口/action 名称不存在                                    |
 | `AGENT_NOT_FOUND`    | 404         | 指定的 Agent 不存在或已被删除                                                  |
 | `SESSION_NOT_FOUND`  | 404         | 指定的会话不存在                                                               |
@@ -2413,7 +2520,7 @@ You can use this skill to query DolphinDB distributed tables.
 
 - `${SESSION_ID}`: Current session ID
 - `${AGENT_ID}`: Current agent ID
-- `${BIZ_USER_ID}`: Current business user ID
+- `${USER_ID}`: Current DolphinDB user ID
   ``
 
 ### frontmatter 字段说明
@@ -2483,10 +2590,10 @@ You can use this skill to query DolphinDB distributed tables.
    |
 ```
 
-| -------- | ------------------------------------------------ | -------------------------------------------------- | ------------------ |
-| Tier 1 | 始终在上下文中                                 | `name`+`description`+`argument-hint` | \~50-100 / skill |
-| Tier 2 | 技能被激活时（通过`activeSkillNames`指定） | SKILL.md 的完整 Markdown body                    | 建议 < 5000      |
-| Tier 3 | 按需提取（通过`skill.extractFile`接口）    | 包内的脚本、模板、参考文档等                     | 不限             |
+| -------- | ------------------------------------------------------------------------ | -------------------------------------------------- | ------------------ |
+| Tier 1 | 始终在上下文中                                                         | `name`+`description`+`argument-hint` | \~50-100 / skill |
+| Tier 2 | 应用层显式激活时（例如通过`activeSkillNames`或自定义 tool / 逻辑） | SKILL.md 的完整 Markdown body                    | 建议 < 5000      |
+| Tier 3 | 应用层按需提取时（通过`skill.extractFile`等原语）                  | 包内的脚本、模板、参考文档等                     | 不限             |
 
 ### 调用控制矩阵
 
