@@ -74,7 +74,7 @@ export function ShellEditor ({ collapser }) {
             shell.remove_tab(tabId as number)
         }
         
-        const code = tab.code
+        const code = tab?.code
         if (code)
             model.modal.confirm({
                 title: t('提醒'),
@@ -181,10 +181,7 @@ export function ShellEditor ({ collapser }) {
             enter_completion={enter_completion}
             
             on_mount={(editor, monaco) => {
-                editor.setValue(shell.itab > -1 
-                    ? shell.tabs.find(t => t.index === shell.itab).code
-                    : localStorage.getItem(storage_keys.code) || ''
-                )
+                editor.setValue(shell.get_active_code())
                 
                 async function execute (selection: 'line' | 'all') {
                     if (shell.executing)
