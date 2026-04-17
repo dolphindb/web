@@ -48,11 +48,14 @@ export const show_config: ScriptConfig = {
             let content_object: string | undefined
             try {
                 content_object = uint8_to_base64(result.pack())
-            } catch { }
+            } catch (e) {
+                console.warn('[ai] show: result.pack() failed:', e)
+            }
             
             return {
                 // show 不继续循环，直接展示结果给用户
                 next_loop: false,
+                ddb_result: result,
                 save_message: {
                     msgId: `tool_${Date.now()}`,
                     role: 'tool',

@@ -9,6 +9,8 @@ export interface ScriptResult {
     next_loop: boolean
     /** 需要保存/展示的消息 */
     save_message?: IMessage
+    /** 工具执行产生的 DdbObj 结果，用于直接路由到 DataView（不经过序列化） */
+    ddb_result?: unknown
 }
 
 

@@ -25,6 +25,8 @@ export interface IMessage {
     content: string
     reasoning_content?: string
     content_object?: unknown
+    /** 轻量标记：该消息关联了可展示的 DdbObj 结果 */
+    _has_ddb_result?: boolean
     name?: string
     tool_call_id?: string
     tool_calls?: IToolCall[]
@@ -167,6 +169,9 @@ class ChatModel extends Model<ChatModel> {
     
     /** 用户显式选择的 LLM 配置 ID（不选则由后端使用 agent 默认） */
     selected_llm_config_id = ''
+    
+    /** 最近一次工具执行产生的 DdbObj，用于直接路由到 DataView */
+    latest_ddb_result: unknown = null
     
     settings_visible = false
     
@@ -391,6 +396,7 @@ class ChatModel extends Model<ChatModel> {
             messages: [ ],
             selected_llm_config_id: '',
             selectable_llms: [ ],
+            latest_ddb_result: null,
         })
         localStorage.setItem(AGENT_ID_KEY, agent_id)
         // 异步加载新 agent 的可选 LLM 列表
@@ -527,6 +533,7 @@ class ChatModel extends Model<ChatModel> {
             messages: [ ],
             buffered_messages: [ ],
             agent_status: { status: 'idle' },
+            latest_ddb_result: null,
             // 同步会话级 LLM 选择
             selected_llm_config_id: this.sessions.find(s => s.sessionId === session_id)?.llmConfigId || '',
         })
@@ -648,6 +655,7 @@ class ChatModel extends Model<ChatModel> {
             role: display_role,
             messageType: message_type,
             content: display_content,
+            content_object: m.contentObject ?? m.content_object,
             tool_call_id: m.toolCallId,
             tool_calls,
             name,
@@ -923,9 +931,14 @@ class ChatModel extends Model<ChatModel> {
             const result_msg: IMessage = {
                 ...script_result.save_message,
                 msgId: script_result.save_message.msgId || `tr_${Date.now()}`,
+                _has_ddb_result: !!script_result.ddb_result,
             }
             this.set({ messages: [...this.messages, result_msg] })
         }
+        
+        // 路由 DdbObj 到 DataView
+        if (script_result.ddb_result)
+            this.set({ latest_ddb_result: script_result.ddb_result })
         
         if (!script_result.next_loop) {
             this.set({ agent_status: { status: 'idle' } })

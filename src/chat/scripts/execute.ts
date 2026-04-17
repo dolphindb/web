@@ -48,10 +48,13 @@ export const execute_config: ScriptConfig = {
             let content_object: string | undefined
             try {
                 content_object = uint8_to_base64(result.pack())
-            } catch { }
+            } catch (e) {
+                console.warn('[ai] execute: result.pack() failed:', e)
+            }
             
             return {
                 next_loop: true,
+                ddb_result: result,
                 save_message: {
                     msgId: `tool_${Date.now()}`,
                     role: 'tool',

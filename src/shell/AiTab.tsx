@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { Button, Input, Spin, Typography, Space, Collapse } from 'antd'
 import { SendOutlined, BulbOutlined } from '@ant-design/icons'
-import type { DdbObj, DdbValue } from 'dolphindb/browser.js'
+import { type DdbObj, type DdbValue, DdbForm } from 'dolphindb/browser.js'
 
 import { marked } from 'marked'
 
@@ -43,8 +43,16 @@ function render_markdown (content: string): string {
 }
 
 
+const DISPLAYABLE_FORMS: Set<number> = new Set([
+    DdbForm.chart, DdbForm.dict, DdbForm.matrix,
+    DdbForm.set, DdbForm.table, DdbForm.vector, DdbForm.tensor,
+])
+
+
 /** 将 AI 对话中的 DdbObj 结果输出到 shell 的 DataView */
 function route_ddb_obj_to_dataview (obj: DdbObj<DdbValue>) {
+    if (!DISPLAYABLE_FORMS.has(obj.form))
+        return
     shell.set({
         result: { type: 'object', data: obj },
     })
@@ -53,9 +61,9 @@ function route_ddb_obj_to_dataview (obj: DdbObj<DdbValue>) {
 
 export function AiTab ({ session_id }: { session_id: string }) {
     const {
-        messages, buffered_messages, agent_status, current_session_id,
+        messages, buffered_messages, agent_status, current_session_id, latest_ddb_result,
     } = chat_model.use([
-        'messages', 'buffered_messages', 'agent_status', 'current_session_id',
+        'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result',
     ])
     
     const [input_value, set_input_value] = useState('')
@@ -124,11 +132,19 @@ export function AiTab ({ session_id }: { session_id: string }) {
         }
     }, [messages, buffered_messages, agent_status.status])
     
-    // Route new DdbObj results to DataView
+    // Route live DdbObj results to DataView (direct reference, no pack/unpack)
+    useEffect(() => {
+        if (!latest_ddb_result)
+            return
+        const obj = latest_ddb_result as DdbObj<DdbValue>
+        if (obj && typeof obj.form === 'number')
+            route_ddb_obj_to_dataview(obj)
+    }, [latest_ddb_result])
+    
+    // Fallback: route DdbObj from content_object (for history/reload)
     useEffect(() => {
         if (!messages.length)
             return
-        // 找到最后一条包含 content_object 的消息
         for (let i = messages.length - 1;  i >= 0;  i--) {
             const msg = messages[i]
             if (msg.content_object) {
@@ -263,7 +279,7 @@ function AiMessageRow ({ msg, prev, next, is_last }: { msg: IMessage, prev: IMes
     
     // DdbObj 不在这里内联展示，而是路由到 DataView
     // 但保留引用检测，以便在消息中显示一个提示
-    const has_ddb_obj = Boolean(parse_ddb_obj_from_content_object(msg.content_object))
+    const has_ddb_obj = msg._has_ddb_result || Boolean(parse_ddb_obj_from_content_object(msg.content_object))
     
     return <div
         style={{
