@@ -73,12 +73,19 @@ demo2.zip
   * [4.1 授予用户全局 LLM 访问权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.1-%E6%8E%88%E4%BA%88%E7%94%A8%E6%88%B7%E5%85%A8%E5%B1%80-LLM-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90)
   * [4.2 撤销用户全局 LLM 访问权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.2-%E6%92%A4%E9%94%80%E7%94%A8%E6%88%B7%E5%85%A8%E5%B1%80-LLM-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90)
   * [4.3 列出用户全局 LLM 访问权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.3-%E5%88%97%E5%87%BA%E7%94%A8%E6%88%B7%E5%85%A8%E5%B1%80-LLM-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90)
-* [LLM 配置管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.-LLM-%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86)
-  * [5.1 注册 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.1-%E6%B3%A8%E5%86%8C-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.2 获取 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.2-%E8%8E%B7%E5%8F%96-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.3 列出 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.3-%E5%88%97%E5%87%BA-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.4 更新 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.4-%E6%9B%B4%E6%96%B0-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.5 禁用 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.5-%E7%A6%81%E7%94%A8-LLM-%E9%85%8D%E7%BD%AE)
+* [LLM Provider 与配置管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.-LLM-Provider-%E4%B8%8E%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86)
+  * [5.1 注册 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.1-%E6%B3%A8%E5%86%8C-LLM-Provider)
+  * [5.2 获取 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.2-%E8%8E%B7%E5%8F%96-LLM-Provider)
+  * [5.3 列出 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.3-%E5%88%97%E5%87%BA-LLM-Provider)
+  * [5.4 更新 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.4-%E6%9B%B4%E6%96%B0-LLM-Provider)
+  * [5.5 禁用 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.5-%E7%A6%81%E7%94%A8-LLM-Provider)
+  * [5.6 删除 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.6-%E5%88%A0%E9%99%A4-LLM-Provider)
+  * [5.7 注册 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.7-%E6%B3%A8%E5%86%8C-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.8 获取 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.8-%E8%8E%B7%E5%8F%96-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.9 列出 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.9-%E5%88%97%E5%87%BA-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.10 更新 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.10-%E6%9B%B4%E6%96%B0-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.11 禁用 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.11-%E7%A6%81%E7%94%A8-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.12 删除 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.12-%E5%88%A0%E9%99%A4-LLM-%E9%85%8D%E7%BD%AE)
 * [Agent-LLM 绑定](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.-Agent-LLM-%E7%BB%91%E5%AE%9A)
   * [6.1 绑定 LLM 到 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.1-%E7%BB%91%E5%AE%9A-LLM-%E5%88%B0-Agent)
   * [6.2 解绑 LLM](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.2-%E8%A7%A3%E7%BB%91-LLM)
@@ -147,6 +154,7 @@ demo2.zip
   * [AuthInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#AuthInfo)
   * [GlobalAccessInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#GlobalAccessInfo)
   * [UserLlmAccessInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#UserLlmAccessInfo)
+  * [LlmProviderInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#LlmProviderInfo)
   * [LlmConfigInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#LlmConfigInfo)
   * [AgentLlmBindingInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#AgentLlmBindingInfo)
   * [SelectableLlmInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SelectableLlmInfo)
@@ -513,9 +521,132 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-## 5. LLM 配置管理
+## 5. LLM Provider 与配置管理
 
-### 5.1 注册 LLM 配置
+### 5.1 注册 LLM Provider
+
+`POST /agent-bus/v1/llm/provider/register `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `name`        | string | 是   | Provider 名称，用于标识和展示                                                                                           |
+| `adapterType` | string | 是   | 运行时 provider 适配器类型：`openai`/`openai-compatible`/`anthropic`/`deepseek`/`azure`/`local` |
+| `baseUrl`     | string | 是   | Provider 级基础 URL，必须是完整`http(s)`URL，如`https://api.openai.com`                                         |
+| `apiKey`      | string | 否   | Provider 级 API Key                                                                                                     |
+| `extra`       | string | 否   | 预留扩展字段                                                                                                            |
+
+**响应:** [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo")
+
+说明：
+
+* `baseUrl` 由框架规范化保存：末尾 `/` 会被移除
+* Provider 负责承载共享连接信息；模型级配置不再直接保存 `baseUrl` 或 `apiKey`
+
+---
+
+### 5.2 获取 LLM Provider
+
+`GET /agent-bus/v1/llm/provider/{providerId} `
+
+**响应:** [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo")
+
+说明：
+
+* 软删除后的 provider 仍可通过该接口查询，此时 `status=2`、`statusName="DELETED"`
+
+---
+
+### 5.3 列出 LLM Provider
+
+`GET /agent-bus/v1/llm/provider/list `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 默认值
+
+| 说明
+
+```
+|
+```
+
+| -------------- | ------ | -------- | ---------------------------------------------------------------------------- |
+| `status` | int  | -1     | 状态过滤：`-1`=全部，`0`=ACTIVE，`1`=DISABLED，`2`=DELETED |
+| `offset` | int  | 0      | 分页起始偏移                                                               |
+| `limit`  | int  | 100    | 返回条数上限                                                               |
+
+**响应:** `{ items: [LlmProviderInfo, ...], offset, limit, size }`
+
+---
+
+### 5.4 更新 LLM Provider
+
+`PUT /agent-bus/v1/llm/provider/{providerId} `
+
+**请求体:** 需要更新的字段
+
+可更新字段：`name`、`adapterType`、`baseUrl`、`apiKey`、`extra`
+
+**响应:** [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo")
+
+说明：
+
+* 已 `DELETED` 的 provider 不能再更新
+
+---
+
+### 5.5 禁用 LLM Provider
+
+`POST /agent-bus/v1/llm/provider/{providerId}/disable `
+
+**响应:** [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo")
+
+说明：
+
+* 已 `DELETED` 的 provider 不能再执行 disable
+* 若 provider 已是 `DISABLED`，再次 disable 按幂等处理，直接返回当前 provider
+* 禁用前要求不存在任何非 `DELETED` 的 llmConfig 继续引用该 provider
+* `DISABLED` provider 不会再被 ACTIVE 的 llmConfig 引用为可运行配置
+
+---
+
+### 5.6 删除 LLM Provider
+
+`DELETE /agent-bus/v1/llm/provider/{providerId} `
+
+**响应:** [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo")（状态变为 `DELETED`）
+
+说明：
+
+* 仅允许删除已 `DISABLED` 的 provider
+* 删除为软删除：成功后 provider 仍可被 `GET /llm/provider/{providerId}` 查询到，但 `status=2`、`statusName="DELETED"`
+* 若 provider 已是 `DELETED`，再次删除按幂等处理，直接返回当前 provider
+* 删除前要求不存在任何非 `DELETED` 的 llmConfig 继续引用该 provider
+
+---
+
+### 5.7 注册 LLM 配置
 
 `POST /agent-bus/v1/llm/config/register `
 
@@ -538,39 +669,44 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 | -------------------------- | -------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `name`               | string | 是       | 配置名称，用于标识和展示                                                                                                                                                                                                                                                                                                                                                                    |
-| `provider`           | string | 是       | LLM 提供商类型：`openai`/`openai-compatible`/`anthropic`/`deepseek`/`azure`/`local`                                                                                                                                                                                                                                                                                 |
-| `model`              | string | 是       | 模型名称（如`gpt-4`、`claude-sonnet-4-20250514`），传递给 LLM API                                                                                                                                                                                                                                                                                                                   |
+| `providerId`         | string | 是       | 关联的 provider ID，必须存在且状态为`ACTIVE`                                                                                                                                                                                                                                                                                                                                            |
+| `model`              | string | 是       | 模型名称（如`gpt-4.1`、`claude-sonnet-4-20250514`），传递给 LLM API                                                                                                                                                                                                                                                                                                                 |
 | `capability`         | string | 否       | 配置能力类型，默认`chat`：`chat`/`embedding`                                                                                                                                                                                                                                                                                                                                    |
 | `embeddingDimension` | int    | 条件必填 | `capability=embedding`时必填，表示向量维度                                                                                                                                                                                                                                                                                                                                              |
 | `embeddingMetric`    | string | 否       | `capability=embedding`时使用的相似度规则：`euclidean`/`cosine`。省略时默认`euclidean`                                                                                                                                                                                                                                                                                       |
 | `embeddingNormalize` | bool   | 否       | `capability=embedding`时是否对向量做归一化。`embeddingMetric=cosine`时必须为`true`                                                                                                                                                                                                                                                                                              |
-| `endpoint`           | string | 否       | LLM API 地址（如`https://api.openai.com/v1`），为空时使用 provider 默认地址                                                                                                                                                                                                                                                                                                             |
-| `apiKey`             | string | 否       | LLM API Key                                                                                                                                                                                                                                                                                                                                                                                 |
+| `requestPath`        | string | 是       | 相对`provider.baseUrl`的请求路径，必须以`/`开头，可包含查询串，例如`/v1/chat/completions`或`/openai/deployments/x/chat/completions?api-version=2024-10-21`                                                                                                                                                                                                                  |
 | `defaultParams`      | object | 否       | 默认请求参数，详见[defaultParams 说明](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#defaultparams "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#defaultparams") |
 | `contextWindow`      | int    | 否       | 模型上下文窗口大小（token 数），用于上下文组装时的预算计算                                                                                                                                                                                                                                                                                                                                  |
 | `maxConcurrency`     | int    | 否       | 最大并发请求数，保留配置，当前未实现                                                                                                                                                                                                                                                                                                                                                        |
 | `rateLimitRPM`       | int    | 否       | 速率限制（每分钟最大请求数）保留配置，当前未实现                                                                                                                                                                                                                                                                                                                                            |
 | `timeoutMs`          | int    | 否       | 单次请求超时时间（毫秒），保留配置，当前未实现                                                                                                                                                                                                                                                                                                                                              |
 | `retryConfig`        | object | 否       | 重试配置，详见[retryConfig 说明](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#retryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#retryconfig")           |
+| `extra`              | string | 否       | 预留扩展字段                                                                                                                                                                                                                                                                                                                                                                                |
 
 **响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
 
 说明：
 
+* 运行时最终请求地址按 `provider.baseUrl + requestPath` 拼接
 * `capability=embedding` 的配置供 memory 模块生成 document/query embedding 使用
 * 系统全局只允许一条 `capability='embedding' and status='ACTIVE'` 的配置；注册或启用第二条会被拒绝
 
 ---
 
-### 5.2 获取 LLM 配置
+### 5.8 获取 LLM 配置
 
 `GET /agent-bus/v1/llm/config/{llmConfigId} `
 
 **响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
 
+说明：
+
+* 软删除后的配置仍可通过该接口查询，此时 `status=2`、`statusName="DELETED"`
+
 ---
 
-### 5.3 列出 LLM 配置
+### 5.9 列出 LLM 配置
 
 `GET /agent-bus/v1/llm/config/list `
 
@@ -590,30 +726,61 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 |
 ```
 
-| -------------- | ------ | -------- | ----------------------------------------------------------- |
-| `status` | int  | -1     | 状态过滤：`-1`=全部，`0`=ACTIVE，`1`=DISABLED |
-| `offset` | int  | 0      | 分页起始偏移                                              |
-| `limit`  | int  | 100    | 返回条数上限                                              |
+| -------------- | ------ | -------- | ---------------------------------------------------------------------------- |
+| `status` | int  | -1     | 状态过滤：`-1`=全部，`0`=ACTIVE，`1`=DISABLED，`2`=DELETED |
+| `offset` | int  | 0      | 分页起始偏移                                                               |
+| `limit`  | int  | 100    | 返回条数上限                                                               |
 
 **响应:** `{ items: [LlmConfigInfo, ...], offset, limit, size }`
 
+说明：
+
+* `status=-1` 时会返回包括 `DELETED` 在内的全部配置
+
 ---
 
-### 5.4 更新 LLM 配置
+### 5.10 更新 LLM 配置
 
 `PUT /agent-bus/v1/llm/config/{llmConfigId} `
 
 **请求体:** 需要更新的字段
 
+可更新字段：`name`、`providerId`、`model`、`capability`、`embeddingDimension`、`embeddingMetric`、`embeddingNormalize`、`requestPath`、`defaultParams`、`contextWindow`、`maxConcurrency`、`rateLimitRPM`、`timeoutMs`、`retryConfig`、`extra`
+
 **响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
+
+说明：
+
+* 已 `DELETED` 的配置不能再更新
+* `ACTIVE` 配置只能引用 `ACTIVE` provider
 
 ---
 
-### 5.5 禁用 LLM 配置
+### 5.11 禁用 LLM 配置
 
 `POST /agent-bus/v1/llm/config/{llmConfigId}/disable `
 
 **响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
+
+说明：
+
+* 已 `DELETED` 的配置不能再执行 disable
+
+---
+
+### 5.12 删除 LLM 配置
+
+`DELETE /agent-bus/v1/llm/config/{llmConfigId} `
+
+**响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")（状态变为 `DELETED`）
+
+说明：
+
+* 仅允许删除已 `DISABLED` 的配置
+* 删除为软删除：成功后配置仍可被 `GET /llm/config/{llmConfigId}` 查询到，但 `status=2`、`statusName="DELETED"`
+* 若配置已是 `DELETED`，再次删除按幂等处理，直接返回当前配置
+* 删除前要求该配置不再被任何用户授权（`user_llm_access`）、任何 agent 绑定（`agent_llm_access`）、任何非 `DELETED` agent 的默认模型字段、任何非 `DELETED` agent 的 `contextConfig.summaryConfig.summaryLlmConfigId`，以及任何非 `DELETED` session 引用
+* `DELETED` 配置不会参与运行时 LLM 选择，也不能再被更新或禁用
 
 ---
 
@@ -640,7 +807,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 ```
 
 | ------------------- | -------- | ------ | ----------------------------------------------------------------------------------------------------------------- |
-| `llmConfigId` | string | 是   | 要绑定的 LLM 配置 ID，必须已注册且状态为 ACTIVE                                                                 |
+| `llmConfigId` | string | 是   | 要绑定的 LLM 配置 ID，必须已注册且状态为 ACTIVE，且其引用的 provider 也必须为 ACTIVE                            |
 | `isDefault`   | bool   | 否   | 是否设为默认 LLM（默认 false）。每个 agent 仅允许一个默认配置，设为 true 时 priority 强制为 0                   |
 | `priority`    | int    | 否   | 优先级（默认 0），数值越小优先级越高。运行时按 priority 升序形成 fallback 链，当前 LLM 调用失败时自动尝试下一个 |
 
@@ -1831,6 +1998,7 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 | `llm.config.list`         | GET /llm/config/list                      |
 | `llm.config.update`       | PUT /llm/config/{id}                      |
 | `llm.config.disable`      | POST /llm/config/{id}/disable             |
+| `llm.config.delete`       | DELETE /llm/config/{id}                   |
 | `llm.complete`            | POST /llm/complete                        |
 | `llm.usage`               | GET /llm/usage                            |
 | `chat.completions`        | POST /chat/completions                    |
@@ -2185,7 +2353,7 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 
 ---
 
-### LlmConfigInfo
+### LlmProviderInfo
 
 | 字段
 
@@ -2196,32 +2364,61 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
   | 说明
 
 
+                                                                                                                |
+```
+
+| --------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `providerId`    | string    | 全局唯一 ID，注册时自动生成                                                                                             |
+| `name`          | string    | Provider 名称，用于标识和展示                                                                                           |
+| `adapterType`   | string    | 运行时 provider 适配器类型：`openai`/`openai-compatible`/`anthropic`/`deepseek`/`azure`/`local` |
+| `baseUrl`       | string    | Provider 级基础 URL，如`https://api.openai.com`                                                                     |
+| `apiKey`        | string    | Provider API Key。对外返回时始终脱敏为`***`；未配置时返回空字符串                                                   |
+| `status`        | int       | 状态值：0=ACTIVE, 1=DISABLED, 2=DELETED                                                                                 |
+| `statusName`    | string    | 状态名称：`ACTIVE`/`DISABLED`/`DELETED`                                                                     |
+| `schemaVersion` | int       | 行 Schema 版本号                                                                                                        |
+| `extra`         | string    | 预留扩展字段                                                                                                            |
+| `createTime`    | timestamp | 创建时间                                                                                                                |
+| `updateTime`    | timestamp | 最后更新时间                                                                                                            |
+
+---
+
+### LlmConfigInfo
+
+| 字段
+
+```
+| 类型
+
+
+                                                                                                                                                                                                                                                                                                                                                                   | 说明
+
+
                                                                                                                                                                                               |
 ```
 
-| -------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `llmConfigId`        | string    | 全局唯一 ID，注册时自动生成                                                                                                                                                                           |
-| `name`               | string    | 配置名称，用于标识和展示                                                                                                                                                                              |
-| `provider`           | string    | LLM 提供商类型：`openai`/`openai-compatible`/`anthropic`/`deepseek`/`azure`/`local`                                                                                           |
-| `model`              | string    | 模型名称（如`gpt-4`、`claude-sonnet-4-20250514`），传递给 LLM API                                                                                                                             |
-| `capability`         | string    | 配置能力类型：`chat`/`embedding`                                                                                                                                                              |
-| `embeddingDimension` | int       | 向量维度；`capability=chat`时为 0                                                                                                                                                                 |
-| `embeddingMetric`    | string    | embedding 相似度规则；`capability=chat`时为空                                                                                                                                                     |
-| `embeddingNormalize` | bool      | embedding 是否归一化；`capability=chat`时为`false`                                                                                                                                            |
-| `endpoint`           | string    | LLM API 地址（如`https://api.openai.com/v1`），为空时使用 provider 默认地址                                                                                                                       |
-| `apiKey`             | string    | LLM API Key                                                                                                                                                                                           |
-| `defaultParams`      | object    | 默认请求参数，支持`temperature`（double）、`maxTokens`/`max_tokens`（int）、`topP`/`top_p`（double）、`stop`（string[]）等。请求级参数可覆盖此处的默认值                      |
-| `contextWindow`      | int       | 模型上下文窗口大小（token 数），用于上下文组装时的预算计算。为 0 时使用`contextConfig.maxContextTokens`                                                                                           |
-| `maxConcurrency`     | int       | 该 LLM 配置的最大并发请求数                                                                                                                                                                           |
-| `rateLimitRPM`       | int       | 速率限制（每分钟最大请求数）                                                                                                                                                                          |
-| `timeoutMs`          | int       | 单次 LLM 请求超时时间（毫秒）                                                                                                                                                                         |
-| `retryConfig`        | object    | 重试配置：`maxRetries`（默认 3）、`initialDelayMs`（默认 1000）、`backoffMultiplier`（默认 2.0）、`maxDelayMs`（默认 30000）、`retryableStatusCodes`（默认 [429, 500, 502, 503]） |
-| `status`             | int       | 状态值：0=ACTIVE, 1=DISABLED                                                                                                                                                                          |
-| `statusName`         | string    | 状态名称：`ACTIVE`（可用）/`DISABLED`（已禁用，绑定到 agent 的此配置不会参与 LLM 选择）                                                                                                       |
-| `schemaVersion`      | int       | 行 Schema 版本号                                                                                                                                                                                      |
-| `extra`              | string    | 预留扩展字段                                                                                                                                                                                          |
-| `createTime`         | timestamp | 创建时间                                                                                                                                                                                              |
-| `updateTime`         | timestamp | 最后更新时间                                                                                                                                                                                          |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `llmConfigId`        | string                                                                                                                                                                                                                                                                                                                                                                     | 全局唯一 ID，注册时自动生成                                                                                                                                                                           |
+| `name`               | string                                                                                                                                                                                                                                                                                                                                                                     | 配置名称，用于标识和展示                                                                                                                                                                              |
+| `providerId`         | string                                                                                                                                                                                                                                                                                                                                                                     | 关联的 provider ID                                                                                                                                                                                    |
+| `provider`           | [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo") | 关联 provider 的完整信息；其中`apiKey`始终脱敏返回                                                                                                                                                |
+| `model`              | string                                                                                                                                                                                                                                                                                                                                                                     | 模型名称（如`gpt-4`、`claude-sonnet-4-20250514`），传递给 LLM API                                                                                                                             |
+| `capability`         | string                                                                                                                                                                                                                                                                                                                                                                     | 配置能力类型：`chat`/`embedding`                                                                                                                                                              |
+| `embeddingDimension` | int                                                                                                                                                                                                                                                                                                                                                                        | 向量维度；`capability=chat`时为 0                                                                                                                                                                 |
+| `embeddingMetric`    | string                                                                                                                                                                                                                                                                                                                                                                     | embedding 相似度规则；`capability=chat`时为空                                                                                                                                                     |
+| `embeddingNormalize` | bool                                                                                                                                                                                                                                                                                                                                                                       | embedding 是否归一化；`capability=chat`时为`false`                                                                                                                                            |
+| `requestPath`        | string                                                                                                                                                                                                                                                                                                                                                                     | 相对`provider.baseUrl`的请求路径，必须以`/`开头，可包含查询串                                                                                                                                 |
+| `defaultParams`      | object                                                                                                                                                                                                                                                                                                                                                                     | 默认请求参数，支持`temperature`（double）、`maxTokens`/`max_tokens`（int）、`topP`/`top_p`（double）、`stop`（string[]）等。请求级参数可覆盖此处的默认值                      |
+| `contextWindow`      | int                                                                                                                                                                                                                                                                                                                                                                        | 模型上下文窗口大小（token 数），用于上下文组装时的预算计算。为 0 时使用`contextConfig.maxContextTokens`                                                                                           |
+| `maxConcurrency`     | int                                                                                                                                                                                                                                                                                                                                                                        | 该 LLM 配置的最大并发请求数                                                                                                                                                                           |
+| `rateLimitRPM`       | int                                                                                                                                                                                                                                                                                                                                                                        | 速率限制（每分钟最大请求数）                                                                                                                                                                          |
+| `timeoutMs`          | int                                                                                                                                                                                                                                                                                                                                                                        | 单次 LLM 请求超时时间（毫秒）                                                                                                                                                                         |
+| `retryConfig`        | object                                                                                                                                                                                                                                                                                                                                                                     | 重试配置：`maxRetries`（默认 3）、`initialDelayMs`（默认 1000）、`backoffMultiplier`（默认 2.0）、`maxDelayMs`（默认 30000）、`retryableStatusCodes`（默认 [429, 500, 502, 503]） |
+| `status`             | int                                                                                                                                                                                                                                                                                                                                                                        | 状态值：0=ACTIVE, 1=DISABLED, 2=DELETED                                                                                                                                                               |
+| `statusName`         | string                                                                                                                                                                                                                                                                                                                                                                     | 状态名称：`ACTIVE`（可用）/`DISABLED`（已禁用，绑定到 agent 的此配置不会参与 LLM 选择）/`DELETED`（已软删除，仅保留查询与审计用途）                                                       |
+| `schemaVersion`      | int                                                                                                                                                                                                                                                                                                                                                                        | 行 Schema 版本号                                                                                                                                                                                      |
+| `extra`              | string                                                                                                                                                                                                                                                                                                                                                                     | 预留扩展字段                                                                                                                                                                                          |
+| `createTime`         | timestamp                                                                                                                                                                                                                                                                                                                                                                  | 创建时间                                                                                                                                                                                              |
+| `updateTime`         | timestamp                                                                                                                                                                                                                                                                                                                                                                  | 最后更新时间                                                                                                                                                                                          |
 
 ---
 

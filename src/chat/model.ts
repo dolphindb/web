@@ -63,18 +63,43 @@ export interface IAgentStatusEvent {
 }
 
 
+/** LLM Provider（共享连接信息：adapterType + baseUrl + apiKey） */
+export interface ILlmProvider {
+    providerId: string
+    name: string
+    adapterType: string
+    baseUrl: string
+    apiKey?: string
+    extra?: string
+    status: number
+    statusName: string
+}
+
+
+/** LLM 配置（模型级）：通过 providerId 引用 provider */
 export interface ILlmConfig {
     llmConfigId: string
     name: string
-    provider: string
+    providerId: string
+    /** 便捷字段：由前端合并 provider 信息后填充，用于展示 */
+    providerName?: string
+    /** 便捷字段：由前端合并 provider 信息后填充，用于展示 */
+    adapterType?: string
     model: string
-    endpoint?: string
-    apiKey?: string
-    status: number
-    statusName: string
-    capability?: string
+    capability?: 'chat' | 'embedding'
+    embeddingDimension?: number
+    embeddingMetric?: 'euclidean' | 'cosine'
+    embeddingNormalize?: boolean
+    requestPath: string
     defaultParams?: Record<string, unknown>
     contextWindow?: number
+    maxConcurrency?: number
+    rateLimitRPM?: number
+    timeoutMs?: number
+    retryConfig?: Record<string, unknown>
+    extra?: string
+    status: number
+    statusName: string
 }
 
 
@@ -957,24 +982,99 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    // ─── LLM 配置管理 ───
+    // ─── LLM Provider 管理 ───
     
-    async load_llm_configs (): Promise<ILlmConfig[]> {
+    /** 通用的 LlmConfig 字段映射器 */
+    _map_llm_config (item: any, provider_lookup?: Map<string, ILlmProvider>): ILlmConfig {
+        const provider = item.providerId && provider_lookup?.get(item.providerId)
+        return {
+            llmConfigId: item.llmConfigId,
+            name: item.name || item.llmConfigId,
+            providerId: item.providerId || '',
+            providerName: item.providerName || provider?.name,
+            adapterType: item.adapterType || provider?.adapterType,
+            model: item.model || '',
+            capability: item.capability,
+            embeddingDimension: item.embeddingDimension,
+            embeddingMetric: item.embeddingMetric,
+            embeddingNormalize: item.embeddingNormalize,
+            requestPath: item.requestPath || '',
+            defaultParams: item.defaultParams,
+            contextWindow: item.contextWindow,
+            maxConcurrency: item.maxConcurrency,
+            rateLimitRPM: item.rateLimitRPM,
+            timeoutMs: item.timeoutMs,
+            retryConfig: item.retryConfig,
+            extra: item.extra,
+            status: item.status,
+            statusName: item.statusName || '',
+        }
+    }
+    
+    
+    async load_llm_providers (): Promise<ILlmProvider[]> {
         try {
-            const result = await this.api_fetch('/llm/config/list')
+            const result = await this.api_fetch('/llm/provider/list')
             return (result.items || [ ]).map((item: any) => ({
-                llmConfigId: item.llmConfigId,
-                name: item.name || item.llmConfigId,
-                provider: item.provider || '',
-                model: item.model || '',
-                endpoint: item.endpoint,
+                providerId: item.providerId,
+                name: item.name || item.providerId,
+                adapterType: item.adapterType || '',
+                baseUrl: item.baseUrl || '',
                 apiKey: item.apiKey,
+                extra: item.extra,
                 status: item.status,
                 statusName: item.statusName || '',
-                capability: item.capability,
-                defaultParams: item.defaultParams,
-                contextWindow: item.contextWindow,
             }))
+        } catch {
+            return [ ]
+        }
+    }
+    
+    
+    async register_llm_provider (provider: {
+        name: string
+        adapterType: string
+        baseUrl: string
+        apiKey?: string
+        extra?: string
+    }): Promise<ILlmProvider> {
+        return this.api_fetch('/llm/provider/register', {
+            method: 'POST',
+            body: JSON.stringify(provider),
+        })
+    }
+    
+    
+    async update_llm_provider (provider_id: string, updates: Record<string, any>): Promise<void> {
+        await this.api_fetch(`/llm/provider/${provider_id}`, {
+            method: 'PUT',
+            body: JSON.stringify(updates),
+        })
+    }
+    
+    
+    async disable_llm_provider (provider_id: string): Promise<void> {
+        await this.api_fetch(`/llm/provider/${provider_id}/disable`, { method: 'POST' })
+    }
+    
+    
+    /** 软删除 provider：先 disable 再 delete，幂等 */
+    async delete_llm_provider (provider_id: string): Promise<void> {
+        try {
+            await this.disable_llm_provider(provider_id)
+        } catch {
+            // 已经是 DISABLED 或 DELETED 时忽略
+        }
+        await this.api_fetch(`/llm/provider/${provider_id}`, { method: 'DELETE' })
+    }
+    
+    
+    // ─── LLM 配置管理 ───
+    
+    async load_llm_configs (provider_lookup?: Map<string, ILlmProvider>): Promise<ILlmConfig[]> {
+        try {
+            const result = await this.api_fetch('/llm/config/list')
+            return (result.items || [ ]).map((item: any) => this._map_llm_config(item, provider_lookup))
         } catch {
             return [ ]
         }
@@ -983,12 +1083,20 @@ class ChatModel extends Model<ChatModel> {
     
     async register_llm_config (config: {
         name: string
-        provider: string
+        providerId: string
         model: string
-        endpoint?: string
-        apiKey?: string
+        capability?: 'chat' | 'embedding'
+        embeddingDimension?: number
+        embeddingMetric?: 'euclidean' | 'cosine'
+        embeddingNormalize?: boolean
+        requestPath: string
         defaultParams?: Record<string, unknown>
         contextWindow?: number
+        maxConcurrency?: number
+        rateLimitRPM?: number
+        timeoutMs?: number
+        retryConfig?: Record<string, unknown>
+        extra?: string
     }): Promise<ILlmConfig> {
         const result = await this.api_fetch('/llm/config/register', {
             method: 'POST',
@@ -997,13 +1105,11 @@ class ChatModel extends Model<ChatModel> {
         
         // 自动绑定到当前 agent（仅当该 agent 尚无绑定时设为默认）
         if (this.agent_id) {
-            // 直接查询绑定列表，不使用 load_agent_llm_bindings 以避免错误被吞掉
             let has_existing = false
             try {
                 const bindings = await this.api_fetch(`/agent/${this.agent_id}/llm/list`)
                 has_existing = (bindings.items || [ ]).length > 0
             } catch {
-                // 查询失败时保守处理，不设为默认
                 has_existing = true
             }
             await this.api_fetch(`/agent/${this.agent_id}/llm/access`, {
@@ -1032,21 +1138,24 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    async load_agent_llm_bindings (agent_id: string): Promise<IAgentLlmBinding[]> {
+    /** 软删除 config：先解除 agent 绑定，再 disable，再 delete */
+    async delete_llm_config (llm_config_id: string): Promise<void> {
+        if (this.agent_id)
+            try {
+                await this.unbind_llm_from_agent(this.agent_id, llm_config_id)
+            } catch { }
+        try {
+            await this.disable_llm_config(llm_config_id)
+        } catch { }
+        await this.api_fetch(`/llm/config/${llm_config_id}`, { method: 'DELETE' })
+    }
+    
+    
+    async load_agent_llm_bindings (agent_id: string, provider_lookup?: Map<string, ILlmProvider>): Promise<IAgentLlmBinding[]> {
         try {
             const result = await this.api_fetch(`/agent/${agent_id}/llm/list`)
             return (result.items || [ ]).map((item: any) => ({
-                llmConfigId: item.llmConfigId,
-                name: item.name || item.llmConfigId,
-                provider: item.provider || '',
-                model: item.model || '',
-                endpoint: item.endpoint,
-                apiKey: item.apiKey,
-                status: item.status,
-                statusName: item.statusName || '',
-                capability: item.capability,
-                defaultParams: item.defaultParams,
-                contextWindow: item.contextWindow,
+                ...this._map_llm_config(item, provider_lookup),
                 isDefault: item.isDefault ?? false,
                 priority: item.priority ?? 0,
                 accessExtra: item.accessExtra,
@@ -1088,7 +1197,7 @@ class ChatModel extends Model<ChatModel> {
     
     
     /** 加载当前用户在指定 Agent 下可显式选择的 LLM 列表 */
-    async load_selectable_llms (agent_id?: string): Promise<ISelectableLlmInfo[]> {
+    async load_selectable_llms (agent_id?: string, provider_lookup?: Map<string, ILlmProvider>): Promise<ISelectableLlmInfo[]> {
         const aid = agent_id || this.agent_id
         if (!aid)
             return [ ]
@@ -1098,17 +1207,7 @@ class ChatModel extends Model<ChatModel> {
             if (aid !== this.agent_id)
                 return [ ]
             const items: ISelectableLlmInfo[] = (result.items || [ ]).map((item: any) => ({
-                llmConfigId: item.llmConfigId,
-                name: item.name || item.llmConfigId,
-                provider: item.provider || '',
-                model: item.model || '',
-                endpoint: item.endpoint,
-                apiKey: item.apiKey,
-                status: item.status,
-                statusName: item.statusName || '',
-                capability: item.capability,
-                defaultParams: item.defaultParams,
-                contextWindow: item.contextWindow,
+                ...this._map_llm_config(item, provider_lookup),
                 source: item.source || 'agent',
                 isAgentDefault: item.isAgentDefault ?? false,
                 participatesInFallback: item.participatesInFallback ?? false,
