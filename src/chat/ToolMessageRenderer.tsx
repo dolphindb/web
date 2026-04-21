@@ -3,6 +3,7 @@ import { Collapse, Typography } from 'antd'
 import { marked } from 'marked'
 
 import { t } from '@i18n'
+import { Editor } from '@components/Editor/index.tsx'
 
 import type { IMessage } from './model.ts'
 import {
@@ -12,14 +13,75 @@ import {
     to_message_text,
     to_preview_text,
     is_object_record,
-    parse_maybe_json,
     format_pretty_json,
     should_use_structured_render,
-    get_structured_label,
 } from './utils/message.ts'
 
 
 const { Text } = Typography
+
+const MIN_EDITOR_HEIGHT = 120
+const MAX_EDITOR_HEIGHT = 320
+const DETAIL_MAX_HEIGHT = 320
+
+const STACK_STYLE: React.CSSProperties = {
+    marginLeft: 12,
+    marginTop: 2,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 6,
+}
+
+const BOX_STYLE: React.CSSProperties = {
+    padding: '8px 10px',
+    background: '#fafafa',
+    border: '1px solid #f0f0f0',
+    borderRadius: 8,
+}
+
+const ROW_STYLE: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 8,
+    lineHeight: '20px',
+}
+
+const LABEL_STYLE: React.CSSProperties = {
+    flexShrink: 0,
+    color: '#8c8c8c',
+}
+
+const VALUE_STYLE: React.CSSProperties = {
+    minWidth: 0,
+    wordBreak: 'break-word',
+}
+
+const CODE_VIEWER_STYLE: React.CSSProperties = {
+    overflow: 'hidden',
+    background: '#fff',
+    border: '1px solid #f0f0f0',
+    borderRadius: 8,
+}
+
+const DETAIL_STYLE: React.CSSProperties = {
+    maxHeight: DETAIL_MAX_HEIGHT,
+    overflow: 'auto',
+    padding: '10px 12px',
+    background: '#fff',
+    border: '1px solid #f0f0f0',
+    borderRadius: 8,
+}
+
+const PRE_STYLE: React.CSSProperties = {
+    margin: 0,
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
+    lineHeight: 1.6,
+}
+
+const MARKDOWN_STYLE: React.CSSProperties = {
+    wordBreak: 'break-word',
+}
 
 
 interface ToolRendererProps {
@@ -34,24 +96,23 @@ interface ToolRendererProps {
     has_paired_tool_call: boolean
 }
 
-interface ParamResultRow {
+interface SummaryRow {
     label: string
-    value: string
+    value: React.ReactNode
 }
 
-
-const PRE_STYLE: React.CSSProperties = {
-    marginTop: 6,
-    marginBottom: 0,
-    padding: '8px 10px',
-    background: '#fafafa',
-    borderLeft: '3px solid #d9d9d9',
-    overflowX: 'auto',
-    whiteSpace: 'pre-wrap',
-    wordBreak: 'break-word',
+interface DetailSection {
+    key: string
+    label: string
+    children: React.ReactNode
 }
 
-const ROW_STYLE: React.CSSProperties = { marginBottom: 4, wordBreak: 'break-word' }
+interface SectionData {
+    param_rows?: SummaryRow[]
+    result_rows?: SummaryRow[]
+    param_details?: DetailSection[]
+    result_details?: DetailSection[]
+}
 
 
 function render_markdown (content: string): string {
@@ -94,364 +155,510 @@ function get_table_like_summary (payload: unknown): { rows: number, columns: str
 }
 
 
-function RenderRows ({ rows }: { rows: ParamResultRow[] }) {
-    if (rows.length === 0)
-        return <Text type='secondary'>-</Text>
+function get_line_count (text: string) {
+    if (!text)
+        return 0
     
-    return <>
-        {rows.map(row =>
-            <div key={`${row.label}-${row.value}`} style={ROW_STYLE}>
-                <Text strong>{row.label}：</Text>
-                <Text>{row.value || '-'}</Text>
-            </div>
-        )}
-    </>
+    return text.split(/\r?\n/).length
 }
 
 
-function ParamResultSection ({ props, build_rows }: {
-    props: ToolRendererProps
-    build_rows: (p: ToolRendererProps) => { param_rows: ParamResultRow[], result_rows: ParamResultRow[] }
-}) {
-    const { param_rows, result_rows } = build_rows(props)
-    const show_params = !props.is_outcome || !props.has_paired_tool_call
-    const show_results = props.is_outcome && result_rows.length > 0
+function get_editor_height (content: string) {
+    const lines = Math.max(get_line_count(content), 1)
+    return Math.min(MAX_EDITOR_HEIGHT, Math.max(MIN_EDITOR_HEIGHT, lines * 22 + 20))
+}
+
+
+function wrap_detail (children: React.ReactNode) {
+    return <div style={DETAIL_STYLE}>{children}</div>
+}
+
+
+function compact_sections (sections: Array<DetailSection | null | undefined>): DetailSection[] {
+    return sections.filter((section): section is DetailSection => Boolean(section))
+}
+
+
+function create_text_detail (key: string, label: string, value: unknown): DetailSection | null {
+    const text = to_message_text(value).trim()
+    if (!text)
+        return null
     
-    return <div style={{ marginLeft: 12, marginTop: 2 }}>
-        {show_params && <div style={{ marginBottom: show_results ? 8 : 0 }}>
-            <Text type='secondary' style={{ fontSize: 12 }}>{t('参数')}</Text>
-            <div style={{ marginTop: 4 }}><RenderRows rows={param_rows} /></div>
-        </div>}
-        {show_results && <div>
-            <Text type='secondary' style={{ fontSize: 12 }}>{t('结果')}</Text>
-            <div style={{ marginTop: 4 }}><RenderRows rows={result_rows} /></div>
-        </div>}
+    return {
+        key,
+        label,
+        children: wrap_detail(<pre style={PRE_STYLE}>{text}</pre>),
+    }
+}
+
+
+function create_json_detail (key: string, label: string, value: unknown): DetailSection | null {
+    if (value === null || value === undefined)
+        return null
+    
+    return {
+        key,
+        label,
+        children: wrap_detail(<pre style={PRE_STYLE}>{format_pretty_json(value)}</pre>),
+    }
+}
+
+
+function create_markdown_detail (key: string, label: string, value: unknown): DetailSection | null {
+    const text = to_message_text(value).trim()
+    if (!text)
+        return null
+    
+    return {
+        key,
+        label,
+        children: wrap_detail(<div style={MARKDOWN_STYLE} dangerouslySetInnerHTML={{ __html: render_markdown(text) }} />),
+    }
+}
+
+
+function create_code_view (code: string) {
+    return <div style={CODE_VIEWER_STYLE}>
+        <Editor
+            value={code}
+            readonly
+            height={get_editor_height(code)}
+            options={{
+                automaticLayout: true,
+                lineNumbers: 'on',
+                glyphMargin: false,
+                folding: true,
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                overviewRulerBorder: false,
+                overviewRulerLanes: 0,
+                wordWrap: 'on',
+                padding: { top: 10, bottom: 10 },
+            }}
+        />
     </div>
 }
 
 
-function ExecuteLikeRenderer (props: ToolRendererProps) {
-    const { message, args, structured_payload, is_outcome, collapse_key_suffix } = props
-    
-    if (!is_outcome)
-        return <div style={{ marginTop: 2 }}>
-            <Collapse
-                ghost
-                size='small'
-                expandIconPosition='start'
-                style={{ marginTop: 0 }}
-                items={[{
-                    key: `tool-call-args-${collapse_key_suffix}`,
-                    label: t('参数'),
-                    children: <pre style={PRE_STYLE}>{format_pretty_json(args)}</pre>,
-                }]}
-            />
-        </div>
-    
-    const use_structured = should_use_structured_render(message, structured_payload)
-    if (use_structured)
-        return <div style={{ marginTop: 2 }}>
-            <Collapse
-                ghost
-                size='small'
-                expandIconPosition='start'
-                style={{ marginTop: 0 }}
-                items={[{
-                    key: `structured-content-${collapse_key_suffix}`,
-                    label: get_structured_label(message),
-                    children: <pre style={PRE_STYLE}>{structured_payload ? format_pretty_json(structured_payload) : message.content}</pre>,
-                }]}
-            />
-        </div>
-    
-    if (!message.content.trim())
+function create_compact_text_detail (key: string, label: string, value: unknown, preview_max_chars = 160): DetailSection | null {
+    const text = to_message_text(value).trim()
+    if (!text)
         return null
     
-    return <div style={{ wordBreak: 'break-word', marginLeft: 12 }}>
-        <div dangerouslySetInnerHTML={{ __html: render_markdown(message.content) }} />
+    if (text.length <= preview_max_chars && !text.includes('\n'))
+        return null
+    
+    return create_text_detail(key, label, text)
+}
+
+
+function render_external_link (value: unknown, max_chars = 120) {
+    const url = to_message_text(value).trim()
+    if (!url)
+        return '-'
+    
+    return <a href={url} target='_blank' rel='noreferrer' style={{ wordBreak: 'break-all' }}>
+        {to_preview_text(url, max_chars)}
+    </a>
+}
+
+
+function render_rows (rows: SummaryRow[]) {
+    if (rows.length === 0)
+        return null
+    
+    return <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {rows.map((row, index) =>
+            <div key={`${row.label}-${index}`} style={ROW_STYLE}>
+                <Text style={LABEL_STYLE}>{row.label}</Text>
+                <div style={VALUE_STYLE}>{row.value}</div>
+            </div>
+        )}
+    </div>
+}
+
+
+function render_details (sections: DetailSection[], collapse_key_prefix: string) {
+    if (sections.length === 0)
+        return null
+    
+    return <Collapse
+        ghost
+        size='small'
+        destroyOnHidden
+        expandIconPosition='start'
+        items={sections.map(section => ({
+            key: `${collapse_key_prefix}-${section.key}`,
+            label: section.label,
+            children: section.children,
+        }))}
+    />
+}
+
+
+function SummaryBox ({
+    rows = [ ],
+    details = [ ],
+    collapse_key_prefix,
+}: {
+    rows?: SummaryRow[]
+    details?: DetailSection[]
+    collapse_key_prefix: string
+}) {
+    if (rows.length === 0 && details.length === 0)
+        return null
+    
+    return <div style={BOX_STYLE}>
+        {render_rows(rows)}
+        {rows.length > 0 && details.length > 0 && <div style={{ height: 4 }} />}
+        {render_details(details, collapse_key_prefix)}
+    </div>
+}
+
+
+function ParamResultSection ({
+    props,
+    build_data,
+}: {
+    props: ToolRendererProps
+    build_data: (props: ToolRendererProps) => SectionData
+}) {
+    const {
+        param_rows = [ ],
+        result_rows = [ ],
+        param_details = [ ],
+        result_details = [ ],
+    } = build_data(props)
+    
+    const show_params = !props.is_outcome || !props.has_paired_tool_call
+    const show_results = props.is_outcome && (result_rows.length > 0 || result_details.length > 0)
+    
+    return <div style={STACK_STYLE}>
+        {show_params && <SummaryBox
+            rows={param_rows}
+            details={param_details}
+            collapse_key_prefix={`${props.collapse_key_suffix}-params`}
+        />}
+        {show_results && <SummaryBox
+            rows={result_rows}
+            details={result_details}
+            collapse_key_prefix={`${props.collapse_key_suffix}-results`}
+        />}
+    </div>
+}
+
+
+function get_outcome_toggle_label (message: IMessage, tool_name: string) {
+    if (message.messageType === 'tool_error' || message.messageType === 'agent_error')
+        return t('查看错误')
+    if (tool_name === 'doc_read')
+        return t('查看文档内容')
+    return t('查看结果')
+}
+
+
+function render_outcome_detail (message: IMessage, structured_payload: Record<string, unknown> | unknown[] | null) {
+    const use_structured = should_use_structured_render(message, structured_payload)
+    
+    if (use_structured)
+        return wrap_detail(<pre style={PRE_STYLE}>{structured_payload ? format_pretty_json(structured_payload) : message.content}</pre>)
+    
+    const content = message.content.trim()
+    if (!content)
+        return null
+    
+    return wrap_detail(<div style={MARKDOWN_STYLE} dangerouslySetInnerHTML={{ __html: render_markdown(content) }} />)
+}
+
+
+function ExecuteLikeRenderer (props: ToolRendererProps) {
+    const { args, message, structured_payload, collapse_key_suffix, tool_name } = props
+    const arg_list = normalize_args(args)
+    const script = to_message_text(arg_list[0]).trim()
+    
+    if (!props.is_outcome)
+        return <div style={STACK_STYLE}>
+            {script
+                ? create_code_view(script)
+                : <SummaryBox
+                    rows={[{ label: t('脚本'), value: to_preview_text(args, 160) }]}
+                    collapse_key_prefix={`${collapse_key_suffix}-script`}
+                />}
+        </div>
+    
+    const outcome = render_outcome_detail(message, structured_payload)
+    if (!outcome)
+        return null
+    
+    return <div style={{ marginLeft: 12, marginTop: 2 }}>
+        <Collapse
+            ghost
+            size='small'
+            destroyOnHidden
+            expandIconPosition='start'
+            items={[{
+                key: `execute-outcome-${collapse_key_suffix}`,
+                label: get_outcome_toggle_label(message, tool_name),
+                children: outcome,
+            }]}
+        />
     </div>
 }
 
 
 function ColdefsRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ args, message, structured_payload }) => {
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
         const table_handle = get_arg_text(args, 0)
         const summary = get_table_like_summary(structured_payload)
         return {
-            param_rows: [{ label: '表句柄', value: table_handle || '-' }],
+            param_rows: [{ label: t('表'), value: table_handle || '-' }],
             result_rows: [
-                { label: '行数', value: summary ? String(summary.rows) : '-' },
-                { label: '字段', value: summary && summary.columns.length > 0 ? summary.columns.join(', ') : to_preview_text(message.content, 160) },
+                { label: t('字段'), value: summary?.columns?.length ? summary.columns.join(', ') : to_preview_text(message.content, 140) },
             ],
+            result_details: compact_sections([
+                create_json_detail('structured', t('查看详情'), structured_payload),
+            ]),
         }
     }} />
 }
 
 
 function TestsqlRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ args, message, structured_payload }) => {
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
         const table_handle = get_arg_text(args, 0)
         const summary = get_table_like_summary(structured_payload)
         return {
-            param_rows: [{ label: '表句柄', value: table_handle || '-' }],
+            param_rows: [{ label: t('表'), value: table_handle || '-' }],
             result_rows: [
-                { label: '样例行数', value: summary ? String(summary.rows) : '-' },
-                { label: '字段', value: summary && summary.columns.length > 0 ? summary.columns.join(', ') : '-' },
-                { label: '摘要', value: to_preview_text(message.content, 140) },
+                { label: t('样例'), value: summary ? `${summary.rows} ${t('行')}` : to_preview_text(message.content, 120) },
             ],
+            result_details: compact_sections([
+                create_json_detail('structured', t('查看详情'), structured_payload),
+                create_compact_text_detail('text', t('查看结果'), message.content, 120),
+            ]),
         }
     }} />
 }
 
 
 function DocSearchRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ args, structured_payload }) => {
+    return <ParamResultSection props={props} build_data={({ args, structured_payload }) => {
         const query = get_arg_text(args, 0)
-        const page = get_arg_text(args, 1) || '1'
         const parsed = is_object_record(structured_payload) ? structured_payload : null
+        const total = to_message_text(parsed?.totalSearchItems).trim()
         const items = Array.isArray(parsed?.items) ? parsed.items : [ ]
-        const first_title = is_object_record(items[0]) ? to_message_text(items[0].title) : ''
         return {
-            param_rows: [
-                { label: '关键词', value: query || '-' },
-                { label: '页码', value: page },
-            ],
-            result_rows: [
-                { label: '命中数量', value: String(items.length) },
-                { label: '首条标题', value: first_title ? to_preview_text(first_title, 120) : '-' },
-            ],
+            param_rows: [{ label: t('文档搜索'), value: query || '-' }],
+            result_rows: [{ label: t('搜索结果'), value: `${query || '-'}，${t('匹配')} ${total || String(items.length)}` }],
         }
     }} />
 }
 
 
 function DocReadRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ args, message, structured_payload }) => {
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
         const url = get_arg_text(args, 0)
-        const max_chars = get_arg_text(args, 1) || '50000'
         const parsed = is_object_record(structured_payload) ? structured_payload : null
+        const title = to_message_text(parsed?.title).trim()
+        const page_url = to_message_text(parsed?.url).trim()
+        const content = to_message_text(parsed?.content ?? message.content).trim()
+        
         return {
-            param_rows: [
-                { label: '文档地址', value: to_preview_text(url || '-', 100) },
-                { label: '最大字符', value: max_chars },
-            ],
-            result_rows: [
-                { label: '标题', value: to_preview_text(parsed?.title ?? '-', 120) },
-                { label: '已截断', value: String(parsed?.truncated === true) },
-                { label: '内容摘要', value: to_preview_text(parsed?.content ?? message.content, 150) },
-            ],
+            param_rows: [{ label: t('读取文档'), value: to_preview_text(url || '-', 120) }],
+            result_rows: [{
+                label: t('文档内容'),
+                value: title || render_external_link(page_url || url),
+            }],
+            result_details: compact_sections([
+                create_markdown_detail('doc-content', t('查看文档内容'), content),
+            ]),
         }
     }} />
 }
 
 
 function VfsListRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ args, message }) => {
+    return <ParamResultSection props={props} build_data={({ args, message }) => {
         const query_path = get_arg_text(args, 0)
-        const lines = message.content.split('\n').map(l => l.trim()).filter(Boolean)
+        const lines = message.content.split('\n').map(line => line.trim()).filter(Boolean)
         return {
-            param_rows: [{ label: '路径过滤', value: query_path || '(全部)' }],
-            result_rows: [
-                { label: '文件数', value: String(lines.length) },
-                { label: '示例', value: lines.length > 0 ? to_preview_text(lines[0], 120) : '-' },
-            ],
+            param_rows: [{ label: t('路径'), value: query_path || t('全部') }],
+            result_rows: [{ label: t('数量'), value: String(lines.length) }],
+            result_details: compact_sections([
+                create_compact_text_detail('list', t('查看列表'), message.content, 80),
+            ]),
         }
     }} />
 }
 
 
 function VfsCreateRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ args, message }) => {
+    return <ParamResultSection props={props} build_data={({ args, message }) => {
         const path = get_arg_text(args, 0)
         const content = get_arg_text(args, 1)
         return {
-            param_rows: [
-                { label: '文件路径', value: path || '-' },
-                { label: '内容长度', value: String(content.length) },
-            ],
-            result_rows: [{ label: '结果', value: to_preview_text(message.content, 180) }],
+            param_rows: [{ label: t('文件'), value: path || '-' }],
+            result_rows: [{ label: t('结果'), value: to_preview_text(message.content, 120) }],
+            param_details: compact_sections([
+                create_compact_text_detail('content', t('查看内容'), content, 80),
+            ]),
         }
     }} />
 }
 
 
 function VfsReadRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ args, message }) => {
+    return <ParamResultSection props={props} build_data={({ args, message }) => {
         const path = get_arg_text(args, 0)
         return {
-            param_rows: [{ label: '文件路径', value: path || '-' }],
-            result_rows: [
-                { label: '内容长度', value: String(message.content.length) },
-                { label: '内容摘要', value: to_preview_text(message.content, 180) },
-            ],
+            param_rows: [{ label: t('文件'), value: path || '-' }],
+            result_details: compact_sections([
+                create_text_detail('content', t('查看内容'), message.content),
+            ]),
         }
     }} />
 }
 
 
 function VfsUpdateRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ args, message }) => {
+    return <ParamResultSection props={props} build_data={({ args, message }) => {
         const path = get_arg_text(args, 0)
         const old_string = get_arg_text(args, 1)
         const new_string = get_arg_text(args, 2)
         return {
-            param_rows: [
-                { label: '文件路径', value: path || '-' },
-                { label: '原字符串长度', value: String(old_string.length) },
-                { label: '新字符串长度', value: String(new_string.length) },
-            ],
-            result_rows: [{ label: '结果', value: to_preview_text(message.content, 180) }],
+            param_rows: [{ label: t('文件'), value: path || '-' }],
+            result_rows: [{ label: t('结果'), value: to_preview_text(message.content, 120) }],
+            param_details: compact_sections([
+                create_compact_text_detail('old-content', t('查看原内容'), old_string, 80),
+                create_compact_text_detail('new-content', t('查看新内容'), new_string, 80),
+            ]),
         }
     }} />
 }
 
 
 function VfsDeleteRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ args, message }) => {
+    return <ParamResultSection props={props} build_data={({ args, message }) => {
         const path = get_arg_text(args, 0)
         return {
-            param_rows: [{ label: '文件路径', value: path || '-' }],
-            result_rows: [{ label: '结果', value: to_preview_text(message.content, 180) }],
+            param_rows: [{ label: t('文件'), value: path || '-' }],
+            result_rows: [{ label: t('结果'), value: to_preview_text(message.content, 120) }],
         }
     }} />
 }
 
 
 function ExecuteFileRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ args, message }) => {
+    return <ParamResultSection props={props} build_data={({ args, message }) => {
         const path = get_arg_text(args, 0)
         return {
-            param_rows: [{ label: '脚本路径', value: path || '-' }],
-            result_rows: [{ label: '执行结果', value: to_preview_text(message.content, 220) }],
+            param_rows: [{ label: t('脚本'), value: path || '-' }],
+            result_details: compact_sections([
+                create_compact_text_detail('result', t('查看结果'), message.content, 120),
+            ]),
         }
     }} />
 }
 
 
 function StepCreateRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ args, message }) => {
+    return <ParamResultSection props={props} build_data={({ args, message }) => {
         const tasks = normalize_args(args).map(item => to_message_text(item).trim()).filter(Boolean)
         return {
-            param_rows: [
-                { label: '任务数量', value: String(tasks.length) },
-                { label: '首个任务', value: tasks[0] ? to_preview_text(tasks[0], 120) : '-' },
-            ],
-            result_rows: [{ label: '结果', value: to_preview_text(message.content, 220) }],
+            param_rows: [{ label: t('任务'), value: String(tasks.length) }],
+            result_rows: [{ label: t('结果'), value: to_preview_text(message.content, 120) }],
+            param_details: compact_sections([
+                tasks.length > 1 ? create_text_detail('tasks', t('查看任务'), tasks.join('\n')) : null,
+            ]),
         }
     }} />
 }
 
 
 function StepUpdateRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ args, message }) => {
+    return <ParamResultSection props={props} build_data={({ args, message }) => {
         const index = get_arg_text(args, 0)
         const checked = get_arg_text(args, 1)
         return {
             param_rows: [
-                { label: '待办索引', value: index || '-' },
-                { label: '完成状态', value: checked || '-' },
+                { label: t('索引'), value: index || '-' },
+                { label: t('状态'), value: checked || '-' },
             ],
-            result_rows: [{ label: '结果', value: to_preview_text(message.content, 220) }],
+            result_rows: [{ label: t('结果'), value: to_preview_text(message.content, 120) }],
         }
     }} />
 }
 
 
 function StepClearRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ message }) => ({
-        param_rows: [{ label: '参数', value: '无' }],
-        result_rows: [{ label: '结果', value: to_preview_text(message.content, 220) }],
+    return <ParamResultSection props={props} build_data={({ message }) => ({
+        result_rows: [{ label: t('结果'), value: to_preview_text(message.content, 120) }],
     })} />
 }
 
 
 function WorkspaceStateReadRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ message }) => ({
-        param_rows: [{ label: '参数', value: '无' }],
-        result_rows: [
-            { label: '状态长度', value: String(message.content.length) },
-            { label: '状态摘要', value: to_preview_text(message.content, 180) },
-        ],
+    return <ParamResultSection props={props} build_data={({ message }) => ({
+        result_details: compact_sections([
+            create_text_detail('workspace-state', t('查看内容'), message.content),
+        ]),
     })} />
 }
 
 
 function WorkspaceStateUpdateRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_rows={({ args, message }) => {
+    return <ParamResultSection props={props} build_data={({ args, message }) => {
         const old_string = get_arg_text(args, 0)
         const new_string = get_arg_text(args, 1)
         return {
-            param_rows: [
-                { label: '原文本长度', value: String(old_string.length) },
-                { label: '新文本长度', value: String(new_string.length) },
-            ],
-            result_rows: [{ label: '结果', value: to_preview_text(message.content, 220) }],
+            result_rows: [{ label: t('结果'), value: to_preview_text(message.content, 120) }],
+            param_details: compact_sections([
+                create_compact_text_detail('old-state', t('查看原内容'), old_string, 80),
+                create_compact_text_detail('new-state', t('查看新内容'), new_string, 80),
+            ]),
         }
     }} />
 }
 
 
 function SkillReadRenderer (props: ToolRendererProps) {
-    const { args, message, structured_payload, is_outcome, has_paired_tool_call } = props
-    const arg_list = normalize_args(args)
-    const skill_id = to_message_text(arg_list[0]).trim()
-    const parsed = is_object_record(structured_payload) ? structured_payload : null
-    const skill_data = Array.isArray(parsed?.data) ? parsed.data[0] : null
-    const skill_obj = is_object_record(skill_data) ? skill_data : null
-    const show_params = !is_outcome || !has_paired_tool_call
-    const show_results = is_outcome
-    
-    return <div style={{ marginLeft: 12, marginTop: 2 }}>
-        {show_params && <div style={{ marginBottom: show_results ? 8 : 0 }}>
-            <Text type='secondary' style={{ fontSize: 12 }}>{t('参数')}</Text>
-            <div style={{ marginTop: 4 }}>
-                <div style={ROW_STYLE}>
-                    <Text strong>skillId：</Text>
-                    <Text>{skill_id || '-'}</Text>
-                </div>
-            </div>
-        </div>}
-        {show_results && <div>
-            <Text type='secondary' style={{ fontSize: 12 }}>{t('结果')}</Text>
-            <div style={{ marginTop: 4 }}>
-                <div style={ROW_STYLE}>
-                    <Text strong>技能：</Text>
-                    <Text>{to_preview_text(skill_obj?.skillName ?? '-', 80)}</Text>
-                </div>
-                <div style={ROW_STYLE}>
-                    <Text strong>描述：</Text>
-                    <Text>{to_preview_text(skill_obj?.description ?? message.content, 160)}</Text>
-                </div>
-            </div>
-        </div>}
-    </div>
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
+        const skill_id = get_arg_text(args, 0)
+        const parsed = is_object_record(structured_payload) ? structured_payload : null
+        const skill_data = Array.isArray(parsed?.data) ? parsed.data[0] : null
+        const skill_obj = is_object_record(skill_data) ? skill_data : null
+        return {
+            param_rows: [{ label: 'skillId', value: skill_id || '-' }],
+            result_rows: [{ label: t('技能'), value: to_preview_text(skill_obj?.skillName ?? '-', 80) }],
+            result_details: compact_sections([
+                create_compact_text_detail('description', t('查看描述'), skill_obj?.description ?? message.content, 100),
+            ]),
+        }
+    }} />
 }
 
 
 function FallbackRenderer (props: ToolRendererProps) {
-    const { args, message, is_outcome, has_paired_tool_call } = props
-    const arg_list = normalize_args(args)
-    const param_rows: ParamResultRow[] = arg_list.length > 0
-        ? arg_list.map((arg, index) => ({ label: `参数${index + 1}`, value: to_preview_text(arg, 180) }))
-        : [{ label: '参数', value: '-' }]
-    
-    const result_rows: ParamResultRow[] = is_outcome
-        ? [{ label: '结果', value: to_preview_text(message.content, 320) }]
-        : [ ]
-    
-    const show_params = !is_outcome || !has_paired_tool_call
-    const show_results = is_outcome
-    
-    return <div style={{ marginLeft: 12, marginTop: 2 }}>
-        {show_params && <div style={{ marginBottom: show_results ? 8 : 0 }}>
-            <Text type='secondary' style={{ fontSize: 12 }}>{t('参数')}</Text>
-            <div style={{ marginTop: 4 }}><RenderRows rows={param_rows} /></div>
-        </div>}
-        {show_results && <div>
-            <Text type='secondary' style={{ fontSize: 12 }}>{t('结果')}</Text>
-            <div style={{ marginTop: 4 }}><RenderRows rows={result_rows} /></div>
-        </div>}
-    </div>
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload, is_outcome }) => {
+        const arg_list = normalize_args(args)
+        return {
+            param_rows: arg_list.length > 0
+                ? [{ label: t('参数'), value: to_preview_text(arg_list[0], 120) }]
+                : [ ],
+            result_rows: is_outcome
+                ? [{ label: t('结果'), value: to_preview_text(message.content, 120) }]
+                : [ ],
+            param_details: compact_sections([
+                arg_list.length > 1 || (arg_list.length === 1 && typeof arg_list[0] !== 'string')
+                    ? create_json_detail('args', t('查看参数'), args)
+                    : create_compact_text_detail('arg0', t('查看参数'), arg_list[0], 80)
+            ]),
+            result_details: compact_sections([
+                create_json_detail('structured', t('查看结果'), structured_payload),
+                !structured_payload ? create_compact_text_detail('text', t('查看结果'), message.content, 120) : null,
+            ]),
+        }
+    }} />
 }
 
 
