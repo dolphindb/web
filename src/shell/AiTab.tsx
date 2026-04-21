@@ -133,28 +133,64 @@ export function AiTab ({ session_id }: { session_id: string }) {
     }, [messages, buffered_messages, agent_status.status])
     
     // Route live DdbObj results to DataView (direct reference, no pack/unpack)
+    // 使用 ref 标记本次 session 已经路由过 live obj，避免 messages 兜底再把旧数据覆盖回去
+    const live_routed_ref = useRef(false)
+    const last_seen_msg_id_ref = useRef<string | null>(null)
+    
+    // session 切换时重置状态
+    useEffect(() => {
+        live_routed_ref.current = false
+        last_seen_msg_id_ref.current = null
+    }, [session_id])
+    
     useEffect(() => {
         if (!latest_ddb_result)
             return
         const obj = latest_ddb_result as DdbObj<DdbValue>
-        if (obj && typeof obj.form === 'number')
+        if (obj && typeof obj.form === 'number') {
             route_ddb_obj_to_dataview(obj)
+            live_routed_ref.current = true
+        }
     }, [latest_ddb_result])
     
     // Fallback: route DdbObj from content_object (for history/reload)
+    // 如果本次会话已经有 live 结果了，就不要用历史 content_object 覆盖它
+    // 对于新来的消息（执行 show/execute 工具产生），若其自身无 content_object 则不回退到更早消息
     useEffect(() => {
         if (!messages.length)
             return
-        for (let i = messages.length - 1;  i >= 0;  i--) {
-            const msg = messages[i]
-            if (msg.content_object) {
-                const obj = parse_ddb_obj_from_content_object(msg.content_object) as DdbObj<DdbValue> | null
-                if (obj) {
-                    route_ddb_obj_to_dataview(obj)
-                    break
+        const last = messages[messages.length - 1]
+        const last_id = last?.msgId ?? null
+        const prev_seen = last_seen_msg_id_ref.current
+        const is_initial_load = prev_seen === null
+        const is_new_message = !is_initial_load && last_id !== prev_seen
+        last_seen_msg_id_ref.current = last_id
+        
+        // 已有 live 路由时，绝不从历史 content_object 覆盖
+        if (live_routed_ref.current)
+            return
+        
+        if (is_initial_load) {
+            // 首次加载：倒序查找最近的有效 content_object
+            for (let i = messages.length - 1;  i >= 0;  i--) {
+                const msg = messages[i]
+                if (msg.content_object) {
+                    const obj = parse_ddb_obj_from_content_object(msg.content_object) as DdbObj<DdbValue> | null
+                    if (obj) {
+                        route_ddb_obj_to_dataview(obj)
+                        break
+                    }
                 }
             }
+            return
         }
+        
+        // 后续新增消息：仅检查最后一条（避免 pack 失败时回退到旧消息）
+        if (!is_new_message || !last?.content_object)
+            return
+        const obj = parse_ddb_obj_from_content_object(last.content_object) as DdbObj<DdbValue> | null
+        if (obj)
+            route_ddb_obj_to_dataview(obj)
     }, [messages])
     
     function handle_message_scroll () {
