@@ -76,6 +76,7 @@ function DolphinDB () {
     return <ConfigProvider
         locale={locales[language] as any}
         theme={light}
+        prefixCls=''
         button={{ autoInsertSpace: false }}
         modal={{ mask: false }}
         renderEmpty={() => <div className='empty-placeholder' />}
