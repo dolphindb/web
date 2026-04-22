@@ -1,8 +1,8 @@
 import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
-import copy from 'copy-to-clipboard'
 
 import { t } from '@i18n'
+import { copy } from '@utils'
 import { dashboard } from '@/dashboard/model.ts'
 import { type DataSource, execute } from '@/dashboard/DataSource/date-source.ts'
 import { safe_json_parse } from '@/dashboard/utils.ts'
@@ -293,9 +293,9 @@ export function get_variable_copy_infos (variable_ids: string[]) {
 }
 
 
-export function copy_variables (variable_ids: string[]) {
+export async function copy_variables (variable_ids: string[]) {
     try {
-        copy(JSON.stringify( get_variable_copy_infos(variable_ids)))
+        await copy(JSON.stringify( get_variable_copy_infos(variable_ids)))
         dashboard.message.success(t('复制成功'))
      } catch (e) {
         dashboard.message.error(t('复制失败'))

@@ -2,10 +2,11 @@ import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
 import { DDB, type DdbType, type DdbObj, type DdbValue, DdbForm, type DdbTable } from 'dolphindb/browser.js'
 import { cloneDeep } from 'lodash'
-import copy from 'copy-to-clipboard'
 
 import { t } from '@i18n'
 import { model } from '@model'
+
+import { copy } from '@utils'
 
 import { type Widget, dashboard } from '@/dashboard/model.ts'
 import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse, get_sql_col_type_map, get_streaming_col_type_map } from '@/dashboard/utils.ts'
@@ -535,9 +536,9 @@ export function get_data_source_copy_infos (source_id: string) {
 }
 
 
-export function copy_data_source (source_id: string) {
+export async function copy_data_source (source_id: string) {
     try {
-        copy(JSON.stringify(get_data_source_copy_infos(source_id)))
+        await copy(JSON.stringify(get_data_source_copy_infos(source_id)))
         dashboard.message.success(t('复制成功'))
      } catch {
         dashboard.message.error(t('复制失败'))

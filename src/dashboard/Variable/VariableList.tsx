@@ -213,7 +213,7 @@ export function VariableList ({
                             if (no_save_flag.current && (await save_confirm()))
                                 await handle_save()
                             no_save_flag.current = false
-                            copy_variables([current_variable.id])
+                            await copy_variables([current_variable.id])
                         }}
                     >
                         <CopyOutlined className='top-item-icon' />

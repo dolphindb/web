@@ -3,11 +3,12 @@ import { type DdbObj, DdbForm, DdbType, nulls, is_decimal_null_value, type DdbVa
 import { isNil, pickBy } from 'lodash'
 import { createRef } from 'react'
 import { genid } from 'xshell/utils.browser.js'
-import copy from 'copy-to-clipboard'
 import dayjs from 'dayjs'
 
 
 import { t } from '@i18n'
+
+import { copy } from '@utils'
 
 import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.ts'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig, type MatrixData } from './type.ts'
@@ -618,7 +619,7 @@ export async function load_styles (url: string) {
 }
 
 
-export function copy_widget (widget: Widget) { 
+export async function copy_widget (widget: Widget) {
     if (!widget)
         return
     
@@ -637,7 +638,7 @@ export function copy_widget (widget: Widget) {
     })
     
     try {
-        copy(copy_text)
+        await copy(copy_text)
         dashboard.message.success(t('复制成功'))
      } catch (e) {
         dashboard.message.error(t('复制失败'))

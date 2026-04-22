@@ -265,7 +265,7 @@ export function DataSourceList ({
                     if (no_save_flag.current && (await save_confirm()))
                         await handle_save()
                     no_save_flag.current = false
-                    copy_data_source(current_data_source.id)
+                    await copy_data_source(current_data_source.id)
                 }}
             >
                 <CopyOutlined className='variable-list-top-item-icon' />

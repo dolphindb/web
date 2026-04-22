@@ -54,8 +54,8 @@ importers:
         specifier: ^2.5.0
         version: 2.5.0
       copy-to-clipboard:
-        specifier: ^3.3.3
-        version: 3.3.3
+        specifier: ^4.0.0
+        version: 4.0.0
       dayjs:
         specifier: ^1.11.20
         version: 1.11.20
@@ -108,14 +108,14 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       react-object-model:
-        specifier: ^1.2.30
-        version: 1.2.30(react@19.2.5)
+        specifier: ^1.2.32
+        version: 1.2.32(react@19.2.5)
       react-quill-new:
         specifier: 3.7.0
         version: 3.7.0(quill-delta@5.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       react-router:
-        specifier: ^7.14.1
-        version: 7.14.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^7.14.2
+        version: 7.14.2(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
@@ -2177,8 +2177,8 @@ packages:
     resolution: {integrity: sha512-TG2hpqe4ELx54QER/S3HQ9SRVnQnGBtKUz5bLQWtYAQ+o6GpgMs6sYUvaiJjVxb+UXwhRhAEP3m7LbsIZ77Hmw==}
     engines: {node: '>= 0.8'}
 
-  copy-to-clipboard@3.3.3:
-    resolution: {integrity: sha512-2KV8NhB5JqC3ky0r9PMCAZKbUHSwtEo4CwCs0KXgruG43gX5PMqDEBbVU4OUzw2MuAWUfsuFmWvEKG5QRfSnJA==}
+  copy-to-clipboard@4.0.0:
+    resolution: {integrity: sha512-mfN771XnlPSUl0eCw4QoGcXfbK2205n52j4JuXINgUi0WLiFp/YtZ5at8tO9DZSmpHzoyx83ytca/NJqCcdzRw==}
 
   core-js-compat@3.27.2:
     resolution: {integrity: sha512-welaYuF7ZtbYKGrIy7y3eb40d37rG1FvzEOfe7hSLd2iD6duMDqUhRfSvCGyC46HhR6Y8JXXdZ2lnRUMkPBpvg==}
@@ -3649,10 +3649,10 @@ packages:
   react-lifecycles-compat@3.0.4:
     resolution: {integrity: sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==}
 
-  react-object-model@1.2.30:
-    resolution: {integrity: sha512-6l4DnX/cCoPcpUmGgbdN3WwhKZjsfX+0Rk2U04EycfS0mVMSBl+HO3B6MaGejhXMeY5qagMo8vMgVBJUpXBcSA==}
+  react-object-model@1.2.32:
+    resolution: {integrity: sha512-ByCQacCktpYFKm3mdyU0osbkuHGujUokuPZ0RzJvIfIjfUUFOAhbSS3xY61nFwPjCootHyrnxuKgufNBqyd70g==}
     peerDependencies:
-      react: ^19.0.0
+      react: ^19.2.5
 
   react-quill-new@3.7.0:
     resolution: {integrity: sha512-i5qz1WukIR84ktJrA2VMcZdkRrfOl/4TAK6ygMTX1/9Grcrgj0NW+LnoanBhuIbHaHJZwcvcWMBvSjUFsxQIQA==}
@@ -3661,8 +3661,8 @@ packages:
       react: ^16 || ^17 || ^18 || ^19
       react-dom: ^16 || ^17 || ^18 || ^19
 
-  react-router@7.14.1:
-    resolution: {integrity: sha512-5BCvFskyAAVumqhEKh/iPhLOIkfxcEUz8WqFIARCkMg8hZZzDYX9CtwxXA0e+qT8zAxmMC0x3Ckb9iMONwc5jg==}
+  react-router@7.14.2:
+    resolution: {integrity: sha512-yCqNne6I8IB6rVCH7XUvlBK7/QKyqypBFGv+8dj4QBFJiiRX+FG7/nkdAvGElyvVZ/HQP5N19wzteuTARXi5Gw==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -4101,9 +4101,6 @@ packages:
   to-through@3.0.0:
     resolution: {integrity: sha512-y8MN937s/HVhEoBU1SxfHC+wxCHkV1a9gW8eAdTadYh/bGyesZIVcbjI+mSpFbSVwQici/XjBjuUyri1dnXwBw==}
     engines: {node: '>=10.13.0'}
-
-  toggle-selection@1.0.6:
-    resolution: {integrity: sha512-BiZS+C1OS8g/q2RRbJmy59xpyghNBqrr6k5L/uKBGRsTfxmu3ffiRnd8mlGPUVayg8pvfi5urfnu8TU7DVOkLQ==}
 
   toidentifier@1.0.1:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
@@ -6912,9 +6909,7 @@ snapshots:
       depd: 2.0.0
       keygrip: 1.1.0
 
-  copy-to-clipboard@3.3.3:
-    dependencies:
-      toggle-selection: 1.0.6
+  copy-to-clipboard@4.0.0: {}
 
   core-js-compat@3.27.2:
     dependencies:
@@ -8627,7 +8622,7 @@ snapshots:
 
   react-lifecycles-compat@3.0.4: {}
 
-  react-object-model@1.2.30(react@19.2.5):
+  react-object-model@1.2.32(react@19.2.5):
     dependencies:
       react: 19.2.5
     optionalDependencies:
@@ -8641,7 +8636,7 @@ snapshots:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
 
-  react-router@7.14.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
+  react-router@7.14.2(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
     dependencies:
       cookie: 1.0.2
       react: 19.2.5
@@ -9138,8 +9133,6 @@ snapshots:
   to-through@3.0.0:
     dependencies:
       streamx: 2.15.0
-
-  toggle-selection@1.0.6: {}
 
   toidentifier@1.0.1: {}
 

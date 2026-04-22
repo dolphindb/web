@@ -4,9 +4,10 @@ import React, { useEffect, useState } from 'react'
 import cn from 'classnames'
 
 import { Button, type ButtonProps, Tooltip } from 'antd'
-import copy from 'copy-to-clipboard'
 
 import { t } from '@i18n'
+
+import { copy } from '@utils'
 
 import SVGCopyIcon from './copy.icon.svg'
 import SVGCopiedIcon from './copied.icon.svg'
@@ -25,8 +26,8 @@ export function CopyIconButton (props: CopyIconButtonProps) {
     const { onCopy: on_copy_props, text, copyOptions: copy_options, copyTooltips = COPY_TOOLTIPS, ...button_props } = props
     const [copied, set_copied] = useState(false)
     
-    function onCopy () {
-        copy(text, copy_options)
+    async function onCopy () {
+        await copy(text, copy_options)
         set_copied(true)
         on_copy_props?.()
     }

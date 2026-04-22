@@ -2,13 +2,13 @@ import './index.scss'
 
 import { CopyOutlined } from '@ant-design/icons'
 import { Button, Tooltip } from 'antd'
-import copy from 'copy-to-clipboard'
 import { useCallback } from 'react'
 import classNames from 'classnames'
 
 import { t } from '@i18n'
 import { model } from '@model'
 import { Editor } from '@components/Editor/index.tsx'
+import { copy } from '@utils'
 
 interface IProps { 
     code: string
@@ -18,8 +18,8 @@ interface IProps {
 export function ReadonlyEditor (props: IProps) { 
     const { code, className } = props
         
-    const copy_code = useCallback(() => {
-        copy(code)
+    const copy_code = useCallback(async () => {
+        await copy(code)
         model.message.success(t('复制成功'))
     }, [code])
     

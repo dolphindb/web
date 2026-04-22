@@ -1,6 +1,8 @@
+import _copy from 'copy-to-clipboard'
+
 import { DdbType } from 'dolphindb/browser.js'
 
-import { delay } from 'xshell/utils.browser.js'
+import { delay, check } from 'xshell/utils.browser.js'
 
 import { language, t } from '@i18n'
 
@@ -132,4 +134,10 @@ export function ns2ms (num: number) {
 
 export function upper (str: string) {
     return model.shf ? str : str.toUpperCase()
+}
+
+
+export async function copy (text: string, options?: Parameters<typeof _copy>[1]) {
+    const result = await _copy(text, options)
+    check(result, t('复制文本操作应该成功'))
 }

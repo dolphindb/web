@@ -1,10 +1,10 @@
 import { ShareAltOutlined } from '@ant-design/icons'
 import { Button, Tooltip, notification } from 'antd'
 import { useCallback } from 'react'
-import copy from 'copy-to-clipboard'
 
 import { t } from '@i18n'
 import { model } from '@model'
+import { copy } from '@utils'
 import { dashboard } from '@/dashboard/model.ts'
 import { DASHBOARD_SHARED_SEARCH_KEY } from '@/dashboard/constant.ts'
 
@@ -32,7 +32,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
         
         try {
             const { href } = url
-            copy(href)
+            await copy(href)
             api.success({
                 title: t('以下内容已复制到剪切板'),
                 style: {
