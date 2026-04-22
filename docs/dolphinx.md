@@ -4,7 +4,7 @@
 
 作者：qiwei zhu
 
-26
+27
 
 添加反应
 
@@ -2898,6 +2898,19 @@ You can use this skill to query DolphinDB distributed tables.
 | Tier 3 | 应用层按需提取时（通过`skill.extractFile`等原语）                  | 包内的脚本、模板、参考文档等                     | 不限             |
 
 ### 调用控制矩阵
+
+| `disable-model-invocation`
+
+| `user-invocable`
+
+| LLM 可自动发现
+
+| 用户可调用
+
+| 描述注入 Tier-1 目录
+
+|
+| -------------------------------- | ---------------------- | ---------------- | ------------ | ---------------------- |
 
 | `disable-model-invocation`
 
