@@ -32,13 +32,6 @@ const STACK_STYLE: React.CSSProperties = {
     gap: 6,
 }
 
-const BOX_STYLE: React.CSSProperties = {
-    padding: '8px 10px',
-    background: '#fafafa',
-    border: '1px solid #f0f0f0',
-    borderRadius: 8,
-}
-
 const ROW_STYLE: React.CSSProperties = {
     display: 'flex',
     alignItems: 'flex-start',
@@ -308,7 +301,7 @@ function SummaryBox ({
     if (rows.length === 0 && details.length === 0)
         return null
     
-    return <div style={BOX_STYLE}>
+    return <div>
         {render_rows(rows)}
         {rows.length > 0 && details.length > 0 && <div style={{ height: 4 }} />}
         {render_details(details, collapse_key_prefix)}
@@ -442,21 +435,24 @@ function TestsqlRenderer (props: ToolRendererProps) {
 
 
 function DocSearchRenderer (props: ToolRendererProps) {
+    if (!props.is_outcome)
+        return null
+    
     return <ParamResultSection props={props} build_data={({ args, structured_payload }) => {
         const query = get_arg_text(args, 0)
         const parsed = is_object_record(structured_payload) ? structured_payload : null
         const total = to_message_text(parsed?.totalSearchItems).trim()
         const items = Array.isArray(parsed?.items) ? parsed.items : [ ]
+        const count = total || String(items.length)
         return {
-            param_rows: [{ label: t('文档搜索'), value: query || '-' }],
-            result_rows: [{ label: t('搜索结果'), value: `${query || '-'}，${t('匹配')} ${total || String(items.length)}` }],
+            result_rows: [{ label: t('文档搜索'), value: `${query || '-'}，${t('匹配')} ${count} ${t('条文档')}` }],
         }
     }} />
 }
 
 
 function DocReadRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload, is_outcome }) => {
         const url = get_arg_text(args, 0)
         const parsed = is_object_record(structured_payload) ? structured_payload : null
         const title = to_message_text(parsed?.title).trim()
@@ -464,11 +460,12 @@ function DocReadRenderer (props: ToolRendererProps) {
         const content = to_message_text(parsed?.content ?? message.content).trim()
         
         return {
-            param_rows: [{ label: t('读取文档'), value: to_preview_text(url || '-', 120) }],
-            result_rows: [{
-                label: t('文档内容'),
-                value: title || render_external_link(page_url || url),
-            }],
+            param_rows: !is_outcome
+                ? [{ label: t('读取文档'), value: to_preview_text(url || '-', 120) }]
+                : [ ],
+            result_rows: !props.has_paired_tool_call && is_outcome
+                ? [{ label: t('读取文档'), value: title || render_external_link(page_url || url) }]
+                : [ ],
             result_details: compact_sections([
                 create_markdown_detail('doc-content', t('查看文档内容'), content),
             ]),
