@@ -21,6 +21,8 @@
             "@test/*": ["./test/*"]
         },
         
+        "types": ["node"],
+        
         
         // --- module
         "module": "esnext",
