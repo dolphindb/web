@@ -1,7 +1,7 @@
-export const DDB_DOCS_BASE_URL = 'https://docs.dolphindb.cn'
+export const DDB_DOCS_BASE_URL = 'https://test.dolphindb.cn'
 
-const DOCS_HOST = 'docs.dolphindb.cn'
-const DDB_RELATED_HOSTS = new Set(['dolphindb.cn', 'www.dolphindb.cn', DOCS_HOST])
+const DOCS_HOST = 'test.dolphindb.cn'
+const DDB_RELATED_HOSTS = new Set(['dolphindb.cn', 'www.dolphindb.cn', 'docs.dolphindb.cn', DOCS_HOST])
 
 
 export function resolve_dolphindb_doc_url (raw_url: string): string {
