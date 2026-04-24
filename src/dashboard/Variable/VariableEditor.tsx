@@ -15,7 +15,6 @@ import { dashboard } from '@/dashboard/model.ts'
 import { OptionList } from './OptionList.tsx'
 import { find_value, type OptionType, type Variable, type VariablePropertyType } from './variable.ts'
 
-const { TextArea } = Input
 
 const variable_map = new Map<string, number>()
 
@@ -57,7 +56,7 @@ export function VariableEditor ({
                     }}
                     options={current_variable.options.map(({ label, key }) => ({ label, value: key }))}
                 />,
-        [VariableMode.TEXT]: <TextArea 
+        [VariableMode.TEXT]: <Input.TextArea 
                     size='small' 
                     rows={18}
                     className='main-value-control-text'
