@@ -223,6 +223,18 @@ class ShellModel extends Model<ShellModel> {
                 : '')
             )
         
+        // q 脚本，最后一行包裹为 value ";[::; 原内容去掉分号]"
+        // 这样可以将最后一行赋值语句显示出来
+        if (this.language === 'q') {
+            let lines = code.split_lines()
+            
+            const { last } = lines
+            
+            lines[lines.length - 1] = `value ";[::; ${last.replace(/;\s*$/, '').replaceAll('"', '""')}]"`
+            
+            code = lines.join_lines()
+        }
+        
         this.set({ executing: true })
         
         try {
