@@ -29,7 +29,7 @@ export function DashboardInstancePage () {
     
     return <ConfigProvider theme={dark}>
         <App className='app'>
-            <Spin spinning={loading} delay={500} size='large'>
+            <Spin spinning={loading} delay={1000} size='large'>
                 <DashboardInstance id={id}/>
             </Spin>
         </App>

@@ -8,13 +8,12 @@ $border_color: #333333
     height: 100%
     padding: 0px !important
     
-    .ant-spin-nested-loading
-        height: 100%
-        .ant-spin-container
+    > .app
+        > .ant-spin
             height: 100%
-        
-    .ant-spin-nested-loading div .ant-spin
-        max-height: none
+            
+            > .ant-spin-container
+                height: 100%
     
     .ant-result.init
         padding-top: 150px !important 
