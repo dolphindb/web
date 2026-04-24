@@ -141,10 +141,9 @@ class ShellModel extends Model<ShellModel> {
             if (qdb)
                 ddb_ = qdb
             else {
-                const { ddb } = model
-                const { username, password, ticket, verbose } = ddb
+                const { url, username, password, ticket, verbose } = model.ddb
                 
-                qdb = ddb_ = new DDB(ddb.url, {
+                qdb = ddb_ = new DDB(url, {
                     // 如果有 ticket，则认为能够自动登录，并启用，否则禁用，尝试一下用户名密码登录
                     autologin: Boolean(ticket),
                     username,
