@@ -8,7 +8,7 @@ import {
     PlusOutlined, DeleteOutlined, EditOutlined,
     SaveOutlined, LinkOutlined, DisconnectOutlined,
     CheckCircleOutlined,
-    UploadOutlined,
+    StopOutlined, UploadOutlined,
 } from '@ant-design/icons'
 
 import { t } from '@i18n'
@@ -286,7 +286,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                                 value={llm.priority}
                                                 style={{ width: 60 }}
                                                 disabled={llm.isDefault}
-                                                onChange={async (value) => {
+                                                onChange={async value => {
                                                     if (value === null || value === llm.priority)
                                                         return
                                                     try {
@@ -733,12 +733,28 @@ function LlmConfigTab () {
     }
     
     async function delete_config (cfg: ILlmConfig) {
+        if (cfg.statusName !== 'DISABLED') {
+            message.warning(t('请先禁用该模型配置，再执行删除'))
+            return
+        }
         try {
             await chat_model.delete_llm_config(cfg.llmConfigId)
             message.success(t('删除成功'))
             await load()
         } catch (e: any) {
             message.error(e.message || t('删除失败'))
+            await load()
+        }
+    }
+    
+    
+    async function disable_config (cfg: ILlmConfig) {
+        try {
+            await chat_model.disable_llm_config(cfg.llmConfigId)
+            message.success(t('禁用成功'))
+            await load()
+        } catch (e: any) {
+            message.error(e.message || t('禁用失败'))
             await load()
         }
     }
@@ -886,12 +902,23 @@ function LlmConfigTab () {
                                     </div>
                                     <Space size={4}>
                                         <Button type='text' size='small' icon={<EditOutlined />} onClick={() => { open_edit_config(cfg) }} />
-                                        <Popconfirm
-                                            title={t('确定删除此模型配置？')}
-                                            onConfirm={async () => { await delete_config(cfg) }}
+                                        {cfg.statusName !== 'DISABLED' && <Popconfirm
+                                            title={t('确定禁用此模型配置？')}
+                                            description={t('禁用后才允许删除该模型配置')}
+                                            onConfirm={async () => { await disable_config(cfg) }}
                                         >
-                                            <Button type='text' size='small' danger icon={<DeleteOutlined />} />
-                                        </Popconfirm>
+                                            <Button type='text' size='small' icon={<StopOutlined />}>{t('禁用')}</Button>
+                                        </Popconfirm>}
+                                        {cfg.statusName === 'DISABLED'
+                                            ? <Popconfirm
+                                                title={t('确定删除此模型配置？')}
+                                                onConfirm={async () => { await delete_config(cfg) }}
+                                            >
+                                                <Button type='text' size='small' danger icon={<DeleteOutlined />} />
+                                            </Popconfirm>
+                                            : <Tooltip title={t('请先禁用模型配置后再删除')}>
+                                                <Button type='text' size='small' danger disabled icon={<DeleteOutlined />} />
+                                            </Tooltip>}
                                     </Space>
                                 </div>
                             )
@@ -1090,7 +1117,7 @@ function SkillsTab () {
     
     if (loading && !creating)
         return <div style={{ textAlign: 'center', padding: 60 }}><Spin /></div>
-    
+        
     return <div style={{ maxHeight: 520, overflow: 'auto' }}>
         <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
             <Button
@@ -1183,7 +1210,7 @@ function SkillsTab () {
                         for (const [k, v] of Object.entries(overrides))
                             if (v.trim())
                                 override_obj[k] = v.trim()
-                        
+                                
                         await chat_model.register_skill(
                             skill_file,
                             Object.keys(override_obj).length > 0 ? override_obj : undefined,

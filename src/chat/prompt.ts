@@ -31,7 +31,7 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = {
         args_hint: '["select * from catalog.schema.tb"]',
     },
     skill_read: {
-        summary: '按 skillId 读取单个技能的完整详情。',
+        summary: '按 skillId 读取单个技能的完整详情，并包含技能指令 instruction。',
         args_hint: '["<skillId>"]',
     },
     doc_search: {
@@ -90,7 +90,7 @@ function to_short_description (description: string): string {
 function build_skills_section (skills: ISkillInfo[]): string {
     if (skills.length === 0)
         return '可用技能列表（skillId + 名称 + 简短描述）：\n- 暂无启用技能。'
-    
+        
     const lines = skills.map(
         (item, index) =>
             `${index + 1}. [${item.skillId}] ${item.displayName || item.name}: ${to_short_description(item.description || '')}`
@@ -126,7 +126,7 @@ function build_tools_section (): string {
                 ].filter(Boolean).join('\n')
             })
             : ['- 当前未注册可调用工具。']
-    
+            
     return [
         '# 可用工具列表',
         ...tool_blocks,

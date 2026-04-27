@@ -129,7 +129,7 @@ function get_table_like_summary (payload: unknown): { rows: number, columns: str
     
     if (!is_object_record(payload))
         return null
-    
+        
     if (Array.isArray(payload.data)) {
         const rows = payload.data.filter(item => item !== null && item !== undefined).length
         const first = payload.data[0]
@@ -143,7 +143,7 @@ function get_table_like_summary (payload: unknown): { rows: number, columns: str
     const first_val = payload[keys[0]]
     if (Array.isArray(first_val))
         return { rows: first_val.length, columns: keys }
-    
+        
     return null
 }
 
@@ -151,7 +151,7 @@ function get_table_like_summary (payload: unknown): { rows: number, columns: str
 function get_line_count (text: string) {
     if (!text)
         return 0
-    
+        
     return text.split(/\r?\n/).length
 }
 
@@ -176,7 +176,7 @@ function create_text_detail (key: string, label: string, value: unknown): Detail
     const text = to_message_text(value).trim()
     if (!text)
         return null
-    
+        
     return {
         key,
         label,
@@ -188,7 +188,7 @@ function create_text_detail (key: string, label: string, value: unknown): Detail
 function create_json_detail (key: string, label: string, value: unknown): DetailSection | null {
     if (value === null || value === undefined)
         return null
-    
+        
     return {
         key,
         label,
@@ -201,7 +201,7 @@ function create_markdown_detail (key: string, label: string, value: unknown): De
     const text = to_message_text(value).trim()
     if (!text)
         return null
-    
+        
     return {
         key,
         label,
@@ -237,10 +237,10 @@ function create_compact_text_detail (key: string, label: string, value: unknown,
     const text = to_message_text(value).trim()
     if (!text)
         return null
-    
+        
     if (text.length <= preview_max_chars && !text.includes('\n'))
         return null
-    
+        
     return create_text_detail(key, label, text)
 }
 
@@ -249,7 +249,7 @@ function render_external_link (value: unknown, max_chars = 120) {
     const url = to_message_text(value).trim()
     if (!url)
         return '-'
-    
+        
     return <a href={url} target='_blank' rel='noreferrer' style={{ wordBreak: 'break-all' }}>
         {to_preview_text(url, max_chars)}
     </a>
@@ -259,7 +259,7 @@ function render_external_link (value: unknown, max_chars = 120) {
 function render_rows (rows: SummaryRow[]) {
     if (rows.length === 0)
         return null
-    
+        
     return <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         {rows.map((row, index) =>
             <div key={`${row.label}-${index}`} style={ROW_STYLE}>
@@ -274,7 +274,7 @@ function render_rows (rows: SummaryRow[]) {
 function render_details (sections: DetailSection[], collapse_key_prefix: string) {
     if (sections.length === 0)
         return null
-    
+        
     return <Collapse
         ghost
         size='small'
@@ -300,7 +300,7 @@ function SummaryBox ({
 }) {
     if (rows.length === 0 && details.length === 0)
         return null
-    
+        
     return <div>
         {render_rows(rows)}
         {rows.length > 0 && details.length > 0 && <div style={{ height: 4 }} />}
@@ -355,11 +355,11 @@ function render_outcome_detail (message: IMessage, structured_payload: Record<st
     
     if (use_structured)
         return wrap_detail(<pre style={PRE_STYLE}>{structured_payload ? format_pretty_json(structured_payload) : message.content}</pre>)
-    
+        
     const content = message.content.trim()
     if (!content)
         return null
-    
+        
     return wrap_detail(<div style={MARKDOWN_STYLE} dangerouslySetInnerHTML={{ __html: render_markdown(content) }} />)
 }
 
@@ -378,11 +378,11 @@ function ExecuteLikeRenderer (props: ToolRendererProps) {
                     collapse_key_prefix={`${collapse_key_suffix}-script`}
                 />}
         </div>
-    
+        
     const outcome = render_outcome_detail(message, structured_payload)
     if (!outcome)
         return null
-    
+        
     return <div style={{ marginLeft: 12, marginTop: 2 }}>
         <Collapse
             ghost
@@ -437,7 +437,7 @@ function TestsqlRenderer (props: ToolRendererProps) {
 function DocSearchRenderer (props: ToolRendererProps) {
     if (!props.is_outcome)
         return null
-    
+        
     return <ParamResultSection props={props} build_data={({ args, structured_payload }) => {
         const query = get_arg_text(args, 0)
         const parsed = is_object_record(structured_payload) ? structured_payload : null
@@ -622,13 +622,17 @@ function SkillReadRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
         const skill_id = get_arg_text(args, 0)
         const parsed = is_object_record(structured_payload) ? structured_payload : null
-        const skill_data = Array.isArray(parsed?.data) ? parsed.data[0] : null
-        const skill_obj = is_object_record(skill_data) ? skill_data : null
+        const nested_skill_data = Array.isArray(parsed?.data) ? parsed.data[0] : null
+        const skill_obj = is_object_record(nested_skill_data) ? nested_skill_data : parsed
+        const skill_name = skill_obj?.displayName ?? skill_obj?.name ?? skill_obj?.skillName ?? '-'
+        const description = skill_obj?.description
+        const instruction = skill_obj?.instruction
         return {
             param_rows: [{ label: 'skillId', value: skill_id || '-' }],
-            result_rows: [{ label: t('技能'), value: to_preview_text(skill_obj?.skillName ?? '-', 80) }],
+            result_rows: [{ label: t('技能'), value: to_preview_text(skill_name, 80) }],
             result_details: compact_sections([
-                create_compact_text_detail('description', t('查看描述'), skill_obj?.description ?? message.content, 100),
+                create_compact_text_detail('description', t('查看描述'), description ?? message.content, 100),
+                create_markdown_detail('instruction', t('查看技能指令'), instruction),
             ]),
         }
     }} />
@@ -733,6 +737,6 @@ export function ToolMessageRenderer ({
     
     if (!renderer)
         return <FallbackRenderer {...renderer_props} />
-    
+        
     return <>{renderer(renderer_props)}</>
 }

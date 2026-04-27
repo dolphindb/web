@@ -223,7 +223,7 @@ class ChatModel extends Model<ChatModel> {
         // 合并调用方传入的额外 headers
         if (options.headers)
             Object.assign(headers, options.headers)
-        
+            
         const { headers: _ignored, ...rest_options } = options
         const response = await fetch(url, { ...rest_options, headers })
         
@@ -278,7 +278,7 @@ class ChatModel extends Model<ChatModel> {
             // 没有 agent 时不继续初始化，由 UI 引导用户创建
             if (!this.agent_id)
                 return
-            
+                
             await this.ensure_biz_user()
             await Promise.all([
                 this.load_sessions(),
@@ -351,7 +351,7 @@ class ChatModel extends Model<ChatModel> {
         const agent_id = result.agentId || result.agent_id || result.id
         if (!agent_id)
             throw new Error('Register response missing agentId')
-        
+            
         // 激活
         const activated = await this.activate_agent(agent_id)
         
@@ -441,7 +441,7 @@ class ChatModel extends Model<ChatModel> {
                 this.set({ biz_user_id: '' })
                 localStorage.removeItem(BIZ_USER_ID_KEY)
             }
-        
+            
         // 注册业务用户
         try {
             const result = await this.api_fetch('/bizuser/register', {
@@ -518,7 +518,7 @@ class ChatModel extends Model<ChatModel> {
         }
         if (this.selected_llm_config_id)
             body.llmConfigId = this.selected_llm_config_id
-        
+            
         const result = await this.api_fetch('/session/create', {
             method: 'POST',
             body: JSON.stringify(body),
@@ -550,7 +550,7 @@ class ChatModel extends Model<ChatModel> {
     async select_session (session_id: string) {
         if (session_id === this.current_session_id)
             return
-        
+            
         this.abort_sse()
         
         this.set({
@@ -607,13 +607,13 @@ class ChatModel extends Model<ChatModel> {
     async auto_generate_title (message: string) {
         if (!this.current_session_id)
             return
-        
+            
         const MAX_TITLE_LENGTH = 20
         const trimmed = message.replace(/\s+/g, ' ').trim()
         const title = trimmed.length > MAX_TITLE_LENGTH
             ? trimmed.slice(0, MAX_TITLE_LENGTH) + '...'
             : trimmed
-        
+            
         if (title)
             await this.update_session_title(this.current_session_id, title)
     }
@@ -622,7 +622,7 @@ class ChatModel extends Model<ChatModel> {
     map_dolphinx_message (m: any): IMessage | null {
         if (!m)
             return null
-        
+            
         let message_type: string | undefined
         switch (m.contentType) {
             case 'text':
@@ -648,7 +648,7 @@ class ChatModel extends Model<ChatModel> {
                 if (Array.isArray(parsed))
                     tool_calls = parsed
             } catch { }
-        
+            
         const content: string = m.content || ''
         let name: string | undefined
         
@@ -720,7 +720,7 @@ class ChatModel extends Model<ChatModel> {
     send_message (content: string) {
         if (!content.trim() || !this.current_session_id)
             return
-        
+            
         // 添加待发送提示
         this.set({ buffered_messages: [...this.buffered_messages, content.trim()] })
         
@@ -740,7 +740,7 @@ class ChatModel extends Model<ChatModel> {
         // 首轮（非工具续传）时才中断上一次 SSE
         if (_tool_turn === 0)
             this.abort_sse()
-        
+            
         const controller = new AbortController()
         this.sse_controller = controller
         
@@ -767,7 +767,7 @@ class ChatModel extends Model<ChatModel> {
                 buffered_messages: [ ],
                 agent_status: { status: 'thinking' },
             })
-        
+            
         // 创建助手消息占位
         const assistant_msg_id = `assistant_${Date.now()}`
         this.set({
@@ -797,7 +797,7 @@ class ChatModel extends Model<ChatModel> {
             }
             if (this.selected_llm_config_id)
                 body.llmConfigId = this.selected_llm_config_id
-            
+                
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -860,12 +860,12 @@ class ChatModel extends Model<ChatModel> {
                 console.log('[debug] handle_text_tool_call completed')
             } else {
                 // 没有工具调用 → 普通文本回复
-                if (!content.trim() && !reasoning_content.trim()) 
+                if (!content.trim() && !reasoning_content.trim())
                     this.update_assistant_content(assistant_msg_id, {
                         content: t('模型返回了空响应'),
                         messageType: 'agent_error',
                     })
-                
+                    
                 this.set({ agent_status: { status: 'idle' } })
             }
             
@@ -890,7 +890,7 @@ class ChatModel extends Model<ChatModel> {
         const idx = this.messages.findIndex(m => m.msgId === msg_id)
         if (idx < 0)
             return
-        
+            
         const current = this.messages[idx]
         const next = [...this.messages]
         next[idx] = {
@@ -950,7 +950,7 @@ class ChatModel extends Model<ChatModel> {
                     content: `Tool '${parsed_call.type}' is not supported.`,
                 },
             }
-        
+            
         // 显示工具结果消息
         if (script_result.save_message) {
             const result_msg: IMessage = {
@@ -964,7 +964,7 @@ class ChatModel extends Model<ChatModel> {
         // 路由 DdbObj 到 DataView
         if (script_result.ddb_result)
             this.set({ latest_ddb_result: script_result.ddb_result })
-        
+            
         if (!script_result.next_loop) {
             this.set({ agent_status: { status: 'idle' } })
             return
@@ -974,7 +974,7 @@ class ChatModel extends Model<ChatModel> {
         const tool_result_content = script_result.save_message
             ? `[${script_result.save_message.messageType}:${parsed_call.type}] ${script_result.save_message.content}`
             : ''
-        
+            
         if (tool_result_content)
             await this.do_chat_completions(tool_result_content, undefined, tool_turn + 1)
         else
@@ -1138,15 +1138,8 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    /** 软删除 config：先解除 agent 绑定，再 disable，再 delete */
+    /** 删除模型配置：后端要求调用方先显式禁用 */
     async delete_llm_config (llm_config_id: string): Promise<void> {
-        if (this.agent_id)
-            try {
-                await this.unbind_llm_from_agent(this.agent_id, llm_config_id)
-            } catch { }
-        try {
-            await this.disable_llm_config(llm_config_id)
-        } catch { }
         await this.api_fetch(`/llm/config/${llm_config_id}`, { method: 'DELETE' })
     }
     
@@ -1334,7 +1327,7 @@ class ChatModel extends Model<ChatModel> {
         const body: Record<string, any> = { packageBase64: base64 }
         if (overrides && Object.keys(overrides).length > 0)
             body.overrides = overrides
-        
+            
         const result = await this.api_fetch('/skill/register', {
             method: 'POST',
             body: JSON.stringify(body),
