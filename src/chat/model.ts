@@ -202,6 +202,14 @@ class ChatModel extends Model<ChatModel> {
     
     loading = false
     
+    _request_seq = 0
+    
+    _active_request_seq = 0
+    
+    _interrupted_request_seq = 0
+    
+    _pending_assistant_msg_ids: string[] = [ ]
+    
     
     get base_url (): string {
         const protocol = location.protocol
@@ -696,6 +704,41 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    is_request_interrupted (request_seq: number): boolean {
+        return request_seq > 0 && this._interrupted_request_seq === request_seq
+    }
+    
+    
+    remove_pending_empty_assistant_messages () {
+        if (this._pending_assistant_msg_ids.length === 0)
+            return
+        
+        const pending_ids = new Set(this._pending_assistant_msg_ids)
+        const messages = this.messages.filter(msg => {
+            if (!pending_ids.has(msg.msgId))
+                return true
+            return Boolean(msg.content.trim() || msg.reasoning_content?.trim() || msg.content_object)
+        })
+        this._pending_assistant_msg_ids = [ ]
+        if (messages.length !== this.messages.length)
+            this.set({ messages })
+    }
+    
+    
+    interrupt_chat () {
+        if (this.agent_status.status === 'idle' && !this.sse_controller)
+            return
+        
+        this._interrupted_request_seq = this._active_request_seq
+        this.abort_sse()
+        this.remove_pending_empty_assistant_messages()
+        this.set({
+            buffered_messages: [ ],
+            agent_status: { status: 'idle' },
+        })
+    }
+    
+    
     /** Upsert a message into the messages array (update existing or append) */
     upsert_message (msg: IMessage) {
         const idx = this.messages.findIndex(m => m.msgId === msg.msgId)
@@ -720,22 +763,32 @@ class ChatModel extends Model<ChatModel> {
     send_message (content: string) {
         if (!content.trim() || !this.current_session_id)
             return
-            
+        
+        if (this.agent_status.status !== 'idle' || this.sse_controller)
+            this.interrupt_chat()
+        
+        const request_seq = ++this._request_seq
+        this._active_request_seq = request_seq
+        this._interrupted_request_seq = 0
+        this._pending_assistant_msg_ids = [ ]
+        
         // 添加待发送提示
         this.set({ buffered_messages: [...this.buffered_messages, content.trim()] })
         
         // 异步执行 SSE 对话
-        this.do_chat_completions(content.trim()).catch(e => {
+        this.do_chat_completions(content.trim(), undefined, 0, request_seq).catch(e => {
             console.error('Chat completions failed:', e)
         })
     }
     
     
-    async do_chat_completions (message: string, _unused?: unknown, _tool_turn = 0) {
+    async do_chat_completions (message: string, _unused?: unknown, _tool_turn = 0, request_seq = this._active_request_seq) {
         if (_tool_turn > MAX_TOOL_TURNS) {
             this.set({ agent_status: { status: 'error', message: t('工具调用轮次超过上限') } })
             return
         }
+        if (this.is_request_interrupted(request_seq))
+            return
         
         // 首轮（非工具续传）时才中断上一次 SSE
         if (_tool_turn === 0)
@@ -770,6 +823,7 @@ class ChatModel extends Model<ChatModel> {
             
         // 创建助手消息占位
         const assistant_msg_id = `assistant_${Date.now()}`
+        this._pending_assistant_msg_ids.push(assistant_msg_id)
         this.set({
             messages: [...this.messages, {
                 msgId: assistant_msg_id,
@@ -831,6 +885,8 @@ class ChatModel extends Model<ChatModel> {
             const content = data.content || ''
             const reasoning_content = data.reasoning_content || data.reasoningContent || ''
             const tool_calls = data.toolCalls
+            if (this.is_request_interrupted(request_seq))
+                return
             
             console.log('Chat completions response:', result)
             
@@ -856,7 +912,7 @@ class ChatModel extends Model<ChatModel> {
                 
                 this.set({ agent_status: { status: 'tool_running' } })
                 console.log('[debug] Calling handle_text_tool_call...')
-                await this.handle_text_tool_call(parsed_call, reasoning_content, _tool_turn)
+                await this.handle_text_tool_call(parsed_call, reasoning_content, _tool_turn, request_seq)
                 console.log('[debug] handle_text_tool_call completed')
             } else {
                 // 没有工具调用 → 普通文本回复
@@ -872,8 +928,11 @@ class ChatModel extends Model<ChatModel> {
             // 刷新会话列表以更新标题/时间
             this.load_sessions().catch(() => { })
         } catch (e: any) {
-            if (e.name === 'AbortError')
+            if (e.name === 'AbortError') {
+                if (this.is_request_interrupted(request_seq))
+                    this.remove_pending_empty_assistant_messages()
                 return
+            }
             console.error('Chat completions error:', e)
             this.set({ agent_status: { status: 'error', message: e.message } })
             
@@ -906,7 +965,10 @@ class ChatModel extends Model<ChatModel> {
     
     
     /** 处理文本解析出的工具调用（text-based tool calling） */
-    async handle_text_tool_call (parsed_call: ParsedToolCall, reasoning_content: string, tool_turn: number) {
+    async handle_text_tool_call (parsed_call: ParsedToolCall, reasoning_content: string, tool_turn: number, request_seq: number) {
+        if (this.is_request_interrupted(request_seq))
+            return
+        
         // 构建 ToolContext
         const context: ToolContext = {
             eval: script => model.ddb.eval(script),
@@ -950,7 +1012,10 @@ class ChatModel extends Model<ChatModel> {
                     content: `Tool '${parsed_call.type}' is not supported.`,
                 },
             }
-            
+        
+        if (this.is_request_interrupted(request_seq))
+            return
+        
         // 显示工具结果消息
         if (script_result.save_message) {
             const result_msg: IMessage = {
@@ -974,9 +1039,9 @@ class ChatModel extends Model<ChatModel> {
         const tool_result_content = script_result.save_message
             ? `[${script_result.save_message.messageType}:${parsed_call.type}] ${script_result.save_message.content}`
             : ''
-            
+        
         if (tool_result_content)
-            await this.do_chat_completions(tool_result_content, undefined, tool_turn + 1)
+            await this.do_chat_completions(tool_result_content, undefined, tool_turn + 1, request_seq)
         else
             this.set({ agent_status: { status: 'idle' } })
     }

@@ -3,7 +3,7 @@ import {
     normalize_script_args,
     truncate_tool_content,
     format_ddb_script_error,
-    format_result_with_print,
+    format_ddb_eval_result,
     uint8_to_base64,
 } from './helpers.ts'
 
@@ -42,7 +42,7 @@ export const execute_config: ScriptConfig = {
             
             const result = await context.eval(script)
             const message_content = truncate_tool_content(
-                format_result_with_print(result.data({ table: 'full' }), [ ])
+                format_ddb_eval_result(result)
             )
             
             let content_object: string | undefined

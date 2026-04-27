@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { Button, Input, Spin, Typography, Space, Collapse } from 'antd'
-import { SendOutlined, BulbOutlined } from '@ant-design/icons'
+import { SendOutlined, BulbOutlined, StopOutlined } from '@ant-design/icons'
 import { type DdbObj, type DdbValue, DdbForm } from 'dolphindb/browser.js'
 
 import { marked } from 'marked'
@@ -223,6 +223,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const visible_status = current_session_id === session_id ? agent_status : { status: 'idle' as const }
     const status_text = get_agent_status_text(visible_status)
     const has_virtual = visible_status.status !== 'idle' || visible_buffered.length > 0
+    const can_interrupt = current_session_id === session_id && visible_status.status !== 'idle'
     
     if (!inited)
         return <div className='ai-tab-loading'>
@@ -275,6 +276,14 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     placeholder={t('输入消息发送给助手...')}
                     size='large'
                 />
+                {can_interrupt && <Button
+                    danger
+                    size='large'
+                    icon={<StopOutlined />}
+                    onClick={() => { chat_model.interrupt_chat() }}
+                >
+                    {t('中断')}
+                </Button>}
                 <Button
                     type='primary'
                     size='large'

@@ -105,6 +105,37 @@ export function format_result_with_print (result: unknown, print_messages: strin
 }
 
 
+const EMPTY_DDB_RESULT = {
+    success: true,
+    message: '脚本执行成功，无返回值。',
+}
+
+
+function is_empty_ddb_result_error (error: unknown): boolean {
+    const message = error instanceof Error ? error.message : String(error)
+    return message.includes("Cannot read properties of undefined (reading 'length')")
+}
+
+
+export function format_ddb_eval_result (result: unknown, print_messages: string[] = [ ]): string {
+    if (result === null || result === undefined)
+        return format_result_with_print(EMPTY_DDB_RESULT, print_messages)
+    
+    const maybe_ddb_obj = result as { data?: unknown }
+    if (typeof maybe_ddb_obj.data !== 'function')
+        return format_result_with_print(result, print_messages)
+    
+    try {
+        const data = maybe_ddb_obj.data({ table: 'full' })
+        return format_result_with_print(data ?? EMPTY_DDB_RESULT, print_messages)
+    } catch (error) {
+        if (is_empty_ddb_result_error(error))
+            return format_result_with_print(EMPTY_DDB_RESULT, print_messages)
+        throw error
+    }
+}
+
+
 /** Uint8Array 转 base64（浏览器环境） */
 export function uint8_to_base64 (bytes: Uint8Array): string {
     if (!bytes.length)
