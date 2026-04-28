@@ -87,8 +87,6 @@ export function DdbSider () {
         () =>
             `${model.assets_root}starfish/index.html?` +
             new URLSearchParams(filter_values({
-                ddb_hostname: model.hostname,
-                ddb_port: model.port,
                 logined: Number(logined).toString(),
                 token: localStorage.getItem(storage_keys.ticket)
             })).toString(),
