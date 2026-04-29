@@ -846,7 +846,11 @@ class ChatModel extends Model<ChatModel> {
                 stream: false,
                 message,
                 assemblyConfig: {
-                    systemPrompt: build_system_prompt(skills),
+                    contextBlocks: [{
+                        name: 'web_tool_call_rules',
+                        content: build_system_prompt(skills),
+                        position: 'after_system',
+                    }],
                 },
             }
             if (this.selected_llm_config_id)
