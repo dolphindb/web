@@ -11,8 +11,10 @@ import { model, storage_keys } from '@model'
 
 import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 
-import { shell } from './model.ts'
 import { chat_model } from '@/chat/model.ts'
+import type { ScriptExecuteApprovalMode } from '@/chat/model.ts'
+
+import { shell } from './model.ts'
 import { AiTab } from './AiTab.tsx'
 
 import { SelectSqlModal } from './SelectSqlModal.tsx'
@@ -472,7 +474,9 @@ function AiToolbar ({
     collapsed: boolean
     on_toggle_collapsed: () => void
 }) {
-    const { sessions, agents, agent_id, selectable_llms, selected_llm_config_id } = chat_model.use(['sessions', 'agents', 'agent_id', 'selectable_llms', 'selected_llm_config_id'])
+    const {
+        sessions, agents, agent_id, selectable_llms, selected_llm_config_id, script_execute_approval_mode,
+    } = chat_model.use(['sessions', 'agents', 'agent_id', 'selectable_llms', 'selected_llm_config_id', 'script_execute_approval_mode'])
     const session = sessions.find(s => s.sessionId === session_id)
     const title = session?.title || t('新会话')
     
@@ -502,6 +506,19 @@ function AiToolbar ({
             }}
             options={llm_options}
         />}
+        
+        <Tooltip title={t('DolphinDB 脚本执行审批')}>
+            <Select
+                size='small'
+                value={script_execute_approval_mode}
+                style={{ minWidth: 110, marginRight: 8 }}
+                onChange={(value: ScriptExecuteApprovalMode) => { chat_model.set_script_execute_approval_mode(value) }}
+                options={[
+                    { value: 'approval', label: t('需要审批') },
+                    { value: 'auto', label: t('自动执行') },
+                ]}
+            />
+        </Tooltip>
         
         <Select
             size='small'

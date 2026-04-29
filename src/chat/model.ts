@@ -6,6 +6,7 @@ import { model, storage_keys } from '@model'
 import { init_scripts } from './scripts/init.ts'
 import { get_script_handler } from './scripts/index.ts'
 import type { ToolContext, ScriptResult } from './scripts/types.ts'
+import { normalize_script_args } from './scripts/helpers.ts'
 import { build_system_prompt } from './prompt.ts'
 import { parse_tool_call } from './tool_call_parser.ts'
 import type { ParsedToolCall } from './tool_call_parser.ts'
@@ -16,6 +17,19 @@ export type MessageRole = 'system' | 'user' | 'assistant' | 'tool'
 export type MessageType = 'system' | 'text' | 'tool_call' | 'tool_result' | 'skill_result' | 'tool_error' | 'agent_error'
 
 export type AgentStatus = 'idle' | 'thinking' | 'tool_running' | 'error'
+
+export type ScriptExecuteApprovalMode = 'approval' | 'auto'
+
+export type ScriptExecuteApprovalDecision = 'allow' | 'allow_session' | 'deny'
+
+
+export interface IScriptExecutionApproval {
+    id: string
+    sessionId: string
+    messageId: string
+    toolName: string
+    script: string
+}
 
 
 export interface IMessage {
@@ -162,6 +176,8 @@ const BIZ_USER_ID_KEY = 'ddb.chat.biz_user_id'
 /** 最大工具调用轮次，防止无限循环 */
 const MAX_TOOL_TURNS = 20
 
+const DDB_SCRIPT_TOOLS = new Set<string>(['execute', 'show'])
+
 
 // 初始化工具注册表
 init_scripts()
@@ -198,6 +214,11 @@ class ChatModel extends Model<ChatModel> {
     /** 最近一次工具执行产生的 DdbObj，用于直接路由到 DataView */
     latest_ddb_result: unknown = null
     
+    /** DolphinDB 脚本工具执行审批模式，仅保存在当前前端运行时 */
+    script_execute_approval_mode: ScriptExecuteApprovalMode = 'approval'
+    
+    pending_script_approval: IScriptExecutionApproval | null = null
+    
     settings_visible = false
     
     loading = false
@@ -209,6 +230,10 @@ class ChatModel extends Model<ChatModel> {
     _interrupted_request_seq = 0
     
     _pending_assistant_msg_ids: string[] = [ ]
+    
+    _script_approval_resolver: ((decision: ScriptExecuteApprovalDecision) => void) | null = null
+    
+    _session_script_approval_modes = new Map<string, ScriptExecuteApprovalMode>()
     
     
     get base_url (): string {
@@ -581,6 +606,7 @@ class ChatModel extends Model<ChatModel> {
             messages: [ ],
             buffered_messages: [ ],
             agent_status: { status: 'idle' },
+            script_execute_approval_mode: 'approval',
             // 新会话同步 LLM 选择（后端可能返回实际绑定的 llmConfigId）
             selected_llm_config_id: session.llmConfigId || '',
         })
@@ -600,6 +626,7 @@ class ChatModel extends Model<ChatModel> {
             buffered_messages: [ ],
             agent_status: { status: 'idle' },
             latest_ddb_result: null,
+            script_execute_approval_mode: this.get_session_script_execute_approval_mode(session_id),
             // 同步会话级 LLM 选择
             selected_llm_config_id: this.sessions.find(s => s.sessionId === session_id)?.llmConfigId || '',
         })
@@ -742,6 +769,73 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    get_session_script_execute_approval_mode (session_id = this.current_session_id): ScriptExecuteApprovalMode {
+        if (!session_id)
+            return 'approval'
+        return this._session_script_approval_modes.get(session_id) || 'approval'
+    }
+    
+    
+    set_script_execute_approval_mode (mode: ScriptExecuteApprovalMode, session_id = this.current_session_id) {
+        if (session_id)
+            this._session_script_approval_modes.set(session_id, mode)
+        
+        if (!session_id || session_id === this.current_session_id)
+            this.set({ script_execute_approval_mode: mode })
+        
+        if (
+            mode === 'auto' &&
+            this.pending_script_approval?.sessionId === session_id &&
+            this._script_approval_resolver
+        )
+            this.resolve_script_execution_approval('allow_session')
+    }
+    
+    
+    resolve_script_execution_approval (decision: ScriptExecuteApprovalDecision) {
+        const resolver = this._script_approval_resolver
+        const pending = this.pending_script_approval
+        
+        this._script_approval_resolver = null
+        if (decision === 'allow_session' && pending?.sessionId)
+            this.set_script_execute_approval_mode('auto', pending.sessionId)
+        
+        this.set({ pending_script_approval: null })
+        resolver?.(decision)
+    }
+    
+    
+    async request_script_execution_approval (tool_name: string, script: string, message_id: string): Promise<ScriptExecuteApprovalDecision> {
+        const session_id = this.current_session_id
+        if (
+            this.get_session_script_execute_approval_mode(session_id) === 'auto'
+        )
+            return 'allow'
+        
+        return new Promise(resolve => {
+            const approval: IScriptExecutionApproval = {
+                id: `script_approval_${Date.now()}`,
+                sessionId: session_id,
+                messageId: message_id,
+                toolName: tool_name,
+                script,
+            }
+            
+            this._script_approval_resolver = resolve
+            this.set({
+                pending_script_approval: approval,
+                agent_status: { status: 'tool_running', message: t('等待 DolphinDB 脚本执行审批...') },
+            })
+        })
+    }
+    
+    
+    clear_pending_script_approval (decision: ScriptExecuteApprovalDecision = 'deny') {
+        if (this._script_approval_resolver || this.pending_script_approval)
+            this.resolve_script_execution_approval(decision)
+    }
+    
+    
     remove_pending_empty_assistant_messages () {
         if (this._pending_assistant_msg_ids.length === 0)
             return
@@ -764,6 +858,7 @@ class ChatModel extends Model<ChatModel> {
         
         this._interrupted_request_seq = this._active_request_seq
         this.abort_sse()
+        this.clear_pending_script_approval('deny')
         this.remove_pending_empty_assistant_messages()
         this.set({
             buffered_messages: [ ],
@@ -949,7 +1044,7 @@ class ChatModel extends Model<ChatModel> {
                 
                 this.set({ agent_status: { status: 'tool_running' } })
                 console.log('[debug] Calling handle_text_tool_call...')
-                await this.handle_text_tool_call(parsed_call, reasoning_content, _tool_turn, request_seq)
+                await this.handle_text_tool_call(parsed_call, reasoning_content, _tool_turn, request_seq, assistant_msg_id)
                 console.log('[debug] handle_text_tool_call completed')
             } else {
                 // 没有工具调用 → 普通文本回复
@@ -1002,7 +1097,7 @@ class ChatModel extends Model<ChatModel> {
     
     
     /** 处理文本解析出的工具调用（text-based tool calling） */
-    async handle_text_tool_call (parsed_call: ParsedToolCall, reasoning_content: string, tool_turn: number, request_seq: number) {
+    async handle_text_tool_call (parsed_call: ParsedToolCall, reasoning_content: string, tool_turn: number, request_seq: number, tool_call_msg_id: string) {
         if (this.is_request_interrupted(request_seq))
             return
         
@@ -1022,6 +1117,31 @@ class ChatModel extends Model<ChatModel> {
                 ? parsed_call.payload
                 : JSON.stringify(parsed_call.payload)
             console.log('[debug] calling handler with payload_str:', payload_str.slice(0, 200))
+            
+            const script = DDB_SCRIPT_TOOLS.has(parsed_call.type)
+                ? normalize_script_args(parsed_call.payload)[0] || ''
+                : ''
+            if (script) {
+                const decision = await this.request_script_execution_approval(parsed_call.type, script, tool_call_msg_id)
+                if (this.is_request_interrupted(request_seq))
+                    return
+                if (decision === 'deny') {
+                    this._interrupted_request_seq = request_seq
+                    this.set({
+                        messages: [...this.messages, {
+                            msgId: `tool_denied_${Date.now()}`,
+                            role: 'tool',
+                            messageType: 'tool_error',
+                            name: parsed_call.type,
+                            content: t('用户未允许执行 DolphinDB 脚本，流程已中断。'),
+                        }],
+                        agent_status: { status: 'idle' },
+                    })
+                    return
+                }
+                this.set({ agent_status: { status: 'tool_running' } })
+            }
+            
             try {
                 script_result = await handler(parsed_call.type, payload_str, context)
                 console.log('[debug] handler result:', { next_loop: script_result.next_loop, has_message: !!script_result.save_message, messageType: script_result.save_message?.messageType })

@@ -1,6 +1,7 @@
 type ScriptPayloadObject = {
     args?: unknown
     content?: unknown
+    script?: unknown
 }
 
 function to_string_arg (value: unknown) {
@@ -51,6 +52,9 @@ export function normalize_script_args (payload: unknown): string[] {
             return obj.content.map(to_string_arg)
         if (typeof obj.content === 'string')
             return obj.content.trim() ? [obj.content] : [ ]
+        
+        if (typeof obj.script === 'string')
+            return obj.script.trim() ? [obj.script] : [ ]
     }
     
     return [ ]

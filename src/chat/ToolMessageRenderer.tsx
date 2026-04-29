@@ -1,4 +1,4 @@
-import { Button, Collapse, Tooltip, Typography } from 'antd'
+import { Button, Collapse, Space, Tooltip, Typography } from 'antd'
 import { RedoOutlined } from '@ant-design/icons'
 import { marked } from 'marked'
 
@@ -6,6 +6,7 @@ import { t } from '@i18n'
 import { Editor } from '@components/Editor/index.tsx'
 import { shell } from '@/shell/model.ts'
 
+import { chat_model } from './model.ts'
 import type { IMessage } from './model.ts'
 import {
     type ToolCallViewModel,
@@ -265,6 +266,47 @@ function create_rerun_button (tool_name: string, script: string) {
 }
 
 
+function ScriptApprovalActions () {
+    return <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 8,
+        marginTop: 8,
+        padding: '8px 10px',
+        border: '1px solid #faad14',
+        borderRadius: 6,
+        background: '#fffbe6',
+    }}>
+        <Text type='secondary' style={{ fontSize: 12 }}>
+            {t('等待允许执行此 DolphinDB 脚本')}
+        </Text>
+        <Space size={6}>
+            <Button
+                size='small'
+                danger
+                onClick={() => { chat_model.resolve_script_execution_approval('deny') }}
+            >
+                {t('不允许')}
+            </Button>
+            <Button
+                size='small'
+                onClick={() => { chat_model.resolve_script_execution_approval('allow_session') }}
+            >
+                {t('允许且此会话默认允许')}
+            </Button>
+            <Button
+                size='small'
+                type='primary'
+                onClick={() => { chat_model.resolve_script_execution_approval('allow') }}
+            >
+                {t('允许')}
+            </Button>
+        </Space>
+    </div>
+}
+
+
 function create_compact_text_detail (key: string, label: string, value: unknown, preview_max_chars = 160): DetailSection | null {
     const text = to_message_text(value).trim()
     if (!text)
@@ -398,13 +440,18 @@ function render_outcome_detail (message: IMessage, structured_payload: Record<st
 
 function ExecuteLikeRenderer (props: ToolRendererProps) {
     const { args, message, structured_payload, collapse_key_suffix, tool_name } = props
+    const { pending_script_approval } = chat_model.use(['pending_script_approval'])
     const arg_list = normalize_args(args)
     const script = to_message_text(arg_list[0]).trim()
+    const is_waiting_approval = pending_script_approval?.messageId === message.msgId
     
     if (!props.is_outcome)
         return <div style={STACK_STYLE}>
             {script
-                ? create_code_view(script, create_rerun_button(tool_name, script))
+                ? <>
+                    {create_code_view(script, is_waiting_approval ? null : create_rerun_button(tool_name, script))}
+                    {is_waiting_approval && <ScriptApprovalActions />}
+                </>
                 : <SummaryBox
                     rows={[{ label: t('脚本'), value: to_preview_text(args, 160) }]}
                     collapse_key_prefix={`${collapse_key_suffix}-script`}

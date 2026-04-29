@@ -1693,6 +1693,7 @@ overrides 可覆盖字段：`name`, `description`, `version`, `category`, `displ
 | `message`          | string           | 条件必填 | 用户消息文本，会被自动追加到会话历史中。`message`和`toolResults`至少提供一个                                                     |
 | `toolResults`      | ToolResult[]     | 条件必填 | 工具执行结果列表，与`message`至少提供一个。框架自动追加为`role=tool`消息后调用 LLM 续传                                          |
 | `stream`           | bool             | 否       | 是否流式返回（默认 true）。true 时返回 SSE 流，false 时返回完整 JSON                                                                     |
+| `includeReasoning` | bool             | 否       | 是否返回 provider 给出的可展示思考过程（默认 false）。该内容只用于本次展示，不必持久化存储                                               |
 | `tools`            | ToolDefinition[] | 否       | 应用层工具定义列表（OpenAI function calling 格式），注入到 LLM 请求中                                                                    |
 | `activeSkillNames` | string[]         | 否       | 调用方显式要求本次附加的技能名称列表；若提供，框架会加载这些技能的 Tier-2 指令注入本次上下文，但不维护激活状态                           |
 | `llmConfigId`      | string           | 否       | 指定本次请求使用的 LLM 配置 ID，临时覆盖 session/agent 默认配置(会进行权限校验，因此要确保填写的llmConfigId是当前agent/user有权限使用的) |
@@ -1759,16 +1760,17 @@ ToolResult 结构:
  | 说明
 
 
-                                      |
+                                                                                   |
 ```
 
-| ---------------------- | -------------- | ---------- | ----------------------------------------------- |
-| `sessionId`      | string       | 是       | 会话 ID，必须为 ACTIVE 状态                   |
-| `message`        | string       | 条件必填 | 用户消息文本，与`toolResults`至少提供一个 |
-| `toolResults`    | ToolResult[] | 条件必填 | 工具执行结果列表，与`message`至少提供一个 |
-| `stream`         | bool         | 否       | 是否流式返回（默认 true）                     |
-| `llmConfigId`    | string       | 否       | 指定本次请求使用的 LLM 配置 ID                |
-| `assemblyConfig` | object       | 是       | 手动组装配置，由应用层控制上下文构成          |
+| ------------------------ | -------------- | ---------- | -------------------------------------------------------------------------------------------- |
+| `sessionId`        | string       | 是       | 会话 ID，必须为 ACTIVE 状态                                                                |
+| `message`          | string       | 条件必填 | 用户消息文本，与`toolResults`至少提供一个                                              |
+| `toolResults`      | ToolResult[] | 条件必填 | 工具执行结果列表，与`message`至少提供一个                                              |
+| `stream`           | bool         | 否       | 是否流式返回（默认 true）                                                                  |
+| `includeReasoning` | bool         | 否       | 是否返回 provider 给出的可展示思考过程（默认 false）。该内容只用于本次展示，不必持久化存储 |
+| `llmConfigId`      | string       | 否       | 指定本次请求使用的 LLM 配置 ID                                                             |
+| `assemblyConfig`   | object       | 是       | 手动组装配置，由应用层控制上下文构成                                                       |
 
 `assemblyConfig` 结构:
 
@@ -1835,13 +1837,15 @@ ToolResult 结构:
 
 当 `stream=false` 时，`data` 内部结构为：
 
-`{ "requestId": "req_xxx", "sessionId": "sess_001", "model": "gpt-4", "llmConfigId": "llm_xxx", "content": "这是 LLM 的回复...", "toolCalls": [ { "id": "call_xxx", "type": "function", "function": { "name": "search_database", "arguments": "{\"query\":\"SELECT ...\"}" } } ], "finishReason": "stop", "usage": { "promptTokens": 1200, "completionTokens": 300, "totalTokens": 1500 }, "latencyMs": 2500, "metadata": {} } `
+`reasoning` 表示 provider 返回的可展示思考过程，不保证完整、真实或等价于模型内部 CoT；框架只在 `includeReasoning=true` 时提取并返回，不必持久化存储。
+
+`{ "requestId": "req_xxx", "sessionId": "sess_001", "model": "gpt-4", "llmConfigId": "llm_xxx", "content": "这是 LLM 的回复...", "reasoning": "provider 返回的可展示思考过程；未开启或 provider 未返回时为空", "toolCalls": [ { "id": "call_xxx", "type": "function", "function": { "name": "search_database", "arguments": "{\"query\":\"SELECT ...\"}" } } ], "finishReason": "stop", "usage": { "promptTokens": 1200, "completionTokens": 300, "totalTokens": 1500 }, "latencyMs": 2500, "metadata": {} } `
 
 ### 流式响应 (SSE)
 
 当 `stream=true`（默认）时，返回 SSE 流：
 
-`event: stream_start data: {"type":"STREAM_START","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"requestId":"req_xxx","model":"<resolved-model>","llmConfigId":"llm_xxx"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"这是"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"LLM"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"的回复"}} event: stream_end data: {"type":"STREAM_END","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{...}} `
+`event: stream_start data: {"type":"STREAM_START","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"requestId":"req_xxx","model":"<resolved-model>","llmConfigId":"llm_xxx"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"这是"}} event: reasoning_delta data: {"type":"STREAM_REASONING","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"reasoning":"可展示思考过程增量"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"LLM"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"的回复"}} event: stream_end data: {"type":"STREAM_END","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{...}} `
 
 ---
 
@@ -1868,15 +1872,16 @@ ToolResult 结构:
 |
 ```
 
-| ------------------- | ------------------ | ------ | --------------------------------------------------------------------------------------- |
-| `agentId`     | string           | 是   | Agent ID，用于解析 LLM 配置（从 agent 绑定的 LLM 列表中选择）                         |
-| `sessionId`   | string           | 否   | 会话 ID。指定时使用 session 归属用户和 session 级 LLM 配置                            |
-| `messages`    | LLMMessage[]     | 是   | 完整的消息列表（由应用层自行构建），直接发送给 LLM，框架不做上下文组装                |
-| `tools`       | ToolDefinition[] | 否   | 工具定义列表（OpenAI function calling 格式）                                          |
-| `model`       | string           | 否   | 指定模型名称，覆盖 LLM 配置中的 model                                                 |
-| `stream`      | bool             | 否   | 是否流式返回（默认 true）                                                             |
-| `llmConfigId` | string           | 否   | 指定使用的 LLM 配置 ID。必须属于当前用户在该 agent 下的有效可选集合（后台会校验权限） |
-| `requestId`   | string           | 否   | 请求追踪 ID，不指定时自动生成                                                         |
+| ------------------------ | ------------------ | ------ | -------------------------------------------------------------------------------------------- |
+| `agentId`          | string           | 是   | Agent ID，用于解析 LLM 配置（从 agent 绑定的 LLM 列表中选择）                              |
+| `sessionId`        | string           | 否   | 会话 ID。指定时使用 session 归属用户和 session 级 LLM 配置                                 |
+| `messages`         | LLMMessage[]     | 是   | 完整的消息列表（由应用层自行构建），直接发送给 LLM，框架不做上下文组装                     |
+| `tools`            | ToolDefinition[] | 否   | 工具定义列表（OpenAI function calling 格式）                                               |
+| `model`            | string           | 否   | 指定模型名称，覆盖 LLM 配置中的 model                                                      |
+| `stream`           | bool             | 否   | 是否流式返回（默认 true）                                                                  |
+| `includeReasoning` | bool             | 否   | 是否返回 provider 给出的可展示思考过程（默认 false）。该内容只用于本次展示，不必持久化存储 |
+| `llmConfigId`      | string           | 否   | 指定使用的 LLM 配置 ID。必须属于当前用户在该 agent 下的有效可选集合（后台会校验权限）      |
+| `requestId`        | string           | 否   | 请求追踪 ID，不指定时自动生成                                                              |
 
 LLMMessage 结构:
 
@@ -2005,7 +2010,7 @@ WebSocket 端点路径与 HTTP 相同（通过协议升级）。
 
 **流式帧:**
 
-`{"type": "STREAM_START", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"requestId": "req_001", "model": "<resolved-model>", "llmConfigId": "llm_xxx"}} {"type": "STREAM_CHUNK", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"content": "..."}} {"type": "STREAM_END", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {...}} `
+`{"type": "STREAM_START", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"requestId": "req_001", "model": "<resolved-model>", "llmConfigId": "llm_xxx"}} {"type": "STREAM_REASONING", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"reasoning": "..."}} {"type": "STREAM_CHUNK", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"content": "..."}} {"type": "STREAM_END", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {...}} `
 
 **错误帧:**
 
