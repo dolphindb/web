@@ -38,6 +38,7 @@ const TOOL_NAME_LABELS: Record<string, string> = {
     step_update: '更新待办',
     step_clear: '清除待办',
     skill_read: '技能读取',
+    skill_file_read: '技能文件读取',
     doc_search: '文档搜索',
     doc_read: '文档读取',
     workspace_state_read: '读取工作区状态',

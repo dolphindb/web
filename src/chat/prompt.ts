@@ -31,8 +31,12 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = {
         args_hint: '["select * from catalog.schema.tb"]',
     },
     skill_read: {
-        summary: '按 skillId 读取单个技能的完整详情，并包含技能指令 instruction。',
+        summary: '按 skillId 读取单个技能的完整详情，并包含技能指令 instruction 与文件目录结构 fileTree。',
         args_hint: '["<skillId>"]',
+    },
+    skill_file_read: {
+        summary: '读取指定 Skill 包内文件的文本内容。先用 skill_read 查看 files/fileTree，再按路径读取需要的文件。',
+        args_hint: '["<skillId>","SKILL.md"]',
     },
     doc_search: {
         summary: '搜索 DolphinDB 官方中文文档，返回最多 30 条结果（含 title/content/url/score）。',

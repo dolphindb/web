@@ -1,7 +1,7 @@
 import type { IMessage } from '@/chat/model.ts'
 
 
-export type ScriptType = 'execute' | 'coldefs' | 'testsql' | 'show' | 'doc_search' | 'doc_read' | 'skill_read' | string
+export type ScriptType = 'execute' | 'coldefs' | 'testsql' | 'show' | 'doc_search' | 'doc_read' | 'skill_read' | 'skill_file_read' | string
 
 
 export interface ScriptResult {

@@ -10,6 +10,54 @@ function is_record (value: unknown): value is Record<string, unknown> {
 }
 
 
+type SkillFileTreeNode = {
+    name: string
+    path: string
+    type: 'directory' | 'file'
+    children?: SkillFileTreeNode[]
+}
+
+
+function to_file_paths (value: unknown): string[] {
+    if (!is_record(value) || !Array.isArray(value.items))
+        return [ ]
+    
+    return value.items
+        .map(item => typeof item === 'string' ? item.trim() : '')
+        .filter(Boolean)
+}
+
+
+function build_file_tree (file_paths: string[]): SkillFileTreeNode[] {
+    const roots: SkillFileTreeNode[] = [ ]
+    
+    for (const file_path of file_paths) {
+        const parts = file_path.split('/').map(part => part.trim()).filter(Boolean)
+        let level = roots
+        let current_path = ''
+        
+        parts.forEach((part, index) => {
+            current_path = current_path ? `${current_path}/${part}` : part
+            const is_file = index === parts.length - 1
+            let node = level.find(item => item.name === part)
+            if (!node) {
+                node = {
+                    name: part,
+                    path: current_path,
+                    type: is_file ? 'file' : 'directory',
+                    ...(!is_file ? { children: [ ] } : { }),
+                }
+                level.push(node)
+            }
+            if (!is_file)
+                level = node.children ?? [ ]
+        })
+    }
+    
+    return roots
+}
+
+
 export const skill_read_config: ScriptConfig = {
     function: 'skill_read',
     definition: {
@@ -47,6 +95,8 @@ export const skill_read_config: ScriptConfig = {
             const instruction_detail = is_record(skill_detail) && skill_detail.hasInstruction === false
                 ? null
                 : await context.api_fetch(`/skill/${encoded_skill_id}/instruction`)
+            const files_detail = await context.api_fetch(`/skill/${encoded_skill_id}/files/list`)
+            const files = to_file_paths(files_detail)
             const instruction = is_record(instruction_detail) && typeof instruction_detail.instruction === 'string'
                 ? instruction_detail.instruction
                 : ''
@@ -55,11 +105,17 @@ export const skill_read_config: ScriptConfig = {
                     ...skill_detail,
                     instruction,
                     instructionDetail: instruction_detail,
+                    files,
+                    fileTree: build_file_tree(files),
+                    filesDetail: files_detail,
                 }
                 : {
                     skill: skill_detail,
                     instruction,
                     instructionDetail: instruction_detail,
+                    files,
+                    fileTree: build_file_tree(files),
+                    filesDetail: files_detail,
                 }
             const message_content = stringify_ddb_result(result)
             

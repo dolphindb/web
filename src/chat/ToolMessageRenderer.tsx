@@ -659,12 +659,38 @@ function SkillReadRenderer (props: ToolRendererProps) {
         const skill_name = skill_obj?.displayName ?? skill_obj?.name ?? skill_obj?.skillName ?? '-'
         const description = skill_obj?.description
         const instruction = skill_obj?.instruction
+        const files = Array.isArray(skill_obj?.files) ? skill_obj.files : [ ]
         return {
             param_rows: [{ label: 'skillId', value: skill_id || '-' }],
-            result_rows: [{ label: t('技能'), value: to_preview_text(skill_name, 80) }],
+            result_rows: [
+                { label: t('技能'), value: to_preview_text(skill_name, 80) },
+                { label: t('文件'), value: String(files.length) },
+            ],
             result_details: compact_sections([
                 create_compact_text_detail('description', t('查看描述'), description ?? message.content, 100),
                 create_markdown_detail('instruction', t('查看技能指令'), instruction),
+                create_json_detail('file-tree', t('查看文件目录'), skill_obj?.fileTree),
+            ]),
+        }
+    }} />
+}
+
+
+function SkillFileReadRenderer (props: ToolRendererProps) {
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
+        const skill_id = get_arg_text(args, 0)
+        const file_path = get_arg_text(args, 1)
+        const parsed = is_object_record(structured_payload) ? structured_payload : null
+        const content = to_message_text(parsed?.content ?? message.content).trim()
+        const size = to_message_text(parsed?.size).trim()
+        return {
+            param_rows: [
+                { label: 'skillId', value: skill_id || '-' },
+                { label: t('文件'), value: file_path || to_message_text(parsed?.filePath).trim() || '-' },
+            ],
+            result_rows: size ? [{ label: t('大小'), value: `${size} bytes` }] : [ ],
+            result_details: compact_sections([
+                create_text_detail('content', t('查看内容'), content),
             ]),
         }
     }} />
@@ -702,6 +728,7 @@ const TOOL_RENDERERS: Record<string, (props: ToolRendererProps) => React.ReactNo
     execute: props => <ExecuteLikeRenderer {...props} />,
     execute_file: props => <ExecuteFileRenderer {...props} />,
     skill_read: props => <SkillReadRenderer {...props} />,
+    skill_file_read: props => <SkillFileReadRenderer {...props} />,
     doc_search: props => <DocSearchRenderer {...props} />,
     doc_read: props => <DocReadRenderer {...props} />,
     vfs_list: props => <VfsListRenderer {...props} />,
