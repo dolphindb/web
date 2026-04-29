@@ -1,9 +1,10 @@
-import { Collapse, Typography } from 'antd'
-
+import { Button, Collapse, Tooltip, Typography } from 'antd'
+import { RedoOutlined } from '@ant-design/icons'
 import { marked } from 'marked'
 
 import { t } from '@i18n'
 import { Editor } from '@components/Editor/index.tsx'
+import { shell } from '@/shell/model.ts'
 
 import type { IMessage } from './model.ts'
 import {
@@ -50,10 +51,18 @@ const VALUE_STYLE: React.CSSProperties = {
 }
 
 const CODE_VIEWER_STYLE: React.CSSProperties = {
+    position: 'relative',
     overflow: 'hidden',
     background: '#fff',
     border: '1px solid #f0f0f0',
     borderRadius: 8,
+}
+
+const CODE_VIEWER_ACTION_STYLE: React.CSSProperties = {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 1,
 }
 
 const DETAIL_STYLE: React.CSSProperties = {
@@ -210,8 +219,9 @@ function create_markdown_detail (key: string, label: string, value: unknown): De
 }
 
 
-function create_code_view (code: string) {
+function create_code_view (code: string, action?: React.ReactNode) {
     return <div style={CODE_VIEWER_STYLE}>
+        {action && <div style={CODE_VIEWER_ACTION_STYLE}>{action}</div>}
         <Editor
             value={code}
             readonly
@@ -230,6 +240,28 @@ function create_code_view (code: string) {
             }}
         />
     </div>
+}
+
+
+function create_rerun_button (tool_name: string, script: string) {
+    const normalized = tool_name.trim().toLowerCase()
+    if (normalized !== 'execute' && normalized !== 'show')
+        return null
+    
+    return <Tooltip title={t('再次执行')}>
+        <Button
+            size='small'
+            icon={<RedoOutlined />}
+            onClick={event => {
+                event.stopPropagation()
+                shell.execute_code(script, 1).catch(error => {
+                    console.error('[ai] rerun script failed:', error)
+                })
+            }}
+        >
+            {t('再次执行')}
+        </Button>
+    </Tooltip>
 }
 
 
@@ -372,7 +404,7 @@ function ExecuteLikeRenderer (props: ToolRendererProps) {
     if (!props.is_outcome)
         return <div style={STACK_STYLE}>
             {script
-                ? create_code_view(script)
+                ? create_code_view(script, create_rerun_button(tool_name, script))
                 : <SummaryBox
                     rows={[{ label: t('脚本'), value: to_preview_text(args, 160) }]}
                     collapse_key_prefix={`${collapse_key_suffix}-script`}

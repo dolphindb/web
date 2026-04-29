@@ -1046,7 +1046,6 @@ class ChatModel extends Model<ChatModel> {
             this.set({ agent_status: { status: 'idle' } })
     }
     
-    
     // ─── LLM Provider 管理 ───
     
     /** 通用的 LlmConfig 字段映射器 */
