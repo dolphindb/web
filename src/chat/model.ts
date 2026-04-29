@@ -179,6 +179,50 @@ const MAX_TOOL_TURNS = 20
 const DDB_SCRIPT_TOOLS = new Set<string>(['execute', 'show'])
 
 
+interface ChatCompletionStreamResult {
+    content: string
+    reasoning_content: string
+    tool_calls?: any[]
+    final_data?: any
+}
+
+
+function to_stream_text (value: unknown): string {
+    if (typeof value === 'string')
+        return value
+    if (value === null || value === undefined)
+        return ''
+    return String(value)
+}
+
+
+function get_reasoning_text (data: any): string {
+    return to_stream_text(data?.reasoning ?? data?.reasoning_content ?? data?.reasoningContent)
+}
+
+
+function parse_sse_event (raw_event: string): { event: string, data: string } | null {
+    const lines = raw_event.split('\n')
+    let event = ''
+    const data_lines: string[] = [ ]
+    
+    for (const raw_line of lines) {
+        const line = raw_line.trimEnd()
+        if (!line || line.startsWith(':'))
+            continue
+        if (line.startsWith('event:'))
+            event = line.slice('event:'.length).trim()
+        else if (line.startsWith('data:'))
+            data_lines.push(line.slice('data:'.length).trimStart())
+    }
+    
+    if (data_lines.length === 0)
+        return null
+    
+    return { event, data: data_lines.join('\n') }
+}
+
+
 // 初始化工具注册表
 init_scripts()
 
@@ -910,6 +954,105 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    async read_chat_completion_stream (response: Response, assistant_msg_id: string, request_seq: number): Promise<ChatCompletionStreamResult> {
+        const reader = response.body?.getReader()
+        if (!reader)
+            throw new Error(t('流式响应不可读取'))
+        
+        const decoder = new TextDecoder()
+        let buffer = ''
+        let content = ''
+        let reasoning_content = ''
+        let final_data: any
+        
+        const apply_event = (raw_event: string) => {
+            const parsed_event = parse_sse_event(raw_event)
+            if (!parsed_event || parsed_event.data === '[DONE]')
+                return
+            
+            let payload: any
+            try {
+                payload = JSON.parse(parsed_event.data)
+            } catch (error) {
+                throw new Error(t('流式响应 JSON 解析失败: {{error}}', { error: error instanceof Error ? error.message : String(error) }))
+            }
+            
+            const type = payload.type || parsed_event.event
+            const data = payload.data || payload
+            
+            if (type === 'STREAM_CHUNK' || parsed_event.event === 'chunk') {
+                const delta = to_stream_text(data.content)
+                if (delta) {
+                    content += delta
+                    this.update_assistant_content(assistant_msg_id, { content })
+                }
+                return
+            }
+            
+            if (type === 'STREAM_REASONING' || parsed_event.event === 'reasoning_delta') {
+                const delta = get_reasoning_text(data)
+                if (delta) {
+                    reasoning_content += delta
+                    this.update_assistant_content(assistant_msg_id, { reasoning_content })
+                }
+                return
+            }
+            
+            if (type === 'STREAM_END' || parsed_event.event === 'stream_end') {
+                final_data = data
+                const final_content = to_stream_text(data.content)
+                const final_reasoning = get_reasoning_text(data)
+                if (!content && final_content)
+                    content = final_content
+                if (!reasoning_content && final_reasoning)
+                    reasoning_content = final_reasoning
+                this.update_assistant_content(assistant_msg_id, {
+                    content,
+                    reasoning_content: reasoning_content || undefined,
+                })
+                return
+            }
+            
+            if (type === 'ERROR' || type === 'STREAM_ERROR')
+                throw new Error(data?.message || payload.message || t('流式响应返回错误'))
+        }
+        
+        function consume_buffer () {
+            buffer = buffer.replace(/\r\n/g, '\n')
+            let sep = buffer.indexOf('\n\n')
+            while (sep >= 0) {
+                const raw_event = buffer.slice(0, sep)
+                buffer = buffer.slice(sep + 2)
+                apply_event(raw_event)
+                sep = buffer.indexOf('\n\n')
+            }
+        }
+        
+        while (true) {
+            if (this.is_request_interrupted(request_seq))
+                return { content, reasoning_content, final_data }
+            
+            const { done, value } = await reader.read()
+            if (done)
+                break
+            
+            buffer += decoder.decode(value, { stream: true })
+            consume_buffer()
+        }
+        
+        buffer += decoder.decode()
+        if (buffer.trim())
+            apply_event(buffer)
+        
+        return {
+            content,
+            reasoning_content,
+            tool_calls: final_data?.toolCalls ?? final_data?.tool_calls,
+            final_data,
+        }
+    }
+    
+    
     async do_chat_completions (message: string, _unused?: unknown, _tool_turn = 0, request_seq = this._active_request_seq) {
         if (_tool_turn > MAX_TOOL_TURNS) {
             this.set({ agent_status: { status: 'error', message: t('工具调用轮次超过上限') } })
@@ -971,7 +1114,8 @@ class ChatModel extends Model<ChatModel> {
             
             const body: Record<string, any> = {
                 sessionId: this.current_session_id,
-                stream: false,
+                stream: true,
+                includeReasoning: true,
                 message,
                 assemblyConfig: {
                     contextBlocks: [{
@@ -1011,21 +1155,34 @@ class ChatModel extends Model<ChatModel> {
                 throw new Error(parsed?.error?.message || err_text)
             }
             
-            // 非流式响应：直接解析 JSON
-            const result = await response.json()
-            const data = result.data || result
-            const content = data.content || ''
-            const reasoning_content = data.reasoning_content || data.reasoningContent || ''
-            const tool_calls = data.toolCalls
+            const content_type = response.headers.get('content-type') || ''
+            let content = ''
+            let reasoning_content = ''
+            let tool_calls: any[] | undefined
+            let raw_result: any
+            
+            if (response.body && content_type.toLowerCase().includes('text/event-stream')) {
+                const stream_result = await this.read_chat_completion_stream(response, assistant_msg_id, request_seq)
+                raw_result = stream_result.final_data
+                content = stream_result.content
+                reasoning_content = stream_result.reasoning_content
+                tool_calls = stream_result.tool_calls
+            } else {
+                raw_result = await response.json()
+                const data = raw_result.data || raw_result
+                content = data.content || ''
+                reasoning_content = data.reasoning || data.reasoning_content || data.reasoningContent || ''
+                tool_calls = data.toolCalls || data.tool_calls
+                this.update_assistant_content(assistant_msg_id, {
+                    content,
+                    reasoning_content: reasoning_content || undefined,
+                })
+            }
+            
             if (this.is_request_interrupted(request_seq))
                 return
             
-            console.log('Chat completions response:', result)
-            
-            this.update_assistant_content(assistant_msg_id, {
-                content,
-                reasoning_content: reasoning_content || undefined,
-            })
+            console.log('Chat completions response:', raw_result)
             
             // 从文本内容或 function calling 格式中解析工具调用
             console.log('[debug] content length:', content.length, 'toolCalls:', tool_calls)
