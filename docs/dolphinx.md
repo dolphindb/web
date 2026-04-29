@@ -104,6 +104,7 @@ demo2.zip
 * [会话摘要 (Session Summary)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#9.-%E4%BC%9A%E8%AF%9D%E6%91%98%E8%A6%81-(Session-Summary))
   * [9.1 生成摘要](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#9.1-%E7%94%9F%E6%88%90%E6%91%98%E8%A6%81)
 * [记忆 (Memory) 管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#10.-%E8%AE%B0%E5%BF%86-(Memory)-%E7%AE%A1%E7%90%86)
+  * [10.0 运行时并发调度](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#10.0-%E8%BF%90%E8%A1%8C%E6%97%B6%E5%B9%B6%E5%8F%91%E8%B0%83%E5%BA%A6)
   * [10.1 存储记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#10.1-%E5%AD%98%E5%82%A8%E8%AE%B0%E5%BF%86)
   * [10.2 获取记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#10.2-%E8%8E%B7%E5%8F%96%E8%AE%B0%E5%BF%86)
   * [10.3 更新记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#10.3-%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BF%86)
@@ -121,7 +122,9 @@ demo2.zip
   * [11.7 激活技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.7-%E6%BF%80%E6%B4%BB%E6%8A%80%E8%83%BD)
   * [11.8 列出技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.8-%E5%88%97%E5%87%BA%E6%8A%80%E8%83%BD)
   * [11.9 获取技能指令](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.9-%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD%E6%8C%87%E4%BB%A4)
-  * [11.10 提取技能包文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.10-%E6%8F%90%E5%8F%96%E6%8A%80%E8%83%BD%E5%8C%85%E6%96%87%E4%BB%B6)
+  * [11.10 列出技能包文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.10-%E5%88%97%E5%87%BA%E6%8A%80%E8%83%BD%E5%8C%85%E6%96%87%E4%BB%B6)
+  * [11.11 获取技能包单个文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.11-%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD%E5%8C%85%E5%8D%95%E4%B8%AA%E6%96%87%E4%BB%B6)
+  * [11.12 批量获取技能包文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.12-%E6%89%B9%E9%87%8F%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD%E5%8C%85%E6%96%87%E4%BB%B6)
 * [技能绑定与访问控制](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.-%E6%8A%80%E8%83%BD%E7%BB%91%E5%AE%9A%E4%B8%8E%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6)
   * [12.1 绑定技能到 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.1-%E7%BB%91%E5%AE%9A%E6%8A%80%E8%83%BD%E5%88%B0-Agent)
   * [12.2 解绑技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.2-%E8%A7%A3%E7%BB%91%E6%8A%80%E8%83%BD)
@@ -187,13 +190,20 @@ demo2.zip
 
 ### 响应格式
 
-所有非流式响应返回 JSON：
+所有非流式响应返回 JSON envelope。各接口章节中的 **响应示例默认只展示 ​**`data`​**​ 内部结构**​；实际 HTTP / WebSocket 返回会包在下面的外层 envelope 中：
 
-`{ "type": "RESPONSE", "correlationId": "<requestId>", "payload": { ... } } `
+`{ "type": "RESPONSE", "msgId": "...", "correlationId": "<requestId>", "action": "<action>", "agentId": "<agentId>", "sessionId": "<sessionId>", "data": { ... }, "headers": { "...": "..." } } `
 
-错误响应：
+说明：
 
-`{ "type": "ERROR", "error": { "code": "<BusErrorCode>", "message": "<错误描述>" } } `
+* `headers` 仅在服务端 envelope headers 非空时返回。
+* 如果请求没有显式提供 `x-request-id` 或 WebSocket `requestId`，`correlationId` 会使用服务端生成的请求 `msgId`。
+
+常规 DataBus 错误响应：
+
+`{ "type": "ERROR", "msgId": "...", "correlationId": "<requestId>", "action": "<action>", "agentId": "<agentId>", "sessionId": "<sessionId>", "error": { "code": "<BusErrorCode>", "message": "<错误描述>" }, "headers": { "busErrorCode": "<BusErrorCode>", "httpStatus": "<HTTP 状态码>" } } `
+
+协议适配器在请求尚未进入 DataBus 前发现的解析错误，可能只返回最小错误体 `{"type":"ERROR","error":{...}}`。
 
 ### 分页参数
 
@@ -223,7 +233,7 @@ demo2.zip
 
 当 `stream=true` 时，HTTP 响应使用 Server-Sent Events 格式：
 
-`Content-Type: text/event-stream; charset=UTF-8 event: stream_start data: {"type":"STREAM_START","correlationId":"...","data":{...}} event: chunk data: {"type":"STREAM_CHUNK","correlationId":"...","data":{"content":"..."}}  event: chunk data: {"type":"STREAM_CHUNK","correlationId":"...","data":{"content":"..."}}  event: stream_end data: {"type":"STREAM_END","correlationId":"...","data":{...}} `
+`Content-Type: text/event-stream; charset=UTF-8 event: stream_start data: {"type":"STREAM_START","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{...}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"..."}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"..."}} event: stream_end data: {"type":"STREAM_END","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{...}} `
 
 SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按 UTF-8 解码后，再做事件分帧和 JSON 解析。
 
@@ -1060,6 +1070,34 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ## 10. 记忆 (Memory) 管理
 
+### 10.0 运行时并发调度
+
+Memory API 的 HTTP 路由、请求体和响应体不包含 lane 配置；lane 策略由服务端启动配置控制：
+
+| 配置项
+
+```
+| 类型
+```
+
+| 默认值
+
+```
+| 说明
+
+
+                                                                                                                                                                                                                                                                                                                                  |
+```
+
+| ---------------------------------------- | -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `agentFramework.memory.lanePolicy` | string | `user` | memory 写请求的串行化粒度：`legacy`使用旧的`AGENT_WRITE`agentId 粒度；`agent`按`memory:agent:{agentId}`串行；`user`将 user-scope memory 按`memory:user:{agentId}:{userId}`串行、agent-scope memory 按`memory:agent:{agentId}`串行；`memoryId`将`memory.update/delete`按`memory:id:{memoryId}`串行 |
+
+说明：
+
+* `memory.store/update/delete` 属于写请求，会按上述 lane 策略串行化。
+* `memory.get/search/list/stats` 对外仍是只读接口，不需要客户端提供 lane 信息。
+* `agentFramework.memory.lanePolicy` 是全局运行时配置，不属于 `memoryConfig`，也不会随 agent 注册请求落库。
+
 ### 10.1 存储记忆
 
 `POST /agent-bus/v1/memory/store `
@@ -1376,19 +1414,41 @@ overrides 可覆盖字段：`name`, `description`, `version`, `category`, `displ
 
 ---
 
-### 11.10 提取技能包文件
+### 11.10 列出技能包文件
 
-`GET /agent-bus/v1/skill/{skillId}/file?filePath=data/schema.json `
+`GET /agent-bus/v1/skill/{skillId}/files/list `
 
-**查询参数:** `filePath`（必填，相对 skill 包根目录的 ZIP 内文件路径）
+**响应:**
+
+`{ "skillId": "skill_xxx", "items": ["SKILL.md", "data/schema.json"], "size": 2 } `
+
+说明：路径以 skill 包目录作为根目录，末尾为文件名。
+
+### 11.11 获取技能包单个文件
+
+`GET /agent-bus/v1/skill/{skillId}/files/get?filePath=data/schema.json `
+
+**查询参数:** `filePath`（必填，相对 skill 包根目录的文件路径）
 
 **响应:**
 
 `{ "skillId": "skill_xxx", "filePath": "data/schema.json", "encoding": "base64", "content": "<base64 内容>", "size": 1024 } `
 
+### 11.12 批量获取技能包文件
+
+`POST /agent-bus/v1/skill/{skillId}/files/batchGet `
+
+**请求体:**
+
+`{ "filePaths": ["SKILL.md", "data/schema.json"] } `
+
+**响应:**
+
+`{ "skillId": "skill_xxx", "items": [ { "skillId": "skill_xxx", "filePath": "SKILL.md", "encoding": "base64", "content": "<base64 内容>", "size": 2048 } ], "size": 1 } `
+
 说明：
 
-* 该接口是 Tier-3 资源的只读原语，仅返回原始文件内容。
+* 文件内容以 base64 字符串存储并返回，`size` 为原始文件字节数。
 * 文件的解释、执行、二次注入和本地落地方式由应用层负责。
 
 ---
@@ -1738,7 +1798,7 @@ ToolResult 结构:
 
 ### 非流式响应
 
-当 `stream=false` 时：
+当 `stream=false` 时，`data` 内部结构为：
 
 `{ "requestId": "req_xxx", "sessionId": "sess_001", "model": "gpt-4", "llmConfigId": "llm_xxx", "content": "这是 LLM 的回复...", "toolCalls": [ { "id": "call_xxx", "type": "function", "function": { "name": "search_database", "arguments": "{\"query\":\"SELECT ...\"}" } } ], "finishReason": "stop", "usage": { "promptTokens": 1200, "completionTokens": 300, "totalTokens": 1500 }, "latencyMs": 2500, "metadata": {} } `
 
@@ -1746,7 +1806,7 @@ ToolResult 结构:
 
 当 `stream=true`（默认）时，返回 SSE 流：
 
-`event: stream_start data: {"type":"STREAM_START","correlationId":"req_xxx","data":{"requestId":"req_xxx","model":"<resolved-model>","llmConfigId":"llm_xxx"}} event: chunk data: {"type":"STREAM_CHUNK","correlationId":"req_xxx","data":{"content":"这是"}} event: chunk data: {"type":"STREAM_CHUNK","correlationId":"req_xxx","data":{"content":"LLM"}} event: chunk data: {"type":"STREAM_CHUNK","correlationId":"req_xxx","data":{"content":"的回复"}} event: stream_end data: {"type":"STREAM_END","correlationId":"req_xxx","data":{...}} `
+`event: stream_start data: {"type":"STREAM_START","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"requestId":"req_xxx","model":"<resolved-model>","llmConfigId":"llm_xxx"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"这是"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"LLM"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"的回复"}} event: stream_end data: {"type":"STREAM_END","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{...}} `
 
 ---
 
@@ -1910,11 +1970,11 @@ WebSocket 端点路径与 HTTP 相同（通过协议升级）。
 
 **流式帧:**
 
-`{"type": "STREAM_START", "correlationId": "req_001"} {"type": "STREAM_CHUNK", "correlationId": "req_001", "data": {"content": "..."}} {"type": "STREAM_END", "correlationId": "req_001", "data": {...}} `
+`{"type": "STREAM_START", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"requestId": "req_001", "model": "<resolved-model>", "llmConfigId": "llm_xxx"}} {"type": "STREAM_CHUNK", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"content": "..."}} {"type": "STREAM_END", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {...}} `
 
 **错误帧:**
 
-`{ "type": "ERROR", "correlationId": "req_001", "error": { "code": "HANDLER_ERROR", "message": "session not found" } } `
+`{ "type": "ERROR", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "error": { "code": "BUS_HANDLER_ERROR", "message": "session not found" }, "headers": { "busErrorCode": "BUS_HANDLER_ERROR", "httpStatus": "500" } } `
 
 ### HTTP → WebSocket 参数映射规则
 
@@ -2028,7 +2088,9 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 | `skill.activate`          | POST /skill/{id}/activate                 |
 | `skill.list`              | GET /skill/list                           |
 | `skill.getInstruction`    | GET /skill/{id}/instruction               |
-| `skill.extractFile`       | GET /skill/{id}/file                      |
+| `skill.files.list`        | GET /skill/{id}/files/list                |
+| `skill.files.get`         | GET /skill/{id}/files/get                 |
+| `skill.files.batchGet`    | POST /skill/{id}/files/batchGet           |
 | `skill.bind`              | POST /skill/bind                          |
 | `skill.unbind`            | POST /skill/unbind                        |
 | `skill.binding.enable`    | POST /skill/binding/enable                |
@@ -2128,6 +2190,8 @@ Agent 级记忆配置。`memoryConfig.embeddingEnabled` 用于决定该 agent �
 
 | ------------------------ | ------ | ------------- | --------------------------------------------------------------------------------------------------------- |
 | `embeddingEnabled` | bool | `false` | 是否为该 agent 启用 memory embedding。注册时未显式传入会按默认值`false`落库；注册成功后该字段不可变 |
+
+注意：memory 写请求的 lane 并发策略由全局服务端配置 `agentFramework.memory.lanePolicy` 控制，不属于 agent 级 `memoryConfig`。
 
 ​**预算分配顺序**​（优先级从高到低）：
 
@@ -2596,8 +2660,6 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 | `argumentHint`           | string    | 参数提示信息，在 Tier-1 目录中展示，提示 LLM 如何调用该技能                                                                                                 |
 | `disableModelInvocation` | bool      | 是否禁止 LLM 自动调用。为`true`时该技能不会出现在 LLM 的工具目录（Tier-1）中，但仍可通过用户显式调用。可被 agent 级别的 binding`configOverride`覆盖 |
 | `userInvocable`          | bool      | 是否允许用户直接调用该技能                                                                                                                                  |
-| `packageHash`            | string    | 技能包（ZIP）的哈希值，用于完整性校验和去重                                                                                                                 |
-| `packageSize`            | long      | 技能包大小（字节）                                                                                                                                          |
 | `hasInstruction`         | bool      | 技能包中是否包含 Tier-2 指令（SKILL.md frontmatter 之后的正文内容）                                                                                         |
 | `displayName`            | string    | 技能显示名称                                                                                                                                                |
 | `category`               | string    | 技能分类标签，用于按分类筛选                                                                                                                                |
@@ -2768,18 +2830,18 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 |
 ```
 
-| -------------------------- | ------------- | -------------------------------------------------------------------------------- |
-| `AUTH_FAILED`        | 403         | 鉴权失败，当前用户无权执行此操作                                               |
-| `UNKNOWN_ACTION`     | 404         | 未知的 action，请求的接口/action 名称不存在                                    |
-| `AGENT_NOT_FOUND`    | 404         | 指定的 Agent 不存在或已被删除                                                  |
-| `SESSION_NOT_FOUND`  | 404         | 指定的会话不存在                                                               |
-| `QUEUE_FULL`         | 503         | DataBus 请求队列已满，服务端过载，请稍后重试                                   |
-| `TIMEOUT`            | 504         | 请求处理超时（包括 LLM 调用超时）                                              |
-| `NODE_UNREACHABLE`   | 502         | 集群模式下目标亲和节点不可达，请求无法路由                                     |
-| `HANDLER_ERROR`      | 500         | 处理器内部错误（如参数校验失败、状态冲突、LLM 调用失败等），详见 error.message |
-| `STREAM_INTERRUPTED` | 500         | 流式传输中断（SSE 连接断开或 LLM 流式响应异常终止）                            |
-| `INVALID_ARGUMENT`   | 400         | 请求参数不合法（缺少必填字段、类型错误、值超出范围等）                         |
-| `BUS_NOT_STARTED`    | 503         | DataBus 尚未完成初始化，服务暂不可用                                           |
+| ------------------------------ | ------------- | -------------------------------------------------------------------------------- |
+| `BUS_AUTH_FAILED`        | 403         | 鉴权失败，当前用户无权执行此操作                                               |
+| `BUS_UNKNOWN_ACTION`     | 404         | 未知的 action，请求的接口/action 名称不存在                                    |
+| `BUS_AGENT_NOT_FOUND`    | 404         | 指定的 Agent 不存在或已被删除                                                  |
+| `BUS_SESSION_NOT_FOUND`  | 404         | 指定的会话不存在                                                               |
+| `BUS_QUEUE_FULL`         | 429         | DataBus 请求队列已满，服务端过载，请稍后重试                                   |
+| `BUS_TIMEOUT`            | 504         | 请求处理超时（包括 LLM 调用超时）                                              |
+| `BUS_NODE_UNREACHABLE`   | 503         | 集群模式下目标亲和节点不可达，请求无法路由                                     |
+| `BUS_HANDLER_ERROR`      | 500         | 处理器内部错误（如参数校验失败、状态冲突、LLM 调用失败等），详见 error.message |
+| `BUS_STREAM_INTERRUPTED` | 499         | 流式传输中断（SSE 连接断开或 LLM 流式响应异常终止）                            |
+| `BUS_INVALID_ARGUMENT`   | 400         | 请求参数不合法（缺少必填字段、类型错误、值超出范围等）                         |
+| `BUS_NOT_STARTED`        | 500         | DataBus 尚未完成初始化，服务暂不可用                                           |
 
 ---
 
@@ -2892,12 +2954,25 @@ You can use this skill to query DolphinDB distributed tables.
    |
 ```
 
-| -------- | ------------------------------------------------------------------------ | -------------------------------------------------- | ------------------ |
-| Tier 1 | 始终在上下文中                                                         | `name`+`description`+`argument-hint` | \~50-100 / skill |
-| Tier 2 | 应用层显式激活时（例如通过`activeSkillNames`或自定义 tool / 逻辑） | SKILL.md 的完整 Markdown body                    | 建议 < 5000      |
-| Tier 3 | 应用层按需提取时（通过`skill.extractFile`等原语）                  | 包内的脚本、模板、参考文档等                     | 不限             |
+| -------- | -------------------------------------------------------------------------------- | -------------------------------------------------- | ------------------ |
+| Tier 1 | 始终在上下文中                                                                 | `name`+`description`+`argument-hint` | \~50-100 / skill |
+| Tier 2 | 应用层显式激活时（例如通过`activeSkillNames`或自定义 tool / 逻辑）         | SKILL.md 的完整 Markdown body                    | 建议 < 5000      |
+| Tier 3 | 应用层按需提取时（通过`skill.files.get`/`skill.files.batchGet`等原语） | 包内的脚本、模板、参考文档等                     | 不限             |
 
 ### 调用控制矩阵
+
+| `disable-model-invocation`
+
+| `user-invocable`
+
+| LLM 可自动发现
+
+| 用户可调用
+
+| 描述注入 Tier-1 目录
+
+|
+| -------------------------------- | ---------------------- | ---------------- | ------------ | ---------------------- |
 
 | `disable-model-invocation`
 
@@ -2924,8 +2999,7 @@ You can use this skill to query DolphinDB distributed tables.
 2. 在 ZIP 中定位 `SKILL.md`（根目录或唯一子目录）
 3. 分离 YAML frontmatter 和 Markdown body
 4. frontmatter → 对应表列（已建列字段直接映射，未建列字段收入 `metadata`）
-5. Markdown body → `instruction`（Tier-2 指令内容）
+5. 包内每个具体文件 → `agent_skill_file.contentBase64`
 6. 校验 `name` 格式和唯一性（ACTIVE 状态下不可重名）
 7. 合并 API 传入的 `overrides`（覆盖 frontmatter 同名字段）
-8. 计算 `packageHash` = SHA-256
-9. 写入存储，返回 [SkillInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo")
+8. 写入存储，返回 [SkillInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo")
