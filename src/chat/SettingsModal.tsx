@@ -723,6 +723,20 @@ function LlmConfigTab () {
         }
     }
     
+    
+    async function enable_provider () {
+        if (!selected_provider_id)
+            return
+        try {
+            await chat_model.enable_llm_provider(selected_provider_id)
+            message.success(t('启用成功'))
+            await load()
+        } catch (e: any) {
+            message.error(e.message || t('启用失败'))
+            await load()
+        }
+    }
+    
     function open_create_config () {
         if (!selected_provider_id) {
             message.warning(t('请先选择一个 Provider'))
@@ -851,6 +865,18 @@ function LlmConfigTab () {
         }
     }
     
+    
+    async function enable_config (cfg: ILlmConfig) {
+        try {
+            await chat_model.enable_llm_config(cfg.llmConfigId)
+            message.success(t('启用成功'))
+            await load()
+        } catch (e: any) {
+            message.error(e.message || t('启用失败'))
+            await load()
+        }
+    }
+    
     const is_embedding_form = config_form.capability === 'embedding'
     
     return <div style={{ display: 'flex', height: 520 }}>
@@ -960,6 +986,13 @@ function LlmConfigTab () {
                         >
                             <Button icon={<StopOutlined />}>{t('禁用 Provider')}</Button>
                         </Popconfirm>}
+                        {provider_mode === 'edit' && selected_provider?.statusName === 'DISABLED' && <Popconfirm
+                            title={t('确定启用此 Provider？')}
+                            description={t('启用 Provider 不会自动启用引用它的模型配置')}
+                            onConfirm={enable_provider}
+                        >
+                            <Button icon={<CheckCircleOutlined />}>{t('启用 Provider')}</Button>
+                        </Popconfirm>}
                         {provider_mode === 'edit' && <Popconfirm
                             title={t('确定删除此 Provider？')}
                             description={t('仅允许删除已禁用的 Provider')}
@@ -993,20 +1026,36 @@ function LlmConfigTab () {
                                             <Tag style={{ marginLeft: 8, fontSize: 11 }} color={cfg.capability === 'embedding' ? 'purple' : 'blue'}>
                                                 {cfg.capability || 'chat'}
                                             </Tag>
-                                            {cfg.statusName === 'DISABLED' && <Tag style={{ fontSize: 11 }}>{t('禁用')}</Tag>}
+                                            {cfg.statusName && <Tag
+                                                style={{ fontSize: 11 }}
+                                                color={cfg.statusName === 'ACTIVE' ? 'green' : cfg.statusName === 'DELETED' ? 'red' : 'default'}
+                                            >
+                                                {cfg.statusName}
+                                            </Tag>}
                                         </div>
                                         <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
                                             {cfg.model} · {cfg.requestPath}
                                         </div>
                                     </div>
                                     <Space size={4}>
-                                        <Button type='text' size='small' icon={<EditOutlined />} onClick={() => { open_edit_config(cfg) }} />
-                                        {cfg.statusName !== 'DISABLED' && <Popconfirm
+                                        {cfg.statusName === 'DELETED'
+                                            ? <Tooltip title={t('已删除的模型配置不可编辑')}>
+                                                <Button type='text' size='small' disabled icon={<EditOutlined />} />
+                                            </Tooltip>
+                                            : <Button type='text' size='small' icon={<EditOutlined />} onClick={() => { open_edit_config(cfg) }} />}
+                                        {cfg.statusName === 'ACTIVE' && <Popconfirm
                                             title={t('确定禁用此模型配置？')}
                                             description={t('禁用后才允许删除该模型配置')}
                                             onConfirm={async () => { await disable_config(cfg) }}
                                         >
                                             <Button type='text' size='small' icon={<StopOutlined />}>{t('禁用')}</Button>
+                                        </Popconfirm>}
+                                        {cfg.statusName === 'DISABLED' && <Popconfirm
+                                            title={t('确定启用此模型配置？')}
+                                            description={t('启用前要求所属 Provider 为 ACTIVE')}
+                                            onConfirm={async () => { await enable_config(cfg) }}
+                                        >
+                                            <Button type='text' size='small' icon={<CheckCircleOutlined />}>{t('启用')}</Button>
                                         </Popconfirm>}
                                         {cfg.statusName === 'DISABLED'
                                             ? <Popconfirm

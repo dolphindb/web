@@ -1159,6 +1159,11 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    async enable_llm_provider (provider_id: string): Promise<void> {
+        await this.api_fetch(`/llm/provider/${provider_id}/enable`, { method: 'POST' })
+    }
+    
+    
     /** 删除 Provider：后端要求调用方先显式禁用 */
     async delete_llm_provider (provider_id: string): Promise<void> {
         await this.api_fetch(`/llm/provider/${provider_id}`, { method: 'DELETE' })
@@ -1211,6 +1216,11 @@ class ChatModel extends Model<ChatModel> {
     
     async disable_llm_config (llm_config_id: string): Promise<void> {
         await this.api_fetch(`/llm/config/${llm_config_id}/disable`, { method: 'POST' })
+    }
+    
+    
+    async enable_llm_config (llm_config_id: string): Promise<void> {
+        await this.api_fetch(`/llm/config/${llm_config_id}/enable`, { method: 'POST' })
     }
     
     
