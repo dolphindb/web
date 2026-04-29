@@ -10,7 +10,7 @@ import { t } from '@i18n'
 import { model } from '@model'
 
 import { chat_model } from '@/chat/model.ts'
-import type { IMessage } from '@/chat/model.ts'
+import type { AgentStatus, IMessage } from '@/chat/model.ts'
 import { ToolMessageRenderer } from '@/chat/ToolMessageRenderer.tsx'
 import {
     TOOL_LIKE_MESSAGE_TYPES,
@@ -238,7 +238,14 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 {visible_messages.map((msg, idx) => {
                     const prev = idx > 0 ? visible_messages[idx - 1] : null
                     const next = idx < visible_messages.length - 1 ? visible_messages[idx + 1] : null
-                    return <AiMessageRow key={msg.msgId} msg={msg} prev={prev} next={next} is_last={idx === visible_messages.length - 1} />
+                    return <AiMessageRow
+                        key={msg.msgId}
+                        msg={msg}
+                        prev={prev}
+                        next={next}
+                        is_last={idx === visible_messages.length - 1}
+                        agent_status={visible_status.status}
+                    />
                 })}
                 
                 {has_virtual && <div style={{ padding: '10px 0 6px 12px' }}>
@@ -299,7 +306,19 @@ export function AiTab ({ session_id }: { session_id: string }) {
 }
 
 
-function AiMessageRow ({ msg, prev, next, is_last }: { msg: IMessage, prev: IMessage | null, next: IMessage | null, is_last: boolean }) {
+function AiMessageRow ({
+    msg,
+    prev,
+    next,
+    is_last,
+    agent_status,
+}: {
+    msg: IMessage
+    prev: IMessage | null
+    next: IMessage | null
+    is_last: boolean
+    agent_status: AgentStatus
+}) {
     const current_tool_call = msg.messageType === 'tool_call' ? parse_tool_call(msg) : null
     const previous_tool_call = prev?.messageType === 'tool_call' ? parse_tool_call(prev) : null
     
@@ -321,6 +340,42 @@ function AiMessageRow ({ msg, prev, next, is_last }: { msg: IMessage, prev: IMes
     const is_tool_like = TOOL_LIKE_MESSAGE_TYPES.has(msg.messageType ?? '')
     const structured_payload = get_structured_payload(msg)
     const collapse_key = msg.msgId
+    const reasoning_key = `reasoning-${collapse_key}`
+    const has_reasoning = Boolean(msg.reasoning_content)
+    const has_content = Boolean(msg.content.trim())
+    const is_reasoning_streaming = has_reasoning && is_last && agent_status === 'thinking' && !has_content
+    const [reasoning_active_keys, set_reasoning_active_keys] = useState<string[]>([ ])
+    const last_reasoning_msg_id = useRef(msg.msgId)
+    const closed_after_content = useRef(false)
+    
+    useEffect(() => {
+        if (last_reasoning_msg_id.current !== msg.msgId) {
+            last_reasoning_msg_id.current = msg.msgId
+            closed_after_content.current = false
+            set_reasoning_active_keys([ ])
+        }
+        
+        if (!has_reasoning) {
+            closed_after_content.current = false
+            set_reasoning_active_keys([ ])
+            return
+        }
+        
+        if (is_reasoning_streaming) {
+            set_reasoning_active_keys([reasoning_key])
+            return
+        }
+        
+        if (!has_content) {
+            set_reasoning_active_keys([ ])
+            return
+        }
+        
+        if (!closed_after_content.current) {
+            closed_after_content.current = true
+            set_reasoning_active_keys([ ])
+        }
+    }, [msg.msgId, has_reasoning, has_content, is_reasoning_streaming, reasoning_key])
     
     // DdbObj 不在这里内联展示，而是路由到 DataView
     // 但保留引用检测，以便在消息中显示一个提示
@@ -343,10 +398,18 @@ function AiMessageRow ({ msg, prev, next, is_last }: { msg: IMessage, prev: IMes
                 ghost
                 size='small'
                 expandIconPosition='start'
+                activeKey={reasoning_active_keys}
+                onChange={keys => {
+                    set_reasoning_active_keys(
+                        Array.isArray(keys)
+                            ? keys.map(String)
+                            : [String(keys)]
+                    )
+                }}
                 style={{ marginTop: 0 }}
                 items={[{
-                    key: `reasoning-${collapse_key}`,
-                    label: <span><BulbOutlined /> {t('思考过程')}</span>,
+                    key: reasoning_key,
+                    label: <span><BulbOutlined /> {is_reasoning_streaming ? t('思考中') : t('思考过程')}</span>,
                     children: <div style={{ wordBreak: 'break-word' }}>
                         <div dangerouslySetInnerHTML={{ __html: render_markdown(msg.reasoning_content) }} />
                     </div>,
