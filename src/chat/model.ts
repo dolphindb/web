@@ -402,6 +402,39 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    async suspend_agent (agent_id: string) {
+        const result = await this.api_fetch(`/agent/${agent_id}/suspend`, { method: 'POST' })
+        const agents = this.agents.map(a =>
+            a.agentId === agent_id
+                ? { ...a, status: result.status ?? a.status, statusName: result.statusName || 'SUSPENDED' }
+                : a
+        )
+        this.set({ agents })
+        return result
+    }
+    
+    
+    async update_agent (agent_id: string, updates: Record<string, any>) {
+        const result = await this.api_fetch(`/agent/${agent_id}`, {
+            method: 'PUT',
+            body: JSON.stringify(updates),
+        })
+        const agents = this.agents.map(a =>
+            a.agentId === agent_id
+                ? {
+                    ...a,
+                    description: result.description ?? updates.description ?? a.description,
+                    systemPrompt: result.systemPrompt ?? updates.systemPrompt ?? a.systemPrompt,
+                    llmConfigId: result.llmConfigId ?? updates.llmConfigId ?? a.llmConfigId,
+                    updateTime: result.updateTime ?? a.updateTime,
+                }
+                : a
+        )
+        this.set({ agents })
+        return result
+    }
+    
+    
     /** 删除 Agent */
     async delete_agent (agent_id: string) {
         await this.api_fetch(`/agent/${agent_id}/delete`, { method: 'POST' })
@@ -1126,13 +1159,8 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    /** 软删除 provider：先 disable 再 delete，幂等 */
+    /** 删除 Provider：后端要求调用方先显式禁用 */
     async delete_llm_provider (provider_id: string): Promise<void> {
-        try {
-            await this.disable_llm_provider(provider_id)
-        } catch {
-            // 已经是 DISABLED 或 DELETED 时忽略
-        }
         await this.api_fetch(`/llm/provider/${provider_id}`, { method: 'DELETE' })
     }
     
@@ -1166,30 +1194,10 @@ class ChatModel extends Model<ChatModel> {
         retryConfig?: Record<string, unknown>
         extra?: string
     }): Promise<ILlmConfig> {
-        const result = await this.api_fetch('/llm/config/register', {
+        return this.api_fetch('/llm/config/register', {
             method: 'POST',
             body: JSON.stringify(config),
         })
-        
-        // 自动绑定到当前 agent（仅当该 agent 尚无绑定时设为默认）
-        if (this.agent_id) {
-            let has_existing = false
-            try {
-                const bindings = await this.api_fetch(`/agent/${this.agent_id}/llm/list`)
-                has_existing = (bindings.items || [ ]).length > 0
-            } catch {
-                has_existing = true
-            }
-            await this.api_fetch(`/agent/${this.agent_id}/llm/access`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    llmConfigId: result.llmConfigId,
-                    isDefault: !has_existing,
-                }),
-            })
-        }
-        
-        return result
     }
     
     
@@ -1416,6 +1424,21 @@ class ChatModel extends Model<ChatModel> {
     /** 删除技能 */
     async delete_skill (skill_id: string): Promise<void> {
         await this.api_fetch(`/skill/${skill_id}/delete`, { method: 'POST' })
+    }
+    
+    
+    async activate_skill (skill_id: string): Promise<void> {
+        await this.api_fetch(`/skill/${skill_id}/activate`, { method: 'POST' })
+    }
+    
+    
+    async disable_skill (skill_id: string): Promise<void> {
+        await this.api_fetch(`/skill/${skill_id}/disable`, { method: 'POST' })
+    }
+    
+    
+    async deprecate_skill (skill_id: string): Promise<void> {
+        await this.api_fetch(`/skill/${skill_id}/deprecate`, { method: 'POST' })
     }
 }
 

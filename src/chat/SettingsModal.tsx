@@ -45,7 +45,11 @@ function AgentTab () {
     
     // 自动选中当前 agent
     useEffect(() => {
-        if (!selected_agent && agents.length > 0) {
+        if (selected_agent) {
+            const updated = agents.find(a => a.agentId === selected_agent.agentId)
+            if (updated && updated !== selected_agent)
+                set_selected_agent(updated)
+        } else if (agents.length > 0) {
             const current = agents.find(a => a.agentId === agent_id)
             if (current)
                 set_selected_agent(current)
@@ -181,6 +185,11 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
     const [bound_skills, set_bound_skills] = useState<ISkillBinding[]>([ ])
     const [all_skills, set_all_skills] = useState<ISkillInfo[]>([ ])
     const [loading, set_loading] = useState(true)
+    const [saving_agent, set_saving_agent] = useState(false)
+    const [agent_form, set_agent_form] = useState({
+        description: agent.description || '',
+        systemPrompt: agent.systemPrompt || '',
+    })
     
     async function load () {
         set_loading(true)
@@ -206,6 +215,28 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
     }
     
     useEffect(() => { load() }, [agent.agentId])
+    useEffect(() => {
+        set_agent_form({
+            description: agent.description || '',
+            systemPrompt: agent.systemPrompt || '',
+        })
+    }, [agent.agentId, agent.description, agent.systemPrompt])
+    
+    async function save_agent () {
+        set_saving_agent(true)
+        try {
+            await chat_model.update_agent(agent.agentId, {
+                description: agent_form.description || undefined,
+                systemPrompt: agent_form.systemPrompt || undefined,
+            })
+            message.success(t('保存成功'))
+            on_refresh()
+        } catch (err: any) {
+            message.error(err.message || t('保存失败'))
+        } finally {
+            set_saving_agent(false)
+        }
+    }
     
     const bound_llm_ids = new Set(bound_llms.map(l => l.llmConfigId))
     const unbound_llms = all_llms.filter(l => !bound_llm_ids.has(l.llmConfigId) && l.statusName === 'ACTIVE')
@@ -242,6 +273,20 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                         }
                     }}
                 >{t('激活')}</Button>}
+                {agent.statusName === 'ACTIVE' && <Popconfirm
+                    title={t('确定挂起此 Agent？')}
+                    onConfirm={async () => {
+                        try {
+                            await chat_model.suspend_agent(agent.agentId)
+                            message.success(t('已挂起'))
+                            on_refresh()
+                        } catch (err: any) {
+                            message.error(err.message || t('挂起失败'))
+                        }
+                    }}
+                >
+                    <Button size='small' icon={<StopOutlined />}>{t('挂起')}</Button>
+                </Popconfirm>}
                 <Popconfirm
                     title={t('确定删除此 Agent？')}
                     onConfirm={async () => {
@@ -257,6 +302,31 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                     <Button size='small' danger icon={<DeleteOutlined />}>{t('删除')}</Button>
                 </Popconfirm>
             </Space>
+        </div>
+        <div style={{ border: '1px solid #f0f0f0', borderRadius: 6, padding: 12, marginBottom: 16 }}>
+            <div style={{ marginBottom: 8, fontWeight: 500 }}>{t('Agent 配置')}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
+                <div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('描述')}</div>
+                    <Input
+                        value={agent_form.description}
+                        onChange={e => { set_agent_form({ ...agent_form, description: e.target.value }) }}
+                    />
+                </div>
+                <div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('系统提示词')}</div>
+                    <Input.TextArea
+                        value={agent_form.systemPrompt}
+                        onChange={e => { set_agent_form({ ...agent_form, systemPrompt: e.target.value }) }}
+                        rows={3}
+                    />
+                </div>
+            </div>
+            <div style={{ marginTop: 12, textAlign: 'right' }}>
+                <Button size='small' type='primary' icon={<SaveOutlined />} loading={saving_agent} onClick={save_agent}>
+                    {t('保存 Agent')}
+                </Button>
+            </div>
         </div>
         
         {loading
@@ -623,6 +693,10 @@ function LlmConfigTab () {
     async function delete_provider () {
         if (!selected_provider_id)
             return
+        if (selected_provider?.statusName !== 'DISABLED') {
+            message.warning(t('请先禁用该 Provider，再执行删除'))
+            return
+        }
         try {
             await chat_model.delete_llm_provider(selected_provider_id)
             message.success(t('删除成功'))
@@ -635,9 +709,27 @@ function LlmConfigTab () {
         }
     }
     
+    
+    async function disable_provider () {
+        if (!selected_provider_id)
+            return
+        try {
+            await chat_model.disable_llm_provider(selected_provider_id)
+            message.success(t('禁用成功'))
+            await load()
+        } catch (e: any) {
+            message.error(e.message || t('禁用失败'))
+            await load()
+        }
+    }
+    
     function open_create_config () {
         if (!selected_provider_id) {
             message.warning(t('请先选择一个 Provider'))
+            return
+        }
+        if (selected_provider?.statusName !== 'ACTIVE') {
+            message.warning(t('只有活跃 Provider 可以新增模型配置'))
             return
         }
         set_editing_config_id('')
@@ -861,13 +953,20 @@ function LlmConfigTab () {
                         </div>
                     </div>
                     <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                        {provider_mode === 'edit' && selected_provider?.statusName === 'ACTIVE' && <Popconfirm
+                            title={t('确定禁用此 Provider？')}
+                            description={t('禁用前需要确保没有未删除的模型配置继续引用该 Provider')}
+                            onConfirm={disable_provider}
+                        >
+                            <Button icon={<StopOutlined />}>{t('禁用 Provider')}</Button>
+                        </Popconfirm>}
                         {provider_mode === 'edit' && <Popconfirm
                             title={t('确定删除此 Provider？')}
-                            description={t('将同时删除前端展示关联，后端要求先删除所有引用此 Provider 的模型配置')}
+                            description={t('仅允许删除已禁用的 Provider')}
                             onConfirm={delete_provider}
                             okButtonProps={{ danger: true }}
                         >
-                            <Button danger icon={<DeleteOutlined />}>{t('删除 Provider')}</Button>
+                            <Button danger disabled={selected_provider?.statusName !== 'DISABLED'} icon={<DeleteOutlined />}>{t('删除 Provider')}</Button>
                         </Popconfirm>}
                         <Button type='primary' icon={<SaveOutlined />} loading={saving_provider} onClick={save_provider}>
                             {provider_mode === 'create' ? t('创建') : t('保存')}
@@ -877,7 +976,7 @@ function LlmConfigTab () {
                     {provider_mode === 'edit' && selected_provider && <div style={{ marginTop: 24, borderTop: '1px solid #f0f0f0', paddingTop: 16 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                             <div style={{ fontWeight: 500, fontSize: 14 }}>{t('关联模型配置') + ` (${provider_configs.length})`}</div>
-                            <Button size='small' icon={<PlusOutlined />} onClick={open_create_config}>
+                            <Button size='small' icon={<PlusOutlined />} disabled={selected_provider.statusName !== 'ACTIVE'} onClick={open_create_config}>
                                 {t('新增模型')}
                             </Button>
                         </div>
@@ -1078,7 +1177,6 @@ function LlmConfigTab () {
 
 function SkillsTab () {
     const [all_skills, set_all_skills] = useState<ISkillInfo[]>([ ])
-    const [bindings, set_bindings] = useState<ISkillBinding[]>([ ])
     const [loading, set_loading] = useState(false)
     const [creating, set_creating] = useState(false)
     const [skill_file, set_skill_file] = useState<File | null>(null)
@@ -1090,17 +1188,11 @@ function SkillsTab () {
         version: '',
     })
     
-    const bound_ids = new Set(bindings.filter(b => b.enabled).map(b => b.skillId))
-    
     async function load () {
         set_loading(true)
         try {
-            const [skills, binds] = await Promise.all([
-                chat_model.load_skills(),
-                chat_model.load_skill_bindings(),
-            ])
+            const skills = await chat_model.load_skills()
             set_all_skills(skills)
-            set_bindings(binds)
         } catch {
             message.error(t('加载技能列表失败'))
         } finally {
@@ -1108,12 +1200,7 @@ function SkillsTab () {
         }
     }
     
-    const { agent_id } = chat_model.use(['agent_id'])
-    
-    useEffect(() => {
-        if (agent_id)
-            load()
-    }, [agent_id])
+    useEffect(() => { load() }, [ ])
     
     if (loading && !creating)
         return <div style={{ textAlign: 'center', padding: 60 }}><Spin /></div>
@@ -1245,50 +1332,67 @@ function SkillsTab () {
                                 <span style={{ fontWeight: 500 }}>{s.displayName || s.name}</span>
                                 {s.category && <Tag>{s.category}</Tag>}
                                 {s.version && <Tag color='blue'>v{s.version}</Tag>}
+                                <Tag color={s.statusName === 'ACTIVE' ? 'green' : 'default'}>{s.statusName || s.status}</Tag>
                             </div>
                             <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
                                 {s.description || t('无描述')}
                             </div>
                         </div>
                         <Space size={4}>
-                            {bound_ids.has(s.skillId)
-                                ? <Tooltip title={t('取消绑定')}>
+                            {s.statusName !== 'ACTIVE'
+                                ? <Tooltip title={t('激活技能')}>
                                     <Button
-                                        type='primary'
+                                        type='text'
                                         size='small'
-                                        icon={<DisconnectOutlined />}
-                                        danger
+                                        icon={<CheckCircleOutlined />}
                                         onClick={async () => {
                                             try {
-                                                await chat_model.unbind_skill(s.skillId)
-                                                message.success(t('已取消绑定'))
+                                                await chat_model.activate_skill(s.skillId)
+                                                message.success(t('已激活'))
                                                 await load()
                                             } catch (e: any) {
                                                 message.error(e.message || t('操作失败'))
                                             }
                                         }}
-                                    >
-                                        {t('已绑定')}
-                                    </Button>
+                                    />
                                 </Tooltip>
-                                : <Tooltip title={t('绑定到 Agent')}>
+                                : <Popconfirm
+                                    title={t('确定禁用此技能？')}
+                                    onConfirm={async () => {
+                                        try {
+                                            await chat_model.disable_skill(s.skillId)
+                                            message.success(t('已禁用'))
+                                            await load()
+                                        } catch (e: any) {
+                                            message.error(e.message || t('操作失败'))
+                                        }
+                                    }}
+                                >
                                     <Button
+                                        type='text'
                                         size='small'
-                                        icon={<LinkOutlined />}
-                                        onClick={async () => {
-                                            try {
-                                                await chat_model.bind_skill(s.skillId)
-                                                message.success(t('绑定成功'))
-                                                await load()
-                                            } catch (e: any) {
-                                                message.error(e.message || t('操作失败'))
-                                            }
-                                        }}
-                                    >
-                                        {t('绑定')}
-                                    </Button>
-                                </Tooltip>
+                                        icon={<StopOutlined />}
+                                    />
+                                </Popconfirm>
                             }
+                            {s.statusName !== 'DEPRECATED' && <Popconfirm
+                                title={t('确定废弃此技能？')}
+                                onConfirm={async () => {
+                                    try {
+                                        await chat_model.deprecate_skill(s.skillId)
+                                        message.success(t('已废弃'))
+                                        await load()
+                                    } catch (e: any) {
+                                        message.error(e.message || t('操作失败'))
+                                    }
+                                }}
+                            >
+                                <Button
+                                    type='text'
+                                    size='small'
+                                    icon={<DisconnectOutlined />}
+                                />
+                            </Popconfirm>}
                             <Popconfirm
                                 title={t('确定删除此技能？')}
                                 onConfirm={async () => {

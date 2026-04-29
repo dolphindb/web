@@ -79,13 +79,15 @@ demo2.zip
   * [5.3 列出 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.3-%E5%88%97%E5%87%BA-LLM-Provider)
   * [5.4 更新 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.4-%E6%9B%B4%E6%96%B0-LLM-Provider)
   * [5.5 禁用 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.5-%E7%A6%81%E7%94%A8-LLM-Provider)
-  * [5.6 删除 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.6-%E5%88%A0%E9%99%A4-LLM-Provider)
-  * [5.7 注册 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.7-%E6%B3%A8%E5%86%8C-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.8 获取 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.8-%E8%8E%B7%E5%8F%96-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.9 列出 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.9-%E5%88%97%E5%87%BA-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.10 更新 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.10-%E6%9B%B4%E6%96%B0-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.11 禁用 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.11-%E7%A6%81%E7%94%A8-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.12 删除 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.12-%E5%88%A0%E9%99%A4-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.6 启用 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.6-%E5%90%AF%E7%94%A8-LLM-Provider)
+  * [5.7 删除 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.7-%E5%88%A0%E9%99%A4-LLM-Provider)
+  * [5.8 注册 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.8-%E6%B3%A8%E5%86%8C-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.9 获取 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.9-%E8%8E%B7%E5%8F%96-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.10 列出 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.10-%E5%88%97%E5%87%BA-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.11 更新 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.11-%E6%9B%B4%E6%96%B0-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.12 禁用 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.12-%E7%A6%81%E7%94%A8-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.13 启用 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.13-%E5%90%AF%E7%94%A8-LLM-%E9%85%8D%E7%BD%AE)
+  * [5.14 删除 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.14-%E5%88%A0%E9%99%A4-LLM-%E9%85%8D%E7%BD%AE)
 * [Agent-LLM 绑定](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.-Agent-LLM-%E7%BB%91%E5%AE%9A)
   * [6.1 绑定 LLM 到 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.1-%E7%BB%91%E5%AE%9A-LLM-%E5%88%B0-Agent)
   * [6.2 解绑 LLM](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.2-%E8%A7%A3%E7%BB%91-LLM)
@@ -641,7 +643,22 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 5.6 删除 LLM Provider
+### 5.6 启用 LLM Provider
+
+`POST /agent-bus/v1/llm/provider/{providerId}/enable `
+
+**响应:** [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo")（状态变为 `ACTIVE`）
+
+说明：
+
+* 仅 `DISABLED` provider 可以被恢复为 `ACTIVE`
+* 若 provider 已是 `ACTIVE`，再次 enable 按幂等处理，直接返回当前 provider
+* 已 `DELETED` 的 provider 不能再执行 enable
+* 启用 provider 不会自动启用引用它的 `DISABLED` llmConfig；配置需要单独执行 enable
+
+---
+
+### 5.7 删除 LLM Provider
 
 `DELETE /agent-bus/v1/llm/provider/{providerId} `
 
@@ -656,7 +673,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 5.7 注册 LLM 配置
+### 5.8 注册 LLM 配置
 
 `POST /agent-bus/v1/llm/config/register `
 
@@ -704,7 +721,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 5.8 获取 LLM 配置
+### 5.9 获取 LLM 配置
 
 `GET /agent-bus/v1/llm/config/{llmConfigId} `
 
@@ -716,7 +733,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 5.9 列出 LLM 配置
+### 5.10 列出 LLM 配置
 
 `GET /agent-bus/v1/llm/config/list `
 
@@ -749,7 +766,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 5.10 更新 LLM 配置
+### 5.11 更新 LLM 配置
 
 `PUT /agent-bus/v1/llm/config/{llmConfigId} `
 
@@ -766,7 +783,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 5.11 禁用 LLM 配置
+### 5.12 禁用 LLM 配置
 
 `POST /agent-bus/v1/llm/config/{llmConfigId}/disable `
 
@@ -775,10 +792,29 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 说明：
 
 * 已 `DELETED` 的配置不能再执行 disable
+* 若配置已是 `DISABLED`，再次 disable 按幂等处理，直接返回当前配置
+* 禁用后已有用户授权、agent 绑定、agent 默认模型、summary 配置和 session 引用仍保留，但运行时解析、fallback、显式选择和新增绑定均不会使用该配置
 
 ---
 
-### 5.12 删除 LLM 配置
+### 5.13 启用 LLM 配置
+
+`POST /agent-bus/v1/llm/config/{llmConfigId}/enable `
+
+**响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")（状态变为 `ACTIVE`）
+
+说明：
+
+* 仅 `DISABLED` 配置可以被恢复为 `ACTIVE`
+* 若配置已是 `ACTIVE`，再次 enable 按幂等处理，直接返回当前配置
+* 已 `DELETED` 的配置不能再执行 enable
+* 启用前要求该配置引用的 provider 为 `ACTIVE`
+* 若配置为 `capability='embedding'`，启用前要求系统中不存在其他 `capability='embedding' and status='ACTIVE'` 的配置
+* 启用后，已有用户授权、agent 绑定、agent 默认模型、summary 配置和 session 引用会重新进入运行时解析
+
+---
+
+### 5.14 删除 LLM 配置
 
 `DELETE /agent-bus/v1/llm/config/{llmConfigId} `
 
@@ -790,7 +826,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 * 删除为软删除：成功后配置仍可被 `GET /llm/config/{llmConfigId}` 查询到，但 `status=2`、`statusName="DELETED"`
 * 若配置已是 `DELETED`，再次删除按幂等处理，直接返回当前配置
 * 删除前要求该配置不再被任何用户授权（`user_llm_access`）、任何 agent 绑定（`agent_llm_access`）、任何非 `DELETED` agent 的默认模型字段、任何非 `DELETED` agent 的 `contextConfig.summaryConfig.summaryLlmConfigId`，以及任何非 `DELETED` session 引用
-* `DELETED` 配置不会参与运行时 LLM 选择，也不能再被更新或禁用
+* `DELETED` 配置不会参与运行时 LLM 选择，也不能再被更新、禁用或启用
 
 ---
 
@@ -1777,19 +1813,18 @@ ToolResult 结构:
 | `content`  | string | 是   | 注入的文本内容                                                                                            |
 | `position` | string | 否   | 插入位置，可选`after_system`/`before_history`/`before_current_turn`，默认`before_history` |
 
-每个 block 都会作为一条 `role=system` 消息注入；同一位置的多个 block 按数组顺序追加。
+`contextBlocks` 均为 system-level 上下文。`before_history` 与 `before_current_turn` 的 block 会各自作为独立 `role=system` 消息注入；`after_system` 的 block 不会生成独立消息，而是按数组顺序追加到前一条 system prompt 消息内容末尾。若本次组装没有 system prompt，`after_system` 会退化为首条 `role=system` 消息。
 
 **手动组装消息顺序：**
 
-1. system prompt（`assemblyConfig.systemPrompt` 或 agent 默认）
-2. `after_system` 位置的 contextBlocks
-3. 技能目录 Tier-1（若未通过 `noSkillCatalog` 关闭）
-4. 技能指令 Tier-2（来自 `activeSkillNames`）
-5. 记忆检索结果
-6. `before_history` 位置的 contextBlocks
-7. 历史部分（`summary-first` 时为 `latest summary + raw tail`，否则为纯 token 滑窗历史）
-8. `before_current_turn` 位置的 contextBlocks
-9. 本轮输入（`message` / `toolResults`）
+1. system prompt（`assemblyConfig.systemPrompt` 或 agent 默认）；`after_system` 位置的 contextBlocks 会合并到这条消息末尾
+2. 技能目录 Tier-1（若未通过 `noSkillCatalog` 关闭）
+3. 技能指令 Tier-2（来自 `activeSkillNames`）
+4. 记忆检索结果
+5. `before_history` 位置的 contextBlocks（独立 `role=system` 消息）
+6. 历史部分（`summary-first` 时为 `latest summary + raw tail`，否则为纯 token 滑窗历史）
+7. `before_current_turn` 位置的 contextBlocks（独立 `role=system` 消息）
+8. 本轮输入（`message` / `toolResults`）
 
 说明：
 
@@ -2053,11 +2088,19 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 | `user.llm.access.grant`   | POST /user/{id}/llm/access                |
 | `user.llm.access.revoke`  | DELETE /user/{id}/llm/access              |
 | `user.llm.access.list`    | GET /user/{id}/llm/access                 |
+| `llm.provider.register`   | POST /llm/provider/register               |
+| `llm.provider.get`        | GET /llm/provider/{id}                    |
+| `llm.provider.list`       | GET /llm/provider/list                    |
+| `llm.provider.update`     | PUT /llm/provider/{id}                    |
+| `llm.provider.disable`    | POST /llm/provider/{id}/disable           |
+| `llm.provider.enable`     | POST /llm/provider/{id}/enable            |
+| `llm.provider.delete`     | DELETE /llm/provider/{id}                 |
 | `llm.config.register`     | POST /llm/config/register                 |
 | `llm.config.get`          | GET /llm/config/{id}                      |
 | `llm.config.list`         | GET /llm/config/list                      |
 | `llm.config.update`       | PUT /llm/config/{id}                      |
 | `llm.config.disable`      | POST /llm/config/{id}/disable             |
+| `llm.config.enable`       | POST /llm/config/{id}/enable              |
 | `llm.config.delete`       | DELETE /llm/config/{id}                   |
 | `llm.complete`            | POST /llm/complete                        |
 | `llm.usage`               | GET /llm/usage                            |
@@ -2438,7 +2481,7 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 | `baseUrl`       | string    | Provider 级基础 URL，如`https://api.openai.com`                                                                     |
 | `apiKey`        | string    | Provider API Key。对外返回时始终脱敏为`***`；未配置时返回空字符串                                                   |
 | `status`        | int       | 状态值：0=ACTIVE, 1=DISABLED, 2=DELETED                                                                                 |
-| `statusName`    | string    | 状态名称：`ACTIVE`/`DISABLED`/`DELETED`                                                                     |
+| `statusName`    | string    | 状态名称：`ACTIVE`（可用）/`DISABLED`（已禁用，可恢复）/`DELETED`（已软删除，不可恢复）                     |
 | `schemaVersion` | int       | 行 Schema 版本号                                                                                                        |
 | `extra`         | string    | 预留扩展字段                                                                                                            |
 | `createTime`    | timestamp | 创建时间                                                                                                                |
@@ -2478,7 +2521,7 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 | `timeoutMs`          | int                                                                                                                                                                                                                                                                                                                                                                        | 单次 LLM 请求超时时间（毫秒）                                                                                                                                                                         |
 | `retryConfig`        | object                                                                                                                                                                                                                                                                                                                                                                     | 重试配置：`maxRetries`（默认 3）、`initialDelayMs`（默认 1000）、`backoffMultiplier`（默认 2.0）、`maxDelayMs`（默认 30000）、`retryableStatusCodes`（默认 [429, 500, 502, 503]） |
 | `status`             | int                                                                                                                                                                                                                                                                                                                                                                        | 状态值：0=ACTIVE, 1=DISABLED, 2=DELETED                                                                                                                                                               |
-| `statusName`         | string                                                                                                                                                                                                                                                                                                                                                                     | 状态名称：`ACTIVE`（可用）/`DISABLED`（已禁用，绑定到 agent 的此配置不会参与 LLM 选择）/`DELETED`（已软删除，仅保留查询与审计用途）                                                       |
+| `statusName`         | string                                                                                                                                                                                                                                                                                                                                                                     | 状态名称：`ACTIVE`（可用）/`DISABLED`（已禁用，可恢复，绑定到 agent 的此配置不会参与 LLM 选择）/`DELETED`（已软删除，仅保留查询与审计用途，不可恢复）                                     |
 | `schemaVersion`      | int                                                                                                                                                                                                                                                                                                                                                                        | 行 Schema 版本号                                                                                                                                                                                      |
 | `extra`              | string                                                                                                                                                                                                                                                                                                                                                                     | 预留扩展字段                                                                                                                                                                                          |
 | `createTime`         | timestamp                                                                                                                                                                                                                                                                                                                                                                  | 创建时间                                                                                                                                                                                              |
