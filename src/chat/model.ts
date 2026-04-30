@@ -8,7 +8,7 @@ import { get_script_handler } from './scripts/index.ts'
 import type { ToolContext, ScriptResult } from './scripts/types.ts'
 import { normalize_script_args } from './scripts/helpers.ts'
 import { build_system_prompt } from './prompt.ts'
-import { parse_tool_call } from './tool_call_parser.ts'
+import { parse_tool_calls } from './tool_call_parser.ts'
 import type { ParsedToolCall } from './tool_call_parser.ts'
 
 
@@ -184,6 +184,13 @@ interface ChatCompletionStreamResult {
     reasoning_content: string
     tool_calls?: any[]
     final_data?: any
+}
+
+
+interface ToolExecutionResult {
+    tool_result_content: string
+    next_loop: boolean
+    stopped?: boolean
 }
 
 
@@ -767,7 +774,7 @@ class ChatModel extends Model<ChatModel> {
         // 文本格式的工具调用检测：dolphinx 存储的 contentType 始终是 text，
         // 但实际内容可能是 {"tool_call":"name","args":[...]} 格式
         if (message_type === 'text' && m.role === 'assistant' && content.trim()) {
-            const parsed_call = parse_tool_call(undefined, content)
+            const parsed_call = parse_tool_calls(undefined, content)[0]
             if (parsed_call) {
                 message_type = 'tool_call'
                 name = parsed_call.type
@@ -1186,23 +1193,14 @@ class ChatModel extends Model<ChatModel> {
             
             // 从文本内容或 function calling 格式中解析工具调用
             console.log('[debug] content length:', content.length, 'toolCalls:', tool_calls)
-            const parsed_call = parse_tool_call(tool_calls, content)
-            console.log('[debug] parsed_call:', parsed_call)
+            const parsed_calls = parse_tool_calls(tool_calls, content)
+            console.log('[debug] parsed_calls:', parsed_calls)
             
-            if (parsed_call) {
-                console.log('[debug] Tool call detected:', parsed_call.type, 'payload type:', typeof parsed_call.payload)
-                const tool_call_payload = { tool_call: parsed_call.type, args: parsed_call.payload }
-                this.update_assistant_content(assistant_msg_id, {
-                    content: JSON.stringify(tool_call_payload),
-                    reasoning_content: reasoning_content || undefined,
-                    messageType: 'tool_call',
-                    name: parsed_call.type,
-                })
-                
+            if (parsed_calls.length > 0) {
                 this.set({ agent_status: { status: 'tool_running' } })
-                console.log('[debug] Calling handle_text_tool_call...')
-                await this.handle_text_tool_call(parsed_call, reasoning_content, _tool_turn, request_seq, assistant_msg_id)
-                console.log('[debug] handle_text_tool_call completed')
+                console.log('[debug] Calling handle_text_tool_calls...')
+                await this.handle_text_tool_calls(parsed_calls, reasoning_content, _tool_turn, request_seq, assistant_msg_id)
+                console.log('[debug] handle_text_tool_calls completed')
             } else {
                 // 没有工具调用 → 普通文本回复
                 if (!content.trim() && !reasoning_content.trim())
@@ -1253,10 +1251,78 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    /** 处理文本解析出的工具调用（text-based tool calling） */
-    async handle_text_tool_call (parsed_call: ParsedToolCall, reasoning_content: string, tool_turn: number, request_seq: number, tool_call_msg_id: string) {
+    build_tool_call_message (parsed_call: ParsedToolCall, msg_id: string, reasoning_content?: string): IMessage {
+        const tool_call_payload = { tool_call: parsed_call.type, args: parsed_call.payload }
+        return {
+            msgId: msg_id,
+            role: 'assistant',
+            messageType: 'tool_call',
+            name: parsed_call.type,
+            content: JSON.stringify(tool_call_payload),
+            reasoning_content: reasoning_content || undefined,
+        }
+    }
+    
+    
+    async handle_text_tool_calls (
+        parsed_calls: ParsedToolCall[],
+        reasoning_content: string,
+        tool_turn: number,
+        request_seq: number,
+        first_tool_call_msg_id: string,
+    ) {
+        const tool_result_contents: string[] = [ ]
+        let should_continue_loop = false
+        
+        for (let index = 0;  index < parsed_calls.length;  index += 1) {
+            if (this.is_request_interrupted(request_seq))
+                return
+            
+            const parsed_call = parsed_calls[index]
+            const tool_call_msg_id = index === 0
+                ? first_tool_call_msg_id
+                : `assistant_tool_${Date.now()}_${index}`
+            const tool_call_msg = this.build_tool_call_message(
+                parsed_call,
+                tool_call_msg_id,
+                index === 0 ? reasoning_content : undefined,
+            )
+            
+            if (index === 0)
+                this.update_assistant_content(tool_call_msg_id, {
+                    content: tool_call_msg.content,
+                    reasoning_content: tool_call_msg.reasoning_content,
+                    messageType: 'tool_call',
+                    name: parsed_call.type,
+                })
+            else
+                this.set({ messages: [...this.messages, tool_call_msg] })
+            
+            const result = await this.handle_text_tool_call(parsed_call, request_seq, tool_call_msg_id)
+            if (!result)
+                return
+            if (result.stopped)
+                return
+            if (result.tool_result_content)
+                tool_result_contents.push(result.tool_result_content)
+            if (result.next_loop)
+                should_continue_loop = true
+        }
+        
         if (this.is_request_interrupted(request_seq))
             return
+        
+        if (tool_result_contents.length > 0 && should_continue_loop)
+            await this.do_chat_completions(tool_result_contents.join('\n\n'), undefined, tool_turn + 1, request_seq)
+        else
+            this.set({ agent_status: { status: 'idle' } })
+    }
+    
+    
+    /** 执行单个文本解析出的工具调用（text-based tool calling） */
+    async handle_text_tool_call (parsed_call: ParsedToolCall, request_seq: number, tool_call_msg_id: string): Promise<ToolExecutionResult | null> {
+        if (this.is_request_interrupted(request_seq))
+            return null
         
         // 构建 ToolContext
         const context: ToolContext = {
@@ -1281,7 +1347,7 @@ class ChatModel extends Model<ChatModel> {
             if (script) {
                 const decision = await this.request_script_execution_approval(parsed_call.type, script, tool_call_msg_id)
                 if (this.is_request_interrupted(request_seq))
-                    return
+                    return null
                 if (decision === 'deny') {
                     this._interrupted_request_seq = request_seq
                     this.set({
@@ -1294,7 +1360,7 @@ class ChatModel extends Model<ChatModel> {
                         }],
                         agent_status: { status: 'idle' },
                     })
-                    return
+                    return { tool_result_content: '', next_loop: false, stopped: true }
                 }
                 this.set({ agent_status: { status: 'tool_running' } })
             }
@@ -1328,7 +1394,7 @@ class ChatModel extends Model<ChatModel> {
             }
         
         if (this.is_request_interrupted(request_seq))
-            return
+            return null
         
         // 显示工具结果消息
         if (script_result.save_message) {
@@ -1344,20 +1410,15 @@ class ChatModel extends Model<ChatModel> {
         if (script_result.ddb_result)
             this.set({ latest_ddb_result: script_result.ddb_result })
             
-        if (!script_result.next_loop) {
-            this.set({ agent_status: { status: 'idle' } })
-            return
-        }
-        
-        // 继续 agent loop：将工具结果作为 user 消息发送回 LLM
+        // 返回工具结果，由调用方在同一轮多个工具全部结束后合并续传
         const tool_result_content = script_result.save_message
             ? `[${script_result.save_message.messageType}:${parsed_call.type}] ${script_result.save_message.content}`
             : ''
         
-        if (tool_result_content)
-            await this.do_chat_completions(tool_result_content, undefined, tool_turn + 1, request_seq)
-        else
-            this.set({ agent_status: { status: 'idle' } })
+        return {
+            tool_result_content,
+            next_loop: script_result.next_loop,
+        }
     }
     
     // ─── LLM Provider 管理 ───
