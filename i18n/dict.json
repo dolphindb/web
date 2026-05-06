@@ -6796,5 +6796,11 @@
     },
     "与 License Server 的连接已断开，剩余可用时间：{{days}} 天 {{hours}} 小时，请尽快恢复连接以避免服务关闭": {
         "en": "Connection to License Server has been disconnected, remaining available time: {{days}} days {{hours}}, please restore connection as soon as possible to avoid service shutdown"
+    },
+    "默认 (本地时区)": {
+        "en": "Default (local time zone)"
+    },
+    "复制文本操作应该成功": {
+        "en": "Copy text operation should succeed"
     }
 }
