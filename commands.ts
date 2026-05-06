@@ -268,7 +268,7 @@ let builder = {
                     'window.html': {
                         title: 'DdbObj',
                         entry: 'window.js',
-                        dependencies: ['antd-icons', 'lodash', 'echarts'],
+                        dependencies: ['antd-icons', 'lodash', 'echarts']
                     }
                 },
                 
@@ -292,7 +292,7 @@ let builder = {
                         ... source_map ? [{
                             src: `${fpdt_cache}deps.js.map`,
                             out: 'deps.js.map'
-                        }] : [ ],
+                        }] : [ ]
                     ]
                 }
             }
