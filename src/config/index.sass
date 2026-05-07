@@ -49,7 +49,8 @@
         padding: 0px
     
     .nodes-config-container
-        padding-inline: 24px
+        padding: 0px 10px
+        
         .toolbar
             padding-block: 16px
             display: flex
@@ -95,12 +96,74 @@
             font-size: 18px
             display: flex
             font-weight: bold
-            
+    
+    
+    .web-menus-config
+        padding: 0px 10px
         
-
-.add-config-modal
-    .mr-btn
-        margin-right: 20px
+        .menu-header
+            display: flex
+            align-items: center
+            justify-content: space-between
+            padding: 10px 0px
+    
+        .menu-header-title
+            font-size: 16px
+            font-weight: bold
+    
+        .menu-list
+            display: flex
+            flex-direction: column
+    
+        .menu-item
+            display: flex
+            align-items: center
+            justify-content: space-between
+            padding: 8px
+            
+            &:hover
+                background-color: var(--ant-color-fill-tertiary)
+    
+        .menu-item-content
+            display: flex
+            align-items: center
+            gap: 16px
+        
+        .menu-item-icon
+            font-size: 16px
+        
+        .menu-item-title
+            font-size: 14px
+            font-weight: 500
+            color: var(--ant-color-text)
+            line-height: 1.4
+    
+        .menu-item-description
+            font-size: 12px
+            color: var(--ant-color-text-secondary)
+            line-height: 1.4
+            overflow: hidden
+            text-overflow: ellipsis
+            white-space: nowrap
+    
+            a
+                color: var(--ant-color-text-secondary)
+    
+                &:hover
+                    color: var(--ant-color-primary)
+    
+        .menu-item-actions
+            display: flex
+            align-items: center
+            
+            .ant-btn
+                padding: 0px 6px
+    
+        .empty-text
+            text-align: center
+            color: var(--ant-color-text-secondary)
+            padding: 24px 0
+    
 
 .compute-group
     .select
@@ -130,29 +193,41 @@
         .auto-search
             flex: 1
 
-.add-compute-group-modal
-    .label
-        font-size: 14px
-        margin-bottom: 10px
-        margin-top: 20px
-        font-weight: bold
-    .add-nodes
-        display: flex
-        align-items: center
-        padding: 8px 0
-        gap: 8px
-    .validate-error
+
+.ant-modal-root
+    .add-config-modal
+        .mr-btn
+            margin-right: 20px
+    
+    .web-menus-config-modal
+        .ant-form-css-var
+            --ant-form-item-margin-bottom: 14px
+    
+    .add-compute-group-modal
+        .label
+            font-size: 14px
+            margin-bottom: 10px
+            margin-top: 20px
+            font-weight: bold
+        .add-nodes
+            display: flex
+            align-items: center
+            padding: 8px 0
+            gap: 8px
+        .validate-error
+            color: #f5222d
+            font-size: 12px
+            position: absolute
+            white-space: nowrap
+            bottom: -12px
+        .validate-error-name
+            color: #f5222d
+            font-size: 12px
+            position: absolute
+            bottom: -18px
+            white-space: nowrap
+    
+    .validate-error-node
         color: #f5222d
         font-size: 12px
-        position: absolute
-        white-space: nowrap
-        bottom: -12px
-    .validate-error-name
-        color: #f5222d
-        font-size: 12px
-        position: absolute
-        bottom: -18px
-        white-space: nowrap
-.validate-error-node
-    color: #f5222d
-    font-size: 12px
+    

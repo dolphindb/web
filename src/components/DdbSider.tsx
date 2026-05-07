@@ -4,7 +4,7 @@ import { Layout, Menu, Typography } from 'antd'
 
 import {
     default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined,
-    ApartmentOutlined
+    ApartmentOutlined, AppstoreOutlined
 } from '@ant-design/icons'
 
 import { noop } from 'xshell/prototype.browser.js'
@@ -15,6 +15,8 @@ import { language, t } from '@i18n'
 import { model, type DdbModel, NodeType, storage_keys, default_view } from '@model'
 
 import { sider_collapsed_width, sider_uncollapsed_width } from '@utils'
+
+import { config } from '@/config/model.ts'
 
 
 import SvgOverview from '@/overview/icons/overview.icon.svg'
@@ -62,7 +64,7 @@ const svgs = {
     'finance-guide': SvgFinance,
     plugins: SvgPlugins,
     'session-management': SvgSession,
-    'streaming-graph': SvgStreamingGraph,
+    'streaming-graph': SvgStreamingGraph
 }
 
 
@@ -80,6 +82,8 @@ export function DdbSider () {
         'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 
         'v1', 'v3', 'port', 'hostname', 'username', 'license', 'enabled_modules', 'iot'
     ])
+    
+    const { menus } = config.use(['menus'])
     
     const [factor_platform, set_factor_platform] = useState(false)
     
@@ -129,7 +133,7 @@ export function DdbSider () {
                     return
                 }
                 
-                if (key === 'factor')
+                if (key === 'factor' || key.startsWith('custom-menu-'))
                     return
                 
                 model.goto(key === default_view ? '/' : `/${key}/`)
@@ -225,6 +229,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='plugins' />,
                     label: t('插件管理'),
                 },
+                
                 factor_platform && node_type !== NodeType.controller && !model.dev && {
                     key: 'factor',
                     icon: <MenuIcon view='factor' />,
@@ -252,6 +257,13 @@ export function DdbSider () {
                     icon: <MenuIcon view='session-management'/>,
                     label: t('会话管理')
                 },
+                
+                ...menus.map(({ title, url }, index) => ({
+                    key: `custom-menu-${index}`,
+                    icon: <AppstoreOutlined className='icon-menu' />,
+                    label: <Link target='_blank' href={url}>{title}</Link>
+                })),
+                
                 admin && !iot && {
                     key: 'settings',
                     className: 'settings',

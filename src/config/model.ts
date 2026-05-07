@@ -17,8 +17,10 @@ import type { NodesConfig } from './type.ts'
 class ConfigModel extends Model<ConfigModel> {
     nodes_configs: Map<string, NodesConfig>
     
+    menus: WebMenuItem[] = []
     
-    async load_controller_configs () {
+    
+    load_controller_configs () {
         return this.invoke<string[]>('loadControllerConfigs')
     }
     
@@ -28,7 +30,7 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     
-    async get_cluster_nodes () {
+    get_cluster_nodes () {
         return this.invoke<string[]>('getClusterNodesCfg')
     }
     
@@ -77,6 +79,16 @@ class ConfigModel extends Model<ConfigModel> {
                     this.nodes_configs.entries(),
                     ([key, { value }]) => [key, value])))
         
+        // 加载 webMenus 配置
+        const menus_json = this.get_config('webMenus')
+        
+        this.set({
+            menus: menus_json ? JSON.parse(menus_json) : empty_menus
+        })
+        
+        if (this.menus.length)
+            log('自定义菜单配置:', this.menus)
+        
         return configs        
     }
     
@@ -118,7 +130,7 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     
-    async delete_configs (configs: Array<string>) {
+    async delete_configs (configs: string[]) {
         configs.forEach(config => {
             this.nodes_configs.delete(config)
         })
@@ -184,6 +196,15 @@ class ConfigModel extends Model<ConfigModel> {
 }
 
 
+const empty_menus = [ ]
+
+
+export interface WebMenuItem {
+    title: string
+    url: string
+}
+
+
 /** 分类的集群节点配置 */
 export const node_configs = {
     [t('线程')]: [
@@ -214,7 +235,7 @@ export const node_configs = {
         'console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 
         'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 
         'enableShellFunction', 'enablePKEYEngine', 'enableInsertStatementForDFSTable', 'enableORCA', 'mvccTableRaftGroups',
-        'mvccTableHADir', 'mvccTableCheckpointInterval'
+        'mvccTableHADir', 'mvccTableCheckpointInterval', 'webMenus'
     ],
     [t('计算组')]: [
         'computeNodeCacheDir', 'computeNodeCacheMeta', 'computeNodeMemCacheSize', 'computeNodeDiskCacheSize',

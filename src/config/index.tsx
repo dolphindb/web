@@ -4,6 +4,8 @@ import { useState } from 'react'
 
 import { Tabs } from 'antd'
 
+import { AppstoreOutlined } from '@ant-design/icons'
+
 import { t } from '@i18n'
 
 import { model, NodeType } from '@model'
@@ -12,6 +14,7 @@ import { ControllerConfig } from './ControllerConfig.tsx'
 import { NodesManagement } from './NodesManagement.tsx'
 import { NodesConfig } from './NodesConfig.tsx'
 import { ComputeGroupConfig } from './ComputeGroupConfig.tsx'
+import { WebMenusConfig } from './WebMenusConfig.tsx'
 
 import SvgControllerConfig from './icons/controller.config.icon.svg'
 import SvgNodesConfig from './icons/nodes.config.icon.svg'
@@ -67,6 +70,16 @@ export function Config () {
                     </div>
                 ),
                 children: <ComputeGroupConfig />
+            },
+            {
+                key: 'web_menus',
+                label: (
+                    <div className='tab-header'>
+                        <AppstoreOutlined />
+                        {t('自定义侧边菜单')}
+                    </div>
+                ),
+                children: <WebMenusConfig />
             }
         ].filter(Boolean)}
     />
