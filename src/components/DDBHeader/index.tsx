@@ -11,7 +11,6 @@ import { t } from '@i18n'
 import { model } from '@model'
 
 import { LanguageSelect } from './LanguageSelect.tsx'
-import { TimeZoneSelect } from './TimeZoneSelect.tsx'
 
 import { Status } from './Status.tsx'
 
@@ -55,8 +54,6 @@ export function DdbHeader () {
             <Settings />
             
             <LanguageSelect />
-            
-            <TimeZoneSelect />
             
             <Dropdown
                 menu={{
