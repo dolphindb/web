@@ -6802,5 +6802,35 @@
     },
     "复制文本操作应该成功": {
         "en": "Copy text operation should succeed"
+    },
+    "自定义侧边菜单": {
+        "en": "Customize Side Menu"
+    },
+    "侧边菜单配置": {
+        "en": "Side Menu Configuration"
+    },
+    "添加菜单项": {
+        "en": "Add Menu Item"
+    },
+    "暂无配置，点击上方按钮添加": {
+        "en": "No configuration, click the button above to add"
+    },
+    "确认删除此菜单项？": {
+        "en": "Are you sure to delete this menu item? "
+    },
+    "编辑菜单项": {
+        "en": " Edit menu item "
+    },
+    "菜单标题": {
+        "en": " Menu title "
+    },
+    "请输入菜单标题": {
+        "en": " Please enter menu title "
+    },
+    "链接地址": {
+        "en": " Link address "
+    },
+    "请输入链接地址，如 /xxx/xxx 或 https://dolphindb.cn": {
+        "en": " Please enter link address, such as/xxx/xxx or https://dolphindb.cn "
     }
 }
