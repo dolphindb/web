@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { Button, Input, Spin, Typography, Space, Collapse } from 'antd'
+import { Alert, Button, Input, Spin, Typography, Space, Collapse } from 'antd'
 import { SendOutlined, BulbOutlined, StopOutlined } from '@ant-design/icons'
 import { type DdbObj, type DdbValue, DdbForm } from 'dolphindb/browser.js'
 
@@ -61,13 +61,14 @@ function route_ddb_obj_to_dataview (obj: DdbObj<DdbValue>) {
 
 export function AiTab ({ session_id }: { session_id: string }) {
     const {
-        messages, buffered_messages, agent_status, current_session_id, latest_ddb_result,
+        messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, sessions,
     } = chat_model.use([
-        'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result',
+        'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'sessions',
     ])
     
     const [input_value, set_input_value] = useState('')
     const [inited, set_inited] = useState(false)
+    const [init_error, set_init_error] = useState('')
     
     const messages_ref = useRef<HTMLDivElement>(null)
     const should_auto_scroll = useRef(true)
@@ -79,6 +80,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         
         ;(async () => {
             try {
+                set_init_error('')
                 if (!chat_model.agent_id)
                     await chat_model.init()
                 else if (chat_model.agents.length === 0)
@@ -97,6 +99,8 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 set_inited(true)
             } catch (e) {
                 console.error('AiTab init failed:', e)
+                set_init_error(e instanceof Error ? e.message : String(e))
+                set_inited(true)
             }
         })()
         
@@ -106,7 +110,12 @@ export function AiTab ({ session_id }: { session_id: string }) {
     // When tab switches back, re-select the correct session
     useEffect(() => {
         if (inited && current_session_id !== session_id)
-            chat_model.select_session(session_id).catch(console.error)
+            chat_model.select_session(session_id)
+                .then(() => { set_init_error('') })
+                .catch(error => {
+                    console.error(error)
+                    set_init_error(error instanceof Error ? error.message : String(error))
+                })
     }, [inited, session_id])
     
     // Auto-scroll periodic check
@@ -224,11 +233,23 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const status_text = get_agent_status_text(visible_status)
     const has_virtual = visible_status.status !== 'idle' || visible_buffered.length > 0
     const can_interrupt = current_session_id === session_id && visible_status.status !== 'idle'
+    const session = sessions.find(item => item.sessionId === session_id)
+    const archived = session?.status === 1 || session?.statusName === 'ARCHIVED'
     
     if (!inited)
         return <div className='ai-tab-loading'>
             <Spin />
             <Text type='secondary' style={{ marginTop: 12 }}>{t('正在连接 AI 助手...')}</Text>
+        </div>
+    
+    if (init_error)
+        return <div className='ai-tab' style={{ padding: 16 }}>
+            <Alert
+                type='error'
+                showIcon
+                message={t('AI 会话加载失败')}
+                description={init_error === 'Not Found' ? t('会话不存在或已被删除，请新建 AI 会话。') : init_error}
+            />
         </div>
     
     return <div className='ai-tab'>
@@ -277,11 +298,12 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     value={input_value}
                     onChange={e => { set_input_value(e.target.value) }}
                     onPressEnter={() => {
-                        if (input_value.trim())
+                        if (input_value.trim() && !archived)
                             handle_send()
                     }}
-                    placeholder={t('输入消息发送给助手...')}
+                    placeholder={archived ? t('归档会话不可继续发送消息') : t('输入消息发送给助手...')}
                     size='large'
+                    disabled={archived}
                 />
                 {can_interrupt && <Button
                     danger
@@ -295,7 +317,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     type='primary'
                     size='large'
                     icon={<SendOutlined />}
-                    disabled={!input_value.trim()}
+                    disabled={!input_value.trim() || archived}
                     onClick={handle_send}
                 >
                     {t('发送')}

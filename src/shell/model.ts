@@ -384,7 +384,7 @@ class ShellModel extends Model<ShellModel> {
     
     
     save (code = this.editor?.getValue()) {
-        if (!this.monaco_inited)
+        if (!this.monaco_inited || !this.editor)
             return
         
         if (code === undefined) 
@@ -438,7 +438,7 @@ class ShellModel extends Model<ShellModel> {
             tabs: [...this.tabs, { name: new_tab_name, code: '', index: new_tab_index }]
         })
         
-        this.editor.setValue('')
+        this.editor?.setValue('')
     }
     
     add_git_tab (
@@ -507,7 +507,7 @@ class ShellModel extends Model<ShellModel> {
         if (commit_id)
             tab.git.commit_id = commit_id
         if (this.itab === index)
-            this.editor.setValue(code)
+            this.editor?.setValue(code)
         this.set({ tabs: [...this.tabs] })
         this.save()
     }
@@ -541,7 +541,7 @@ class ShellModel extends Model<ShellModel> {
                 chat_id,
             }],
         })
-        this.editor.setValue('')
+            this.editor?.setValue('')
     }
     
     
@@ -552,9 +552,9 @@ class ShellModel extends Model<ShellModel> {
         this.save()
         this.set({ itab: tab_index })
         if (tab_index > -1)
-            this.editor.setValue(this.tabs.find(t => t.index === tab_index)?.code || '')
+            this.editor?.setValue(this.tabs.find(t => t.index === tab_index)?.code || '')
         else
-            this.editor.setValue(localStorage.getItem(`${storage_keys.code}`) || '')
+            this.editor?.setValue(localStorage.getItem(`${storage_keys.code}`) || '')
     }
     
     

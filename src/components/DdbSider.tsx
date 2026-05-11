@@ -247,11 +247,6 @@ export function DdbSider () {
                     title: t('物联网库表向导'),
                     icon: <MenuIcon view='iot-guide'/>
                 },
-                logined && {
-                    key: 'chat',
-                    icon: <RobotOutlined className='icon-menu' />,
-                    label: t('智能助手'),
-                },
                 dev && {
                     key: 'test',
                     icon: <ExperimentOutlined className='icon-menu' />,

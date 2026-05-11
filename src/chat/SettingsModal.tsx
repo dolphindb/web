@@ -12,9 +12,11 @@ import {
 } from '@ant-design/icons'
 
 import { t } from '@i18n'
+import { model } from '@model'
 
 import { chat_model } from './model.ts'
 import type { ILlmConfig, ILlmProvider, IAgentLlmBinding, ISkillInfo, ISkillBinding, IAgentInfo } from './model.ts'
+import { DolphinXAdminTab, DolphinXUserTab } from './DolphinXUserSettings.tsx'
 
 
 function AgentTab () {
@@ -552,7 +554,6 @@ const DEFAULT_PROVIDER_FORM = {
     adapterType: 'openai',
     baseUrl: '',
     apiKey: '',
-    extra: '',
 }
 
 
@@ -570,7 +571,6 @@ const DEFAULT_CONFIG_FORM = {
     rateLimitRPM: undefined as number | undefined,
     timeoutMs: undefined as number | undefined,
     retryConfig: '',
-    extra: '',
 }
 
 
@@ -645,7 +645,6 @@ function LlmConfigTab () {
             adapterType: p.adapterType || 'openai',
             baseUrl: p.baseUrl,
             apiKey: p.apiKey || '',
-            extra: p.extra || '',
         })
     }
     
@@ -666,20 +665,21 @@ function LlmConfigTab () {
                     adapterType: provider_form.adapterType,
                     baseUrl: provider_form.baseUrl.trim(),
                     apiKey: provider_form.apiKey || undefined,
-                    extra: provider_form.extra || undefined,
                 })
                 message.success(t('创建成功'))
                 await load()
                 set_selected_provider_id(created.providerId)
                 set_provider_mode('edit')
             } else if (provider_mode === 'edit' && selected_provider_id) {
-                await chat_model.update_llm_provider(selected_provider_id, {
+                const payload: Record<string, unknown> = {
                     name: provider_form.name.trim(),
                     adapterType: provider_form.adapterType,
                     baseUrl: provider_form.baseUrl.trim(),
-                    apiKey: provider_form.apiKey || undefined,
-                    extra: provider_form.extra || undefined,
-                })
+                }
+                if (provider_form.apiKey && provider_form.apiKey !== (selected_provider?.apiKey || ''))
+                    payload.apiKey = provider_form.apiKey
+                
+                await chat_model.update_llm_provider(selected_provider_id, payload)
                 message.success(t('保存成功'))
                 await load()
             }
@@ -768,7 +768,6 @@ function LlmConfigTab () {
             rateLimitRPM: cfg.rateLimitRPM,
             timeoutMs: cfg.timeoutMs,
             retryConfig: cfg.retryConfig ? JSON.stringify(cfg.retryConfig, null, 2) : '',
-            extra: cfg.extra || '',
         })
     }
     
@@ -812,7 +811,6 @@ function LlmConfigTab () {
             rateLimitRPM: config_form.rateLimitRPM,
             timeoutMs: config_form.timeoutMs,
             retryConfig: retry_config,
-            extra: config_form.extra || undefined,
         }
         if (is_embedding) {
             payload.embeddingDimension = config_form.embeddingDimension
@@ -965,16 +963,6 @@ function LlmConfigTab () {
                                 value={provider_form.apiKey}
                                 onChange={e => { set_provider_form({ ...provider_form, apiKey: e.target.value }) }}
                                 placeholder='sk-...'
-                            />
-                        </div>
-                        <div style={{ gridColumn: '1 / -1' }}>
-                            <div style={{ marginBottom: 4, fontSize: 13 }}>{t('扩展字段 (extra)')}</div>
-                            <Input.TextArea
-                                value={provider_form.extra}
-                                onChange={e => { set_provider_form({ ...provider_form, extra: e.target.value }) }}
-                                rows={2}
-                                placeholder={t('预留扩展字段')}
-                                style={{ fontFamily: 'monospace' }}
                             />
                         </div>
                     </div>
@@ -1205,15 +1193,6 @@ function LlmConfigTab () {
                         value={config_form.retryConfig}
                         onChange={e => { set_config_form({ ...config_form, retryConfig: e.target.value }) }}
                         placeholder='{"maxRetries": 3, "backoffMs": 500}'
-                        rows={2}
-                        style={{ fontFamily: 'monospace' }}
-                    />
-                </div>
-                <div style={{ gridColumn: '1 / -1' }}>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('扩展字段 (extra)')}</div>
-                    <Input.TextArea
-                        value={config_form.extra}
-                        onChange={e => { set_config_form({ ...config_form, extra: e.target.value }) }}
                         rows={2}
                         style={{ fontFamily: 'monospace' }}
                     />
@@ -1472,6 +1451,7 @@ function SkillsTab () {
 
 export function SettingsModal () {
     const { settings_visible } = chat_model.use(['settings_visible'])
+    const { admin } = model.use(['admin'])
     
     return <Modal
         title={t('AI 设置')}
@@ -1499,6 +1479,18 @@ export function SettingsModal () {
                     label: t('技能管理'),
                     children: <SkillsTab />,
                 },
+                {
+                    key: 'user',
+                    label: t('会话与记忆'),
+                    children: <DolphinXUserTab />,
+                },
+                ...admin
+                    ? [{
+                        key: 'admin',
+                        label: t('权限与用量'),
+                        children: <DolphinXAdminTab />,
+                    }]
+                    : [ ],
             ]}
         />
     </Modal>

@@ -257,8 +257,9 @@ export function ShellEditor ({ collapser }) {
             
             on_loaded={(monaco, editor) => {
                 editor.setValue(shell.itab > -1 
-                    ? shell.tabs.find(t => t.index === shell.itab).code
-                    : localStorage.getItem(storage_keys.code) || '')
+                    ? shell.tabs.find(t => t.index === shell.itab)?.code || ''
+                    : localStorage.getItem(storage_keys.code) || ''
+                )
                 
                 async function execute (selection: 'line' | 'all') {
                     if (shell.executing)
@@ -308,8 +309,9 @@ export function ShellEditor ({ collapser }) {
                 })
             }}
             
-            on_change={value => {
-                shell.save_debounced(value)
+            on_change={(value, event) => {
+                if (value !== undefined)
+                    shell.save_debounced(value)
             }}
             
             on_save={value => {

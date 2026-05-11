@@ -170,6 +170,75 @@ export interface IAgentInfo {
 }
 
 
+export interface IAccessInfo {
+    userId: string
+    permission: string
+    grantedBy?: string
+    createTime?: string
+    updateTime?: string
+}
+
+
+export interface IUserLlmAccessInfo {
+    userId: string
+    llmConfigId: string
+    grantedBy?: string
+    createTime?: string
+    updateTime?: string
+    llmConfig?: ILlmConfig
+}
+
+
+export interface IMemoryEntry {
+    memoryId: string
+    agentId: string
+    userId?: string
+    scope?: 'agent' | 'user'
+    category: string
+    content: string
+    importance: number
+    metadata?: Record<string, unknown>
+    source?: string
+    sourceRef?: string
+    expireTime?: number
+    createTime?: string
+    updateTime?: string
+    textScore?: number
+    relevanceScore?: number
+    hybridScore?: number
+}
+
+
+export interface IMemoryStats {
+    totalCount: number
+    agentScopeCount: number
+    userScopeCount: number
+    avgImportance: number
+    categoryDistribution?: Record<string, number>
+}
+
+
+export interface ISkillFileContent {
+    skillId: string
+    filePath: string
+    encoding?: string
+    content: string
+    size?: number
+}
+
+
+export interface ILlmUsageStats {
+    agentId: string
+    userId?: string
+    startTime?: number
+    endTime?: number
+    totalPromptTokens?: number
+    totalCompletionTokens?: number
+    totalTokens?: number
+    requestCount?: number
+}
+
+
 const AGENT_ID_KEY = 'ddb.chat.agent_id'
 const BIZ_USER_ID_KEY = 'ddb.chat.biz_user_id'
 
@@ -377,23 +446,34 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    map_agent (a: any): IAgentInfo {
+        return {
+            agentId: a.agentId,
+            agentName: a.agentName || a.agentId,
+            agentType: a.agentType || '',
+            ownerUserId: a.ownerUserId,
+            description: a.description,
+            systemPrompt: a.systemPrompt,
+            llmConfigId: a.llmConfigId,
+            status: a.status,
+            statusName: a.statusName || '',
+            createTime: a.createTime,
+            updateTime: a.updateTime,
+        }
+    }
+    
+    
     /** 加载 agent 列表并选中第一个可用的 ACTIVE agent */
     async load_agents () {
         try {
-            const result = await this.api_fetch('/agent/list')
-            const items: IAgentInfo[] = (result.items || [ ]).map((a: any) => ({
-                agentId: a.agentId,
-                agentName: a.agentName || a.agentId,
-                agentType: a.agentType || '',
-                ownerUserId: a.ownerUserId,
-                description: a.description,
-                systemPrompt: a.systemPrompt,
-                llmConfigId: a.llmConfigId,
-                status: a.status,
-                statusName: a.statusName || '',
-                createTime: a.createTime,
-                updateTime: a.updateTime,
-            }))
+            let result: any
+            try {
+                result = await this.api_fetch('/agent/list')
+            } catch (error) {
+                console.warn('Failed to list owned agents, fallback to accessible agents:', error)
+                result = await this.api_fetch('/agent/accessible')
+            }
+            const items: IAgentInfo[] = (result.items || [ ]).map((a: any) => this.map_agent(a))
             this.set({ agents: items })
             
             // 如果缓存的 agent_id 仍然有效，继续使用
@@ -417,6 +497,17 @@ class ChatModel extends Model<ChatModel> {
             this.set({ agents: [ ], agent_id: '' })
             localStorage.removeItem(AGENT_ID_KEY)
         }
+    }
+    
+    
+    async load_all_agents (): Promise<IAgentInfo[]> {
+        const result = await this.api_fetch('/agent/list')
+        return (result.items || [ ]).map((a: any) => this.map_agent(a))
+    }
+    
+    
+    async get_agent (agent_id: string): Promise<IAgentInfo> {
+        return this.map_agent(await this.api_fetch(`/agent/${agent_id}`))
     }
     
     
@@ -526,6 +617,52 @@ class ChatModel extends Model<ChatModel> {
                 localStorage.removeItem(AGENT_ID_KEY)
         } else
             this.set({ agents: new_agents })
+    }
+    
+    
+    async load_agent_auth (agent_id: string): Promise<IAccessInfo[]> {
+        const result = await this.api_fetch(`/agent/${agent_id}/auth/list`)
+        return result.items || [ ]
+    }
+    
+    
+    async grant_agent_auth (agent_id: string, user_id: string, permission: 'AGENT_INVOKE' | 'AGENT_MANAGE'): Promise<IAccessInfo[]> {
+        const result = await this.api_fetch(`/agent/${agent_id}/auth`, {
+            method: 'POST',
+            body: JSON.stringify({ userId: user_id, permission }),
+        })
+        return result.items || [ ]
+    }
+    
+    
+    async revoke_agent_auth (agent_id: string, user_id: string): Promise<IAccessInfo[]> {
+        const result = await this.api_fetch(`/agent/${agent_id}/auth?userId=${encodeURIComponent(user_id)}`, {
+            method: 'DELETE',
+        })
+        return result.items || [ ]
+    }
+    
+    
+    async load_global_agent_admins (): Promise<IAccessInfo[]> {
+        const result = await this.api_fetch('/admin/access')
+        return result.items || [ ]
+    }
+    
+    
+    async grant_global_agent_admin (user_id: string): Promise<IAccessInfo[]> {
+        const result = await this.api_fetch('/admin/access', {
+            method: 'POST',
+            body: JSON.stringify({ userId: user_id, permission: 'AGENT_ADMIN' }),
+        })
+        return result.items || [ ]
+    }
+    
+    
+    async revoke_global_agent_admin (user_id: string): Promise<IAccessInfo[]> {
+        const result = await this.api_fetch(`/admin/access?userId=${encodeURIComponent(user_id)}&permission=AGENT_ADMIN`, {
+            method: 'DELETE',
+        })
+        return result.items || [ ]
     }
     
     
@@ -709,6 +846,56 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    map_session (s: any): ISession {
+        return {
+            sessionId: s.sessionId,
+            agentId: s.agentId,
+            bizUserId: s.bizUserId,
+            title: s.title || t('新会话'),
+            status: s.status,
+            statusName: s.statusName,
+            llmConfigId: s.llmConfigId,
+            createTime: s.createTime,
+            updateTime: s.updateTime,
+        }
+    }
+    
+    
+    async get_session (session_id: string): Promise<ISession> {
+        return this.map_session(await this.api_fetch(`/session/${session_id}`))
+    }
+    
+    
+    async list_sessions (params: { agentId?: string, targetUserId?: string, status?: number, offset?: number, limit?: number } = { }): Promise<{ items: ISession[], size: number, offset?: number, limit?: number }> {
+        const search = new URLSearchParams()
+        if (params.agentId)
+            search.set('agentId', params.agentId)
+        if (params.targetUserId)
+            search.set('targetUserId', params.targetUserId)
+        if (params.status !== undefined)
+            search.set('status', String(params.status))
+        if (params.offset !== undefined)
+            search.set('offset', String(params.offset))
+        if (params.limit !== undefined)
+            search.set('limit', String(params.limit))
+        
+        const result = await this.api_fetch(`/session/list?${search}`)
+        return {
+            ...result,
+            items: (result.items || [ ]).map((s: any) => this.map_session(s)),
+        }
+    }
+    
+    
+    async archive_session (session_id: string): Promise<ISession> {
+        const result = this.map_session(await this.api_fetch(`/session/${session_id}/archive`, { method: 'POST' }))
+        this.set({
+            sessions: this.sessions.map(s => s.sessionId === session_id ? result : s)
+        })
+        return result
+    }
+    
+    
     async update_session_title (session_id: string, title: string) {
         await this.api_fetch(`/session/${session_id}`, {
             method: 'PUT',
@@ -718,6 +905,26 @@ class ChatModel extends Model<ChatModel> {
             sessions: this.sessions.map(s =>
                 s.sessionId === session_id ? { ...s, title, updateTime: new Date().toISOString() } : s
             )
+        })
+    }
+    
+    
+    async update_session (session_id: string, updates: Record<string, unknown>): Promise<ISession> {
+        const result = this.map_session(await this.api_fetch(`/session/${session_id}`, {
+            method: 'PUT',
+            body: JSON.stringify(updates),
+        }))
+        this.set({
+            sessions: this.sessions.map(s => s.sessionId === session_id ? result : s)
+        })
+        return result
+    }
+    
+    
+    async generate_session_summary (session_id: string, params: { instructions?: string, llmConfigId?: string, force?: boolean, metadata?: Record<string, unknown> } = { }): Promise<any> {
+        return this.api_fetch(`/session/${session_id}/summary`, {
+            method: 'POST',
+            body: JSON.stringify(params),
         })
     }
     
@@ -942,6 +1149,11 @@ class ChatModel extends Model<ChatModel> {
     send_message (content: string) {
         if (!content.trim() || !this.current_session_id)
             return
+        const current_session = this.sessions.find(session => session.sessionId === this.current_session_id)
+        if (current_session?.status === 1 || current_session?.statusName === 'ARCHIVED') {
+            model.message?.warning(t('归档会话不可继续发送消息'))
+            return
+        }
         
         if (this.agent_status.status !== 'idle' || this.sse_controller)
             this.interrupt_chat()
@@ -1613,6 +1825,41 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    async load_user_llm_access (user_id: string): Promise<IUserLlmAccessInfo[]> {
+        const result = await this.api_fetch(`/user/${encodeURIComponent(user_id)}/llm/access`)
+        return result.items || [ ]
+    }
+    
+    
+    async grant_user_llm_access (user_id: string, llm_config_id: string): Promise<IUserLlmAccessInfo[]> {
+        const result = await this.api_fetch(`/user/${encodeURIComponent(user_id)}/llm/access`, {
+            method: 'POST',
+            body: JSON.stringify({ llmConfigId: llm_config_id }),
+        })
+        return result.items || [ ]
+    }
+    
+    
+    async revoke_user_llm_access (user_id: string, llm_config_id: string): Promise<IUserLlmAccessInfo[]> {
+        const result = await this.api_fetch(`/user/${encodeURIComponent(user_id)}/llm/access?llmConfigId=${encodeURIComponent(llm_config_id)}`, {
+            method: 'DELETE',
+        })
+        return result.items || [ ]
+    }
+    
+    
+    async load_llm_usage (params: { agentId: string, targetUserId?: string, startTime?: number, endTime?: number }): Promise<ILlmUsageStats> {
+        const search = new URLSearchParams({ agentId: params.agentId })
+        if (params.targetUserId)
+            search.set('targetUserId', params.targetUserId)
+        if (params.startTime !== undefined)
+            search.set('startTime', String(params.startTime))
+        if (params.endTime !== undefined)
+            search.set('endTime', String(params.endTime))
+        return this.api_fetch(`/llm/usage?${search}`)
+    }
+    
+    
     /** 加载当前用户在指定 Agent 下可显式选择的 LLM 列表 */
     async load_selectable_llms (agent_id?: string, provider_lookup?: Map<string, ILlmProvider>): Promise<ISelectableLlmInfo[]> {
         const aid = agent_id || this.agent_id
@@ -1640,6 +1887,82 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    // ─── 记忆管理 ───
+    
+    async store_memory (memory: {
+        agentId: string
+        scope?: 'agent' | 'user'
+        category: string
+        content: string
+        importance: number
+        metadata?: Record<string, unknown>
+        source?: string
+        sourceRef?: string
+        expireTime?: number
+    }): Promise<IMemoryEntry> {
+        return this.api_fetch('/memory/store', {
+            method: 'POST',
+            body: JSON.stringify(memory),
+        })
+    }
+    
+    
+    async get_memory (memory_id: string): Promise<IMemoryEntry> {
+        return this.api_fetch(`/memory/${encodeURIComponent(memory_id)}`)
+    }
+    
+    
+    async update_memory (memory_id: string, updates: Partial<IMemoryEntry>): Promise<IMemoryEntry> {
+        return this.api_fetch(`/memory/${encodeURIComponent(memory_id)}`, {
+            method: 'PUT',
+            body: JSON.stringify(updates),
+        })
+    }
+    
+    
+    async delete_memory (memory_id: string): Promise<{ memoryId: string, deleted: boolean }> {
+        return this.api_fetch(`/memory/${encodeURIComponent(memory_id)}`, { method: 'DELETE' })
+    }
+    
+    
+    async search_memory (params: {
+        agentId: string
+        targetUserId?: string
+        scope?: 'agent' | 'user'
+        category?: string
+        textQuery?: string
+        textMatchMode?: 'any' | 'all'
+        topK?: number
+        minImportance?: number
+        sortBy?: 'RECENCY' | 'IMPORTANCE' | 'RELEVANCE' | 'TEXT_SEARCH' | 'HYBRID'
+    }): Promise<{ items: IMemoryEntry[], size: number }> {
+        const result = await this.api_fetch('/memory/search', {
+            method: 'POST',
+            body: JSON.stringify(params),
+        })
+        return { ...result, items: result.items || [ ] }
+    }
+    
+    
+    async list_memory_by_category (params: { agentId: string, category: string, offset?: number, limit?: number }): Promise<{ items: IMemoryEntry[], size: number, offset?: number, limit?: number }> {
+        const search = new URLSearchParams({
+            agentId: params.agentId,
+            category: params.category,
+        })
+        if (params.offset !== undefined)
+            search.set('offset', String(params.offset))
+        if (params.limit !== undefined)
+            search.set('limit', String(params.limit))
+        const result = await this.api_fetch(`/memory/list?${search}`)
+        return { ...result, items: result.items || [ ] }
+    }
+    
+    
+    async load_memory_stats (agent_id: string): Promise<IMemoryStats> {
+        return this.api_fetch(`/memory/stats?agentId=${encodeURIComponent(agent_id)}`)
+    }
+    
+    
     // ─── 技能管理 ───
     
     async load_skills (): Promise<ISkillInfo[]> {
@@ -1658,6 +1981,93 @@ class ChatModel extends Model<ChatModel> {
         } catch {
             return [ ]
         }
+    }
+    
+    
+    async get_skill (skill_id: string): Promise<ISkillInfo> {
+        return this.api_fetch(`/skill/${encodeURIComponent(skill_id)}`)
+    }
+    
+    
+    async get_skill_by_name (skill_name: string): Promise<ISkillInfo> {
+        return this.api_fetch(`/skill/byName/${encodeURIComponent(skill_name)}`)
+    }
+    
+    
+    async update_skill (skill_id: string, file?: File, overrides?: Record<string, string>): Promise<ISkillInfo> {
+        const body: Record<string, any> = { }
+        if (file) {
+            const buffer = await file.arrayBuffer()
+            body.packageBase64 = btoa(
+                new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+            )
+        }
+        if (overrides && Object.keys(overrides).length > 0)
+            body.overrides = overrides
+        return this.api_fetch(`/skill/${encodeURIComponent(skill_id)}`, {
+            method: 'PUT',
+            body: JSON.stringify(body),
+        })
+    }
+    
+    
+    async load_skill_instruction (skill_id: string): Promise<any> {
+        return this.api_fetch(`/skill/${encodeURIComponent(skill_id)}/instruction`)
+    }
+    
+    
+    async load_skill_files (skill_id: string): Promise<{ skillId: string, items: string[], size: number }> {
+        const result = await this.api_fetch(`/skill/${encodeURIComponent(skill_id)}/files/list`)
+        return { ...result, items: result.items || [ ] }
+    }
+    
+    
+    async get_skill_file (skill_id: string, file_path: string): Promise<ISkillFileContent> {
+        return this.api_fetch(`/skill/${encodeURIComponent(skill_id)}/files/get?filePath=${encodeURIComponent(file_path)}`)
+    }
+    
+    
+    async batch_get_skill_files (skill_id: string, file_paths: string[]): Promise<{ items: ISkillFileContent[], size: number }> {
+        const result = await this.api_fetch(`/skill/${encodeURIComponent(skill_id)}/files/batchGet`, {
+            method: 'POST',
+            body: JSON.stringify({ filePaths: file_paths }),
+        })
+        return { ...result, items: result.items || [ ] }
+    }
+    
+    
+    async load_skill_catalog (agent_id: string): Promise<any> {
+        return this.api_fetch(`/skill/${encodeURIComponent(agent_id)}/catalog`)
+    }
+    
+    
+    async load_skill_context (agent_id: string, active_skill_names: string[] = [ ]): Promise<any> {
+        return this.api_fetch(`/skill/${encodeURIComponent(agent_id)}/context`, {
+            method: 'POST',
+            body: JSON.stringify({ activeSkillNames: active_skill_names }),
+        })
+    }
+    
+    
+    async deny_user_skill (agent_id: string, skill_id: string, user_id: string): Promise<any> {
+        return this.api_fetch('/skill/user/deny', {
+            method: 'POST',
+            body: JSON.stringify({ agentId: agent_id, skillId: skill_id, userId: user_id }),
+        })
+    }
+    
+    
+    async allow_user_skill (agent_id: string, skill_id: string, user_id: string): Promise<any> {
+        return this.api_fetch('/skill/user/allow', {
+            method: 'POST',
+            body: JSON.stringify({ agentId: agent_id, skillId: skill_id, userId: user_id }),
+        })
+    }
+    
+    
+    async load_denied_user_skills (agent_id: string, user_id: string): Promise<{ agentId: string, userId: string, skillIds: string[], size: number }> {
+        const result = await this.api_fetch(`/skill/${encodeURIComponent(agent_id)}/user/${encodeURIComponent(user_id)}/denied`)
+        return { ...result, skillIds: result.skillIds || [ ] }
     }
     
     
