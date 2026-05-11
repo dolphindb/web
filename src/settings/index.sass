@@ -1,39 +1,136 @@
-.module-settings
-    .title
-        margin: 10px 0px
-        font-size: 20px
-        font-weight: bold
+.view-card.settings
+    display: flex
+    flex-direction: column
+    gap: 10px
     
-    .card
-        display: flex
-        margin-bottom: 20px
-        background-color: #eeeeee
-        border: 1px solid #e5e5e5
-        
-        .label-icon
+    .module-settings
+        .title
+            margin: 10px 0px
             font-size: 20px
+            font-weight: bold
         
-        .left
-            flex: 1
+        .cards
             display: flex
             flex-direction: column
-            padding: 20px
+            gap: 10px
             
-            .label
+            .card
                 display: flex
-                font-size: 16px
-                font-weight: bold
+                background-color: #eeeeee
+                border: 1px solid #e5e5e5
                 
                 .label-icon
-                    margin-right: 16px
+                    font-size: 20px
                 
-            .description
-                padding-top: 10px
-            
-        .right
+                .left
+                    flex: 1
+                    display: flex
+                    flex-direction: column
+                    padding: 20px
+                    
+                    .label
+                        display: flex
+                        font-size: 16px
+                        font-weight: bold
+                        
+                        .label-icon
+                            margin-right: 16px
+                        
+                    .description
+                        padding-top: 10px
+                    
+                .right
+                    display: flex
+                    align-items: center
+                    padding: 0px 20px
+                    
+                    .button
+                        width: 100px
+    
+    .web-menus-config
+        .menu-header
             display: flex
             align-items: center
-            padding: 0px 20px
+            justify-content: space-between
+            margin: 10px 0px
+        
+        .menu-header-title
+            font-size: 20px
+            font-weight: bold
+        
+        .menu-list
+            display: flex
+            flex-direction: column
+        
+        .menu-item
+            display: flex
+            align-items: center
+            justify-content: space-between
+            padding: 8px
             
-            .button
-                width: 100px
+            &:hover
+                background-color: var(--ant-color-fill-tertiary)
+        
+        .menu-item-content
+            display: flex
+            align-items: center
+            gap: 16px
+        
+        .menu-item-icon
+            font-size: 16px
+        
+        .menu-item-title
+            font-size: 14px
+            font-weight: 500
+            color: var(--ant-color-text)
+            line-height: 1.4
+        
+        .menu-item-description
+            font-size: 12px
+            color: var(--ant-color-text-secondary)
+            line-height: 1.4
+            overflow: hidden
+            text-overflow: ellipsis
+            white-space: nowrap
+        
+            a
+                color: var(--ant-color-text-secondary)
+    
+                &:hover
+                    color: var(--ant-color-primary)
+        
+        .menu-item-actions
+            display: flex
+            align-items: center
+            
+            .ant-btn
+                padding: 0px 6px
+        
+        .empty-text
+            text-align: center
+            color: var(--ant-color-text-secondary)
+            padding: 24px 0
+        
+        .menu-form
+            margin-top: 4px
+            padding: 10px
+            background-color: #f5f5f5
+            border: 1px solid #e5e5e5
+            border-radius: 4px
+            
+            .menu-form-title
+                font-size: 16px
+                font-weight: bold
+                margin-bottom: 10px
+            
+            .ant-form-item
+                margin-bottom: 10px
+            
+            .field-title
+                width: 300px
+            
+            .field-url
+                min-width: 700px
+            
+            .btn-cancel
+                margin-left: 8px
