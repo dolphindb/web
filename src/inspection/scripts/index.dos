@@ -472,10 +472,22 @@ def runPlanInner(planId, reportId) {
 
         jobIds = []$STRING
         runScript(script)
+        metricFuncName = name
+        try {
+            funcByName(metricFuncName)
+        } catch(err) {
+            candidates = exec name from defs("%::" + metricFuncName) where name.endsWith("::" + metricFuncName)
+            if (candidates.size() == 1) {
+                metricFuncName = candidates[0]
+                print("metric function resolved to: " + metricFuncName)
+            } else {
+                throw err
+            }
+        }
         for (node in nodes) {
             name_ = strReplace(name, "::", "") // 例如指标名 checkConfigs::commonDolphinDBConfig 特殊处理
             jobId_ = "runMetric_" + name_ + "_" + version + "_" + ts
-            jobId = rpc(node, submitJob, jobId_, reportId, runMetric{name, script, funcByName(name), usedParams})
+            jobId = rpc(node, submitJob, jobId_, reportId, runMetric{name, script, funcByName(metricFuncName), usedParams})
             jobIds.append!(jobId)
         }
         print("job ids: ", jobIds)
