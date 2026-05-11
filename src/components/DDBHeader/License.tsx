@@ -5,6 +5,8 @@ import { Tag, Popover, Descriptions, Card } from 'antd'
 import { date_format, map_keys } from 'xshell/utils.browser.js'
 import { storage } from 'xshell/storage.js'
 
+import { DdbDatabaseError } from 'dolphindb/browser.js'
+
 import { t } from '@i18n'
 import { model, storage_keys, type DdbLicense, LicenseType } from '@model'
 import { config } from '@/config/model.ts'
@@ -66,13 +68,27 @@ export function License () {
             const width = 700
             
             if (license.license_type === LicenseType.LicenseServerVerify) {
-                const {
-                    is_connected: connected,
-                    seconds_until_shutdown: seconds_long
-                } = map_keys<{
-                    is_connected: boolean
-                    seconds_until_shutdown: bigint
-                }>(await ddb.invoke('getLicenseServerStatus'))
+                let connected: boolean
+                let seconds_long: bigint
+                
+                const fn = 'getLicenseServerStatus'
+                
+                try {
+                    ({
+                        is_connected: connected,
+                        seconds_until_shutdown: seconds_long
+                    } = map_keys<{
+                        is_connected: boolean
+                        seconds_until_shutdown: bigint
+                    }>(await ddb.invoke(fn)))
+                } catch (error) {
+                    if (error instanceof DdbDatabaseError && error.message === `Can't recognize function name ${fn}`) {
+                        console.warn(`${fn} 函数未定义`)
+                        return
+                    }
+                    
+                    throw error
+                }
                 
                 const seconds_until_shutdown = Number(seconds_long)
                 
