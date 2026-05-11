@@ -16,7 +16,7 @@ import { storage } from 'xshell/storage.js'
 
 import {
     DDB, DdbForm, SqlStandard, type DdbObj, DdbType, type DdbVectorStringObj, type DdbTableObj,
-    type DdbVectorInt, type DdbVectorLong, DdbFunction, DdbFunctionType, type DdbLanguage
+    type DdbVectorInt, type DdbVectorLong, DdbFunction, DdbFunctionType, type DdbLanguage, DdbInt
 } from 'dolphindb/browser.js'
 
 
@@ -220,31 +220,22 @@ class ShellModel extends Model<ShellModel> {
                 time_start.format('HH:mm:ss.SSS') + '\n' + 
                 (code.trim() ?
                     this.truncate_text(lines).join_lines()
-                : '')
-            )
-        
-        // q 脚本，最后一行包裹为 value ";[::; 原内容去掉分号]"
-        // 这样可以将最后一行赋值语句显示出来
-        if (this.language === 'q') {
-            let lines = code.trimEnd().split_lines()
-            
-            let { last } = lines
-            
-            if (last.endsWith(';') || last.includes(':')) {
-                lines[lines.length - 1] = `value ";[::; ${last.strip_if_end(';').replaceAll('"', '""')}]"`
-                code = lines.join_lines()
-            }
-        }
+                : ''))
         
         this.set({ executing: true })
+        
+        code = code.replaceAll('\r\n', '\n')
         
         try {
             // TEST
             // throw new Error('xxxxx. RefId: S00001. xxxx RefId:S00002')
             
-            let ddbobj = await this.ddb.eval(
-                `line://${istart}\n` +
-                `${code.replaceAll('\r\n', '\n')}`)
+            let ddbobj = this.language === 'q' ?
+                    await this.ddb.call('qEvalForVSCode', [code, new DdbInt(3_0000), new DdbInt(istart)])
+                :
+                    await this.ddb.eval(
+                        `line://${istart}\n` +
+                        `${code}`)
             
             if (model.dev || model.verbose)
                 console.log('执行代码返回了:', ddbobj.data())
