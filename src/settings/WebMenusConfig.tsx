@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 import { Button, Form, Input, Popconfirm, type FormInstance } from 'antd'
 import {
@@ -20,6 +20,18 @@ export function WebMenusConfig () {
     const [editing_index, set_editing_index] = useState<number | null>(null)
     
     const rform = useRef<FormInstance>(undefined)
+    const rform_container = useRef<HTMLDivElement>(undefined)
+    
+    // 当 editing_index 变化时（点击添加或编辑），自动滚动到表单位置并聚焦
+    useEffect(() => {
+        if (editing_index === null)
+            return
+        
+        setTimeout(() => {
+            rform_container.current?.scrollIntoView({ behavior: 'instant', block: 'center' })
+            rform.current?.getFieldInstance('title')?.focus()
+        }, 100)
+    }, [editing_index])
     
     
     async function save_menus (menus_: WebMenuItem[]) {
@@ -120,7 +132,7 @@ export function WebMenusConfig () {
             }
         </div>
         
-        {editing_index !== null && <div className='menu-form'>
+        {editing_index !== null && <div className='menu-form' ref={rform_container}>
             <div className='menu-form-title'>
                 {editing_index === -1 ? t('添加菜单项') : t('编辑菜单项')}
             </div>
