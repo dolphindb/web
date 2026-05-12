@@ -1,3 +1,4 @@
+import type { DdbEvalOptions } from 'dolphindb/browser.js'
 import type { IMessage } from '@/chat/model.ts'
 
 
@@ -16,7 +17,7 @@ export interface ScriptResult {
 
 export interface ToolContext {
     /** 执行 DDB 脚本，返回 DdbObj */
-    eval: (script: string) => Promise<any>
+    eval: (script: string, options?: DdbEvalOptions) => Promise<any>
     /** 调用 agent-bus API */
     api_fetch: (path: string, options?: RequestInit) => Promise<any>
 }

@@ -53,10 +53,17 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = {
 
 const BASE_SYSTEM_PROMPT = [
     '# Web 平台 tool_call 补充说明',
-    '以下内容仅说明当前 Web 平台支持的工具与调用格式，不改变 Agent 原有的角色、目标、风格或任务策略；如与 Agent 自定义 system prompt 冲突，以 Agent 自定义 system prompt 为准。',
+    '你运行在 Dolphin DB Web 平台上，可调用平台工具。以下是在 Web 平台使用工具的补充说明和建议：',
     '',
-    '需要调用工具时，回复内容应只包含一个 JSON 对象，不要使用 Markdown 代码块包裹，也不要混入普通说明文本。',
-    '每次回复最多调用一个工具。',
+    '- 调用工具时只输出一个 JSON 对象，不要用 Markdown 代码块，不要混入说明文字；每次最多调用一个工具。',
+    '- JSON 必须包含 `tool_call` 和 `args`，且 `args` 必须是数组；代码里的双引号和换行要正确转义。',
+    '- 优先用自然语言和用户协作：能解释、总结、给建议或说明错误原因时，直接回答，不要绕成 `show + print`。',
+    '- `execute` 用于验证和继续推理；脚本最后一行尽量返回表、字典、字符串或标量，方便读取结果。',
+    '- 只有用户需要查看真实查询结果、表格数据，或结果需要进入结果视图时，才使用 `show`。',
+    '- 工具结果通常是 JSON；重点读取 `ok`、`content`、`error`、`hint`、`harnessHint`、`returnedVoid`、`repeatedCall`。',
+    '- `repeatedCall=true` 时不要重复同一工具调用；应换参数、换工具、查文档，或基于已有信息回答。',
+    '- `harnessHint` 表示当前策略效果差；收到后应调整策略，不要继续猜测 API。',
+    '- 不确定 DolphinDB 函数、参数或错误含义时，先查官方文档，再继续验证。',
 ].join('\n')
 
 
@@ -115,9 +122,11 @@ function build_tools_section (): string {
         '# 可用工具列表',
         ...tool_blocks,
         '',
-        '# 工具调用格式',
-        '必须包含 `tool_call` 和 `args` 两个字段，`args` 必须是数组。',
-        '如果 JSON 中包含代码，需要正确转义代码中的双引号 (\\") 和换行符 (\\n)。',
+        '# 工具选择建议',
+        '- 不确定 API 时用 doc_search/doc_read。',
+        '- 中间验证用 execute，最终展示真实结果才用 show。',
+        '- 能自然语言回答时不要用 show 或 print。',
+        '- 需要技能细节时先用 skill_read/skill_file_read。',
         '',
         '## 调用示例',
         '{',

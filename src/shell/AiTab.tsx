@@ -61,9 +61,9 @@ function route_ddb_obj_to_dataview (obj: DdbObj<DdbValue>) {
 
 export function AiTab ({ session_id }: { session_id: string }) {
     const {
-        messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, sessions,
+        messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, sessions, pending_tool_loop_control,
     } = chat_model.use([
-        'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'sessions',
+        'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'sessions', 'pending_tool_loop_control',
     ])
     
     const [input_value, set_input_value] = useState('')
@@ -230,8 +230,9 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const visible_messages = current_session_id === session_id ? messages : [ ]
     const visible_buffered = current_session_id === session_id ? buffered_messages : [ ]
     const visible_status = current_session_id === session_id ? agent_status : { status: 'idle' as const }
+    const visible_loop_control = current_session_id === session_id ? pending_tool_loop_control : null
     const status_text = get_agent_status_text(visible_status)
-    const has_virtual = visible_status.status !== 'idle' || visible_buffered.length > 0
+    const has_virtual = visible_status.status !== 'idle' || visible_buffered.length > 0 || Boolean(visible_loop_control)
     const can_interrupt = current_session_id === session_id && visible_status.status !== 'idle'
     const session = sessions.find(item => item.sessionId === session_id)
     const archived = session?.status === 1 || session?.statusName === 'ARCHIVED'
@@ -287,6 +288,14 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         />
                         <Text type='secondary' style={{ fontSize: 12 }}>{status_text}</Text>
                     </div>}
+                    {visible_loop_control && <Space style={{ marginTop: 8 }} wrap>
+                        <Button danger size='small' icon={<StopOutlined />} onClick={() => { chat_model.interrupt_chat() }}>
+                            {t('停止')}
+                        </Button>
+                        <Button type='primary' size='small' onClick={() => { chat_model.continue_tool_loop() }}>
+                            {t('继续')}
+                        </Button>
+                    </Space>}
                 </div>}
             </div>
         </div>

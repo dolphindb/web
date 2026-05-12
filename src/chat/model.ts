@@ -6,7 +6,13 @@ import { model, storage_keys } from '@model'
 import { init_scripts } from './scripts/init.ts'
 import { get_script_handler } from './scripts/index.ts'
 import type { ToolContext, ScriptResult } from './scripts/types.ts'
-import { normalize_script_args } from './scripts/helpers.ts'
+import {
+    append_tool_result_hint,
+    is_structured_tool_result_helpful,
+    normalize_script_args,
+    parse_tool_result_json,
+    tool_result_json,
+} from './scripts/helpers.ts'
 import { build_system_prompt } from './prompt.ts'
 import { parse_tool_calls } from './tool_call_parser.ts'
 import type { ParsedToolCall } from './tool_call_parser.ts'
@@ -74,6 +80,15 @@ export interface IAgentStatusEvent {
     status: AgentStatus
     message?: string
     timestamp?: number
+}
+
+
+export interface IToolLoopControl {
+    id: string
+    sessionId: string
+    requestSeq: number
+    toolTurn: number
+    message: string
 }
 
 
@@ -243,9 +258,15 @@ const AGENT_ID_KEY = 'ddb.chat.agent_id'
 const BIZ_USER_ID_KEY = 'ddb.chat.biz_user_id'
 
 /** 最大工具调用轮次，防止无限循环 */
-const MAX_TOOL_TURNS = 20
+const MAX_TOOL_TURNS = 12
 
-const DDB_SCRIPT_TOOLS = new Set<string>(['execute', 'show'])
+const MAX_REPEATED_TOOL_CALLS = 2
+
+const MAX_CONSECUTIVE_DDB_FAILURES_BEFORE_HINT = 2
+
+const DDB_RESULT_TOOLS = new Set<string>(['execute', 'show', 'coldefs', 'testsql'])
+
+const SCRIPT_APPROVAL_TOOLS = new Set<string>(['execute', 'show'])
 
 
 interface ChatCompletionStreamResult {
@@ -260,6 +281,45 @@ interface ToolExecutionResult {
     tool_result_content: string
     next_loop: boolean
     stopped?: boolean
+}
+
+
+function parse_json_string (value: string): unknown {
+    const trimmed = value.trim()
+    if (!trimmed)
+        return value
+    if (
+        (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+        (trimmed.startsWith('[') && trimmed.endsWith(']'))
+    )
+        try { return JSON.parse(trimmed) } catch { }
+    return value
+}
+
+
+function stable_json_value (value: unknown): unknown {
+    if (typeof value === 'string')
+        return stable_json_value(parse_json_string(value))
+    if (Array.isArray(value))
+        return value.map(stable_json_value)
+    if (value && typeof value === 'object') {
+        const obj = value as Record<string, unknown>
+        return Object.fromEntries(
+            Object.keys(obj)
+                .sort()
+                .map(key => [key, stable_json_value(obj[key])])
+        )
+    }
+    return value
+}
+
+
+function stable_json_stringify (value: unknown): string {
+    try {
+        return JSON.stringify(stable_json_value(value))
+    } catch {
+        return String(value)
+    }
 }
 
 
@@ -339,6 +399,8 @@ class ChatModel extends Model<ChatModel> {
     
     pending_script_approval: IScriptExecutionApproval | null = null
     
+    pending_tool_loop_control: IToolLoopControl | null = null
+    
     settings_visible = false
     
     loading = false
@@ -354,6 +416,12 @@ class ChatModel extends Model<ChatModel> {
     _script_approval_resolver: ((decision: ScriptExecuteApprovalDecision) => void) | null = null
     
     _session_script_approval_modes = new Map<string, ScriptExecuteApprovalMode>()
+    
+    _loop_tool_call_counts = new Map<string, number>()
+    
+    _consecutive_ddb_failures = 0
+    
+    _tool_turn_limit = MAX_TOOL_TURNS
     
     
     get base_url (): string {
@@ -1168,6 +1236,7 @@ class ChatModel extends Model<ChatModel> {
         this.remove_pending_empty_assistant_messages()
         this.set({
             buffered_messages: [ ],
+            pending_tool_loop_control: null,
             agent_status: { status: 'idle' },
         })
     }
@@ -1194,6 +1263,124 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    reset_loop_guard () {
+        this._loop_tool_call_counts.clear()
+        this._consecutive_ddb_failures = 0
+        this._tool_turn_limit = MAX_TOOL_TURNS
+    }
+    
+    
+    get_tool_call_signature (parsed_call: ParsedToolCall) {
+        const tool_name = parsed_call.type.trim()
+        if (DDB_RESULT_TOOLS.has(tool_name))
+            return `${tool_name}\u001f${(normalize_script_args(parsed_call.payload)[0] || '').trim()}`
+        return `${tool_name}\u001f${stable_json_stringify(parsed_call.payload)}`
+    }
+    
+    
+    build_repeated_tool_call_result (parsed_call: ParsedToolCall, count: number, stop_loop: boolean): ToolExecutionResult {
+        const content = tool_result_json({
+            ok: false,
+            tool: parsed_call.type,
+            repeatedCall: true,
+            content: '',
+            error: t('重复工具调用已跳过'),
+            hint: stop_loop
+                ? t('模型仍在重复同一个工具调用，流程已停止。请基于已有工具结果回答，或换一个明确不同的策略。')
+                : t('这个完全相同的工具调用已经尝试过 {{count}} 次，不要继续重复；请改用不同参数、查询文档，或基于已有结果回答。', { count }),
+        })
+        this.set({
+            messages: [...this.messages, {
+                msgId: `tool_repeat_${Date.now()}`,
+                role: 'tool',
+                messageType: 'tool_error',
+                name: parsed_call.type,
+                content,
+            }],
+            ...(stop_loop ? { agent_status: { status: 'idle' as const } } : { }),
+        })
+        return {
+            tool_result_content: content,
+            next_loop: !stop_loop,
+            stopped: stop_loop,
+        }
+    }
+    
+    
+    check_repeated_tool_call (parsed_call: ParsedToolCall): ToolExecutionResult | null {
+        const signature = this.get_tool_call_signature(parsed_call)
+        const count = (this._loop_tool_call_counts.get(signature) || 0) + 1
+        this._loop_tool_call_counts.set(signature, count)
+        if (count <= MAX_REPEATED_TOOL_CALLS)
+            return null
+        return this.build_repeated_tool_call_result(
+            parsed_call,
+            count,
+            count > MAX_REPEATED_TOOL_CALLS + 1
+        )
+    }
+    
+    
+    apply_loop_guard_to_tool_result (tool_name: string, content: string): { content: string, stop: boolean } {
+        if (!DDB_RESULT_TOOLS.has(tool_name))
+            return { content, stop: false }
+        
+        const helpful = is_structured_tool_result_helpful(content)
+        if (helpful) {
+            this._consecutive_ddb_failures = 0
+            return { content, stop: false }
+        }
+        
+        this._consecutive_ddb_failures += 1
+        if (this._consecutive_ddb_failures < MAX_CONSECUTIVE_DDB_FAILURES_BEFORE_HINT)
+            return { content, stop: false }
+        
+        const hint = t('{{count}} 次连续 DolphinDB 工具结果都没有提供有效信息。不要继续猜测 API；请查询官方文档、运行更小的验证脚本，或基于已知结果说明不确定性。', { count: this._consecutive_ddb_failures })
+        return {
+            content: append_tool_result_hint(content, hint),
+            stop: false,
+        }
+    }
+    
+    
+    request_tool_loop_decision (message: string, tool_turn: number, request_seq: number) {
+        this.set({
+            pending_tool_loop_control: {
+                id: `tool_loop_${Date.now()}`,
+                sessionId: this.current_session_id,
+                requestSeq: request_seq,
+                toolTurn: tool_turn,
+                message,
+            },
+            agent_status: {
+                status: 'tool_running',
+                message: t('工具调用已达到 {{count}} 轮，等待选择停止或继续。', { count: this._tool_turn_limit }),
+            },
+        })
+    }
+    
+    
+    continue_tool_loop () {
+        const pending = this.pending_tool_loop_control
+        if (!pending)
+            return
+        if (pending.sessionId !== this.current_session_id) {
+            this.set({ pending_tool_loop_control: null })
+            return
+        }
+        
+        this._tool_turn_limit += MAX_TOOL_TURNS
+        this.set({
+            pending_tool_loop_control: null,
+            agent_status: { status: 'thinking' },
+        })
+        this.do_chat_completions(pending.message, undefined, pending.toolTurn, pending.requestSeq).catch(error => {
+            console.error('Continue tool loop failed:', error)
+            this.set({ agent_status: { status: 'error', message: error instanceof Error ? error.message : String(error) } })
+        })
+    }
+    
+    
     send_message (content: string) {
         if (!content.trim() || !this.current_session_id)
             return
@@ -1210,6 +1397,8 @@ class ChatModel extends Model<ChatModel> {
         this._active_request_seq = request_seq
         this._interrupted_request_seq = 0
         this._pending_assistant_msg_ids = [ ]
+        this.reset_loop_guard()
+        this.set({ pending_tool_loop_control: null })
         
         // 添加待发送提示
         this.set({ buffered_messages: [...this.buffered_messages, content.trim()] })
@@ -1321,8 +1510,8 @@ class ChatModel extends Model<ChatModel> {
     
     
     async do_chat_completions (message: string, _unused?: unknown, _tool_turn = 0, request_seq = this._active_request_seq) {
-        if (_tool_turn > MAX_TOOL_TURNS) {
-            this.set({ agent_status: { status: 'error', message: t('工具调用轮次超过上限') } })
+        if (_tool_turn > this._tool_turn_limit) {
+            this.request_tool_loop_decision(message, _tool_turn, request_seq)
             return
         }
         if (this.is_request_interrupted(request_seq))
@@ -1587,9 +1776,13 @@ class ChatModel extends Model<ChatModel> {
         if (this.is_request_interrupted(request_seq))
             return null
         
+        const repeated_result = this.check_repeated_tool_call(parsed_call)
+        if (repeated_result)
+            return repeated_result
+        
         // 构建 ToolContext
         const context: ToolContext = {
-            eval: script => model.ddb.eval(script),
+            eval: (script, options) => model.ddb.eval(script, options),
             api_fetch: (path, options) => this.api_fetch(path, options),
         }
         
@@ -1604,7 +1797,7 @@ class ChatModel extends Model<ChatModel> {
                 : JSON.stringify(parsed_call.payload)
             console.log('[debug] calling handler with payload_str:', payload_str.slice(0, 200))
             
-            const script = DDB_SCRIPT_TOOLS.has(parsed_call.type)
+            const script = SCRIPT_APPROVAL_TOOLS.has(parsed_call.type)
                 ? normalize_script_args(parsed_call.payload)[0] || ''
                 : ''
             if (script) {
@@ -1659,6 +1852,20 @@ class ChatModel extends Model<ChatModel> {
         if (this.is_request_interrupted(request_seq))
             return null
         
+        let stop_loop = false
+        if (script_result.save_message) {
+            const guarded = this.apply_loop_guard_to_tool_result(parsed_call.type, script_result.save_message.content)
+            script_result = {
+                ...script_result,
+                next_loop: script_result.next_loop && !guarded.stop,
+                save_message: {
+                    ...script_result.save_message,
+                    content: guarded.content,
+                },
+            }
+            stop_loop = guarded.stop
+        }
+        
         // 显示工具结果消息
         if (script_result.save_message) {
             const result_msg: IMessage = {
@@ -1672,15 +1879,20 @@ class ChatModel extends Model<ChatModel> {
         // 路由 DdbObj 到 DataView
         if (script_result.ddb_result)
             this.set({ latest_ddb_result: script_result.ddb_result })
+        if (stop_loop)
+            this.set({ agent_status: { status: 'idle' } })
             
         // 返回工具结果，由调用方在同一轮多个工具全部结束后合并续传
         const tool_result_content = script_result.save_message
-            ? `[${script_result.save_message.messageType}:${parsed_call.type}] ${script_result.save_message.content}`
+            ? parse_tool_result_json(script_result.save_message.content)
+                ? script_result.save_message.content
+                : `[${script_result.save_message.messageType}:${parsed_call.type}] ${script_result.save_message.content}`
             : ''
         
         return {
             tool_result_content,
             next_loop: script_result.next_loop,
+            stopped: stop_loop,
         }
     }
     

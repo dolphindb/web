@@ -2,8 +2,8 @@ import type { ScriptConfig, ScriptResult } from './types.ts'
 import {
     normalize_script_args,
     truncate_tool_content,
-    format_ddb_script_error,
-    format_ddb_eval_result,
+    format_ddb_eval_result_info,
+    tool_result_json,
     uint8_to_base64,
 } from './helpers.ts'
 
@@ -36,14 +36,33 @@ export const show_config: ScriptConfig = {
                         role: 'tool',
                         messageType: 'tool_error',
                         name: type,
-                        content: 'show requires args[0] as SQL/script content.',
+                        content: tool_result_json({
+                            ok: false,
+                            tool: type,
+                            error: 'show requires args[0] as SQL/script content.',
+                            hint: '请传入要展示的 DolphinDB 查询脚本。',
+                        }),
                     },
                 }
             
-            const result = await context.eval(script)
-            const message_content = truncate_tool_content(
-                format_ddb_eval_result(result)
-            )
+            const print_messages: string[] = [ ]
+            const result = await context.eval(script, {
+                listener: message => {
+                    if (message.type === 'print')
+                        print_messages.push(String(message.data))
+                },
+            })
+            const result_info = format_ddb_eval_result_info(result, print_messages)
+            const message_content = tool_result_json({
+                ok: true,
+                tool: type,
+                returnedVoid: result_info.returnedVoid,
+                resultType: result_info.resultType,
+                content: truncate_tool_content(result_info.content),
+                hint: result_info.returnedVoid
+                    ? '脚本执行成功但没有最终返回值；如果需要展示结构化结果，请让最后一行返回需要展示的值。'
+                    : undefined,
+            })
             
             let content_object: string | undefined
             try {
@@ -73,7 +92,12 @@ export const show_config: ScriptConfig = {
                     role: 'tool',
                     messageType: 'tool_error',
                     name: type,
-                    content: format_ddb_script_error('show failed: ', error),
+                    content: tool_result_json({
+                        ok: false,
+                        tool: type,
+                        error: `show failed: ${error instanceof Error ? error.message : String(error)}`,
+                        hint: '请修正 DolphinDB 查询脚本后再试；如果函数或参数不确定，先查询官方文档，不要反复猜测。',
+                    }),
                 },
             }
         }

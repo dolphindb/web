@@ -97,6 +97,80 @@ export function stringify_ddb_result (result: unknown): string {
 }
 
 
+export type ToolResultEnvelope = {
+    ok: boolean
+    tool: string
+    content?: string
+    error?: string
+    hint?: string
+    harnessHint?: string
+    returnedVoid?: boolean
+    repeatedCall?: boolean
+    resultType?: string
+    resultCount?: number
+    rowCount?: number | null
+    preview?: unknown
+    results?: unknown
+}
+
+
+export function tool_result_json (payload: ToolResultEnvelope): string {
+    return JSON.stringify(payload)
+}
+
+
+export function append_tool_result_hint (content: string, hint: string): string {
+    try {
+        const payload = JSON.parse(content) as ToolResultEnvelope
+        const existing = payload.harnessHint
+        return tool_result_json({
+            ...payload,
+            harnessHint: existing ? `${existing}\n${hint}` : hint,
+        })
+    } catch {
+        return content
+    }
+}
+
+
+export function parse_tool_result_json (content: string): ToolResultEnvelope | null {
+    try {
+        const payload = JSON.parse(content)
+        if (payload && typeof payload === 'object' && 'ok' in payload)
+            return payload as ToolResultEnvelope
+    } catch { }
+    return null
+}
+
+
+export function is_structured_tool_result_helpful (content: string): boolean {
+    const payload = parse_tool_result_json(content)
+    if (!payload)
+        return Boolean(content.trim())
+    if (payload.repeatedCall || payload.returnedVoid || payload.ok === false)
+        return false
+    if (payload.tool === 'webSearch' && Number(payload.resultCount || 0) === 0)
+        return false
+    return Boolean(
+        payload.content ||
+        payload.results ||
+        payload.preview ||
+        payload.rowCount !== undefined
+    )
+}
+
+
+export function infer_tool_result_type (value: unknown): string {
+    if (value === null || value === undefined)
+        return 'void'
+    if (Array.isArray(value))
+        return 'vector'
+    if (typeof value === 'object')
+        return 'object'
+    return typeof value
+}
+
+
 /** 将 DdbObj 结果与 print 输出合并格式化 */
 export function format_result_with_print (result: unknown, print_messages: string[]): string {
     if (print_messages.length === 0)
@@ -122,19 +196,41 @@ function is_empty_ddb_result_error (error: unknown): boolean {
 
 
 export function format_ddb_eval_result (result: unknown, print_messages: string[] = [ ]): string {
+    return format_ddb_eval_result_info(result, print_messages).content
+}
+
+
+export function format_ddb_eval_result_info (result: unknown, print_messages: string[] = [ ]): { content: string, returnedVoid: boolean, resultType: string } {
     if (result === null || result === undefined)
-        return format_result_with_print(EMPTY_DDB_RESULT, print_messages)
+        return {
+            content: format_result_with_print(EMPTY_DDB_RESULT, print_messages),
+            returnedVoid: true,
+            resultType: 'void',
+        }
     
     const maybe_ddb_obj = result as { data?: unknown }
     if (typeof maybe_ddb_obj.data !== 'function')
-        return format_result_with_print(result, print_messages)
+        return {
+            content: format_result_with_print(result, print_messages),
+            returnedVoid: false,
+            resultType: infer_tool_result_type(result),
+        }
     
     try {
         const data = maybe_ddb_obj.data({ table: 'full' })
-        return format_result_with_print(data ?? EMPTY_DDB_RESULT, print_messages)
+        const returned_void = data === null || data === undefined
+        return {
+            content: format_result_with_print(data ?? EMPTY_DDB_RESULT, print_messages),
+            returnedVoid: returned_void,
+            resultType: infer_tool_result_type(data),
+        }
     } catch (error) {
         if (is_empty_ddb_result_error(error))
-            return format_result_with_print(EMPTY_DDB_RESULT, print_messages)
+            return {
+                content: format_result_with_print(EMPTY_DDB_RESULT, print_messages),
+                returnedVoid: true,
+                resultType: 'void',
+            }
         throw error
     }
 }
