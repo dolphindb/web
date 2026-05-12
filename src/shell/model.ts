@@ -231,10 +231,10 @@ class ShellModel extends Model<ShellModel> {
             // throw new Error('xxxxx. RefId: S00001. xxxx RefId:S00002')
             
             let ddbobj = this.language === 'q' ?
-                    await this.ddb.call('qEval', [code, new DdbInt(3_0000), new DdbInt(istart + 1)])
+                    await this.ddb.call('qEval', [code, new DdbInt(3_0000), new DdbInt(istart)])
                 :
                     await this.ddb.eval(
-                        `line://${istart}\n` +
+                        `line://${istart + 1}\n` +
                         `${code}`)
             
             if (model.dev || model.verbose)
@@ -579,15 +579,14 @@ class ShellModel extends Model<ShellModel> {
                 emodel.getLineContent(selection.startLineNumber)
             :
                 emodel.getValue(this.monaco.editor.EndOfLinePreference.LF)
-            istart = default_selection === 'line' ? selection.startLineNumber : 1
+            istart = default_selection === 'line' ? selection.startLineNumber - 1 : 0
         } else {
             code = emodel.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF)
-            istart = selection.startLineNumber
+            istart = selection.startLineNumber - 1
         }
         
         await this.execute_code(code, istart)
     }
-    
     
     async execute_code (code: string, istart: number) {
         if (code.includes('undef all') || code.includes('undef(all)'))
