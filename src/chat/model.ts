@@ -930,18 +930,66 @@ class ChatModel extends Model<ChatModel> {
     
     
     /** 根据第一条用户消息自动生成会话标题 */
-    async auto_generate_title (message: string) {
-        if (!this.current_session_id)
+    async auto_generate_title (session_id: string, message: string) {
+        if (!session_id)
             return
             
-        const MAX_TITLE_LENGTH = 20
+        const title = await this.generate_session_title(session_id, message)
+        if (title)
+            await this.update_session_title(session_id, title)
+    }
+    
+    
+    make_fallback_title (message: string) {
+        const MAX_TITLE_LENGTH = 24
         const trimmed = message.replace(/\s+/g, ' ').trim()
-        const title = trimmed.length > MAX_TITLE_LENGTH
+        return trimmed.length > MAX_TITLE_LENGTH
             ? trimmed.slice(0, MAX_TITLE_LENGTH) + '...'
             : trimmed
-            
-        if (title)
-            await this.update_session_title(this.current_session_id, title)
+    }
+    
+    
+    normalize_session_title (title: string, fallback: string) {
+        const normalized = title
+            .replace(/\s+/g, ' ')
+            .replace(/^["'“”‘’`]+|["'“”‘’`]+$/g, '')
+            .replace(/^标题[:：]\s*/, '')
+            .trim()
+        if (!normalized)
+            return fallback
+        return normalized.length > 24 ? normalized.slice(0, 24) : normalized
+    }
+    
+    
+    async generate_session_title (session_id: string, message: string) {
+        const fallback = this.make_fallback_title(message)
+        try {
+            const result = await this.api_fetch('/llm/complete', {
+                method: 'POST',
+                body: JSON.stringify({
+                    agentId: this.agent_id,
+                    sessionId: session_id,
+                    stream: false,
+                    includeReasoning: false,
+                    llmConfigId: this.selected_llm_config_id || undefined,
+                    messages: [
+                        {
+                            role: 'system',
+                            content: '你是会话标题生成器。请根据用户第一条消息生成一个简短、具体的中文标题。只输出标题本身，不要解释，不要加引号，不要超过 12 个汉字或 24 个英文字符。',
+                        },
+                        {
+                            role: 'user',
+                            content: message,
+                        },
+                    ],
+                }),
+            })
+            const content = result?.content ?? result?.message ?? ''
+            return this.normalize_session_title(String(content), fallback)
+        } catch (error) {
+            console.warn('Generate session title by LLM failed, fallback to truncated prompt:', error)
+            return fallback
+        }
     }
     
     
@@ -1289,6 +1337,8 @@ class ChatModel extends Model<ChatModel> {
         
         // 添加用户消息到 UI（仅新消息时）
         if (message && _tool_turn === 0) {
+            const has_prior_user_msg = this.messages.some(m => m.role === 'user')
+            const session_id = this.current_session_id
             const user_msg: IMessage = {
                 msgId: `user_${Date.now()}`,
                 role: 'user',
@@ -1302,9 +1352,10 @@ class ChatModel extends Model<ChatModel> {
             })
             
             // 第一条用户消息时自动生成会话标题
-            const has_prior_user_msg = this.messages.some(m => m.role === 'user')
             if (!has_prior_user_msg)
-                this.auto_generate_title(message).catch(() => { })
+                this.auto_generate_title(session_id, message).catch(error => {
+                    console.warn('Auto generate session title failed:', error)
+                })
         } else
             this.set({
                 buffered_messages: [ ],
