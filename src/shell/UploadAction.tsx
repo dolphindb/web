@@ -8,7 +8,7 @@ import { empty } from 'xshell/prototype.browser.js'
 
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { t } from '@i18n'
+import { t, language } from '@i18n'
 
 import { model } from '@model'
 
@@ -49,7 +49,7 @@ export function UploadAction () {
                 }}
             >
                 <CloudUploadOutlined />
-                <span className='text'>{t('上传')}</span>
+                <span className={`text ${language}`}>{t('上传')}</span>
             </span>
         </Tooltip>
         

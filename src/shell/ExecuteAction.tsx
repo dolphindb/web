@@ -1,7 +1,7 @@
 import { Popconfirm } from 'antd'
 import { CaretRightOutlined, LoadingOutlined } from '@ant-design/icons'
 
-import { t } from '@i18n'
+import { t, language } from '@i18n'
 
 import { model } from '@model'
 
@@ -35,7 +35,7 @@ export function ExecuteAction () {
             }}
         >
             {executing && show_executing ? <LoadingOutlined /> : <CaretRightOutlined />}
-            <span className='text'>{executing && show_executing ? t('执行中') : t('执行')}</span>
+            <span className={`text ${language}`}>{executing && show_executing ? t('执行中') : t('执行')}</span>
         </span>
     </Popconfirm>
 }
