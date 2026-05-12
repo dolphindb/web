@@ -523,7 +523,7 @@ function CreateCatalogModal () {
                 await form.validateFields()
                 await model.ddb.invoke('createCatalog', [form.getFieldValue('name')])
                 
-                await shell.load_dbs()
+                await shell.refresh_db()
                 
                 form.resetFields()
                 shell.set({ create_catalog_modal_visible: false })
