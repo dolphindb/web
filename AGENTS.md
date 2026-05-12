@@ -41,6 +41,8 @@ onClick, onOk 等回调，直接在后面用 onClick={async () => { ... }} 这�
 
 ddb.invoke 的返回值，通常需要 map_keys<{ 返回类型 }>(返回值) 将 keys 转为 snake_case 后使用
 
+尽量不要用内联样式，通过设置 className 在对应的 .sass 文件中写样式
+
 
 ## 国际化 (i18n)
 - 使用 `t('中文完整文本')` 标记词条，如有需要，使用 {{}} 包裹变量

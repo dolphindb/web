@@ -153,7 +153,7 @@ export function License () {
                         { label: t('每节点最大可用内存'), children: license.max_memory_per_node },
                         { label: t('每节点最大可用核数'), children: license.max_cores_per_node },
                         { label: t('最大节点数'), children: license.max_nodes, span: 'filled' },
-                        { label: t('授权模块'), children: license.modules.join(' '), span: 'filled'  },
+                        { label: t('授权模块'), children: <span className='license-modules'>{license.modules.join(' ')}</span>, span: 'filled'  },
                         { label: t('web 版本'), children: WEB_VERSION, span: 'filled' },
                     ]}
                 />
