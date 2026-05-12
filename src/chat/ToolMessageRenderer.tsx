@@ -244,6 +244,28 @@ function create_code_view (code: string, action?: React.ReactNode) {
 }
 
 
+function get_natural_text (payload: Record<string, unknown> | unknown[] | null) {
+    if (!is_object_record(payload))
+        return ''
+    return to_message_text(payload.naturalText ?? payload.text ?? '').trim()
+}
+
+
+function NaturalTextBlock ({ text }: { text: string }) {
+    if (!text)
+        return null
+    return <div
+        style={{
+            marginLeft: 12,
+            marginBottom: 6,
+            color: '#595959',
+            wordBreak: 'break-word',
+        }}
+        dangerouslySetInnerHTML={{ __html: render_markdown(text) }}
+    />
+}
+
+
 function create_rerun_button (tool_name: string, script: string) {
     const normalized = tool_name.trim().toLowerCase()
     if (normalized !== 'execute' && normalized !== 'show')
@@ -726,18 +748,39 @@ function SkillReadRenderer (props: ToolRendererProps) {
 function SkillFileReadRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
         const skill_id = get_arg_text(args, 0)
-        const file_path = get_arg_text(args, 1)
+        const file_paths = normalize_args(args).slice(1).map(item => to_message_text(item)).filter(Boolean)
         const parsed = is_object_record(structured_payload) ? structured_payload : null
-        const content = to_message_text(parsed?.content ?? message.content).trim()
+        const files = Array.isArray(parsed?.files) ? parsed.files.filter(is_object_record) : [ ]
+        const single_content = to_message_text(parsed?.content ?? message.content).trim()
         const size = to_message_text(parsed?.size).trim()
+        const file_path = to_message_text(parsed?.filePath).trim() || file_paths[0] || ''
+        
+        if (files.length > 0)
+            return {
+                param_rows: [
+                    { label: 'skillId', value: skill_id || to_message_text(parsed?.skillId).trim() || '-' },
+                    { label: t('文件'), value: `${files.length} ${t('个')}` },
+                ],
+                result_rows: [
+                    { label: t('已读取'), value: files.map(file => to_message_text(file.filePath).trim()).filter(Boolean).join(', ') },
+                ],
+                result_details: compact_sections(files.map((file, index) =>
+                    create_text_detail(
+                        `content-${index}`,
+                        to_message_text(file.filePath).trim() || t('文件 {{index}}', { index: index + 1 }),
+                        file.content
+                    )
+                )),
+            }
+        
         return {
             param_rows: [
                 { label: 'skillId', value: skill_id || '-' },
-                { label: t('文件'), value: file_path || to_message_text(parsed?.filePath).trim() || '-' },
+                { label: t('文件'), value: file_path || '-' },
             ],
             result_rows: size ? [{ label: t('大小'), value: `${size} bytes` }] : [ ],
             result_details: compact_sections([
-                create_text_detail('content', t('查看内容'), content),
+                create_text_detail('content', t('查看内容'), single_content),
             ]),
         }
     }} />
@@ -765,6 +808,26 @@ function FallbackRenderer (props: ToolRendererProps) {
             ]),
         }
     }} />
+}
+
+
+function AgentErrorRenderer ({ message }: ToolRendererProps) {
+    const content = message.content.trim() || t('助手执行出现错误')
+    return <div
+        style={{
+            marginLeft: 12,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            flexWrap: 'wrap',
+            wordBreak: 'break-word',
+        }}
+    >
+        <Text type='danger'>{content}</Text>
+        <Button size='small' icon={<RedoOutlined />} onClick={() => { chat_model.retry_last_message() }}>
+            {t('重试')}
+        </Button>
+    </div>
 }
 
 
@@ -828,6 +891,7 @@ export function ToolMessageRenderer ({
     const is_outcome = is_outcome_message(message.messageType)
     const has_paired_tool_call = is_outcome && Boolean(previous_tool_call)
     const renderer = TOOL_RENDERERS[normalized]
+    const natural_text = !is_outcome ? get_natural_text(structured_payload) : ''
     
     const renderer_props: ToolRendererProps = {
         message,
@@ -841,8 +905,17 @@ export function ToolMessageRenderer ({
         has_paired_tool_call,
     }
     
-    if (!renderer)
-        return <FallbackRenderer {...renderer_props} />
+    if (message.messageType === 'agent_error')
+        return <AgentErrorRenderer {...renderer_props} />
         
-    return <>{renderer(renderer_props)}</>
+    if (!renderer)
+        return <>
+            <NaturalTextBlock text={natural_text} />
+            <FallbackRenderer {...renderer_props} />
+        </>
+        
+    return <>
+        <NaturalTextBlock text={natural_text} />
+        {renderer(renderer_props)}
+    </>
 }

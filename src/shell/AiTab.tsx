@@ -233,9 +233,9 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const visible_loop_control = current_session_id === session_id ? pending_tool_loop_control : null
     const status_text = get_agent_status_text(visible_status)
     const has_virtual = visible_status.status !== 'idle' || visible_buffered.length > 0 || Boolean(visible_loop_control)
-    const can_interrupt = current_session_id === session_id && visible_status.status !== 'idle'
     const session = sessions.find(item => item.sessionId === session_id)
     const archived = session?.status === 1 || session?.statusName === 'ARCHIVED'
+    const can_interrupt = current_session_id === session_id && !['idle', 'error'].includes(visible_status.status)
     
     if (!inited)
         return <div className='ai-tab-loading'>

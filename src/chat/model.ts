@@ -277,6 +277,11 @@ interface ChatCompletionStreamResult {
 }
 
 
+interface ChatCompletionOptions {
+    append_user?: boolean
+}
+
+
 interface ToolExecutionResult {
     tool_result_content: string
     next_loop: boolean
@@ -320,6 +325,54 @@ function stable_json_stringify (value: unknown): string {
     } catch {
         return String(value)
     }
+}
+
+
+function strip_json_segments (text: string): string {
+    let result = text.replace(/```(?:json)?\s*[\s\S]*?```/gi, ' ')
+    const ranges: Array<[number, number]> = [ ]
+    let start = -1
+    let depth = 0
+    let in_string = false
+    let escape = false
+    
+    for (let index = 0;  index < result.length;  index += 1) {
+        const ch = result[index]
+        if (escape) {
+            escape = false
+            continue
+        }
+        if (ch === '\\') {
+            escape = true
+            continue
+        }
+        if (ch === '"') {
+            in_string = !in_string
+            continue
+        }
+        if (in_string)
+            continue
+        if (ch === '{') {
+            if (depth === 0)
+                start = index
+            depth += 1
+            continue
+        }
+        if (ch === '}' && depth > 0) {
+            depth -= 1
+            if (depth === 0 && start >= 0) {
+                ranges.push([start, index + 1])
+                start = -1
+            }
+        }
+    }
+    
+    for (let index = ranges.length - 1;  index >= 0;  index -= 1) {
+        const [from, to] = ranges[index]
+        result = `${result.slice(0, from)} ${result.slice(to)}`
+    }
+    
+    return result.replace(/\s+/g, ' ').trim()
 }
 
 
@@ -1509,7 +1562,7 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    async do_chat_completions (message: string, _unused?: unknown, _tool_turn = 0, request_seq = this._active_request_seq) {
+    async do_chat_completions (message: string, options: ChatCompletionOptions = { }, _tool_turn = 0, request_seq = this._active_request_seq) {
         if (_tool_turn > this._tool_turn_limit) {
             this.request_tool_loop_decision(message, _tool_turn, request_seq)
             return
@@ -1525,7 +1578,7 @@ class ChatModel extends Model<ChatModel> {
         this.sse_controller = controller
         
         // 添加用户消息到 UI（仅新消息时）
-        if (message && _tool_turn === 0) {
+        if (message && _tool_turn === 0 && options.append_user !== false) {
             const has_prior_user_msg = this.messages.some(m => m.role === 'user')
             const session_id = this.current_session_id
             const user_msg: IMessage = {
@@ -1651,7 +1704,7 @@ class ChatModel extends Model<ChatModel> {
             if (parsed_calls.length > 0) {
                 this.set({ agent_status: { status: 'tool_running' } })
                 console.log('[debug] Calling handle_text_tool_calls...')
-                await this.handle_text_tool_calls(parsed_calls, reasoning_content, _tool_turn, request_seq, assistant_msg_id)
+                await this.handle_text_tool_calls(parsed_calls, reasoning_content, _tool_turn, request_seq, assistant_msg_id, strip_json_segments(content))
                 console.log('[debug] handle_text_tool_calls completed')
             } else {
                 // 没有工具调用 → 普通文本回复
@@ -1673,14 +1726,55 @@ class ChatModel extends Model<ChatModel> {
                 return
             }
             console.error('Chat completions error:', e)
-            this.set({ agent_status: { status: 'error', message: e.message } })
+            this.set({ agent_status: { status: 'idle' } })
             
             // 更新占位消息为错误信息
-            this.update_assistant_content(assistant_msg_id, { content: t('发送失败: {{error}}', { error: e.message }) })
+            this.update_assistant_content(assistant_msg_id, {
+                content: e.message || t('流式响应返回错误'),
+                messageType: 'agent_error',
+            })
         } finally {
             if (this.sse_controller === controller)
                 this.sse_controller = null
         }
+    }
+    
+    
+    retry_last_message () {
+        if (!this.current_session_id)
+            return
+        const current_session = this.sessions.find(session => session.sessionId === this.current_session_id)
+        if (current_session?.status === 1 || current_session?.statusName === 'ARCHIVED') {
+            model.message?.warning(t('归档会话不可继续发送消息'))
+            return
+        }
+        const last_user_message = [...this.messages].reverse().find(msg => msg.role === 'user' && msg.content.trim())
+        if (!last_user_message)
+            return
+            
+        if (this.sse_controller)
+            this.abort_sse()
+            
+        const messages = [...this.messages]
+        const last_message = messages[messages.length - 1]
+        if (last_message?.role === 'assistant' && last_message.messageType === 'agent_error')
+            messages.pop()
+            
+        const request_seq = ++this._request_seq
+        this._active_request_seq = request_seq
+        this._interrupted_request_seq = 0
+        this._pending_assistant_msg_ids = [ ]
+        this.reset_loop_guard()
+        this.set({
+            messages,
+            buffered_messages: [ ],
+            pending_tool_loop_control: null,
+            agent_status: { status: 'thinking' },
+        })
+        this.do_chat_completions(last_user_message.content, { append_user: false }, 0, request_seq).catch(error => {
+            console.error('Retry chat failed:', error)
+            this.set({ agent_status: { status: 'error', message: error instanceof Error ? error.message : String(error) } })
+        })
     }
     
     
@@ -1703,8 +1797,12 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    build_tool_call_message (parsed_call: ParsedToolCall, msg_id: string, reasoning_content?: string): IMessage {
-        const tool_call_payload = { tool_call: parsed_call.type, args: parsed_call.payload }
+    build_tool_call_message (parsed_call: ParsedToolCall, msg_id: string, reasoning_content?: string, natural_text?: string): IMessage {
+        const tool_call_payload = {
+            tool_call: parsed_call.type,
+            args: parsed_call.payload,
+            ...(natural_text ? { naturalText: natural_text } : { }),
+        }
         return {
             msgId: msg_id,
             role: 'assistant',
@@ -1722,6 +1820,7 @@ class ChatModel extends Model<ChatModel> {
         tool_turn: number,
         request_seq: number,
         first_tool_call_msg_id: string,
+        natural_text = '',
     ) {
         const tool_result_contents: string[] = [ ]
         let should_continue_loop = false
@@ -1738,6 +1837,7 @@ class ChatModel extends Model<ChatModel> {
                 parsed_call,
                 tool_call_msg_id,
                 index === 0 ? reasoning_content : undefined,
+                index === 0 ? natural_text : '',
             )
             
             if (index === 0)

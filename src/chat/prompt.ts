@@ -33,8 +33,9 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = {
         args_hint: '["<skillId>"]',
     },
     skill_file_read: {
-        summary: '读取指定 Skill 包内文件的文本内容。先用 skill_read 查看 files/fileTree，再按路径读取需要的文件。',
-        args_hint: '["<skillId>","SKILL.md"]',
+        summary: '读取指定 Skill 包内一个或多个文件的文本内容。先用 skill_read 查看 files/fileTree，再按路径读取需要的文件。',
+        args_desc: 'args[0]=skillId；后续参数可以是一个或多个文件路径，也可以传文件路径数组。',
+        args_hint: '["<skillId>","SKILL.md","src/index.dos"]',
     },
     doc_search: {
         summary: '搜索 DolphinDB 官方中文文档，返回最多 30 条结果（含 title/content/url/score）。',
@@ -55,8 +56,8 @@ const BASE_SYSTEM_PROMPT = [
     '# Web 平台 tool_call 补充说明',
     '你运行在 Dolphin DB Web 平台上，可调用平台工具。以下是在 Web 平台使用工具的补充说明和建议：',
     '',
-    '- 调用工具时只输出一个 JSON 对象，不要用 Markdown 代码块，不要混入说明文字；每次最多调用一个工具。',
-    '- JSON 必须包含 `tool_call` 和 `args`，且 `args` 必须是数组；代码里的双引号和换行要正确转义。',
+    '- 调用工具时只输出 JSON，不要用 Markdown 代码块；需要多次调用时，连续输出多个独立的工具调用 JSON 对象，不要包成数组。',
+    '- 每个工具调用必须包含 `tool_call` 和 `args`，且 `args` 必须是数组；代码里的双引号和换行要正确转义。',
     '- 优先用自然语言和用户协作：能解释、总结、给建议或说明错误原因时，直接回答，不要绕成 `show + print`。',
     '- `execute` 用于验证和继续推理；脚本最后一行尽量返回表、字典、字符串或标量，方便读取结果。',
     '- 只有用户需要查看真实查询结果、表格数据，或结果需要进入结果视图时，才使用 `show`。',
