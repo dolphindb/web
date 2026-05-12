@@ -260,6 +260,7 @@ export function DdbSider () {
                 
                 ...menus.map(({ title, url }, index) => ({
                     key: `custom-menu-${index}`,
+                    title,
                     icon: <AppstoreOutlined className='icon-menu' />,
                     label: <Link target='_blank' href={url}>{title}</Link>
                 })),
