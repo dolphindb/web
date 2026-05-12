@@ -231,7 +231,7 @@ class ShellModel extends Model<ShellModel> {
             // throw new Error('xxxxx. RefId: S00001. xxxx RefId:S00002')
             
             let ddbobj = this.language === 'q' ?
-                    await this.ddb.call('qEvalForVSCode', [code, new DdbInt(3_0000), new DdbInt(istart)])
+                    await this.ddb.call('qEval', [code, new DdbInt(3_0000), new DdbInt(istart)])
                 :
                     await this.ddb.eval(
                         `line://${istart}\n` +
@@ -253,7 +253,7 @@ class ShellModel extends Model<ShellModel> {
                     result: {
                         type: 'object',
                         data: ddbobj
-                    },
+                    }
                 })
             
             if (print)
