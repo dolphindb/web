@@ -564,21 +564,30 @@ export function DolphinXUserTab () {
 
 
 function AdminAccessSection ({ user_id }: { user_id?: string }) {
-    const { agent_id, options } = use_agent_options()
+    const { options } = use_agent_options()
     const user_options = use_user_options()
     
-    const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
     const [selected_user_id, set_selected_user_id] = useState(user_id || '')
-    const [permission, set_permission] = useState<'AGENT_INVOKE' | 'AGENT_MANAGE'>('AGENT_INVOKE')
-    const [agent_auth, set_agent_auth] = useState<IAccessInfo[]>([ ])
+    const [agent_auth_map, set_agent_auth_map] = useState<Record<string, IAccessInfo | undefined>>({ })
+    const [loading, set_loading] = useState(false)
+    const agent_ids_key = options.map(agent => agent.value).join('\n')
     
     async function load_agent_auth () {
-        if (!selected_agent_id)
+        if (!selected_user_id || options.length === 0) {
+            set_agent_auth_map({ })
             return
+        }
+        set_loading(true)
         try {
-            set_agent_auth(await chat_model.load_agent_auth(selected_agent_id))
+            const entries = await Promise.all(options.map(async agent => {
+                const auth_list = await chat_model.load_agent_auth(agent.value)
+                return [agent.value, auth_list.find(item => item.userId === selected_user_id)] as const
+            }))
+            set_agent_auth_map(Object.fromEntries(entries))
         } catch (error) {
             show_error(error, t('加载 Agent 授权失败'))
+        } finally {
+            set_loading(false)
         }
     }
     
@@ -588,62 +597,66 @@ function AdminAccessSection ({ user_id }: { user_id?: string }) {
     }, [user_id])
     
     useEffect(() => {
-        if (!selected_agent_id && options.length > 0)
-            set_selected_agent_id(options[0].value)
-    }, [options, selected_agent_id])
-    
-    useEffect(() => {
         load_agent_auth()
-    }, [selected_agent_id, selected_user_id])
+    }, [agent_ids_key, selected_user_id])
     
-    const current_auth = selected_user_id
-        ? agent_auth.find(item => item.userId === selected_user_id)
-        : undefined
+    async function grant (agent_id: string, permission: 'AGENT_INVOKE' | 'AGENT_MANAGE') {
+        const auth_list = await chat_model.grant_agent_auth(agent_id, selected_user_id, permission)
+        set_agent_auth_map(map => ({
+            ...map,
+            [agent_id]: auth_list.find(item => item.userId === selected_user_id),
+        }))
+        message.success(t('已授权'))
+    }
+    
+    
+    async function revoke (agent_id: string) {
+        const auth_list = await chat_model.revoke_agent_auth(agent_id, selected_user_id)
+        set_agent_auth_map(map => ({
+            ...map,
+            [agent_id]: auth_list.find(item => item.userId === selected_user_id),
+        }))
+        message.success(t('已撤销'))
+    }
     
     return <Section title={t('Agent 权限')}>
         {!user_id && <Select showSearch style={{ width: 180, marginBottom: 12 }} placeholder={t('选择用户')} value={selected_user_id || undefined} onChange={set_selected_user_id} options={user_options} />}
-        <div style={{ display: 'flex', gap: 12 }}>
-            <div style={{ width: 260, maxHeight: 260, overflow: 'auto' }}>
-                {options.length === 0
-                    ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无 Agent')} />
-                    : options.map(agent =>
-                        <div
-                            key={agent.value}
-                            onClick={() => { set_selected_agent_id(agent.value) }}
-                            style={{
-                                padding: '8px 10px',
-                                borderRadius: 4,
-                                cursor: 'pointer',
-                                marginBottom: 4,
-                                background: selected_agent_id === agent.value ? '#e6f4ff' : undefined,
-                            }}
-                        >
-                            {agent.label}
-                        </div>
-                    )}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ marginBottom: 8 }}>
-                    {current_auth
-                        ? <Tag color='blue'>{current_auth.permission === 'AGENT_MANAGE' ? t('可管理') : t('可使用')}</Tag>
-                        : <Tag>{t('未授权')}</Tag>}
-                </div>
-                <Space wrap>
-                    <Select style={{ width: 140 }} value={permission} onChange={set_permission} options={[
-                        { value: 'AGENT_INVOKE', label: t('可使用') },
-                        { value: 'AGENT_MANAGE', label: t('可管理') },
-                    ]} />
-                    <Button disabled={!selected_agent_id || !selected_user_id || current_auth?.permission === permission} onClick={async () => {
-                        set_agent_auth(await chat_model.grant_agent_auth(selected_agent_id, selected_user_id, permission))
-                        message.success(t('已授权'))
-                    }}>{current_auth ? t('更新权限') : t('授权')}</Button>
-                    {current_auth && <Button danger disabled={!selected_agent_id || !selected_user_id} onClick={async () => {
-                        set_agent_auth(await chat_model.revoke_agent_auth(selected_agent_id, selected_user_id))
-                        message.success(t('已撤销'))
-                    }}>{t('撤销')}</Button>}
-                </Space>
-            </div>
-        </div>
+        <Table
+            size='small'
+            rowKey='value'
+            loading={loading}
+            dataSource={options}
+            pagination={false}
+            locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无 Agent')} /> }}
+            columns={[
+                {
+                    title: 'Agent',
+                    dataIndex: 'label',
+                },
+                {
+                    title: t('权限'),
+                    width: 120,
+                    render: (_: unknown, agent: { value: string }) => {
+                        const auth = agent_auth_map[agent.value]
+                        if (!auth)
+                            return <Tag>{t('未授权')}</Tag>
+                        return <Tag color='blue'>{auth.permission === 'AGENT_MANAGE' ? t('可管理') : t('可使用')}</Tag>
+                    },
+                },
+                {
+                    title: t('操作'),
+                    width: 260,
+                    render: (_: unknown, agent: { value: string }) => {
+                        const auth = agent_auth_map[agent.value]
+                        return <Space wrap>
+                            {auth?.permission !== 'AGENT_INVOKE' && <Button size='small' disabled={!selected_user_id} onClick={() => { grant(agent.value, 'AGENT_INVOKE') }}>{t('设为可使用')}</Button>}
+                            {auth?.permission !== 'AGENT_MANAGE' && <Button size='small' disabled={!selected_user_id} onClick={() => { grant(agent.value, 'AGENT_MANAGE') }}>{t('设为可管理')}</Button>}
+                            {auth && <Button danger size='small' disabled={!selected_user_id} onClick={() => { revoke(agent.value) }}>{t('撤销')}</Button>}
+                        </Space>
+                    },
+                },
+            ]}
+        />
     </Section>
 }
 
