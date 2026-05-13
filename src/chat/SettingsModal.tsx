@@ -241,11 +241,11 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
     }
     
     const bound_llm_ids = new Set(bound_llms.map(l => l.llmConfigId))
-    const unbound_llms = all_llms.filter(l => !bound_llm_ids.has(l.llmConfigId) && l.statusName === 'ACTIVE')
+    const unbound_llms = all_llms.filter(l => !bound_llm_ids.has(l.llmConfigId) && l.enabled !== false)
     const sorted_bound_llms = [...bound_llms].sort((a, b) => a.priority - b.priority)
     
     const bound_skill_ids = new Set(bound_skills.map(s => s.skillId))
-    const unbound_skills = all_skills.filter(s => !bound_skill_ids.has(s.skillId) && s.statusName === 'ACTIVE')
+    const unbound_skills = all_skills.filter(s => !bound_skill_ids.has(s.skillId) && s.enabled !== false)
     
     return <div style={{ padding: '12px 0' }}>
         {/* Agent 基本信息 */}
@@ -549,6 +549,9 @@ const EMBEDDING_METRIC_OPTIONS = [
 ]
 
 
+const DEFAULT_CONTEXT_WINDOW = 256000
+
+
 const DEFAULT_PROVIDER_FORM = {
     name: '',
     adapterType: 'openai',
@@ -562,7 +565,7 @@ const DEFAULT_CONFIG_FORM = {
     model: '',
     capability: 'chat' as 'chat' | 'embedding',
     requestPath: '/v1/chat/completions',
-    contextWindow: 128000,
+    contextWindow: DEFAULT_CONTEXT_WINDOW,
     defaultParams: '',
     embeddingDimension: 1536,
     embeddingMetric: 'euclidean' as 'euclidean' | 'cosine',
@@ -665,6 +668,7 @@ function LlmConfigTab () {
                     adapterType: provider_form.adapterType,
                     baseUrl: provider_form.baseUrl.trim(),
                     apiKey: provider_form.apiKey || undefined,
+                    enabled: true,
                 })
                 message.success(t('创建成功'))
                 await load()
@@ -693,10 +697,6 @@ function LlmConfigTab () {
     async function delete_provider () {
         if (!selected_provider_id)
             return
-        if (selected_provider?.statusName !== 'DISABLED') {
-            message.warning(t('请先禁用该 Provider，再执行删除'))
-            return
-        }
         try {
             await chat_model.delete_llm_provider(selected_provider_id)
             message.success(t('删除成功'))
@@ -742,7 +742,7 @@ function LlmConfigTab () {
             message.warning(t('请先选择一个 Provider'))
             return
         }
-        if (selected_provider?.statusName !== 'ACTIVE') {
+        if (selected_provider?.enabled === false) {
             message.warning(t('只有活跃 Provider 可以新增模型配置'))
             return
         }
@@ -759,7 +759,7 @@ function LlmConfigTab () {
             model: cfg.model,
             capability: (cfg.capability as 'chat' | 'embedding') || 'chat',
             requestPath: cfg.requestPath || '/v1/chat/completions',
-            contextWindow: cfg.contextWindow ?? 128000,
+            contextWindow: cfg.contextWindow ?? DEFAULT_CONTEXT_WINDOW,
             defaultParams: cfg.defaultParams ? JSON.stringify(cfg.defaultParams, null, 2) : '',
             embeddingDimension: cfg.embeddingDimension ?? 1536,
             embeddingMetric: (cfg.embeddingMetric as 'euclidean' | 'cosine') || 'euclidean',
@@ -788,7 +788,7 @@ function LlmConfigTab () {
         let default_params: Record<string, unknown> | undefined
         let retry_config: Record<string, unknown> | undefined
         try {
-            default_params = parse_json_field(config_form.defaultParams, t('默认参数'))
+            default_params = parse_json_field(config_form.defaultParams, t('自定义参数'))
             retry_config = parse_json_field(config_form.retryConfig, t('重试配置'))
         } catch {
             return
@@ -821,7 +821,7 @@ function LlmConfigTab () {
         set_saving_config(true)
         try {
             if (config_modal_mode === 'create') {
-                await chat_model.register_llm_config({ ...payload, providerId: selected_provider_id })
+                await chat_model.register_llm_config({ ...payload, providerId: selected_provider_id, enabled: true })
                 message.success(t('创建成功'))
             } else if (editing_config_id) {
                 await chat_model.update_llm_config(editing_config_id, payload)
@@ -837,10 +837,6 @@ function LlmConfigTab () {
     }
     
     async function delete_config (cfg: ILlmConfig) {
-        if (cfg.statusName !== 'DISABLED') {
-            message.warning(t('请先禁用该模型配置，再执行删除'))
-            return
-        }
         try {
             await chat_model.delete_llm_config(cfg.llmConfigId)
             message.success(t('删除成功'))
@@ -907,7 +903,7 @@ function LlmConfigTab () {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                     <span style={{ fontWeight: 500, fontSize: 13 }}>{p.name}</span>
                                     <Tag style={{ fontSize: 11 }}>{p.adapterType}</Tag>
-                                    {p.statusName === 'DISABLED' && <Tag color='default' style={{ fontSize: 11 }}>{t('禁用')}</Tag>}
+                                    {p.enabled === false && <Tag color='default' style={{ fontSize: 11 }}>{t('禁用')}</Tag>}
                                 </div>
                                 <div style={{ fontSize: 12, color: '#999', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                     {p.baseUrl || t('未配置 Base URL')}
@@ -967,14 +963,14 @@ function LlmConfigTab () {
                         </div>
                     </div>
                     <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                        {provider_mode === 'edit' && selected_provider?.statusName === 'ACTIVE' && <Popconfirm
+                        {provider_mode === 'edit' && selected_provider?.enabled !== false && <Popconfirm
                             title={t('确定禁用此 Provider？')}
                             description={t('禁用前需要确保没有未删除的模型配置继续引用该 Provider')}
                             onConfirm={disable_provider}
                         >
                             <Button icon={<StopOutlined />}>{t('禁用 Provider')}</Button>
                         </Popconfirm>}
-                        {provider_mode === 'edit' && selected_provider?.statusName === 'DISABLED' && <Popconfirm
+                        {provider_mode === 'edit' && selected_provider?.enabled === false && <Popconfirm
                             title={t('确定启用此 Provider？')}
                             description={t('启用 Provider 不会自动启用引用它的模型配置')}
                             onConfirm={enable_provider}
@@ -983,11 +979,10 @@ function LlmConfigTab () {
                         </Popconfirm>}
                         {provider_mode === 'edit' && <Popconfirm
                             title={t('确定删除此 Provider？')}
-                            description={t('仅允许删除已禁用的 Provider')}
                             onConfirm={delete_provider}
                             okButtonProps={{ danger: true }}
                         >
-                            <Button danger disabled={selected_provider?.statusName !== 'DISABLED'} icon={<DeleteOutlined />}>{t('删除 Provider')}</Button>
+                            <Button danger icon={<DeleteOutlined />}>{t('删除 Provider')}</Button>
                         </Popconfirm>}
                         <Button type='primary' icon={<SaveOutlined />} loading={saving_provider} onClick={save_provider}>
                             {provider_mode === 'create' ? t('创建') : t('保存')}
@@ -997,7 +992,7 @@ function LlmConfigTab () {
                     {provider_mode === 'edit' && selected_provider && <div style={{ marginTop: 24, borderTop: '1px solid #f0f0f0', paddingTop: 16 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                             <div style={{ fontWeight: 500, fontSize: 14 }}>{t('关联模型配置') + ` (${provider_configs.length})`}</div>
-                            <Button size='small' icon={<PlusOutlined />} disabled={selected_provider.statusName !== 'ACTIVE'} onClick={open_create_config}>
+                            <Button size='small' icon={<PlusOutlined />} disabled={selected_provider.enabled === false} onClick={open_create_config}>
                                 {t('新增模型')}
                             </Button>
                         </div>
@@ -1014,12 +1009,12 @@ function LlmConfigTab () {
                                             <Tag style={{ marginLeft: 8, fontSize: 11 }} color={cfg.capability === 'embedding' ? 'purple' : 'blue'}>
                                                 {cfg.capability || 'chat'}
                                             </Tag>
-                                            {cfg.statusName && <Tag
+                                            <Tag
                                                 style={{ fontSize: 11 }}
-                                                color={cfg.statusName === 'ACTIVE' ? 'green' : cfg.statusName === 'DELETED' ? 'red' : 'default'}
+                                                color={cfg.enabled !== false ? 'green' : 'default'}
                                             >
-                                                {cfg.statusName}
-                                            </Tag>}
+                                                {cfg.enabled !== false ? t('启用') : t('禁用')}
+                                            </Tag>
                                         </div>
                                         <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
                                             {cfg.model} · {cfg.requestPath}
@@ -1031,30 +1026,25 @@ function LlmConfigTab () {
                                                 <Button type='text' size='small' disabled icon={<EditOutlined />} />
                                             </Tooltip>
                                             : <Button type='text' size='small' icon={<EditOutlined />} onClick={() => { open_edit_config(cfg) }} />}
-                                        {cfg.statusName === 'ACTIVE' && <Popconfirm
+                                        {cfg.enabled !== false && <Popconfirm
                                             title={t('确定禁用此模型配置？')}
-                                            description={t('禁用后才允许删除该模型配置')}
                                             onConfirm={async () => { await disable_config(cfg) }}
                                         >
                                             <Button type='text' size='small' icon={<StopOutlined />}>{t('禁用')}</Button>
                                         </Popconfirm>}
-                                        {cfg.statusName === 'DISABLED' && <Popconfirm
+                                        {cfg.enabled === false && <Popconfirm
                                             title={t('确定启用此模型配置？')}
                                             description={t('启用前要求所属 Provider 为 ACTIVE')}
                                             onConfirm={async () => { await enable_config(cfg) }}
                                         >
                                             <Button type='text' size='small' icon={<CheckCircleOutlined />}>{t('启用')}</Button>
                                         </Popconfirm>}
-                                        {cfg.statusName === 'DISABLED'
-                                            ? <Popconfirm
-                                                title={t('确定删除此模型配置？')}
-                                                onConfirm={async () => { await delete_config(cfg) }}
-                                            >
-                                                <Button type='text' size='small' danger icon={<DeleteOutlined />} />
-                                            </Popconfirm>
-                                            : <Tooltip title={t('请先禁用模型配置后再删除')}>
-                                                <Button type='text' size='small' danger disabled icon={<DeleteOutlined />} />
-                                            </Tooltip>}
+                                        <Popconfirm
+                                            title={t('确定删除此模型配置？')}
+                                            onConfirm={async () => { await delete_config(cfg) }}
+                                        >
+                                            <Button type='text' size='small' danger icon={<DeleteOutlined />} />
+                                        </Popconfirm>
                                     </Space>
                                 </div>
                             )
@@ -1117,7 +1107,7 @@ function LlmConfigTab () {
                     <InputNumber
                         style={{ width: '100%' }}
                         value={config_form.contextWindow}
-                        onChange={val => { set_config_form({ ...config_form, contextWindow: val ?? 128000 }) }}
+                        onChange={val => { set_config_form({ ...config_form, contextWindow: val ?? DEFAULT_CONTEXT_WINDOW }) }}
                         min={1024}
                         step={1024}
                     />
@@ -1178,7 +1168,7 @@ function LlmConfigTab () {
                     </div>
                 </>}
                 <div style={{ gridColumn: '1 / -1' }}>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('默认参数 (JSON)')}</div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('自定义参数 (JSON，传给模型的其他参数)')}</div>
                     <Input.TextArea
                         value={config_form.defaultParams}
                         onChange={e => { set_config_form({ ...config_form, defaultParams: e.target.value }) }}
@@ -1360,14 +1350,14 @@ function SkillsTab () {
                                 <span style={{ fontWeight: 500 }}>{s.displayName || s.name}</span>
                                 {s.category && <Tag>{s.category}</Tag>}
                                 {s.version && <Tag color='blue'>v{s.version}</Tag>}
-                                <Tag color={s.statusName === 'ACTIVE' ? 'green' : 'default'}>{s.statusName || s.status}</Tag>
+                                <Tag color={s.enabled !== false ? 'green' : 'default'}>{s.enabled !== false ? t('启用') : t('禁用')}</Tag>
                             </div>
                             <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
                                 {s.description || t('无描述')}
                             </div>
                         </div>
                         <Space size={4}>
-                            {s.statusName !== 'ACTIVE'
+                            {s.enabled === false
                                 ? <Tooltip title={t('激活技能')}>
                                     <Button
                                         type='text'
@@ -1375,7 +1365,7 @@ function SkillsTab () {
                                         icon={<CheckCircleOutlined />}
                                         onClick={async () => {
                                             try {
-                                                await chat_model.activate_skill(s.skillId)
+                                                await chat_model.set_skill_enabled(s.skillId, true)
                                                 message.success(t('已激活'))
                                                 await load()
                                             } catch (e: any) {
@@ -1388,7 +1378,7 @@ function SkillsTab () {
                                     title={t('确定禁用此技能？')}
                                     onConfirm={async () => {
                                         try {
-                                            await chat_model.disable_skill(s.skillId)
+                                            await chat_model.set_skill_enabled(s.skillId, false)
                                             message.success(t('已禁用'))
                                             await load()
                                         } catch (e: any) {
@@ -1403,24 +1393,6 @@ function SkillsTab () {
                                     />
                                 </Popconfirm>
                             }
-                            {s.statusName !== 'DEPRECATED' && <Popconfirm
-                                title={t('确定废弃此技能？')}
-                                onConfirm={async () => {
-                                    try {
-                                        await chat_model.deprecate_skill(s.skillId)
-                                        message.success(t('已废弃'))
-                                        await load()
-                                    } catch (e: any) {
-                                        message.error(e.message || t('操作失败'))
-                                    }
-                                }}
-                            >
-                                <Button
-                                    type='text'
-                                    size='small'
-                                    icon={<DisconnectOutlined />}
-                                />
-                            </Popconfirm>}
                             <Popconfirm
                                 title={t('确定删除此技能？')}
                                 onConfirm={async () => {

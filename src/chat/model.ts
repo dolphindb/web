@@ -100,6 +100,7 @@ export interface ILlmProvider {
     baseUrl: string
     apiKey?: string
     extra?: string
+    enabled: boolean
     status: number
     statusName: string
 }
@@ -127,6 +128,7 @@ export interface ILlmConfig {
     timeoutMs?: number
     retryConfig?: Record<string, unknown>
     extra?: string
+    enabled: boolean
     status: number
     statusName: string
 }
@@ -158,6 +160,7 @@ export interface ISkillInfo {
     category?: string
     displayName?: string
     version?: string
+    enabled: boolean
 }
 
 
@@ -299,6 +302,27 @@ function parse_json_string (value: string): unknown {
     )
         try { return JSON.parse(trimmed) } catch { }
     return value
+}
+
+
+function get_enabled (item: any): boolean {
+    if (typeof item?.enabled === 'boolean')
+        return item.enabled
+    if (item?.statusName)
+        return item.statusName === 'ACTIVE'
+    return true
+}
+
+
+function get_status_name (item: any): string {
+    if (item?.statusName)
+        return item.statusName
+    return get_enabled(item) ? 'ACTIVE' : 'DISABLED'
+}
+
+
+function get_status (item: any): number {
+    return item?.status ?? (get_enabled(item) ? 1 : 0)
 }
 
 
@@ -780,7 +804,7 @@ class ChatModel extends Model<ChatModel> {
     
     
     async revoke_global_agent_admin (user_id: string): Promise<IAccessInfo[]> {
-        const result = await this.api_fetch(`/admin/access?userId=${encodeURIComponent(user_id)}&permission=AGENT_ADMIN`, {
+        const result = await this.api_fetch(`/admin/access?userId=${encodeURIComponent(user_id)}`, {
             method: 'DELETE',
         })
         return result.items || [ ]
@@ -2020,8 +2044,39 @@ class ChatModel extends Model<ChatModel> {
             timeoutMs: item.timeoutMs,
             retryConfig: item.retryConfig,
             extra: item.extra,
-            status: item.status,
-            statusName: item.statusName || '',
+            enabled: get_enabled(item),
+            status: get_status(item),
+            statusName: get_status_name(item),
+        }
+    }
+    
+    
+    _map_llm_provider (item: any): ILlmProvider {
+        return {
+            providerId: item.providerId,
+            name: item.name || item.providerId,
+            adapterType: item.adapterType || '',
+            baseUrl: item.baseUrl || '',
+            apiKey: item.apiKey,
+            extra: item.extra,
+            enabled: get_enabled(item),
+            status: get_status(item),
+            statusName: get_status_name(item),
+        }
+    }
+    
+    
+    _map_skill (s: any): ISkillInfo {
+        return {
+            skillId: s.skillId,
+            name: s.name || s.skillName,
+            description: s.description,
+            enabled: get_enabled(s),
+            status: get_status(s),
+            statusName: get_status_name(s),
+            category: s.category,
+            displayName: s.displayName,
+            version: s.version,
         }
     }
     
@@ -2029,16 +2084,7 @@ class ChatModel extends Model<ChatModel> {
     async load_llm_providers (): Promise<ILlmProvider[]> {
         try {
             const result = await this.api_fetch('/llm/provider/list')
-            return (result.items || [ ]).map((item: any) => ({
-                providerId: item.providerId,
-                name: item.name || item.providerId,
-                adapterType: item.adapterType || '',
-                baseUrl: item.baseUrl || '',
-                apiKey: item.apiKey,
-                extra: item.extra,
-                status: item.status,
-                statusName: item.statusName || '',
-            }))
+            return (result.items || [ ]).map((item: any) => this._map_llm_provider(item))
         } catch {
             return [ ]
         }
@@ -2050,6 +2096,7 @@ class ChatModel extends Model<ChatModel> {
         adapterType: string
         baseUrl: string
         apiKey?: string
+        enabled?: boolean
         extra?: string
     }): Promise<ILlmProvider> {
         return this.api_fetch('/llm/provider/register', {
@@ -2068,16 +2115,16 @@ class ChatModel extends Model<ChatModel> {
     
     
     async disable_llm_provider (provider_id: string): Promise<void> {
-        await this.api_fetch(`/llm/provider/${provider_id}/disable`, { method: 'POST' })
+        await this.update_llm_provider(provider_id, { enabled: false })
     }
     
     
     async enable_llm_provider (provider_id: string): Promise<void> {
-        await this.api_fetch(`/llm/provider/${provider_id}/enable`, { method: 'POST' })
+        await this.update_llm_provider(provider_id, { enabled: true })
     }
     
     
-    /** 删除 Provider：后端要求调用方先显式禁用 */
+    /** 删除 Provider：后端要求没有未删除的模型配置引用 */
     async delete_llm_provider (provider_id: string): Promise<void> {
         await this.api_fetch(`/llm/provider/${provider_id}`, { method: 'DELETE' })
     }
@@ -2110,6 +2157,7 @@ class ChatModel extends Model<ChatModel> {
         rateLimitRPM?: number
         timeoutMs?: number
         retryConfig?: Record<string, unknown>
+        enabled?: boolean
         extra?: string
     }): Promise<ILlmConfig> {
         return this.api_fetch('/llm/config/register', {
@@ -2128,12 +2176,12 @@ class ChatModel extends Model<ChatModel> {
     
     
     async disable_llm_config (llm_config_id: string): Promise<void> {
-        await this.api_fetch(`/llm/config/${llm_config_id}/disable`, { method: 'POST' })
+        await this.update_llm_config(llm_config_id, { enabled: false })
     }
     
     
     async enable_llm_config (llm_config_id: string): Promise<void> {
-        await this.api_fetch(`/llm/config/${llm_config_id}/enable`, { method: 'POST' })
+        await this.update_llm_config(llm_config_id, { enabled: true })
     }
     
     
@@ -2331,16 +2379,7 @@ class ChatModel extends Model<ChatModel> {
     async load_skills (): Promise<ISkillInfo[]> {
         try {
             const result = await this.api_fetch('/skill/list')
-            return (result.items || [ ]).map((s: any) => ({
-                skillId: s.skillId,
-                name: s.name || s.skillName,
-                description: s.description,
-                status: s.status,
-                statusName: s.statusName || '',
-                category: s.category,
-                displayName: s.displayName,
-                version: s.version,
-            }))
+            return (result.items || [ ]).map((s: any) => this._map_skill(s))
         } catch {
             return [ ]
         }
@@ -2348,16 +2387,16 @@ class ChatModel extends Model<ChatModel> {
     
     
     async get_skill (skill_id: string): Promise<ISkillInfo> {
-        return this.api_fetch(`/skill/${encodeURIComponent(skill_id)}`)
+        return this._map_skill(await this.api_fetch(`/skill/${encodeURIComponent(skill_id)}`))
     }
     
     
     async get_skill_by_name (skill_name: string): Promise<ISkillInfo> {
-        return this.api_fetch(`/skill/byName/${encodeURIComponent(skill_name)}`)
+        return this._map_skill(await this.api_fetch(`/skill/byName/${encodeURIComponent(skill_name)}`))
     }
     
     
-    async update_skill (skill_id: string, file?: File, overrides?: Record<string, string>): Promise<ISkillInfo> {
+    async update_skill (skill_id: string, file?: File, overrides?: Record<string, unknown>): Promise<ISkillInfo> {
         const body: Record<string, any> = { }
         if (file) {
             const buffer = await file.arrayBuffer()
@@ -2367,10 +2406,10 @@ class ChatModel extends Model<ChatModel> {
         }
         if (overrides && Object.keys(overrides).length > 0)
             body.overrides = overrides
-        return this.api_fetch(`/skill/${encodeURIComponent(skill_id)}`, {
+        return this._map_skill(await this.api_fetch(`/skill/${encodeURIComponent(skill_id)}`, {
             method: 'PUT',
             body: JSON.stringify(body),
-        })
+        }))
     }
     
     
@@ -2445,7 +2484,7 @@ class ChatModel extends Model<ChatModel> {
                 agentId: b.agentId,
                 enabled: b.enabled !== false,
                 descOverride: b.descOverride,
-                skill: b.skill,
+                skill: b.skill ? this._map_skill(b.skill) : undefined,
             }))
         } catch {
             return [ ]
@@ -2467,8 +2506,9 @@ class ChatModel extends Model<ChatModel> {
                         skillId: b.skillId || s.skillId,
                         name: s.name || (s as any).skillName,
                         description: b.descOverride ?? s.description,
-                        status: s.status,
-                        statusName: s.statusName || '',
+                        enabled: s.enabled,
+                        status: get_status(s),
+                        statusName: get_status_name(s),
                         category: s.category,
                         displayName: s.displayName,
                         version: s.version,
@@ -2502,11 +2542,13 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    async toggle_skill_binding (skill_id: string, enabled: boolean, agent_id?: string): Promise<void> {
-        await this.api_fetch('/skill/binding/enable', {
-            method: 'POST',
+    async toggle_skill_binding (skill_id: string, enabled: boolean, agent_id = this.agent_id): Promise<void> {
+        if (!agent_id)
+            throw new Error(t('请先选择 Agent'))
+        await this.api_fetch('/skill/binding', {
+            method: 'PUT',
             body: JSON.stringify({
-                agentId: agent_id || this.agent_id,
+                agentId: agent_id,
                 skillId: skill_id,
                 enabled,
             }),
@@ -2515,7 +2557,7 @@ class ChatModel extends Model<ChatModel> {
     
     
     /** 注册新技能（上传 ZIP 技能包） */
-    async register_skill (file: File, overrides?: Record<string, string>): Promise<ISkillInfo> {
+    async register_skill (file: File, overrides?: Record<string, unknown>): Promise<ISkillInfo> {
         const buffer = await file.arrayBuffer()
         const base64 = btoa(
             new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
@@ -2529,37 +2571,21 @@ class ChatModel extends Model<ChatModel> {
             method: 'POST',
             body: JSON.stringify(body),
         })
-        return {
+        return this._map_skill({
+            ...result,
             skillId: result.skillId || result.skill_id || result.id,
-            name: result.name,
-            description: result.description,
-            status: result.status ?? 0,
-            statusName: result.statusName || 'ACTIVE',
-            category: result.category,
-            displayName: result.displayName,
-            version: result.version,
-        }
+        })
     }
     
     
     /** 删除技能 */
     async delete_skill (skill_id: string): Promise<void> {
-        await this.api_fetch(`/skill/${skill_id}/delete`, { method: 'POST' })
+        await this.api_fetch(`/skill/${encodeURIComponent(skill_id)}`, { method: 'DELETE' })
     }
     
     
-    async activate_skill (skill_id: string): Promise<void> {
-        await this.api_fetch(`/skill/${skill_id}/activate`, { method: 'POST' })
-    }
-    
-    
-    async disable_skill (skill_id: string): Promise<void> {
-        await this.api_fetch(`/skill/${skill_id}/disable`, { method: 'POST' })
-    }
-    
-    
-    async deprecate_skill (skill_id: string): Promise<void> {
-        await this.api_fetch(`/skill/${skill_id}/deprecate`, { method: 'POST' })
+    async set_skill_enabled (skill_id: string, enabled: boolean): Promise<void> {
+        await this.update_skill(skill_id, undefined, { enabled })
     }
 }
 
