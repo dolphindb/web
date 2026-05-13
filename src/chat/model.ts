@@ -190,7 +190,8 @@ export interface IAgentInfo {
 
 export interface IAccessInfo {
     userId: string
-    permission: string
+    subjectId?: string
+    permission?: string
     grantedBy?: string
     createTime?: string
     updateTime?: string
@@ -765,18 +766,28 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    async load_agent_auth (agent_id: string): Promise<IAccessInfo[]> {
-        const result = await this.api_fetch(`/agent/${agent_id}/auth/list`)
-        return result.items || [ ]
+    _map_access_info (item: any): IAccessInfo {
+        return {
+            ...item,
+            userId: item.userId || item.subjectId,
+            subjectId: item.subjectId,
+            permission: item.permission,
+        }
     }
     
     
-    async grant_agent_auth (agent_id: string, user_id: string, permission: 'AGENT_INVOKE' | 'AGENT_MANAGE'): Promise<IAccessInfo[]> {
+    async load_agent_auth (agent_id: string): Promise<IAccessInfo[]> {
+        const result = await this.api_fetch(`/agent/${agent_id}/auth/list`)
+        return (result.items || [ ]).map((item: any) => this._map_access_info(item))
+    }
+    
+    
+    async grant_agent_auth (agent_id: string, user_id: string): Promise<IAccessInfo[]> {
         const result = await this.api_fetch(`/agent/${agent_id}/auth`, {
             method: 'POST',
-            body: JSON.stringify({ userId: user_id, permission }),
+            body: JSON.stringify({ userId: user_id }),
         })
-        return result.items || [ ]
+        return (result.items || [ ]).map((item: any) => this._map_access_info(item))
     }
     
     
@@ -784,7 +795,7 @@ class ChatModel extends Model<ChatModel> {
         const result = await this.api_fetch(`/agent/${agent_id}/auth?userId=${encodeURIComponent(user_id)}`, {
             method: 'DELETE',
         })
-        return result.items || [ ]
+        return (result.items || [ ]).map((item: any) => this._map_access_info(item))
     }
     
     

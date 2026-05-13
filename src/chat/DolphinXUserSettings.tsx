@@ -96,6 +96,11 @@ function SessionSection () {
         }
     }
     
+    useEffect(() => {
+        if (selected_agent_id)
+            load_sessions()
+    }, [selected_agent_id, status])
+    
     async function archive_session (session_id: string) {
         if (!session_id)
             return
@@ -428,12 +433,15 @@ function UsageSection ({ admin = false }: { admin?: boolean }) {
             message.warning(t('请先选择 Agent'))
             return
         }
+        set_loading_usage(true)
         try {
             set_usage(await chat_model.load_llm_usage({
                 agentId: selected_agent_id,
             }))
         } catch (error) {
             show_error(error, t('加载用量失败'))
+        } finally {
+            set_loading_usage(false)
         }
     }
     
@@ -466,11 +474,13 @@ function UsageSection ({ admin = false }: { admin?: boolean }) {
         return <Section title={t('我的用量')}>
             <Space wrap>
                 <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
+                <Button loading={loading_usage} onClick={load_usage}>{t('刷新')}</Button>
             </Space>
             <Table<{ agentId: string, userId: string, usage: ILlmUsageStats | null }>
                 style={{ marginTop: 12 }}
                 size='small'
                 rowKey='agentId'
+                loading={loading_usage}
                 dataSource={selected_agent_id ? [{ agentId: selected_agent_id, userId: usage?.userId || username, usage }] : [ ]}
                 pagination={false}
                 locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用量')} /> }}
@@ -504,7 +514,10 @@ function UsageSection ({ admin = false }: { admin?: boolean }) {
         </Section>
     
     return <Section title={t('用户用量')}>
-        <Select style={{ width: 240, marginBottom: 12 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
+        <Space wrap style={{ marginBottom: 12 }}>
+            <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
+            <Button loading={loading_usage} onClick={load_admin_usage}>{t('刷新')}</Button>
+        </Space>
         <Table
             size='small'
             rowKey='value'
@@ -600,8 +613,8 @@ function AdminAccessSection ({ user_id }: { user_id?: string }) {
         load_agent_auth()
     }, [agent_ids_key, selected_user_id])
     
-    async function grant (agent_id: string, permission: 'AGENT_INVOKE' | 'AGENT_MANAGE') {
-        const auth_list = await chat_model.grant_agent_auth(agent_id, selected_user_id, permission)
+    async function grant (agent_id: string) {
+        const auth_list = await chat_model.grant_agent_auth(agent_id, selected_user_id)
         set_agent_auth_map(map => ({
             ...map,
             [agent_id]: auth_list.find(item => item.userId === selected_user_id),
@@ -640,17 +653,16 @@ function AdminAccessSection ({ user_id }: { user_id?: string }) {
                         const auth = agent_auth_map[agent.value]
                         if (!auth)
                             return <Tag>{t('未授权')}</Tag>
-                        return <Tag color='blue'>{auth.permission === 'AGENT_MANAGE' ? t('可管理') : t('可使用')}</Tag>
+                        return <Tag color='blue'>{t('已授权')}</Tag>
                     },
                 },
                 {
                     title: t('操作'),
-                    width: 260,
+                    width: 160,
                     render: (_: unknown, agent: { value: string }) => {
                         const auth = agent_auth_map[agent.value]
                         return <Space wrap>
-                            {auth?.permission !== 'AGENT_INVOKE' && <Button size='small' disabled={!selected_user_id} onClick={() => { grant(agent.value, 'AGENT_INVOKE') }}>{t('设为可使用')}</Button>}
-                            {auth?.permission !== 'AGENT_MANAGE' && <Button size='small' disabled={!selected_user_id} onClick={() => { grant(agent.value, 'AGENT_MANAGE') }}>{t('设为可管理')}</Button>}
+                            {!auth && <Button size='small' disabled={!selected_user_id} onClick={() => { grant(agent.value) }}>{t('授权访问')}</Button>}
                             {auth && <Button danger size='small' disabled={!selected_user_id} onClick={() => { revoke(agent.value) }}>{t('撤销')}</Button>}
                         </Space>
                     },

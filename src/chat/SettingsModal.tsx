@@ -1453,13 +1453,13 @@ export function SettingsModal () {
                 },
                 {
                     key: 'user',
-                    label: t('会话与记忆'),
+                    label: t('个人中心'),
                     children: <DolphinXUserTab />,
                 },
                 ...admin
                     ? [{
                         key: 'admin',
-                        label: t('权限与用量'),
+                        label: t('用户管理'),
                         children: <DolphinXAdminTab />,
                     }]
                     : [ ],
