@@ -147,6 +147,15 @@ export function ShellEditor ({ collapser }) {
                     className='ai-mode-btn'
                     onClick={async () => {
                         try {
+                            const builtin_status = await chat_model.load_builtin_init_status(false).catch(error => {
+                                console.error('Load built-in Agent/Skill init status failed:', error)
+                                return null
+                            })
+                            if (builtin_status && builtin_status.initialized !== true && builtin_status.state !== 'READY') {
+                                chat_model.set({ settings_visible: true })
+                                return
+                            }
+                            
                             if (!chat_model.agent_id)
                                 await chat_model.init()
                             
