@@ -461,6 +461,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                         <Tag color={binding.enabled ? 'green' : 'default'} style={{ fontSize: 11 }}>
                                             {binding.enabled ? t('启用') : t('禁用')}
                                         </Tag>
+                                        {binding.source && <Tag style={{ fontSize: 11 }}>{binding.source}</Tag>}
                                     </div>
                                     <Space size={4}>
                                         <Switch
@@ -1556,10 +1557,14 @@ function SkillsTab () {
                                             { key: 'displayName', label: t('显示名称'), value: detail_skill.displayName || '-' },
                                             { key: 'category', label: t('分类'), value: detail_skill.category || '-' },
                                             { key: 'version', label: t('版本'), value: detail_skill.version || '-' },
+                                            { key: 'common', label: t('公共技能'), value: detail_skill.isCommon ? t('是') : t('否') },
                                             { key: 'owner', label: t('所有者'), value: detail_skill.ownerUserId || '-' },
                                             { key: 'license', label: 'License', value: detail_skill.license || '-' },
                                             { key: 'compatibility', label: t('兼容性'), value: detail_skill.compatibility || '-' },
                                             { key: 'argumentHint', label: t('参数提示'), value: detail_skill.argumentHint || '-' },
+                                            { key: 'contentRevision', label: t('内容版本'), value: detail_skill.contentRevision ?? '-' },
+                                            { key: 'contentHash', label: t('内容 Hash'), value: detail_skill.contentHash || '-' },
+                                            { key: 'updateTime', label: t('更新时间'), value: detail_skill.updateTime || '-' },
                                         ]}
                                         columns={[
                                             { dataIndex: 'label', width: 120 },

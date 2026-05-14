@@ -8,7 +8,10 @@ import { model } from '@model'
 import { access } from '@/access/model.ts'
 
 import { chat_model } from './model.ts'
-import type { IAccessInfo, ILlmConfig, ILlmUsageStats, IMemoryEntry, ISession, ISkillInfo, IUserLlmAccessInfo } from './model.ts'
+import type {
+    IAccessInfo, IBuiltinInitItem, IBuiltinInitResult, IBuiltinStateRecord,
+    ILlmConfig, ILlmUsageStats, IMemoryEntry, ISession, ISkillInfo, IUserLlmAccessInfo,
+} from './model.ts'
 
 
 const { Text } = Typography
@@ -1153,6 +1156,166 @@ function ContextPreviewSection () {
 }
 
 
+function BuiltinInitSection () {
+    const [result, set_result] = useState<IBuiltinInitResult | null>(null)
+    const [loading, set_loading] = useState(false)
+    const [dry_run, set_dry_run] = useState(true)
+    const [include_details, set_include_details] = useState(true)
+    
+    async function load_status () {
+        set_loading(true)
+        try {
+            set_result(await chat_model.load_builtin_init_status(include_details))
+        } catch (error) {
+            show_error(error, t('加载内置初始化状态失败'))
+        } finally {
+            set_loading(false)
+        }
+    }
+    
+    
+    async function run_init () {
+        set_loading(true)
+        try {
+            const next_result = await chat_model.init_builtins({
+                dryRun: dry_run,
+                includeDetails: include_details,
+            })
+            set_result(next_result)
+            message.success(dry_run ? t('预检查完成') : t('初始化完成'))
+            if (!dry_run)
+                await chat_model.load_agents()
+        } catch (error) {
+            show_error(error, dry_run ? t('预检查失败') : t('初始化失败'))
+        } finally {
+            set_loading(false)
+        }
+    }
+    
+    
+    const summary = result?.summary || { }
+    const items = result?.items || [ ]
+    const failures = result?.lastFailures || [ ]
+    const states = result?.states || [ ]
+    
+    function status_tag (status?: string) {
+        const color = status === 'SUCCESS' || status === 'READY' ? 'green'
+            : status === 'FAILED' || status === 'INVALID' ? 'red'
+                : status === 'CONFLICT' || status === 'PARTIAL' || status === 'STALE' ? 'orange'
+                    : 'default'
+        return <Tag color={color}>{status || '-'}</Tag>
+    }
+    
+    
+    const item_columns = [
+        { title: t('资源类型'), dataIndex: 'resourceType', width: 100 },
+        { title: t('资源键'), dataIndex: 'resourceKey' },
+        { title: t('动作'), dataIndex: 'action', width: 160 },
+        { title: t('状态'), dataIndex: 'status', width: 100, render: (value: string) => status_tag(value) },
+        { title: t('说明'), dataIndex: 'message', render: (value: string) => value || '-' },
+    ]
+    
+    return <Section title={t('内置 Agent/Skill 初始化')}>
+        <Space wrap>
+            <Switch checked={dry_run} onChange={set_dry_run} checkedChildren={t('预检查')} unCheckedChildren={t('执行')} />
+            <Switch checked={include_details} onChange={set_include_details} checkedChildren={t('明细')} unCheckedChildren={t('简略')} />
+            <Button loading={loading} onClick={load_status}>{t('刷新状态')}</Button>
+            {dry_run
+                ? <Button type='primary' loading={loading} onClick={run_init}>{t('预检查')}</Button>
+                : <Popconfirm title={t('确定执行内置 Agent/Skill 初始化？')} onConfirm={run_init}>
+                    <Button type='primary' danger loading={loading}>{t('执行初始化')}</Button>
+                </Popconfirm>
+            }
+        </Space>
+        
+        {result
+            ? <Space direction='vertical' style={{ width: '100%', marginTop: 12 }}>
+                <Table
+                    size='small'
+                    pagination={false}
+                    showHeader={false}
+                    rowKey='key'
+                    dataSource={[
+                        { key: 'state', label: t('状态'), value: status_tag(result.state) },
+                        { key: 'manifestId', label: 'Manifest ID', value: result.manifestId || '-' },
+                        { key: 'manifestVersion', label: t('Manifest 版本'), value: result.manifestVersion || '-' },
+                        { key: 'lastRunTime', label: t('最近执行'), value: result.lastRunTime || '-' },
+                        { key: 'message', label: t('说明'), value: result.message || '-' },
+                    ]}
+                    columns={[
+                        { dataIndex: 'label', width: 140 },
+                        { dataIndex: 'value', render: (value: React.ReactNode) => value },
+                    ]}
+                />
+                <Table
+                    size='small'
+                    pagination={false}
+                    rowKey='key'
+                    dataSource={[
+                        { key: 'createdAgents', label: t('新建 Agent'), value: summary.createdAgents ?? 0 },
+                        { key: 'createdSkills', label: t('新建技能'), value: summary.createdSkills ?? 0 },
+                        { key: 'updatedSkills', label: t('更新技能'), value: summary.updatedSkills ?? 0 },
+                        { key: 'createdBindings', label: t('新建绑定'), value: summary.createdBindings ?? 0 },
+                        { key: 'skippedExisting', label: t('跳过已存在'), value: summary.skippedExisting ?? 0 },
+                        { key: 'skippedUnchanged', label: t('跳过未变化'), value: summary.skippedUnchanged ?? 0 },
+                        { key: 'skippedUserModified', label: t('跳过用户修改'), value: summary.skippedUserModified ?? 0 },
+                        { key: 'failed', label: t('失败'), value: summary.failed ?? 0 },
+                    ]}
+                    columns={[
+                        { title: t('项目'), dataIndex: 'label' },
+                        { title: t('数量'), dataIndex: 'value', width: 100 },
+                    ]}
+                />
+                <Tabs
+                    items={[
+                        {
+                            key: 'items',
+                            label: t('处理明细') + ` (${items.length})`,
+                            children: <Table<IBuiltinInitItem>
+                                size='small'
+                                rowKey={(_, index) => String(index)}
+                                dataSource={items}
+                                columns={item_columns}
+                                pagination={{ pageSize: 8 }}
+                            />,
+                        },
+                        {
+                            key: 'failures',
+                            label: t('失败/冲突') + ` (${failures.length})`,
+                            children: <Table<IBuiltinInitItem>
+                                size='small'
+                                rowKey={(_, index) => String(index)}
+                                dataSource={failures}
+                                columns={item_columns}
+                                pagination={{ pageSize: 8 }}
+                                locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无失败或冲突')} /> }}
+                            />,
+                        },
+                        {
+                            key: 'states',
+                            label: t('状态记录') + ` (${states.length})`,
+                            children: <Table<IBuiltinStateRecord>
+                                size='small'
+                                rowKey={(_, index) => String(index)}
+                                dataSource={states}
+                                columns={[
+                                    { title: 'Manifest', dataIndex: 'manifestId', width: 180 },
+                                    { title: t('目标类型'), dataIndex: 'targetType', width: 100 },
+                                    { title: t('目标键'), dataIndex: 'targetKey' },
+                                    { title: t('更新时间'), dataIndex: 'updateTime', width: 180 },
+                                ]}
+                                pagination={{ pageSize: 8 }}
+                            />,
+                        },
+                    ]}
+                />
+            </Space>
+            : <Empty style={{ marginTop: 24 }} image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('尚未加载初始化状态')} />
+        }
+    </Section>
+}
+
+
 export function DolphinXAdminTab () {
     if (!model.admin)
         return <Empty description={t('仅管理员可访问')} />
@@ -1174,6 +1337,11 @@ export function DolphinXAdminTab () {
                 key: 'context',
                 label: t('上下文预览'),
                 children: <ContextPreviewSection />,
+            },
+            {
+                key: 'builtin',
+                label: t('内置初始化'),
+                children: <BuiltinInitSection />,
             },
         ]}
     />

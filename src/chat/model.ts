@@ -167,7 +167,15 @@ export interface ISkillInfo {
     disableModelInvocation?: boolean
     userInvocable?: boolean
     hasInstruction?: boolean
+    contentRevision?: number
+    contentHash?: string
+    isCommon?: boolean
     ownerUserId?: string
+    metadata?: Record<string, unknown>
+    schemaVersion?: number
+    extra?: string
+    createTime?: string
+    updateTime?: string
 }
 
 
@@ -175,7 +183,13 @@ export interface ISkillBinding {
     skillId: string
     agentId: string
     enabled: boolean
+    available?: boolean
+    source?: string
+    subjectType?: string
+    subjectId?: string
     descOverride?: string
+    createTime?: string
+    updateTime?: string
     skill?: ISkillInfo
 }
 
@@ -262,6 +276,59 @@ export interface ILlmUsageStats {
     totalCompletionTokens?: number
     totalTokens?: number
     requestCount?: number
+}
+
+
+export interface IBuiltinInitSummary {
+    createdAgents?: number
+    createdSkills?: number
+    updatedSkills?: number
+    createdBindings?: number
+    skippedExisting?: number
+    skippedUnchanged?: number
+    skippedUserModified?: number
+    failed?: number
+}
+
+
+export interface IBuiltinInitItem {
+    resourceType?: string
+    resourceKey?: string
+    resourceId?: string
+    action?: string
+    status?: string
+    errorCode?: string
+    message?: string
+}
+
+
+export interface IBuiltinStateRecord {
+    manifestId?: string
+    targetType?: string
+    targetKey?: string
+    payloadSchemaVersion?: number
+    payload?: Record<string, unknown>
+    createTime?: string
+    updateTime?: string
+}
+
+
+export interface IBuiltinInitResult {
+    initialized?: boolean
+    state?: string
+    runId?: string
+    manifestId?: string
+    manifestVersion?: string
+    manifestHash?: string
+    lastRunId?: string
+    lastRunTime?: string
+    dryRun?: boolean
+    summary?: IBuiltinInitSummary
+    items?: IBuiltinInitItem[]
+    lastFailures?: IBuiltinInitItem[]
+    states?: IBuiltinStateRecord[]
+    errorCode?: string
+    message?: string
 }
 
 
@@ -2109,7 +2176,15 @@ class ChatModel extends Model<ChatModel> {
             disableModelInvocation: s.disableModelInvocation,
             userInvocable: s.userInvocable,
             hasInstruction: s.hasInstruction,
+            contentRevision: s.contentRevision,
+            contentHash: s.contentHash,
+            isCommon: s.isCommon,
             ownerUserId: s.ownerUserId,
+            metadata: s.metadata,
+            schemaVersion: s.schemaVersion,
+            extra: s.extra,
+            createTime: s.createTime,
+            updateTime: s.updateTime,
         }
     }
     
@@ -2301,6 +2376,19 @@ class ChatModel extends Model<ChatModel> {
         if (params.endTime !== undefined)
             search.set('endTime', String(params.endTime))
         return this.api_fetch(`/llm/usage?${search}`)
+    }
+    
+    
+    async init_builtins (params: { dryRun?: boolean, includeDetails?: boolean }): Promise<IBuiltinInitResult> {
+        return this.api_fetch('/builtin/init', {
+            method: 'POST',
+            body: JSON.stringify(params),
+        })
+    }
+    
+    
+    async load_builtin_init_status (include_details = false): Promise<IBuiltinInitResult> {
+        return this.api_fetch(`/builtin/init/status?includeDetails=${include_details}`)
     }
     
     
@@ -2515,8 +2603,14 @@ class ChatModel extends Model<ChatModel> {
             return (result.items || [ ]).map((b: any) => ({
                 skillId: b.skillId,
                 agentId: b.agentId,
-                enabled: b.enabled !== false,
+                enabled: (b.available ?? b.enabled) !== false,
+                available: b.available ?? b.enabled,
+                source: b.source,
+                subjectType: b.subjectType,
+                subjectId: b.subjectId,
                 descOverride: b.descOverride,
+                createTime: b.createTime,
+                updateTime: b.updateTime,
                 skill: b.skill ? this._map_skill(b.skill) : undefined,
             }))
         } catch {
@@ -2532,7 +2626,7 @@ class ChatModel extends Model<ChatModel> {
                 return [ ]
             const bindings = await this.load_skill_bindings(this.agent_id)
             return bindings
-                .filter(b => b.enabled && b.skill)
+                .filter(b => b.enabled && b.available !== false && b.skill)
                 .map(b => {
                     const s = b.skill!
                     return {
@@ -2551,7 +2645,15 @@ class ChatModel extends Model<ChatModel> {
                         disableModelInvocation: s.disableModelInvocation,
                         userInvocable: s.userInvocable,
                         hasInstruction: s.hasInstruction,
+                        contentRevision: s.contentRevision,
+                        contentHash: s.contentHash,
+                        isCommon: s.isCommon,
                         ownerUserId: s.ownerUserId,
+                        metadata: s.metadata,
+                        schemaVersion: s.schemaVersion,
+                        extra: s.extra,
+                        createTime: s.createTime,
+                        updateTime: s.updateTime,
                     }
                 })
         } catch {
@@ -2585,14 +2687,10 @@ class ChatModel extends Model<ChatModel> {
     async toggle_skill_binding (skill_id: string, enabled: boolean, agent_id = this.agent_id): Promise<void> {
         if (!agent_id)
             throw new Error(t('请先选择 Agent'))
-        await this.api_fetch('/skill/binding', {
-            method: 'PUT',
-            body: JSON.stringify({
-                agentId: agent_id,
-                skillId: skill_id,
-                enabled,
-            }),
-        })
+        if (enabled)
+            await this.bind_skill(skill_id, agent_id)
+        else
+            await this.unbind_skill(skill_id, agent_id)
     }
     
     
