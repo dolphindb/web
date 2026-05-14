@@ -65,11 +65,14 @@ function SessionSection () {
     const [status, set_status] = useState(0)
     const [sessions, set_sessions] = useState<ISession[]>([ ])
     const [summary_session, set_summary_session] = useState<ISession | null>(null)
+    const [editing_session, set_editing_session] = useState<ISession | null>(null)
+    const [editing_title, set_editing_title] = useState('')
     const [summary_instructions, set_summary_instructions] = useState('')
     const [force_summary, set_force_summary] = useState(false)
     const [summary, set_summary] = useState('')
     const [loading, set_loading] = useState(false)
     const summary_modal = use_modal()
+    const title_modal = use_modal()
     
     useEffect(() => {
         if (!selected_agent_id && agent_id)
@@ -113,6 +116,40 @@ function SessionSection () {
         }
     }
     
+    
+    async function delete_session (session_id: string) {
+        if (!session_id)
+            return
+        try {
+            await chat_model.delete_session(session_id)
+            message.success(t('删除成功'))
+            await load_sessions()
+        } catch (error) {
+            show_error(error, t('删除会话失败'))
+        }
+    }
+    
+    
+    async function save_session_title () {
+        if (!editing_session)
+            return
+        const title = editing_title.trim()
+        if (!title) {
+            message.warning(t('请输入标题'))
+            return
+        }
+        try {
+            await chat_model.update_session_title(editing_session.sessionId, title)
+            message.success(t('保存成功'))
+            title_modal.close()
+            set_editing_session(null)
+            await load_sessions()
+        } catch (error) {
+            show_error(error, t('保存失败'))
+        }
+    }
+    
+    
     async function generate_summary () {
         if (!summary_session)
             return
@@ -135,6 +172,13 @@ function SessionSection () {
         set_summary_instructions('')
         set_force_summary(false)
         summary_modal.open()
+    }
+    
+    
+    function open_title_modal (session: ISession) {
+        set_editing_session(session)
+        set_editing_title(session.title || '')
+        title_modal.open()
     }
     
     return <Section title={t('会话')}>
@@ -180,16 +224,34 @@ function SessionSection () {
                 },
                 {
                     title: t('操作'),
-                    width: 180,
+                    width: 280,
                     render: (_: unknown, session: ISession) => <Space>
+                        <Button size='small' onClick={() => { open_title_modal(session) }}>{t('改标题')}</Button>
                         <Button size='small' onClick={() => { open_summary_modal(session) }}>{t('生成摘要')}</Button>
                         <Popconfirm title={t('归档后不可继续在该会话中发送消息，确定归档？')} onConfirm={() => archive_session(session.sessionId)}>
                             <Button size='small' disabled={session.status === 1}>{t('归档')}</Button>
+                        </Popconfirm>
+                        <Popconfirm title={t('确定删除此会话？')} onConfirm={() => delete_session(session.sessionId)}>
+                            <Button danger size='small'>{t('删除')}</Button>
                         </Popconfirm>
                     </Space>,
                 },
             ]}
         />
+        <Modal
+            title={t('修改会话标题')}
+            open={title_modal.visible}
+            onCancel={title_modal.close}
+            onOk={save_session_title}
+            okText={t('保存')}
+        >
+            <Input
+                value={editing_title}
+                onChange={event => { set_editing_title(event.target.value) }}
+                placeholder={t('请输入标题')}
+                onPressEnter={save_session_title}
+            />
+        </Modal>
         
         <Modal
             title={summary_session ? t('会话摘要：{{title}}', { title: summary_session.title || summary_session.sessionId }) : t('会话摘要')}
@@ -221,9 +283,12 @@ function MemorySection () {
     const { agent_id, options } = use_agent_options()
     
     const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
+    const [scope, set_scope] = useState<'all' | 'user' | 'agent'>('all')
     const [category, set_category] = useState('fact')
     const [query, set_query] = useState('')
+    const [sort_by, set_sort_by] = useState<'RECENCY' | 'IMPORTANCE' | 'RELEVANCE' | 'TEXT_SEARCH' | 'HYBRID'>('HYBRID')
     const [items, set_items] = useState<IMemoryEntry[]>([ ])
+    const [detail_memory, set_detail_memory] = useState<IMemoryEntry | null>(null)
     const [editing_memory_id, set_editing_memory_id] = useState('')
     const [form_category, set_form_category] = useState('fact')
     const [form_content, set_form_content] = useState('')
@@ -246,10 +311,11 @@ function MemorySection () {
         try {
             const result = await chat_model.search_memory({
                 agentId: selected_agent_id,
+                scope: scope === 'all' ? undefined : scope,
                 category: category || undefined,
                 textQuery: query || undefined,
                 topK: 50,
-                sortBy: 'HYBRID',
+                sortBy: sort_by,
             })
             set_items(result.items)
             set_stats(await chat_model.load_memory_stats(selected_agent_id))
@@ -324,8 +390,31 @@ function MemorySection () {
     return <Section title={t('记忆')}>
         <Space wrap>
             <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
+            <Select
+                style={{ width: 110 }}
+                value={scope}
+                onChange={set_scope}
+                options={[
+                    { value: 'all', label: t('全部') },
+                    { value: 'user', label: t('个人') },
+                    { value: 'agent', label: 'Agent' },
+                ]}
+            />
             <Input style={{ width: 120 }} value={category} onChange={event => { set_category(event.target.value) }} placeholder={t('分类')} />
             <Input.Search style={{ width: 240 }} value={query} onChange={event => { set_query(event.target.value) }} onSearch={search_memory} placeholder={t('搜索记忆')} enterButton={t('搜索')} loading={loading} />
+            <Select
+                style={{ width: 130 }}
+                value={sort_by}
+                onChange={set_sort_by}
+                options={[
+                    { value: 'HYBRID', label: t('综合排序') },
+                    { value: 'RECENCY', label: t('最近更新') },
+                    { value: 'IMPORTANCE', label: t('重要度') },
+                    { value: 'RELEVANCE', label: t('相关度') },
+                    { value: 'TEXT_SEARCH', label: t('文本匹配') },
+                ]}
+            />
+            <Button loading={loading} onClick={search_memory}>{t('刷新')}</Button>
             <Button type='primary' onClick={open_create_memory}>{t('新增记忆')}</Button>
         </Space>
         {stats && <Space style={{ marginTop: 12 }} size={24}>
@@ -360,14 +449,27 @@ function MemorySection () {
                     width: 90,
                 },
                 {
+                    title: t('来源'),
+                    dataIndex: 'source',
+                    width: 100,
+                    render: (value: string) => value || '-',
+                },
+                {
+                    title: t('更新时间'),
+                    dataIndex: 'updateTime',
+                    width: 160,
+                    render: (value: string) => value || '-',
+                },
+                {
                     title: t('内容'),
                     dataIndex: 'content',
                     render: (value: string) => <Text ellipsis style={{ maxWidth: 420 }}>{value}</Text>,
                 },
                 {
                     title: t('操作'),
-                    width: 150,
+                    width: 190,
                     render: (_: unknown, item: IMemoryEntry) => <Space>
+                        <Button size='small' onClick={() => { set_detail_memory(item) }}>{t('详情')}</Button>
                         <Button size='small' onClick={() => { open_edit_memory(item) }}>{t('编辑')}</Button>
                         <Popconfirm title={t('确定删除这条记忆？')} onConfirm={() => delete_memory(item.memoryId)}>
                             <Button danger size='small'>{t('删除')}</Button>
@@ -398,6 +500,37 @@ function MemorySection () {
                     <InputNumber min={0} max={1} step={0.1} value={form_importance} onChange={value => { set_form_importance(value ?? 0.5) }} />
                 </div>
             </Space>
+        </Modal>
+        <Modal
+            title={t('记忆详情')}
+            open={Boolean(detail_memory)}
+            onCancel={() => { set_detail_memory(null) }}
+            footer={null}
+            width={760}
+        >
+            {detail_memory && <Space direction='vertical' style={{ width: '100%' }}>
+                <Table
+                    size='small'
+                    pagination={false}
+                    showHeader={false}
+                    rowKey='key'
+                    dataSource={[
+                        { key: 'id', label: 'ID', value: detail_memory.memoryId },
+                        { key: 'scope', label: t('范围'), value: detail_memory.scope || '-' },
+                        { key: 'category', label: t('分类'), value: detail_memory.category || '-' },
+                        { key: 'importance', label: t('重要度'), value: detail_memory.importance ?? '-' },
+                        { key: 'source', label: t('来源'), value: detail_memory.source || '-' },
+                        { key: 'sourceRef', label: t('来源引用'), value: detail_memory.sourceRef || '-' },
+                        { key: 'updateTime', label: t('更新时间'), value: detail_memory.updateTime || '-' },
+                    ]}
+                    columns={[
+                        { dataIndex: 'label', width: 120 },
+                        { dataIndex: 'value', render: (value: unknown) => String(value) },
+                    ]}
+                />
+                <Input.TextArea value={detail_memory.content} rows={6} readOnly />
+                {detail_memory.metadata && <Input.TextArea value={JSON.stringify(detail_memory.metadata, null, 2)} rows={4} readOnly />}
+            </Space>}
         </Modal>
     </Section>
 }
@@ -898,6 +1031,128 @@ function UserPermissionTab () {
 }
 
 
+function ContextPreviewSection () {
+    const { agent_id, options } = use_agent_options()
+    const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
+    const [sessions, set_sessions] = useState<ISession[]>([ ])
+    const [selected_session_id, set_selected_session_id] = useState('')
+    const [message_text, set_message_text] = useState('')
+    const [preview, set_preview] = useState<any>(null)
+    const [loading, set_loading] = useState(false)
+    
+    useEffect(() => {
+        if (!selected_agent_id && agent_id)
+            set_selected_agent_id(agent_id)
+    }, [agent_id])
+    
+    async function load_sessions () {
+        if (!selected_agent_id) {
+            set_sessions([ ])
+            set_selected_session_id('')
+            return
+        }
+        const result = await chat_model.list_sessions({
+            agentId: selected_agent_id,
+            status: -1,
+            limit: 100,
+        })
+        set_sessions(result.items)
+        if (!selected_session_id || !result.items.some(item => item.sessionId === selected_session_id))
+            set_selected_session_id(result.items[0]?.sessionId || '')
+    }
+    
+    useEffect(() => {
+        load_sessions().catch(error => { show_error(error, t('加载会话失败')) })
+    }, [selected_agent_id])
+    
+    async function load_preview () {
+        if (!selected_agent_id || !selected_session_id || !message_text.trim()) {
+            message.warning(t('请选择 Agent、会话并输入消息'))
+            return
+        }
+        set_loading(true)
+        try {
+            set_preview(await chat_model.preview_context({
+                agentId: selected_agent_id,
+                sessionId: selected_session_id,
+                message: message_text.trim(),
+            }))
+        } catch (error) {
+            show_error(error, t('加载上下文预览失败'))
+        } finally {
+            set_loading(false)
+        }
+    }
+    
+    const detail = preview?.detail || { }
+    const token_breakdown = preview?.tokenBreakdown || { }
+    const messages = Array.isArray(preview?.messages) ? preview.messages : [ ]
+    
+    return <Section title={t('上下文预览')}>
+        <Space wrap>
+            <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
+            <Select
+                style={{ width: 260 }}
+                placeholder={t('选择会话')}
+                value={selected_session_id || undefined}
+                onChange={set_selected_session_id}
+                options={sessions.map(session => ({ value: session.sessionId, label: session.title || session.sessionId }))}
+            />
+            <Button loading={loading} onClick={load_preview}>{t('预览')}</Button>
+        </Space>
+        <Input.TextArea
+            style={{ marginTop: 12 }}
+            value={message_text}
+            onChange={event => { set_message_text(event.target.value) }}
+            placeholder={t('输入待预览的用户消息')}
+            rows={3}
+        />
+        {preview && <Space direction='vertical' style={{ width: '100%', marginTop: 12 }}>
+            <Table
+                size='small'
+                pagination={false}
+                rowKey='key'
+                dataSource={[
+                    { key: 'tokens', label: t('预估 Token'), value: preview.estimatedTokens ?? '-' },
+                    { key: 'mode', label: t('组装模式'), value: detail.assemblyMode || preview.assemblyMode || '-' },
+                    { key: 'memories', label: t('记忆数量'), value: detail.memoriesIncluded ?? '-' },
+                    { key: 'messages', label: t('历史消息数'), value: detail.messagesIncluded ?? '-' },
+                    { key: 'skills', label: t('技能数量'), value: detail.skillsInCatalog ?? '-' },
+                    { key: 'summary', label: t('包含摘要'), value: detail.summaryIncluded === undefined ? '-' : String(detail.summaryIncluded) },
+                ]}
+                columns={[
+                    { title: t('项目'), dataIndex: 'label', width: 140 },
+                    { title: t('值'), dataIndex: 'value' },
+                ]}
+            />
+            {Object.keys(token_breakdown).length > 0 && <Table
+                size='small'
+                pagination={false}
+                rowKey='key'
+                dataSource={Object.entries(token_breakdown).map(([key, value]) => ({ key, value }))}
+                columns={[
+                    { title: t('Token 项'), dataIndex: 'key' },
+                    { title: t('数量'), dataIndex: 'value', width: 120 },
+                ]}
+            />}
+            <Table
+                size='small'
+                pagination={{ pageSize: 8 }}
+                rowKey={(_, index) => String(index)}
+                dataSource={messages}
+                columns={[
+                    { title: t('角色'), dataIndex: 'role', width: 100 },
+                    {
+                        title: t('内容'),
+                        render: (_: unknown, row: any) => <Text ellipsis style={{ maxWidth: 620 }}>{String(row.content || '')}</Text>,
+                    },
+                ]}
+            />
+        </Space>}
+    </Section>
+}
+
+
 export function DolphinXAdminTab () {
     if (!model.admin)
         return <Empty description={t('仅管理员可访问')} />
@@ -914,6 +1169,11 @@ export function DolphinXAdminTab () {
                 key: 'usage',
                 label: t('用量'),
                 children: <UsageSection admin />,
+            },
+            {
+                key: 'context',
+                label: t('上下文预览'),
+                children: <ContextPreviewSection />,
             },
         ]}
     />

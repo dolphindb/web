@@ -116,6 +116,9 @@ export function ShellEditor ({ collapser }) {
             tab.name = newName
             shell.set({ tabs: [...shell.tabs] })
             shell.save()
+            if (tab.chat_id)
+                chat_model.update_session_title(tab.chat_id, newName)
+                    .catch(error => { model.message?.error(error instanceof Error ? error.message : t('保存失败')) })
         }
     }
     
@@ -481,6 +484,40 @@ function AiToolbar ({
     } = chat_model.use(['sessions', 'agents', 'agent_id', 'selectable_llms', 'selected_llm_config_id', 'script_execute_approval_mode'])
     const session = sessions.find(s => s.sessionId === session_id)
     const title = session?.title || t('新会话')
+    const [editing_title, set_editing_title] = useState(false)
+    const [title_value, set_title_value] = useState(title)
+    
+    useEffect(() => {
+        if (!editing_title)
+            set_title_value(title)
+    }, [title, editing_title])
+    
+    async function commit_title () {
+        const next_title = title_value.trim()
+        if (!next_title) {
+            set_title_value(title)
+            set_editing_title(false)
+            return
+        }
+        if (next_title === title) {
+            set_editing_title(false)
+            return
+        }
+        try {
+            await chat_model.update_session_title(session_id, next_title)
+            const tab = shell.tabs.find(item => item.chat_id === session_id)
+            if (tab) {
+                tab.name = next_title
+                shell.set({ tabs: [...shell.tabs] })
+                shell.save()
+            }
+        } catch (error) {
+            model.message?.error(error instanceof Error ? error.message : t('保存失败'))
+            set_title_value(title)
+        } finally {
+            set_editing_title(false)
+        }
+    }
     
     const active_agents = agents.filter(a => a.statusName === 'ACTIVE')
     
@@ -491,9 +528,19 @@ function AiToolbar ({
     }))
     
     return <div className='toolbar ai-toolbar'>
-        <div className='ai-toolbar-title' title={title}>
-            {title}
-        </div>
+        {editing_title
+            ? <Input
+                className='ai-toolbar-title'
+                value={title_value}
+                size='small'
+                autoFocus
+                onChange={event => { set_title_value(event.target.value) }}
+                onBlur={commit_title}
+                onPressEnter={commit_title}
+            />
+            : <div className='ai-toolbar-title' title={title} onDoubleClick={() => { set_editing_title(true) }}>
+                {title}
+            </div>}
         
         <div className='padding' />
         

@@ -161,6 +161,13 @@ export interface ISkillInfo {
     displayName?: string
     version?: string
     enabled: boolean
+    license?: string
+    compatibility?: string
+    argumentHint?: string
+    disableModelInvocation?: boolean
+    userInvocable?: boolean
+    hasInstruction?: boolean
+    ownerUserId?: string
 }
 
 
@@ -1079,6 +1086,14 @@ class ChatModel extends Model<ChatModel> {
     
     async generate_session_summary (session_id: string, params: { instructions?: string, llmConfigId?: string, force?: boolean, metadata?: Record<string, unknown> } = { }): Promise<any> {
         return this.api_fetch(`/session/${session_id}/summary`, {
+            method: 'POST',
+            body: JSON.stringify(params),
+        })
+    }
+    
+    
+    async preview_context (params: Record<string, unknown>): Promise<any> {
+        return this.api_fetch('/context/preview', {
             method: 'POST',
             body: JSON.stringify(params),
         })
@@ -2088,6 +2103,13 @@ class ChatModel extends Model<ChatModel> {
             category: s.category,
             displayName: s.displayName,
             version: s.version,
+            license: s.license,
+            compatibility: s.compatibility,
+            argumentHint: s.argumentHint,
+            disableModelInvocation: s.disableModelInvocation,
+            userInvocable: s.userInvocable,
+            hasInstruction: s.hasInstruction,
+            ownerUserId: s.ownerUserId,
         }
     }
     
@@ -2523,6 +2545,13 @@ class ChatModel extends Model<ChatModel> {
                         category: s.category,
                         displayName: s.displayName,
                         version: s.version,
+                        license: s.license,
+                        compatibility: s.compatibility,
+                        argumentHint: s.argumentHint,
+                        disableModelInvocation: s.disableModelInvocation,
+                        userInvocable: s.userInvocable,
+                        hasInstruction: s.hasInstruction,
+                        ownerUserId: s.ownerUserId,
                     }
                 })
         } catch {

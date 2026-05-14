@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
     Modal, Tabs, Input, Button, Switch, Space, Tag, Tooltip,
-    Popconfirm, InputNumber, Empty, Spin, Select, message, Upload,
+    Popconfirm, InputNumber, Empty, Spin, Select, message, Upload, Table, Typography,
+    Tree, type TreeDataNode,
 } from 'antd'
 import {
     PlusOutlined, DeleteOutlined, EditOutlined,
@@ -17,6 +18,9 @@ import { model } from '@model'
 import { chat_model } from './model.ts'
 import type { ILlmConfig, ILlmProvider, IAgentLlmBinding, ISkillInfo, ISkillBinding, IAgentInfo } from './model.ts'
 import { DolphinXAdminTab, DolphinXUserTab } from './DolphinXUserSettings.tsx'
+
+
+const { Text } = Typography
 
 
 function AgentTab () {
@@ -1197,7 +1201,15 @@ function SkillsTab () {
     const [all_skills, set_all_skills] = useState<ISkillInfo[]>([ ])
     const [loading, set_loading] = useState(false)
     const [creating, set_creating] = useState(false)
+    const [detail_skill, set_detail_skill] = useState<ISkillInfo | null>(null)
+    const [skill_instruction, set_skill_instruction] = useState('')
+    const [skill_files, set_skill_files] = useState<string[]>([ ])
+    const [selected_skill_file, set_selected_skill_file] = useState('')
+    const [skill_file_content, set_skill_file_content] = useState('')
+    const [loading_detail, set_loading_detail] = useState(false)
     const [skill_file, set_skill_file] = useState<File | null>(null)
+    const detail_request_ref = useRef(0)
+    const file_request_ref = useRef(0)
     const [overrides, set_overrides] = useState({
         name: '',
         displayName: '',
@@ -1219,6 +1231,102 @@ function SkillsTab () {
     }
     
     useEffect(() => { load() }, [ ])
+    
+    function decode_skill_file (content: string, encoding?: string) {
+        if (encoding !== 'base64')
+            return content
+        try {
+            const bytes = Uint8Array.from(atob(content), char => char.charCodeAt(0))
+            return new TextDecoder().decode(bytes)
+        } catch {
+            return content
+        }
+    }
+    
+    
+    function build_skill_file_tree (paths: string[]) {
+        type FileTreeNode = TreeDataNode & { children?: FileTreeNode[] }
+        
+        const roots: FileTreeNode[] = [ ]
+        const node_map = new Map<string, FileTreeNode>()
+        for (const file_path of paths) {
+            const parts = file_path.split(/[\\/]/).filter(Boolean)
+            let current_path = ''
+            let siblings = roots
+            parts.forEach((part, index) => {
+                const is_file = index === parts.length - 1
+                current_path = current_path ? `${current_path}/${part}` : part
+                let node = node_map.get(current_path)
+                if (!node) {
+                    node = {
+                        key: current_path,
+                        title: part,
+                        isLeaf: is_file,
+                        selectable: is_file,
+                        children: is_file ? undefined : [ ],
+                    }
+                    node_map.set(current_path, node)
+                    siblings.push(node)
+                }
+                if (!is_file) {
+                    node.isLeaf = false
+                    node.selectable = false
+                    node.children ||= [ ]
+                    siblings = node.children
+                }
+            })
+        }
+        return roots
+    }
+    
+    
+    async function open_skill_detail (skill: ISkillInfo) {
+        const request_id = ++detail_request_ref.current
+        file_request_ref.current += 1
+        set_detail_skill(skill)
+        set_skill_instruction('')
+        set_skill_files([ ])
+        set_selected_skill_file('')
+        set_skill_file_content('')
+        set_loading_detail(true)
+        try {
+            const [instruction, files] = await Promise.all([
+                chat_model.load_skill_instruction(skill.skillId).catch(() => null),
+                chat_model.load_skill_files(skill.skillId).catch(() => ({ items: [ ] })),
+            ])
+            if (request_id !== detail_request_ref.current)
+                return
+            if (instruction)
+                set_skill_instruction(instruction.instruction || instruction.content || JSON.stringify(instruction, null, 2))
+            set_skill_files(files.items || [ ])
+        } finally {
+            if (request_id === detail_request_ref.current)
+                set_loading_detail(false)
+        }
+    }
+    
+    
+    async function open_skill_file (file_path: string) {
+        if (!detail_skill)
+            return
+        const request_id = ++file_request_ref.current
+        const skill_id = detail_skill.skillId
+        set_selected_skill_file(file_path)
+        set_skill_file_content('')
+        set_loading_detail(true)
+        try {
+            const file = await chat_model.get_skill_file(skill_id, file_path)
+            if (request_id !== file_request_ref.current || skill_id !== detail_skill.skillId)
+                return
+            set_skill_file_content(decode_skill_file(file.content, file.encoding))
+        } catch (error) {
+            if (request_id === file_request_ref.current)
+                message.error(error instanceof Error ? error.message : t('加载文件失败'))
+        } finally {
+            if (request_id === file_request_ref.current)
+                set_loading_detail(false)
+        }
+    }
     
     if (loading && !creating)
         return <div style={{ textAlign: 'center', padding: 60 }}><Spin /></div>
@@ -1336,44 +1444,53 @@ function SkillsTab () {
         
         {all_skills.length === 0
             ? <Empty description={t('暂无可用技能，请先创建')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
-            : <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {all_skills.map(s =>
-                    <div
-                        key={s.skillId}
-                        style={{
-                            border: '1px solid #f0f0f0', borderRadius: 6, padding: '12px 16px',
-                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        }}
-                    >
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontWeight: 500 }}>{s.displayName || s.name}</span>
-                                {s.category && <Tag>{s.category}</Tag>}
-                                {s.version && <Tag color='blue'>v{s.version}</Tag>}
-                                <Tag color={s.enabled !== false ? 'green' : 'default'}>{s.enabled !== false ? t('启用') : t('禁用')}</Tag>
-                            </div>
-                            <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
-                                {s.description || t('无描述')}
-                            </div>
-                        </div>
-                        <Space size={4}>
+            : <Table
+                size='small'
+                rowKey='skillId'
+                dataSource={all_skills}
+                pagination={false}
+                columns={[
+                    {
+                        title: t('技能'),
+                        render: (_: unknown, s: ISkillInfo) => <div>
+                            <div>{s.displayName || s.name}</div>
+                            <Text type='secondary'>{s.description || t('无描述')}</Text>
+                        </div>,
+                    },
+                    {
+                        title: t('分类'),
+                        width: 110,
+                        render: (_: unknown, s: ISkillInfo) => s.category ? <Tag>{s.category}</Tag> : '-',
+                    },
+                    {
+                        title: t('版本'),
+                        width: 90,
+                        render: (_: unknown, s: ISkillInfo) => s.version ? <Tag color='blue'>v{s.version}</Tag> : '-',
+                    },
+                    {
+                        title: t('状态'),
+                        width: 90,
+                        render: (_: unknown, s: ISkillInfo) => <Tag color={s.enabled !== false ? 'green' : 'default'}>{s.enabled !== false ? t('启用') : t('禁用')}</Tag>,
+                    },
+                    {
+                        title: t('操作'),
+                        width: 220,
+                        render: (_: unknown, s: ISkillInfo) => <Space size={4}>
+                            <Button size='small' onClick={() => { open_skill_detail(s) }}>{t('详情')}</Button>
                             {s.enabled === false
-                                ? <Tooltip title={t('激活技能')}>
-                                    <Button
-                                        type='text'
-                                        size='small'
-                                        icon={<CheckCircleOutlined />}
-                                        onClick={async () => {
-                                            try {
-                                                await chat_model.set_skill_enabled(s.skillId, true)
-                                                message.success(t('已激活'))
-                                                await load()
-                                            } catch (e: any) {
-                                                message.error(e.message || t('操作失败'))
-                                            }
-                                        }}
-                                    />
-                                </Tooltip>
+                                ? <Button
+                                    size='small'
+                                    icon={<CheckCircleOutlined />}
+                                    onClick={async () => {
+                                        try {
+                                            await chat_model.set_skill_enabled(s.skillId, true)
+                                            message.success(t('已激活'))
+                                            await load()
+                                        } catch (e: any) {
+                                            message.error(e.message || t('操作失败'))
+                                        }
+                                    }}
+                                >{t('启用')}</Button>
                                 : <Popconfirm
                                     title={t('确定禁用此技能？')}
                                     onConfirm={async () => {
@@ -1386,11 +1503,7 @@ function SkillsTab () {
                                         }
                                     }}
                                 >
-                                    <Button
-                                        type='text'
-                                        size='small'
-                                        icon={<StopOutlined />}
-                                    />
+                                    <Button size='small' icon={<StopOutlined />}>{t('禁用')}</Button>
                                 </Popconfirm>
                             }
                             <Popconfirm
@@ -1405,18 +1518,97 @@ function SkillsTab () {
                                     }
                                 }}
                             >
-                                <Button
-                                    type='text'
-                                    size='small'
-                                    danger
-                                    icon={<DeleteOutlined />}
-                                />
+                                <Button size='small' danger icon={<DeleteOutlined />}>{t('删除')}</Button>
                             </Popconfirm>
-                        </Space>
-                    </div>
-                )}
-            </div>
+                        </Space>,
+                    },
+                ]}
+            />
         }
+        <Modal
+            title={detail_skill ? t('技能详情：{{name}}', { name: detail_skill.displayName || detail_skill.name }) : t('技能详情')}
+            open={Boolean(detail_skill)}
+            onCancel={() => {
+                detail_request_ref.current += 1
+                file_request_ref.current += 1
+                set_detail_skill(null)
+            }}
+            footer={null}
+            width={1120}
+            styles={{ body: { maxHeight: 'calc(100vh - 140px)', overflowY: 'auto' } }}
+        >
+            {detail_skill && <Spin spinning={loading_detail}>
+                <Space direction='vertical' style={{ width: '100%' }}>
+                    <Tabs
+                        items={[
+                            {
+                                key: 'basic',
+                                label: t('基本信息'),
+                                children: <Space direction='vertical' style={{ width: '100%' }}>
+                                    <Table
+                                        size='small'
+                                        pagination={false}
+                                        showHeader={false}
+                                        rowKey='key'
+                                        dataSource={[
+                                            { key: 'id', label: 'ID', value: detail_skill.skillId },
+                                            { key: 'name', label: t('名称'), value: detail_skill.name },
+                                            { key: 'displayName', label: t('显示名称'), value: detail_skill.displayName || '-' },
+                                            { key: 'category', label: t('分类'), value: detail_skill.category || '-' },
+                                            { key: 'version', label: t('版本'), value: detail_skill.version || '-' },
+                                            { key: 'owner', label: t('所有者'), value: detail_skill.ownerUserId || '-' },
+                                            { key: 'license', label: 'License', value: detail_skill.license || '-' },
+                                            { key: 'compatibility', label: t('兼容性'), value: detail_skill.compatibility || '-' },
+                                            { key: 'argumentHint', label: t('参数提示'), value: detail_skill.argumentHint || '-' },
+                                        ]}
+                                        columns={[
+                                            { dataIndex: 'label', width: 120 },
+                                            { dataIndex: 'value', render: (value: unknown) => String(value) },
+                                        ]}
+                                    />
+                                    <div>
+                                        <div style={{ marginBottom: 8, fontWeight: 500 }}>{t('技能指令')}</div>
+                                        <Input.TextArea value={skill_instruction || t('暂无指令')} rows={16} readOnly />
+                                    </div>
+                                </Space>,
+                            },
+                            {
+                                key: 'files',
+                                label: t('技能文件'),
+                                children: skill_files.length === 0
+                                    ? <Empty description={t('暂无技能文件')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                                    : <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 12, height: 'calc(100vh - 260px)', minHeight: 520 }}>
+                                        <div style={{ border: '1px solid #f0f0f0', borderRadius: 6, padding: 8, overflow: 'auto', minHeight: 0 }}>
+                                            <Tree
+                                                blockNode
+                                                defaultExpandAll
+                                                selectedKeys={selected_skill_file ? [selected_skill_file] : [ ]}
+                                                treeData={build_skill_file_tree(skill_files)}
+                                                onSelect={keys => {
+                                                    const file_path = String(keys[0] || '')
+                                                    if (file_path)
+                                                        open_skill_file(file_path)
+                                                }}
+                                            />
+                                        </div>
+                                        <div style={{ minWidth: 0, minHeight: 0 }}>
+                                            <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                                                <Text strong>{t('文件预览')}</Text>
+                                                <Text type='secondary' ellipsis>{selected_skill_file || t('请选择左侧文件')}</Text>
+                                            </div>
+                                            <Input.TextArea
+                                                value={selected_skill_file ? skill_file_content || t('文件内容为空') : t('请选择左侧文件')}
+                                                style={{ height: 'calc(100% - 32px)', resize: 'none' }}
+                                                readOnly
+                                            />
+                                        </div>
+                                    </div>,
+                            },
+                        ]}
+                    />
+                </Space>
+            </Spin>}
+        </Modal>
     </div>
 }
 
