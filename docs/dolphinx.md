@@ -59,97 +59,106 @@ demo2.zip
   * [响应格式](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%93%8D%E5%BA%94%E6%A0%BC%E5%BC%8F)
   * [分页参数](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%86%E9%A1%B5%E5%8F%82%E6%95%B0)
   * [流式响应 (SSE)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94-(SSE))
-* [Agent 管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.-Agent-%E7%AE%A1%E7%90%86)
-  * [2.1 注册 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.1-%E6%B3%A8%E5%86%8C-Agent)
-  * [2.2 获取 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.2-%E8%8E%B7%E5%8F%96-Agent)
-  * [2.3 更新 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.3-%E6%9B%B4%E6%96%B0-Agent)
-  * [2.4 激活 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.4-%E6%BF%80%E6%B4%BB-Agent)
-  * [2.5 挂起 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.5-%E6%8C%82%E8%B5%B7-Agent)
-  * [2.6 删除 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.6-%E5%88%A0%E9%99%A4-Agent)
-  * [2.7 列出 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.7-%E5%88%97%E5%87%BA-Agent)
-  * [2.8 列出当前用户可访问的 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.8-%E5%88%97%E5%87%BA%E5%BD%93%E5%89%8D%E7%94%A8%E6%88%B7%E5%8F%AF%E8%AE%BF%E9%97%AE%E7%9A%84-Agent)
-  * [2.9 授予 Agent 权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.9-%E6%8E%88%E4%BA%88-Agent-%E6%9D%83%E9%99%90)
-  * [2.10 撤销 Agent 权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.10-%E6%92%A4%E9%94%80-Agent-%E6%9D%83%E9%99%90)
-  * [2.11 列出 Agent 授权](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.11-%E5%88%97%E5%87%BA-Agent-%E6%8E%88%E6%9D%83)
-* [全局访问控制](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.-%E5%85%A8%E5%B1%80%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6)
-  * [3.1 授予全局 AGENT\_ADMIN](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.1-%E6%8E%88%E4%BA%88%E5%85%A8%E5%B1%80-AGENT_ADMIN)
-  * [3.2 撤销全局 AGENT\_ADMIN](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.2-%E6%92%A4%E9%94%80%E5%85%A8%E5%B1%80-AGENT_ADMIN)
-  * [3.3 列出全局 AGENT\_ADMIN](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.3-%E5%88%97%E5%87%BA%E5%85%A8%E5%B1%80-AGENT_ADMIN)
-* [用户 LLM 访问控制](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.-%E7%94%A8%E6%88%B7-LLM-%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6)
-  * [4.1 授予用户全局 LLM 访问权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.1-%E6%8E%88%E4%BA%88%E7%94%A8%E6%88%B7%E5%85%A8%E5%B1%80-LLM-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90)
-  * [4.2 撤销用户全局 LLM 访问权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.2-%E6%92%A4%E9%94%80%E7%94%A8%E6%88%B7%E5%85%A8%E5%B1%80-LLM-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90)
-  * [4.3 列出用户全局 LLM 访问权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.3-%E5%88%97%E5%87%BA%E7%94%A8%E6%88%B7%E5%85%A8%E5%B1%80-LLM-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90)
-* [LLM Provider 与配置管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.-LLM-Provider-%E4%B8%8E%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86)
-  * [5.1 注册 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.1-%E6%B3%A8%E5%86%8C-LLM-Provider)
-  * [5.2 获取 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.2-%E8%8E%B7%E5%8F%96-LLM-Provider)
-  * [5.3 列出 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.3-%E5%88%97%E5%87%BA-LLM-Provider)
-  * [5.4 更新 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.4-%E6%9B%B4%E6%96%B0-LLM-Provider)
-  * [5.5 删除 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.5-%E5%88%A0%E9%99%A4-LLM-Provider)
-  * [5.6 注册 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.6-%E6%B3%A8%E5%86%8C-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.7 获取 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.7-%E8%8E%B7%E5%8F%96-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.8 列出 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.8-%E5%88%97%E5%87%BA-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.9 更新 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.9-%E6%9B%B4%E6%96%B0-LLM-%E9%85%8D%E7%BD%AE)
-  * [5.10 删除 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.10-%E5%88%A0%E9%99%A4-LLM-%E9%85%8D%E7%BD%AE)
-* [Agent-LLM 绑定](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.-Agent-LLM-%E7%BB%91%E5%AE%9A)
-  * [6.1 绑定 LLM 到 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.1-%E7%BB%91%E5%AE%9A-LLM-%E5%88%B0-Agent)
-  * [6.2 解绑 LLM](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.2-%E8%A7%A3%E7%BB%91-LLM)
-  * [6.3 列出 Agent 的 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.3-%E5%88%97%E5%87%BA-Agent-%E7%9A%84-LLM-%E9%85%8D%E7%BD%AE)
-  * [6.4 列出当前用户在指定 Agent 下可显式选择的 LLM](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.4-%E5%88%97%E5%87%BA%E5%BD%93%E5%89%8D%E7%94%A8%E6%88%B7%E5%9C%A8%E6%8C%87%E5%AE%9A-Agent-%E4%B8%8B%E5%8F%AF%E6%98%BE%E5%BC%8F%E9%80%89%E6%8B%A9%E7%9A%84-LLM)
-* [会话 (Session) 管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#7.-%E4%BC%9A%E8%AF%9D-(Session)-%E7%AE%A1%E7%90%86)
-  * [7.1 创建会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#7.1-%E5%88%9B%E5%BB%BA%E4%BC%9A%E8%AF%9D)
-  * [7.2 获取会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#7.2-%E8%8E%B7%E5%8F%96%E4%BC%9A%E8%AF%9D)
-  * [7.3 更新会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#7.3-%E6%9B%B4%E6%96%B0%E4%BC%9A%E8%AF%9D)
-  * [7.4 归档会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#7.4-%E5%BD%92%E6%A1%A3%E4%BC%9A%E8%AF%9D)
-  * [7.5 删除会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#7.5-%E5%88%A0%E9%99%A4%E4%BC%9A%E8%AF%9D)
-  * [7.6 列出会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#7.6-%E5%88%97%E5%87%BA%E4%BC%9A%E8%AF%9D)
-* [消息 (Message) 管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#8.-%E6%B6%88%E6%81%AF-(Message)-%E7%AE%A1%E7%90%86)
-  * [8.1 追加消息](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#8.1-%E8%BF%BD%E5%8A%A0%E6%B6%88%E6%81%AF)
-  * [8.2 获取消息列表](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#8.2-%E8%8E%B7%E5%8F%96%E6%B6%88%E6%81%AF%E5%88%97%E8%A1%A8)
-* [会话摘要 (Session Summary)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#9.-%E4%BC%9A%E8%AF%9D%E6%91%98%E8%A6%81-(Session-Summary))
-  * [9.1 生成摘要](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#9.1-%E7%94%9F%E6%88%90%E6%91%98%E8%A6%81)
-* [记忆 (Memory) 管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#10.-%E8%AE%B0%E5%BF%86-(Memory)-%E7%AE%A1%E7%90%86)
-  * [10.0 运行时并发调度](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#10.0-%E8%BF%90%E8%A1%8C%E6%97%B6%E5%B9%B6%E5%8F%91%E8%B0%83%E5%BA%A6)
-  * [10.1 存储记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#10.1-%E5%AD%98%E5%82%A8%E8%AE%B0%E5%BF%86)
-  * [10.2 获取记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#10.2-%E8%8E%B7%E5%8F%96%E8%AE%B0%E5%BF%86)
-  * [10.3 更新记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#10.3-%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BF%86)
-  * [10.4 删除记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#10.4-%E5%88%A0%E9%99%A4%E8%AE%B0%E5%BF%86)
-  * [10.5 搜索记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#10.5-%E6%90%9C%E7%B4%A2%E8%AE%B0%E5%BF%86)
-  * [10.6 按分类列出记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#10.6-%E6%8C%89%E5%88%86%E7%B1%BB%E5%88%97%E5%87%BA%E8%AE%B0%E5%BF%86)
-  * [10.7 记忆统计](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#10.7-%E8%AE%B0%E5%BF%86%E7%BB%9F%E8%AE%A1)
-* [技能 (Skill) 管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.-%E6%8A%80%E8%83%BD-(Skill)-%E7%AE%A1%E7%90%86)
-  * [11.1 注册技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.1-%E6%B3%A8%E5%86%8C%E6%8A%80%E8%83%BD)
-  * [11.2 获取技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.2-%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD)
-  * [11.3 按名称获取技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.3-%E6%8C%89%E5%90%8D%E7%A7%B0%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD)
-  * [11.4 更新技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.4-%E6%9B%B4%E6%96%B0%E6%8A%80%E8%83%BD)
-  * [11.5 删除技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.5-%E5%88%A0%E9%99%A4%E6%8A%80%E8%83%BD)
-  * [11.6 列出技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.6-%E5%88%97%E5%87%BA%E6%8A%80%E8%83%BD)
-  * [11.7 获取技能指令](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.7-%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD%E6%8C%87%E4%BB%A4)
-  * [11.8 列出技能包文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.8-%E5%88%97%E5%87%BA%E6%8A%80%E8%83%BD%E5%8C%85%E6%96%87%E4%BB%B6)
-  * [11.9 获取技能包单个文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.9-%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD%E5%8C%85%E5%8D%95%E4%B8%AA%E6%96%87%E4%BB%B6)
-  * [11.10 批量获取技能包文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#11.10-%E6%89%B9%E9%87%8F%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD%E5%8C%85%E6%96%87%E4%BB%B6)
-* [技能绑定与访问控制](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.-%E6%8A%80%E8%83%BD%E7%BB%91%E5%AE%9A%E4%B8%8E%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6)
-  * [12.1 绑定技能到 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.1-%E7%BB%91%E5%AE%9A%E6%8A%80%E8%83%BD%E5%88%B0-Agent)
-  * [12.2 解绑技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.2-%E8%A7%A3%E7%BB%91%E6%8A%80%E8%83%BD)
-  * [12.3 更新绑定](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.3-%E6%9B%B4%E6%96%B0%E7%BB%91%E5%AE%9A)
-  * [12.4 列出 Agent 的技能绑定](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.4-%E5%88%97%E5%87%BA-Agent-%E7%9A%84%E6%8A%80%E8%83%BD%E7%BB%91%E5%AE%9A)
-  * [12.5 获取 Agent 的技能目录 (Tier-1)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.5-%E8%8E%B7%E5%8F%96-Agent-%E7%9A%84%E6%8A%80%E8%83%BD%E7%9B%AE%E5%BD%95-(Tier-1))
-  * [12.6 组装技能上下文（只读原语）](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.6-%E7%BB%84%E8%A3%85%E6%8A%80%E8%83%BD%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%88%E5%8F%AA%E8%AF%BB%E5%8E%9F%E8%AF%AD%EF%BC%89)
-  * [12.7 禁止业务用户使用技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.7-%E7%A6%81%E6%AD%A2%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E4%BD%BF%E7%94%A8%E6%8A%80%E8%83%BD)
-  * [12.8 允许业务用户使用技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.8-%E5%85%81%E8%AE%B8%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E4%BD%BF%E7%94%A8%E6%8A%80%E8%83%BD)
-  * [12.9 列出业务用户被禁止的技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#12.9-%E5%88%97%E5%87%BA%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E8%A2%AB%E7%A6%81%E6%AD%A2%E7%9A%84%E6%8A%80%E8%83%BD)
-* [Chat Completions (对话补全)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#13.-Chat-Completions-(%E5%AF%B9%E8%AF%9D%E8%A1%A5%E5%85%A8))
-  * [自动组装模式 (Auto-Assembly)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%87%AA%E5%8A%A8%E7%BB%84%E8%A3%85%E6%A8%A1%E5%BC%8F-(Auto-Assembly))
-  * [手动组装模式 (Manual-Assembly)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%89%8B%E5%8A%A8%E7%BB%84%E8%A3%85%E6%A8%A1%E5%BC%8F-(Manual-Assembly))
-  * [非流式响应](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E9%9D%9E%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94)
-  * [流式响应 (SSE)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94-(SSE).1)
-* [LLM Complete (直接调用 LLM)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#14.-LLM-Complete-(%E7%9B%B4%E6%8E%A5%E8%B0%83%E7%94%A8-LLM))
-* [Context Preview (上下文预览)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#15.-Context-Preview-(%E4%B8%8A%E4%B8%8B%E6%96%87%E9%A2%84%E8%A7%88))
-* [WebSocket 协议](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#16.-WebSocket-%E5%8D%8F%E8%AE%AE)
-  * [连接](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%BF%9E%E6%8E%A5)
-  * [消息格式](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F)
-  * [HTTP → WebSocket 参数映射规则](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#HTTP-%E2%86%92-WebSocket-%E5%8F%82%E6%95%B0%E6%98%A0%E5%B0%84%E8%A7%84%E5%88%99)
-  * [支持的 Action](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%94%AF%E6%8C%81%E7%9A%84-Action)
-* [数据结构参考](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#17.-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%82%E8%80%83)
+* [面向 Agent 开发者的 API](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.-%E9%9D%A2%E5%90%91-Agent-%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84-API)
+  * [2.1 Agent 发现与可用配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.1-Agent-%E5%8F%91%E7%8E%B0%E4%B8%8E%E5%8F%AF%E7%94%A8%E9%85%8D%E7%BD%AE)
+    * [列出当前用户可访问的 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E5%BD%93%E5%89%8D%E7%94%A8%E6%88%B7%E5%8F%AF%E8%AE%BF%E9%97%AE%E7%9A%84-Agent)
+    * [获取 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96-Agent)
+    * [列出当前用户在指定 Agent 下可显式选择的 LLM](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E5%BD%93%E5%89%8D%E7%94%A8%E6%88%B7%E5%9C%A8%E6%8C%87%E5%AE%9A-Agent-%E4%B8%8B%E5%8F%AF%E6%98%BE%E5%BC%8F%E9%80%89%E6%8B%A9%E7%9A%84-LLM)
+  * [2.2 会话管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.2-%E4%BC%9A%E8%AF%9D%E7%AE%A1%E7%90%86)
+    * [创建会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%9B%E5%BB%BA%E4%BC%9A%E8%AF%9D)
+    * [获取会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E4%BC%9A%E8%AF%9D)
+    * [更新会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E4%BC%9A%E8%AF%9D)
+    * [归档会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%BD%92%E6%A1%A3%E4%BC%9A%E8%AF%9D)
+    * [删除会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4%E4%BC%9A%E8%AF%9D)
+    * [列出会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E4%BC%9A%E8%AF%9D)
+  * [2.3 Chat Completions](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.3-Chat-Completions)
+    * [自动组装模式 (Auto-Assembly)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%87%AA%E5%8A%A8%E7%BB%84%E8%A3%85%E6%A8%A1%E5%BC%8F-(Auto-Assembly))
+    * [手动组装模式 (Manual-Assembly)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%89%8B%E5%8A%A8%E7%BB%84%E8%A3%85%E6%A8%A1%E5%BC%8F-(Manual-Assembly))
+    * [非流式响应](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E9%9D%9E%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94)
+    * [流式响应 (SSE)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94-(SSE).1)
+  * [2.4 技能运行时能力](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.4-%E6%8A%80%E8%83%BD%E8%BF%90%E8%A1%8C%E6%97%B6%E8%83%BD%E5%8A%9B)
+    * [获取 Agent 的技能目录 (Tier-1)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96-Agent-%E7%9A%84%E6%8A%80%E8%83%BD%E7%9B%AE%E5%BD%95-(Tier-1))
+    * [组装技能上下文（只读原语）](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E7%BB%84%E8%A3%85%E6%8A%80%E8%83%BD%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%88%E5%8F%AA%E8%AF%BB%E5%8E%9F%E8%AF%AD%EF%BC%89)
+    * [获取技能指令](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD%E6%8C%87%E4%BB%A4)
+    * [列出技能包文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E6%8A%80%E8%83%BD%E5%8C%85%E6%96%87%E4%BB%B6)
+    * [获取技能包单个文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD%E5%8C%85%E5%8D%95%E4%B8%AA%E6%96%87%E4%BB%B6)
+    * [批量获取技能包文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%89%B9%E9%87%8F%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD%E5%8C%85%E6%96%87%E4%BB%B6)
+  * [2.5 记忆运行时能力](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.5-%E8%AE%B0%E5%BF%86%E8%BF%90%E8%A1%8C%E6%97%B6%E8%83%BD%E5%8A%9B)
+    * [运行时并发调度](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%BF%90%E8%A1%8C%E6%97%B6%E5%B9%B6%E5%8F%91%E8%B0%83%E5%BA%A6)
+    * [存储记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%AD%98%E5%82%A8%E8%AE%B0%E5%BF%86)
+    * [获取记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E8%AE%B0%E5%BF%86)
+    * [更新记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BF%86)
+    * [删除记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4%E8%AE%B0%E5%BF%86)
+    * [搜索记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%90%9C%E7%B4%A2%E8%AE%B0%E5%BF%86)
+  * [2.6 会话摘要](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.6-%E4%BC%9A%E8%AF%9D%E6%91%98%E8%A6%81)
+    * [生成摘要](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E7%94%9F%E6%88%90%E6%91%98%E8%A6%81)
+  * [2.7 调试接口](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.7-%E8%B0%83%E8%AF%95%E6%8E%A5%E5%8F%A3)
+    * [Context Preview (上下文预览)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#Context-Preview-(%E4%B8%8A%E4%B8%8B%E6%96%87%E9%A2%84%E8%A7%88))
+  * [2.8 底层接口](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.8-%E5%BA%95%E5%B1%82%E6%8E%A5%E5%8F%A3)
+    * [LLM Complete (直接调用 LLM)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#LLM-Complete-(%E7%9B%B4%E6%8E%A5%E8%B0%83%E7%94%A8-LLM))
+    * [追加消息](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%BF%BD%E5%8A%A0%E6%B6%88%E6%81%AF)
+    * [获取消息列表](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E6%B6%88%E6%81%AF%E5%88%97%E8%A1%A8)
+* [面向 Web 管控的 API](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.-%E9%9D%A2%E5%90%91-Web-%E7%AE%A1%E6%8E%A7%E7%9A%84-API)
+  * [3.1 Agent 生命周期管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.1-Agent-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%AE%A1%E7%90%86)
+    * [注册 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B3%A8%E5%86%8C-Agent)
+    * [获取 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96-Agent.1)
+    * [更新 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0-Agent)
+    * [激活 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%BF%80%E6%B4%BB-Agent)
+    * [挂起 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%8C%82%E8%B5%B7-Agent)
+    * [删除 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4-Agent)
+    * [列出 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA-Agent)
+  * [3.2 Agent 授权管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.2-Agent-%E6%8E%88%E6%9D%83%E7%AE%A1%E7%90%86)
+    * [授予 Agent 权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%8E%88%E4%BA%88-Agent-%E6%9D%83%E9%99%90)
+    * [撤销 Agent 权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%92%A4%E9%94%80-Agent-%E6%9D%83%E9%99%90)
+    * [列出 Agent 授权](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA-Agent-%E6%8E%88%E6%9D%83)
+  * [3.3 全局访问控制](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.3-%E5%85%A8%E5%B1%80%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6)
+    * [授予全局 AGENT\_ADMIN](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%8E%88%E4%BA%88%E5%85%A8%E5%B1%80-AGENT_ADMIN)
+    * [撤销全局 AGENT\_ADMIN](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%92%A4%E9%94%80%E5%85%A8%E5%B1%80-AGENT_ADMIN)
+    * [列出全局 AGENT\_ADMIN](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E5%85%A8%E5%B1%80-AGENT_ADMIN)
+  * [3.4 LLM Provider 与配置管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.4-LLM-Provider-%E4%B8%8E%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86)
+    * [注册 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B3%A8%E5%86%8C-LLM-Provider)
+    * [获取 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96-LLM-Provider)
+    * [列出 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA-LLM-Provider)
+    * [更新 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0-LLM-Provider)
+    * [删除 LLM Provider](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4-LLM-Provider)
+    * [注册 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B3%A8%E5%86%8C-LLM-%E9%85%8D%E7%BD%AE)
+    * [获取 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96-LLM-%E9%85%8D%E7%BD%AE)
+    * [列出 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA-LLM-%E9%85%8D%E7%BD%AE)
+    * [更新 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0-LLM-%E9%85%8D%E7%BD%AE)
+    * [删除 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4-LLM-%E9%85%8D%E7%BD%AE)
+  * [3.5 用户 LLM 访问控制](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.5-%E7%94%A8%E6%88%B7-LLM-%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6)
+    * [授予用户全局 LLM 访问权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%8E%88%E4%BA%88%E7%94%A8%E6%88%B7%E5%85%A8%E5%B1%80-LLM-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90)
+    * [撤销用户全局 LLM 访问权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%92%A4%E9%94%80%E7%94%A8%E6%88%B7%E5%85%A8%E5%B1%80-LLM-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90)
+    * [列出用户全局 LLM 访问权限](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E7%94%A8%E6%88%B7%E5%85%A8%E5%B1%80-LLM-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90)
+  * [3.6 Agent-LLM 绑定](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.6-Agent-LLM-%E7%BB%91%E5%AE%9A)
+    * [绑定 LLM 到 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E7%BB%91%E5%AE%9A-LLM-%E5%88%B0-Agent)
+    * [解绑 LLM](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%A7%A3%E7%BB%91-LLM)
+    * [列出 Agent 的 LLM 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA-Agent-%E7%9A%84-LLM-%E9%85%8D%E7%BD%AE)
+  * [3.7 Skill 管理](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.7-Skill-%E7%AE%A1%E7%90%86)
+    * [注册技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B3%A8%E5%86%8C%E6%8A%80%E8%83%BD)
+    * [获取技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD)
+    * [按名称获取技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%8C%89%E5%90%8D%E7%A7%B0%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD)
+    * [更新技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E6%8A%80%E8%83%BD)
+    * [删除技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4%E6%8A%80%E8%83%BD)
+    * [列出技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E6%8A%80%E8%83%BD)
+  * [3.8 Skill 绑定与访问控制](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.8-Skill-%E7%BB%91%E5%AE%9A%E4%B8%8E%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6)
+    * [绑定技能到 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E7%BB%91%E5%AE%9A%E6%8A%80%E8%83%BD%E5%88%B0-Agent)
+    * [解绑技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%A7%A3%E7%BB%91%E6%8A%80%E8%83%BD)
+    * [列出 Agent 的技能绑定](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA-Agent-%E7%9A%84%E6%8A%80%E8%83%BD%E7%BB%91%E5%AE%9A)
+    * [禁止业务用户使用技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E7%A6%81%E6%AD%A2%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E4%BD%BF%E7%94%A8%E6%8A%80%E8%83%BD)
+    * [允许业务用户使用技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%85%81%E8%AE%B8%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E4%BD%BF%E7%94%A8%E6%8A%80%E8%83%BD)
+    * [列出业务用户被禁止的技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E8%A2%AB%E7%A6%81%E6%AD%A2%E7%9A%84%E6%8A%80%E8%83%BD)
+  * [3.9 Memory 管控](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.9-Memory-%E7%AE%A1%E6%8E%A7)
+    * [按分类列出记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%8C%89%E5%88%86%E7%B1%BB%E5%88%97%E5%87%BA%E8%AE%B0%E5%BF%86)
+    * [记忆统计](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%AE%B0%E5%BF%86%E7%BB%9F%E8%AE%A1)
+  * [3.10 LLM 使用统计](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.10-LLM-%E4%BD%BF%E7%94%A8%E7%BB%9F%E8%AE%A1)
+    * [查询 LLM 使用统计](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9F%A5%E8%AF%A2-LLM-%E4%BD%BF%E7%94%A8%E7%BB%9F%E8%AE%A1)
+  * [3.11 内置 Agent/Skill 初始化](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.11-%E5%86%85%E7%BD%AE-Agent%2FSkill-%E5%88%9D%E5%A7%8B%E5%8C%96)
+    * [执行初始化](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%89%A7%E8%A1%8C%E5%88%9D%E5%A7%8B%E5%8C%96)
+    * [查询初始化状态](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9F%A5%E8%AF%A2%E5%88%9D%E5%A7%8B%E5%8C%96%E7%8A%B6%E6%80%81)
+    * [状态与资源动作](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E7%8A%B6%E6%80%81%E4%B8%8E%E8%B5%84%E6%BA%90%E5%8A%A8%E4%BD%9C)
+    * [升级语义](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%8D%87%E7%BA%A7%E8%AF%AD%E4%B9%89)
+* [数据结构参考](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%82%E8%80%83)
   * [AgentInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#AgentInfo)
   * [contextConfig](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#contextConfig)
   * [memoryConfig](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#memoryConfig)
@@ -168,12 +177,24 @@ demo2.zip
   * [MemoryEntry](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#MemoryEntry)
   * [SkillInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SkillInfo)
   * [SkillAccessInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SkillAccessInfo)
+  * [BuiltinInitResult](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#BuiltinInitResult)
+  * [BuiltinInitSummary](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#BuiltinInitSummary)
+  * [BuiltinInitItem](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#BuiltinInitItem)
+  * [BuiltinStateRecord](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#BuiltinStateRecord)
   * [LLMResponse](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#LLMResponse)
   * [ToolCall](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#ToolCall)
   * [SummaryResult](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SummaryResult)
-  * [LLM Usage Stats](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#LLM-Usage-Stats)
-* [错误码](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#18.-%E9%94%99%E8%AF%AF%E7%A0%81)
-* [附录：技能包规范](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E9%99%84%E5%BD%95%EF%BC%9A%E6%8A%80%E8%83%BD%E5%8C%85%E8%A7%84%E8%8C%83)
+* [错误码](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#5.-%E9%94%99%E8%AF%AF%E7%A0%81)
+* [WebSocket 协议](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#6.-WebSocket-%E5%8D%8F%E8%AE%AE)
+  * [连接](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%BF%9E%E6%8E%A5)
+  * [消息格式](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F)
+  * [HTTP → WebSocket 参数映射规则](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#HTTP-%E2%86%92-WebSocket-%E5%8F%82%E6%95%B0%E6%98%A0%E5%B0%84%E8%A7%84%E5%88%99)
+  * [支持的 Action](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%94%AF%E6%8C%81%E7%9A%84-Action)
+* [附录：内置 Agent/Skill 发布包规范](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#7.-%E9%99%84%E5%BD%95%EF%BC%9A%E5%86%85%E7%BD%AE-Agent%2FSkill-%E5%8F%91%E5%B8%83%E5%8C%85%E8%A7%84%E8%8C%83)
+  * [目录结构](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84)
+  * [manifest.json 格式](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#manifest.json-%E6%A0%BC%E5%BC%8F)
+  * [manifest.json 示例](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#manifest.json-%E7%A4%BA%E4%BE%8B)
+* [附录：技能包规范](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#8.-%E9%99%84%E5%BD%95%EF%BC%9A%E6%8A%80%E8%83%BD%E5%8C%85%E8%A7%84%E8%8C%83)
   * [技能包结构](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%8A%80%E8%83%BD%E5%8C%85%E7%BB%93%E6%9E%84)
   * [SKILL.md 格式](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SKILL.md-%E6%A0%BC%E5%BC%8F)
   * [frontmatter 字段说明](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#frontmatter-%E5%AD%97%E6%AE%B5%E8%AF%B4%E6%98%8E)
@@ -241,128 +262,15 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-## 2. Agent 管理
+## 2. 面向 Agent 开发者的 API
 
-### 2.1 注册 Agent
-
-`POST /agent-bus/v1/agent/register `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| --------------------- | -------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `agentName`     | string | 是   | Agent 名称                                                                                                                                                                                                                                                                                                                                                                                    |
-| `agentType`     | string | 是   | Agent 类型（无枚举值限制，agent框架也无特殊处理，业务端可自由填写， 如chat类型, task类型等）                                                                                                                                                                                                                                                                                                  |
-| `description`   | string | 否   | 描述                                                                                                                                                                                                                                                                                                                                                                                          |
-| `systemPrompt`  | string | 否   | 系统提示词                                                                                                                                                                                                                                                                                                                                                                                    |
-| `llmConfigId`   | string | 否   | 默认 LLM 配置 ID，必须是已通过`/llm/config/register`注册的配置 ID。注册时会自动创建 agent 与该 LLM 配置的绑定关系（`isDefault=true`,`priority=0`）                                                                                                                                                                                                                                |
-| `contextConfig` | object | 否   | 上下文组装配置，详见[contextConfig 结构](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#contextconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#contextconfig") |
-| `memoryConfig`  | object | 否   | 记忆管理配置，详见[memoryConfig 结构](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig")      |
-| `config`        | object | 否   | 自定义扩展配置，框架原样存储，不做解析                                                                                                                                                                                                                                                                                                                                                        |
-
-**响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")
-
-说明：
-
-* `memoryConfig.embeddingEnabled` 在 `agent.register` 时完成一次性决策并落库
-* 注册请求未显式传入 `memoryConfig.embeddingEnabled` 时，系统会按默认值 `false` 补齐并持久化
-* 当 `memoryConfig.embeddingEnabled=true` 时，注册时要求系统当前存在且只存在一条启用的 embedding 配置
+本章面向调用 Agent 的应用开发者，覆盖 Agent 发现、会话、对话补全、运行时 Skill/Memory 能力，以及调试和底层调用接口。低频和底层接口放在本章靠后位置。
 
 ---
 
-### 2.2 获取 Agent
+### 2.1 Agent 发现与可用配置
 
-`GET /agent-bus/v1/agent/{agentId} `
-
-**响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")
-
----
-
-### 2.3 更新 Agent
-
-`PUT /agent-bus/v1/agent/{agentId} `
-
-**请求体:** 需要更新的字段（支持 `description`, `systemPrompt`, `llmConfigId`, `contextConfig`, `memoryConfig`, `config` 等）
-
-说明：
-
-* `memoryConfig.embeddingEnabled` 在注册后不可变；更新时如果显式传入且与当前值不同，请求会被拒绝
-* 更新 `memoryConfig` 但省略 `embeddingEnabled` 时，框架会保留原值
-
-**响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")
-
----
-
-### 2.4 激活 Agent
-
-`POST /agent-bus/v1/agent/{agentId}/activate `
-
-**响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")
-
----
-
-### 2.5 挂起 Agent
-
-`POST /agent-bus/v1/agent/{agentId}/suspend `
-
-**响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")
-
----
-
-### 2.6 删除 Agent
-
-`POST /agent-bus/v1/agent/{agentId}/delete `
-
-**响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")（状态变为 DELETED）
-
----
-
-### 2.7 列出 Agent
-
-`GET /agent-bus/v1/agent/list `
-
-**查询参数:**
-
-| 参数
-
-```
-| 类型
-```
-
-| 默认值
-
-```
-| 说明
-
-
-   |
-```
-
-| -------------- | ------ | ------------ | ------------ |
-| `status` | int  | -1（全部） | 按状态过滤 |
-| `offset` | int  | 0          |            |
-| `limit`  | int  | 100        |            |
-
-**响应:**
-
-`{ "items": [ AgentInfo, ... ], "offset": 0, "limit": 100, "size": 5 } `
-
----
-
-### 2.8 列出当前用户可访问的 Agent
+#### 列出当前用户可访问的 Agent
 
 `GET /agent-bus/v1/agent/accessible `
 
@@ -394,425 +302,15 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 2.9 授予 Agent 权限
+#### 获取 Agent
 
-`POST /agent-bus/v1/agent/{agentId}/auth `
+`GET /agent-bus/v1/agent/{agentId} `
 
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ----------------- | -------- | ------ | ----------------------------------------- |
-| `userId`    | string | 是   | DolphinDB 用户 ID                       |
-| `grantedBy` | string | 否   | 执行授权的用户 ID（默认为当前登录用户） |
-
-**响应:** 当前 agent 的授权列表 `{ items: [AuthInfo, ...], size: N }`
+**响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")
 
 ---
 
-### 2.10 撤销 Agent 权限
-
-`DELETE /agent-bus/v1/agent/{agentId}/auth?userId=xxx `
-
-**参数:** `userId`（必填）
-
-**响应:** 当前 agent 的授权列表
-
----
-
-### 2.11 列出 Agent 授权
-
-`GET /agent-bus/v1/agent/{agentId}/auth/list `
-
-**响应:** `{ items: [AuthInfo, ...], size: N }`
-
----
-
-## 3. 全局访问控制
-
-### 3.1 授予全局 `AGENT_ADMIN`
-
-`POST /agent-bus/v1/admin/access `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ----------------- | -------- | ------ | ----------------------------------------- |
-| `userId`    | string | 是   | DolphinDB 用户 ID                       |
-| `grantedBy` | string | 否   | 执行授权的用户 ID（默认为当前登录用户） |
-
-**响应:** `{ items: [GlobalAccessInfo, ...], size: N }`
-
----
-
-### 3.2 撤销全局 `AGENT_ADMIN`
-
-`DELETE /agent-bus/v1/admin/access?userId=xxx `
-
-**响应:** `{ items: [GlobalAccessInfo, ...], size: N }`
-
----
-
-### 3.3 列出全局 `AGENT_ADMIN`
-
-`GET /agent-bus/v1/admin/access `
-
-**响应:** `{ items: [GlobalAccessInfo, ...], size: N }`
-
-## 4. 用户 LLM 访问控制
-
-### 4.1 授予用户全局 LLM 访问权限
-
-`POST /agent-bus/v1/user/{userId}/llm/access `
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ------------------- | -------- | ------ | ----------------------------------------- |
-| `llmConfigId` | string | 是   | LLM 配置 ID                             |
-| `grantedBy`   | string | 否   | 执行授权的用户 ID（默认为当前登录用户） |
-
-**响应:** `{ items: [UserLlmAccessInfo, ...], size: N }`
-
----
-
-### 4.2 撤销用户全局 LLM 访问权限
-
-`DELETE /agent-bus/v1/user/{userId}/llm/access?llmConfigId=xxx `
-
-**响应:** `{ items: [UserLlmAccessInfo, ...], size: N }`
-
----
-
-### 4.3 列出用户全局 LLM 访问权限
-
-`GET /agent-bus/v1/user/{userId}/llm/access `
-
-**响应:** `{ items: [UserLlmAccessInfo, ...], size: N }`
-
----
-
-## 5. LLM Provider 与配置管理
-
-### 5.1 注册 LLM Provider
-
-`POST /agent-bus/v1/llm/provider/register `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
-| `name`        | string | 是   | Provider 名称，用于标识和展示                                                                                           |
-| `adapterType` | string | 是   | 运行时 provider 适配器类型：`openai`/`openai-compatible`/`anthropic`/`deepseek`/`azure`/`local` |
-| `baseUrl`     | string | 是   | Provider 级基础 URL，必须是完整`http(s)`URL，如`https://api.openai.com`                                         |
-| `apiKey`      | string | 否   | Provider 级 API Key                                                                                                     |
-| `enabled`     | bool   | 否   | 是否启用，默认`true`                                                                                                |
-| `extra`       | string | 否   | 预留扩展字段                                                                                                            |
-
-**响应:** [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo")
-
-说明：
-
-* `baseUrl` 由框架规范化保存：末尾 `/` 会被移除
-* Provider 负责承载共享连接信息；模型级配置保存 `requestPath`、`defaultParams` 等模型参数
-* `enabled=false` 的 provider 可保存配置，但运行时不会通过该 provider 发起 LLM 调用
-
----
-
-### 5.2 获取 LLM Provider
-
-`GET /agent-bus/v1/llm/provider/{providerId} `
-
-**响应:** [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo")
-
-说明：
-
-* 已删除的 provider 返回 404
-
----
-
-### 5.3 列出 LLM Provider
-
-`GET /agent-bus/v1/llm/provider/list `
-
-**查询参数:**
-
-| 参数
-
-```
-| 类型
-```
-
-| 默认值
-
-| 说明
-
-```
-|
-```
-
-| --------------- | ------ | -------- | -------------------------------------------------------------------------------------------- |
-| `enabled` | bool | -      | 不传返回全部未删除 provider；`true`只返回启用 provider；`false`只返回禁用 provider |
-| `offset`  | int  | 0      | 分页起始偏移                                                                               |
-| `limit`   | int  | 100    | 返回条数上限                                                                               |
-
-**响应:** `{ items: [LlmProviderInfo, ...], offset, limit, size }`
-
----
-
-### 5.4 更新 LLM Provider
-
-`PUT /agent-bus/v1/llm/provider/{providerId} `
-
-**请求体:** 需要更新的字段
-
-可更新字段：`name`、`adapterType`、`baseUrl`、`apiKey`、`enabled`、`extra`
-
-**响应:** [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo")
-
-说明：
-
-* `enabled=false` 时，引用该 provider 的 LLM 配置保留，运行时不可用
-* `enabled=true` 时，引用该 provider 且自身启用的 LLM 配置可参与运行时解析
-* 已删除的 provider 返回 404
-
----
-
-### 5.5 删除 LLM Provider
-
-`DELETE /agent-bus/v1/llm/provider/{providerId} `
-
-**响应:** `{ providerId, deleted: true }`
-
-说明：
-
-* 删除前要求不存在任何未删除的 LLM 配置引用该 provider
-* 删除成功后不参与 list、get 和 runtime
-* 删除成功后的 GET 返回 404
-
----
-
-### 5.6 注册 LLM 配置
-
-`POST /agent-bus/v1/llm/config/register `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-```
-| 说明
-
-
-                                                                                                                                                                                                                                                                                                                                                                                    |
-```
-
-| -------------------------- | -------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`               | string | 是       | 配置名称，用于标识和展示                                                                                                                                                                                                                                                                                                                                                                    |
-| `providerId`         | string | 是       | 关联的 provider ID，必须存在；`enabled=true`时 provider 必须启用                                                                                                                                                                                                                                                                                                                        |
-| `model`              | string | 是       | 模型名称（如`gpt-4.1`、`claude-sonnet-4-20250514`），传递给 LLM API                                                                                                                                                                                                                                                                                                                 |
-| `capability`         | string | 否       | 配置能力类型，默认`chat`：`chat`/`embedding`                                                                                                                                                                                                                                                                                                                                    |
-| `embeddingDimension` | int    | 条件必填 | `capability=embedding`时必填，表示向量维度                                                                                                                                                                                                                                                                                                                                              |
-| `embeddingMetric`    | string | 否       | `capability=embedding`时使用的相似度规则：`euclidean`/`cosine`。省略时默认`euclidean`                                                                                                                                                                                                                                                                                       |
-| `embeddingNormalize` | bool   | 否       | `capability=embedding`时是否对向量做归一化。`embeddingMetric=cosine`时必须为`true`                                                                                                                                                                                                                                                                                              |
-| `requestPath`        | string | 是       | 相对`provider.baseUrl`的请求路径，必须以`/`开头，可包含查询串，例如`/v1/chat/completions`或`/openai/deployments/x/chat/completions?api-version=2024-10-21`                                                                                                                                                                                                                  |
-| `defaultParams`      | object | 否       | 默认请求参数，详见[defaultParams 说明](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#defaultparams "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#defaultparams") |
-| `contextWindow`      | int    | 否       | 模型上下文窗口大小（token 数），用于上下文组装时的预算计算                                                                                                                                                                                                                                                                                                                                  |
-| `maxConcurrency`     | int    | 否       | 最大并发请求数，保留配置，当前未实现                                                                                                                                                                                                                                                                                                                                                        |
-| `rateLimitRPM`       | int    | 否       | 速率限制（每分钟最大请求数）保留配置，当前未实现                                                                                                                                                                                                                                                                                                                                            |
-| `timeoutMs`          | int    | 否       | 单次请求超时时间（毫秒），保留配置，当前未实现                                                                                                                                                                                                                                                                                                                                              |
-| `retryConfig`        | object | 否       | 重试配置，详见[retryConfig 说明](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#retryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#retryconfig")           |
-| `enabled`            | bool   | 否       | 是否启用，默认`true`                                                                                                                                                                                                                                                                                                                                                                    |
-| `extra`              | string | 否       | 预留扩展字段                                                                                                                                                                                                                                                                                                                                                                                |
-
-**响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
-
-说明：
-
-* 运行时最终请求地址按 `provider.baseUrl + requestPath` 拼接
-* `capability=embedding` 的配置供 memory 模块生成 document/query embedding 使用
-* `enabled=true` 时，系统全局只允许一条启用的 `capability='embedding'` 配置
-* `enabled=false` 的配置可引用存在但未启用的 provider
-
----
-
-### 5.7 获取 LLM 配置
-
-`GET /agent-bus/v1/llm/config/{llmConfigId} `
-
-**响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
-
-说明：
-
-* 已删除的配置返回 404
-
----
-
-### 5.8 列出 LLM 配置
-
-`GET /agent-bus/v1/llm/config/list `
-
-**查询参数:**
-
-| 参数
-
-```
-| 类型
-```
-
-| 默认值
-
-| 说明
-
-```
-|
-```
-
-| --------------- | ------ | -------- | ----------------------------------------------------------------------------- |
-| `enabled` | bool | -      | 不传返回全部未删除配置；`true`只返回启用配置；`false`只返回禁用配置 |
-| `offset`  | int  | 0      | 分页起始偏移                                                                |
-| `limit`   | int  | 100    | 返回条数上限                                                                |
-
-**响应:** `{ items: [LlmConfigInfo, ...], offset, limit, size }`
-
----
-
-### 5.9 更新 LLM 配置
-
-`PUT /agent-bus/v1/llm/config/{llmConfigId} `
-
-**请求体:** 需要更新的字段
-
-可更新字段：`name`、`providerId`、`model`、`capability`、`embeddingDimension`、`embeddingMetric`、`embeddingNormalize`、`requestPath`、`defaultParams`、`contextWindow`、`maxConcurrency`、`rateLimitRPM`、`timeoutMs`、`retryConfig`、`enabled`、`extra`
-
-**响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
-
-说明：
-
-* `enabled=false` 时，已有用户授权、agent 绑定、agent 默认模型、summary 配置和 session 引用保留，运行时不会选择该配置
-* `enabled=true` 时，provider 必须启用
-* `enabled=true` 且 `capability=embedding` 时，系统中不能存在其他启用的 embedding 配置
-* 已删除的配置返回 404
-
----
-
-### 5.10 删除 LLM 配置
-
-`DELETE /agent-bus/v1/llm/config/{llmConfigId} `
-
-**响应:** `{ llmConfigId, deleted: true }`
-
-说明：
-
-* 删除前要求不存在任何用户授权（`user_llm_access`）、任何 agent 绑定（`agent_llm_access`）、任何非 `DELETED` agent 的默认模型字段、任何非 `DELETED` agent 的 `contextConfig.summaryConfig.summaryLlmConfigId`，以及任何非 `DELETED` session 引用
-* 删除成功后不参与 list、get 和 runtime
-* 删除成功后的 GET 返回 404
-
----
-
-## 6. Agent-LLM 绑定
-
-### 6.1 绑定 LLM 到 Agent
-
-`POST /agent-bus/v1/agent/{agentId}/llm/access `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ------------------- | -------- | ------ | ----------------------------------------------------------------------------------------------------------------- |
-| `llmConfigId` | string | 是   | 要绑定的 LLM 配置 ID，必须已启用，且其引用的 provider 也必须启用                                                |
-| `isDefault`   | bool   | 否   | 是否设为默认 LLM（默认 false）。每个 agent 仅允许一个默认配置，设为 true 时 priority 强制为 0                   |
-| `priority`    | int    | 否   | 优先级（默认 0），数值越小优先级越高。运行时按 priority 升序形成 fallback 链，当前 LLM 调用失败时自动尝试下一个 |
-
-**响应:** Agent 关联的 LLM 配置列表 `{ items: [AgentLlmBindingInfo, ...], size }`
-
----
-
-### 6.2 解绑 LLM
-
-`DELETE /agent-bus/v1/agent/{agentId}/llm/access?llmConfigId=xxx `
-
-**响应:** Agent 关联的 LLM 配置列表
-
----
-
-### 6.3 列出 Agent 的 LLM 配置
-
-`GET /agent-bus/v1/agent/{agentId}/llm/list `
-
-**响应:** `{ items: [AgentLlmBindingInfo, ...], size }`
-
----
-
-### 6.4 列出当前用户在指定 Agent 下可显式选择的 LLM
+#### 列出当前用户在指定 Agent 下可显式选择的 LLM
 
 `GET /agent-bus/v1/agent/{agentId}/llm/selectable `
 
@@ -834,9 +332,9 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-## 7. 会话 (Session) 管理
+### 2.2 会话管理
 
-### 7.1 创建会话
+#### 创建会话
 
 `POST /agent-bus/v1/session/create `
 
@@ -866,7 +364,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 7.2 获取会话
+#### 获取会话
 
 `GET /agent-bus/v1/session/{sessionId} `
 
@@ -874,7 +372,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 7.3 更新会话
+#### 更新会话
 
 `PUT /agent-bus/v1/session/{sessionId} `
 
@@ -884,7 +382,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 7.4 归档会话
+#### 归档会话
 
 `POST /agent-bus/v1/session/{sessionId}/archive `
 
@@ -894,7 +392,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 7.5 删除会话
+#### 删除会话
 
 `POST /agent-bus/v1/session/{sessionId}/delete `
 
@@ -902,7 +400,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-### 7.6 列出会话
+#### 列出会话
 
 `GET /agent-bus/v1/session/list `
 
@@ -934,670 +432,9 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ---
 
-## 8. 消息 (Message) 管理
+### 2.3 Chat Completions
 
-### 8.1 追加消息
-
-`POST /agent-bus/v1/session/{sessionId}/message `
-
-**注意:**
-
-本接口是比较低层级的接口，一般agent业务无需调用该接口（框架会自动做消息的持久化）。
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ------------------------ | -------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `role`             | string | 是   | 消息角色：`system`（系统指令）/`user`（用户输入）/`assistant`（LLM 回复）/`tool`（工具执行结果）                                                                                                                                                                                                                                                                     |
-| `contentType`      | string | 否   | 内容类型（默认`text`）。`text`：纯文本。`tool_call`：工具调用，content 为 JSON 格式的 toolCalls 数组。`tool_result`：工具结果，需同时提供 toolCallId。`multimodal`：多模态，content 为 JSON 数组（含 type/text/imageUrl）。`summary`：会话摘要（通常由框架内部写入；其`metadata`中记录`summaryUpToSeqNum`、`trigger`、`summaryLlmConfigId`） |
-| `content`          | string | 否   | 消息内容，格式取决于 contentType                                                                                                                                                                                                                                                                                                                                                     |
-| `toolCallId`       | string | 否   | 工具调用关联 ID。contentType 为`tool_result`时必填，需与 assistant 返回的 tool\_call 中的 id 一致，LLM 据此将工具结果关联到对应的调用                                                                                                                                                                                                                                            |
-| `llmModel`         | string | 否   | 产生该消息的 LLM 模型名称（通常仅 assistant 消息需要填写）                                                                                                                                                                                                                                                                                                                           |
-| `promptTokens`     | int    | 否   | 输入 token 数（LLM 返回的 usage 统计），用于 token 消耗计量                                                                                                                                                                                                                                                                                                                          |
-| `completionTokens` | int    | 否   | 输出 token 数（LLM 返回的 usage 统计），用于 token 消耗计量                                                                                                                                                                                                                                                                                                                          |
-| `totalTokens`      | int    | 否   | 总 token 数（默认 prompt + completion），用于摘要与上下文 token 估算                                                                                                                                                                                                                                                                                                                 |
-| `metadata`         | object | 否   | 自定义元数据，JSON 格式                                                                                                                                                                                                                                                                                                                                                              |
-
-**响应:** [MessageInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#messageinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#messageinfo")
-
----
-
-### 8.2 获取消息列表
-
-`GET /agent-bus/v1/session/{sessionId}/messages `
-
-**查询参数:**
-
-| 参数
-
-```
-| 类型
-```
-
-| 默认值
-
-| 说明
-
-```
-|
-```
-
-| ---------------- | ------ | -------- | ------------ |
-| `startSeq` | long | 1      | 起始序列号 |
-| `endSeq`   | long | MAX    | 结束序列号 |
-
-**响应:**
-
-`{ "sessionId": "sess_001", "items": [ MessageInfo, ... ], "size": 10 } `
-
----
-
-## 9. 会话摘要 (Session Summary)
-
-### 9.1 生成摘要
-
-`POST /agent-bus/v1/session/{sessionId}/summary `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| -------------------- | -------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `instructions` | string | 否   | 额外的摘要指令，追加到摘要 prompt 中（如要求关注特定主题或保留特定信息）                                                                                     |
-| `llmConfigId`  | string | 否   | 本次摘要优先使用的 LLM 配置 ID。为空时优先使用`summaryConfig.summaryLlmConfigId`；若仍为空，则按当前 session owner 在该 agent 下的默认可用 chat 模型解析 |
-| `force`        | bool   | 否   | 是否强制生成（默认 false）。为 true 时按全量 rolling summary 语义执行，不保留 raw tail                                                                       |
-| `metadata`     | object | 否   | 自定义元数据，JSON 格式。框架只负责透传，可以写入一些自定义的数据，比如触发原因、关联的业务事件等                                                            |
-
-**响应:** [SummaryResult](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#summaryresult "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#summaryresult")
-
-`{ "sessionId": "sess_001", "generated": true, "reason": "", "trigger": "manual", "summaryUpToSeqNum": 50, "messageId": "msg_xxx", "sequenceNum": 51, "role": "system", "contentType": "summary", "content": "摘要内容...", "metadata": { "summaryUpToSeqNum": 50, "trigger": "manual", "summaryLlmConfigId": "llm_summary_xxx" } } `
-
----
-
-## 10. 记忆 (Memory) 管理
-
-### 10.0 运行时并发调度
-
-Memory API 的 HTTP 路由、请求体和响应体不包含 lane 配置；lane 策略由服务端启动配置控制：
-
-| 配置项
-
-```
-| 类型
-```
-
-| 默认值
-
-```
-| 说明
-
-
-                                                                                                                                                                                                                                                                                                                              |
-```
-
-| ---------------------------------------- | -------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `agentFramework.memory.lanePolicy` | string | `user` | memory 写请求的串行化粒度：`legacy`使用`AGENT_WRITE`agentId 粒度；`agent`按`memory:agent:{agentId}`串行；`user`将 user-scope memory 按`memory:user:{agentId}:{userId}`串行、agent-scope memory 按`memory:agent:{agentId}`串行；`memoryId`将`memory.update/delete`按`memory:id:{memoryId}`串行 |
-
-说明：
-
-* `memory.store/update/delete` 属于写请求，会按上述 lane 策略串行化。
-* `memory.get/search/list/stats` 对外仍是只读接口，不需要客户端提供 lane 信息。
-* `agentFramework.memory.lanePolicy` 是全局运行时配置，不属于 `memoryConfig`，也不会随 agent 注册请求落库。
-
-### 10.1 存储记忆
-
-`POST /agent-bus/v1/memory/store `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ------------------ | -------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `agentId`    | string | 是   | 所属 Agent ID                                                                                                                        |
-| `scope`      | string | 否   | 作用域（默认`agent`）：`agent`（agent 级别，所有用户可读，仅`AGENT_ADMIN`可写）/`user`（用户级别，写入当前登录用户） |
-| `category`   | string | 是   | 分类标签（如`"fact"`、`"preference"`、`"instruction"`），用于按分类检索和统计                                            |
-| `content`    | string | 是   | 记忆文本内容                                                                                                                         |
-| `importance` | double | 是   | 重要度，取值范围 [0, 1]。参与混合排序                                                                                                |
-| `metadata`   | object | 否   | 自定义元数据，JSON 格式                                                                                                              |
-| `source`     | string | 否   | 来源标识（默认`manual`）：`manual`（手动创建）/`auto_extract`（自动提取）/`api`（API 写入）                          |
-| `sourceRef`  | string | 否   | 来源引用信息（如来源的 sessionId 或 messageId），便于溯源                                                                            |
-| `expireTime` | long   | 否   | 过期时间（毫秒时间戳），为空表示永不过期                                                                                             |
-
-**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
-
-说明：
-
-* 当 `agent.memoryConfig.embeddingEnabled=true` 时，`memory.store` 由框架根据启用的 embedding 配置生成 document embedding，并同步写入记忆主表和 embedding 表
-* 当 `agent.memoryConfig.embeddingEnabled=false` 时，`memory.store` 只写入记忆主表，不生成 embedding
-* 请求体不接受 `embedding`、`embeddingModel`
-
----
-
-### 10.2 获取记忆
-
-`GET /agent-bus/v1/memory/{memoryId} `
-
-**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
-
----
-
-### 10.3 更新记忆
-
-`PUT /agent-bus/v1/memory/{memoryId} `
-
-**请求体:** 需要更新的字段（如 `content`, `importance`, `category`, `metadata`）
-
-说明：
-
-* 当 `agent.memoryConfig.embeddingEnabled=true` 且更新 `content` 时，框架会先生成新的 document embedding，再同步更新记忆主表和 embedding 表
-* 当 `agent.memoryConfig.embeddingEnabled=false` 时，更新仅作用于记忆主表，不生成或更新 embedding
-* 请求体不接受 `embedding`、`embeddingModel`
-
-**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
-
----
-
-### 10.4 删除记忆
-
-`DELETE /agent-bus/v1/memory/{memoryId} `
-
-**响应:**
-
-`{ "memoryId": "mem_xxx", "deleted": true } `
-
----
-
-### 10.5 搜索记忆
-
-`POST /agent-bus/v1/memory/search `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| --------------------- | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `agentId`       | string | 是   | 搜索范围限定的 Agent ID                                                                                                                                                                                                                |
-| `targetUserId`  | string | 否   | 只读过滤目标用户。未指定时搜索当前登录用户可见的范围；仅`AGENT_ADMIN`可查看他人数据                                                                                                                                                |
-| `scope`         | string | 否   | 按作用域过滤：`agent`（仅 agent 级别）/`user`（仅用户级别）。不指定时搜索 agent 级别 + 目标用户的 user 级记忆                                                                                                                  |
-| `category`      | string | 否   | 按分类标签精确过滤                                                                                                                                                                                                                     |
-| `textQuery`     | string | 否   | 全文搜索查询；`RELEVANCE/HYBRID`下同时作为语义查询文本                                                                                                                                                                             |
-| `textMatchMode` | string | 否   | 全文搜索匹配模式（默认`any`）：`any`（匹配任一词）/`all`（匹配所有词）                                                                                                                                                     |
-| `topK`          | int    | 否   | 最多返回条数（默认 10）                                                                                                                                                                                                                |
-| `minImportance` | double | 否   | 最小重要度过滤阈值（默认 0，不过滤）                                                                                                                                                                                                   |
-| `sortBy`        | string | 否   | 排序策略（默认`HYBRID`）：`RECENCY`（按创建时间降序）/`IMPORTANCE`（按重要度降序）/`RELEVANCE`（vector-first recall，要求`textQuery`）/`TEXT_SEARCH`（按全文搜索得分降序）/`HYBRID`（多路召回 + 综合重排） |
-
-**响应:**
-
-`{ "items": [ MemoryEntry, ... ], "size": 5 } `
-
-每条 MemoryEntry 额外包含评分字段：`textScore`, `relevanceScore`, `hybridScore`。
-
-说明：
-
-* 当 `agent.memoryConfig.embeddingEnabled=true` 时，`memory.search` 由框架内部生成 query embedding，不接受 `embedding`、`embeddingModel`
-* 当 `agent.memoryConfig.embeddingEnabled=false` 时，`RELEVANCE` 直接失败，`HYBRID` 退化为文本/importance/recency 检索
-* 当 `agent.memoryConfig.embeddingEnabled=true` 但启用的 embedding 配置不可用时，`RELEVANCE` 直接失败，`HYBRID` 退化为文本/importance/recency 检索
-* 当 `scope='agent'` 时，不允许同时传 `targetUserId`
-
----
-
-### 10.6 按分类列出记忆
-
-`GET /agent-bus/v1/memory/list `
-
-**查询参数:**
-
-| 参数
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ---------------- | -------- | ------ | ---------- |
-| `agentId`  | string | 是   | Agent ID |
-| `category` | string | 是   | 分类     |
-| `offset`   | int    | 否   | 默认 0   |
-| `limit`    | int    | 否   | 默认 100 |
-
-**响应:** `{ items: [MemoryEntry, ...], offset, limit, size }`
-
----
-
-### 10.7 记忆统计
-
-`GET /agent-bus/v1/memory/stats `
-
-**查询参数:**
-
-| 参数
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| --------------- | -------- | ------ | ---------- |
-| `agentId` | string | 是   | Agent ID |
-
-**响应:**
-
-`{ "totalCount": 120, "agentScopeCount": 80, "userScopeCount": 40, "avgImportance": 0.65, "categoryDistribution": { "fact": 50, "preference": 30, "instruction": 40 } } `
-
----
-
-## 11. 技能 (Skill) 管理
-
-### 11.1 注册技能
-
-`POST /agent-bus/v1/skill/register `
-
-**请求方式（三选一）：**
-
-1. ​**JSON + Base64**​：`Content-Type: application/json`，body 中 `packageBase64` 字段传 Base64 编码的 ZIP 包
-2. ​**JSON + raw**​：body 中 `packageData` 字段传原始数据，`packageEncoding` 设为 `raw` 或 `base64`
-3. ​**二进制上传​**​：`Content-Type: application/octet-stream`，request body 为 ZIP 包原始字节
-
-**请求体（JSON 模式）：**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ----------------------- | -------- | -------- | ----------------------------------------------- |
-| `packageBase64`   | string | 二选一 | Base64 编码的技能包（ZIP）                    |
-| `packageData`     | string | 二选一 | 技能包数据                                    |
-| `packageEncoding` | string | 否     | `raw`/`binary`/`base64`/`b64` |
-| `overrides`       | object | 否     | 覆盖 SKILL.md 中的元数据字段                  |
-
-overrides 可覆盖字段：`name`, `description`, `version`, `category`, `displayName`, `ownerUserId`, `argumentHint`, `license`, `compatibility`, `enabled` 等。
-
-**响应:** [SkillInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo")
-
-说明：
-
-* 未显式设置 `enabled` 时默认启用
-
----
-
-### 11.2 获取技能
-
-`GET /agent-bus/v1/skill/{skillId} `
-
-**响应:** [SkillInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo")
-
----
-
-### 11.3 按名称获取技能
-
-`GET /agent-bus/v1/skill/byName/{skillName} `
-
-**响应:** [SkillInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo")
-
----
-
-### 11.4 更新技能
-
-`PUT /agent-bus/v1/skill/{skillId} `
-
-可更新技能包和/或元数据覆盖。至少提供 `packageData` 或 `overrides` 之一。`overrides.enabled` 控制技能是否启用。
-
-**响应:** [SkillInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo")
-
----
-
-### 11.5 删除技能
-
-`DELETE /agent-bus/v1/skill/{skillId} `
-
-**响应:** `{ skillId, deleted: true }`
-
-说明：
-
-* 删除前要求不存在 agent 绑定或用户 deny/allow 相关引用
-* 删除成功后不参与 list、get、byName、catalog 和 context
-* 删除成功后的 GET / byName 返回 404
-
----
-
-### 11.6 列出技能
-
-`GET /agent-bus/v1/skill/list `
-
-**查询参数:**
-
-| 参数
-
-```
-| 类型
-```
-
-| 默认值
-
-| 说明
-
-```
-|
-```
-
-| ---------------- | -------- | -------- | ----------------------------------------------------------------------------- |
-| `category` | string | -      | 按分类过滤                                                                  |
-| `enabled`  | bool   | -      | 不传返回全部未删除技能；`true`只返回启用技能；`false`只返回禁用技能 |
-| `offset`   | int    | 0      |                                                                             |
-| `limit`    | int    | 50     |                                                                             |
-
-**响应:** `{ items: [SkillInfo, ...], offset, limit, size }`
-
----
-
-### 11.7 获取技能指令
-
-`GET /agent-bus/v1/skill/{skillId}/instruction `
-
-**响应:**
-
-`{ "skillId": "skill_xxx", "name": "search-database", "description": "Search distributed tables", "instruction": "## Usage Guide\n\nYou can use this skill to..." } `
-
-说明：
-
-* 该接口是 Tier-2 指令体的只读原语。
-* 是否读取、何时注入、如何在 tool loop 中续传，由应用层决定。
-
----
-
-### 11.8 列出技能包文件
-
-`GET /agent-bus/v1/skill/{skillId}/files/list `
-
-**响应:**
-
-`{ "skillId": "skill_xxx", "items": ["SKILL.md", "data/schema.json"], "size": 2 } `
-
-说明：路径以 skill 包目录作为根目录，末尾为文件名。
-
-### 11.9 获取技能包单个文件
-
-`GET /agent-bus/v1/skill/{skillId}/files/get?filePath=data/schema.json `
-
-**查询参数:** `filePath`（必填，相对 skill 包根目录的文件路径）
-
-**响应:**
-
-`{ "skillId": "skill_xxx", "filePath": "data/schema.json", "encoding": "base64", "content": "<base64 内容>", "size": 1024 } `
-
-### 11.10 批量获取技能包文件
-
-`POST /agent-bus/v1/skill/{skillId}/files/batchGet `
-
-**请求体:**
-
-`{ "filePaths": ["SKILL.md", "data/schema.json"] } `
-
-**响应:**
-
-`{ "skillId": "skill_xxx", "items": [ { "skillId": "skill_xxx", "filePath": "SKILL.md", "encoding": "base64", "content": "<base64 内容>", "size": 2048 } ], "size": 1 } `
-
-说明：
-
-* 文件内容以 base64 字符串存储并返回，`size` 为原始文件字节数。
-* 文件的解释、执行、二次注入和本地落地方式由应用层负责。
-
----
-
-## 12. 技能绑定与访问控制
-
-### 12.1 绑定技能到 Agent
-
-`POST /agent-bus/v1/skill/bind `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ---------------------- | -------- | ------ | ------------------------------------------------------------------------------------------- |
-| `agentId`        | string | 是   | Agent ID                                                                                  |
-| `skillId`        | string | 是   | 要绑定的技能 ID，必须已启用                                                               |
-| `enabled`        | bool   | 否   | 绑定是否启用，默认`true`                                                              |
-| `descOverride`   | string | 否   | 描述覆盖，非空时在该 agent 的 Tier-1 目录中替代技能原始 description                       |
-| `configOverride` | object | 否   | 配置覆盖，当前支持`disableModelInvocation`（bool），可在 agent 级别覆盖技能的默认设置 |
-
-**响应:** Agent 当前绑定列表 `{ items: [SkillAccessInfo, ...], size }`
-
-说明：
-
-* 重复绑定按更新绑定处理
-* `enabled=true` 时，skill 必须已启用
-
----
-
-### 12.2 解绑技能
-
-`POST /agent-bus/v1/skill/unbind `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| --------------- | -------- | ------ | ---------- |
-| `agentId` | string | 是   | Agent ID |
-| `skillId` | string | 是   | 技能 ID  |
-
-**响应:** Agent 当前绑定列表
-
----
-
-### 12.3 更新绑定
-
-`PUT /agent-bus/v1/skill/binding `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ---------------------- | -------- | ------ | --------------------------------------- |
-| `agentId`        | string | 是   | Agent ID                              |
-| `skillId`        | string | 是   | 技能 ID                               |
-| `enabled`        | bool   | 否   | 绑定是否启用；启用时 skill 必须已启用 |
-| `descOverride`   | string | 否   | 描述覆盖                              |
-| `configOverride` | object | 否   | 配置覆盖                              |
-
-**响应:** Agent 当前绑定列表
-
----
-
-### 12.4 列出 Agent 的技能绑定
-
-`GET /agent-bus/v1/skill/{agentId}/bindings `
-
-**响应:** `{ items: [SkillAccessInfo, ...], size }`
-
----
-
-### 12.5 获取 Agent 的技能目录 (Tier-1)
-
-`GET /agent-bus/v1/skill/{agentId}/catalog `
-
-返回该 agent 下 `skill.enabled=true` 且 `binding.enabled=true`、当前调用用户可见、可由 LLM 自动调用的技能目录。用于向 LLM 注入 Tier-1 技能概要。
-
-**响应:**
-
-`{ "agentId": "agent_xxx", "userId": "alice", "catalog": [ { "name": "search-database", "description": "Search distributed tables", "argumentHint": "SELECT fields FROM table WHERE condition" }, ... ], "size": 3 } `
-
----
-
-### 12.6 组装技能上下文（只读原语）
-
-`POST /agent-bus/v1/skill/{agentId}/context `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-
-
- | 必填
-```
-
-| 说明
-
-```
-|
-```
-
-| ------------------------ | ---------- | ------ | --------------------------------------------------------------------- |
-| `activeSkillNames` | string[] | 否   | 调用方显式要求附加的技能名称列表（加载 Tier-2）；框架不维护激活状态 |
-
-**响应:**
-
-`{ "catalog": [ SkillCatalogEntry, ... ], "activeInstructions": [ SkillInstruction, ... ], "catalogTokens": 150, "instructionTokens": 800 } `
-
-说明：
-
-* `catalog` 对应 Tier-1，`activeInstructions` 对应调用方显式请求的 Tier-2。
-* 该接口用于应用层显式获取 skill 上下文，不代表框架自动维护 skill 激活闭环。
-
----
-
-### 12.7 禁止业务用户使用技能
-
-`POST /agent-bus/v1/skill/user/deny `
-
-**请求体:** `agentId`, `skillId`, `userId`
-
-**响应:** `{ agentId, userId, skillIds: [...], size }`
-
----
-
-### 12.8 允许业务用户使用技能
-
-`POST /agent-bus/v1/skill/user/allow `
-
-**请求体:** `agentId`, `skillId`, `userId`
-
-**响应:** `{ agentId, userId, skillIds: [...], size }`
-
----
-
-### 12.9 列出业务用户被禁止的技能
-
-`GET /agent-bus/v1/skill/{agentId}/user/{userId}/denied `
-
-**响应:** `{ agentId, userId, skillIds: [...], size }`
-
----
-
-## 13. Chat Completions (对话补全)
+WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#6-websocket-%E5%8D%8F%E8%AE%AE "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#6-websocket-%E5%8D%8F%E8%AE%AE")。
 
 这是 Agent 应用的核心接口，集成了上下文组装、LLM 调用、消息持久化的完整流程。
 
@@ -1605,7 +442,7 @@ overrides 可覆盖字段：`name`, `description`, `version`, `category`, `displ
 
 自动组装与手动组装共用同一个 endpoint，通过请求体中是否包含 `assemblyConfig` 字段切换：不带 `assemblyConfig` 走自动组装，带则走手动组装。
 
-### 自动组装模式 (Auto-Assembly)
+#### 自动组装模式 (Auto-Assembly)
 
 **请求体:**
 
@@ -1680,7 +517,7 @@ ToolResult 结构:
 
 `1. POST /chat/completions { "message": "计算 1+1", "tools": [...] } → 返回 { "toolCalls": [{"id": "call_1", "function": {"name": "calc", "arguments": "..."}}] } 2. POST /chat/completions { "toolResults": [{"toolCallId": "call_1", "content": "2"}], "tools": [...] } → 框架自动追加 tool_result 到会话，组装上下文，调用 LLM → 返回 { "content": "1+1 的结果是 2" } `
 
-### 手动组装模式 (Manual-Assembly)
+#### 手动组装模式 (Manual-Assembly)
 
 **请求体:**
 
@@ -1769,7 +606,7 @@ ToolResult 结构:
 * contextBlocks 的 token 在预算分配早期被预扣，不会被裁剪；过长会挤压历史和记忆预算
 * `after_system` 用于全局规则，`before_history` 用于本轮参考资料，`before_current_turn` 用于必须被 LLM 立即看到的单轮约束或动态快照
 
-### 非流式响应
+#### 非流式响应
 
 当 `stream=false` 时，`data` 内部结构为：
 
@@ -1777,7 +614,7 @@ ToolResult 结构:
 
 `{ "requestId": "req_xxx", "sessionId": "sess_001", "model": "gpt-4", "llmConfigId": "llm_xxx", "content": "这是 LLM 的回复...", "reasoning": "provider 返回的可展示思考过程；未开启或 provider 未返回时为空", "toolCalls": [ { "id": "call_xxx", "type": "function", "function": { "name": "search_database", "arguments": "{\"query\":\"SELECT ...\"}" } } ], "finishReason": "stop", "usage": { "promptTokens": 1200, "completionTokens": 300, "totalTokens": 1500 }, "latencyMs": 2500, "metadata": {} } `
 
-### 流式响应 (SSE)
+#### 流式响应 (SSE)
 
 当 `stream=true`（默认）时，返回 SSE 流：
 
@@ -1785,11 +622,23 @@ ToolResult 结构:
 
 ---
 
-## 14. LLM Complete (直接调用 LLM)
+### 2.4 技能运行时能力
 
-绕过上下文组装，直接发送消息给 LLM。适用于应用自行构建消息列表的场景。
+#### 获取 Agent 的技能目录 (Tier-1)
 
-`POST /agent-bus/v1/llm/complete `
+`GET /agent-bus/v1/skill/{agentId}/catalog `
+
+返回该 agent 的有效 skill 视图中 `available=true`、当前调用用户可见、可由 LLM 自动调用的技能目录。用于向 LLM 注入 Tier-1 技能概要。
+
+**响应:**
+
+`{ "agentId": "agent_xxx", "userId": "alice", "catalog": [ { "name": "search-database", "description": "Search distributed tables", "argumentHint": "SELECT fields FROM table WHERE condition" }, ... ], "size": 3 } `
+
+---
+
+#### 组装技能上下文（只读原语）
+
+`POST /agent-bus/v1/skill/{agentId}/context `
 
 **请求体:**
 
@@ -1799,7 +648,7 @@ ToolResult 结构:
 | 类型
 
 
-         | 必填
+ | 必填
 ```
 
 | 说明
@@ -1808,30 +657,343 @@ ToolResult 结构:
 |
 ```
 
-| ------------------------ | ------------------ | ------ | -------------------------------------------------------------------------------------------- |
-| `agentId`          | string           | 是   | Agent ID，用于解析 LLM 配置（从 agent 绑定的 LLM 列表中选择）                              |
-| `sessionId`        | string           | 否   | 会话 ID。指定时使用 session 归属用户和 session 级 LLM 配置                                 |
-| `messages`         | LLMMessage[]     | 是   | 完整的消息列表（由应用层自行构建），直接发送给 LLM，框架不做上下文组装                     |
-| `tools`            | ToolDefinition[] | 否   | 工具定义列表（OpenAI function calling 格式）                                               |
-| `model`            | string           | 否   | 指定模型名称，覆盖 LLM 配置中的 model                                                      |
-| `stream`           | bool             | 否   | 是否流式返回（默认 true）                                                                  |
-| `includeReasoning` | bool             | 否   | 是否返回 provider 给出的可展示思考过程（默认 false）。该内容只用于本次展示，不必持久化存储 |
-| `llmConfigId`      | string           | 否   | 指定使用的 LLM 配置 ID。必须属于当前用户在该 agent 下的有效可选集合（后台会校验权限）      |
-| `requestId`        | string           | 否   | 请求追踪 ID，不指定时自动生成                                                              |
+| ------------------------ | ---------- | ------ | --------------------------------------------------------------------- |
+| `activeSkillNames` | string[] | 否   | 调用方显式要求附加的技能名称列表（加载 Tier-2）；框架不维护激活状态 |
 
-LLMMessage 结构:
+**响应:**
 
-`{ "role": "user", "content": "你好" } `
+`{ "catalog": [ SkillCatalogEntry, ... ], "activeInstructions": [ SkillInstruction, ... ], "catalogTokens": 150, "instructionTokens": 800 } `
 
-ToolDefinition 结构:
+说明：
 
-`{ "type": "function", "function": { "name": "search_database", "description": "搜索数据库表", "parameters": { "type": "object", "properties": { "query": { "type": "string", "description": "SQL 查询" } }, "required": ["query"] } } } `
-
-**响应:** 同 [Chat Completions 响应](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#%E9%9D%9E%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94 "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#%E9%9D%9E%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94")
+* `catalog` 对应 Tier-1，`activeInstructions` 对应调用方显式请求的 Tier-2。
+* 该接口用于应用层显式获取 skill 上下文，不代表框架自动维护 skill 激活闭环。
 
 ---
 
-## 15. Context Preview (上下文预览)
+#### 获取技能指令
+
+`GET /agent-bus/v1/skill/{skillId}/instruction `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------- | -------- | ------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `agentId` | string | 是   | 用于校验当前用户对该 agent 下该 skill 的使用权限。HTTP 也可通过`x-agent-id`header 传递；WebSocket 使用顶层`agentId` |
+
+**响应:**
+
+`{ "skillId": "skill_xxx", "name": "search-database", "description": "Search distributed tables", "instruction": "## Usage Guide\n\nYou can use this skill to..." } `
+
+说明：
+
+* 该接口是 Tier-2 指令体的只读原语。
+* 该接口用于应用层渐进式加载 skill，服务端会校验当前用户对 `agentId` 下 `skillId` 的使用权限。
+* 是否读取、何时注入、如何在 tool loop 中续传，由应用层决定。
+
+---
+
+#### 列出技能包文件
+
+`GET /agent-bus/v1/skill/{skillId}/files/list `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------- | -------- | ------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `agentId` | string | 是   | 用于校验当前用户对该 agent 下该 skill 的使用权限。HTTP 也可通过`x-agent-id`header 传递；WebSocket 使用顶层`agentId` |
+
+**响应:**
+
+`{ "skillId": "skill_xxx", "items": ["SKILL.md", "data/schema.json"], "size": 2 } `
+
+说明：
+
+* 路径以 skill 包目录作为根目录，末尾为文件名。
+* 该接口用于应用层渐进式加载 skill 文件，服务端会校验当前用户对 `agentId` 下 `skillId` 的使用权限。
+
+#### 获取技能包单个文件
+
+`GET /agent-bus/v1/skill/{skillId}/files/get?filePath=data/schema.json `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ---------------- | -------- | ------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `agentId`  | string | 是   | 用于校验当前用户对该 agent 下该 skill 的使用权限。HTTP 也可通过`x-agent-id`header 传递；WebSocket 使用顶层`agentId` |
+| `filePath` | string | 是   | 相对 skill 包根目录的文件路径                                                                                               |
+
+**响应:**
+
+`{ "skillId": "skill_xxx", "filePath": "data/schema.json", "encoding": "base64", "content": "<base64 内容>", "size": 1024 } `
+
+#### 批量获取技能包文件
+
+`POST /agent-bus/v1/skill/{skillId}/files/batchGet `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------- | -------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `agentId` | string | 是   | 用于校验当前用户对该 agent 下该 skill 的使用权限。HTTP 也可通过`x-agent-id`header 或请求体字段传递；WebSocket 使用顶层`agentId` |
+
+**请求体:**
+
+`{ "filePaths": ["SKILL.md", "data/schema.json"] } `
+
+**响应:**
+
+`{ "skillId": "skill_xxx", "items": [ { "skillId": "skill_xxx", "filePath": "SKILL.md", "encoding": "base64", "content": "<base64 内容>", "size": 2048 } ], "size": 1 } `
+
+说明：
+
+* 文件内容以 base64 字符串存储并返回，`size` 为原始文件字节数。
+* 文件的解释、执行、二次注入和本地落地方式由应用层负责。
+
+---
+
+### 2.5 记忆运行时能力
+
+#### 运行时并发调度
+
+Memory API 的 HTTP 路由、请求体和响应体不包含 lane 配置；lane 策略由服务端启动配置控制：
+
+| 配置项
+
+```
+| 类型
+```
+
+| 默认值
+
+```
+| 说明
+
+
+                                                                                                                                                                                                                                                                                                                              |
+```
+
+| ---------------------------------------- | -------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `agentFramework.memory.lanePolicy` | string | `user` | memory 写请求的串行化粒度：`legacy`使用`AGENT_WRITE`agentId 粒度；`agent`按`memory:agent:{agentId}`串行；`user`将 user-scope memory 按`memory:user:{agentId}:{userId}`串行、agent-scope memory 按`memory:agent:{agentId}`串行；`memoryId`将`memory.update/delete`按`memory:id:{memoryId}`串行 |
+
+说明：
+
+* `memory.store/update/delete` 属于写请求，会按上述 lane 策略串行化。
+* `memory.get/search/list/stats` 对外仍是只读接口，不需要客户端提供 lane 信息。
+* `agentFramework.memory.lanePolicy` 是全局运行时配置，不属于 `memoryConfig`，也不会随 agent 注册请求落库。
+
+#### 存储记忆
+
+`POST /agent-bus/v1/memory/store `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ------------------ | -------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `agentId`    | string | 是   | 所属 Agent ID                                                                                                                        |
+| `scope`      | string | 否   | 作用域（默认`agent`）：`agent`（agent 级别，所有用户可读，仅`AGENT_ADMIN`可写）/`user`（用户级别，写入当前登录用户） |
+| `category`   | string | 是   | 分类标签（如`"fact"`、`"preference"`、`"instruction"`），用于按分类检索和统计                                            |
+| `content`    | string | 是   | 记忆文本内容                                                                                                                         |
+| `importance` | double | 是   | 重要度，取值范围 [0, 1]。参与混合排序                                                                                                |
+| `metadata`   | object | 否   | 自定义元数据，JSON 格式                                                                                                              |
+| `source`     | string | 否   | 来源标识（默认`manual`）：`manual`（手动创建）/`auto_extract`（自动提取）/`api`（API 写入）                          |
+| `sourceRef`  | string | 否   | 来源引用信息（如来源的 sessionId 或 messageId），便于溯源                                                                            |
+| `expireTime` | long   | 否   | 过期时间（毫秒时间戳），为空表示永不过期                                                                                             |
+
+**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
+
+说明：
+
+* 当 `agent.memoryConfig.embeddingEnabled=true` 时，`memory.store` 由框架根据启用的 embedding 配置生成 document embedding，并同步写入记忆主表和 embedding 表
+* 当 `agent.memoryConfig.embeddingEnabled=false` 时，`memory.store` 只写入记忆主表，不生成 embedding
+* 请求体不接受 `embedding`、`embeddingModel`
+
+---
+
+#### 获取记忆
+
+`GET /agent-bus/v1/memory/{memoryId} `
+
+**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
+
+---
+
+#### 更新记忆
+
+`PUT /agent-bus/v1/memory/{memoryId} `
+
+**请求体:** 需要更新的字段（如 `content`, `importance`, `category`, `metadata`）
+
+说明：
+
+* 当 `agent.memoryConfig.embeddingEnabled=true` 且更新 `content` 时，框架会先生成新的 document embedding，再同步更新记忆主表和 embedding 表
+* 当 `agent.memoryConfig.embeddingEnabled=false` 时，更新仅作用于记忆主表，不生成或更新 embedding
+* 请求体不接受 `embedding`、`embeddingModel`
+
+**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
+
+---
+
+#### 删除记忆
+
+`DELETE /agent-bus/v1/memory/{memoryId} `
+
+**响应:**
+
+`{ "memoryId": "mem_xxx", "deleted": true } `
+
+---
+
+#### 搜索记忆
+
+`POST /agent-bus/v1/memory/search `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------------- | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `agentId`       | string | 是   | 搜索范围限定的 Agent ID                                                                                                                                                                                                                |
+| `targetUserId`  | string | 否   | 只读过滤目标用户。未指定时搜索当前登录用户可见的范围；仅`AGENT_ADMIN`可查看他人数据                                                                                                                                                |
+| `scope`         | string | 否   | 按作用域过滤：`agent`（仅 agent 级别）/`user`（仅用户级别）。不指定时搜索 agent 级别 + 目标用户的 user 级记忆                                                                                                                  |
+| `category`      | string | 否   | 按分类标签精确过滤                                                                                                                                                                                                                     |
+| `textQuery`     | string | 否   | 全文搜索查询；`RELEVANCE/HYBRID`下同时作为语义查询文本                                                                                                                                                                             |
+| `textMatchMode` | string | 否   | 全文搜索匹配模式（默认`any`）：`any`（匹配任一词）/`all`（匹配所有词）                                                                                                                                                     |
+| `topK`          | int    | 否   | 最多返回条数（默认 10）                                                                                                                                                                                                                |
+| `minImportance` | double | 否   | 最小重要度过滤阈值（默认 0，不过滤）                                                                                                                                                                                                   |
+| `sortBy`        | string | 否   | 排序策略（默认`HYBRID`）：`RECENCY`（按创建时间降序）/`IMPORTANCE`（按重要度降序）/`RELEVANCE`（vector-first recall，要求`textQuery`）/`TEXT_SEARCH`（按全文搜索得分降序）/`HYBRID`（多路召回 + 综合重排） |
+
+**响应:**
+
+`{ "items": [ MemoryEntry, ... ], "size": 5 } `
+
+每条 MemoryEntry 额外包含评分字段：`textScore`, `relevanceScore`, `hybridScore`。
+
+说明：
+
+* 当 `agent.memoryConfig.embeddingEnabled=true` 时，`memory.search` 由框架内部生成 query embedding，不接受 `embedding`、`embeddingModel`
+* 当 `agent.memoryConfig.embeddingEnabled=false` 时，`RELEVANCE` 直接失败，`HYBRID` 退化为文本/importance/recency 检索
+* 当 `agent.memoryConfig.embeddingEnabled=true` 但启用的 embedding 配置不可用时，`RELEVANCE` 直接失败，`HYBRID` 退化为文本/importance/recency 检索
+* 当 `scope='agent'` 时，不允许同时传 `targetUserId`
+
+---
+
+### 2.6 会话摘要
+
+#### 生成摘要
+
+`POST /agent-bus/v1/session/{sessionId}/summary `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| -------------------- | -------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `instructions` | string | 否   | 额外的摘要指令，追加到摘要 prompt 中（如要求关注特定主题或保留特定信息）                                                                                     |
+| `llmConfigId`  | string | 否   | 本次摘要优先使用的 LLM 配置 ID。为空时优先使用`summaryConfig.summaryLlmConfigId`；若仍为空，则按当前 session owner 在该 agent 下的默认可用 chat 模型解析 |
+| `force`        | bool   | 否   | 是否强制生成（默认 false）。为 true 时按全量 rolling summary 语义执行，不保留 raw tail                                                                       |
+| `metadata`     | object | 否   | 自定义元数据，JSON 格式。框架只负责透传，可以写入一些自定义的数据，比如触发原因、关联的业务事件等                                                            |
+
+**响应:** [SummaryResult](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#summaryresult "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#summaryresult")
+
+`{ "sessionId": "sess_001", "generated": true, "reason": "", "trigger": "manual", "summaryUpToSeqNum": 50, "messageId": "msg_xxx", "sequenceNum": 51, "role": "system", "contentType": "summary", "content": "摘要内容...", "metadata": { "summaryUpToSeqNum": 50, "trigger": "manual", "summaryLlmConfigId": "llm_summary_xxx" } } `
+
+---
+
+### 2.7 调试接口
+
+#### Context Preview (上下文预览)
+
+WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#6-websocket-%E5%8D%8F%E8%AE%AE "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#6-websocket-%E5%8D%8F%E8%AE%AE")。
 
 调试接口，预览上下文组装结果但不调用 LLM。可用于验证 contextConfig 配置效果、检查 token 预算分配、确认技能和记忆是否正确注入。
 
@@ -1904,184 +1066,1141 @@ ToolDefinition 结构:
 
 ---
 
-## 16. WebSocket 协议
+### 2.8 底层接口
 
-### 连接
+#### LLM Complete (直接调用 LLM)
 
-WebSocket 端点路径与 HTTP 相同（通过协议升级）。
+WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#6-websocket-%E5%8D%8F%E8%AE%AE "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#6-websocket-%E5%8D%8F%E8%AE%AE")。
 
-### 消息格式
+绕过上下文组装，直接发送消息给 LLM。适用于应用自行构建消息列表的场景。
 
-所有 WebSocket 帧为 JSON：
+`POST /agent-bus/v1/llm/complete `
 
-**请求帧:**
-
-请求帧只识别下列顶层字段，其它字段一律忽略：
+**请求体:**
 
 | 字段
 
 ```
-| 必填
+| 类型
 
 
-       | 说明
-
-
-                                                                                         |
+         | 必填
 ```
 
-| ----------------- | ---------------- | -------------------------------------------------------------------------------------------------- |
-| `type`      | 是             | 固定`"REQUEST"`                                                                              |
-| `action`    | 是             | 内部 action 名，见下方对照表                                                                     |
-| `requestId` | 建议           | 客户端生成的请求 ID，服务端会原样回填到响应帧的`correlationId`                               |
-| `agentId`   | 视 action 而定 | 当对应 HTTP 路由含`{agentId}`或接口语义需要时填写                                            |
-| `sessionId` | 视 action 而定 | 当对应 HTTP 路由含`{sessionId}`或接口语义需要时填写                                          |
-| `payload`   | 视 action 而定 | JSON 对象，承载 HTTP 请求体 + HTTP 查询串 + HTTP 路径参数（除`agentId`/`sessionId`以外） |
-
-`{ "type": "REQUEST", "requestId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "payload": { "message": "你好", "stream": true } } `
-
-**响应帧:**
-
-`{ "type": "RESPONSE", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": { ... } } `
-
-**流式帧:**
-
-`{"type": "STREAM_START", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"requestId": "req_001", "model": "<resolved-model>", "llmConfigId": "llm_xxx"}} {"type": "STREAM_REASONING", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"reasoning": "..."}} {"type": "STREAM_CHUNK", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"content": "..."}} {"type": "STREAM_END", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {...}} `
-
-**错误帧:**
-
-`{ "type": "ERROR", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "error": { "code": "BUS_HANDLER_ERROR", "message": "session not found" }, "headers": { "busErrorCode": "BUS_HANDLER_ERROR", "httpStatus": "500" } } `
-
-### HTTP → WebSocket 参数映射规则
-
-WebSocket 没有 URL 路径和 HTTP 方法，所以 HTTP 接口里的"路径参数 / 查询串 / 请求体"必须统一折叠进 WebSocket 帧。规则只有两条：
-
-1. `agentId`**​ 和 ​**`sessionId`​**​ 放到帧的顶层字段**​（因为它们是信封级字段，服务端有专门的解析路径）。
-2. **其它所有参数都放进 ​**`payload`，键名与 HTTP 文档里描述的字段名一致：
-   * HTTP 路径里的 `{userId}` / `{memoryId}` / `{llmConfigId}` / `{skillId}` / `{skillName}` / `{id}` → 在 `payload` 里用对应字段（`userId` / `memoryId` / `llmConfigId` / `skillId` / `skillName`，而 `{id}` 按接口语义转成 `agentId` / `sessionId` / `skillId` / `memoryId` / `llmConfigId` 之一）
-   * HTTP 查询串里的 `?status=0&limit=100&offset=20` → 在 `payload` 里写 `"status": 0, "limit": 100, "offset": 20`
-   * HTTP JSON 请求体字段 → 原样放进 `payload`
-
-同一个字段不能在"顶层 + payload"里同时出现且取值不同，否则服务端会以 `agentId in payload conflicts with ...` 之类的错误拒绝。
-
-**示例 1：多个路径参数**
-
-HTTP：
-
-`GET /agent-bus/v1/skill/{agentId}/user/{userId}/denied `
-
-WebSocket：
-
-`{ "type": "REQUEST", "requestId": "req_42", "action": "skill.user.denied", "agentId": "agent_xxx", "payload": { "userId": "business_user_001" } } `
-
-**示例 2：路径参数 + 查询串**
-
-HTTP：
-
-`GET /agent-bus/v1/session/list?agentId=agent_xxx&status=0&limit=50&offset=0 `
-
-WebSocket：
-
-`{ "type": "REQUEST", "requestId": "req_43", "action": "session.list", "agentId": "agent_xxx", "payload": { "status": 0, "limit": 50, "offset": 0 } } `
-
-**示例 3：路径参数 + 请求体**
-
-HTTP：
-
-`PUT /agent-bus/v1/memory/{memoryId} Body: { "importance": 0.8, "category": "note" } `
-
-WebSocket：
-
-`{ "type": "REQUEST", "requestId": "req_44", "action": "memory.update", "payload": { "memoryId": "mem_abc", "importance": 0.8, "category": "note" } } `
-
-### 支持的 Action
-
-WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），action 名称见各接口说明中的内部名称：
-
-| Action
+| 说明
 
 ```
-| 对应 HTTP 接口
-
-
-                        |
+|
 ```
 
-| ------------------------------- | ------------------------------------------- |
-| `agent.register`          | POST /agent/register                      |
-| `agent.get`               | GET /agent/{id}                           |
-| `agent.update`            | PUT /agent/{id}                           |
-| `agent.activate`          | POST /agent/{id}/activate                 |
-| `agent.suspend`           | POST /agent/{id}/suspend                  |
-| `agent.delete`            | POST /agent/{id}/delete                   |
-| `agent.list`              | GET /agent/list                           |
-| `agent.auth.grant`        | POST /agent/{id}/auth                     |
-| `agent.auth.revoke`       | DELETE /agent/{id}/auth                   |
-| `agent.auth.list`         | GET /agent/{id}/auth/list                 |
-| `agent.accessible`        | GET /agent/accessible                     |
-| `agent.llm.grant`         | POST /agent/{id}/llm/access               |
-| `agent.llm.revoke`        | DELETE /agent/{id}/llm/access             |
-| `agent.llm.list`          | GET /agent/{id}/llm/list                  |
-| `agent.llm.selectable`    | GET /agent/{id}/llm/selectable            |
-| `admin.access.grant`      | POST /admin/access                        |
-| `admin.access.revoke`     | DELETE /admin/access                      |
-| `admin.access.list`       | GET /admin/access                         |
-| `user.llm.access.grant`   | POST /user/{id}/llm/access                |
-| `user.llm.access.revoke`  | DELETE /user/{id}/llm/access              |
-| `user.llm.access.list`    | GET /user/{id}/llm/access                 |
-| `llm.provider.register`   | POST /llm/provider/register               |
-| `llm.provider.get`        | GET /llm/provider/{id}                    |
-| `llm.provider.list`       | GET /llm/provider/list                    |
-| `llm.provider.update`     | PUT /llm/provider/{id}                    |
-| `llm.provider.delete`     | DELETE /llm/provider/{id}                 |
-| `llm.config.register`     | POST /llm/config/register                 |
-| `llm.config.get`          | GET /llm/config/{id}                      |
-| `llm.config.list`         | GET /llm/config/list                      |
-| `llm.config.update`       | PUT /llm/config/{id}                      |
-| `llm.config.delete`       | DELETE /llm/config/{id}                   |
-| `llm.complete`            | POST /llm/complete                        |
-| `llm.usage`               | GET /llm/usage                            |
-| `chat.completions`        | POST /chat/completions                    |
-| `context.preview`         | POST /context/preview                     |
-| `session.create`          | POST /session/create                      |
-| `session.get`             | GET /session/{id}                         |
-| `session.update`          | PUT /session/{id}                         |
-| `session.archive`         | POST /session/{id}/archive                |
-| `session.delete`          | POST /session/{id}/delete                 |
-| `session.list`            | GET /session/list                         |
-| `session.appendMessage`   | POST /session/{id}/message                |
-| `session.getMessages`     | GET /session/{id}/messages                |
-| `session.generateSummary` | POST /session/{id}/summary                |
-| `memory.store`            | POST /memory/store                        |
-| `memory.get`              | GET /memory/{id}                          |
-| `memory.update`           | PUT /memory/{id}                          |
-| `memory.delete`           | DELETE /memory/{id}                       |
-| `memory.search`           | POST /memory/search                       |
-| `memory.list`             | GET /memory/list                          |
-| `memory.stats`            | GET /memory/stats                         |
-| `skill.register`          | POST /skill/register                      |
-| `skill.get`               | GET /skill/{id}                           |
-| `skill.getByName`         | GET /skill/byName/{name}                  |
-| `skill.update`            | PUT /skill/{id}                           |
-| `skill.delete`            | DELETE /skill/{id}                        |
-| `skill.list`              | GET /skill/list                           |
-| `skill.getInstruction`    | GET /skill/{id}/instruction               |
-| `skill.files.list`        | GET /skill/{id}/files/list                |
-| `skill.files.get`         | GET /skill/{id}/files/get                 |
-| `skill.files.batchGet`    | POST /skill/{id}/files/batchGet           |
-| `skill.bind`              | POST /skill/bind                          |
-| `skill.unbind`            | POST /skill/unbind                        |
-| `skill.binding.update`    | PUT /skill/binding                        |
-| `skill.bindings`          | GET /skill/{agentId}/bindings             |
-| `skill.catalog`           | GET /skill/{agentId}/catalog              |
-| `skill.context`           | POST /skill/{agentId}/context             |
-| `skill.user.deny`         | POST /skill/user/deny                     |
-| `skill.user.allow`        | POST /skill/user/allow                    |
-| `skill.user.denied`       | GET /skill/{agentId}/user/{userId}/denied |
+| ------------------------ | ------------------ | ------ | -------------------------------------------------------------------------------------------- |
+| `agentId`          | string           | 是   | Agent ID，用于解析 LLM 配置（从 agent 绑定的 LLM 列表中选择）                              |
+| `sessionId`        | string           | 否   | 会话 ID。指定时使用 session 归属用户和 session 级 LLM 配置                                 |
+| `messages`         | LLMMessage[]     | 是   | 完整的消息列表（由应用层自行构建），直接发送给 LLM，框架不做上下文组装                     |
+| `tools`            | ToolDefinition[] | 否   | 工具定义列表（OpenAI function calling 格式）                                               |
+| `model`            | string           | 否   | 指定模型名称，覆盖 LLM 配置中的 model                                                      |
+| `stream`           | bool             | 否   | 是否流式返回（默认 true）                                                                  |
+| `includeReasoning` | bool             | 否   | 是否返回 provider 给出的可展示思考过程（默认 false）。该内容只用于本次展示，不必持久化存储 |
+| `llmConfigId`      | string           | 否   | 指定使用的 LLM 配置 ID。必须属于当前用户在该 agent 下的有效可选集合（后台会校验权限）      |
+| `requestId`        | string           | 否   | 请求追踪 ID，不指定时自动生成                                                              |
+
+LLMMessage 结构:
+
+`{ "role": "user", "content": "你好" } `
+
+ToolDefinition 结构:
+
+`{ "type": "function", "function": { "name": "search_database", "description": "搜索数据库表", "parameters": { "type": "object", "properties": { "query": { "type": "string", "description": "SQL 查询" } }, "required": ["query"] } } } `
+
+**响应:** 同 [Chat Completions 响应](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#%E9%9D%9E%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94 "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#%E9%9D%9E%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94")
 
 ---
 
-## 17. 数据结构参考
+消息接口是底层读写原语，通常只在自定义会话编排、数据迁移或调试场景中直接使用。
+
+#### 追加消息
+
+`POST /agent-bus/v1/session/{sessionId}/message `
+
+**注意:**
+
+本接口是比较低层级的接口，一般agent业务无需调用该接口（框架会自动做消息的持久化）。
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ------------------------ | -------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `role`             | string | 是   | 消息角色：`system`（系统指令）/`user`（用户输入）/`assistant`（LLM 回复）/`tool`（工具执行结果）                                                                                                                                                                                                                                                                     |
+| `contentType`      | string | 否   | 内容类型（默认`text`）。`text`：纯文本。`tool_call`：工具调用，content 为 JSON 格式的 toolCalls 数组。`tool_result`：工具结果，需同时提供 toolCallId。`multimodal`：多模态，content 为 JSON 数组（含 type/text/imageUrl）。`summary`：会话摘要（通常由框架内部写入；其`metadata`中记录`summaryUpToSeqNum`、`trigger`、`summaryLlmConfigId`） |
+| `content`          | string | 否   | 消息内容，格式取决于 contentType                                                                                                                                                                                                                                                                                                                                                     |
+| `toolCallId`       | string | 否   | 工具调用关联 ID。contentType 为`tool_result`时必填，需与 assistant 返回的 tool\_call 中的 id 一致，LLM 据此将工具结果关联到对应的调用                                                                                                                                                                                                                                            |
+| `llmModel`         | string | 否   | 产生该消息的 LLM 模型名称（通常仅 assistant 消息需要填写）                                                                                                                                                                                                                                                                                                                           |
+| `promptTokens`     | int    | 否   | 输入 token 数（LLM 返回的 usage 统计），用于 token 消耗计量                                                                                                                                                                                                                                                                                                                          |
+| `completionTokens` | int    | 否   | 输出 token 数（LLM 返回的 usage 统计），用于 token 消耗计量                                                                                                                                                                                                                                                                                                                          |
+| `totalTokens`      | int    | 否   | 总 token 数（默认 prompt + completion），用于摘要与上下文 token 估算                                                                                                                                                                                                                                                                                                                 |
+| `metadata`         | object | 否   | 自定义元数据，JSON 格式                                                                                                                                                                                                                                                                                                                                                              |
+
+**响应:** [MessageInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#messageinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#messageinfo")
+
+---
+
+#### 获取消息列表
+
+`GET /agent-bus/v1/session/{sessionId}/messages `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 默认值
+
+| 说明
+
+```
+|
+```
+
+| ---------------- | ------ | -------- | ------------ |
+| `startSeq` | long | 1      | 起始序列号 |
+| `endSeq`   | long | MAX    | 结束序列号 |
+
+**响应:**
+
+`{ "sessionId": "sess_001", "items": [ MessageInfo, ... ], "size": 10 } `
+
+---
+
+## 3. 面向 Web 管控的 API
+
+本章面向管控 Web、配置中心和运维后台，覆盖 Agent/LLM/Skill/Memory 的配置、生命周期和授权管理。会话和消息不在本章重复展开；需要时参见开发者 API 中的会话接口。
+
+---
+
+### 3.1 Agent 生命周期管理
+
+#### 注册 Agent
+
+`POST /agent-bus/v1/agent/register `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------------- | -------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `agentName`     | string | 是   | Agent 名称                                                                                                                                                                                                                                                                                                                                                                                    |
+| `description`   | string | 否   | 描述                                                                                                                                                                                                                                                                                                                                                                                          |
+| `systemPrompt`  | string | 否   | 系统提示词                                                                                                                                                                                                                                                                                                                                                                                    |
+| `llmConfigId`   | string | 否   | 默认 LLM 配置 ID，必须是已通过`/llm/config/register`注册的配置 ID。注册时会自动创建 agent 与该 LLM 配置的绑定关系（`isDefault=true`,`priority=0`）                                                                                                                                                                                                                                |
+| `contextConfig` | object | 否   | 上下文组装配置，详见[contextConfig 结构](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#contextconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#contextconfig") |
+| `memoryConfig`  | object | 否   | 记忆管理配置，详见[memoryConfig 结构](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig")      |
+| `config`        | object | 否   | 自定义扩展配置，框架原样存储，不做解析                                                                                                                                                                                                                                                                                                                                                        |
+
+**响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")
+
+说明：
+
+* `memoryConfig.embeddingEnabled` 在 `agent.register` 时完成一次性决策并落库
+* 注册请求未显式传入 `memoryConfig.embeddingEnabled` 时，系统会按默认值 `false` 补齐并持久化
+* 当 `memoryConfig.embeddingEnabled=true` 时，注册时要求系统当前存在且只存在一条启用的 embedding 配置
+
+---
+
+#### 获取 Agent
+
+完整接口说明见 [获取 Agent](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#%E8%8E%B7%E5%8F%96-agent "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#%E8%8E%B7%E5%8F%96-agent")。
+
+---
+
+#### 更新 Agent
+
+`PUT /agent-bus/v1/agent/{agentId} `
+
+**请求体:** 需要更新的字段（支持 `description`, `systemPrompt`, `llmConfigId`, `contextConfig`, `memoryConfig`, `config` 等）
+
+说明：
+
+* `memoryConfig.embeddingEnabled` 在注册后不可变；更新时如果显式传入且与当前值不同，请求会被拒绝
+* 更新 `memoryConfig` 但省略 `embeddingEnabled` 时，框架会保留原值
+
+**响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")
+
+---
+
+#### 激活 Agent
+
+`POST /agent-bus/v1/agent/{agentId}/activate `
+
+**响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")
+
+---
+
+#### 挂起 Agent
+
+`POST /agent-bus/v1/agent/{agentId}/suspend `
+
+**响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")
+
+---
+
+#### 删除 Agent
+
+`POST /agent-bus/v1/agent/{agentId}/delete `
+
+**响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")（状态变为 DELETED）
+
+---
+
+#### 列出 Agent
+
+`GET /agent-bus/v1/agent/list `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 默认值
+
+```
+| 说明
+
+
+   |
+```
+
+| -------------- | ------ | ------------ | ------------ |
+| `status` | int  | -1（全部） | 按状态过滤 |
+| `offset` | int  | 0          |            |
+| `limit`  | int  | 100        |            |
+
+**响应:**
+
+`{ "items": [ AgentInfo, ... ], "offset": 0, "limit": 100, "size": 5 } `
+
+---
+
+### 3.2 Agent 授权管理
+
+#### 授予 Agent 权限
+
+`POST /agent-bus/v1/agent/{agentId}/auth `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ----------------- | -------- | ------ | ----------------------------------------- |
+| `userId`    | string | 是   | DolphinDB 用户 ID                       |
+| `grantedBy` | string | 否   | 执行授权的用户 ID（默认为当前登录用户） |
+
+**响应:** 当前 agent 的授权列表 `{ items: [AuthInfo, ...], size: N }`
+
+---
+
+#### 撤销 Agent 权限
+
+`DELETE /agent-bus/v1/agent/{agentId}/auth?userId=xxx `
+
+**参数:** `userId`（必填）
+
+**响应:** 当前 agent 的授权列表
+
+---
+
+#### 列出 Agent 授权
+
+`GET /agent-bus/v1/agent/{agentId}/auth/list `
+
+**响应:** `{ items: [AuthInfo, ...], size: N }`
+
+---
+
+### 3.3 全局访问控制
+
+#### 授予全局 `AGENT_ADMIN`
+
+`POST /agent-bus/v1/admin/access `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ----------------- | -------- | ------ | ----------------------------------------- |
+| `userId`    | string | 是   | DolphinDB 用户 ID                       |
+| `grantedBy` | string | 否   | 执行授权的用户 ID（默认为当前登录用户） |
+
+**响应:** `{ items: [GlobalAccessInfo, ...], size: N }`
+
+---
+
+#### 撤销全局 `AGENT_ADMIN`
+
+`DELETE /agent-bus/v1/admin/access?userId=xxx `
+
+**响应:** `{ items: [GlobalAccessInfo, ...], size: N }`
+
+---
+
+#### 列出全局 `AGENT_ADMIN`
+
+`GET /agent-bus/v1/admin/access `
+
+**响应:** `{ items: [GlobalAccessInfo, ...], size: N }`
+
+### 3.4 LLM Provider 与配置管理
+
+#### 注册 LLM Provider
+
+`POST /agent-bus/v1/llm/provider/register `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `name`        | string | 是   | Provider 名称，用于标识和展示                                                                                           |
+| `adapterType` | string | 是   | 运行时 provider 适配器类型：`openai`/`openai-compatible`/`anthropic`/`deepseek`/`azure`/`local` |
+| `baseUrl`     | string | 是   | Provider 级基础 URL，必须是完整`http(s)`URL，如`https://api.openai.com`                                         |
+| `apiKey`      | string | 否   | Provider 级 API Key                                                                                                     |
+| `enabled`     | bool   | 否   | 是否启用，默认`true`                                                                                                |
+| `extra`       | string | 否   | 预留扩展字段                                                                                                            |
+
+**响应:** [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo")
+
+说明：
+
+* `baseUrl` 由框架规范化保存：末尾 `/` 会被移除
+* Provider 负责承载共享连接信息；模型级配置保存 `requestPath`、`defaultParams` 等模型参数
+* `enabled=false` 的 provider 可保存配置，但运行时不会通过该 provider 发起 LLM 调用
+
+---
+
+#### 获取 LLM Provider
+
+`GET /agent-bus/v1/llm/provider/{providerId} `
+
+**响应:** [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo")
+
+说明：
+
+* 已删除的 provider 返回 404
+
+---
+
+#### 列出 LLM Provider
+
+`GET /agent-bus/v1/llm/provider/list `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 默认值
+
+| 说明
+
+```
+|
+```
+
+| --------------- | ------ | -------- | -------------------------------------------------------------------------------------------- |
+| `enabled` | bool | -      | 不传返回全部未删除 provider；`true`只返回启用 provider；`false`只返回禁用 provider |
+| `offset`  | int  | 0      | 分页起始偏移                                                                               |
+| `limit`   | int  | 100    | 返回条数上限                                                                               |
+
+**响应:** `{ items: [LlmProviderInfo, ...], offset, limit, size }`
+
+---
+
+#### 更新 LLM Provider
+
+`PUT /agent-bus/v1/llm/provider/{providerId} `
+
+**请求体:** 需要更新的字段
+
+可更新字段：`name`、`adapterType`、`baseUrl`、`apiKey`、`enabled`、`extra`
+
+**响应:** [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo")
+
+说明：
+
+* `enabled=false` 时，引用该 provider 的 LLM 配置保留，运行时不可用
+* `enabled=true` 时，引用该 provider 且自身启用的 LLM 配置可参与运行时解析
+* 已删除的 provider 返回 404
+
+---
+
+#### 删除 LLM Provider
+
+`DELETE /agent-bus/v1/llm/provider/{providerId} `
+
+**响应:** `{ providerId, deleted: true }`
+
+说明：
+
+* 删除前要求不存在任何未删除的 LLM 配置引用该 provider
+* 删除成功后不参与 list、get 和 runtime
+* 删除成功后的 GET 返回 404
+
+---
+
+#### 注册 LLM 配置
+
+`POST /agent-bus/v1/llm/config/register `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+```
+| 说明
+
+
+                                                                                                                                                                                                                                                                                                                                                                                    |
+```
+
+| -------------------------- | -------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`               | string | 是       | 配置名称，用于标识和展示                                                                                                                                                                                                                                                                                                                                                                    |
+| `providerId`         | string | 是       | 关联的 provider ID，必须存在；`enabled=true`时 provider 必须启用                                                                                                                                                                                                                                                                                                                        |
+| `model`              | string | 是       | 模型名称（如`gpt-4.1`、`claude-sonnet-4-20250514`），传递给 LLM API                                                                                                                                                                                                                                                                                                                 |
+| `capability`         | string | 否       | 配置能力类型，默认`chat`：`chat`/`embedding`                                                                                                                                                                                                                                                                                                                                    |
+| `embeddingDimension` | int    | 条件必填 | `capability=embedding`时必填，表示向量维度                                                                                                                                                                                                                                                                                                                                              |
+| `embeddingMetric`    | string | 否       | `capability=embedding`时使用的相似度规则：`euclidean`/`cosine`。省略时默认`euclidean`                                                                                                                                                                                                                                                                                       |
+| `embeddingNormalize` | bool   | 否       | `capability=embedding`时是否对向量做归一化。`embeddingMetric=cosine`时必须为`true`                                                                                                                                                                                                                                                                                              |
+| `requestPath`        | string | 是       | 相对`provider.baseUrl`的请求路径，必须以`/`开头，可包含查询串，例如`/v1/chat/completions`或`/openai/deployments/x/chat/completions?api-version=2024-10-21`                                                                                                                                                                                                                  |
+| `defaultParams`      | object | 否       | 默认请求参数，详见[defaultParams 说明](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#defaultparams "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#defaultparams") |
+| `contextWindow`      | int    | 否       | 模型上下文窗口大小（token 数），用于上下文组装时的预算计算                                                                                                                                                                                                                                                                                                                                  |
+| `maxConcurrency`     | int    | 否       | 最大并发请求数                                                                                                                                                                                                                                                                                                                                                                              |
+| `rateLimitRPM`       | int    | 否       | 速率限制（每分钟最大请求数）                                                                                                                                                                                                                                                                                                                                                                |
+| `timeoutMs`          | int    | 否       | 单次请求超时时间（毫秒）                                                                                                                                                                                                                                                                                                                                                                    |
+| `retryConfig`        | object | 否       | 重试配置，详见[retryConfig 说明](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#retryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#retryconfig")           |
+| `enabled`            | bool   | 否       | 是否启用，默认`true`                                                                                                                                                                                                                                                                                                                                                                    |
+| `extra`              | string | 否       | 预留扩展字段                                                                                                                                                                                                                                                                                                                                                                                |
+
+**响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
+
+说明：
+
+* 运行时最终请求地址按 `provider.baseUrl + requestPath` 拼接
+* `capability=embedding` 的配置供 memory 模块生成 document/query embedding 使用
+* `enabled=true` 时，系统全局只允许一条启用的 `capability='embedding'` 配置
+* `enabled=false` 的配置可引用存在但未启用的 provider
+
+---
+
+#### 获取 LLM 配置
+
+`GET /agent-bus/v1/llm/config/{llmConfigId} `
+
+**响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
+
+说明：
+
+* 已删除的配置返回 404
+
+---
+
+#### 列出 LLM 配置
+
+`GET /agent-bus/v1/llm/config/list `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 默认值
+
+| 说明
+
+```
+|
+```
+
+| --------------- | ------ | -------- | ----------------------------------------------------------------------------- |
+| `enabled` | bool | -      | 不传返回全部未删除配置；`true`只返回启用配置；`false`只返回禁用配置 |
+| `offset`  | int  | 0      | 分页起始偏移                                                                |
+| `limit`   | int  | 100    | 返回条数上限                                                                |
+
+**响应:** `{ items: [LlmConfigInfo, ...], offset, limit, size }`
+
+---
+
+#### 更新 LLM 配置
+
+`PUT /agent-bus/v1/llm/config/{llmConfigId} `
+
+**请求体:** 需要更新的字段
+
+可更新字段：`name`、`providerId`、`model`、`capability`、`embeddingDimension`、`embeddingMetric`、`embeddingNormalize`、`requestPath`、`defaultParams`、`contextWindow`、`maxConcurrency`、`rateLimitRPM`、`timeoutMs`、`retryConfig`、`enabled`、`extra`
+
+**响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
+
+说明：
+
+* `enabled=false` 时，已有用户授权、agent 绑定、agent 默认模型、summary 配置和 session 引用保留，运行时不会选择该配置
+* `enabled=true` 时，provider 必须启用
+* `enabled=true` 且 `capability=embedding` 时，系统中不能存在其他启用的 embedding 配置
+* 已删除的配置返回 404
+
+---
+
+#### 删除 LLM 配置
+
+`DELETE /agent-bus/v1/llm/config/{llmConfigId} `
+
+**响应:** `{ llmConfigId, deleted: true }`
+
+说明：
+
+* 删除前要求不存在任何用户授权（`user_llm_access`）、任何 agent 绑定（`agent_llm_access`）、任何非 `DELETED` agent 的默认模型字段、任何非 `DELETED` agent 的 `contextConfig.summaryConfig.summaryLlmConfigId`，以及任何非 `DELETED` session 引用
+* 删除成功后不参与 list、get 和 runtime
+* 删除成功后的 GET 返回 404
+
+---
+
+### 3.5 用户 LLM 访问控制
+
+#### 授予用户全局 LLM 访问权限
+
+`POST /agent-bus/v1/user/{userId}/llm/access `
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ------------------- | -------- | ------ | ----------------------------------------- |
+| `llmConfigId` | string | 是   | LLM 配置 ID                             |
+| `grantedBy`   | string | 否   | 执行授权的用户 ID（默认为当前登录用户） |
+
+**响应:** `{ items: [UserLlmAccessInfo, ...], size: N }`
+
+---
+
+#### 撤销用户全局 LLM 访问权限
+
+`DELETE /agent-bus/v1/user/{userId}/llm/access?llmConfigId=xxx `
+
+**响应:** `{ items: [UserLlmAccessInfo, ...], size: N }`
+
+---
+
+#### 列出用户全局 LLM 访问权限
+
+`GET /agent-bus/v1/user/{userId}/llm/access `
+
+**响应:** `{ items: [UserLlmAccessInfo, ...], size: N }`
+
+---
+
+### 3.6 Agent-LLM 绑定
+
+#### 绑定 LLM 到 Agent
+
+`POST /agent-bus/v1/agent/{agentId}/llm/access `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ------------------- | -------- | ------ | ----------------------------------------------------------------------------------------------------------------- |
+| `llmConfigId` | string | 是   | 要绑定的 LLM 配置 ID，必须已启用，且其引用的 provider 也必须启用                                                |
+| `isDefault`   | bool   | 否   | 是否设为默认 LLM（默认 false）。每个 agent 仅允许一个默认配置，设为 true 时 priority 强制为 0                   |
+| `priority`    | int    | 否   | 优先级（默认 0），数值越小优先级越高。运行时按 priority 升序形成 fallback 链，当前 LLM 调用失败时自动尝试下一个 |
+
+**响应:** Agent 关联的 LLM 配置列表 `{ items: [AgentLlmBindingInfo, ...], size }`
+
+---
+
+#### 解绑 LLM
+
+`DELETE /agent-bus/v1/agent/{agentId}/llm/access?llmConfigId=xxx `
+
+**响应:** Agent 关联的 LLM 配置列表
+
+---
+
+#### 列出 Agent 的 LLM 配置
+
+`GET /agent-bus/v1/agent/{agentId}/llm/list `
+
+**响应:** `{ items: [AgentLlmBindingInfo, ...], size }`
+
+---
+
+### 3.7 Skill 管理
+
+#### 注册技能
+
+`POST /agent-bus/v1/skill/register `
+
+**请求方式（三选一）：**
+
+1. ​**JSON + Base64**​：`Content-Type: application/json`，body 中 `packageBase64` 字段传 Base64 编码的 ZIP 包
+2. ​**JSON + raw**​：body 中 `packageData` 字段传原始数据，`packageEncoding` 设为 `raw` 或 `base64`
+3. ​**二进制上传​**​：`Content-Type: application/octet-stream`，request body 为 ZIP 包原始字节
+
+**请求体（JSON 模式）：**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ----------------------- | -------- | -------- | ----------------------------------------------- |
+| `packageBase64`   | string | 二选一 | Base64 编码的技能包（ZIP）                    |
+| `packageData`     | string | 二选一 | 技能包数据                                    |
+| `packageEncoding` | string | 否     | `raw`/`binary`/`base64`/`b64` |
+| `overrides`       | object | 否     | 覆盖 SKILL.md 中的元数据字段                  |
+
+overrides 可覆盖字段：`name`, `description`, `version`, `category`, `displayName`, `ownerUserId`, `argumentHint`, `license`, `compatibility`, `enabled` 等。
+
+**响应:** [SkillInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo")
+
+说明：
+
+* 未显式设置 `enabled` 时默认启用
+
+---
+
+#### 获取技能
+
+`GET /agent-bus/v1/skill/{skillId} `
+
+**响应:** [SkillInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo")
+
+---
+
+#### 按名称获取技能
+
+`GET /agent-bus/v1/skill/byName/{skillName} `
+
+**响应:** [SkillInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo")
+
+---
+
+#### 更新技能
+
+`PUT /agent-bus/v1/skill/{skillId} `
+
+可更新技能包和/或元数据覆盖。至少提供 `packageData` 或 `overrides` 之一。`overrides.enabled` 控制技能是否启用。
+
+**响应:** [SkillInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo")
+
+---
+
+#### 删除技能
+
+`DELETE /agent-bus/v1/skill/{skillId} `
+
+**响应:** `{ skillId, deleted: true }`
+
+说明：
+
+* 删除前要求不存在 agent 绑定或用户 deny/allow 相关引用
+* 删除流程先将 Skill 标记为 deleted 以立即隐藏，再删除包文件行，最后删除 Skill 主表行
+* 系统会在 Skill 管理面操作中清理已标记 deleted 但未完成物理删除的残留行
+* 删除成功后不参与 list、get、byName、catalog 和 context
+* 删除成功后的 GET / byName 返回 404
+
+---
+
+#### 列出技能
+
+`GET /agent-bus/v1/skill/list `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 默认值
+
+| 说明
+
+```
+|
+```
+
+| ----------------------------- | -------- | -------- | ----------------------------------------------------------------------------- |
+| `category`              | string | -      | 按分类过滤                                                                  |
+| `enabled`               | bool   | -      | 不传返回全部未删除技能；`true`只返回启用技能；`false`只返回禁用技能 |
+| `common`/`isCommon` | bool   | -      | 不传返回全部；`true`只返回 common skill；`false`只返回普通 skill    |
+| `offset`                | int    | 0      |                                                                             |
+| `limit`                 | int    | 50     |                                                                             |
+
+**响应:** `{ items: [SkillInfo, ...], offset, limit, size }`
+
+---
+
+### 3.8 Skill 绑定与访问控制
+
+#### 绑定技能到 Agent
+
+`POST /agent-bus/v1/skill/bind `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------- | -------- | ------ | ----------------------------- |
+| `agentId` | string | 是   | Agent ID                    |
+| `skillId` | string | 是   | 要绑定的技能 ID，必须已启用 |
+
+**响应:** Agent 当前绑定列表 `{ items: [SkillAccessInfo, ...], size }`
+
+说明：
+
+* 普通 skill：重复绑定为幂等 no-op；若存在内部禁用行则恢复为可用。
+* common skill：不写入启用绑定；若存在该 Agent 的 common 禁用覆盖行，则删除覆盖行，恢复继承；否则 no-op。
+* 请求体不支持 `enabled`、`descOverride`、`configOverride`。
+
+---
+
+#### 解绑技能
+
+`POST /agent-bus/v1/skill/unbind `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------- | -------- | ------ | ---------- |
+| `agentId` | string | 是   | Agent ID |
+| `skillId` | string | 是   | 技能 ID  |
+
+**响应:** Agent 当前绑定列表
+
+说明：
+
+* 普通 skill：删除 Agent 显式绑定。
+* common skill：写入或更新 Agent 级内部禁用覆盖行；后续该 Agent 不再继承该 common skill。
+
+---
+
+#### 列出 Agent 的技能绑定
+
+`GET /agent-bus/v1/skill/{agentId}/bindings `
+
+**响应:** `{ items: [SkillAccessInfo, ...], size }`
+
+---
+
+#### 禁止业务用户使用技能
+
+`POST /agent-bus/v1/skill/user/deny `
+
+**请求体:** `agentId`, `skillId`, `userId`
+
+**响应:** `{ agentId, userId, skillIds: [...], size }`
+
+---
+
+#### 允许业务用户使用技能
+
+`POST /agent-bus/v1/skill/user/allow `
+
+**请求体:** `agentId`, `skillId`, `userId`
+
+**响应:** `{ agentId, userId, skillIds: [...], size }`
+
+---
+
+#### 列出业务用户被禁止的技能
+
+`GET /agent-bus/v1/skill/{agentId}/user/{userId}/denied `
+
+**响应:** `{ agentId, userId, skillIds: [...], size }`
+
+---
+
+### 3.9 Memory 管控
+
+#### 按分类列出记忆
+
+`GET /agent-bus/v1/memory/list `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ---------------- | -------- | ------ | ---------- |
+| `agentId`  | string | 是   | Agent ID |
+| `category` | string | 是   | 分类     |
+| `offset`   | int    | 否   | 默认 0   |
+| `limit`    | int    | 否   | 默认 100 |
+
+**响应:** `{ items: [MemoryEntry, ...], offset, limit, size }`
+
+说明：
+
+* 需要当前用户拥有该 agent 的 `AGENT_ADMIN` 权限。
+
+---
+
+#### 记忆统计
+
+`GET /agent-bus/v1/memory/stats `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------- | -------- | ------ | ---------- |
+| `agentId` | string | 是   | Agent ID |
+
+说明：
+
+* 需要当前用户拥有该 agent 的 `AGENT_ADMIN` 权限。
+
+**响应:**
+
+`{ "totalCount": 120, "agentScopeCount": 80, "userScopeCount": 40, "avgImportance": 0.65, "categoryDistribution": { "fact": 50, "preference": 30, "instruction": 40 } } `
+
+---
+
+### 3.10 LLM 使用统计
+
+#### 查询 LLM 使用统计
+
+`GET /agent-bus/v1/llm/usage `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| -------------------- | -------- | ------ | ----------------------------------------------------------------------------------------- |
+| `agentId`      | string | 是   | Agent ID                                                                                |
+| `targetUserId` | string | 否   | 只读过滤目标用户。未指定时返回当前登录用户自己的统计；仅`AGENT_ADMIN`可查看他人数据 |
+| `startTime`    | long   | 否   | 开始时间（毫秒时间戳）                                                                  |
+| `endTime`      | long   | 否   | 结束时间（毫秒时间戳）                                                                  |
+
+**响应:**
+
+`{ "agentId": "agent_xxx", "userId": "alice", "startTime": 1711699200000, "endTime": 1711785600000, "totalPromptTokens": 50000, "totalCompletionTokens": 15000, "totalTokens": 65000, "requestCount": 100 } `
+
+---
+
+### 3.11 内置 Agent/Skill 初始化
+
+本章接口用于部署或升级后初始化发布包内预置的 Agent 和 Skill。接口由管控 Web 调用，不面向普通业务用户；调用者必须具备全局 `AGENT_ADMIN` 权限。
+
+初始化流程只读取 DolphinDB 可执行文件同级目录下的 `agentBuiltins/manifest.json`，不允许客户端通过请求参数指定 manifest 路径或 Skill 根目录。
+
+#### 执行初始化
+
+`POST /agent-bus/v1/builtin/init `
+
+内部 action: `builtin.init`
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 默认值
+
+```
+| 说明
+
+
+                                                                             |
+```
+
+| ---------------------- | ------ | ------------- | -------------------------------------------------------------------------------------- |
+| `dryRun`         | bool | `false` | 仅校验 manifest、扫描资源并返回将要执行的动作，不写入 Agent、Skill、绑定或初始化状态 |
+| `includeDetails` | bool | `true`  | 是否返回每个资源的处理明细`items`                                                |
+
+**响应:** [BuiltinInitResult](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#builtininitresult "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#builtininitresult")
+
+**响应示例:**
+
+`{ "initialized": true, "state": "READY", "runId": "builtin_init_xxx", "manifestId": "dolphindb-agent-builtins", "manifestVersion": "2026.05.13", "manifestHash": "sha256:...", "dryRun": false, "summary": { "createdAgents": 1, "createdSkills": 2, "updatedSkills": 0, "createdBindings": 1, "skippedExisting": 0, "skippedUnchanged": 0, "skippedUserModified": 0, "failed": 0 }, "items": [ { "resourceType": "SKILL", "resourceKey": "dolphindb-sql-guide", "resourceId": "skill_xxx", "action": "CREATED", "status": "SUCCESS" }, { "resourceType": "AGENT", "resourceKey": "agent_builtin_550e8400-e29b-41d4-a716-446655440000", "resourceId": "agent_builtin_550e8400-e29b-41d4-a716-446655440000", "action": "CREATED", "status": "SUCCESS" } ], "lastFailures": [] } `
+
+说明：
+
+* 初始化按 manifest 顺序逐个处理 Skill zip，不一次性加载、解压或缓存所有 Skill 包。
+* 普通公开接口 `agent.register` 仍不允许传 `agentId`；固定 `agent_builtin_<uuid>` 只允许内置初始化内部流程使用。
+* 内置 Agent 初始化时不自动授权给任何用户、用户组或 PUBLIC，也不绑定默认 LLM。管理员后续通过现有授权和 LLM 绑定接口配置。
+* 内置 Skill 使用 `ownerUserId="__agent_builtin__"`，该字段仅用于标识、展示和审计，不参与鉴权。
+* `dryRun=true` 时不会写入初始化状态，因此不会改变后续 `status` 查询结果。
+
+#### 查询初始化状态
+
+`GET /agent-bus/v1/builtin/init/status `
+
+内部 action: `builtin.init.status`
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 默认值
+
+```
+| 说明
+
+
+                                     |
+```
+
+| ---------------------- | ------ | ------------- | ---------------------------------------------- |
+| `includeDetails` | bool | `false` | 是否返回初始化状态表中的明细记录`states` |
+
+WebSocket 调用时，`includeDetails` 放在 `payload` 中。
+
+**响应:** [BuiltinInitResult](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#builtininitresult "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#builtininitresult")
+
+**响应示例:**
+
+`{ "initialized": false, "state": "STALE", "manifestId": "dolphindb-agent-builtins", "manifestVersion": "2026.05.13", "manifestHash": "sha256:...", "lastRunId": "builtin_init_xxx", "lastRunTime": "2026.05.13 12:30:00.000", "summary": { "createdAgents": 1, "createdSkills": 2, "updatedSkills": 0, "createdBindings": 1, "skippedExisting": 0, "skippedUnchanged": 0, "skippedUserModified": 0, "failed": 0 }, "lastFailures": [] } `
+
+状态查询允许触发初始化状态表创建，便于管控 Web 在首次部署后直接查询。
+
+#### 状态与资源动作
+
+`state` 取值：
+
+| 状态
+
+```
+| 说明
+
+
+                                                        |
+```
+
+| --------------- | ----------------------------------------------------------------- |
+| `NOT_RUN` | 当前 manifest 从未执行初始化                                    |
+| `READY`   | 当前 manifest 下所有资源均已成功处理或明确跳过                  |
+| `PARTIAL` | 上次初始化部分成功，存在失败或冲突项，可重试                    |
+| `STALE`   | 磁盘上的当前 manifest hash 与上次记录不一致，需要重新执行初始化 |
+| `INVALID` | 当前 manifest 缺失、无法解析或校验失败                          |
+
+`items[].resourceType` 取值：`SKILL`、`AGENT`、`BINDING`、`MANIFEST`。
+
+常见 `items[].action`：
+
+| 动作
+
+```
+| 说明
+
+
+                                                    |
+```
+
+| ---------------------------------- | ------------------------------------------------------------- |
+| `CREATED`                    | 新建 Agent 或 Skill                                         |
+| `UPDATED`                    | 托管 Skill 被安全更新                                       |
+| `BOUND`                      | 建立 Agent 到 Skill 的显式绑定                              |
+| `ACTIVATED`                  | 已有托管 Agent 被补激活                                     |
+| `SKIPPED_EXISTING`           | 资源已存在且无需处理                                        |
+| `SKIPPED_UNCHANGED`          | 托管 Skill 与当前发布包内容一致                             |
+| `SKIPPED_EXISTING_UNMANAGED` | 同名 Skill 已存在但不是内置初始化托管资源，跳过不覆盖       |
+| `SKIPPED_UPDATE_CONFLICT`    | 托管 Skill 已被管理员修改，跳过自动更新                     |
+| `SKIPPED_USER_UNBOUND`       | 用户或管理员已解绑该内置绑定，初始化不恢复                  |
+| `SKIPPED_DELETED`            | 曾经托管的 Skill 已被删除，初始化不自动恢复                 |
+| `ORPHANED_BUILTIN_RESOURCE`  | 历史内置资源不再出现在当前 manifest，仅记录状态，不删除资源 |
+| `FAILED`                     | 当前资源处理失败                                            |
+
+`dryRun=true` 时会返回对应的 `WOULD_*` 动作。
+
+#### 升级语义
+
+初始化接口可重复调用，升级时继续使用同一个入口：
+
+1. 新增 Agent、Skill 或显式绑定会被补齐。
+2. 已存在的托管 Agent 默认不覆盖配置；若 manifest 期望 `ACTIVE` 且 Agent 尚未激活，可补执行激活。
+3. 同名内置 Skill 默认采用 managed 策略：当前内容仍等于上次初始化写入内容时，允许用新发布包更新；若已被管理员修改，则跳过并记录冲突。
+4. Agent 对 common Skill 的继承不需要初始化写绑定；Agent 已解绑 common Skill 后，初始化不会自动恢复。
+5. manifest 不表达删除动作。旧 manifest 中声明过、新 manifest 中不再声明的资源只会被标记为 orphaned，不会自动删除或解绑。
+
+---
+
+## 4. 数据结构参考
 
 ### AgentInfo
 
@@ -2100,7 +2219,6 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 | --------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `agentId`       | string    | 全局唯一 ID，由框架在注册时自动生成                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `agentName`     | string    | Agent 可读名称，必填                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `agentType`     | string    | 类型标签，自由填写的字符串（如`"chat"`、`"task"`、`"pipeline"`），框架不做枚举限制也不据此分支，仅用于分类展示                                                                                                                                                                                                                                                                                                                      |
 | `description`   | string    | Agent 描述信息                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `status`        | int       | 状态值：0=REGISTERED, 1=ACTIVE, 2=SUSPENDED, 3=DELETED                                                                                                                                                                                                                                                                                                                                                                                          |
 | `statusName`    | string    | 状态可读名称：`REGISTERED`（已注册，不可创建会话）/`ACTIVE`（已激活，可正常使用）/`SUSPENDED`（已挂起）/`DELETED`（已删除）                                                                                                                                                                                                                                                                                                     |
@@ -2621,29 +2739,32 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
   | 说明
 
 
-                                                                                                                                                    |
+                                                                                                 |
 ```
 
-| ------------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `skillId`                | string    | 技能唯一 ID，注册时自动生成                                                                                                                                 |
-| `name`                   | string    | 技能名称，启用状态下全局唯一。用于应用层`activeSkillNames`引用和目录展示                                                                                |
-| `description`            | string    | 技能描述，在 Tier-1 技能目录中展示，帮助 LLM 判断是否需要该技能                                                                                             |
-| `license`                | string    | 许可证信息                                                                                                                                                  |
-| `compatibility`          | string    | 兼容性说明（如最低框架版本要求）                                                                                                                            |
-| `argumentHint`           | string    | 参数提示信息，在 Tier-1 目录中展示，提示 LLM 如何调用该技能                                                                                                 |
-| `disableModelInvocation` | bool      | 是否禁止 LLM 自动调用。为`true`时该技能不会出现在 LLM 的工具目录（Tier-1）中，但仍可通过用户显式调用。可被 agent 级别的 binding`configOverride`覆盖 |
-| `userInvocable`          | bool      | 是否允许用户直接调用该技能                                                                                                                                  |
-| `hasInstruction`         | bool      | 技能包中是否包含 Tier-2 指令（SKILL.md frontmatter 之后的正文内容）                                                                                         |
-| `displayName`            | string    | 技能显示名称                                                                                                                                                |
-| `category`               | string    | 技能分类标签，用于按分类筛选                                                                                                                                |
-| `version`                | string    | 语义版本号（如`1.0.0`）                                                                                                                                 |
-| `enabled`                | bool      | 是否启用；禁用时不参与目录和指令组装                                                                                                                        |
-| `ownerUserId`            | string    | 技能所属用户                                                                                                                                                |
-| `metadata`               | object    | 自定义元数据                                                                                                                                                |
-| `schemaVersion`          | int       | 行 Schema 版本号                                                                                                                                            |
-| `extra`                  | string    | 预留扩展字段                                                                                                                                                |
-| `createTime`             | timestamp | 创建时间                                                                                                                                                    |
-| `updateTime`             | timestamp | 最后更新时间                                                                                                                                                |
+| ------------------------------ | ----------- | ---------------------------------------------------------------------------------------------------------- |
+| `skillId`                | string    | 技能唯一 ID，注册时自动生成                                                                              |
+| `name`                   | string    | 技能名称，启用状态下全局唯一。用于应用层`activeSkillNames`引用和目录展示                             |
+| `description`            | string    | 技能描述，在 Tier-1 技能目录中展示，帮助 LLM 判断是否需要该技能                                          |
+| `license`                | string    | 许可证信息                                                                                               |
+| `compatibility`          | string    | 兼容性说明（如最低框架版本要求）                                                                         |
+| `argumentHint`           | string    | 参数提示信息，在 Tier-1 目录中展示，提示 LLM 如何调用该技能                                              |
+| `disableModelInvocation` | bool      | 是否禁止 LLM 自动调用。为`true`时该技能不会出现在 LLM 的工具目录（Tier-1）中，但仍可通过用户显式调用 |
+| `userInvocable`          | bool      | 是否允许用户直接调用该技能                                                                               |
+| `hasInstruction`         | bool      | 技能包中是否包含 Tier-2 指令（SKILL.md frontmatter 之后的正文内容）                                      |
+| `contentRevision`        | int       | 技能包文件内容版本                                                                                       |
+| `contentHash`            | string    | 当前 Skill 规范化内容 hash                                                                               |
+| `displayName`            | string    | 技能显示名称                                                                                             |
+| `category`               | string    | 技能分类标签，用于按分类筛选                                                                             |
+| `version`                | string    | 语义版本号（如`1.0.0`）                                                                              |
+| `isCommon`               | bool      | 是否为 common skill；common skill 默认被所有 Agent 继承                                                  |
+| `enabled`                | bool      | 是否启用；禁用时不参与目录和指令组装                                                                     |
+| `ownerUserId`            | string    | 技能所属用户                                                                                             |
+| `metadata`               | object    | 自定义元数据                                                                                             |
+| `schemaVersion`          | int       | 行 Schema 版本号                                                                                         |
+| `extra`                  | string    | 预留扩展字段                                                                                             |
+| `createTime`             | timestamp | 创建时间                                                                                                 |
+| `updateTime`             | timestamp | 最后更新时间                                                                                             |
 
 ---
 
@@ -2658,23 +2779,135 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
   | 说明
 
 
-                                                                                      |
+                                                                |
 ```
 
-| ---------------------- | ----------- | ----------------------------------------------------------------------------------------------- |
-| `id`             | string    | 绑定记录 ID                                                                                   |
-| `agentId`        | string    | 绑定到的 Agent ID                                                                             |
-| `skillId`        | string    | 被绑定的技能 ID                                                                               |
-| `subjectType`    | string    | 绑定主体类型：`AGENT`（agent 级别绑定）/`DB_USER`（用户级限制）                       |
-| `subjectId`      | string    | 绑定主体 ID（agentId 或 DolphinDB userId）                                                    |
-| `enabled`        | bool      | 绑定是否启用。为`false`时该技能对此 agent 不可见（不出现在目录中，指令也不会被加载）      |
-| `descOverride`   | string    | 描述覆盖。非空时在 Tier-1 目录中替代技能原始 description 展示                                 |
-| `configOverride` | object    | 配置覆盖。当前支持覆盖`disableModelInvocation`（bool），可在 agent 级别覆盖技能的默认设置 |
-| `schemaVersion`  | int       | 行 Schema 版本号                                                                              |
-| `extra`          | string    | 预留扩展字段                                                                                  |
-| `createTime`     | timestamp | 绑定时间                                                                                      |
-| `updateTime`     | timestamp | 最后更新时间                                                                                  |
-| `skill`          | SkillInfo | 关联的技能完整信息（列表接口中可选返回）                                                      |
+| --------------------- | ----------- | ------------------------------------------------------------------------- |
+| `id`            | string    | 绑定记录 ID                                                             |
+| `agentId`       | string    | 绑定到的 Agent ID                                                       |
+| `skillId`       | string    | 被绑定的技能 ID                                                         |
+| `subjectType`   | string    | 绑定主体类型：`AGENT`（agent 级别绑定）/`DB_USER`（用户级限制） |
+| `subjectId`     | string    | 绑定主体 ID（agentId 或 DolphinDB userId）                              |
+| `available`     | bool      | 派生可用状态。为`false`时该技能不进入 catalog 和 context            |
+| `source`        | string    | 绑定来源：`EXPLICIT`、`COMMON_INHERITED`、`COMMON_DISABLED` |
+| `schemaVersion` | int       | 行 Schema 版本号                                                        |
+| `extra`         | string    | 预留扩展字段                                                            |
+| `createTime`    | timestamp | 绑定时间                                                                |
+| `updateTime`    | timestamp | 最后更新时间                                                            |
+| `skill`         | SkillInfo | 关联的技能完整信息（列表接口中可选返回）                                |
+
+---
+
+### BuiltinInitResult
+
+`/builtin/init` 与 `/builtin/init/status` 的响应结构。初始化接口返回当前执行结果；状态接口返回最近一次非 dryRun 初始化状态。
+
+| 字段
+
+```
+| 类型
+
+
+                                                                                                                                                                                                                                                                                                                                                                            | 说明
+
+
+                                                                      |
+```
+
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `initialized`     | bool                                                                                                                                                                                                                                                                                                                                                                                | `state == "READY"`时为 true                                               |
+| `state`           | string                                                                                                                                                                                                                                                                                                                                                                              | 初始化状态：`NOT_RUN`/`READY`/`PARTIAL`/`STALE`/`INVALID` |
+| `runId`           | string                                                                                                                                                                                                                                                                                                                                                                              | 本次初始化运行 ID；状态查询中可能为空                                         |
+| `manifestId`      | string                                                                                                                                                                                                                                                                                                                                                                              | manifest 中声明的内置资源包标识                                               |
+| `manifestVersion` | string                                                                                                                                                                                                                                                                                                                                                                              | manifest 中声明的发布版本，用于展示和状态记录                                 |
+| `manifestHash`    | string                                                                                                                                                                                                                                                                                                                                                                              | 当前磁盘 manifest 内容 hash                                                   |
+| `lastRunId`       | string                                                                                                                                                                                                                                                                                                                                                                              | 最近一次非 dryRun 初始化运行 ID；状态查询返回                                 |
+| `lastRunTime`     | timestamp / string                                                                                                                                                                                                                                                                                                                                                                  | 最近一次非 dryRun 初始化时间；未初始化时为空                                  |
+| `dryRun`          | bool                                                                                                                                                                                                                                                                                                                                                                                | 是否为 dryRun 结果；状态查询通常不返回该字段或为 false                        |
+| `summary`         | [BuiltinInitSummary](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#builtininitsummary "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#builtininitsummary") | 资源处理汇总                                                                  |
+| `items`           | BuiltinInitItem[]                                                                                                                                                                                                                                                                                                                                                                   | 初始化接口的资源处理明细，仅`includeDetails=true`返回                     |
+| `lastFailures`    | BuiltinInitItem[]                                                                                                                                                                                                                                                                                                                                                                   | 最近失败或冲突项                                                              |
+| `states`          | BuiltinStateRecord[]                                                                                                                                                                                                                                                                                                                                                                | 状态查询明细，仅`/builtin/init/status?includeDetails=true`返回            |
+| `errorCode`       | string                                                                                                                                                                                                                                                                                                                                                                              | 全局失败错误码，通常仅`state=INVALID`时返回                               |
+| `message`         | string                                                                                                                                                                                                                                                                                                                                                                              | 全局失败说明                                                                  |
+
+---
+
+### BuiltinInitSummary
+
+| 字段
+
+```
+| 类型
+```
+
+| 说明
+
+```
+|
+```
+
+| --------------------------- | ------ | --------------------------------------- |
+| `createdAgents`       | int  | 本次新建的内置 Agent 数               |
+| `createdSkills`       | int  | 本次新建的内置 Skill 数               |
+| `updatedSkills`       | int  | 本次安全更新的托管 Skill 数           |
+| `createdBindings`     | int  | 本次新建的显式 Skill 绑定数           |
+| `skippedExisting`     | int  | 已存在或用户解绑等跳过项数量          |
+| `skippedUnchanged`    | int  | 内容未变化的托管 Skill 数             |
+| `skippedUserModified` | int  | 因管理员修改而跳过更新的托管 Skill 数 |
+| `failed`              | int  | 失败或冲突项数量                      |
+
+---
+
+### BuiltinInitItem
+
+| 字段
+
+```
+| 类型
+```
+
+| 说明
+
+```
+|
+```
+
+| -------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `resourceType` | string | 资源类型：`SKILL`/`AGENT`/`BINDING`/`MANIFEST`                                                             |
+| `resourceKey`  | string | 资源幂等键。Agent 使用`agentId`，Skill 使用`name`，绑定使用 \`agentId                                              |
+| `resourceId`   | string | 实际系统资源 ID。Agent 为`agentId`，Skill/Binding 通常为`skillId`                                                  |
+| `action`       | string | 处理动作，如`CREATED`、`UPDATED`、`BOUND`、`SKIPPED_EXISTING`、`SKIPPED_UPDATE_CONFLICT`、`FAILED` |
+| `status`       | string | 处理状态：`SUCCESS`/`FAILED`/`CONFLICT`                                                                        |
+| `errorCode`    | string | 失败或冲突错误码                                                                                                           |
+| `message`      | string | 失败或冲突说明                                                                                                             |
+
+---
+
+### BuiltinStateRecord
+
+初始化状态表明细，仅用于管控侧排查和展示。
+
+| 字段
+
+```
+| 类型
+
+
+  | 说明
+
+
+                                                                                                                             |
+```
+
+| ---------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `manifestId`           | string    | manifest 标识                                                                                                                        |
+| `targetType`           | string    | 状态对象类型：`MANIFEST`/`RUN`/`AGENT`/`SKILL`/`BINDING`                                                         |
+| `targetKey`            | string    | 状态对象幂等键                                                                                                                       |
+| `payloadSchemaVersion` | int       | payload 内部 schema 版本                                                                                                             |
+| `payload`              | object    | 状态 payload，包含`manifestVersion`、`manifestHash`、`resourceId`、`status`、`lastAction`、`lastRunId`等字段 |
+| `createTime`           | timestamp | 状态记录创建时间                                                                                                                     |
+| `updateTime`           | timestamp | 状态记录更新时间                                                                                                                     |
 
 ---
 
@@ -2756,39 +2989,9 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 
 ---
 
-### LLM Usage Stats
-
-`GET /agent-bus/v1/llm/usage `
-
-**查询参数:**
-
-| 参数
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| -------------------- | -------- | ------ | ----------------------------------------------------------------------------------------- |
-| `agentId`      | string | 是   | Agent ID                                                                                |
-| `targetUserId` | string | 否   | 只读过滤目标用户。未指定时返回当前登录用户自己的统计；仅`AGENT_ADMIN`可查看他人数据 |
-| `startTime`    | long   | 否   | 开始时间（毫秒时间戳）                                                                  |
-| `endTime`      | long   | 否   | 结束时间（毫秒时间戳）                                                                  |
-
-**响应:**
-
-`{ "agentId": "agent_xxx", "userId": "alice", "startTime": 1711699200000, "endTime": 1711785600000, "totalPromptTokens": 50000, "totalCompletionTokens": 15000, "totalTokens": 65000, "requestCount": 100 } `
-
 ---
 
-## 18. 错误码
+## 5. 错误码
 
 | 错误码
 
@@ -2817,7 +3020,309 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 
 ---
 
-## 附录：技能包规范
+## 6. WebSocket 协议
+
+### 连接
+
+WebSocket 端点路径与 HTTP 相同（通过协议升级）。
+
+### 消息格式
+
+所有 WebSocket 帧为 JSON：
+
+**请求帧:**
+
+请求帧只识别下列顶层字段，其它字段一律忽略：
+
+| 字段
+
+```
+| 必填
+
+
+       | 说明
+
+
+                                                                                         |
+```
+
+| ----------------- | ---------------- | -------------------------------------------------------------------------------------------------- |
+| `type`      | 是             | 固定`"REQUEST"`                                                                              |
+| `action`    | 是             | 内部 action 名，见下方对照表                                                                     |
+| `requestId` | 建议           | 客户端生成的请求 ID，服务端会原样回填到响应帧的`correlationId`                               |
+| `agentId`   | 视 action 而定 | 当对应 HTTP 路由含`{agentId}`或接口语义需要时填写                                            |
+| `sessionId` | 视 action 而定 | 当对应 HTTP 路由含`{sessionId}`或接口语义需要时填写                                          |
+| `payload`   | 视 action 而定 | JSON 对象，承载 HTTP 请求体 + HTTP 查询串 + HTTP 路径参数（除`agentId`/`sessionId`以外） |
+
+`{ "type": "REQUEST", "requestId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "payload": { "message": "你好", "stream": true } } `
+
+**响应帧:**
+
+`{ "type": "RESPONSE", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": { ... } } `
+
+**流式帧:**
+
+`{"type": "STREAM_START", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"requestId": "req_001", "model": "<resolved-model>", "llmConfigId": "llm_xxx"}} {"type": "STREAM_REASONING", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"reasoning": "..."}} {"type": "STREAM_CHUNK", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"content": "..."}} {"type": "STREAM_END", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {...}} `
+
+**错误帧:**
+
+`{ "type": "ERROR", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "error": { "code": "BUS_HANDLER_ERROR", "message": "session not found" }, "headers": { "busErrorCode": "BUS_HANDLER_ERROR", "httpStatus": "500" } } `
+
+### HTTP → WebSocket 参数映射规则
+
+WebSocket 没有 URL 路径和 HTTP 方法，所以 HTTP 接口里的"路径参数 / 查询串 / 请求体"必须统一折叠进 WebSocket 帧。规则只有两条：
+
+1. `agentId`**​ 和 ​**`sessionId`​**​ 放到帧的顶层字段**​（因为它们是信封级字段，服务端有专门的解析路径）。
+2. **其它所有参数都放进 ​**`payload`，键名与 HTTP 文档里描述的字段名一致：
+   * HTTP 路径里的 `{userId}` / `{memoryId}` / `{llmConfigId}` / `{skillId}` / `{skillName}` / `{id}` → 在 `payload` 里用对应字段（`userId` / `memoryId` / `llmConfigId` / `skillId` / `skillName`，而 `{id}` 按接口语义转成 `agentId` / `sessionId` / `skillId` / `memoryId` / `llmConfigId` 之一）
+   * HTTP 查询串里的 `?status=0&limit=100&offset=20` → 在 `payload` 里写 `"status": 0, "limit": 100, "offset": 20`
+   * HTTP JSON 请求体字段 → 原样放进 `payload`
+
+同一个字段不能在"顶层 + payload"里同时出现且取值不同，否则服务端会以 `agentId in payload conflicts with ...` 之类的错误拒绝。
+
+**示例 1：多个路径参数**
+
+HTTP：
+
+`GET /agent-bus/v1/skill/{agentId}/user/{userId}/denied `
+
+WebSocket：
+
+`{ "type": "REQUEST", "requestId": "req_42", "action": "skill.user.denied", "agentId": "agent_xxx", "payload": { "userId": "business_user_001" } } `
+
+**示例 2：路径参数 + 查询串**
+
+HTTP：
+
+`GET /agent-bus/v1/session/list?agentId=agent_xxx&status=0&limit=50&offset=0 `
+
+WebSocket：
+
+`{ "type": "REQUEST", "requestId": "req_43", "action": "session.list", "agentId": "agent_xxx", "payload": { "status": 0, "limit": 50, "offset": 0 } } `
+
+**示例 3：路径参数 + 请求体**
+
+HTTP：
+
+`PUT /agent-bus/v1/memory/{memoryId} Body: { "importance": 0.8, "category": "note" } `
+
+WebSocket：
+
+`{ "type": "REQUEST", "requestId": "req_44", "action": "memory.update", "payload": { "memoryId": "mem_abc", "importance": 0.8, "category": "note" } } `
+
+### 支持的 Action
+
+WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），action 名称见各接口说明中的内部名称：
+
+| Action
+
+```
+| 对应 HTTP 接口
+
+
+                        |
+```
+
+| ------------------------------- | ------------------------------------------- |
+| `agent.register`          | POST /agent/register                      |
+| `agent.get`               | GET /agent/{id}                           |
+| `agent.update`            | PUT /agent/{id}                           |
+| `agent.activate`          | POST /agent/{id}/activate                 |
+| `agent.suspend`           | POST /agent/{id}/suspend                  |
+| `agent.delete`            | POST /agent/{id}/delete                   |
+| `agent.list`              | GET /agent/list                           |
+| `agent.auth.grant`        | POST /agent/{id}/auth                     |
+| `agent.auth.revoke`       | DELETE /agent/{id}/auth                   |
+| `agent.auth.list`         | GET /agent/{id}/auth/list                 |
+| `agent.accessible`        | GET /agent/accessible                     |
+| `agent.llm.grant`         | POST /agent/{id}/llm/access               |
+| `agent.llm.revoke`        | DELETE /agent/{id}/llm/access             |
+| `agent.llm.list`          | GET /agent/{id}/llm/list                  |
+| `agent.llm.selectable`    | GET /agent/{id}/llm/selectable            |
+| `admin.access.grant`      | POST /admin/access                        |
+| `admin.access.revoke`     | DELETE /admin/access                      |
+| `admin.access.list`       | GET /admin/access                         |
+| `user.llm.access.grant`   | POST /user/{id}/llm/access                |
+| `user.llm.access.revoke`  | DELETE /user/{id}/llm/access              |
+| `user.llm.access.list`    | GET /user/{id}/llm/access                 |
+| `llm.provider.register`   | POST /llm/provider/register               |
+| `llm.provider.get`        | GET /llm/provider/{id}                    |
+| `llm.provider.list`       | GET /llm/provider/list                    |
+| `llm.provider.update`     | PUT /llm/provider/{id}                    |
+| `llm.provider.delete`     | DELETE /llm/provider/{id}                 |
+| `llm.config.register`     | POST /llm/config/register                 |
+| `llm.config.get`          | GET /llm/config/{id}                      |
+| `llm.config.list`         | GET /llm/config/list                      |
+| `llm.config.update`       | PUT /llm/config/{id}                      |
+| `llm.config.delete`       | DELETE /llm/config/{id}                   |
+| `llm.complete`            | POST /llm/complete                        |
+| `llm.usage`               | GET /llm/usage                            |
+| `builtin.init`            | POST /builtin/init                        |
+| `builtin.init.status`     | GET /builtin/init/status                  |
+| `chat.completions`        | POST /chat/completions                    |
+| `context.preview`         | POST /context/preview                     |
+| `session.create`          | POST /session/create                      |
+| `session.get`             | GET /session/{id}                         |
+| `session.update`          | PUT /session/{id}                         |
+| `session.archive`         | POST /session/{id}/archive                |
+| `session.delete`          | POST /session/{id}/delete                 |
+| `session.list`            | GET /session/list                         |
+| `session.appendMessage`   | POST /session/{id}/message                |
+| `session.getMessages`     | GET /session/{id}/messages                |
+| `session.generateSummary` | POST /session/{id}/summary                |
+| `memory.store`            | POST /memory/store                        |
+| `memory.get`              | GET /memory/{id}                          |
+| `memory.update`           | PUT /memory/{id}                          |
+| `memory.delete`           | DELETE /memory/{id}                       |
+| `memory.search`           | POST /memory/search                       |
+| `memory.list`             | GET /memory/list                          |
+| `memory.stats`            | GET /memory/stats                         |
+| `skill.register`          | POST /skill/register                      |
+| `skill.get`               | GET /skill/{id}                           |
+| `skill.getByName`         | GET /skill/byName/{name}                  |
+| `skill.update`            | PUT /skill/{id}                           |
+| `skill.delete`            | DELETE /skill/{id}                        |
+| `skill.list`              | GET /skill/list                           |
+| `skill.getInstruction`    | GET /skill/{id}/instruction               |
+| `skill.files.list`        | GET /skill/{id}/files/list                |
+| `skill.files.get`         | GET /skill/{id}/files/get                 |
+| `skill.files.batchGet`    | POST /skill/{id}/files/batchGet           |
+| `skill.bind`              | POST /skill/bind                          |
+| `skill.unbind`            | POST /skill/unbind                        |
+| `skill.bindings`          | GET /skill/{agentId}/bindings             |
+| `skill.catalog`           | GET /skill/{agentId}/catalog              |
+| `skill.context`           | POST /skill/{agentId}/context             |
+| `skill.user.deny`         | POST /skill/user/deny                     |
+| `skill.user.allow`        | POST /skill/user/allow                    |
+| `skill.user.denied`       | GET /skill/{agentId}/user/{userId}/denied |
+
+---
+
+## 7. 附录：内置 Agent/Skill 发布包规范
+
+### 目录结构
+
+内置初始化只读取 DolphinDB 可执行文件同级目录下的 `agentBuiltins/`。服务端不接受客户端传入的 manifest 路径、Skill 根目录或任意本地路径。
+
+`<dolphindb_exe_dir>/agentBuiltins/ manifest.json prompts/ data-assistant.md coding-assistant.md skills/ dolphindb-sql-guide.zip dolphindb-security-guide.zip data-analysis-playbook.zip coding-playbook.zip `
+
+目录层级只表达文件类型，不表达绑定关系：
+
+| 路径
+
+```
+| 说明
+
+
+                         |
+```
+
+| --------------------- | ---------------------------------- |
+| `manifest.json` | 内置 Agent、Skill 和绑定关系声明 |
+| `prompts/`      | Agent system prompt 文件         |
+| `skills/`       | Skill zip 包                     |
+
+安全约束：
+
+* `skills[].package` 和 `agents[].systemPromptFile` 必须是相对 `manifest.json` 所在目录的路径。
+* 路径不得是绝对路径，不得包含 `..`，规范化后的真实路径必须仍落在 `agentBuiltins/` 目录内。
+* Skill zip 包按 manifest 顺序逐个读取和处理，服务端不会一次性加载所有 zip。
+
+### manifest.json 格式
+
+manifest 使用 JSON。`schemaVersion` 表示 manifest 文件结构版本，用于服务端解析兼容性判断；当前支持 `1`。`manifestVersion` 表示本次发布包的业务版本，用于展示、状态记录和升级判断，本身不驱动数据库 schema 升级。
+
+| 字段
+
+```
+| 类型
+
+
+ | 必填
+```
+
+| 说明
+
+```
+|
+```
+
+| ----------------------- | ---------- | ------ | -------------------------------------------------- |
+| `schemaVersion`   | int      | 是   | manifest schema 版本，当前仅支持`1`          |
+| `manifestId`      | string   | 是   | 内置资源包稳定标识，同一套内置资源升级时保持不变 |
+| `manifestVersion` | string   | 是   | 发布包版本，如`2026.05.13`                   |
+| `skills`          | object[] | 是   | 内置 Skill 列表                                  |
+| `agents`          | object[] | 是   | 内置 Agent 列表                                  |
+
+`skills[]` 字段：
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------- | -------- | ------ | --------------------------------------------------------------------------------------------------- |
+| `name`    | string | 是   | Skill 名称，必须与 zip 包内`SKILL.md`frontmatter 的`name`一致                             |
+| `package` | string | 是   | Skill zip 相对路径                                                                                |
+| `common`  | bool   | 否   | 是否注册为 common skill，默认 false。common skill 默认被所有 Agent 继承，包括后续新建的普通 Agent |
+
+`agents[]` 字段：
+
+| 字段
+
+```
+| 类型
+
+
+ | 必填
+```
+
+| 说明
+
+```
+|
+```
+
+| ------------------------ | ---------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `agentId`          | string   | 是   | 系统真实 Agent ID，必须满足`agent_builtin_<uuid>`格式                                                                                                                                                                                                                                                                                                                                    |
+| `agentName`        | string   | 是   | Agent 名称                                                                                                                                                                                                                                                                                                                                                                                   |
+| `description`      | string   | 否   | Agent 描述                                                                                                                                                                                                                                                                                                                                                                                   |
+| `status`           | string   | 否   | 初始状态：`REGISTERED`/`ACTIVE`，默认`REGISTERED`                                                                                                                                                                                                                                                                                                                                |
+| `systemPromptFile` | string   | 是   | system prompt 相对路径                                                                                                                                                                                                                                                                                                                                                                       |
+| `skills`           | string[] | 否   | 该 Agent 的显式 Skill 绑定，填写 Skill name；common skill 不需要在这里声明                                                                                                                                                                                                                                                                                                                   |
+| `contextConfig`    | object   | 否   | Agent 上下文配置，结构同[contextConfig](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#contextconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#contextconfig") |
+| `memoryConfig`     | object   | 否   | Agent 记忆配置，结构同[memoryConfig](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig")      |
+| `config`           | object   | 否   | 自定义扩展配置                                                                                                                                                                                                                                                                                                                                                                               |
+| `extra`            | string   | 否   | 预留扩展字段                                                                                                                                                                                                                                                                                                                                                                                 |
+
+内置 Agent ID 固定格式：
+
+`agent_builtin_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12} `
+
+校验规则：
+
+* `manifestId`、`manifestVersion`、`agentName` 必须非空。
+* 同一 manifest 内 `skills[].name` 不允许重复，`agents[].agentId` 不允许重复。
+* `agents[].skills` 引用的 Skill name 必须存在于 `skills` 列表。
+* 内置 Agent 不允许声明 `ownerUserId` 或 `llmConfigId`。
+* 数据库中已存在且非内置初始化托管的固定 `agentId` 会被视为冲突。
+
+### manifest.json 示例
+
+`{ "schemaVersion": 1, "manifestId": "dolphindb-agent-builtins", "manifestVersion": "2026.05.13", "skills": [ { "name": "dolphindb-sql-guide", "package": "skills/dolphindb-sql-guide.zip", "common": true }, { "name": "data-analysis-playbook", "package": "skills/data-analysis-playbook.zip", "common": false } ], "agents": [ { "agentId": "agent_builtin_550e8400-e29b-41d4-a716-446655440000", "agentName": "Data Q&A Assistant", "description": "Built-in data analysis assistant", "status": "ACTIVE", "systemPromptFile": "prompts/data-assistant.md", "skills": [ "data-analysis-playbook" ], "contextConfig": { "includeSkillCatalog": true, "includeMemory": false }, "memoryConfig": { "embeddingEnabled": false }, "config": { "builtin": true, "builtinVersion": "2026.05.13" } } ] } `
+
+---
+
+## 8. 附录：技能包规范
 
 技能定义格式遵循 [Agent Skills 开放标准](https://agentskills.io/ "https://agentskills.io/")。Skill 是纯指令型资产——一份由 LLM 阅读并遵循的 Markdown 指引。Tool（function calling）的定义、注册与执行由应用层负责，对框架透明。
 
@@ -2950,7 +3455,7 @@ You can use this skill to query DolphinDB distributed tables.
 | true                           | true                 | 否             | 是         | 否                   |
 | true                           | false                | 否             | 否         | 否                   |
 
-注：以上设置可被 agent 级别的 binding `configOverride` 覆盖（如在绑定时设置 `{"disableModelInvocation": true}`）。
+注：以上设置来自 Skill 自身配置；绑定关系不再提供 agent 级描述或配置覆盖。
 
 ### 注册时的解析流程
 
