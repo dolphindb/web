@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 
-import { Button, Form, Input, Popconfirm, type FormInstance } from 'antd'
+import { Button, Form, Input, type FormInstance } from 'antd'
 import {
     PlusOutlined, EditOutlined, DeleteOutlined, ArrowUpOutlined, ArrowDownOutlined, AppstoreOutlined
 } from '@ant-design/icons'
@@ -34,7 +34,7 @@ export function WebMenusConfig () {
     }, [editing_index])
     
     
-    async function save_menus (menus_: WebMenuItem[]) {
+    async function save_menus (menus_: WebMenuItem[], message = t('保存成功')) {
         if (menus_.length)
             config.set_config('webMenus', JSON.stringify(menus_))
         else
@@ -44,7 +44,7 @@ export function WebMenusConfig () {
         
         await config.save_configs()
         
-        model.message.success(t('保存成功'))
+        model.message.success(message)
     }
     
     
@@ -119,14 +119,15 @@ export function WebMenusConfig () {
                                 }}
                             />
                             
-                            <Popconfirm
-                                title={t('确认删除此菜单项？')}
-                                onConfirm={() => save_menus(menus.filter((_, i) => i !== index))}
+                            <Button
+                                type='link'
+                                icon={<DeleteOutlined />}
+                                onClick={() => {
+                                    save_menus(menus.filter((_, i) => i !== index), t('删除成功'))
+                                }}
                             >
-                                <Button type='link' danger icon={<DeleteOutlined />}>
-                                    {t('删除')}
-                                </Button>
-                            </Popconfirm>
+                                {t('删除')}
+                            </Button>
                         </div>
                     </div>)
             }
