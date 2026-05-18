@@ -6,7 +6,7 @@
 
 收听
 
-53
+54
 
 添加反应
 
@@ -90,11 +90,13 @@ demo2.zip
     * [更新记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BF%86)
     * [删除记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4%E8%AE%B0%E5%BF%86)
     * [搜索记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%90%9C%E7%B4%A2%E8%AE%B0%E5%BF%86)
-  * [2.6 会话摘要](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.6-%E4%BC%9A%E8%AF%9D%E6%91%98%E8%A6%81)
+  * [2.6 网络访问能力](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.6-%E7%BD%91%E7%BB%9C%E8%AE%BF%E9%97%AE%E8%83%BD%E5%8A%9B)
+    * [发起外部网络请求](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%8F%91%E8%B5%B7%E5%A4%96%E9%83%A8%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82)
+  * [2.7 会话摘要](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.7-%E4%BC%9A%E8%AF%9D%E6%91%98%E8%A6%81)
     * [生成摘要](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E7%94%9F%E6%88%90%E6%91%98%E8%A6%81)
-  * [2.7 调试接口](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.7-%E8%B0%83%E8%AF%95%E6%8E%A5%E5%8F%A3)
+  * [2.8 调试接口](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.8-%E8%B0%83%E8%AF%95%E6%8E%A5%E5%8F%A3)
     * [Context Preview (上下文预览)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#Context-Preview-(%E4%B8%8A%E4%B8%8B%E6%96%87%E9%A2%84%E8%A7%88))
-  * [2.8 底层接口](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.8-%E5%BA%95%E5%B1%82%E6%8E%A5%E5%8F%A3)
+  * [2.9 底层接口](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.9-%E5%BA%95%E5%B1%82%E6%8E%A5%E5%8F%A3)
     * [LLM Complete (直接调用 LLM)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#LLM-Complete-(%E7%9B%B4%E6%8E%A5%E8%B0%83%E7%94%A8-LLM))
     * [追加消息](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%BF%BD%E5%8A%A0%E6%B6%88%E6%81%AF)
     * [获取消息列表](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E6%B6%88%E6%81%AF%E5%88%97%E8%A1%A8)
@@ -181,6 +183,7 @@ demo2.zip
   * [BuiltinInitSummary](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#BuiltinInitSummary)
   * [BuiltinInitItem](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#BuiltinInitItem)
   * [BuiltinStateRecord](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#BuiltinStateRecord)
+  * [NetworkFetchResponse](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#NetworkFetchResponse)
   * [LLMResponse](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#LLMResponse)
   * [ToolCall](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#ToolCall)
   * [SummaryResult](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SummaryResult)
@@ -264,7 +267,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 ## 2. 面向 Agent 开发者的 API
 
-本章面向调用 Agent 的应用开发者，覆盖 Agent 发现、会话、对话补全、运行时 Skill/Memory 能力，以及调试和底层调用接口。低频和底层接口放在本章靠后位置。
+本章面向调用 Agent 的应用开发者，覆盖 Agent 发现、会话、对话补全、运行时 Skill/Memory/网络访问能力，以及调试和底层调用接口。低频和底层接口放在本章靠后位置。
 
 ---
 
@@ -955,7 +958,70 @@ Memory API 的 HTTP 路由、请求体和响应体不包含 lane 配置；lane �
 
 ---
 
-### 2.6 会话摘要
+### 2.6 网络访问能力
+
+#### 发起外部网络请求
+
+WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#6-websocket-%E5%8D%8F%E8%AE%AE "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#6-websocket-%E5%8D%8F%E8%AE%AE")。
+
+该接口用于 Agent 应用通过 Agent 框架访问外部 HTTP(S) 资源，典型用途是给应用侧 `websearch` 工具拉取公开文档页面。框架只负责安全校验、限流、发起请求和返回原始 HTTP 响应摘要；页面解析、检索排序、重定向处理等逻辑由应用层负责。
+
+`POST /agent-bus/v1/network/fetch `
+
+内部 action 名：`network.fetch`
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+```
+| 说明
+
+
+                                                                                 |
+```
+
+| -------------------- | -------- | ---------- | ------------------------------------------------------------------------------------------ |
+| `agentId`      | string | 条件必填 | Agent ID。也可以通过`x-agent-id`请求头传入；两处同时传入时必须一致                   |
+| `method`       | string | 是       | 仅支持`GET`/`POST`，大小写不敏感                                                 |
+| `url`          | string | 是       | 完整的`http://`或`https://`URL。必须命中服务端内置 allowlist                     |
+| `headers`      | object | 否       | 透传到目标站点的请求头，值必须为标量字符串                                               |
+| `body`         | string | 否       | POST 请求体。`GET`请求不允许携带 body                                                |
+| `timeoutMs`    | int    | 否       | 请求超时时间，默认`10000`，最大`30000`；超过最大值会按最大值处理                 |
+| `maxBodyBytes` | long   | 否       | 响应 body 最大读取字节数，默认`2097152`，最大`2097152`；超过最大值会按最大值处理 |
+
+**响应:** [NetworkFetchResponse](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#networkfetchresponse "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#networkfetchresponse")
+
+`{ "url": "https://docs.dolphindb.cn/zh/tutorials/in_memory_table.html", "method": "GET", "statusCode": 200, "statusText": "OK", "headers": { "content-type": "text/html; charset=utf-8" }, "contentType": "text/html; charset=utf-8", "contentEncoding": "", "body": "<!doctype html>...", "truncated": false, "bodyOmitted": false, "bodyUtf8Sanitized": false, "latencyMs": 321 } `
+
+**访问控制与安全规则:**
+
+* URL 必须是完整 `http://` 或 `https://` URL，不支持相对 URL。
+* 当前内置 allowlist 只允许访问 `docs.dolphindb.cn` 和 `docs.dolphindb.com`。
+* 只允许默认端口：`http` 使用 80，`https` 使用 443；显式指定其它端口会被拒绝。
+* URL 不允许包含空格、控制字符、fragment（`#...`）、userinfo（`user:pass@host`）或 IP literal host。
+* 框架不跟随 3xx 重定向；如果目标站点返回重定向，接口会如实返回状态码和 `Location` 等响应头。
+* 用户侧不允许设置下列请求头：`Host`、`Content-Length`、`Transfer-Encoding`、`Connection`、`Authorization`、`Cookie`、`Proxy-Authorization`、`Proxy-Connection`、`TE`、`Trailer`、`Upgrade`、`Expect`、`Keep-Alive`、`Accept-Encoding`、以及所有 `Proxy-*` 头。
+* 框架会强制使用 `Accept-Encoding: identity`，避免把压缩体直接塞进 JSON 响应。
+* 响应 body 仅在文本类内容且未压缩时返回；二进制、未知类型或非 identity 编码响应会设置 `bodyOmitted=true`，`body` 为空。
+* 文本 body 会按 UTF-8 返回；如果截断或上游内容导致非法 UTF-8，框架会做安全处理并设置 `bodyUtf8Sanitized=true`。
+* 服务端按 `agentId + userId` 对网络访问请求做独立并发与速率控制；当前默认并发上限为 8，速率上限为 120 RPM。
+
+说明：
+
+* `maxBodyBytes` 是读取上限，不代表目标站点一定返回完整内容；当 body 被截断时 `truncated=true`。
+* 对文档 PDF 等二进制资源，接口可以返回 HTTP 状态码、响应头和 content type，但不会把二进制内容放入 `body`。
+* 请求失败、超时、限流或参数校验失败时返回标准 Agent Bus 错误 envelope。
+
+---
+
+### 2.7 会话摘要
 
 #### 生成摘要
 
@@ -989,7 +1055,7 @@ Memory API 的 HTTP 路由、请求体和响应体不包含 lane 配置；lane �
 
 ---
 
-### 2.7 调试接口
+### 2.8 调试接口
 
 #### Context Preview (上下文预览)
 
@@ -1066,7 +1132,7 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 ---
 
-### 2.8 底层接口
+### 2.9 底层接口
 
 #### LLM Complete (直接调用 LLM)
 
@@ -2911,6 +2977,36 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 
 ---
 
+### NetworkFetchResponse
+
+| 字段
+
+```
+| 类型
+```
+
+| 说明
+
+```
+|
+```
+
+| ------------------------- | -------- | ------------------------------------------------------------------------------------- |
+| `url`               | string | 框架规范化后的请求 URL                                                              |
+| `method`            | string | 实际发起的 HTTP 方法：`GET`/`POST`                                          |
+| `statusCode`        | int    | 目标站点返回的 HTTP 状态码。3xx 重定向不会被框架自动跟随                            |
+| `statusText`        | string | 目标站点返回的 HTTP 状态描述                                                        |
+| `headers`           | object | 目标站点返回的响应头                                                                |
+| `contentType`       | string | 从响应头解析出的`Content-Type`，不存在时为空字符串                              |
+| `contentEncoding`   | string | 从响应头解析出的`Content-Encoding`，不存在时为空字符串                          |
+| `body`              | string | 文本类响应体。二进制、未知类型或非 identity 编码响应为空字符串                      |
+| `truncated`         | bool   | 响应体是否因`maxBodyBytes`上限被截断                                            |
+| `bodyOmitted`       | bool   | 是否因为内容类型或编码不适合放入 JSON 响应而省略 body                               |
+| `bodyUtf8Sanitized` | bool   | 文本 body 是否经过 UTF-8 安全处理；常见于截断刚好切断多字节字符或上游返回非法 UTF-8 |
+| `latencyMs`         | long   | 本次网络请求耗时，单位毫秒                                                          |
+
+---
+
 ### LLMResponse
 
 | 字段
@@ -3157,6 +3253,7 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 | `llm.config.delete`       | DELETE /llm/config/{id}                   |
 | `llm.complete`            | POST /llm/complete                        |
 | `llm.usage`               | GET /llm/usage                            |
+| `network.fetch`           | POST /network/fetch                       |
 | `builtin.init`            | POST /builtin/init                        |
 | `builtin.init.status`     | GET /builtin/init/status                  |
 | `chat.completions`        | POST /chat/completions                    |
