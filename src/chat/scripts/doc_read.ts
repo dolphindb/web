@@ -1,11 +1,13 @@
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import { normalize_script_args } from './helpers.ts'
 import { resolve_dolphindb_doc_url } from './doc_url.ts'
+import { network_fetch } from './network_fetch.ts'
 
 
 const DEFAULT_MAX_CHARS = 50000
 const MAX_ALLOWED_CHARS = 150000
-const REQUEST_TIMEOUT_MS = 45_000
+const REQUEST_TIMEOUT_MS = 30_000
+const MAX_BODY_BYTES = 2_097_152
 
 
 function to_positive_int (value: unknown, fallback: number) {
@@ -207,7 +209,7 @@ export const doc_read_config: ScriptConfig = {
             },
         },
     },
-    handler: async (type, content): Promise<ScriptResult> => {
+    handler: async (type, content, context): Promise<ScriptResult> => {
         try {
             const args = normalize_script_args(content)
             const raw_doc_url = (args[0] || '').trim()
@@ -238,13 +240,15 @@ export const doc_read_config: ScriptConfig = {
                     },
                 }
             
-            const response = await fetch(page_url, {
+            const response = await network_fetch(context, {
                 method: 'GET',
-                signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+                url: page_url,
+                timeoutMs: REQUEST_TIMEOUT_MS,
+                maxBodyBytes: MAX_BODY_BYTES,
             })
             
-            const raw_html = await response.text()
-            if (!response.ok)
+            const raw_html = response.body || ''
+            if (response.statusCode < 200 || response.statusCode >= 300)
                 return {
                     next_loop: true,
                     save_message: {
@@ -252,7 +256,19 @@ export const doc_read_config: ScriptConfig = {
                         role: 'tool',
                         messageType: 'tool_error',
                         name: type,
-                        content: `doc_read failed (${response.status}): ${(raw_html || response.statusText).slice(0, 200)}`,
+                        content: `doc_read failed (${response.statusCode}): ${(raw_html || response.statusText).slice(0, 200)}`,
+                    },
+                }
+            
+            if (response.bodyOmitted)
+                return {
+                    next_loop: true,
+                    save_message: {
+                        msgId: `tool_${Date.now()}`,
+                        role: 'tool',
+                        messageType: 'tool_error',
+                        name: type,
+                        content: `doc_read failed: response body omitted by network proxy (${response.contentType || 'unknown content type'}).`,
                     },
                 }
             

@@ -1,7 +1,6 @@
-export const DDB_DOCS_BASE_URL = 'https://test.dolphindb.cn'
+export const DDB_DOCS_BASE_URL = 'https://docs.dolphindb.cn'
 
-const DOCS_HOST = 'test.dolphindb.cn'
-const DDB_RELATED_HOSTS = new Set(['dolphindb.cn', 'www.dolphindb.cn', 'docs.dolphindb.cn', DOCS_HOST])
+const DOCS_HOSTS = new Set(['docs.dolphindb.cn', 'docs.dolphindb.com'])
 
 
 export function resolve_dolphindb_doc_url (raw_url: string): string {
@@ -12,11 +11,11 @@ export function resolve_dolphindb_doc_url (raw_url: string): string {
     try {
         if (/^https?:\/\//i.test(text)) {
             const parsed = new URL(text)
-            if (DDB_RELATED_HOSTS.has(parsed.hostname.toLowerCase())) {
-                parsed.protocol = 'https:'
-                parsed.hostname = DOCS_HOST
-                parsed.port = ''
-            }
+            if (!DOCS_HOSTS.has(parsed.hostname.toLowerCase()))
+                return ''
+            
+            parsed.protocol = 'https:'
+            parsed.port = ''
             return parsed.toString()
         }
         

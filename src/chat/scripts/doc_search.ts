@@ -1,11 +1,13 @@
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import { normalize_script_args } from './helpers.ts'
 import { resolve_dolphindb_doc_url } from './doc_url.ts'
+import { network_fetch } from './network_fetch.ts'
 
 
 const DDB_DOC_SEARCH_URL = 'https://dolphindb.cn/api/search'
 const MAX_ITEMS_PER_PAGE = 30
 const DEFAULT_PAGE = 1
+const REQUEST_TIMEOUT_MS = 30_000
 
 type DocSearchApiItem = {
     content?: unknown
@@ -83,7 +85,7 @@ export const doc_search_config: ScriptConfig = {
             },
         },
     },
-    handler: async (type, content): Promise<ScriptResult> => {
+    handler: async (type, content, context): Promise<ScriptResult> => {
         try {
             const args = normalize_script_args(content)
             const query = (args[0] || '').trim()
@@ -101,8 +103,9 @@ export const doc_search_config: ScriptConfig = {
                     },
                 }
             
-            const response = await fetch(DDB_DOC_SEARCH_URL, {
+            const response = await network_fetch(context, {
                 method: 'POST',
+                url: DDB_DOC_SEARCH_URL,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     query,
@@ -111,11 +114,11 @@ export const doc_search_config: ScriptConfig = {
                     language: 'zh',
                     version: '',
                 }),
-                signal: AbortSignal.timeout(45_000),
+                timeoutMs: REQUEST_TIMEOUT_MS,
             })
             
-            const raw = await response.text()
-            if (!response.ok)
+            const raw = response.body || ''
+            if (response.statusCode < 200 || response.statusCode >= 300)
                 return {
                     next_loop: true,
                     save_message: {
@@ -123,7 +126,7 @@ export const doc_search_config: ScriptConfig = {
                         role: 'tool',
                         messageType: 'tool_error',
                         name: type,
-                        content: `doc_search failed (${response.status}): ${raw || response.statusText}`,
+                        content: `doc_search failed (${response.statusCode}): ${raw || response.statusText}`,
                     },
                 }
             
