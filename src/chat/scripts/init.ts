@@ -7,6 +7,20 @@ import { doc_search_config } from './doc_search.ts'
 import { doc_read_config } from './doc_read.ts'
 import { skill_read_config } from './skill_read.ts'
 import { skill_file_read_config } from './skill_file_read.ts'
+import {
+    execute_file_config,
+    skill_file_copy_config,
+    step_clear_config,
+    step_create_config,
+    step_update_config,
+    vfs_create_config,
+    vfs_delete_config,
+    vfs_list_config,
+    vfs_read_config,
+    vfs_update_config,
+    workspace_state_read_config,
+    workspace_state_update_config,
+} from './workspace_tools.ts'
 
 
 export function init_scripts () {
@@ -18,4 +32,16 @@ export function init_scripts () {
     register_script(doc_read_config)
     register_script(skill_read_config)
     register_script(skill_file_read_config)
+    register_script(vfs_list_config)
+    register_script(vfs_create_config)
+    register_script(vfs_read_config)
+    register_script(vfs_update_config)
+    register_script(vfs_delete_config)
+    register_script(execute_file_config)
+    register_script(skill_file_copy_config)
+    register_script(step_create_config)
+    register_script(step_update_config)
+    register_script(step_clear_config)
+    register_script(workspace_state_read_config)
+    register_script(workspace_state_update_config)
 }

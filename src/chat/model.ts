@@ -13,9 +13,11 @@ import {
     parse_tool_result_json,
     tool_result_json,
 } from './scripts/helpers.ts'
-import { build_system_prompt } from './prompt.ts'
+import { build_current_todo_prompt, build_system_prompt } from './prompt.ts'
 import { parse_tool_calls } from './tool_call_parser.ts'
 import type { ParsedToolCall } from './tool_call_parser.ts'
+import { chat_workspace_store } from './workspace.ts'
+import type { IChatWorkspace, IWorkspaceStep } from './workspace.ts'
 
 
 export type MessageRole = 'system' | 'user' | 'assistant' | 'tool'
@@ -346,6 +348,8 @@ const DDB_RESULT_TOOLS = new Set<string>(['execute', 'show', 'coldefs', 'testsql
 
 const SCRIPT_APPROVAL_TOOLS = new Set<string>(['execute', 'show'])
 
+const REPEAT_GUARD_EXEMPT_TOOLS = new Set<string>(['execute_file'])
+
 
 interface ChatCompletionStreamResult {
     content: string
@@ -526,6 +530,14 @@ class ChatModel extends Model<ChatModel> {
     
     current_session_id = ''
     
+    workspaces: IChatWorkspace[] = [ ]
+    
+    current_workspace_id = ''
+    
+    current_workspace: IChatWorkspace | null = null
+    
+    steps: IWorkspaceStep[] = [ ]
+    
     messages: IMessage[] = [ ]
     
     buffered_messages: string[] = [ ]
@@ -656,6 +668,7 @@ class ChatModel extends Model<ChatModel> {
             await Promise.all([
                 this.load_sessions(),
                 this.load_selectable_llms(),
+                this.load_workspaces(),
             ])
         } catch (error) {
             console.error('Chat init failed:', error)
@@ -994,6 +1007,68 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    async load_workspaces () {
+        const workspaces = await chat_workspace_store.list_workspaces()
+        this.set({ workspaces })
+        return workspaces
+    }
+    
+    
+    async create_workspace (name?: string): Promise<IChatWorkspace> {
+        const workspace = await chat_workspace_store.create_workspace(name || t('新工作区'))
+        this.set({
+            workspaces: [workspace, ...this.workspaces],
+        })
+        return workspace
+    }
+    
+    
+    async load_steps (session_id = this.current_session_id): Promise<IWorkspaceStep[]> {
+        if (!session_id) {
+            this.set({ steps: [ ] })
+            return [ ]
+        }
+        const steps = await chat_workspace_store.list_active_steps(session_id)
+        if (session_id === this.current_session_id)
+            this.set({ steps })
+        return steps
+    }
+    
+    
+    async refresh_workspace_context (session_id = this.current_session_id) {
+        if (!session_id)
+            return
+        const workspace = await chat_workspace_store.ensure_session_workspace(session_id)
+        const [workspaces, steps] = await Promise.all([
+            chat_workspace_store.list_workspaces(),
+            chat_workspace_store.list_active_steps(session_id),
+        ])
+        if (session_id === this.current_session_id)
+            this.set({
+                workspaces,
+                current_workspace_id: workspace.workspace_id,
+                current_workspace: workspace,
+                steps,
+            })
+    }
+    
+    
+    async select_workspace (workspace_id: string, session_id = this.current_session_id) {
+        if (!workspace_id || !session_id)
+            return
+        const workspace = await chat_workspace_store.get_workspace(workspace_id)
+        if (!workspace)
+            throw new Error(t('工作区不存在'))
+        await chat_workspace_store.bind_session_workspace(session_id, workspace_id)
+        if (session_id === this.current_session_id)
+            this.set({
+                current_workspace_id: workspace.workspace_id,
+                current_workspace: workspace,
+                workspaces: await chat_workspace_store.list_workspaces(),
+            })
+    }
+    
+    
     async create_session (): Promise<ISession> {
         const body: Record<string, any> = {
             agentId: this.agent_id,
@@ -1018,9 +1093,18 @@ class ChatModel extends Model<ChatModel> {
             createTime: result.createTime,
             updateTime: result.updateTime,
         }
+        const workspace = this.current_workspace_id
+            ? await chat_workspace_store.get_workspace(this.current_workspace_id) ?? await chat_workspace_store.ensure_default_workspace()
+            : await chat_workspace_store.ensure_default_workspace()
+        await chat_workspace_store.bind_session_workspace(session.sessionId, workspace.workspace_id)
+        const workspaces = await chat_workspace_store.list_workspaces()
         this.set({
             sessions: [session, ...this.sessions],
             current_session_id: session.sessionId,
+            workspaces,
+            current_workspace_id: workspace.workspace_id,
+            current_workspace: workspace,
+            steps: [ ],
             messages: [ ],
             buffered_messages: [ ],
             agent_status: { status: 'idle' },
@@ -1049,6 +1133,8 @@ class ChatModel extends Model<ChatModel> {
             selected_llm_config_id: this.sessions.find(s => s.sessionId === session_id)?.llmConfigId || '',
         })
         
+        await this.refresh_workspace_context(session_id)
+        
         // 加载历史消息
         const result = await this.api_fetch(`/session/${session_id}/messages`)
         const raw_items: any[] = result.items || [ ]
@@ -1067,6 +1153,9 @@ class ChatModel extends Model<ChatModel> {
             this.abort_sse()
             this.set({
                 current_session_id: '',
+                current_workspace_id: '',
+                current_workspace: null,
+                steps: [ ],
                 messages: [ ],
                 buffered_messages: [ ],
             })
@@ -1478,6 +1567,9 @@ class ChatModel extends Model<ChatModel> {
     
     
     check_repeated_tool_call (parsed_call: ParsedToolCall): ToolExecutionResult | null {
+        if (REPEAT_GUARD_EXEMPT_TOOLS.has(parsed_call.type.trim()))
+            return null
+        
         const signature = this.get_tool_call_signature(parsed_call)
         const count = (this._loop_tool_call_counts.get(signature) || 0) + 1
         this._loop_tool_call_counts.set(signature, count)
@@ -1740,6 +1832,21 @@ class ChatModel extends Model<ChatModel> {
             // 加载当前 Agent 绑定的技能列表用于系统提示词
             const skills = _tool_turn === 0 ? await this.load_bound_skills() : this._cached_skills
             this._cached_skills = skills
+            const current_todo_prompt = build_current_todo_prompt(this.current_workspace, this.steps)
+            const context_blocks = [
+                {
+                    name: 'web_tool_call_rules',
+                    content: build_system_prompt(skills),
+                    position: 'after_system',
+                },
+                ...current_todo_prompt
+                    ? [{
+                        name: 'web_current_todo',
+                        content: current_todo_prompt,
+                        position: 'before_current_turn',
+                    }]
+                    : [ ],
+            ]
             
             const body: Record<string, any> = {
                 sessionId: this.current_session_id,
@@ -1747,11 +1854,7 @@ class ChatModel extends Model<ChatModel> {
                 includeReasoning: true,
                 message,
                 assemblyConfig: {
-                    contextBlocks: [{
-                        name: 'web_tool_call_rules',
-                        content: build_system_prompt(skills),
-                        position: 'after_system',
-                    }],
+                    contextBlocks: context_blocks,
                 },
             }
             if (this.selected_llm_config_id)
@@ -2001,6 +2104,9 @@ class ChatModel extends Model<ChatModel> {
         const context: ToolContext = {
             eval: (script, options) => model.ddb.eval(script, options),
             api_fetch: (path, options) => this.api_fetch(path, options),
+            session_id: this.current_session_id,
+            workspace_id: this.current_workspace_id,
+            workspace_store: chat_workspace_store,
         }
         
         // 执行工具
@@ -2096,6 +2202,15 @@ class ChatModel extends Model<ChatModel> {
         // 路由 DdbObj 到 DataView
         if (script_result.ddb_result)
             this.set({ latest_ddb_result: script_result.ddb_result })
+        if (
+            parsed_call.type.startsWith('step_') ||
+            parsed_call.type.startsWith('vfs_') ||
+            parsed_call.type === 'skill_file_copy' ||
+            parsed_call.type.startsWith('workspace_state_')
+        )
+            await this.refresh_workspace_context().catch(error => {
+                console.warn('Refresh workspace context failed:', error)
+            })
         if (stop_loop)
             this.set({ agent_status: { status: 'idle' } })
             

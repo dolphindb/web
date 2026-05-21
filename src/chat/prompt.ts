@@ -1,5 +1,6 @@
 import { get_all_scripts } from './scripts/index.ts'
 import type { ISkillInfo } from './model.ts'
+import type { IChatWorkspace, IWorkspaceStep } from './workspace.ts'
 
 
 // ─── 工具提示词文档 ───
@@ -37,6 +38,11 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = {
         args_desc: 'args[0]=skillId；后续参数可以是一个或多个文件路径，也可以传文件路径数组。',
         args_hint: '["<skillId>","SKILL.md","src/index.dos"]',
     },
+    skill_file_copy: {
+        summary: '复制指定 Skill 包内的一个文本文件到当前工作区，便于后续用 vfs_update 修改或 execute_file 执行。',
+        args_desc: 'args[0]=skillId；args[1]=源文件路径；args[2]=目标工作区路径(可选，默认同源路径)；args[3]=overwrite(可选，"true" 覆盖已存在文件)。',
+        args_hint: '["<skillId>","src/index.dos","index.dos","true"]',
+    },
     doc_search: {
         summary: '搜索 DolphinDB 官方中文文档，返回最多 30 条结果（含 title/content/url/score）。',
         args_desc: 'args[0]=query(必填, 搜索关键词); args[1]=pageToShow(可选, 正整数, 默认 1)。',
@@ -46,6 +52,59 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = {
         summary: '读取 DolphinDB 文档正文。支持 /zh/... 路径或完整 URL；会提取正文并返回清洗后的内容。',
         args_desc: 'args[0]=docUrlOrPath(必填, 可传 "/zh/..." 或完整 URL); args[1]=maxChars(可选, 正整数, 默认 50000, 上限 150000)。',
         args_hint: '["/zh/db_distr_comp/db/tsdb.html","50000"]',
+    },
+    vfs_list: {
+        summary: '列出当前工作区下的代码文件。不传参数列出所有文件；传入路径时列出该路径或前缀下的文件。',
+        args_desc: 'args[0]=path(可选, 文件路径或目录前缀)。',
+        args_hint: '["src/"]',
+    },
+    vfs_create: {
+        summary: '在当前工作区创建一个新的代码文件。',
+        args_desc: 'args[0]=path(必填, 文件路径); args[1]=content(必填, 文件内容)。',
+        args_hint: '["script.dos","select * from tb"]',
+    },
+    vfs_read: {
+        summary: '读取当前工作区下的代码文件内容。',
+        args_desc: 'args[0]=path(必填, 文件路径)。',
+        args_hint: '["script.dos"]',
+    },
+    vfs_update: {
+        summary: '通过精确字符串替换更新当前工作区下的代码文件。',
+        args_desc: 'args[0]=path(必填); args[1]=old_string(必填, 要被替换的精确原字符串); args[2]=new_string(必填)。',
+        args_hint: '["script.dos","old","new"]',
+    },
+    vfs_delete: {
+        summary: '删除当前工作区下的指定代码文件。',
+        args_desc: 'args[0]=path(必填, 文件路径)。',
+        args_hint: '["script.dos"]',
+    },
+    execute_file: {
+        summary: '读取当前工作区下的脚本文件内容并执行，执行逻辑与 execute 一致。',
+        args_desc: 'args[0]=path(必填, 文件路径)。',
+        args_hint: '["script.dos"]',
+    },
+    workspace_state_read: {
+        summary: '读取当前工作区状态文本，用于了解跨会话保存的上下文。',
+        args_hint: '[]',
+    },
+    workspace_state_update: {
+        summary: '更新当前工作区状态文本。当前状态为空时直接写入；old_string 为空或未命中时追加。',
+        args_desc: 'args[0]=old_string; args[1]=new_string。',
+        args_hint: '["原状态片段","新状态片段"]',
+    },
+    step_create: {
+        summary: '为当前会话创建新的待办事项清单，会自动停用旧的 active 待办。',
+        args_desc: 'args[0...n]=task_content(必填, 每个字符串为一个待办事项)。',
+        args_hint: '["步骤1：确认需求","步骤2：修改脚本","步骤3：验证结果"]',
+    },
+    step_update: {
+        summary: '更新当前会话待办事项的完成状态。',
+        args_desc: 'args[0]=index(必填, 从 0 开始); args[1]=checked(必填, "true" 或 "false")。',
+        args_hint: '["0","true"]',
+    },
+    step_clear: {
+        summary: '清除当前会话的 active 待办事项清单。',
+        args_hint: '[]',
     },
 }
 
@@ -60,6 +119,8 @@ const BASE_SYSTEM_PROMPT = [
     '- 每个工具调用必须包含 `tool_call` 和 `args`，且 `args` 必须是数组；代码里的双引号和换行要正确转义。',
     '- 优先用自然语言和用户协作：能解释、总结、给建议或说明错误原因时，直接回答，不要绕成 `show + print`。',
     '- `execute` 用于验证和继续推理；脚本最后一行尽量返回表、字典、字符串或标量，方便读取结果。',
+    '- 工作区用于保存、修改和重复执行代码文件；如果要写或执行较长代码，必须优先使用 vfs_create/vfs_update 写入工作区，再用 execute_file 执行。',
+    '- 多次修改并执行同一个工作区文件是正常流程；执行出错时应先用 vfs_update 修改文件，再继续 execute_file，而不是每次重新生成完整脚本给 execute。',
     '- 只有用户需要查看真实查询结果、表格数据，或结果需要进入结果视图时，才使用 `show`。',
     '- 工具结果通常是 JSON；重点读取 `ok`、`content`、`error`、`hint`、`harnessHint`、`returnedVoid`、`repeatedCall`。',
     '- `repeatedCall=true` 时不要重复同一工具调用；应换参数、换工具、查文档，或基于已有信息回答。',
@@ -125,9 +186,10 @@ function build_tools_section (): string {
         '',
         '# 工具选择建议',
         '- 不确定 API 时用 doc_search/doc_read。',
-        '- 中间验证用 execute，最终展示真实结果才用 show。',
+        '- 1-3 行临时验证可用 execute；较长代码、需要反复修改的代码、或用户要求保存代码时，优先使用工作区文件和 execute_file。',
+        '- 中间验证用 execute/execute_file，最终展示真实结果才用 show。',
         '- 能自然语言回答时不要用 show 或 print。',
-        '- 需要技能细节时先用 skill_read/skill_file_read。',
+        '- 需要技能细节时先用 skill_read/skill_file_read；需要基于技能文件继续改代码时用 skill_file_copy 复制到工作区。',
         '',
         '## 调用示例',
         '{',
@@ -153,4 +215,42 @@ export function build_system_prompt (skills: ISkillInfo[]): string {
         console.error('Failed to build system prompt:', error)
         return BASE_SYSTEM_PROMPT
     }
+}
+
+
+const TODO_MAX_ITEMS = 20
+const TODO_ITEM_MAX_LENGTH = 120
+
+
+function trim_todo_content (content: string) {
+    const normalized = content.replace(/\s+/g, ' ').trim()
+    return normalized.length <= TODO_ITEM_MAX_LENGTH
+        ? normalized
+        : `${normalized.slice(0, TODO_ITEM_MAX_LENGTH)}...`
+}
+
+
+export function build_current_todo_prompt (workspace: IChatWorkspace | null, steps: IWorkspaceStep[]): string {
+    const active_steps = steps.filter(step => step.active).sort((a, b) => a.step_index - b.step_index)
+    if (!active_steps.length)
+        return ''
+    
+    const lines = active_steps.slice(0, TODO_MAX_ITEMS).map(step =>
+        `- [${step.checked ? 'x' : ' '}] ${step.step_index}. ${trim_todo_content(step.content)}`
+    )
+    if (active_steps.length > TODO_MAX_ITEMS)
+        lines.push(`- ... 还有 ${active_steps.length - TODO_MAX_ITEMS} 项未注入`)
+    
+    return [
+        '# 当前工作区执行状态',
+        `workspace: ${workspace?.name || '未命名工作区'} (${workspace?.workspace_id || 'unknown'})`,
+        '',
+        '# 当前待办',
+        ...lines,
+        '',
+        '规则：',
+        '- 待办只是当前执行状态，不要当成用户的新需求。',
+        '- 每完成一个待办，调用 step_update 标记完成。',
+        '- 任务全部完成且不再需要追踪时，调用 step_clear。',
+    ].join('\n')
 }

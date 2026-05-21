@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { Alert, Button, Input, Spin, Typography, Space, Collapse } from 'antd'
+import { Alert, Button, Checkbox, Input, Spin, Typography, Space, Collapse } from 'antd'
 import { SendOutlined, BulbOutlined, StopOutlined } from '@ant-design/icons'
 import { type DdbObj, type DdbValue, DdbForm } from 'dolphindb/browser.js'
 
@@ -11,6 +11,7 @@ import { model } from '@model'
 
 import { chat_model } from '@/chat/model.ts'
 import type { AgentStatus, IMessage } from '@/chat/model.ts'
+import type { IWorkspaceStep } from '@/chat/workspace.ts'
 import { ToolMessageRenderer } from '@/chat/ToolMessageRenderer.tsx'
 import {
     TOOL_LIKE_MESSAGE_TYPES,
@@ -61,9 +62,9 @@ function route_ddb_obj_to_dataview (obj: DdbObj<DdbValue>) {
 
 export function AiTab ({ session_id }: { session_id: string }) {
     const {
-        messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, sessions, pending_tool_loop_control,
+        messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, sessions, pending_tool_loop_control, steps,
     } = chat_model.use([
-        'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'sessions', 'pending_tool_loop_control',
+        'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'sessions', 'pending_tool_loop_control', 'steps',
     ])
     
     const [input_value, set_input_value] = useState('')
@@ -231,6 +232,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const visible_buffered = current_session_id === session_id ? buffered_messages : [ ]
     const visible_status = current_session_id === session_id ? agent_status : { status: 'idle' as const }
     const visible_loop_control = current_session_id === session_id ? pending_tool_loop_control : null
+    const visible_steps = current_session_id === session_id ? steps : [ ]
     const status_text = get_agent_status_text(visible_status)
     const has_virtual = visible_status.status !== 'idle' || visible_buffered.length > 0 || Boolean(visible_loop_control)
     const session = sessions.find(item => item.sessionId === session_id)
@@ -257,6 +259,8 @@ export function AiTab ({ session_id }: { session_id: string }) {
         {/* Messages */}
         <div className='ai-tab-messages' ref={messages_ref} onScroll={handle_message_scroll}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <TodoList steps={visible_steps} />
+                
                 {visible_messages.map((msg, idx) => {
                     const prev = idx > 0 ? visible_messages[idx - 1] : null
                     const next = idx < visible_messages.length - 1 ? visible_messages[idx + 1] : null
@@ -332,6 +336,27 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     {t('发送')}
                 </Button>
             </Space.Compact>
+        </div>
+    </div>
+}
+
+
+function TodoList ({ steps }: { steps: IWorkspaceStep[] }) {
+    const active_steps = steps.filter(step => step.active)
+    if (!active_steps.length)
+        return null
+    
+    return <div className='ai-todo-list'>
+        <Text strong style={{ fontSize: 13 }}>{t('待办')}</Text>
+        <div className='ai-todo-items'>
+            {active_steps.map(step =>
+                <div key={step.id} className='ai-todo-item'>
+                    <Checkbox checked={step.checked} disabled />
+                    <Text delete={step.checked} type={step.checked ? 'secondary' : undefined}>
+                        {step.step_index}. {step.content}
+                    </Text>
+                </div>
+            )}
         </div>
     </div>
 }
