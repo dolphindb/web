@@ -602,7 +602,7 @@ class ChatModel extends Model<ChatModel> {
         const headers: Record<string, string> = {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : { }),
-            ...(this.agent_id ? { 'x-agent-id': this.agent_id } : { }),
+            ...(this.agent_id && path !== '/agent/register' ? { 'x-agent-id': this.agent_id } : { }),
         }
         
         // 合并调用方传入的额外 headers
