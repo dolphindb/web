@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { Alert, Button, Checkbox, Input, Spin, Typography, Space, Collapse } from 'antd'
-import { SendOutlined, BulbOutlined, StopOutlined } from '@ant-design/icons'
+import { SendOutlined, BulbOutlined, StopOutlined, CodeOutlined } from '@ant-design/icons'
 import { type DdbObj, type DdbValue, DdbForm } from 'dolphindb/browser.js'
 
 import { marked } from 'marked'
@@ -21,6 +21,10 @@ import {
     get_structured_payload,
     resolve_tool_name,
     get_agent_status_text,
+    get_tool_display_name,
+    get_tool_natural_text as get_tool_message_natural_text,
+    to_preview_text,
+    to_message_text,
 } from '@/chat/utils/message.ts'
 import { parse_ddb_obj_from_content_object } from '@/chat/utils/ddb-object.ts'
 
@@ -31,6 +35,11 @@ const { Text } = Typography
 
 const AUTO_SCROLL_THRESHOLD = 50
 const AUTO_SCROLL_INTERVAL = 1000
+
+type MessageGroup =
+    | { type: 'message', msg: IMessage, index: number }
+    | { type: 'natural_text', text: string, index: number }
+    | { type: 'tools', messages: IMessage[], start_index: number, end_index: number }
 
 
 marked.setOptions({ breaks: true, gfm: true })
@@ -66,19 +75,19 @@ export function AiTab ({ session_id }: { session_id: string }) {
     } = chat_model.use([
         'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'sessions', 'pending_tool_loop_control', 'steps',
     ])
-    
+
     const [input_value, set_input_value] = useState('')
     const [inited, set_inited] = useState(false)
     const [init_error, set_init_error] = useState('')
-    
+
     const messages_ref = useRef<HTMLDivElement>(null)
     const should_auto_scroll = useRef(true)
     const last_scroll_top = useRef(0)
-    
+
     // Init: ensure chat model is initialized, then select this session
     useEffect(() => {
         let cancelled = false
-        
+
         ;(async () => {
             try {
                 set_init_error('')
@@ -86,17 +95,17 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     await chat_model.init()
                 else if (chat_model.agents.length === 0)
                     await chat_model.load_agents()
-                
+
                 // 确保可选 LLM 已加载
                 if (chat_model.agent_id && chat_model.selectable_llms.length === 0)
                     await chat_model.load_selectable_llms()
-                
+
                 if (cancelled)
                     return
-                
+
                 if (current_session_id !== session_id)
                     await chat_model.select_session(session_id)
-                
+
                 set_inited(true)
             } catch (e) {
                 console.error('AiTab init failed:', e)
@@ -104,10 +113,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 set_inited(true)
             }
         })()
-        
+
         return () => { cancelled = true }
     }, [session_id])
-    
+
     // When tab switches back, re-select the correct session
     useEffect(() => {
         if (inited && current_session_id !== session_id)
@@ -118,7 +127,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     set_init_error(error instanceof Error ? error.message : String(error))
                 })
     }, [inited, session_id])
-    
+
     // Auto-scroll periodic check
     useEffect(() => {
         const timer = setInterval(() => {
@@ -130,7 +139,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         }, AUTO_SCROLL_INTERVAL)
         return () => { clearInterval(timer) }
     }, [ ])
-    
+
     // Scroll on new messages
     useEffect(() => {
         if (!should_auto_scroll.current)
@@ -141,18 +150,18 @@ export function AiTab ({ session_id }: { session_id: string }) {
             last_scroll_top.current = el.scrollTop
         }
     }, [messages, buffered_messages, agent_status.status])
-    
+
     // Route live DdbObj results to DataView (direct reference, no pack/unpack)
     // 使用 ref 标记本次 session 已经路由过 live obj，避免 messages 兜底再把旧数据覆盖回去
     const live_routed_ref = useRef(false)
     const last_seen_msg_id_ref = useRef<string | null>(null)
-    
+
     // session 切换时重置状态
     useEffect(() => {
         live_routed_ref.current = false
         last_seen_msg_id_ref.current = null
     }, [session_id])
-    
+
     useEffect(() => {
         if (!latest_ddb_result)
             return
@@ -162,7 +171,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
             live_routed_ref.current = true
         }
     }, [latest_ddb_result])
-    
+
     // Fallback: route DdbObj from content_object (for history/reload)
     // 如果本次会话已经有 live 结果了，就不要用历史 content_object 覆盖它
     // 对于新来的消息（执行 show/execute 工具产生），若其自身无 content_object 则不回退到更早消息
@@ -175,11 +184,11 @@ export function AiTab ({ session_id }: { session_id: string }) {
         const is_initial_load = prev_seen === null
         const is_new_message = !is_initial_load && last_id !== prev_seen
         last_seen_msg_id_ref.current = last_id
-        
+
         // 已有 live 路由时，绝不从历史 content_object 覆盖
         if (live_routed_ref.current)
             return
-        
+
         if (is_initial_load) {
             // 首次加载：倒序查找最近的有效 content_object
             for (let i = messages.length - 1;  i >= 0;  i--) {
@@ -194,7 +203,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
             }
             return
         }
-        
+
         // 后续新增消息：仅检查最后一条（避免 pack 失败时回退到旧消息）
         if (!is_new_message || !last?.content_object)
             return
@@ -202,7 +211,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         if (obj)
             route_ddb_obj_to_dataview(obj)
     }, [messages])
-    
+
     function handle_message_scroll () {
         const el = messages_ref.current
         if (!el)
@@ -210,15 +219,15 @@ export function AiTab ({ session_id }: { session_id: string }) {
         const current = el.scrollTop
         const prev = last_scroll_top.current
         const distance_to_bottom = el.scrollHeight - current - el.clientHeight
-        
+
         if (current < prev && distance_to_bottom > AUTO_SCROLL_THRESHOLD)
             should_auto_scroll.current = false
         else if (current > prev && distance_to_bottom <= AUTO_SCROLL_THRESHOLD)
             should_auto_scroll.current = true
-        
+
         last_scroll_top.current = current
     }
-    
+
     function handle_send () {
         if (!input_value.trim())
             return
@@ -226,25 +235,26 @@ export function AiTab ({ session_id }: { session_id: string }) {
         set_input_value('')
         should_auto_scroll.current = true
     }
-    
+
     // Only show messages for our session
     const visible_messages = current_session_id === session_id ? messages : [ ]
     const visible_buffered = current_session_id === session_id ? buffered_messages : [ ]
     const visible_status = current_session_id === session_id ? agent_status : { status: 'idle' as const }
     const visible_loop_control = current_session_id === session_id ? pending_tool_loop_control : null
     const visible_steps = current_session_id === session_id ? steps : [ ]
+    const visible_groups = group_messages(visible_messages)
     const status_text = get_agent_status_text(visible_status)
     const has_virtual = visible_status.status !== 'idle' || visible_buffered.length > 0 || Boolean(visible_loop_control)
     const session = sessions.find(item => item.sessionId === session_id)
     const archived = session?.status === 1 || session?.statusName === 'ARCHIVED'
     const can_interrupt = current_session_id === session_id && !['idle', 'error'].includes(visible_status.status)
-    
+
     if (!inited)
         return <div className='ai-tab-loading'>
             <Spin />
             <Text type='secondary' style={{ marginTop: 12 }}>{t('正在连接 AI 助手...')}</Text>
         </div>
-    
+
     if (init_error)
         return <div className='ai-tab' style={{ padding: 16 }}>
             <Alert
@@ -254,26 +264,44 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 description={init_error === 'Not Found' ? t('会话不存在或已被删除，请新建 AI 会话。') : init_error}
             />
         </div>
-    
+
     return <div className='ai-tab'>
+        <TodoList steps={visible_steps} />
+
         {/* Messages */}
         <div className='ai-tab-messages' ref={messages_ref} onScroll={handle_message_scroll}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <TodoList steps={visible_steps} />
-                
-                {visible_messages.map((msg, idx) => {
-                    const prev = idx > 0 ? visible_messages[idx - 1] : null
-                    const next = idx < visible_messages.length - 1 ? visible_messages[idx + 1] : null
+                {visible_groups.map((group, idx) => {
+                    const is_last = idx === visible_groups.length - 1
+                    if (group.type === 'natural_text')
+                        return <div
+                            key={`natural-${group.index}`}
+                            style={{
+                                padding: '12px 0',
+                                borderBottom: is_last ? 'none' : '1px solid #f0f0f0',
+                                wordBreak: 'break-word',
+                                marginLeft: 12,
+                            }}
+                        >
+                            <div dangerouslySetInnerHTML={{ __html: render_markdown(group.text) }} />
+                        </div>
+
+                    if (group.type === 'tools')
+                        return <ToolMessageGroup key={`tools-${group.start_index}-${group.end_index}`} group={group} is_last={is_last} />
+
+                    const msg = group.msg
+                    const prev = group.index > 0 ? visible_messages[group.index - 1] : null
+                    const next = group.index < visible_messages.length - 1 ? visible_messages[group.index + 1] : null
                     return <AiMessageRow
                         key={msg.msgId}
                         msg={msg}
                         prev={prev}
                         next={next}
-                        is_last={idx === visible_messages.length - 1}
+                        is_last={is_last}
                         agent_status={visible_status.status}
                     />
                 })}
-                
+
                 {has_virtual && <div style={{ padding: '10px 0 6px 12px' }}>
                     {visible_buffered.map((content, idx) =>
                         <div key={`buf-${idx}`} style={{ marginBottom: 4, paddingRight: 12 }}>
@@ -303,7 +331,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 </div>}
             </div>
         </div>
-        
+
         {/* Input */}
         <div className='ai-tab-input'>
             <Space.Compact style={{ width: '100%' }}>
@@ -345,19 +373,195 @@ function TodoList ({ steps }: { steps: IWorkspaceStep[] }) {
     const active_steps = steps.filter(step => step.active)
     if (!active_steps.length)
         return null
-    
-    return <div className='ai-todo-list'>
-        <Text strong style={{ fontSize: 13 }}>{t('待办')}</Text>
-        <div className='ai-todo-items'>
-            {active_steps.map(step =>
-                <div key={step.id} className='ai-todo-item'>
-                    <Checkbox checked={step.checked} disabled />
-                    <Text delete={step.checked} type={step.checked ? 'secondary' : undefined}>
-                        {step.step_index}. {step.content}
+
+    const current_step = active_steps.find(step => !step.checked) || active_steps[active_steps.length - 1]
+
+    return <Collapse
+        ghost
+        size='small'
+        className='ai-todo-list'
+        items={[{
+            key: 'steps',
+            label: <span className='ai-todo-summary'>
+                <Text strong style={{ fontSize: 13 }}>{t('步骤')}</Text>
+                <Checkbox checked={current_step.checked} disabled>
+                    <Text delete={current_step.checked} type={current_step.checked ? 'secondary' : undefined}>
+                        {current_step.step_index + 1}. {current_step.content}
                     </Text>
-                </div>
-            )}
-        </div>
+                </Checkbox>
+                <Text type='secondary' style={{ fontSize: 12 }}>
+                    {active_steps.filter(step => step.checked).length}/{active_steps.length}
+                </Text>
+            </span>,
+            children: <div className='ai-todo-items'>
+                {active_steps.map(step =>
+                    <Checkbox key={step.id} checked={step.checked} disabled>
+                        <Text delete={step.checked} type={step.checked ? 'secondary' : undefined}>
+                            {step.step_index + 1}. {step.content}
+                        </Text>
+                    </Checkbox>
+                )}
+            </div>,
+        }]}
+    />
+}
+
+
+function is_tool_message (msg: IMessage) {
+    return TOOL_LIKE_MESSAGE_TYPES.has(msg.messageType ?? '')
+}
+
+
+function group_messages (messages: IMessage[]): MessageGroup[] {
+    const groups: MessageGroup[] = [ ]
+    let index = 0
+
+    while (index < messages.length) {
+        const msg = messages[index]
+        if (!is_tool_message(msg) || index === messages.length - 1) {
+            groups.push({ type: 'message', msg, index })
+            index += 1
+            continue
+        }
+
+        const start_index = index
+        const tool_messages: IMessage[] = [ ]
+        while (index < messages.length - 1 && is_tool_message(messages[index])) {
+            const natural_text = get_tool_message_natural_text(messages[index])
+            if (natural_text) {
+                if (tool_messages.length)
+                    break
+                groups.push({ type: 'natural_text', text: natural_text, index })
+            }
+
+            tool_messages.push(messages[index])
+            index += 1
+        }
+        if (!tool_messages.length)
+            continue
+        groups.push({ type: 'tools', messages: tool_messages, start_index, end_index: index - 1 })
+    }
+
+    return groups
+}
+
+
+function get_tool_pairs (messages: IMessage[]) {
+    const pairs: Array<{ call: IMessage | null, result: IMessage | null, messages: IMessage[] }> = [ ]
+
+    for (const msg of messages) {
+        if (msg.messageType === 'tool_call') {
+            pairs.push({ call: msg, result: null, messages: [msg] })
+            continue
+        }
+
+        const last = pairs[pairs.length - 1]
+        if (last && !last.result) {
+            last.result = msg
+            last.messages.push(msg)
+        } else
+            pairs.push({ call: null, result: msg, messages: [msg] })
+    }
+
+    return pairs
+}
+
+
+function get_tool_file_name (args: unknown) {
+    const list = Array.isArray(args) ? args : [args]
+    const first = list[0]
+    if (first && typeof first === 'object' && !Array.isArray(first)) {
+        const obj = first as Record<string, unknown>
+        return to_message_text(obj.name ?? obj.path ?? obj.target_path ?? obj.targetPath).trim()
+    }
+    return to_message_text(first).trim()
+}
+
+
+function is_edit_tool (name: string) {
+    return ['vfs_create', 'vfs_update', 'vfs_delete', 'skill_file_copy'].includes(name)
+}
+
+
+function summarize_tool_group (pairs: ReturnType<typeof get_tool_pairs>) {
+    const calls = pairs.map(pair => pair.call).filter((msg): msg is IMessage => Boolean(msg))
+    const edited_files = new Set<string>()
+
+    for (const call of calls) {
+        const parsed = parse_tool_call(call)
+        if (!parsed || !is_edit_tool(parsed.name))
+            continue
+        const file_name = get_tool_file_name(parsed.args)
+        if (file_name)
+            edited_files.add(file_name)
+    }
+
+    const command_text = t('已运行 {{count}} 条命令', { count: calls.length })
+    if (edited_files.size > 0)
+        return `${t('已编辑 {{count}} 个文件', { count: edited_files.size })}，${command_text}`
+    return command_text
+}
+
+
+function get_tool_command_preview (pair: ReturnType<typeof get_tool_pairs>[number]) {
+    const parsed = pair.call ? parse_tool_call(pair.call) : null
+    const name = parsed?.name || pair.result?.name || t('未知工具')
+    const label = get_tool_display_name(name)
+    const arg_text = parsed ? get_tool_file_name(parsed.args) || to_message_text(parsed.args).trim() : ''
+    return `${label}${arg_text ? ` ${to_preview_text(arg_text, 80)}` : ''}`
+}
+
+
+function ToolMessageGroup ({ group, is_last }: { group: Extract<MessageGroup, { type: 'tools' }>, is_last: boolean }) {
+    const pairs = get_tool_pairs(group.messages)
+
+    return <div
+        style={{
+            padding: '10px 0 10px 0',
+            borderBottom: is_last ? 'none' : '1px solid #f0f0f0',
+        }}
+    >
+        <Collapse
+            ghost
+            size='small'
+            className='ai-tool-group'
+            items={[{
+                key: `tool-group-${group.start_index}`,
+                label: <span className='ai-tool-group-label'>
+                    <CodeOutlined />
+                    <Text type='secondary' className='ai-tool-group-label-text' style={{ fontSize: 13 }}>{summarize_tool_group(pairs)}</Text>
+                </span>,
+                children: <div className='ai-tool-group-overview'>
+                    {pairs.map((pair, index) =>
+                        <Collapse
+                            key={`${pair.call?.msgId || pair.result?.msgId || index}-detail`}
+                            ghost
+                            size='small'
+                            className='ai-tool-detail-collapse'
+                            items={[{
+                                key: 'detail',
+                                label: <Text type='secondary' className='ai-tool-detail-label' style={{ fontSize: 13 }}>
+                                    {pair.result?.messageType === 'tool_error' ? t('执行失败') : t('已运行')} {get_tool_command_preview(pair)}
+                                </Text>,
+                                children: <div className='ai-tool-detail'>
+                                    {pair.messages.map((msg, msg_index) => {
+                                        const prev = msg_index > 0 ? pair.messages[msg_index - 1] : pair.call
+                                        return <AiMessageRow
+                                            key={msg.msgId}
+                                            msg={msg}
+                                            prev={prev === msg ? null : prev}
+                                            next={msg_index < pair.messages.length - 1 ? pair.messages[msg_index + 1] : null}
+                                            is_last={msg_index === pair.messages.length - 1}
+                                            agent_status='idle'
+                                        />
+                                    })}
+                                </div>,
+                            }]}
+                        />
+                    )}
+                </div>,
+            }]}
+        />
     </div>
 }
 
@@ -377,21 +581,21 @@ function AiMessageRow ({
 }) {
     const current_tool_call = msg.messageType === 'tool_call' ? parse_tool_call(msg) : null
     const previous_tool_call = prev?.messageType === 'tool_call' ? parse_tool_call(prev) : null
-    
+
     const hide_title_for_merged_outcome =
         (msg.messageType === 'tool_result' || msg.messageType === 'skill_result' || msg.messageType === 'tool_error') &&
         prev?.messageType === 'tool_call'
-    
+
     const hide_divider_for_tool_call =
         msg.messageType === 'tool_call' &&
         (next?.messageType === 'tool_result' || next?.messageType === 'skill_result' || next?.messageType === 'tool_error')
-    
+
     const row_padding_top = hide_title_for_merged_outcome ? 4 : 12
     const row_padding_bottom = hide_divider_for_tool_call ? 4 : 12
-    
+
     const title = get_display_title(msg, current_tool_call)
     const title_color = get_display_color(msg)
-    
+
     const tool_name = resolve_tool_name(msg, current_tool_call, previous_tool_call)
     const is_tool_like = TOOL_LIKE_MESSAGE_TYPES.has(msg.messageType ?? '')
     const structured_payload = get_structured_payload(msg)
@@ -403,40 +607,40 @@ function AiMessageRow ({
     const [reasoning_active_keys, set_reasoning_active_keys] = useState<string[]>([ ])
     const last_reasoning_msg_id = useRef(msg.msgId)
     const closed_after_content = useRef(false)
-    
+
     useEffect(() => {
         if (last_reasoning_msg_id.current !== msg.msgId) {
             last_reasoning_msg_id.current = msg.msgId
             closed_after_content.current = false
             set_reasoning_active_keys([ ])
         }
-        
+
         if (!has_reasoning) {
             closed_after_content.current = false
             set_reasoning_active_keys([ ])
             return
         }
-        
+
         if (is_reasoning_streaming) {
             set_reasoning_active_keys([reasoning_key])
             return
         }
-        
+
         if (!has_content) {
             set_reasoning_active_keys([ ])
             return
         }
-        
+
         if (!closed_after_content.current) {
             closed_after_content.current = true
             set_reasoning_active_keys([ ])
         }
     }, [msg.msgId, has_reasoning, has_content, is_reasoning_streaming, reasoning_key])
-    
+
     // DdbObj 不在这里内联展示，而是路由到 DataView
     // 但保留引用检测，以便在消息中显示一个提示
     const has_ddb_obj = msg._has_ddb_result || Boolean(parse_ddb_obj_from_content_object(msg.content_object))
-    
+
     return <div
         style={{
             padding: `${row_padding_top}px 0 ${row_padding_bottom}px 0`,
@@ -448,7 +652,7 @@ function AiMessageRow ({
                 {title}
             </Text>
         </div>}
-        
+
         {msg.reasoning_content && <div>
             <Collapse
                 ghost
@@ -472,7 +676,7 @@ function AiMessageRow ({
                 }]}
             />
         </div>}
-        
+
         {is_tool_like
             ? <ToolMessageRenderer
                 message={msg}
@@ -486,7 +690,7 @@ function AiMessageRow ({
                 <div dangerouslySetInnerHTML={{ __html: render_markdown(msg.content) }} />
             </div>
         }
-        
+
         {has_ddb_obj && <div style={{ marginLeft: 12, marginTop: 4 }}>
             <Text type='secondary' style={{ fontSize: 12 }}>
                 📊 {t('输出结果已显示在下方面板')}

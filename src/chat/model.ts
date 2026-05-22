@@ -432,7 +432,7 @@ function stable_json_stringify (value: unknown): string {
 
 
 function strip_json_segments (text: string): string {
-    let result = text.replace(/```(?:json)?\s*[\s\S]*?```/gi, ' ')
+    let result = text.replace(/```(?:json)?\s*[\s\S]*?```/gi, '\n\n')
     const ranges: Array<[number, number]> = [ ]
     let start = -1
     let depth = 0
@@ -472,10 +472,15 @@ function strip_json_segments (text: string): string {
     
     for (let index = ranges.length - 1;  index >= 0;  index -= 1) {
         const [from, to] = ranges[index]
-        result = `${result.slice(0, from)} ${result.slice(to)}`
+        result = `${result.slice(0, from)}\n${result.slice(to)}`
     }
     
-    return result.replace(/\s+/g, ' ').trim()
+    return result
+        .split(/\r?\n/)
+        .map(line => line.trimEnd())
+        .join('\n')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim()
 }
 
 
@@ -597,7 +602,7 @@ class ChatModel extends Model<ChatModel> {
     
     
     async api_fetch (path: string, options: RequestInit = { }): Promise<any> {
-        const url = `${this.base_url}${path}`
+        const url = /^https?:\/\//.test(path) ? path : `${this.base_url}${path}`
         const token = (localStorage.getItem(storage_keys.agent_bus_token) || '').replace(/[\r\n]/g, '')
         const headers: Record<string, string> = {
             'Content-Type': 'application/json',
@@ -643,7 +648,10 @@ class ChatModel extends Model<ChatModel> {
             throw new Error(result.error?.message || 'Unknown error')
         }
         
-        return result.payload ?? result.data ?? result
+        const payload = result.payload ?? result.data ?? result
+        if (payload?.code === 'WORKSPACE_REDIRECT' && payload.workspaceBaseUrl && payload.retryPath)
+            return this.api_fetch(`${payload.workspaceBaseUrl}${payload.retryPath}`, options)
+        return payload
     }
     
     
@@ -1008,18 +1016,14 @@ class ChatModel extends Model<ChatModel> {
     
     
     async load_workspaces () {
-        const workspaces = await chat_workspace_store.list_workspaces()
+        const workspaces = await chat_workspace_store.list_workspaces(this.current_session_id, (path, options) => this.api_fetch(path, options))
         this.set({ workspaces })
         return workspaces
     }
     
     
     async create_workspace (name?: string): Promise<IChatWorkspace> {
-        const workspace = await chat_workspace_store.create_workspace(name || t('新工作区'))
-        this.set({
-            workspaces: [workspace, ...this.workspaces],
-        })
-        return workspace
+        return chat_workspace_store.create_workspace()
     }
     
     
@@ -1028,7 +1032,7 @@ class ChatModel extends Model<ChatModel> {
             this.set({ steps: [ ] })
             return [ ]
         }
-        const steps = await chat_workspace_store.list_active_steps(session_id)
+        const steps = await chat_workspace_store.list_active_steps(session_id, (path, options) => this.api_fetch(path, options))
         if (session_id === this.current_session_id)
             this.set({ steps })
         return steps
@@ -1038,10 +1042,10 @@ class ChatModel extends Model<ChatModel> {
     async refresh_workspace_context (session_id = this.current_session_id) {
         if (!session_id)
             return
-        const workspace = await chat_workspace_store.ensure_session_workspace(session_id)
+        const workspace = await chat_workspace_store.ensure_session_workspace(session_id, (path, options) => this.api_fetch(path, options))
         const [workspaces, steps] = await Promise.all([
-            chat_workspace_store.list_workspaces(),
-            chat_workspace_store.list_active_steps(session_id),
+            chat_workspace_store.list_workspaces(session_id, (path, options) => this.api_fetch(path, options)),
+            chat_workspace_store.list_active_steps(session_id, (path, options) => this.api_fetch(path, options)),
         ])
         if (session_id === this.current_session_id)
             this.set({
@@ -1053,18 +1057,15 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    async select_workspace (workspace_id: string, session_id = this.current_session_id) {
-        if (!workspace_id || !session_id)
+    async select_workspace (_workspace_id: string, session_id = this.current_session_id) {
+        if (!session_id)
             return
-        const workspace = await chat_workspace_store.get_workspace(workspace_id)
-        if (!workspace)
-            throw new Error(t('工作区不存在'))
-        await chat_workspace_store.bind_session_workspace(session_id, workspace_id)
+        const workspace = await chat_workspace_store.get_workspace(session_id, (path, options) => this.api_fetch(path, options))
         if (session_id === this.current_session_id)
             this.set({
                 current_workspace_id: workspace.workspace_id,
                 current_workspace: workspace,
-                workspaces: await chat_workspace_store.list_workspaces(),
+                workspaces: await chat_workspace_store.list_workspaces(session_id, (path, options) => this.api_fetch(path, options)),
             })
     }
     
@@ -1093,11 +1094,8 @@ class ChatModel extends Model<ChatModel> {
             createTime: result.createTime,
             updateTime: result.updateTime,
         }
-        const workspace = this.current_workspace_id
-            ? await chat_workspace_store.get_workspace(this.current_workspace_id) ?? await chat_workspace_store.ensure_default_workspace()
-            : await chat_workspace_store.ensure_default_workspace()
-        await chat_workspace_store.bind_session_workspace(session.sessionId, workspace.workspace_id)
-        const workspaces = await chat_workspace_store.list_workspaces()
+        const workspace = await chat_workspace_store.ensure_default_workspace(session.sessionId, (path, options) => this.api_fetch(path, options))
+        const workspaces = await chat_workspace_store.list_workspaces(session.sessionId, (path, options) => this.api_fetch(path, options))
         this.set({
             sessions: [session, ...this.sessions],
             current_session_id: session.sessionId,
@@ -1373,6 +1371,13 @@ class ChatModel extends Model<ChatModel> {
                 name = result_match[2]
                 display_content = content.slice(result_match[0].length)
                 display_role = 'tool'
+            } else {
+                const parsed = parse_tool_result_json(content)
+                if (parsed && typeof parsed.tool === 'string') {
+                    message_type = parsed.ok === false ? 'tool_error' : 'tool_result'
+                    name = parsed.tool
+                    display_role = 'tool'
+                }
             }
         }
         
@@ -2105,7 +2110,7 @@ class ChatModel extends Model<ChatModel> {
             eval: (script, options) => model.ddb.eval(script, options),
             api_fetch: (path, options) => this.api_fetch(path, options),
             session_id: this.current_session_id,
-            workspace_id: this.current_workspace_id,
+            workspace_id: this.current_session_id,
             workspace_store: chat_workspace_store,
         }
         

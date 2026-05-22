@@ -1,6 +1,9 @@
-const DB_NAME = 'ddb.chat.workspace'
-const DB_VERSION = 1
-const KEY_SEPARATOR = '\u001f'
+type ApiFetch = (path: string, options?: RequestInit) => Promise<any>
+
+const STATE_FILE = '__workspace_state.md'
+const STEPS_FILE = '__workspace_steps.json'
+const INTERNAL_FILES = new Set([STATE_FILE, STEPS_FILE])
+const WORKSPACE_FILE_NAME_RULE = 'File name must be a plain file name and cannot contain /, \\, .., or start with .'
 
 
 export interface IChatWorkspace {
@@ -19,6 +22,8 @@ export interface IWorkspaceFile {
     content: string
     create_time: number
     update_time: number
+    size?: number
+    line_count?: number
 }
 
 
@@ -34,10 +39,23 @@ export interface IWorkspaceStep {
 }
 
 
-interface ISessionWorkspace {
-    session_id: string
-    workspace_id: string
-    update_time: number
+export interface IWorkspaceReadOptions {
+    start_line?: number
+    end_line?: number
+}
+
+
+export interface IWorkspaceSearchOptions {
+    query?: string
+    all?: string[]
+    any?: string[]
+    scope?: string
+    caseSensitive?: boolean
+    names?: string[]
+    extensions?: string[]
+    contextLines?: number
+    maxResults?: number
+    maxPerFile?: number
 }
 
 
@@ -51,251 +69,209 @@ function now () {
 }
 
 
+function time_value (value: unknown) {
+    if (typeof value === 'number')
+        return value
+    if (typeof value === 'string') {
+        const time = Date.parse(value)
+        if (Number.isFinite(time))
+            return time
+    }
+    return now()
+}
+
+
 export function normalize_workspace_path (path: string) {
     return path.replace(/\\/g, '/').replace(/^\/+/, '').trim()
 }
 
 
-function file_key (workspace_id: string, path: string) {
-    return `${workspace_id}${KEY_SEPARATOR}${path}`
+function normalize_workspace_name (path: string) {
+    const name = normalize_workspace_path(path)
+    if (!name)
+        throw new Error('File name is required.')
+    if (name.includes('/') || name.includes('..') || name.startsWith('.'))
+        throw new Error(`Invalid workspace file name: ${name}. ${WORKSPACE_FILE_NAME_RULE}.`)
+    return name
 }
 
 
-function request_result<T> (request: IDBRequest<T>): Promise<T> {
-    return new Promise((resolve, reject) => {
-        request.onsuccess = () => { resolve(request.result) }
-        request.onerror = () => { reject(request.error) }
-    })
+function is_file_not_found (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error)
+    return message.includes('FILE_NOT_FOUND') || /not found/i.test(message)
 }
 
 
-function transaction_done (transaction: IDBTransaction): Promise<void> {
-    return new Promise((resolve, reject) => {
-        transaction.oncomplete = () => { resolve() }
-        transaction.onerror = () => { reject(transaction.error) }
-        transaction.onabort = () => { reject(transaction.error) }
-    })
+function map_file (session_id: string, item: any, content = ''): IWorkspaceFile {
+    const name = item.name || item.path || ''
+    const update_time = time_value(item.updateTime ?? item.update_time)
+    return {
+        key: `${session_id}:${name}`,
+        workspace_id: session_id,
+        path: name,
+        content,
+        create_time: update_time,
+        update_time,
+        size: item.size,
+        line_count: item.lineCount ?? item.line_count,
+    }
 }
 
 
-function get_all_from_index<T> (store: IDBObjectStore, index_name: string, key: IDBValidKey): Promise<T[]> {
-    return request_result(store.index(index_name).getAll(key)) as Promise<T[]>
+function workspace_file_path (session_id: string, name: string, options: IWorkspaceReadOptions = { }) {
+    const search = new URLSearchParams({ name })
+    if (options.start_line)
+        search.set('startLine', String(options.start_line))
+    if (options.end_line)
+        search.set('endLine', String(options.end_line))
+    return `/workspace/${encodeURIComponent(session_id)}/file?${search}`
+}
+
+
+function parse_steps (session_id: string, content: string): IWorkspaceStep[] {
+    try {
+        const parsed = JSON.parse(content)
+        return Array.isArray(parsed)
+            ? parsed.filter(Boolean).map((step, index) => ({
+                id: String(step.id || new_id('step')),
+                session_id,
+                step_index: Number.isInteger(step.step_index) ? step.step_index : index,
+                content: String(step.content || ''),
+                checked: step.checked === true,
+                active: step.active !== false,
+                create_time: Number(step.create_time) || now(),
+                update_time: Number(step.update_time) || now(),
+            }))
+            : [ ]
+    } catch {
+        return [ ]
+    }
 }
 
 
 class ChatWorkspaceStore {
-    _db: Promise<IDBDatabase> | null = null
+    async list_workspaces (session_id = '', api_fetch?: ApiFetch): Promise<IChatWorkspace[]> {
+        return session_id && api_fetch ? [await this.get_workspace(session_id, api_fetch)] : [ ]
+    }
     
     
-    db () {
-        return this._db ??= new Promise<IDBDatabase>((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, DB_VERSION)
-            
-            request.onupgradeneeded = () => {
-                const db = request.result
-                
-                if (!db.objectStoreNames.contains('workspaces'))
-                    db.createObjectStore('workspaces', { keyPath: 'workspace_id' })
-                    
-                if (!db.objectStoreNames.contains('files')) {
-                    const store = db.createObjectStore('files', { keyPath: 'key' })
-                    store.createIndex('workspace_id', 'workspace_id')
-                    store.createIndex('workspace_path', ['workspace_id', 'path'], { unique: true })
-                }
-                
-                if (!db.objectStoreNames.contains('session_workspaces'))
-                    db.createObjectStore('session_workspaces', { keyPath: 'session_id' })
-                    
-                if (!db.objectStoreNames.contains('steps')) {
-                    const store = db.createObjectStore('steps', { keyPath: 'id' })
-                    store.createIndex('session_id', 'session_id')
-                }
-            }
-            
-            request.onsuccess = () => { resolve(request.result) }
-            request.onerror = () => { reject(request.error) }
+    async create_workspace (): Promise<IChatWorkspace> {
+        throw new Error('Workspace is managed by session.')
+    }
+    
+    
+    async get_workspace (session_id: string, api_fetch: ApiFetch): Promise<IChatWorkspace> {
+        const state = await this.read_internal_file(session_id, api_fetch, STATE_FILE)
+        return {
+            workspace_id: session_id,
+            name: '当前会话工作区',
+            current_state: state,
+            create_time: now(),
+            update_time: now(),
+        }
+    }
+    
+    
+    async update_workspace_state (session_id: string, api_fetch: ApiFetch, current_state: string): Promise<IChatWorkspace> {
+        await this.write_file(session_id, api_fetch, STATE_FILE, current_state)
+        return this.get_workspace(session_id, api_fetch)
+    }
+
+
+    async ensure_default_workspace (session_id: string, api_fetch: ApiFetch): Promise<IChatWorkspace> {
+        return this.get_workspace(session_id, api_fetch)
+    }
+    
+    
+    async bind_session_workspace () { }
+    
+    
+    async get_session_workspace_id (session_id: string): Promise<string> {
+        return session_id || ''
+    }
+    
+    
+    async ensure_session_workspace (session_id: string, api_fetch: ApiFetch): Promise<IChatWorkspace> {
+        return this.get_workspace(session_id, api_fetch)
+    }
+    
+    
+    async list_files (session_id: string, api_fetch: ApiFetch, query_path = ''): Promise<IWorkspaceFile[]> {
+        const cleaned_path = normalize_workspace_path(query_path)
+        const result = await api_fetch(`/workspace/${encodeURIComponent(session_id)}/files`)
+        return (result.items || [ ])
+            .map((item: any) => map_file(session_id, item))
+            .filter((file: IWorkspaceFile) => !INTERNAL_FILES.has(file.path))
+            .filter((file: IWorkspaceFile) => !cleaned_path || file.path === cleaned_path || file.path.startsWith(cleaned_path))
+            .sort((a: IWorkspaceFile, b: IWorkspaceFile) => a.path.localeCompare(b.path))
+    }
+    
+    
+    async get_file (session_id: string, api_fetch: ApiFetch, path: string, options: IWorkspaceReadOptions = { }): Promise<IWorkspaceFile | null> {
+        const name = normalize_workspace_name(path)
+        try {
+            const result = await api_fetch(workspace_file_path(session_id, name, options))
+            return map_file(session_id, result, result.content || '')
+        } catch (error) {
+            if (is_file_not_found(error))
+                return null
+            throw error
+        }
+    }
+    
+    
+    async create_file (session_id: string, api_fetch: ApiFetch, path: string, content: string): Promise<IWorkspaceFile> {
+        const name = normalize_workspace_name(path)
+        if (await this.get_file(session_id, api_fetch, name))
+            throw new Error(`File already exists: ${name}`)
+        await this.write_file(session_id, api_fetch, name, content)
+        return await this.get_file(session_id, api_fetch, name) as IWorkspaceFile
+    }
+    
+    
+    async update_file_content (session_id: string, api_fetch: ApiFetch, path: string, content: string): Promise<IWorkspaceFile> {
+        const name = normalize_workspace_name(path)
+        if (!await this.get_file(session_id, api_fetch, name))
+            throw new Error(`File not found: ${name}`)
+        await this.write_file(session_id, api_fetch, name, content)
+        return await this.get_file(session_id, api_fetch, name) as IWorkspaceFile
+    }
+    
+    
+    async delete_file (session_id: string, api_fetch: ApiFetch, path: string) {
+        const name = normalize_workspace_name(path)
+        await api_fetch(workspace_file_path(session_id, name), { method: 'DELETE' })
+    }
+    
+    
+    async search_files (session_id: string, api_fetch: ApiFetch, options: IWorkspaceSearchOptions): Promise<any> {
+        return api_fetch(`/workspace/${encodeURIComponent(session_id)}/search`, {
+            method: 'POST',
+            body: JSON.stringify(options),
         })
     }
     
     
-    async list_workspaces (): Promise<IChatWorkspace[]> {
-        const db = await this.db()
-        const items = await request_result<IChatWorkspace[]>(db.transaction('workspaces').objectStore('workspaces').getAll())
-        return items.sort((a, b) => b.update_time - a.update_time)
+    async apply_patch (session_id: string, api_fetch: ApiFetch, path: string, patch: string): Promise<any> {
+        const name = normalize_workspace_name(path)
+        return api_fetch(`/workspace/${encodeURIComponent(session_id)}/patch`, {
+            method: 'POST',
+            body: JSON.stringify({ name, patch }),
+        })
     }
     
     
-    async create_workspace (name = '新工作区'): Promise<IChatWorkspace> {
-        const db = await this.db()
-        const time = now()
-        const workspace: IChatWorkspace = {
-            workspace_id: new_id('workspace'),
-            name,
-            current_state: '',
-            create_time: time,
-            update_time: time,
-        }
-        const transaction = db.transaction('workspaces', 'readwrite')
-        transaction.objectStore('workspaces').put(workspace)
-        await transaction_done(transaction)
-        return workspace
+    async list_active_steps (session_id: string, api_fetch: ApiFetch): Promise<IWorkspaceStep[]> {
+        const content = await this.read_internal_file(session_id, api_fetch, STEPS_FILE)
+        return parse_steps(session_id, content).filter(step => step.active).sort((a, b) => a.step_index - b.step_index)
     }
     
     
-    async get_workspace (workspace_id: string): Promise<IChatWorkspace | null> {
-        if (!workspace_id)
-            return null
-        const db = await this.db()
-        return await request_result<IChatWorkspace | undefined>(
-            db.transaction('workspaces').objectStore('workspaces').get(workspace_id)
-        ) ?? null
-    }
-    
-    
-    async update_workspace_state (workspace_id: string, current_state: string): Promise<IChatWorkspace> {
-        const workspace = await this.get_workspace(workspace_id)
-        if (!workspace)
-            throw new Error('未找到工作区。')
-        const updated = { ...workspace, current_state, update_time: now() }
-        const db = await this.db()
-        const transaction = db.transaction('workspaces', 'readwrite')
-        transaction.objectStore('workspaces').put(updated)
-        await transaction_done(transaction)
-        return updated
-    }
-    
-    
-    async ensure_default_workspace (): Promise<IChatWorkspace> {
-        const existing = (await this.list_workspaces())[0]
-        return existing ?? await this.create_workspace()
-    }
-    
-    
-    async bind_session_workspace (session_id: string, workspace_id: string) {
-        const db = await this.db()
-        const transaction = db.transaction('session_workspaces', 'readwrite')
-        transaction.objectStore('session_workspaces').put({
-            session_id,
-            workspace_id,
-            update_time: now(),
-        } satisfies ISessionWorkspace)
-        await transaction_done(transaction)
-    }
-    
-    
-    async get_session_workspace_id (session_id: string): Promise<string> {
-        if (!session_id)
-            return ''
-        const db = await this.db()
-        const binding = await request_result<ISessionWorkspace | undefined>(
-            db.transaction('session_workspaces').objectStore('session_workspaces').get(session_id)
-        )
-        return binding?.workspace_id || ''
-    }
-    
-    
-    async ensure_session_workspace (session_id: string): Promise<IChatWorkspace> {
-        const workspace_id = await this.get_session_workspace_id(session_id)
-        const workspace = await this.get_workspace(workspace_id)
-        if (workspace)
-            return workspace
-        const next = await this.ensure_default_workspace()
-        await this.bind_session_workspace(session_id, next.workspace_id)
-        return next
-    }
-    
-    
-    async list_files (workspace_id: string, query_path = ''): Promise<IWorkspaceFile[]> {
-        const cleaned_path = normalize_workspace_path(query_path)
-        const db = await this.db()
-        const store = db.transaction('files').objectStore('files')
-        const files = await get_all_from_index<IWorkspaceFile>(store, 'workspace_id', workspace_id)
-        return files
-            .filter(file => !cleaned_path || file.path === cleaned_path || file.path.startsWith(`${cleaned_path}/`))
-            .sort((a, b) => a.path.localeCompare(b.path))
-    }
-    
-    
-    async get_file (workspace_id: string, path: string): Promise<IWorkspaceFile | null> {
-        const cleaned_path = normalize_workspace_path(path)
-        if (!workspace_id || !cleaned_path)
-            return null
-        const db = await this.db()
-        return await request_result<IWorkspaceFile | undefined>(
-            db.transaction('files').objectStore('files').get(file_key(workspace_id, cleaned_path))
-        ) ?? null
-    }
-    
-    
-    async create_file (workspace_id: string, path: string, content: string): Promise<IWorkspaceFile> {
-        const cleaned_path = normalize_workspace_path(path)
-        if (!cleaned_path)
-            throw new Error('Path is required')
-        if (await this.get_file(workspace_id, cleaned_path))
-            throw new Error(`File already exists: ${cleaned_path}`)
-        const time = now()
-        const file: IWorkspaceFile = {
-            key: file_key(workspace_id, cleaned_path),
-            workspace_id,
-            path: cleaned_path,
-            content,
-            create_time: time,
-            update_time: time,
-        }
-        const db = await this.db()
-        const transaction = db.transaction('files', 'readwrite')
-        transaction.objectStore('files').put(file)
-        await transaction_done(transaction)
-        return file
-    }
-    
-    
-    async update_file_content (workspace_id: string, path: string, content: string): Promise<IWorkspaceFile> {
-        const file = await this.get_file(workspace_id, path)
-        if (!file)
-            throw new Error(`File not found: ${normalize_workspace_path(path)}`)
-        const updated = { ...file, content, update_time: now() }
-        const db = await this.db()
-        const transaction = db.transaction('files', 'readwrite')
-        transaction.objectStore('files').put(updated)
-        await transaction_done(transaction)
-        return updated
-    }
-    
-    
-    async delete_file (workspace_id: string, path: string) {
-        const cleaned_path = normalize_workspace_path(path)
-        if (!await this.get_file(workspace_id, cleaned_path))
-            throw new Error(`File not found: ${cleaned_path}`)
-        const db = await this.db()
-        const transaction = db.transaction('files', 'readwrite')
-        transaction.objectStore('files').delete(file_key(workspace_id, cleaned_path))
-        await transaction_done(transaction)
-    }
-    
-    
-    async list_active_steps (session_id: string): Promise<IWorkspaceStep[]> {
-        const db = await this.db()
-        const store = db.transaction('steps').objectStore('steps')
-        const steps = await get_all_from_index<IWorkspaceStep>(store, 'session_id', session_id)
-        return steps.filter(step => step.active).sort((a, b) => a.step_index - b.step_index)
-    }
-    
-    
-    async create_step_batch (session_id: string, contents: string[]): Promise<IWorkspaceStep[]> {
+    async create_step_batch (session_id: string, api_fetch: ApiFetch, contents: string[]): Promise<IWorkspaceStep[]> {
         const tasks = contents.map(item => item.trim()).filter(Boolean)
         if (!tasks.length)
             throw new Error('step_create requires at least one task string.')
-        const existing = await this.list_active_steps(session_id)
-        const db = await this.db()
-        const transaction = db.transaction('steps', 'readwrite')
-        const store = transaction.objectStore('steps')
         const time = now()
-        
-        for (const step of existing)
-            if (step.active)
-                store.put({ ...step, active: false, update_time: time })
-                
         const steps = tasks.map((content, index) => ({
             id: new_id('step'),
             session_id,
@@ -306,35 +282,55 @@ class ChatWorkspaceStore {
             create_time: time,
             update_time: time,
         }))
-        for (const step of steps)
-            store.put(step)
-        await transaction_done(transaction)
+        await this.write_steps(session_id, api_fetch, steps)
         return steps
     }
     
     
-    async set_step_status_by_index (session_id: string, step_index: number, checked: boolean) {
-        const step = (await this.list_active_steps(session_id)).find(item => item.step_index === step_index)
+    async set_step_status_by_index (session_id: string, api_fetch: ApiFetch, step_index: number, checked: boolean) {
+        const steps = await this.list_active_steps(session_id, api_fetch)
+        const step = steps.find(item => item.step_index === step_index)
         if (!step)
             throw new Error(`Task not found: ${step_index}`)
-        const db = await this.db()
-        const transaction = db.transaction('steps', 'readwrite')
-        const store = transaction.objectStore('steps')
-        store.put({ ...step, checked, update_time: now() })
-        await transaction_done(transaction)
+        await this.write_steps(session_id, api_fetch, steps.map(item =>
+            item.step_index === step_index ? { ...item, checked, update_time: now() } : item
+        ))
     }
     
     
-    async clear_steps (session_id: string) {
-        const steps = await this.list_active_steps(session_id)
-        const db = await this.db()
-        const transaction = db.transaction('steps', 'readwrite')
-        const store = transaction.objectStore('steps')
-        const time = now()
-        for (const step of steps)
-            if (step.active)
-                store.put({ ...step, active: false, update_time: time })
-        await transaction_done(transaction)
+    async clear_steps (session_id: string, api_fetch: ApiFetch) {
+        try {
+            await this.delete_file(session_id, api_fetch, STEPS_FILE)
+        } catch (error) {
+            if (!is_file_not_found(error))
+                throw error
+        }
+    }
+
+
+    async write_file (session_id: string, api_fetch: ApiFetch, name: string, content: string) {
+        name = normalize_workspace_name(name)
+        await api_fetch(`/workspace/${encodeURIComponent(session_id)}/file`, {
+            method: 'POST',
+            body: JSON.stringify({ name, content }),
+        })
+    }
+
+
+    async read_internal_file (session_id: string, api_fetch: ApiFetch, name: string) {
+        try {
+            const file = await this.get_file(session_id, api_fetch, name)
+            return file?.content || ''
+        } catch (error) {
+            if (is_file_not_found(error))
+                return ''
+            throw error
+        }
+    }
+
+
+    async write_steps (session_id: string, api_fetch: ApiFetch, steps: IWorkspaceStep[]) {
+        await this.write_file(session_id, api_fetch, STEPS_FILE, JSON.stringify(steps))
     }
 }
 

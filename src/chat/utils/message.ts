@@ -1,4 +1,5 @@
 import type { IMessage, MessageType } from '@/chat/model.ts'
+import { parse_tool_calls as parse_text_tool_calls } from '@/chat/tool_call_parser.ts'
 
 
 export interface ToolCallViewModel {
@@ -32,6 +33,7 @@ const TOOL_NAME_LABELS: Record<string, string> = {
     vfs_list: '列出文件',
     vfs_create: '创建文件',
     vfs_read: '读取文件',
+    vfs_search: '搜索文件',
     vfs_update: '更新文件',
     vfs_delete: '删除文件',
     step_create: '创建待办',
@@ -60,8 +62,10 @@ export function parse_maybe_json (value: string): unknown | null {
     const text = value.trim()
     if (!text)
         return null
+    const code_match = /^```(?:json)?\s*([\s\S]*?)\s*```$/i.exec(text)
+    const json_text = code_match ? code_match[1].trim() : text
     try {
-        return JSON.parse(text)
+        return JSON.parse(json_text)
     } catch {
         return null
     }
@@ -171,6 +175,10 @@ export function parse_tool_call (message: IMessage): ToolCallViewModel | null {
         if (parsed)
             return parsed
     }
+
+    const parsed_text_call = parse_text_tool_calls(undefined, message.content)[0]
+    if (parsed_text_call)
+        return { name: parsed_text_call.type, args: parsed_text_call.payload }
     
     if (message.content.trim())
         return { name: message.name || '未知工具', args: parse_maybe_json(message.content) ?? message.content }
@@ -202,6 +210,91 @@ export function get_structured_payload (message: IMessage): Record<string, unkno
         return parsed as Record<string, unknown> | unknown[]
     
     return null
+}
+
+
+function has_tool_call_payload (text: string): boolean {
+    return parse_text_tool_calls(undefined, text).length > 0
+}
+
+
+function merge_ranges (ranges: Array<[number, number]>): Array<[number, number]> {
+    const sorted = ranges.sort((left, right) => left[0] - right[0])
+    const merged: Array<[number, number]> = [ ]
+    for (const range of sorted) {
+        const last = merged[merged.length - 1]
+        if (last && range[0] <= last[1])
+            last[1] = Math.max(last[1], range[1])
+        else
+            merged.push([...range])
+    }
+    return merged
+}
+
+
+function strip_tool_call_segments (text: string): string {
+    const ranges: Array<[number, number]> = [ ]
+    const code_regex = /```(?:json)?\s*([\s\S]*?)```/gi
+    let match: RegExpExecArray | null = null
+    while ((match = code_regex.exec(text)) !== null)
+        if (has_tool_call_payload(match[1] || ''))
+            ranges.push([match.index, code_regex.lastIndex])
+
+    let start = -1
+    let depth = 0
+    let in_string = false
+    let escape = false
+    for (let index = 0;  index < text.length;  index += 1) {
+        const ch = text[index]
+        if (escape) {
+            escape = false
+            continue
+        }
+        if (ch === '\\') {
+            escape = true
+            continue
+        }
+        if (ch === '"') {
+            in_string = !in_string
+            continue
+        }
+        if (in_string)
+            continue
+        if (ch === '{') {
+            if (start < 0)
+                start = index
+            depth += 1
+        } else if (ch === '}' && depth > 0) {
+            depth -= 1
+            if (depth === 0 && start >= 0) {
+                const candidate = text.slice(start, index + 1)
+                if (has_tool_call_payload(candidate))
+                    ranges.push([start, index + 1])
+                start = -1
+            }
+        }
+    }
+
+    let result = text
+    for (const [from, to] of merge_ranges(ranges).reverse())
+        result = `${result.slice(0, from)}\n${result.slice(to)}`
+
+    return result
+        .split(/\r?\n/)
+        .map(line => line.trimEnd())
+        .join('\n')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim()
+}
+
+
+export function get_tool_natural_text (message: IMessage, payload = get_structured_payload(message)): string {
+    if (is_object_record(payload)) {
+        const text = to_message_text(payload.naturalText ?? payload.text ?? '').trim()
+        if (text)
+            return text
+    }
+    return message.messageType === 'tool_call' ? strip_tool_call_segments(message.content) : ''
 }
 
 

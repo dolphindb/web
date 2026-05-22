@@ -489,8 +489,8 @@ function AiToolbar ({
     on_toggle_collapsed: () => void
 }) {
     const {
-        sessions, agents, agent_id, selectable_llms, selected_llm_config_id, script_execute_approval_mode, workspaces, current_workspace_id,
-    } = chat_model.use(['sessions', 'agents', 'agent_id', 'selectable_llms', 'selected_llm_config_id', 'script_execute_approval_mode', 'workspaces', 'current_workspace_id'])
+        sessions, agents, agent_id, selectable_llms, selected_llm_config_id, script_execute_approval_mode,
+    } = chat_model.use(['sessions', 'agents', 'agent_id', 'selectable_llms', 'selected_llm_config_id', 'script_execute_approval_mode'])
     const session = sessions.find(s => s.sessionId === session_id)
     const title = session?.title || t('新会话')
     const [editing_title, set_editing_title] = useState(false)
@@ -552,40 +552,6 @@ function AiToolbar ({
             </div>}
         
         <div className='padding' />
-        
-        <Tooltip title={t('当前工作区')}>
-            <Select
-                size='small'
-                value={current_workspace_id || undefined}
-                placeholder={t('选择工作区')}
-                style={{ minWidth: 140, maxWidth: 220, marginRight: 8 }}
-                onChange={(value: string) => {
-                    chat_model.select_workspace(value, session_id)
-                        .catch(error => { model.message?.error(error instanceof Error ? error.message : t('切换工作区失败')) })
-                }}
-                options={workspaces.map(workspace => ({
-                    value: workspace.workspace_id,
-                    label: workspace.name,
-                }))}
-            />
-        </Tooltip>
-        
-        <Tooltip title={t('新建工作区')}>
-            <div
-                className='collapse-btn'
-                style={{ marginRight: 8 }}
-                onClick={() => {
-                    const name = window.prompt(t('请输入工作区名称'), t('新工作区'))?.trim()
-                    if (!name)
-                        return
-                    chat_model.create_workspace(name)
-                        .then(workspace => chat_model.select_workspace(workspace.workspace_id, session_id))
-                        .catch(error => { model.message?.error(error instanceof Error ? error.message : t('创建工作区失败')) })
-                }}
-            >
-                <PlusOutlined />
-            </div>
-        </Tooltip>
         
         {llm_options.length > 0 && <Select
             size='small'

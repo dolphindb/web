@@ -17,6 +17,7 @@ import {
     vfs_delete_config,
     vfs_list_config,
     vfs_read_config,
+    vfs_search_config,
     vfs_update_config,
     workspace_state_read_config,
     workspace_state_update_config,
@@ -35,6 +36,7 @@ export function init_scripts () {
     register_script(vfs_list_config)
     register_script(vfs_create_config)
     register_script(vfs_read_config)
+    register_script(vfs_search_config)
     register_script(vfs_update_config)
     register_script(vfs_delete_config)
     register_script(execute_file_config)

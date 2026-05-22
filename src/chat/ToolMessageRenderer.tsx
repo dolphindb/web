@@ -17,6 +17,7 @@ import {
     is_object_record,
     format_pretty_json,
     should_use_structured_render,
+    get_tool_natural_text as get_tool_message_natural_text,
 } from './utils/message.ts'
 
 
@@ -241,13 +242,6 @@ function create_code_view (code: string, action?: React.ReactNode) {
             }}
         />
     </div>
-}
-
-
-function get_natural_text (payload: Record<string, unknown> | unknown[] | null) {
-    if (!is_object_record(payload))
-        return ''
-    return to_message_text(payload.naturalText ?? payload.text ?? '').trim()
 }
 
 
@@ -575,9 +569,27 @@ function DocReadRenderer (props: ToolRendererProps) {
 }
 
 
+function get_object_arg_text (args: unknown, key: string): string {
+    const first = normalize_args(args)[0]
+    if (is_object_record(first))
+        return to_message_text(first[key]).trim()
+    return ''
+}
+
+
+function get_named_arg_text (args: unknown): string {
+    return get_object_arg_text(args, 'name') || get_object_arg_text(args, 'path') || get_arg_text(args, 0)
+}
+
+
+function parse_json_or_text (content: string): unknown {
+    try { return JSON.parse(content) } catch { return content }
+}
+
+
 function VfsListRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message }) => {
-        const query_path = get_arg_text(args, 0)
+        const query_path = get_named_arg_text(args)
         const lines = message.content.split('\n').map(line => line.trim()).filter(Boolean)
         return {
             param_rows: [{ label: t('路径'), value: query_path || t('全部') }],
@@ -592,8 +604,8 @@ function VfsListRenderer (props: ToolRendererProps) {
 
 function VfsCreateRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message }) => {
-        const path = get_arg_text(args, 0)
-        const content = get_arg_text(args, 1)
+        const path = get_named_arg_text(args)
+        const content = get_object_arg_text(args, 'content') || get_arg_text(args, 1)
         return {
             param_rows: [{ label: t('文件'), value: path || '-' }],
             result_rows: [{ label: t('结果'), value: to_preview_text(message.content, 120) }],
@@ -607,7 +619,7 @@ function VfsCreateRenderer (props: ToolRendererProps) {
 
 function VfsReadRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message }) => {
-        const path = get_arg_text(args, 0)
+        const path = get_named_arg_text(args)
         return {
             param_rows: [{ label: t('文件'), value: path || '-' }],
             result_details: compact_sections([
@@ -620,24 +632,32 @@ function VfsReadRenderer (props: ToolRendererProps) {
 
 function VfsUpdateRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message }) => {
-        const path = get_arg_text(args, 0)
-        const old_string = get_arg_text(args, 1)
-        const new_string = get_arg_text(args, 2)
+        const path = get_named_arg_text(args)
+        const patch = get_object_arg_text(args, 'patch') || get_arg_text(args, 1)
         return {
             param_rows: [{ label: t('文件'), value: path || '-' }],
             result_rows: [{ label: t('结果'), value: to_preview_text(message.content, 120) }],
             param_details: compact_sections([
-                create_compact_text_detail('old-content', t('查看原内容'), old_string, 80),
-                create_compact_text_detail('new-content', t('查看新内容'), new_string, 80),
+                create_compact_text_detail('patch', t('查看 Patch'), patch, 80),
             ]),
         }
     }} />
 }
 
 
+function VfsSearchRenderer (props: ToolRendererProps) {
+    return <ParamResultSection props={props} build_data={({ args, message }) => ({
+        param_rows: [{ label: t('搜索'), value: to_preview_text(args, 120) }],
+        result_details: compact_sections([
+            create_json_detail('search-result', t('查看搜索结果'), parse_json_or_text(message.content)),
+        ]),
+    })} />
+}
+
+
 function VfsDeleteRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message }) => {
-        const path = get_arg_text(args, 0)
+        const path = get_named_arg_text(args)
         return {
             param_rows: [{ label: t('文件'), value: path || '-' }],
             result_rows: [{ label: t('结果'), value: to_preview_text(message.content, 120) }],
@@ -648,7 +668,7 @@ function VfsDeleteRenderer (props: ToolRendererProps) {
 
 function ExecuteFileRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message }) => {
-        const path = get_arg_text(args, 0)
+        const path = get_named_arg_text(args)
         return {
             param_rows: [{ label: t('脚本'), value: path || '-' }],
             result_details: compact_sections([
@@ -844,6 +864,7 @@ const TOOL_RENDERERS: Record<string, (props: ToolRendererProps) => React.ReactNo
     vfs_list: props => <VfsListRenderer {...props} />,
     vfs_create: props => <VfsCreateRenderer {...props} />,
     vfs_read: props => <VfsReadRenderer {...props} />,
+    vfs_search: props => <VfsSearchRenderer {...props} />,
     vfs_update: props => <VfsUpdateRenderer {...props} />,
     vfs_delete: props => <VfsDeleteRenderer {...props} />,
     step_create: props => <StepCreateRenderer {...props} />,
@@ -891,7 +912,7 @@ export function ToolMessageRenderer ({
     const is_outcome = is_outcome_message(message.messageType)
     const has_paired_tool_call = is_outcome && Boolean(previous_tool_call)
     const renderer = TOOL_RENDERERS[normalized]
-    const natural_text = !is_outcome ? get_natural_text(structured_payload) : ''
+    const natural_text = !is_outcome ? get_tool_message_natural_text(message, structured_payload) : ''
     
     const renderer_props: ToolRendererProps = {
         message,

@@ -1,67 +1,67 @@
 .view-card.shell
     padding: 0px !important
-    
+
 
 .shell
     height: 100%
-    
+
     display: flex
-    
+
     .table-title
         display: flex
         justify-content: space-between
         width: 100%
-        
+
         .table-comment
             margin-left: 5px
             font-weight: 400
-        
+
         &:hover
             .table-actions
                 visibility: visible
-        
+
         .table-actions
             padding: 0 10px
             visibility: hidden
             display: flex
             column-gap: 10px
-            
+
             .anticon.disabled
                 cursor: not-allowed
                 color: #aaaaaa
-    
+
     .left-panels
         display: flex
         flex-direction: column
-        
+
         justify-content: flex-start
-        
+
         overflow: hidden
-        
+
         border-right: 1px solid #e5e5e5
-        
+
         .tabs
             .ant-tabs-nav
                 padding-left: 10px
             .ant-tabs-nav
                 margin: 0
-        
+
         .panel
             height: 100%
             display: flex
             flex-direction: column
             white-space: nowrap
             overflow: hidden
-            
+
             .tree-content
                 overflow-x: hidden
                 flex-grow: 1
-            
+
             .database-tree
                 height: 100%
                 overflow-y: auto
                 overflow-x: hidden
-            
+
             .type
                 display: flex
                 justify-content: space-between
@@ -69,178 +69,178 @@
                 background-color: #f0f0f0
                 color: #000000
                 font-size: 14px
-                
+
                 box-shadow: inset -1px -2px 0 #e5e5e5, inset -1px 2px 0 #e5e5e5
-                
+
                 .extra
                     display: flex
                     gap: 14px
-                    
+
                     .create-database-icon
                         font-size: 16px
-                    
+
                     .disabled
                         color: #aaaaaa
                         cursor: not-allowed
-                
+
                 .anticon
                     cursor: pointer
-                
-            
+
+
             .ant-tree
                 margin-left: 4px
 
                 .ant-tree-treenode
                     margin-bottom: 0px
-                    
+
                     .column-root-title, .column-title
                         width: 100%
-                    
+
                 .ant-tree-list
                     .ant-tree-list-holder-inner
                         padding-top: 2px
-                        
+
                         .ant-tree-treenode:last-child
                             box-sizing: content-box
                             padding-bottom: 4px
-                    
+
                     .ant-tree-node-content-wrapper
                         display: flex
-                        
+
                         .ant-tree-title
                             display: flex
                             justify-content: space-between
                             width: 100%
-                            
+
                             .name
                                 font-weight: bold
-                    
+
                             .schema-icon
                                 padding-left: 10px
                                 padding-right: 10px
-                                
+
                             .tooltip
                                 visibility: hidden
-                            
+
                             &:hover
                                 .tooltip
                                     visibility: visible
-                    
+
                     .ant-tree-switcher
                         width: auto
                         margin-right: 4px
-                    
+
                     .ant-tree-indent
                         .ant-tree-indent-unit
                             width: 16px
-                    
-                    .ant-tree-node-content-wrapper 
+
+                    .ant-tree-node-content-wrapper
                         padding: 0px
-                        
+
                         user-select: unset
-                        
+
                         .ant-tree-iconEle
                             width: auto
                             margin-right: 5px
-                    
+
                     .ant-tree-node-content-wrapper.ant-tree-node-selected
                         background: #f5f5f5
-                    
+
                     .ant-tree .ant-tree-node-content-wrapper:hover
                         background-color: unset !important
                     &-empty
                         .ant-tree-switcher
                             visibility: hidden
-                    
+
                 .ant-tree-switcher-noop
                     visibility: hidden
-                
+
                 .ant-tree-switcher-leaf-line
                     width: 12px
-                    
+
                 .ant-tree-switcher:before
                     visibility: hidden
-            
+
             .ant-tree-show-line .ant-tree-indent-unit::before
                 border-right: unset !important
-            
+
             .ant-tree-list-scrollbar
                 width: 12px !important
-            
+
             .ant-tree-list-scrollbar-thumb
                 background-color: #aaaaaa !important
                 border-radius: 0px !important
                 cursor: default !important
-        
+
         .database-panel
             flex: 1
             display: flex
             flex-direction: column
-            
+
             .ant-tree-node-content-wrapper
                 overflow: hidden
                 width: 100%
-            
+
             .ant-tree-iconEle
                 float: left
-            
+
             .ant-tree-title
                 display: block
                 width: 100%
-                
+
                 .column-title, .column-root-title
                     display: flex
                     justify-content: space-between
-                    
+
                     .column-name
                         font-weight: bold
-                    
+
                     .edit-comment-button, .add-column-button
                         padding-right: 10px
                         visibility: hidden
-                    
+
                     &:hover
                         .edit-comment-button, .add-column-button
                             visibility: visible
-                
+
                 .database-title
                     display: flex
                     justify-content: space-between
                     width: 100%
-                    
+
                     .database-actions
                         padding-left: 10px
                         padding-right: 10px
                         visibility: hidden
                         display: flex
                         column-gap: 10px
-                        
+
                         .disabled
                             color: #aaaaaa
                             cursor: not-allowed
-                    
+
                     &:hover
                         .database-actions
                             visibility: visible
-                
+
                 .ant-dropdown-trigger
                     display: inline-block
                     width: 100%
-            
+
             .catalog.ant-tree-treenode, .database-group.ant-tree-treenode, .db.ant-tree-treenode, .table.ant-tree-treenode
                 .ant-tree-title
                     font-weight: bold
-            
+
             .dbtree-item-title
                 display: flex
                 justify-content: flex-start
                 gap: 10px
-                
+
                 .columns-schema-inline
                     overflow: hidden
                     white-space: nowrap
                     text-overflow: ellipsis
-            
+
             .login-to-view, .start-node-to-view
                 flex: 1
                 display: flex
@@ -248,71 +248,71 @@
                 justify-content: center
                 align-items: center
                 color: #888888
-        
-            
+
+
         .treeview-resizable-split1
             overflow: hidden
-            
+
         .treeview-resizable-split1, .treeview-resizable-split2, .treeview-resizable-split22
             .ant-tree-treenode
                 height: 20px
-                
+
                 .ant-tree-node-content-wrapper
                     min-height: 18px
                     height: 18px
                     line-height: 18px
-                    
+
                     .ant-tree-iconEle
                         line-height: 18px
-                        
+
                         .schema-icon-color
                             color: #3760f0
-                
+
                 .ant-tree-switcher-line-icon
                     vertical-align: 2px
-        
+
         .treeview-resizable-split2
             min-height: 44px
             flex-grow: 1
             display: flex
             flex-direction: column
             justify-content: flex-start
-        
+
         .treeview-resizable-split21
             flex-grow: 1
             min-height: 22px
             overflow-y: hidden
-            
-        
+
+
         .treeview-resizable-split22
             max-height: calc(100% - 22px) !important
-    
+
     .content
         flex: 1
         min-width: 0px
-        
+
         height: 100%
-        
+
         display: flex
         flex-direction: column
-        
+
         overflow: hidden
-        
+
         .top
             display: flex
-            
+
             overflow: hidden
-            
+
             .editor-resizable
                 border-right: 1px solid #e5e5e5
-                
+
                 .editor-loading
                     display: flex
                     height: 100%
                     width: 100%
                     justify-content: center
                     align-items: center
-                
+
                 .shell-editor
                     height: 100%
                     display: flex
@@ -322,57 +322,57 @@
                     .toolbar
                         display: flex
                         align-items: center
-                        
+
                         background-color: #ffffff
                         border-bottom: 1px solid rgba(0, 0, 0, 0.1)
-                        
+
                         padding: 4px 10px
-                        
+
                         color: #444444
-                        
+
                         .actions
                             display: flex
-                            
+
                             .action
                                 cursor: pointer
-                                
+
                                 .text
                                     margin-left: 6px
-                            
+
                             .action.execute
                                 display: flex
-                                
+
                                 .text
                                     margin-left: 6px
                                     width: 48px
-                                    
+
                                     &.en
                                         width: 70px
-                            
+
                             .action.upload
                                 display: flex
-                                
+
                                 .text
                                     margin-left: 6px
-                                    
+
                                     &.en
                                         width: 40px
-                        
+
                         .settings
                             gap: 24px
-                            
+
                             display: flex
-                            
+
                             margin-left: 24px
-                            
+
                             .setting
                                 display: flex
-                                
+
                                 align-items: center
-                                
+
                                 .title
                                     margin-right: 10px
-                                
+
                                 .select-sql, .select-language
                                     width: 110px
                                 
@@ -383,25 +383,25 @@
                                     border: 0
                                     padding: 0 5px
                                     height: 100%
-                                
+
                                 .arrow-down
                                     color: #444444
                                     margin-top: 3px
-                        
+
                         .padding
                             flex: 1
-                        
+
                         .collapse-btn
                             align-self: flex-end
                             cursor: pointer
-                        
+
                         .toolbar-divider
                             width: 1px
                             height: 16px
                             background: #d9d9d9
                             margin: 0 8px
                             align-self: center
-                    
+
                     .ai-toolbar
                         .ai-toolbar-title
                             font-size: 13px
@@ -411,37 +411,46 @@
                             text-overflow: ellipsis
                             white-space: nowrap
                             max-width: 300px
-                    
+
                     .ai-tab
                         flex: 1
                         display: flex
                         flex-direction: column
                         overflow: hidden
-                        
+
+                        .ai-todo-list
+                            background: #fafafa
+                            border-bottom: 1px solid #f0f0f0
+                            flex-shrink: 0
+
+                            .ant-collapse-header
+                                padding: 6px 16px !important
+
+                            .ant-collapse-content-box
+                                padding: 0 16px 8px 38px !important
+                                max-height: 180px
+                                overflow-y: auto
+
+                        .ai-todo-summary
+                            display: flex
+                            align-items: center
+                            gap: 10px
+                            min-width: 0
+
+                            .ant-checkbox-wrapper
+                                min-width: 0
+                                flex: 1
+
+                            .ant-typography
+                                overflow: hidden
+                                text-overflow: ellipsis
+                                white-space: nowrap
+
                         .ai-tab-messages
                             flex: 1
                             min-height: 0
                             overflow-y: auto
                             padding: 8px 16px
-                            
-                            .ai-todo-list
-                                margin: 0 0 8px 0
-                                padding: 8px 12px
-                                border: 1px solid #f0f0f0
-                                border-radius: 6px
-                                background: #fafafa
-                            
-                            .ai-todo-items
-                                margin-top: 6px
-                                display: flex
-                                flex-direction: column
-                                gap: 4px
-                            
-                            .ai-todo-item
-                                display: flex
-                                align-items: flex-start
-                                gap: 8px
-                                word-break: break-word
 
                             p
                                 margin: 0 0 8px
@@ -471,13 +480,75 @@
                                     text-align: left
                                 th
                                     background: #fafafa
-                        
+
+                        .ai-todo-items
+                            display: flex
+                            flex-direction: column
+                            gap: 4px
+                            word-break: break-word
+
+                        .ai-tool-group
+                            .ant-collapse-header
+                                padding: 0 0 0 12px !important
+                                min-width: 0
+
+                            .ant-collapse-content-box
+                                padding: 8px 0 0 28px !important
+
+                        .ai-tool-group-label
+                            display: flex
+                            align-items: center
+                            gap: 8px
+                            min-width: 0
+                            max-width: 100%
+                            overflow: hidden
+                            white-space: nowrap
+
+                            .anticon
+                                flex-shrink: 0
+
+                            .ai-tool-group-label-text
+                                min-width: 0
+                                overflow: hidden
+                                text-overflow: ellipsis
+                                white-space: nowrap
+
+                        .ai-tool-group-overview
+                            display: flex
+                            flex-direction: column
+                            gap: 2px
+
+                        .ai-tool-detail-collapse
+                            .ant-collapse-header
+                                padding: 2px 0 !important
+                                min-width: 0
+
+                            .ant-collapse-header-text
+                                min-width: 0
+                                overflow: hidden
+
+                            .ai-tool-detail-label
+                                display: block
+                                overflow: hidden
+                                text-overflow: ellipsis
+                                white-space: nowrap
+
+                            .ant-collapse-content-box
+                                padding: 6px 0 6px 0 !important
+
+                        .ai-tool-detail
+                            margin: 4px 0 4px 0
+                            padding: 8px 10px
+                            border-radius: 6px
+                            background: #f5f5f5
+                            overflow: hidden
+
                         .ai-tab-input
                             padding: 8px 16px 12px
                             border-top: 1px solid #f0f0f0
                             background: #fff
                             flex-shrink: 0
-                        
+
                         .chat-status-indicator
                             display: flex
                             align-items: center
@@ -486,54 +557,54 @@
                                 width: 6px
                                 height: 6px
                                 border-radius: 50%
-                    
+
                     .ai-tab-loading
                         flex: 1
                         display: flex
                         flex-direction: column
                         align-items: center
                         justify-content: center
-            
+
             .right-panel
                 min-width: 0px
                 flex-grow: 1
                 flex-shrink: 1
-                
+
                 .notification-panel
                     padding: 0px 10px
                     overflow-wrap: anywhere
-                    
-                
+
+
                 .term-panel
                     overflow: hidden
                     .term
                         height: 100%
                         width: 100%
-                        
+
                         .terminal
                             padding: 10px
-                    
+
                     .term-loading
                         padding: 10px
-        
+
         /* 括号高亮样式 */
-        .monaco-editor, .monaco-diff-editor, .monaco-component 
+        .monaco-editor, .monaco-diff-editor, .monaco-component
             --vscode-editorBracketMatch-background: #f9a2ffab !important
             --vscode-editorBracketMatch-border: #ff0000 !important
-        
+
         .dataview
             flex: 1
             min-height: 0px
-            
+
             border-top: 1px solid #e5e5e5
-            
+
             font-size: 16px
     .tabs-bar
         background-color: #f0f0f0
         height: 30px
         flex-shrink: 0
         display: flex
-        
+
         .tabs
             flex: 1
             min-width: 0
@@ -541,25 +612,25 @@
             display: flex
             overflow-x: auto
             overflow-y: hidden
-            
+
             &::-webkit-scrollbar
                 height: 2px !important
-            
+
             &::-webkit-scrollbar-track
                 background: transparent
-            
+
             &::-webkit-scrollbar-thumb
                 background: rgba(0, 0, 0, 0.2)
-                
+
                 &:hover
                     background: rgba(0, 0, 0, 0.3)
-        
+
         .tabs-right-extra
             flex-shrink: 0
             display: flex
             align-items: center
             border-left: 1px solid #e0e0e0
-            
+
             .ai-mode-btn
                 display: flex
                 align-items: center
@@ -570,14 +641,14 @@
                 color: #444
                 white-space: nowrap
                 height: 100%
-                
+
                 svg
                     width: 14px
                     height: 14px
-                
+
                 &:hover
                     background: #e8e8e8
-    
+
     .tabs
         background-color: #f0f0f0
         height: 30px
@@ -585,19 +656,19 @@
         display: flex
         overflow-x: auto
         overflow-y: hidden
-        
+
         &::-webkit-scrollbar
             height: 2px !important
-        
+
         &::-webkit-scrollbar-track
             background: transparent
-        
+
         &::-webkit-scrollbar-thumb
             background: rgba(0, 0, 0, 0.2)
-            
+
             &:hover
                 background: rgba(0, 0, 0, 0.3)
-        
+
         .tab
             flex-shrink: 0
             height: 100% !important
@@ -607,10 +678,10 @@
             padding: 2px 8px
             background: #f0f0f0
             border-bottom: 1px solid transparent
-            
+
             &:hover
                 background-color: rgb(245, 246, 247)
-            
+
             .close-icon
                 display: flex
                 align-items: center
@@ -619,35 +690,35 @@
                 border-radius: 50%
                 &:hover
                     background-color: rgb(225, 225, 225)
-            
+
             .tab-icon
                 display: flex
                 align-items: center
                 margin-right: 4px
                 font-size: 14px
-                
+
                 svg
                     width: 14px
                     height: 14px
-        
+
         .active
             border-bottom: 1px solid #3760F0
             background-color: #ffffff !important
-        
+
         .add-tab
             cursor: pointer
             display: flex
             align-items: center
             padding: 2px 8px
             border-bottom: 1px solid transparent
-            
+
             &:hover
                 background-color: rgb(245, 246, 247)
-        
-        
+
+
 
 .columns-schema-popover
-    max-width: 90%      
+    max-width: 90%
 
 .ant-modal-mask
     background-color: unset
@@ -656,32 +727,32 @@
     .db-modal-link
         margin-left: 10px
         font-size: 12px
-    
+
     .ant-modal-container
         padding: 20px 24px 1px 24px
         width: 1000px
-        
+
         .ant-modal-footer
             display: none
-        
+
         .ant-form-item-label > label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before
             content: ''
-        
+
         .db-modal-content-button-group
             .ant-col
                 width: 100%
                 max-width: 100%
-            
+
             .ant-form-item-control-input-content
                 display: flex
                 justify-content: flex-end
                 gap: 10px
-        
+
     .confirm-command-code-copy
         position: absolute
         top: 8px
         right: 8px
-    
+
     .confirm-command-code-editor
         border: 1px solid #DDD
         height: 500px
@@ -690,7 +761,7 @@
     .ant-modal-container
         .ant-form-item-label > label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before
             content: '*'
-    
+
 .db-context-menu
     background-color: #FFFFFF
 
@@ -698,7 +769,7 @@
     .title
         display: flex
         align-items: center
-    
+
         .modal-warning-icon
             color: rgb(243,173,43)
             font-size: large
@@ -709,4 +780,3 @@
         display: flex
         justify-content: flex-end
         column-gap: 8px
-    
