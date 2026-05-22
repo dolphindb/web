@@ -681,6 +681,9 @@ class ChatModel extends Model<ChatModel> {
     handle_auth_failed () {
         console.warn('Agent-bus auth failed, redirecting to login')
         localStorage.removeItem(storage_keys.agent_bus_token)
+        localStorage.removeItem(storage_keys.ticket)
+        localStorage.removeItem(storage_keys.username)
+        model.set({ logined: false, username: 'guest', admin: false })
         model.goto_login()
     }
     
