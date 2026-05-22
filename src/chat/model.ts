@@ -601,13 +601,36 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    should_attach_agent_header (path: string, options: RequestInit) {
+        if (!this.agent_id)
+            return false
+            
+        const url = new URL(path, this.base_url)
+        const pathname = url.pathname.replace(/^\/agent-bus\/v1/, '')
+        if (pathname.startsWith('/agent/') || url.searchParams.has('agentId'))
+            return false
+            
+        if (/^\/skill\/[^/]+\/(catalog|context|bindings|user\/[^/]+\/denied)$/.test(pathname))
+            return false
+            
+        if (typeof options.body === 'string')
+            try {
+                const body = JSON.parse(options.body)
+                if (body && typeof body === 'object' && 'agentId' in body)
+                    return false
+            } catch { }
+            
+        return true
+    }
+    
+    
     async api_fetch (path: string, options: RequestInit = { }): Promise<any> {
         const url = /^https?:\/\//.test(path) ? path : `${this.base_url}${path}`
         const token = (localStorage.getItem(storage_keys.agent_bus_token) || '').replace(/[\r\n]/g, '')
         const headers: Record<string, string> = {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : { }),
-            ...(this.agent_id && path !== '/agent/register' ? { 'x-agent-id': this.agent_id } : { }),
+            ...(this.should_attach_agent_header(path, options) ? { 'x-agent-id': this.agent_id } : { }),
         }
         
         // 合并调用方传入的额外 headers
