@@ -139,7 +139,6 @@ export function AiTab ({ session_id }: { session_id: string }) {
         }, AUTO_SCROLL_INTERVAL)
         return () => { clearInterval(timer) }
     }, [ ])
-
     // Scroll on new messages
     useEffect(() => {
         if (!should_auto_scroll.current)
@@ -231,6 +230,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
     function handle_send () {
         if (!input_value.trim())
             return
+        if (!chat_model.is_ddb_connected()) {
+            model.message?.warning(t('DolphinDB 连接已断开，无法发送消息'))
+            return
+        }
         chat_model.send_message(input_value)
         set_input_value('')
         should_auto_scroll.current = true

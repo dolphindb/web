@@ -24,7 +24,7 @@ export type MessageRole = 'system' | 'user' | 'assistant' | 'tool'
 
 export type MessageType = 'system' | 'text' | 'tool_call' | 'tool_result' | 'skill_result' | 'tool_error' | 'agent_error'
 
-export type AgentStatus = 'idle' | 'thinking' | 'tool_running' | 'error'
+export type AgentStatus = 'idle' | 'thinking' | 'tool_running' | 'compacting' | 'error'
 
 export type ScriptExecuteApprovalMode = 'approval' | 'auto'
 
@@ -1560,6 +1560,17 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    is_ddb_connected () {
+        return Boolean(model.ddb?.connected)
+    }
+    
+    
+    clear_context_compaction_status () {
+        if (this.agent_status.status === 'compacting')
+            this.set({ agent_status: { status: 'thinking' } })
+    }
+    
+    
     get_tool_call_signature (parsed_call: ParsedToolCall) {
         const tool_name = parsed_call.type.trim()
         if (DDB_RESULT_TOOLS.has(tool_name))
@@ -1677,6 +1688,10 @@ class ChatModel extends Model<ChatModel> {
     send_message (content: string) {
         if (!content.trim() || !this.current_session_id)
             return
+        if (!this.is_ddb_connected()) {
+            model.message?.warning(t('DolphinDB 连接已断开，无法发送消息'))
+            return
+        }
         const current_session = this.sessions.find(session => session.sessionId === this.current_session_id)
         if (current_session?.status === 1 || current_session?.statusName === 'ARCHIVED') {
             model.message?.warning(t('归档会话不可继续发送消息'))
@@ -1728,6 +1743,23 @@ class ChatModel extends Model<ChatModel> {
             
             const type = payload.type || parsed_event.event
             const data = payload.data || payload
+            
+            if (payload.action === 'context.compaction') {
+                const phase = String(data?.phase || '')
+                if (phase === 'start')
+                    this.set({ agent_status: { status: 'compacting', message: t('正在压缩上下文...') } })
+                else
+                    this.clear_context_compaction_status()
+                return
+            }
+            
+            if (type === 'EVENT')
+                return
+            
+            this.clear_context_compaction_status()
+            
+            if (type === 'STREAM_START' || parsed_event.event === 'stream_start')
+                return
             
             if (type === 'STREAM_CHUNK' || parsed_event.event === 'chunk') {
                 const delta = to_stream_text(data.content)
@@ -1882,6 +1914,7 @@ class ChatModel extends Model<ChatModel> {
             const body: Record<string, any> = {
                 sessionId: this.current_session_id,
                 stream: true,
+                contextEvent: true,
                 includeReasoning: true,
                 message,
                 assemblyConfig: {
