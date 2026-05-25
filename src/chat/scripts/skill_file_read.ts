@@ -51,7 +51,15 @@ function to_string_list (value: unknown): string[] {
 }
 
 
-function get_skill_file_args (content: unknown): { skill_id: string, file_paths: string[] } {
+function to_optional_int (value: unknown) {
+    if (value === null || value === undefined || value === '')
+        return undefined
+    const parsed = Number(value)
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+}
+
+
+function get_skill_file_args (content: unknown): { skill_id: string, file_paths: string[], line_start?: number, line_limit?: number } {
     const parsed = parse_payload(content)
     const args = normalize_script_args(content)
     
@@ -65,7 +73,12 @@ function get_skill_file_args (content: unknown): { skill_id: string, file_paths:
             parsed.paths ??
             args.slice(1)
         )
-        return { skill_id, file_paths }
+        return {
+            skill_id,
+            file_paths,
+            line_start: to_optional_int(parsed.lineStart ?? parsed.line_start),
+            line_limit: to_optional_int(parsed.lineLimit ?? parsed.line_limit),
+        }
     }
     
     if (Array.isArray(parsed)) {
@@ -80,9 +93,14 @@ function get_skill_file_args (content: unknown): { skill_id: string, file_paths:
 }
 
 
-async function read_skill_file (context: Parameters<ScriptConfig['handler']>[2], skill_id: string, file_path: string) {
+async function read_skill_file (context: Parameters<ScriptConfig['handler']>[2], skill_id: string, file_path: string, line_start?: number, line_limit?: number) {
+    const search = new URLSearchParams({ filePath: file_path })
+    if (line_start !== undefined)
+        search.set('lineStart', String(line_start))
+    if (line_limit !== undefined)
+        search.set('lineLimit', String(line_limit))
     const result = await context.api_fetch(
-        `/skill/${encodeURIComponent(skill_id)}/files/get?filePath=${encodeURIComponent(file_path)}`
+        `/skill/${encodeURIComponent(skill_id)}/files/get?${search}`
     )
     const source_content = is_record(result) && typeof result.content === 'string' ? result.content : ''
     const source_encoding = is_record(result) && typeof result.encoding === 'string' ? result.encoding : ''
@@ -118,7 +136,7 @@ export const skill_file_read_config: ScriptConfig = {
     },
     handler: async (type, content, context): Promise<ScriptResult> => {
         try {
-            const { skill_id, file_paths } = get_skill_file_args(content)
+            const { skill_id, file_paths, line_start, line_limit } = get_skill_file_args(content)
             if (!skill_id || file_paths.length === 0)
                 return {
                     next_loop: true,
@@ -131,7 +149,7 @@ export const skill_file_read_config: ScriptConfig = {
                     },
                 }
             
-            const files = await Promise.all(file_paths.map(file_path => read_skill_file(context, skill_id, file_path)))
+            const files = await Promise.all(file_paths.map(file_path => read_skill_file(context, skill_id, file_path, line_start, line_limit)))
             const message_content = stringify_ddb_result(files.length === 1
                 ? files[0]
                 : { skillId: skill_id, count: files.length, files })

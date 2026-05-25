@@ -35,9 +35,14 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = {
         summary: '按 skillId 读取单个技能的完整详情，并包含技能指令 instruction 与文件目录结构 fileTree。',
         args_hint: '["<skillId>"]',
     },
+    skill_file_search: {
+        summary: '检索指定 Skill 包内的文本文件，按字面量子串匹配，不支持 regex。用于先定位文件和行号，避免直接读取全量大文件。',
+        args_desc: '可传对象参数：skill_id 必填；query/all/any 三选一；scope=file|line；caseSensitive；filePaths；extensions；contextLines；maxResults；maxPerFile。',
+        args_hint: '{"tool_call":"skill_file_search","args":{"skill_id":"<skillId>","query":"RSI","extensions":[".md",".json"],"contextLines":2,"maxResults":20}}',
+    },
     skill_file_read: {
-        summary: '读取指定 Skill 包内一个或多个文件的文本内容。先用 skill_read 查看 files/fileTree，再按路径读取需要的文件。',
-        args_desc: 'args[0]=skillId；后续参数可以是一个或多个文件路径，也可以传文件路径数组。',
+        summary: '读取指定 Skill 包内一个或多个文件的文本内容。先用 skill_read 查看 files/fileTree，或用 skill_file_search 搜索定位后再读取。',
+        args_desc: 'args[0]=skillId；后续参数可以是一个或多个文件路径，也可以传对象参数 skill_id/file_path/lineStart/lineLimit。',
         args_hint: '["<skillId>","SKILL.md","src/index.dos"]',
     },
     skill_file_copy: {
@@ -201,7 +206,7 @@ function build_tools_section (): string {
         '- 修改已有工作区文件前，先用 vfs_read 或 vfs_search 定位上下文，再用 vfs_update 提交 unified diff patch。',
         '- 中间验证用 execute/execute_file，最终展示真实结果才用 show。',
         '- 能自然语言回答时不要用 show 或 print。',
-        '- 需要技能细节时先用 skill_read/skill_file_read；需要基于技能文件继续改代码时用 skill_file_copy 复制到工作区。',
+        '- 需要技能细节时先用 skill_read；需要定位技能文件内容时用 skill_file_search，再用 skill_file_read 分段读取；需要基于技能文件继续改代码时用 skill_file_copy 复制到工作区。',
         '',
         '## 调用示例',
         '{',

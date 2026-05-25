@@ -1347,6 +1347,8 @@ class ChatModel extends Model<ChatModel> {
     map_dolphinx_message (m: any): IMessage | null {
         if (!m)
             return null
+        if (m.contentType === 'summary')
+            return null
             
         let message_type: string | undefined
         switch (m.contentType) {
@@ -1358,9 +1360,6 @@ class ChatModel extends Model<ChatModel> {
                 break
             case 'tool_result':
                 message_type = 'tool_result'
-                break
-            case 'summary':
-                message_type = 'system'
                 break
             default:
                 message_type = m.contentType

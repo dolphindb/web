@@ -23,7 +23,7 @@ function to_file_paths (value: unknown): string[] {
         return [ ]
     
     return value.items
-        .map(item => typeof item === 'string' ? item.trim() : '')
+        .map(item => typeof item === 'string' ? item.trim() : is_record(item) ? String(item.filePath ?? item.file_path ?? '').trim() : '')
         .filter(Boolean)
 }
 

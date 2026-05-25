@@ -858,6 +858,7 @@ const TOOL_RENDERERS: Record<string, (props: ToolRendererProps) => React.ReactNo
     execute: props => <ExecuteLikeRenderer {...props} />,
     execute_file: props => <ExecuteFileRenderer {...props} />,
     skill_read: props => <SkillReadRenderer {...props} />,
+    skill_file_search: props => <VfsSearchRenderer {...props} />,
     skill_file_read: props => <SkillFileReadRenderer {...props} />,
     doc_search: props => <DocSearchRenderer {...props} />,
     doc_read: props => <DocReadRenderer {...props} />,

@@ -7,6 +7,7 @@ import { doc_search_config } from './doc_search.ts'
 import { doc_read_config } from './doc_read.ts'
 import { skill_read_config } from './skill_read.ts'
 import { skill_file_read_config } from './skill_file_read.ts'
+import { skill_file_search_config } from './skill_file_search.ts'
 import {
     execute_file_config,
     skill_file_copy_config,
@@ -32,6 +33,7 @@ export function init_scripts () {
     register_script(doc_search_config)
     register_script(doc_read_config)
     register_script(skill_read_config)
+    register_script(skill_file_search_config)
     register_script(skill_file_read_config)
     register_script(vfs_list_config)
     register_script(vfs_create_config)

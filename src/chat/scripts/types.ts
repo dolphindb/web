@@ -3,7 +3,7 @@ import type { IMessage } from '@/chat/model.ts'
 import type { chat_workspace_store } from '@/chat/workspace.ts'
 
 
-export type ScriptType = 'execute' | 'coldefs' | 'testsql' | 'show' | 'doc_search' | 'doc_read' | 'skill_read' | 'skill_file_read' | string
+export type ScriptType = 'execute' | 'coldefs' | 'testsql' | 'show' | 'doc_search' | 'doc_read' | 'skill_read' | 'skill_file_search' | 'skill_file_read' | string
 
 
 export interface ScriptResult {
