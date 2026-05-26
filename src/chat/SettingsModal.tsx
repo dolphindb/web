@@ -542,8 +542,6 @@ const ADAPTER_TYPE_OPTIONS = [
     { value: 'openai-compatible', label: 'OpenAI Compatible' },
     { value: 'anthropic', label: 'Anthropic' },
     { value: 'deepseek', label: 'DeepSeek' },
-    { value: 'azure', label: 'Azure' },
-    { value: 'local', label: 'Local' },
 ]
 
 
