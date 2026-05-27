@@ -6,7 +6,7 @@
 
 收听
 
-56
+57
 
 添加反应
 
@@ -86,6 +86,7 @@ demo2.zip
     * [检索技能包文本文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%A3%80%E7%B4%A2%E6%8A%80%E8%83%BD%E5%8C%85%E6%96%87%E6%9C%AC%E6%96%87%E4%BB%B6)
     * [批量获取技能包文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%89%B9%E9%87%8F%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD%E5%8C%85%E6%96%87%E4%BB%B6)
   * [2.5 Workspace 运行时能力](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.5-Workspace-%E8%BF%90%E8%A1%8C%E6%97%B6%E8%83%BD%E5%8A%9B)
+    * [Workspace 文件 hash](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#Workspace-%E6%96%87%E4%BB%B6-hash)
     * [列出 Workspace 文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA-Workspace-%E6%96%87%E4%BB%B6)
     * [读取 Workspace 文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%AF%BB%E5%8F%96-Workspace-%E6%96%87%E4%BB%B6)
     * [写入 Workspace 文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%86%99%E5%85%A5-Workspace-%E6%96%87%E4%BB%B6)
@@ -218,6 +219,7 @@ demo2.zip
   * [渐进式加载模型（Progressive Disclosure）](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B8%90%E8%BF%9B%E5%BC%8F%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9E%8B%EF%BC%88Progressive-Disclosure%EF%BC%89)
   * [调用控制矩阵](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%B0%83%E7%94%A8%E6%8E%A7%E5%88%B6%E7%9F%A9%E9%98%B5)
   * [注册时的解析流程](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B3%A8%E5%86%8C%E6%97%B6%E7%9A%84%E8%A7%A3%E6%9E%90%E6%B5%81%E7%A8%8B)
+  * [ReasoningContent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#ReasoningContent)
 
 ## 1. 通用约定
 
@@ -236,6 +238,11 @@ demo2.zip
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `headers` 仅在服务端 envelope headers 非空时返回。
 * 如果请求没有显式提供 `x-request-id` 或 WebSocket `requestId`，`correlationId` 会使用服务端生成的请求 `msgId`。
 
@@ -280,7 +287,7 @@ demo2.zip
 
 当 `stream=true` 时，HTTP 响应使用 Server-Sent Events 格式：
 
-`Content-Type: text/event-stream; charset=UTF-8 event: stream_start data: {"type":"STREAM_START","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{...}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"..."}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"..."}} event: stream_end data: {"type":"STREAM_END","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{...}} `
+`Content-Type: text/event-stream; charset=UTF-8 event: stream_start data: {"type":"STREAM_START","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{...}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"..."}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"..."}} event: stream_end data: {"type":"STREAM_END","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"requestId":"req_xxx","sessionId":"sess_001","model":"<resolved-model>","llmConfigId":"llm_xxx","content":"这是LLM的回复","reasoning":"可展示思考过程累计文本","toolCalls":[{"id":"call_xxx","type":"function","function":{"name":"search_database","arguments":"{\"query\":\"SELECT ...\"}"}}],"finishReason":"tool_calls","usage":{"promptTokens":1200,"completionTokens":300,"totalTokens":1500},"latencyMs":2500,"metadata":{}}} `
 
 SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按 UTF-8 解码后，再做事件分帧和 JSON 解析。
 
@@ -339,6 +346,11 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 该接口面向当前登录用户，不接受 `userId` 或 `targetUserId`
 * 返回当前用户在该 agent 下的有效可选集合：`AgentAllowed ∪ UserGranted`
 * 未指定模型时，运行时仍优先使用 agent 默认模型；fallback 只走 agent 绑定链
@@ -387,6 +399,12 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 说明：请求体不接受 `userId`；会话 owner 固定为当前登录用户。
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
+
 ---
 
 #### 获取会话
@@ -427,6 +445,11 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 至少提供一个可更新字段。
 * 只有 session owner 可更新；已删除会话不可更新。
 
@@ -565,6 +588,11 @@ ToolResult 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `toolResults` 只传工具结果、不传 `message` 是合法用法，适用于 tool calling 的续传轮次
 * 当 `message` 和 `toolResults` 同时存在时，框架会按 `toolResults -> message` 的顺序作为当前轮输入参与装配，并在窗口检查通过后按同顺序落库
 * 自动装配中的记忆检索仅使用当前 `message` 作为查询文本；如果本轮只有 `toolResults`，则不会额外执行记忆查询
@@ -669,6 +697,11 @@ ToolResult 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * contextBlocks 的 token 在预算分配早期被预扣，不会被裁剪；过长会挤压历史和记忆预算
 * `after_system` 用于全局规则，`before_history` 用于本轮参考资料，`before_current_turn` 用于必须被 LLM 立即看到的单轮约束或动态快照
 
@@ -684,10 +717,15 @@ ToolResult 结构:
 
 当 `stream=true`（默认）时，返回 SSE 流：
 
-`event: event data: {"type":"EVENT","msgId":"...","correlationId":"req_xxx","action":"context.compaction","agentId":"agent_xxx","sessionId":"sess_001","data":{"phase":"start"}} event: event data: {"type":"EVENT","msgId":"...","correlationId":"req_xxx","action":"context.compaction","agentId":"agent_xxx","sessionId":"sess_001","data":{"phase":"end","generated":true}} event: stream_start data: {"type":"STREAM_START","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"requestId":"req_xxx","model":"<resolved-model>","llmConfigId":"llm_xxx"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"这是"}} event: reasoning_delta data: {"type":"STREAM_REASONING","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"reasoning":"可展示思考过程增量"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"LLM"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"的回复"}} event: stream_end data: {"type":"STREAM_END","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{...}} `
+`event: event data: {"type":"EVENT","msgId":"...","correlationId":"req_xxx","action":"context.compaction","agentId":"agent_xxx","sessionId":"sess_001","data":{"phase":"start"}} event: event data: {"type":"EVENT","msgId":"...","correlationId":"req_xxx","action":"context.compaction","agentId":"agent_xxx","sessionId":"sess_001","data":{"phase":"end","generated":true}} event: stream_start data: {"type":"STREAM_START","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"requestId":"req_xxx","model":"<resolved-model>","llmConfigId":"llm_xxx"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"这是"}} event: reasoning_delta data: {"type":"STREAM_REASONING","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"reasoning":"可展示思考过程增量"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"","toolCallDeltas":[{"index":0,"id":"call_xxx","type":"function","function":{"name":"search_database","arguments":"{\"query\":"}}],"finishReason":"","usage":{"promptTokens":0,"completionTokens":0,"totalTokens":0}}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"LLM"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"的回复"}} event: stream_end data: {"type":"STREAM_END","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"requestId":"req_xxx","sessionId":"sess_001","model":"<resolved-model>","llmConfigId":"llm_xxx","content":"这是LLM的回复","reasoning":"可展示思考过程累计文本","toolCalls":[{"id":"call_xxx","type":"function","function":{"name":"search_database","arguments":"{\"query\":\"SELECT ...\"}"}}],"finishReason":"tool_calls","usage":{"promptTokens":1200,"completionTokens":300,"totalTokens":1500},"latencyMs":2500,"metadata":{}}} `
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `context.compaction` 事件只会在请求体中设置 `contextEvent=true` 且本次请求实际触发上下文压缩时返回。
 * `data.phase` 可能为 `start` / `end` / `failed`；`end` 阶段会额外返回 `generated` 表示是否实际生成了摘要。
 * 该事件可能出现在 `stream_start` 之前；客户端应忽略不认识的 `EVENT.action`。
@@ -739,6 +777,11 @@ ToolResult 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `catalog` 对应 Tier-1，`activeInstructions` 对应调用方显式请求的 Tier-2。
 * 该接口用于应用层显式获取 skill 上下文，不代表框架自动维护 skill 激活闭环。
 
@@ -773,6 +816,11 @@ ToolResult 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 该接口是 Tier-2 指令体的只读原语。
 * 该接口用于应用层渐进式加载 skill，服务端会校验当前用户对 `agentId` 下 `skillId` 的使用权限。
 * 是否读取、何时注入、如何在 tool loop 中续传，由应用层决定。
@@ -808,6 +856,11 @@ ToolResult 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 路径以 skill 包目录作为根目录，末尾为文件名。
 * 该接口只返回文件元信息，不返回文件内容。
 * 该接口用于应用层渐进式加载 skill 文件，服务端会校验当前用户对 `agentId` 下 `skillId` 的使用权限。
@@ -845,6 +898,11 @@ ToolResult 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 文本文件指定 `lineStart`/`lineLimit` 时只返回对应行范围。
 * 非文本文件默认不返回 `content`，只返回元信息和 `contentOmitted=true`；需要原始内容时传 `raw=true`。
 * 超大文本文件未指定行范围时可能省略 `content`，应用侧应改用分段读取或检索。
@@ -903,6 +961,11 @@ ToolResult 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 本接口的功能类似于简易版的grep，将本服务包装为工具，可实现按需读取，避免将全量文本文件直接装配至上下文窗口
 * 仅检索文本文件；服务端会跳过非文本文件和超过 10 MiB 的文本文件，并通过响应中的 `skipped` 返回跳过原因。
 * `query`、`all`、`any` 中的 term 都按字面量子串匹配，不拆词、不支持 regex、不打分；大小写由 `caseSensitive` 控制。
@@ -917,6 +980,11 @@ ToolResult 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `skipped[].reason` 当前可能为 `non_text` 或 `too_large`.
 
 #### 批量获取技能包文件
@@ -968,6 +1036,11 @@ ToolResult 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 文件内容以 base64 字符串存储并返回，`size` 为原始文件字节数。
 * 文件的解释、执行、二次注入和本地落地方式由应用层负责。
 
@@ -981,10 +1054,47 @@ Workspace 是面向 coding agent 的会话级临时文本文件区。它用于�
 
 * Workspace 由 `sessionId` 定位，当前用户必须拥有该 session 的读写权限。
 * 文件在单个 session workspace 内平铺，不支持子目录。`name` 只能是普通文件名，不能包含 `/`、`\`、`..`，不能以 `.` 开头。
-* `read/search/write/applyPatch` 只面向 UTF-8 文本文件；二进制文件不作为首版目标。
+* `read/search/write/replace` 只面向 UTF-8 文本文件；二进制文件不作为首版目标。
 * `ACTIVE` session 允许读写；`ARCHIVED` session 只允许 `list/read/search`；`DELETED` session 拒绝访问。
-* 单 workspace 默认限制为 500 个文件、50 MiB 总大小、2 MiB 单文件大小。读取、搜索和 patch 也有服务端配置上限。
+* 单 workspace 默认限制为 100 个文件、5 MiB 总大小、512 KiB 单文件大小。读取和搜索有服务端配置上限；写入和替换受单文件与 workspace 总配额限制。
 * 当请求到达非 workspace home node 时，服务端不会内部转发，而是返回 `WORKSPACE_REDIRECT` payload。客户端应使用同样的 method、query、body 和认证信息，向 `workspaceBaseUrl + retryPath` 重试。
+
+#### Workspace 文件 hash
+
+Workspace中的hash值是读workSpace文件时DolphinX返的一个字段，在进行文件修改操作时需要在此把这个hash值当参数传给DolphinX，用于确保待修改的文件和之前读取时是一样的（即：防止陈旧读）。
+
+格式：
+
+`xxh64:<16位hex>:<size> `
+
+说明：
+
+* `hash` 基于完整文件内容计算，和本次读取的行范围或搜索命中范围无关。
+* `<size>` 是完整文件字节数，用于辅助诊断内容是否明显不一致。
+* 调用 `workspace.replace` 修改文件时，必须把上次从同一文件的 `workspace.read`、`workspace.search`、`workspace.write` 或 `workspace.replace` 拿到的 `hash` 放入请求体。
+* 服务端执行 `workspace.replace` 前会重新读取当前文件并计算 hash；如果请求中的 `hash` 与当前文件 hash 不一致，请求会被拒绝，错误为 `REPLACE_REJECTED`，`error.reason="stale_file"`。客户端应重新 `read` 或 `search` 后再生成替换请求。
+
+可获得和使用 `hash` 的接口：
+
+| 接口
+
+```
+| 是否返回 hash
+
+
+                                | 如何使用
+
+
+                                                                                       |
+```
+
+| ------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `workspace.list`    | 否                                               | 仅列出文件元信息，不读取文件内容，不能为`workspace.replace`提供 hash。                         |
+| `workspace.read`    | 是，响应字段`hash`                           | 表示被读取文件的完整内容摘要，可直接作为后续`workspace.replace.hash`。                         |
+| `workspace.search`  | 是，每个`matches[].hash`                     | 表示对应`matches[].name`文件的完整内容摘要，可作为修改该文件时的`workspace.replace.hash`。 |
+| `workspace.write`   | 是，响应字段`hash`                           | 表示写入后的完整文件摘要，可作为后续`workspace.replace.hash`。                                 |
+| `workspace.replace` | 请求必须携带`hash`；成功响应返回新`hash` | 请求中的`hash`用于陈旧读检测；响应中的新`hash`应用于后续继续修改同一文件。                 |
+| `workspace.delete`  | 否                                               | 删除文件后无可继续修改的内容，不返回 hash。                                                        |
 
 `WORKSPACE_REDIRECT` 响应示例：
 
@@ -1035,12 +1145,14 @@ Workspace 是面向 coding agent 的会话级临时文本文件区。它用于�
 
 **响应:**
 
-`{ "name": "main.dos", "content": "def main(){\n    return 1\n}\n", "size": 1024, "lineCount": 42, "startLine": 1, "endLine": 3, "truncated": false } `
+`{ "name": "main.dos", "content": "def main(){\n    return 1\n}\n", "size": 1024, "lineCount": 42, "startLine": 1, "endLine": 3, "truncated": false, "hash": "xxh64:4f9a2c18b7e301d2:1024" } `
 
 说明：
 
 * `size` 是完整文件字节数，`lineCount` 是完整文件行数。
 * `truncated=true` 表示返回内容被 `agentWorkspaceReadMaxBytes` 截断；调用方应缩小行范围后重试。
+* 请参考本小节开头关于hash的说明。
+* 构造 `workspace.replace.replacements[].old` 时，应从本接口返回的 `content` 中精确复制旧片段；多行替换或换行敏感修改应优先使用 `workspace.read` 获取足够上下文。
 
 ---
 
@@ -1074,13 +1186,14 @@ Workspace 是面向 coding agent 的会话级临时文本文件区。它用于�
 
 **响应:**
 
-`{ "name": "main.dos", "created": true, "changed": true, "size": 31 } `
+`{ "name": "main.dos", "created": true, "changed": true, "size": 31, "hash": "xxh64:4f9a2c18b7e301d2:31" } `
 
 说明：
 
 * 该接口用于创建文件或原子替换完整文件内容。
-* 小范围修改优先使用 `workspace.applyPatch`。
+* 小范围修改优先使用 `workspace.replace`。
 * 写入前会校验单文件大小、workspace 总大小和文件数量配额。
+* 请参考本小节开头关于hash的说明。
 
 ---
 
@@ -1155,8 +1268,8 @@ Workspace 是面向 coding agent 的会话级临时文本文件区。它用于�
 | `names`         | string[] | 否       | 限定搜索的文件名列表                                                                                                  |
 | `extensions`    | string[] | 否       | 限定文件后缀，如`[".dos", ".md"]`                                                                                 |
 | `contextLines`  | int      | 否       | 每个命中行前后的上下文行数，默认`0`；不能超过`agentWorkspaceSearchMaxContextLines`，默认上限 3                |
-| `maxResults`    | int      | 否       | 返回命中总数上限；省略或小于等于 0 时使用`agentWorkspaceSearchMaxResults`，默认 100；较大值按服务端配置截断       |
-| `maxPerFile`    | int      | 否       | 每个文件返回命中数上限；省略或小于等于 0 时使用`agentWorkspaceSearchMaxPerFile`，默认 20；较大值按服务端配置截断  |
+| `maxResults`    | int      | 否       | 返回命中总数上限；省略或小于等于 0 时使用`agentWorkspaceSearchMaxResults`，默认 50；较大值按服务端配置截断        |
+| `maxPerFile`    | int      | 否       | 每个文件返回命中数上限；省略或小于等于 0 时使用`agentWorkspaceSearchMaxPerFile`，默认 10；较大值按服务端配置截断  |
 
 `scope` 说明：
 
@@ -1165,34 +1278,37 @@ Workspace 是面向 coding agent 的会话级临时文本文件区。它用于�
 
 **响应:**
 
-`{ "terms": ["submitOrder", "RSI"], "mode": "all", "scope": "file", "resultCount": 1, "skippedCount": 0, "truncated": false, "matches": [ { "name": "main.dos", "line": 37, "column": 12, "term": "submitOrder", "text": "submitOrder(account, symbol, qty)", "before": ["if(rsi < 30){"], "after": ["}"] } ], "skipped": [] } `
+`{ "terms": ["submitOrder", "RSI"], "mode": "all", "scope": "file", "resultCount": 1, "skippedCount": 0, "truncated": false, "matches": [ { "name": "main.dos", "hash": "xxh64:4f9a2c18b7e301d2:1024", "line": 37, "column": 12, "term": "submitOrder", "text": "submitOrder(account, symbol, qty)", "before": ["if(rsi < 30){"], "after": ["}"] } ], "skipped": [] } `
 
 说明：
 
-* 搜索会跳过超过 `agentWorkspaceSearchMaxFileBytes` 的文件，默认上限 50 MiB；跳过文件会出现在 `skipped` 中，`skippedCount` 为跳过数量。
+* 搜索会跳过超过 `agentWorkspaceSearchMaxFileBytes` 的文件，默认上限 512 KiB；跳过文件会出现在 `skipped` 中，`skippedCount` 为跳过数量。
 * 搜索 term 只按字面量子串匹配，不拆词、不支持 regex、不打分；大小写由 `caseSensitive` 控制。
 * 返回项是实际命中的行；`scope=file` 下即使文件整体满足 `all`，响应中仍按每个命中 term 返回对应行。
 * `truncated=true` 表示命中超过 `maxResults`、`maxPerFile` 或服务端配置上限；`skipped[].reason` 当前可能为 `too_large` 或 `invalid_utf8`。
+* 请参考本小节开头关于hash的说明。
+* `workspace.search` 适合定位文件和行号；搜索返回的 `text`、`before`、`after` 是按行组织的上下文。需要构造多行或换行敏感的 `old` 片段时，应再调用 `workspace.read` 读取目标行附近内容。
 
 ---
 
 #### 局部修改 Workspace 文件
 
-`POST /agent-bus/v1/workspace/{sessionId}/patch `
+`POST /agent-bus/v1/workspace/{sessionId}/replace `
 
-内部 action：`workspace.applyPatch`
+内部 action：`workspace.replace`
 
 **请求体:**
 
-`{ "name": "main.dos", "patch": "--- main.dos\n+++ main.dos\n@@ -1,3 +1,3 @@\n def main(){\n-    return 1\n+    return 2\n }\n" } `
+`{ "name": "main.dos", "hash": "xxh64:4f9a2c18b7e301d2:1024", "replacements": [ { "old": "return 1", "new": "return 2" }, { "old": "oldName", "new": "newName", "replaceAll": true } ] } `
 
 | 字段
 
 ```
 | 类型
-```
 
-| 必填
+
+ | 必填
+```
 
 | 说明
 
@@ -1200,20 +1316,26 @@ Workspace 是面向 coding agent 的会话级临时文本文件区。它用于�
 |
 ```
 
-| ------------- | -------- | ------ | -------------------------------- |
-| `name`  | string | 是   | 要修改的已有文件名，不支持路径 |
-| `patch` | string | 是   | 单文件 unified diff patch      |
+| --------------------------------- | ---------- | ------ | ------------------------------------------------ |
+| `name`                      | string   | 是   | 要修改的已有文件名，不支持路径                 |
+| `hash`                      | string   | 是   | 请参考本小节开头关于hash的说明。               |
+| `replacements`              | object[] | 是   | 有序替换列表，不能为空                         |
+| `replacements[].old`        | string   | 是   | 精确旧片段，不能为空                           |
+| `replacements[].new`        | string   | 是   | 新片段，可以为空字符串；空字符串表示删除旧片段 |
+| `replacements[].replaceAll` | bool     | 否   | 是否替换所有匹配，默认`false`              |
 
 **响应:**
 
-`{ "name": "main.dos", "changed": true, "lineCount": 3, "summary": "applied patch" } `
+`{ "name": "main.dos", "changed": true, "lineCount": 3, "replacementCount": 2, "occurrenceCount": 5, "hash": "xxh64:7c1d0b2a9910ef43:1048" } `
 
 说明：
 
-* `patch` 只能修改 `name` 指定的单个已存在文件。
-* 不支持多文件 patch、rename、创建文件或删除文件；创建文件使用 `workspace.write`，删除文件使用 `workspace.delete`。
-* 任一 hunk 上下文不匹配时，整个 patch 失败，原文件保持不变。
-* 成功后不返回完整文件；调用方需要确认内容时，应继续调用 `workspace.read`。
+* 请参考本小节开头关于hash的说明。
+* 多条 replacement 按数组顺序应用。如果有多条replacement，第二条会在第一条替换后的内容里执行。所以如果第一条生成了某些新文本，第二条也可能匹配到这些新文本。
+* `replaceAll=false` 时，`old` 必须恰好出现一次；0 次或多次都拒绝。
+* `replaceAll=true` 时，`old` 必须至少出现一次，服务端替换所有非重叠匹配。
+* 任意一条 replacement 失败时，整个请求失败且原文件保持不变。
+* 请参考本小节开头关于hash的说明。
 
 ---
 
@@ -1243,6 +1365,11 @@ Memory API 的 HTTP 路由、请求体和响应体不包含 lane 配置；lane �
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `memory.store/update/delete` 属于写请求，会按上述 lane 策略串行化。
 * `memory.get/search/list/stats` 对外仍是只读接口，不需要客户端提供 lane 信息。
 * `agentFramework.memory.lanePolicy` 是全局运行时配置，不属于 `memoryConfig`，也不会随 agent 注册请求落库。
@@ -1282,6 +1409,11 @@ Memory API 的 HTTP 路由、请求体和响应体不包含 lane 配置；lane �
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 当 `agent.memoryConfig.embeddingEnabled=true` 时，`memory.store` 由框架根据启用的 embedding 配置生成 document embedding，并同步写入记忆主表和 embedding 表
 * 当 `agent.memoryConfig.embeddingEnabled=false` 时，`memory.store` 只写入记忆主表，不生成 embedding
 * 请求体不接受 `userId`、`embedding`、`embeddingModel`
@@ -1329,6 +1461,11 @@ Memory API 的 HTTP 路由、请求体和响应体不包含 lane 配置；lane �
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 至少提供一个可更新字段。
 * 当 `agent.memoryConfig.embeddingEnabled=true` 且更新 `content` 时，框架会先生成新的 document embedding，再同步更新记忆主表和 embedding 表
 * 当 `agent.memoryConfig.embeddingEnabled=false` 时，更新仅作用于记忆主表，不生成或更新 embedding
@@ -1387,6 +1524,11 @@ Memory API 的 HTTP 路由、请求体和响应体不包含 lane 配置；lane �
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `RELEVANCE` 和 `TEXT_SEARCH` 都要求 `textQuery` 非空；`HYBRID` 可以不传 `textQuery`，此时只使用最近和重要度等非文本候选。
 * 当 `sortBy=RELEVANCE/HYBRID` 且 `textQuery` 非空、`agent.memoryConfig.embeddingEnabled=true` 时，`memory.search` 由框架内部生成 query embedding，不接受 `embedding`、`embeddingModel`。
 * 当 `agent.memoryConfig.embeddingEnabled=false` 时，`RELEVANCE` 直接失败，`HYBRID` 退化为全文/importance/recency 检索。
@@ -1452,6 +1594,11 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `maxBodyBytes` 是读取上限，不代表目标站点一定返回完整内容；当 body 被截断时 `truncated=true`。
 * 对文档 PDF 等二进制资源，接口可以返回 HTTP 状态码、响应头和 content type，但不会把二进制内容放入 `body`。
 * 请求失败、超时、限流或参数校验失败时返回标准 Agent Bus 错误 envelope。
@@ -1531,6 +1678,11 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `context/preview` 会按与 `/chat/completions` 相同的规则组装当前轮输入
 * 预览中的 `message` / `toolResults` 仅作为 pending turn 参与组装，不会写入 session
 * 该接口不会调用 LLM，也不会追加 assistant 回复
@@ -1541,6 +1693,12 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 `{ "agentId": "agent_001", "sessionId": "sess_001", "userId": "admin", "assemblyMode": "auto", "messages": [ { "role": "system", "content": "你是一个..." }, { "role": "system", "content": "对话摘要：用户之前询问了..." }, { "role": "user", "content": "历史消息..." }, { "role": "assistant", "content": "历史回复..." }, { "role": "tool", "toolCallId": "call_1", "content": "工具执行结果" }, { "role": "user", "content": "当前问题" } ], "tools": [ ... ], "estimatedTokens": 4200, "detail": { "assemblyMode": "auto", "memoriesIncluded": 3, "messagesIncluded": 8, "skillsInCatalog": 5, "activeInstructions": 1, "toolsIncluded": 2, "historyMode": "summary-first", "summaryConfigured": true, "summaryIncluded": true, "summaryUpToSeqNum": 40, "historyFromSeq": 41, "historyToSeq": 48 }, "tokenBreakdown": { "systemPrompt": 200, "skillCatalog": 150, "skillInstructions": 800, "memoryContext": 300, "summaryMessage": 120, "historyMessages": 2200, "externalContext": 180, "toolDefinitions": 400, "userMessage": 50 } } `
 
 **detail 字段说明：**
+
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 
 | 字段
 
@@ -1569,6 +1727,12 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 | `historyToSeq`       | long   | raw tail 结束序列号                                       |
 
 **tokenBreakdown 字段说明：**
+
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 
 | 字段
 
@@ -1667,6 +1831,11 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 该接口不接受 `userId` 或 `targetUserId`；指定 `sessionId` 时使用 session owner，否则使用当前登录用户。
 
 LLMMessage 结构:
@@ -1794,6 +1963,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `agent.register` 不接受 `agentId` 和 `ownerUserId`；`agentId` 由框架生成
 * `memoryConfig.embeddingEnabled` 在 `agent.register` 时完成一次性决策并落库
 * 注册请求未显式传入 `memoryConfig.embeddingEnabled` 时，系统会按默认值 `false` 补齐并持久化
@@ -1841,6 +2015,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 至少提供一个可更新字段；已删除 Agent 不可更新
 * `memoryConfig.embeddingEnabled` 在注册后不可变；更新时如果显式传入且与当前值不同，请求会被拒绝
 * 更新 `memoryConfig` 但省略 `embeddingEnabled` 时，框架会保留原值
@@ -1936,6 +2115,12 @@ ToolDefinition 结构:
 
 说明：授权级别固定为 Agent 调用权限，请求体不接受 `permission`。
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
+
 ---
 
 #### 撤销 Agent 权限
@@ -2005,6 +2190,12 @@ ToolDefinition 结构:
 
 说明：授权级别固定为全局 `AGENT_ADMIN`，请求体不接受 `permission`。
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
+
 ---
 
 #### 撤销全局 `AGENT_ADMIN`
@@ -2043,19 +2234,24 @@ ToolDefinition 结构:
 |
 ```
 
-| ------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
-| `providerId`  | string | 否   | Provider ID；不传时由框架生成                                                                                           |
-| `name`        | string | 是   | Provider 名称，用于标识和展示                                                                                           |
-| `adapterType` | string | 是   | 运行时 provider 适配器类型：`openai`/`openai-compatible`/`anthropic`/`deepseek`/`azure`/`local` |
-| `baseUrl`     | string | 是   | Provider 级基础 URL，必须是完整`http(s)`URL，如`https://api.openai.com`                                         |
-| `apiKey`      | string | 否   | Provider 级 API Key                                                                                                     |
-| `enabled`     | bool   | 否   | 是否启用，默认`true`                                                                                                |
-| `extra`       | string | 否   | 预留扩展字段                                                                                                            |
+| ------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------- |
+| `providerId`  | string | 否   | Provider ID；不传时由框架生成                                                                   |
+| `name`        | string | 是   | Provider 名称，用于标识和展示                                                                   |
+| `adapterType` | string | 是   | 运行时 provider 适配器类型：`openai`/`openai-compatible`/`anthropic`/`deepseek` |
+| `baseUrl`     | string | 是   | Provider 级基础 URL，必须是完整`http(s)`URL，如`https://api.openai.com`                 |
+| `apiKey`      | string | 否   | Provider 级 API Key                                                                             |
+| `enabled`     | bool   | 否   | 是否启用，默认`true`                                                                        |
+| `extra`       | string | 否   | 预留扩展字段                                                                                    |
 
 **响应:** [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo")
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `baseUrl` 由框架规范化保存：末尾 `/` 会被移除
 * Provider 负责承载共享连接信息；模型级配置保存 `requestPath`、`defaultParams` 等模型参数
 * `enabled=false` 的 provider 可保存配置，但运行时不会通过该 provider 发起 LLM 调用
@@ -2070,6 +2266,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 已删除的 provider 返回 404
 
 ---
@@ -2137,6 +2338,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 至少提供一个可更新字段
 * `enabled=false` 时，引用该 provider 的 LLM 配置保留，运行时不可用
 * `enabled=true` 时，引用该 provider 且自身启用的 LLM 配置可参与运行时解析
@@ -2152,6 +2358,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 删除前要求不存在任何未删除的 LLM 配置引用该 provider
 * 删除成功后不参与 list、get 和 runtime
 * 删除成功后的 GET 返回 404
@@ -2202,6 +2413,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 运行时最终请求地址按 `provider.baseUrl + requestPath` 拼接
 * `capability=embedding` 的配置供 memory 模块生成 document/query embedding 使用
 * `enabled=true` 时，系统全局只允许一条启用的 `capability='embedding'` 配置
@@ -2217,6 +2433,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 已删除的配置返回 404
 
 ---
@@ -2294,6 +2515,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 至少提供一个可更新字段
 * `enabled=false` 时，已有用户授权、agent 绑定、agent 默认模型、summary 配置和 session 引用保留，运行时不会选择该配置
 * `enabled=true` 时，provider 必须启用
@@ -2310,6 +2536,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 删除前要求不存在任何用户授权（`user_llm_access`）、任何 agent 绑定（`agent_llm_access`）、任何非 `DELETED` agent 的默认模型字段、任何非 `DELETED` agent 的 `contextConfig.summaryConfig.summaryLlmConfigId`，以及任何非 `DELETED` session 引用
 * 删除成功后不参与 list、get 和 runtime
 * 删除成功后的 GET 返回 404
@@ -2505,6 +2736,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 未显式设置 `enabled` 时默认启用
 * 技能包必须是 ZIP，解压后根目录或唯一顶层目录下必须包含 `SKILL.md`，未压缩总大小不能超过 `30MB`
 * `SKILL.md` 必须以 YAML frontmatter 开头；frontmatter 至少提供合法 `name` 和非空 `description`
@@ -2561,6 +2797,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 至少提供技能包数据或一个覆盖字段。
 * 提供新技能包时，框架会替换已保存的技能包文件并递增 `contentRevision`；随后再应用覆盖字段。
 * `overrides.enabled` 或直接字段 `enabled` 控制技能是否启用。
@@ -2577,6 +2818,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 删除前要求不存在 agent 绑定或用户 deny/allow 相关引用
 * 删除流程先将 Skill 标记为 deleted 以立即隐藏，再删除包文件行，最后删除 Skill 主表行
 * 系统会在 Skill 管理面操作中清理已标记 deleted 但未完成物理删除的残留行
@@ -2646,6 +2892,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 普通 skill：重复绑定为幂等 no-op；若存在内部禁用行则恢复为可用。
 * common skill：不写入启用绑定；若存在该 Agent 的 common 禁用覆盖行，则删除覆盖行，恢复继承；否则 no-op。
 * 请求体不支持 `enabled`、`descOverride`、`configOverride`。
@@ -2680,6 +2931,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 普通 skill：删除 Agent 显式绑定。
 * common skill：写入或更新 Agent 级内部禁用覆盖行；该 Agent 后续不会继承该 common skill。
 
@@ -2720,6 +2976,12 @@ ToolDefinition 结构:
 
 说明：重复 deny 会更新或保持该用户在该 Agent 下对该技能的禁用记录。
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
+
 **响应:** `{ agentId, userId, skillIds: [...], size }`
 
 ---
@@ -2750,6 +3012,12 @@ ToolDefinition 结构:
 | `userId`  | string | 是   | 业务用户 ID                                                       |
 
 说明：allow 会删除该用户在该 Agent 下对该技能的禁用记录；不存在禁用记录时为幂等 no-op。
+
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 
 **响应:** `{ agentId, userId, skillIds: [...], size }`
 
@@ -2795,6 +3063,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 需要当前用户拥有该 agent 的 `AGENT_ADMIN` 权限。
 
 ---
@@ -2824,6 +3097,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 需要当前用户拥有该 agent 的 `AGENT_ADMIN` 权限。
 
 **响应:**
@@ -2931,6 +3209,12 @@ ToolDefinition 结构:
 
 说明：`tokensByModel` 的 value 为该模型累计 `totalTokens`。
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
+
 ---
 
 ### 3.11 内置 Agent/Skill 初始化
@@ -2974,6 +3258,11 @@ ToolDefinition 结构:
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 初始化按 manifest 顺序逐个处理 Skill zip，不一次性加载、解压或缓存所有 Skill 包。
 * 普通公开接口 `agent.register` 仍不允许传 `agentId`；固定 `agent_builtin_<uuid>` 只允许内置初始化内部流程使用。
 * 内置 Agent 初始化时不自动授权给任何用户、用户组或 PUBLIC，也不绑定默认 LLM。管理员后续通过现有授权和 LLM 绑定接口配置。
@@ -3179,6 +3468,11 @@ Agent 级记忆配置。`memoryConfig.embeddingEnabled` 用于决定该 agent �
 
 说明：
 
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 框架内部会按最终输出预算为 chat 预留运行时空间，用于阈值判断和硬性窗口检查
 * 该预留不是 `contextConfig` 的对外字段；请求和 LLM 配置未显式指定输出上限时，默认按 `clamp(contextWindow / 8, 8192, 32768)` 计算
 
@@ -3398,20 +3692,20 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
   | 说明
 
 
-                                                                                                                |
+                                                                                        |
 ```
 
-| --------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `providerId`    | string    | 全局唯一 ID，注册时自动生成                                                                                             |
-| `name`          | string    | Provider 名称，用于标识和展示                                                                                           |
-| `adapterType`   | string    | 运行时 provider 适配器类型：`openai`/`openai-compatible`/`anthropic`/`deepseek`/`azure`/`local` |
-| `baseUrl`       | string    | Provider 级基础 URL，如`https://api.openai.com`                                                                     |
-| `apiKey`        | string    | Provider API Key。对外返回时始终脱敏为`***`；未配置时返回空字符串                                                   |
-| `enabled`       | bool      | 是否启用                                                                                                                |
-| `schemaVersion` | int       | 行 Schema 版本号                                                                                                        |
-| `extra`         | string    | 预留扩展字段                                                                                                            |
-| `createTime`    | timestamp | 创建时间                                                                                                                |
-| `updateTime`    | timestamp | 最后更新时间                                                                                                            |
+| --------------------- | ----------- | ------------------------------------------------------------------------------------------------- |
+| `providerId`    | string    | 全局唯一 ID，注册时自动生成                                                                     |
+| `name`          | string    | Provider 名称，用于标识和展示                                                                   |
+| `adapterType`   | string    | 运行时 provider 适配器类型：`openai`/`openai-compatible`/`anthropic`/`deepseek` |
+| `baseUrl`       | string    | Provider 级基础 URL，如`https://api.openai.com`                                             |
+| `apiKey`        | string    | Provider API Key。对外返回时始终脱敏为`***`；未配置时返回空字符串                           |
+| `enabled`       | bool      | 是否启用                                                                                        |
+| `schemaVersion` | int       | 行 Schema 版本号                                                                                |
+| `extra`         | string    | 预留扩展字段                                                                                    |
+| `createTime`    | timestamp | 创建时间                                                                                        |
+| `updateTime`    | timestamp | 最后更新时间                                                                                    |
 
 ---
 
@@ -3938,20 +4232,22 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 |
 ```
 
-| ------------------------------ | ------------- | -------------------------------------------------------------------------------- |
-| `BUS_AUTH_FAILED`        | 403         | 鉴权失败，当前用户无权执行此操作                                               |
-| `BUS_UNKNOWN_ACTION`     | 404         | 未知的 action，请求的接口/action 名称不存在                                    |
-| `BUS_AGENT_NOT_FOUND`    | 404         | 指定的 Agent 不存在或已被删除                                                  |
-| `BUS_SESSION_NOT_FOUND`  | 404         | 指定的会话不存在                                                               |
-| `BUS_QUEUE_FULL`         | 429         | DataBus 请求队列已满，服务端过载，请稍后重试                                   |
-| `BUS_TIMEOUT`            | 504         | 请求处理超时（包括 LLM 调用超时）                                              |
-| `BUS_NODE_UNREACHABLE`   | 503         | 集群模式下目标亲和节点不可达，请求无法路由                                     |
-| `BUS_HANDLER_ERROR`      | 500         | 处理器内部错误（如参数校验失败、状态冲突、LLM 调用失败等），详见 error.message |
-| `BUS_STREAM_INTERRUPTED` | 499         | 流式传输中断（SSE 连接断开或 LLM 流式响应异常终止）                            |
-| `BUS_INVALID_ARGUMENT`   | 400         | 请求参数不合法（缺少必填字段、类型错误、值超出范围等）                         |
-| `BUS_NOT_STARTED`        | 500         | DataBus 尚未完成初始化，服务暂不可用                                           |
+| ------------------------------ | ------------- | ------------------------------------------------------------------------------------- |
+| `BUS_AUTH_FAILED`        | 403         | 鉴权失败，当前用户无权执行此操作                                                    |
+| `BUS_UNKNOWN_ACTION`     | 404         | 未知的 action，请求的接口/action 名称不存在                                         |
+| `BUS_AGENT_NOT_FOUND`    | 404         | 指定的 Agent 不存在或已被删除                                                       |
+| `BUS_SESSION_NOT_FOUND`  | 404         | 指定的会话不存在                                                                    |
+| `BUS_QUEUE_FULL`         | 429         | DataBus 请求队列已满，服务端过载，请稍后重试                                        |
+| `BUS_TIMEOUT`            | 504         | 请求处理超时（包括 LLM 调用超时）                                                   |
+| `BUS_NODE_UNREACHABLE`   | 503         | 集群模式下目标亲和节点不可达，请求无法路由                                          |
+| `BUS_HANDLER_ERROR`      | 500         | 处理器内部错误（如参数校验失败、状态冲突、LLM 调用失败等），详见 error.message      |
+| `BUS_STREAM_INTERRUPTED` | 499         | 流式传输中断（SSE 连接断开或 LLM 流式响应异常终止）                                 |
+| `BUS_INVALID_ARGUMENT`   | 400         | 请求参数不合法（缺少必填字段、类型错误、值超出范围等）                              |
+| `REPLACE_REJECTED`       | 409         | workspace replace 请求被拒绝，详见`error.reason`和`error.message`           |
+| `WORKSPACE_REJECTED`     | 400         | workspace 状态、文件或平台约束导致拒绝，详见`error.reason`和`error.message` |
+| `BUS_NOT_STARTED`        | 500         | DataBus 尚未完成初始化，服务暂不可用                                                |
 
-Workspace 业务错误通过上述 DataBus 错误 envelope 返回，具体原因在 `error.message` 中体现。常见标识如下：
+Workspace 业务错误通过上述 DataBus 错误 envelope 返回，具体原因在 `error.reason` 和 `error.message` 中体现。常见标识如下：
 
 | 标识
 
@@ -3962,16 +4258,19 @@ Workspace 业务错误通过上述 DataBus 错误 envelope 返回，具体原因
                                                       |
 ```
 
-| ----------------------------------- | --------------------------------------------------------------- |
-| `WORKSPACE_REDIRECT`          | 非错误 payload，表示客户端应重定向到 workspace home node 重试 |
-| `FILE_NOT_FOUND`              | workspace 文件不存在                                          |
-| `FILE_TOO_LARGE`              | 文件超过单文件大小限制                                        |
-| `QUOTA_EXCEEDED`              | workspace 总大小或文件数量超过限制                            |
-| `READONLY_WORKSPACE`          | session 已归档，只允许读取                                    |
-| `DELETE_TARGET_INVALID`       | 删除目标不是 workspace 内的普通文件                           |
-| `PATCH_CONFLICT`              | patch hunk 与目标文件内容不匹配或 patch 格式不合法            |
-| `PATCH_MULTI_FILE`            | patch 包含多文件或 git metadata                               |
-| `PATCH_FILE_NAME_NOT_ALLOWED` | patch 文件头与目标文件名不一致                                |
+| ---------------------------- | --------------------------------------------------------------- |
+| `WORKSPACE_REDIRECT`   | 非错误 payload，表示客户端应重定向到 workspace home node 重试 |
+| `missing_hash`         | replace 请求缺少 hash                                         |
+| `stale_file`           | replace 请求 hash 与当前文件 hash 不一致                      |
+| `invalid_replacements` | replacements 缺失、为空或格式非法                             |
+| `empty_old`            | replacement old 为空                                          |
+| `old_not_found`        | replacement old 不存在                                        |
+| `old_not_unique`       | `replaceAll=false`时 old 出现多次                         |
+| `invalid_text`         | 文件内容或 replacement 文本不是 UTF-8                         |
+| `file_not_found`       | workspace 文件不存在                                          |
+| `quota_exceeded`       | workspace 总大小、单文件大小或文件数量超过限制                |
+| `readonly_session`     | session 已归档或已删除，不允许写入                            |
+| `target_invalid`       | 目标不是 workspace 内的普通文件                               |
 
 ---
 
@@ -4133,7 +4432,7 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 | `workspace.write`         | POST /workspace/{sessionId}/file          |
 | `workspace.delete`        | DELETE /workspace/{sessionId}/file        |
 | `workspace.search`        | POST /workspace/{sessionId}/search        |
-| `workspace.applyPatch`    | POST /workspace/{sessionId}/patch         |
+| `workspace.replace`       | POST /workspace/{sessionId}/replace       |
 | `memory.store`            | POST /memory/store                        |
 | `memory.get`              | GET /memory/{id}                          |
 | `memory.update`           | PUT /memory/{id}                          |
@@ -4415,19 +4714,6 @@ You can use this skill to query DolphinDB distributed tables.
 
 |
 | -------------------------------- | ---------------------- | ---------------- | ------------ | ---------------------- |
-
-| `disable-model-invocation`
-
-| `user-invocable`
-
-| LLM 可自动发现
-
-| 用户可调用
-
-| 描述注入 Tier-1 目录
-
-|
-| -------------------------------- | ---------------------- | ---------------- | ------------ | ---------------------- |
 | false                          | true                 | 是             | 是         | 是                   |
 | false                          | false                | 是             | 否         | 是                   |
 | true                           | true                 | 否             | 是         | 否                   |
@@ -4445,3 +4731,7 @@ You can use this skill to query DolphinDB distributed tables.
 6. 校验 `name` 格式和唯一性（启用状态下不可重名）
 7. 合并 API 传入的 `overrides`（覆盖 frontmatter 同名字段）
 8. 写入存储，返回 [SkillInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo")
+
+### ReasoningContent
+
+`agent_session_message` 内部保存 provider 返回的 `reasoningContent`，用于审计和 DeepSeek 工具调用后的协议回放。默认 API 响应不暴露该列；调用方只能通过 `includeReasoning=true` 获取本次 LLM 响应流中的可见 `reasoning`。DeepSeek 回放仅对 `adapterType=deepseek` 生效。
