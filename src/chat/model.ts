@@ -13,8 +13,13 @@ import {
     parse_tool_result_json,
     tool_result_json,
 } from './scripts/helpers.ts'
-import { build_current_todo_prompt, build_system_prompt } from './prompt.ts'
-import { INVALID_TOOL_CALL_FORMAT, parse_tool_calls } from './tool_call_parser.ts'
+import { build_current_todo_prompt } from './prompt.ts'
+import {
+    legacy_json_tool_call_adapter,
+    native_tool_call_adapter,
+} from './tool_call_adapters.ts'
+import type { ChatCompletionOptions, ToolCallAdapter, ToolResultPayload } from './tool_call_adapters.ts'
+import { INVALID_TOOL_CALL_FORMAT } from './tool_call_parser.ts'
 import type { ParsedToolCall } from './tool_call_parser.ts'
 import { chat_workspace_store } from './workspace.ts'
 import type { IChatWorkspace, IWorkspaceStep } from './workspace.ts'
@@ -91,6 +96,7 @@ export interface IToolLoopControl {
     requestSeq: number
     toolTurn: number
     message: string
+    options?: ChatCompletionOptions
 }
 
 
@@ -336,6 +342,7 @@ export interface IBuiltinInitResult {
 
 const AGENT_ID_KEY = 'ddb.chat.agent_id'
 const BIZ_USER_ID_KEY = 'ddb.chat.biz_user_id'
+const USE_NATIVE_TOOL_CALLING = true
 
 /** 最大工具调用轮次，防止无限循环 */
 const MAX_TOOL_TURNS = 12
@@ -356,11 +363,6 @@ interface ChatCompletionStreamResult {
     reasoning_content: string
     tool_calls?: any[]
     final_data?: any
-}
-
-
-interface ChatCompletionOptions {
-    append_user?: boolean
 }
 
 
@@ -428,59 +430,6 @@ function stable_json_stringify (value: unknown): string {
     } catch {
         return String(value)
     }
-}
-
-
-function strip_json_segments (text: string): string {
-    let result = text.replace(/```(?:json)?\s*[\s\S]*?```/gi, '\n\n')
-    const ranges: Array<[number, number]> = [ ]
-    let start = -1
-    let depth = 0
-    let in_string = false
-    let escape = false
-    
-    for (let index = 0;  index < result.length;  index += 1) {
-        const ch = result[index]
-        if (escape) {
-            escape = false
-            continue
-        }
-        if (ch === '\\') {
-            escape = true
-            continue
-        }
-        if (ch === '"') {
-            in_string = !in_string
-            continue
-        }
-        if (in_string)
-            continue
-        if (ch === '{') {
-            if (depth === 0)
-                start = index
-            depth += 1
-            continue
-        }
-        if (ch === '}' && depth > 0) {
-            depth -= 1
-            if (depth === 0 && start >= 0) {
-                ranges.push([start, index + 1])
-                start = -1
-            }
-        }
-    }
-    
-    for (let index = ranges.length - 1;  index >= 0;  index -= 1) {
-        const [from, to] = ranges[index]
-        result = `${result.slice(0, from)}\n${result.slice(to)}`
-    }
-    
-    return result
-        .split(/\r?\n/)
-        .map(line => line.trimEnd())
-        .join('\n')
-        .replace(/\n{3,}/g, '\n\n')
-        .trim()
 }
 
 
@@ -595,6 +544,8 @@ class ChatModel extends Model<ChatModel> {
     _consecutive_ddb_failures = 0
     
     _tool_turn_limit = MAX_TOOL_TURNS
+    
+    _last_failed_completion: { message: string, options: ChatCompletionOptions, toolTurn: number } | null = null
     
     
     get base_url (): string {
@@ -1375,40 +1326,17 @@ class ChatModel extends Model<ChatModel> {
                 const parsed = JSON.parse(m.content)
                 if (Array.isArray(parsed))
                     tool_calls = parsed
+                else if (Array.isArray(parsed?.toolCalls))
+                    tool_calls = parsed.toolCalls
+                else if (Array.isArray(parsed?.tool_calls))
+                    tool_calls = parsed.tool_calls
             } catch { }
             
         const content: string = m.content || ''
         let name: string | undefined
         
-        // 文本格式的工具调用检测：dolphinx 存储的 contentType 始终是 text，
-        // 但实际内容可能是 {"tool_call":"name","args":[...]} 格式
-        if (message_type === 'text' && m.role === 'assistant' && content.trim()) {
-            const parsed_call = parse_tool_calls(undefined, content)[0]
-            if (parsed_call) {
-                message_type = 'tool_call'
-                name = parsed_call.type
-            }
-        }
-        
-        // 文本格式的工具结果检测：tool result 以 [tool_result:name] 或 [tool_error:name] 前缀发送
         let display_content = content
         let display_role = m.role as string
-        if (message_type === 'text' && m.role === 'user' && content.trim()) {
-            const result_match = /^\[(tool_result|tool_error|skill_result):([^\]]+)\]\s*/i.exec(content)
-            if (result_match) {
-                message_type = result_match[1] as string
-                name = result_match[2]
-                display_content = content.slice(result_match[0].length)
-                display_role = 'tool'
-            } else {
-                const parsed = parse_tool_result_json(content)
-                if (parsed && typeof parsed.tool === 'string') {
-                    message_type = parsed.ok === false ? 'tool_error' : 'tool_result'
-                    name = parsed.tool
-                    display_role = 'tool'
-                }
-            }
-        }
         
         return {
             msgId: m.messageId || `msg_${Date.now()}_${Math.random().toString(36).slice(2)}`,
@@ -1576,6 +1504,13 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
+    get_tool_call_adapter (): ToolCallAdapter {
+        return USE_NATIVE_TOOL_CALLING
+            ? native_tool_call_adapter
+            : legacy_json_tool_call_adapter
+    }
+    
+    
     get_tool_call_signature (parsed_call: ParsedToolCall) {
         const tool_name = parsed_call.type.trim()
         if (DDB_RESULT_TOOLS.has(tool_name))
@@ -1683,7 +1618,7 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    request_tool_loop_decision (message: string, tool_turn: number, request_seq: number) {
+    request_tool_loop_decision (message: string, options: ChatCompletionOptions, tool_turn: number, request_seq: number) {
         this.set({
             pending_tool_loop_control: {
                 id: `tool_loop_${Date.now()}`,
@@ -1691,6 +1626,7 @@ class ChatModel extends Model<ChatModel> {
                 requestSeq: request_seq,
                 toolTurn: tool_turn,
                 message,
+                options,
             },
             agent_status: {
                 status: 'tool_running',
@@ -1714,7 +1650,7 @@ class ChatModel extends Model<ChatModel> {
             pending_tool_loop_control: null,
             agent_status: { status: 'thinking' },
         })
-        this.do_chat_completions(pending.message, undefined, pending.toolTurn, pending.requestSeq).catch(error => {
+        this.do_chat_completions(pending.message, pending.options, pending.toolTurn, pending.requestSeq).catch(error => {
             console.error('Continue tool loop failed:', error)
             this.set({ agent_status: { status: 'error', message: error instanceof Error ? error.message : String(error) } })
         })
@@ -1742,6 +1678,7 @@ class ChatModel extends Model<ChatModel> {
         this._interrupted_request_seq = 0
         this._pending_assistant_msg_ids = [ ]
         this.reset_loop_guard()
+        this._last_failed_completion = null
         this.set({ pending_tool_loop_control: null })
         
         // 添加待发送提示
@@ -1872,7 +1809,7 @@ class ChatModel extends Model<ChatModel> {
     
     async do_chat_completions (message: string, options: ChatCompletionOptions = { }, _tool_turn = 0, request_seq = this._active_request_seq) {
         if (_tool_turn > this._tool_turn_limit) {
-            this.request_tool_loop_decision(message, _tool_turn, request_seq)
+            this.request_tool_loop_decision(message, options, _tool_turn, request_seq)
             return
         }
         if (this.is_request_interrupted(request_seq))
@@ -1931,11 +1868,13 @@ class ChatModel extends Model<ChatModel> {
             // 加载当前 Agent 绑定的技能列表用于系统提示词
             const skills = _tool_turn === 0 ? await this.load_bound_skills() : this._cached_skills
             this._cached_skills = skills
-            const current_todo_prompt = build_current_todo_prompt(this.current_workspace, this.steps)
+            const tool_call_adapter = this.get_tool_call_adapter()
+            const is_tool_result_turn = Boolean(options.tool_results?.length)
+            const current_todo_prompt = is_tool_result_turn ? '' : build_current_todo_prompt(this.current_workspace, this.steps)
             const context_blocks = [
                 {
                     name: 'web_tool_call_rules',
-                    content: build_system_prompt(skills),
+                    content: tool_call_adapter.build_system_prompt(skills),
                     position: 'after_system',
                 },
                 ...current_todo_prompt
@@ -1952,11 +1891,11 @@ class ChatModel extends Model<ChatModel> {
                 stream: true,
                 contextEvent: true,
                 includeReasoning: true,
-                message,
                 assemblyConfig: {
                     contextBlocks: context_blocks,
                 },
             }
+            tool_call_adapter.apply_request_body(body, message, options)
             if (this.selected_llm_config_id)
                 body.llmConfigId = this.selected_llm_config_id
                 
@@ -2014,18 +1953,28 @@ class ChatModel extends Model<ChatModel> {
             if (this.is_request_interrupted(request_seq))
                 return
             
+            this._last_failed_completion = null
+            
             console.log('Chat completions response:', raw_result)
             
             // 从文本内容或 function calling 格式中解析工具调用
             console.log('[debug] content length:', content.length, 'toolCalls:', tool_calls)
-            const parsed_calls = parse_tool_calls(tool_calls, content)
+            const parsed_calls = tool_call_adapter.parse_tool_calls(tool_calls, content)
             console.log('[debug] parsed_calls:', parsed_calls)
             
             if (parsed_calls.length > 0) {
                 this.set({ agent_status: { status: 'tool_running' } })
-                console.log('[debug] Calling handle_text_tool_calls...')
-                await this.handle_text_tool_calls(parsed_calls, reasoning_content, _tool_turn, request_seq, assistant_msg_id, strip_json_segments(content))
-                console.log('[debug] handle_text_tool_calls completed')
+                console.log('[debug] Calling handle_tool_calls...')
+                await this.handle_tool_calls(
+                    parsed_calls,
+                    reasoning_content,
+                    _tool_turn,
+                    request_seq,
+                    assistant_msg_id,
+                    content,
+                    tool_call_adapter
+                )
+                console.log('[debug] handle_tool_calls completed')
             } else {
                 // 没有工具调用 → 普通文本回复
                 if (!content.trim() && !reasoning_content.trim())
@@ -2046,6 +1995,7 @@ class ChatModel extends Model<ChatModel> {
                 return
             }
             console.error('Chat completions error:', e)
+            this._last_failed_completion = { message, options, toolTurn: _tool_turn }
             this.set({ agent_status: { status: 'idle' } })
             
             // 更新占位消息为错误信息
@@ -2068,10 +2018,6 @@ class ChatModel extends Model<ChatModel> {
             model.message?.warning(t('归档会话不可继续发送消息'))
             return
         }
-        const last_user_message = [...this.messages].reverse().find(msg => msg.role === 'user' && msg.content.trim())
-        if (!last_user_message)
-            return
-            
         if (this.sse_controller)
             this.abort_sse()
             
@@ -2079,6 +2025,11 @@ class ChatModel extends Model<ChatModel> {
         const last_message = messages[messages.length - 1]
         if (last_message?.role === 'assistant' && last_message.messageType === 'agent_error')
             messages.pop()
+        
+        const retry_completion = this._last_failed_completion
+        const last_user_message = retry_completion ? null : [...messages].reverse().find(msg => msg.role === 'user' && msg.content.trim())
+        if (!retry_completion && !last_user_message)
+            return
             
         const request_seq = ++this._request_seq
         this._active_request_seq = request_seq
@@ -2091,7 +2042,12 @@ class ChatModel extends Model<ChatModel> {
             pending_tool_loop_control: null,
             agent_status: { status: 'thinking' },
         })
-        this.do_chat_completions(last_user_message.content, { append_user: false }, 0, request_seq).catch(error => {
+        this.do_chat_completions(
+            retry_completion?.message ?? last_user_message!.content,
+            retry_completion?.options ?? { append_user: false },
+            retry_completion?.toolTurn ?? 0,
+            request_seq
+        ).catch(error => {
             console.error('Retry chat failed:', error)
             this.set({ agent_status: { status: 'error', message: error instanceof Error ? error.message : String(error) } })
         })
@@ -2117,66 +2073,62 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    build_tool_call_message (parsed_call: ParsedToolCall, msg_id: string, reasoning_content?: string, natural_text?: string): IMessage {
-        const tool_call_payload = {
-            tool_call: parsed_call.type,
-            args: parsed_call.payload,
-            ...(natural_text ? { naturalText: natural_text } : { }),
-        }
-        return {
-            msgId: msg_id,
-            role: 'assistant',
-            messageType: 'tool_call',
-            name: parsed_call.type,
-            content: JSON.stringify(tool_call_payload),
-            reasoning_content: reasoning_content || undefined,
-        }
-    }
-    
-    
-    async handle_text_tool_calls (
+    async handle_tool_calls (
         parsed_calls: ParsedToolCall[],
         reasoning_content: string,
         tool_turn: number,
         request_seq: number,
         first_tool_call_msg_id: string,
-        natural_text = '',
+        response_content: string,
+        tool_call_adapter: ToolCallAdapter,
     ) {
         const tool_result_contents: string[] = [ ]
+        const tool_results: ToolResultPayload[] = [ ]
         let should_continue_loop = false
+        const natural_text = tool_call_adapter.get_natural_text(response_content).trim()
+        const has_natural_text = Boolean(natural_text)
+        
+        if (has_natural_text)
+            this.update_assistant_content(first_tool_call_msg_id, {
+                content: natural_text,
+                reasoning_content: reasoning_content || undefined,
+                messageType: 'text',
+            })
         
         for (let index = 0;  index < parsed_calls.length;  index += 1) {
             if (this.is_request_interrupted(request_seq))
                 return
             
             const parsed_call = parsed_calls[index]
-            const tool_call_msg_id = index === 0
+            const tool_call_msg_id = !has_natural_text && index === 0
                 ? first_tool_call_msg_id
                 : `assistant_tool_${Date.now()}_${index}`
-            const tool_call_msg = this.build_tool_call_message(
+            const tool_call_msg = tool_call_adapter.build_tool_call_message(
                 parsed_call,
                 tool_call_msg_id,
-                index === 0 ? reasoning_content : undefined,
-                index === 0 ? natural_text : '',
+                !has_natural_text && index === 0 ? reasoning_content : undefined,
+                '',
             )
             
-            if (index === 0)
+            if (!has_natural_text && index === 0)
                 this.update_assistant_content(tool_call_msg_id, {
                     content: tool_call_msg.content,
                     reasoning_content: tool_call_msg.reasoning_content,
                     messageType: 'tool_call',
                     name: parsed_call.type,
+                    tool_calls: tool_call_msg.tool_calls,
                 })
             else
                 this.set({ messages: [...this.messages, tool_call_msg] })
             
-            const result = await this.handle_text_tool_call(parsed_call, request_seq, tool_call_msg_id)
+            const result = await this.execute_tool_call(parsed_call, request_seq, tool_call_msg_id)
             if (!result)
                 return
             if (result.stopped)
                 return
             if (result.tool_result_content)
                 tool_result_contents.push(result.tool_result_content)
+            tool_call_adapter.collect_tool_result(parsed_call, result.tool_result_content, tool_results)
             if (result.next_loop)
                 should_continue_loop = true
         }
@@ -2184,15 +2136,16 @@ class ChatModel extends Model<ChatModel> {
         if (this.is_request_interrupted(request_seq))
             return
         
-        if (tool_result_contents.length > 0 && should_continue_loop)
-            await this.do_chat_completions(tool_result_contents.join('\n\n'), undefined, tool_turn + 1, request_seq)
+        const runtime_context = build_current_todo_prompt(this.current_workspace, this.steps)
+        const continuation = tool_call_adapter.build_continuation(tool_result_contents, tool_results, runtime_context)
+        if (continuation && should_continue_loop)
+            await this.do_chat_completions(continuation.message, continuation.options, tool_turn + 1, request_seq)
         else
             this.set({ agent_status: { status: 'idle' } })
     }
     
     
-    /** 执行单个文本解析出的工具调用（text-based tool calling） */
-    async handle_text_tool_call (parsed_call: ParsedToolCall, request_seq: number, tool_call_msg_id: string): Promise<ToolExecutionResult | null> {
+    async execute_tool_call (parsed_call: ParsedToolCall, request_seq: number, tool_call_msg_id: string): Promise<ToolExecutionResult | null> {
         if (this.is_request_interrupted(request_seq))
             return null
         if (parsed_call.type === INVALID_TOOL_CALL_FORMAT) {

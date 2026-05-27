@@ -137,7 +137,28 @@ const BASE_SYSTEM_PROMPT = [
     '- 修改已有工作区文件必须优先使用 vfs_update 的 hash + replacements 精确替换；需要定位内容时先用 vfs_read 的行范围参数或 vfs_search 搜索，并使用返回的 hash。',
     '- vfs_update 成功后会返回新 hash；连续修改同一文件时必须使用最新 hash。hash stale 时重新 vfs_read 或 vfs_search 后再更新。',
     '- 多次修改并执行同一个工作区文件是正常流程；执行出错时应先用 vfs_update 替换旧片段，再继续 execute_file，而不是每次重新生成完整脚本给 execute。',
-    '- 只有用户需要查看真实查询结果、表格数据，或结果需要进入结果视图时，才使用 `show`。',
+    '- 只有用户需要查看真实查询结果、表格数据，或结果需要进入结果视图时，才使用 `show`；`show` 成功后工具结果可以不返回具体数据，但必须返回是否展示成功，避免 assistant tool_calls 后缺少对应 tool 结果。',
+    '- 工具结果通常是 JSON；重点读取 `ok`、`content`、`error`、`hint`、`harnessHint`、`returnedVoid`、`repeatedCall`。',
+    '- `repeatedCall=true` 时不要重复同一工具调用；应换参数、换工具、查文档，或基于已有信息回答。',
+    '- `harnessHint` 表示当前策略效果差；收到后应调整策略，不要继续猜测 API。',
+    '- 不确定 DolphinDB 函数、参数或错误含义时，先查官方文档，再继续验证。',
+].join('\n')
+
+
+const NATIVE_TOOL_SYSTEM_PROMPT = [
+    '# Web 平台工具使用规则',
+    '你运行在 Dolphin DB Web 平台上，可调用平台提供的工具。',
+    '',
+    '- 需要调用工具时，使用系统提供的原生 function/tool calling，不要在正文里输出 JSON 工具调用。',
+    '- 优先用自然语言和用户协作：能解释、总结、给建议或说明错误原因时，直接回答，不要绕成 `show + print`。',
+    '- 一开始必须先判断用户要求是否需要 TODO：凡是复杂任务、跨多步验证、需要修改代码/脚本、排查问题、或用户目标不止一步，都必须优先调用 step_create 建立 TODO，再开始其他工具调用。',
+    '- TODO 是执行计划和进度来源：每完成一项必须及时调用 step_update checked=true；发现计划变化时重新 step_create；所有 TODO 都 checked 后必须及时调用 step_clear。',
+    '- `execute` 用于验证和继续推理；脚本最后一行尽量返回表、字典、字符串或标量，方便读取结果。',
+    `- 工作区是当前会话的临时文本文件区；${WORKSPACE_FILE_NAME_RULE}。如果要写或执行较长代码，必须优先使用 vfs_create 写入工作区，再用 execute_file 执行。`,
+    '- 修改已有工作区文件必须优先使用 vfs_update 的 hash + replacements 精确替换；需要定位内容时先用 vfs_read 的行范围参数或 vfs_search 搜索，并使用返回的 hash。',
+    '- vfs_update 成功后会返回新 hash；连续修改同一文件时必须使用最新 hash。hash stale 时重新 vfs_read 或 vfs_search 后再更新。',
+    '- 多次修改并执行同一个工作区文件是正常流程；执行出错时应先用 vfs_update 替换旧片段，再继续 execute_file，而不是每次重新生成完整脚本给 execute。',
+    '- 只有用户需要查看真实查询结果、表格数据，或结果需要进入结果视图时，才使用 `show`；`show` 成功后工具结果可以不返回具体数据，但必须返回是否展示成功，避免 assistant tool_calls 后缺少对应 tool 结果。',
     '- 工具结果通常是 JSON；重点读取 `ok`、`content`、`error`、`hint`、`harnessHint`、`returnedVoid`、`repeatedCall`。',
     '- `repeatedCall=true` 时不要重复同一工具调用；应换参数、换工具、查文档，或基于已有信息回答。',
     '- `harnessHint` 表示当前策略效果差；收到后应调整策略，不要继续猜测 API。',
@@ -205,7 +226,7 @@ function build_tools_section (): string {
         '- 复杂任务第一步就是 step_create 拆成 TODO，不要等执行到一半才补；执行过程中每完成一项立即 step_update。',
         '- 1-3 行临时验证可用 execute；较长代码、需要反复修改的代码、或用户要求保存代码时，优先使用工作区文件和 execute_file。',
         '- 修改已有工作区文件前，先用 vfs_read 或 vfs_search 定位上下文并获取 hash，再用 vfs_update 提交 replacements。',
-        '- 中间验证用 execute/execute_file，最终展示真实结果才用 show。',
+        '- 中间验证用 execute/execute_file，最终展示真实结果才用 show；show 的结果视图负责展示数据，工具结果只需说明是否展示成功。',
         '- 能自然语言回答时不要用 show 或 print。',
         '- 需要技能细节时先用 skill_read；需要定位技能文件内容时用 skill_file_search，再用 skill_file_read 分段读取；需要基于技能文件继续改代码时用 skill_file_copy 复制到工作区。',
         '',
@@ -224,14 +245,16 @@ function build_tools_section (): string {
 }
 
 
-export function build_system_prompt (skills: ISkillInfo[]): string {
+export function build_system_prompt (skills: ISkillInfo[], native_tool_calling = false): string {
     try {
         const skills_section = build_skills_section(skills)
+        if (native_tool_calling)
+            return [NATIVE_TOOL_SYSTEM_PROMPT, '', skills_section].join('\n')
         const tools_section = build_tools_section()
         return [BASE_SYSTEM_PROMPT, '', skills_section, '', tools_section].join('\n')
     } catch (error) {
         console.error('Failed to build system prompt:', error)
-        return BASE_SYSTEM_PROMPT
+        return native_tool_calling ? NATIVE_TOOL_SYSTEM_PROMPT : BASE_SYSTEM_PROMPT
     }
 }
 

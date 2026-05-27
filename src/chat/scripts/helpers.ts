@@ -2,6 +2,15 @@ type ScriptPayloadObject = {
     args?: unknown
     content?: unknown
     script?: unknown
+    table?: unknown
+    query?: unknown
+    page?: unknown
+    url?: unknown
+    max_chars?: unknown
+    maxChars?: unknown
+    tasks?: unknown
+    index?: unknown
+    checked?: unknown
 }
 
 function to_string_arg (value: unknown) {
@@ -55,6 +64,32 @@ export function normalize_script_args (payload: unknown): string[] {
         
         if (typeof obj.script === 'string')
             return obj.script.trim() ? [obj.script] : [ ]
+        
+        if (typeof obj.table === 'string')
+            return obj.table.trim() ? [obj.table] : [ ]
+        
+        if (typeof obj.query === 'string')
+            return [
+                obj.query,
+                ...(obj.page !== undefined ? [to_string_arg(obj.page)] : [ ]),
+            ].filter(item => item.trim())
+        
+        if (typeof obj.url === 'string')
+            return [
+                obj.url,
+                ...(obj.max_chars !== undefined ? [to_string_arg(obj.max_chars)] : obj.maxChars !== undefined ? [to_string_arg(obj.maxChars)] : [ ]),
+            ].filter(item => item.trim())
+        
+        if (Array.isArray(obj.tasks))
+            return obj.tasks.map(to_string_arg)
+        if (typeof obj.tasks === 'string')
+            return obj.tasks.trim() ? [obj.tasks] : [ ]
+        
+        if (obj.index !== undefined)
+            return [
+                to_string_arg(obj.index),
+                ...(obj.checked !== undefined ? [to_string_arg(obj.checked)] : [ ]),
+            ].filter(item => item.trim())
     }
     
     return [ ]

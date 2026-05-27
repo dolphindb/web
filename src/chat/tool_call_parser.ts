@@ -2,6 +2,7 @@
 
 
 export type ParsedToolCall = {
+    id?: string
     type: string
     payload: unknown
 }
@@ -108,6 +109,18 @@ function extract_balanced_json_objects (text: string): string[] {
 // ─── 从对象中解析工具调用 ───
 
 function parse_tool_call_from_object (obj: Record<string, unknown>): ParsedToolCall | null {
+    // {"id": "...", "type": "function", "function": {"name": "...", "arguments": "..."}}
+    const native_function = obj.function
+    if (native_function && typeof native_function === 'object' && !Array.isArray(native_function)) {
+        const fn = native_function as { name?: unknown, arguments?: unknown }
+        if (typeof fn.name === 'string' && fn.name.trim())
+            return {
+                id: typeof obj.id === 'string' ? obj.id : undefined,
+                type: fn.name.trim(),
+                payload: parse_maybe_json(fn.arguments ?? [ ]),
+            }
+    }
+    
     // {"tool_call": "name", "args": [...]}
     const tool_call = obj.tool_call
     if (typeof tool_call === 'string' && tool_call.trim())
@@ -219,6 +232,8 @@ function parse_tool_calls_from_text (text: string): ParsedToolCall[] {
 // ─── 主入口：同时支持 function calling 和文本解析 ───
 
 export type CompletionToolCalls = Array<{
+    id?: string
+    type?: string
     function?: { name?: string, arguments?: string }
 }>
 
@@ -236,6 +251,7 @@ export function parse_tool_calls (
             const name = fn.name
             if (typeof name === 'string' && name.trim())
                 return [{
+                    id: typeof tool_call?.id === 'string' ? tool_call.id : undefined,
                     type: name.trim(),
                     payload: parse_maybe_json(fn.arguments ?? [ ]),
                 }]

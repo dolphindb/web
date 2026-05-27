@@ -1,7 +1,6 @@
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import {
     normalize_script_args,
-    truncate_tool_content,
     format_ddb_eval_result_info,
     tool_result_json,
     uint8_to_base64,
@@ -58,7 +57,7 @@ export const show_config: ScriptConfig = {
                 tool: type,
                 returnedVoid: result_info.returnedVoid,
                 resultType: result_info.resultType,
-                content: truncate_tool_content(result_info.content),
+                content: result_info.returnedVoid ? '展示成功，但脚本没有最终返回值。' : '展示成功，数据已进入结果视图。',
                 hint: result_info.returnedVoid
                     ? '脚本执行成功但没有最终返回值；如果需要展示结构化结果，请让最后一行返回需要展示的值。'
                     : undefined,
@@ -72,8 +71,7 @@ export const show_config: ScriptConfig = {
             }
             
             return {
-                // show 不继续循环，直接展示结果给用户
-                next_loop: false,
+                next_loop: true,
                 ddb_result: result,
                 save_message: {
                     msgId: `tool_${Date.now()}`,

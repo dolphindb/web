@@ -10,7 +10,7 @@ import { t } from '@i18n'
 import { model } from '@model'
 
 import { chat_model } from '@/chat/model.ts'
-import type { AgentStatus, IMessage } from '@/chat/model.ts'
+import type { AgentStatus, IMessage, IToolCall } from '@/chat/model.ts'
 import type { IWorkspaceStep } from '@/chat/workspace.ts'
 import { ToolMessageRenderer } from '@/chat/ToolMessageRenderer.tsx'
 import {
@@ -240,7 +240,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     }
 
     // Only show messages for our session
-    const visible_messages = current_session_id === session_id ? messages : [ ]
+    const visible_messages = current_session_id === session_id ? expand_tool_call_envelopes(messages) : [ ]
     const visible_buffered = current_session_id === session_id ? buffered_messages : [ ]
     const visible_status = current_session_id === session_id ? agent_status : { status: 'idle' as const }
     const visible_loop_control = current_session_id === session_id ? pending_tool_loop_control : null
@@ -279,14 +279,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     if (group.type === 'natural_text')
                         return <div
                             key={`natural-${group.index}`}
-                            style={{
-                                padding: '12px 0',
-                                borderBottom: is_last ? 'none' : '1px solid #f0f0f0',
-                                wordBreak: 'break-word',
-                                marginLeft: 12,
-                            }}
+                            className='ai-message-row ai-message-row-assistant'
+                            style={{ borderBottom: is_last ? 'none' : '1px solid #f0f0f0' }}
                         >
-                            <div dangerouslySetInnerHTML={{ __html: render_markdown(group.text) }} />
+                            <div className='ai-message-content' dangerouslySetInnerHTML={{ __html: render_markdown(group.text) }} />
                         </div>
 
                     if (group.type === 'tools')
@@ -412,6 +408,100 @@ function TodoList ({ steps }: { steps: IWorkspaceStep[] }) {
 
 function is_tool_message (msg: IMessage) {
     return TOOL_LIKE_MESSAGE_TYPES.has(msg.messageType ?? '')
+}
+
+
+function parse_json_value (value: string): unknown {
+    try {
+        return JSON.parse(value)
+    } catch {
+        return value
+    }
+}
+
+
+function to_envelope_content_text (value: unknown): string {
+    if (typeof value === 'string')
+        return value
+    if (Array.isArray(value))
+        return value.map(to_envelope_content_text).filter(Boolean).join('\n')
+    if (value && typeof value === 'object') {
+        const obj = value as Record<string, unknown>
+        const text = obj.text ?? obj.content ?? obj.output_text ?? obj.outputText
+        if (typeof text === 'string')
+            return text
+    }
+    if (value === null || value === undefined)
+        return ''
+    try {
+        return JSON.stringify(value)
+    } catch {
+        return String(value)
+    }
+}
+
+
+function parse_tool_call_envelope (msg: IMessage): { content: string, tool_calls: IToolCall[] } | null {
+    if ((msg.messageType !== 'text' && msg.messageType !== 'tool_call') || msg.role !== 'assistant')
+        return null
+    
+    const trimmed = msg.content.trim()
+    if (!trimmed.startsWith('{') || !trimmed.endsWith('}'))
+        return null
+    
+    try {
+        const parsed = JSON.parse(trimmed)
+        const raw_calls = parsed?.toolCalls ?? parsed?.tool_calls
+        if (!Array.isArray(raw_calls) || raw_calls.length === 0)
+            return null
+        return {
+            content: to_envelope_content_text(parsed.content),
+            tool_calls: raw_calls.filter((tool_call: IToolCall) => tool_call?.function?.name),
+        }
+    } catch {
+        return null
+    }
+}
+
+
+function to_tool_call_message (msg: IMessage, tool_call: IToolCall, index: number): IMessage {
+    const name = tool_call.function?.name || ''
+    const args = parse_json_value(tool_call.function?.arguments || '')
+    return {
+        ...msg,
+        msgId: `${msg.msgId}_tool_${index}`,
+        role: 'assistant',
+        messageType: 'tool_call',
+        name,
+        content: JSON.stringify({
+            tool_call: name,
+            args,
+            ...(tool_call.id ? { id: tool_call.id } : { }),
+        }),
+        tool_calls: [tool_call],
+    }
+}
+
+
+function expand_tool_call_envelopes (messages: IMessage[]): IMessage[] {
+    return messages.flatMap(msg => {
+        const envelope = parse_tool_call_envelope(msg)
+        if (!envelope)
+            return [msg]
+        
+        return [
+            ...envelope.content.trim()
+                ? [{
+                    ...msg,
+                    msgId: `${msg.msgId}_content`,
+                    messageType: 'text',
+                    content: envelope.content,
+                    tool_calls: undefined,
+                }]
+                : [ ],
+            ...envelope.tool_calls.map((tool_call, index) => to_tool_call_message(msg, tool_call, index)),
+        ]
+    })
 }
 
 
@@ -596,11 +686,11 @@ function AiMessageRow ({
     const row_padding_top = hide_title_for_merged_outcome ? 4 : 12
     const row_padding_bottom = hide_divider_for_tool_call ? 4 : 12
 
-    const title = get_display_title(msg, current_tool_call)
-    const title_color = get_display_color(msg)
-
     const tool_name = resolve_tool_name(msg, current_tool_call, previous_tool_call)
     const is_tool_like = TOOL_LIKE_MESSAGE_TYPES.has(msg.messageType ?? '')
+    const show_title = is_tool_like && !hide_title_for_merged_outcome
+    const title = show_title ? get_display_title(msg, current_tool_call) : ''
+    const title_color = show_title ? get_display_color(msg) : ''
     const structured_payload = get_structured_payload(msg)
     const collapse_key = msg.msgId
     const reasoning_key = `reasoning-${collapse_key}`
@@ -645,12 +735,13 @@ function AiMessageRow ({
     const has_ddb_obj = msg._has_ddb_result || Boolean(parse_ddb_obj_from_content_object(msg.content_object))
 
     return <div
+        className={`ai-message-row ${!is_tool_like && msg.role === 'user' ? 'ai-message-row-user' : 'ai-message-row-assistant'}`}
         style={{
             padding: `${row_padding_top}px 0 ${row_padding_bottom}px 0`,
             borderBottom: hide_divider_for_tool_call || is_last ? 'none' : '1px solid #f0f0f0',
         }}
     >
-        {!hide_title_for_merged_outcome && <div style={{ marginBottom: 8, marginLeft: 12 }}>
+        {show_title && <div style={{ marginBottom: 8, marginLeft: 12 }}>
             <Text strong style={{ color: title_color, fontSize: 13 }}>
                 {title}
             </Text>
@@ -689,9 +780,13 @@ function AiMessageRow ({
                 structured_payload={structured_payload}
                 collapse_key_suffix={collapse_key}
             />
-            : msg.content.trim() && <div style={{ wordBreak: 'break-word', marginLeft: 12 }}>
-                <div dangerouslySetInnerHTML={{ __html: render_markdown(msg.content) }} />
-            </div>
+            : msg.content.trim() && (
+                msg.role === 'user'
+                    ? <div className='ai-message-bubble'>
+                        <div className='ai-message-content' dangerouslySetInnerHTML={{ __html: render_markdown(msg.content) }} />
+                    </div>
+                    : <div className='ai-message-content' dangerouslySetInnerHTML={{ __html: render_markdown(msg.content) }} />
+            )
         }
 
         {has_ddb_obj && <div style={{ marginLeft: 12, marginTop: 4 }}>
