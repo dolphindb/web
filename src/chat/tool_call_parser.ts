@@ -7,6 +7,9 @@ export type ParsedToolCall = {
 }
 
 
+export const INVALID_TOOL_CALL_FORMAT = '__invalid_tool_call_format'
+
+
 // ─── JSON 解析工具 ───
 
 function parse_json (text: string): unknown | null {
@@ -141,6 +144,18 @@ function parse_tool_call_from_object (obj: Record<string, unknown>): ParsedToolC
             }
         }
     }
+    
+    const suspicious_key = Object.keys(obj).find(key => /^tool/i.test(key))
+    if (suspicious_key)
+        return {
+            type: INVALID_TOOL_CALL_FORMAT,
+            payload: {
+                key: suspicious_key,
+                value: obj[suspicious_key],
+                expected: '{"tool_call":"<tool_name>","args":[...]}',
+                received: obj,
+            },
+        }
     
     return null
 }

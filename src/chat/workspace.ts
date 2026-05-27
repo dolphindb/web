@@ -24,6 +24,10 @@ export interface IWorkspaceFile {
     update_time: number
     size?: number
     line_count?: number
+    start_line?: number
+    end_line?: number
+    truncated?: boolean
+    hash?: string
 }
 
 
@@ -56,6 +60,13 @@ export interface IWorkspaceSearchOptions {
     contextLines?: number
     maxResults?: number
     maxPerFile?: number
+}
+
+
+export interface IWorkspaceReplacement {
+    old: string
+    new: string
+    replaceAll?: boolean
 }
 
 
@@ -98,7 +109,7 @@ function normalize_workspace_name (path: string) {
 
 function is_file_not_found (error: unknown) {
     const message = error instanceof Error ? error.message : String(error)
-    return message.includes('FILE_NOT_FOUND') || /not found/i.test(message)
+    return message.includes('FILE_NOT_FOUND') || message.includes('file_not_found') || /not found/i.test(message)
 }
 
 
@@ -114,6 +125,10 @@ function map_file (session_id: string, item: any, content = ''): IWorkspaceFile 
         update_time,
         size: item.size,
         line_count: item.lineCount ?? item.line_count,
+        start_line: item.startLine ?? item.start_line,
+        end_line: item.endLine ?? item.end_line,
+        truncated: item.truncated,
+        hash: item.hash,
     }
 }
 
@@ -233,8 +248,8 @@ class ChatWorkspaceStore {
         const name = normalize_workspace_name(path)
         if (!await this.get_file(session_id, api_fetch, name))
             throw new Error(`File not found: ${name}`)
-        await this.write_file(session_id, api_fetch, name, content)
-        return await this.get_file(session_id, api_fetch, name) as IWorkspaceFile
+        const result = await this.write_file(session_id, api_fetch, name, content)
+        return map_file(session_id, result, content)
     }
     
     
@@ -252,11 +267,11 @@ class ChatWorkspaceStore {
     }
     
     
-    async apply_patch (session_id: string, api_fetch: ApiFetch, path: string, patch: string): Promise<any> {
+    async replace_file (session_id: string, api_fetch: ApiFetch, path: string, hash: string, replacements: IWorkspaceReplacement[]): Promise<any> {
         const name = normalize_workspace_name(path)
-        return api_fetch(`/workspace/${encodeURIComponent(session_id)}/patch`, {
+        return api_fetch(`/workspace/${encodeURIComponent(session_id)}/replace`, {
             method: 'POST',
-            body: JSON.stringify({ name, patch }),
+            body: JSON.stringify({ name, hash, replacements }),
         })
     }
     
@@ -308,9 +323,9 @@ class ChatWorkspaceStore {
     }
 
 
-    async write_file (session_id: string, api_fetch: ApiFetch, name: string, content: string) {
+    async write_file (session_id: string, api_fetch: ApiFetch, name: string, content: string): Promise<any> {
         name = normalize_workspace_name(name)
-        await api_fetch(`/workspace/${encodeURIComponent(session_id)}/file`, {
+        return api_fetch(`/workspace/${encodeURIComponent(session_id)}/file`, {
             method: 'POST',
             body: JSON.stringify({ name, content }),
         })

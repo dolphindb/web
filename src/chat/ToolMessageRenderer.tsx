@@ -603,12 +603,17 @@ function VfsListRenderer (props: ToolRendererProps) {
 
 
 function VfsCreateRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_data={({ args, message }) => {
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
         const path = get_named_arg_text(args)
         const content = get_object_arg_text(args, 'content') || get_arg_text(args, 1)
+        const parsed = is_object_record(structured_payload) ? structured_payload : null
+        const hash = to_message_text(parsed?.hash).trim()
         return {
             param_rows: [{ label: t('文件'), value: path || '-' }],
-            result_rows: [{ label: t('结果'), value: to_preview_text(message.content, 120) }],
+            result_rows: [
+                { label: t('结果'), value: to_preview_text(message.content, 120) },
+                ...(hash ? [{ label: 'hash', value: hash }] : [ ]),
+            ],
             param_details: compact_sections([
                 create_compact_text_detail('content', t('查看内容'), content, 80),
             ]),
@@ -618,12 +623,16 @@ function VfsCreateRenderer (props: ToolRendererProps) {
 
 
 function VfsReadRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_data={({ args, message }) => {
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
         const path = get_named_arg_text(args)
+        const parsed = is_object_record(structured_payload) ? structured_payload : null
+        const content = to_message_text(parsed?.content ?? message.content)
+        const hash = to_message_text(parsed?.hash).trim()
         return {
-            param_rows: [{ label: t('文件'), value: path || '-' }],
+            param_rows: [{ label: t('文件'), value: path || to_message_text(parsed?.path).trim() || '-' }],
+            result_rows: hash ? [{ label: 'hash', value: hash }] : [ ],
             result_details: compact_sections([
-                create_text_detail('content', t('查看内容'), message.content),
+                create_text_detail('content', t('查看内容'), content),
             ]),
         }
     }} />
@@ -631,14 +640,21 @@ function VfsReadRenderer (props: ToolRendererProps) {
 
 
 function VfsUpdateRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_data={({ args, message }) => {
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
         const path = get_named_arg_text(args)
-        const patch = get_object_arg_text(args, 'patch') || get_arg_text(args, 1)
+        const hash = get_object_arg_text(args, 'hash') || get_arg_text(args, 1)
+        const replacements = get_object_arg_text(args, 'replacements') || to_message_text(normalize_args(args)[2]).trim()
+        const parsed = is_object_record(structured_payload) ? structured_payload : null
+        const new_hash = to_message_text(parsed?.hash).trim()
         return {
             param_rows: [{ label: t('文件'), value: path || '-' }],
-            result_rows: [{ label: t('结果'), value: to_preview_text(message.content, 120) }],
+            result_rows: [
+                { label: t('结果'), value: to_preview_text(message.content, 120) },
+                ...(new_hash ? [{ label: 'hash', value: new_hash }] : [ ]),
+            ],
             param_details: compact_sections([
-                create_compact_text_detail('patch', t('查看 Patch'), patch, 80),
+                create_compact_text_detail('hash', 'hash', hash, 80),
+                create_json_detail('replacements', t('查看替换'), parse_json_or_text(replacements)),
             ]),
         }
     }} />

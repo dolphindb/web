@@ -14,7 +14,7 @@ import {
     tool_result_json,
 } from './scripts/helpers.ts'
 import { build_current_todo_prompt, build_system_prompt } from './prompt.ts'
-import { parse_tool_calls } from './tool_call_parser.ts'
+import { INVALID_TOOL_CALL_FORMAT, parse_tool_calls } from './tool_call_parser.ts'
 import type { ParsedToolCall } from './tool_call_parser.ts'
 import { chat_workspace_store } from './workspace.ts'
 import type { IChatWorkspace, IWorkspaceStep } from './workspace.ts'
@@ -2195,6 +2195,29 @@ class ChatModel extends Model<ChatModel> {
     async handle_text_tool_call (parsed_call: ParsedToolCall, request_seq: number, tool_call_msg_id: string): Promise<ToolExecutionResult | null> {
         if (this.is_request_interrupted(request_seq))
             return null
+        if (parsed_call.type === INVALID_TOOL_CALL_FORMAT) {
+            const content = tool_result_json({
+                ok: false,
+                tool: parsed_call.type,
+                content: '',
+                error: t('工具调用 JSON 格式错误'),
+                hint: t('检测到以 tool 开头的 JSON 字段，但格式不符合要求。请使用 {"tool_call":"工具名","args":[...]}，例如 {"tool_call":"step_update","args":["0","true"]}。不要使用 tool_update、tool_calls_update 等自定义字段。'),
+                preview: parsed_call.payload,
+            })
+            this.set({
+                messages: [...this.messages, {
+                    msgId: `tool_invalid_${Date.now()}`,
+                    role: 'tool',
+                    messageType: 'tool_error',
+                    name: parsed_call.type,
+                    content,
+                }],
+            })
+            return {
+                tool_result_content: content,
+                next_loop: true,
+            }
+        }
         
         const repeated_result = this.check_repeated_tool_call(parsed_call)
         if (repeated_result)

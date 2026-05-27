@@ -162,17 +162,38 @@ function get_read_args (content: unknown) {
 }
 
 
-function get_patch_args (content: unknown) {
+function to_replacements (value: unknown) {
+    if (!Array.isArray(value))
+        return [ ]
+    return value
+        .filter(is_record)
+        .map(item => ({
+            old: String(item.old ?? ''),
+            new: String(item.new ?? ''),
+            ...(item.replaceAll !== undefined ? { replaceAll: item.replaceAll === true || String(item.replaceAll).toLowerCase() === 'true' } : { }),
+        }))
+}
+
+
+function get_update_args (content: unknown) {
     const parsed = parse_payload(content)
     const args = normalize_script_args(content)
-    if (is_record(parsed))
+    if (is_record(parsed)) {
+        const replacements = to_replacements(parsed.replacements)
         return {
             name: String(parsed.name ?? parsed.path ?? args[0] ?? '').trim(),
-            patch: String(parsed.patch ?? args[1] ?? ''),
+            hash: String(parsed.hash ?? args[1] ?? '').trim(),
+            replacements: replacements.length ? replacements : [{
+                old: String(parsed.old ?? parsed.old_string ?? args[2] ?? ''),
+                new: String(parsed.new ?? parsed.new_string ?? args[3] ?? ''),
+                ...(parsed.replaceAll !== undefined ? { replaceAll: parsed.replaceAll === true || String(parsed.replaceAll).toLowerCase() === 'true' } : { }),
+            }],
         }
+    }
     return {
         name: (args[0] || '').trim(),
-        patch: args[1] || '',
+        hash: (args[1] || '').trim(),
+        replacements: [{ old: args[2] || '', new: args[3] || '' }],
     }
 }
 
@@ -283,10 +304,10 @@ export const vfs_create_config: ScriptConfig = {
     handler: async (type, content, context): Promise<ScriptResult> => {
         try {
             const { name, content: file_content } = get_create_args(content)
-            await context.workspace_store.write_file(require_workspace(context), context.api_fetch, name, file_content)
+            const result = await context.workspace_store.write_file(require_workspace(context), context.api_fetch, name, file_content)
             return {
                 next_loop: true,
-                save_message: result_message(type, `File written successfully: ${name.replace(/^\/+/, '')}`),
+                save_message: result_message(type, JSON.stringify(result)),
             }
         } catch (error) {
             return error_result(type, `vfs_create failed: ${error instanceof Error ? error.message : String(error)}`)
@@ -324,7 +345,7 @@ export const vfs_read_config: ScriptConfig = {
                 throw new Error(`File not found: ${name.replace(/^\/+/, '')}`)
             return {
                 next_loop: true,
-                save_message: result_message(type, file.content || ''),
+                save_message: result_message(type, JSON.stringify(file)),
             }
         } catch (error) {
             return error_result(type, `vfs_read failed: ${error instanceof Error ? error.message : String(error)}`)
@@ -339,23 +360,26 @@ export const vfs_update_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'vfs_update',
-            description: '用单文件 unified diff patch 局部修改当前会话工作区中的已有文件',
+            description: '用精确字符串替换局部修改当前会话工作区中的已有文件',
             parameters: {
                 type: 'object',
                 properties: {
                     name: { type: 'string', description: `要修改的已有文件，${WORKSPACE_FILE_NAME_RULE}` },
-                    patch: { type: 'string', description: '单文件 unified diff patch；只能修改 name 指定的文件，不能创建、删除、重命名或修改多个文件' },
+                    hash: { type: 'string', description: '从 vfs_read、vfs_search、vfs_create 或上一次 vfs_update 结果中取得的文件 hash' },
+                    replacements: { type: 'array', description: '替换列表，每项包含 old、new、可选 replaceAll；old 必须从读取到的文件内容中精确复制' },
                 },
-                required: ['name', 'patch'],
+                required: ['name', 'hash', 'replacements'],
             },
         },
     },
     handler: async (type, content, context): Promise<ScriptResult> => {
         try {
-            const { name, patch } = get_patch_args(content)
-            if (!patch.trim())
-                throw new Error('vfs_update requires a unified diff patch.')
-            const result = await context.workspace_store.apply_patch(require_workspace(context), context.api_fetch, name, patch)
+            const { name, hash, replacements } = get_update_args(content)
+            if (!hash)
+                throw new Error('vfs_update requires hash from vfs_read, vfs_search, vfs_create, or previous vfs_update.')
+            if (!replacements.length || replacements.some(item => !item.old))
+                throw new Error('vfs_update requires non-empty replacements[].old.')
+            const result = await context.workspace_store.replace_file(require_workspace(context), context.api_fetch, name, hash, replacements)
             return {
                 next_loop: true,
                 save_message: result_message(type, JSON.stringify(result)),
@@ -534,10 +558,9 @@ export const skill_file_copy_config: ScriptConfig = {
             const source_encoding = is_record(result) && typeof result.encoding === 'string' ? result.encoding : ''
             const text = source_encoding.toLowerCase() === 'base64' ? decode_base64_utf8(source_content) : source_content
             
-            if (overwrite && await context.workspace_store.get_file(require_workspace(context), context.api_fetch, target_path))
-                await context.workspace_store.update_file_content(require_workspace(context), context.api_fetch, target_path, text)
-            else
-                await context.workspace_store.create_file(require_workspace(context), context.api_fetch, target_path, text)
+            const file = overwrite && await context.workspace_store.get_file(require_workspace(context), context.api_fetch, target_path)
+                ? await context.workspace_store.update_file_content(require_workspace(context), context.api_fetch, target_path, text)
+                : await context.workspace_store.create_file(require_workspace(context), context.api_fetch, target_path, text)
                 
             return {
                 next_loop: true,
@@ -547,6 +570,7 @@ export const skill_file_copy_config: ScriptConfig = {
                     targetPath: target_path.replace(/^\/+/, ''),
                     overwrite,
                     size: text.length,
+                    hash: file.hash,
                 })),
             }
         } catch (error) {
