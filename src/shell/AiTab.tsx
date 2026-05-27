@@ -282,7 +282,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         return <div
                             key={`natural-${group.index}`}
                             className='ai-message-row ai-message-row-assistant'
-                            // style={{ borderBottom: is_last ? 'none' : '1px solid #f0f0f0' }}
+                            style={{ borderBottom: is_last ? 'none' : '1px solid #f0f0f0' }}
                         >
                             <div className='ai-message-content' dangerouslySetInnerHTML={{ __html: render_markdown(group.text) }} />
                         </div>
@@ -634,7 +634,7 @@ function ToolMessageGroup ({ group, is_last }: { group: Extract<MessageGroup, { 
         className='ai-tool-group-row'
         style={{
             padding: '10px 0 10px 0',
-            // borderBottom: is_last ? 'none' : '1px solid #f0f0f0',
+            borderBottom: is_last ? 'none' : '1px solid #f0f0f0',
         }}
     >
         <Collapse
@@ -761,7 +761,7 @@ function AiMessageRow ({
         className={`ai-message-row ${!is_tool_like && msg.role === 'user' ? 'ai-message-row-user' : 'ai-message-row-assistant'}`}
         style={{
             padding: `${row_padding_top}px 0 ${row_padding_bottom}px 0`,
-            // borderBottom: hide_divider_for_tool_call || is_last ? 'none' : '1px solid #f0f0f0',
+            borderBottom: hide_divider_for_tool_call || is_last ? 'none' : '1px solid #f0f0f0',
         }}
     >
         {show_title && <div style={{ marginBottom: 8, marginLeft: 12 }}>
