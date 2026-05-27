@@ -75,19 +75,19 @@ export function AiTab ({ session_id }: { session_id: string }) {
     } = chat_model.use([
         'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'sessions', 'pending_tool_loop_control', 'steps',
     ])
-
+    
     const [input_value, set_input_value] = useState('')
     const [inited, set_inited] = useState(false)
     const [init_error, set_init_error] = useState('')
-
+    
     const messages_ref = useRef<HTMLDivElement>(null)
     const should_auto_scroll = useRef(true)
     const last_scroll_top = useRef(0)
-
+    
     // Init: ensure chat model is initialized, then select this session
     useEffect(() => {
         let cancelled = false
-
+        
         ;(async () => {
             try {
                 set_init_error('')
@@ -95,17 +95,17 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     await chat_model.init()
                 else if (chat_model.agents.length === 0)
                     await chat_model.load_agents()
-
+                    
                 // 确保可选 LLM 已加载
                 if (chat_model.agent_id && chat_model.selectable_llms.length === 0)
                     await chat_model.load_selectable_llms()
-
+                    
                 if (cancelled)
                     return
-
+                    
                 if (current_session_id !== session_id)
                     await chat_model.select_session(session_id)
-
+                    
                 set_inited(true)
             } catch (e) {
                 console.error('AiTab init failed:', e)
@@ -113,10 +113,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 set_inited(true)
             }
         })()
-
+        
         return () => { cancelled = true }
     }, [session_id])
-
+    
     // When tab switches back, re-select the correct session
     useEffect(() => {
         if (inited && current_session_id !== session_id)
@@ -127,7 +127,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     set_init_error(error instanceof Error ? error.message : String(error))
                 })
     }, [inited, session_id])
-
+    
     // Auto-scroll periodic check
     useEffect(() => {
         const timer = setInterval(() => {
@@ -149,18 +149,18 @@ export function AiTab ({ session_id }: { session_id: string }) {
             last_scroll_top.current = el.scrollTop
         }
     }, [messages, buffered_messages, agent_status.status])
-
+    
     // Route live DdbObj results to DataView (direct reference, no pack/unpack)
     // 使用 ref 标记本次 session 已经路由过 live obj，避免 messages 兜底再把旧数据覆盖回去
     const live_routed_ref = useRef(false)
     const last_seen_msg_id_ref = useRef<string | null>(null)
-
+    
     // session 切换时重置状态
     useEffect(() => {
         live_routed_ref.current = false
         last_seen_msg_id_ref.current = null
     }, [session_id])
-
+    
     useEffect(() => {
         if (!latest_ddb_result)
             return
@@ -170,7 +170,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
             live_routed_ref.current = true
         }
     }, [latest_ddb_result])
-
+    
     // Fallback: route DdbObj from content_object (for history/reload)
     // 如果本次会话已经有 live 结果了，就不要用历史 content_object 覆盖它
     // 对于新来的消息（执行 show/execute 工具产生），若其自身无 content_object 则不回退到更早消息
@@ -183,11 +183,11 @@ export function AiTab ({ session_id }: { session_id: string }) {
         const is_initial_load = prev_seen === null
         const is_new_message = !is_initial_load && last_id !== prev_seen
         last_seen_msg_id_ref.current = last_id
-
+        
         // 已有 live 路由时，绝不从历史 content_object 覆盖
         if (live_routed_ref.current)
             return
-
+            
         if (is_initial_load) {
             // 首次加载：倒序查找最近的有效 content_object
             for (let i = messages.length - 1;  i >= 0;  i--) {
@@ -202,7 +202,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
             }
             return
         }
-
+        
         // 后续新增消息：仅检查最后一条（避免 pack 失败时回退到旧消息）
         if (!is_new_message || !last?.content_object)
             return
@@ -210,7 +210,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         if (obj)
             route_ddb_obj_to_dataview(obj)
     }, [messages])
-
+    
     function handle_message_scroll () {
         const el = messages_ref.current
         if (!el)
@@ -218,15 +218,15 @@ export function AiTab ({ session_id }: { session_id: string }) {
         const current = el.scrollTop
         const prev = last_scroll_top.current
         const distance_to_bottom = el.scrollHeight - current - el.clientHeight
-
+        
         if (current < prev && distance_to_bottom > AUTO_SCROLL_THRESHOLD)
             should_auto_scroll.current = false
         else if (current > prev && distance_to_bottom <= AUTO_SCROLL_THRESHOLD)
             should_auto_scroll.current = true
-
+            
         last_scroll_top.current = current
     }
-
+    
     function handle_send () {
         if (!input_value.trim())
             return
@@ -238,7 +238,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         set_input_value('')
         should_auto_scroll.current = true
     }
-
+    
     // Only show messages for our session
     const visible_messages = current_session_id === session_id ? expand_tool_call_envelopes(messages) : [ ]
     const visible_buffered = current_session_id === session_id ? buffered_messages : [ ]
@@ -251,13 +251,13 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const session = sessions.find(item => item.sessionId === session_id)
     const archived = session?.status === 1 || session?.statusName === 'ARCHIVED'
     const can_interrupt = current_session_id === session_id && !['idle', 'error'].includes(visible_status.status)
-
+    
     if (!inited)
         return <div className='ai-tab-loading'>
             <Spin />
             <Text type='secondary' style={{ marginTop: 12 }}>{t('正在连接 AI 助手...')}</Text>
         </div>
-
+        
     if (init_error)
         return <div className='ai-tab' style={{ padding: 16 }}>
             <Alert
@@ -267,10 +267,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 description={init_error === 'Not Found' ? t('会话不存在或已被删除，请新建 AI 会话。') : init_error}
             />
         </div>
-
+        
     return <div className='ai-tab'>
         <TodoList steps={visible_steps} />
-
+        
         {/* Messages */}
         <div className='ai-tab-messages' ref={messages_ref} onScroll={handle_message_scroll}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -284,10 +284,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         >
                             <div className='ai-message-content' dangerouslySetInnerHTML={{ __html: render_markdown(group.text) }} />
                         </div>
-
+                        
                     if (group.type === 'tools')
                         return <ToolMessageGroup key={`tools-${group.start_index}-${group.end_index}`} group={group} is_last={is_last} />
-
+                        
                     const msg = group.msg
                     const prev = group.index > 0 ? visible_messages[group.index - 1] : null
                     const next = group.index < visible_messages.length - 1 ? visible_messages[group.index + 1] : null
@@ -300,7 +300,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         agent_status={visible_status.status}
                     />
                 })}
-
+                
                 {has_virtual && <div style={{ padding: '10px 0 6px 12px' }}>
                     {visible_buffered.map((content, idx) =>
                         <div key={`buf-${idx}`} style={{ marginBottom: 4, paddingRight: 12 }}>
@@ -330,7 +330,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 </div>}
             </div>
         </div>
-
+        
         {/* Input */}
         <div className='ai-tab-input'>
             <Space.Compact style={{ width: '100%' }}>
@@ -372,9 +372,9 @@ function TodoList ({ steps }: { steps: IWorkspaceStep[] }) {
     const active_steps = steps.filter(step => step.active)
     if (!active_steps.length)
         return null
-
+        
     const current_step = active_steps.find(step => !step.checked) || active_steps[active_steps.length - 1]
-
+    
     return <Collapse
         ghost
         size='small'
@@ -508,7 +508,7 @@ function expand_tool_call_envelopes (messages: IMessage[]): IMessage[] {
 function group_messages (messages: IMessage[]): MessageGroup[] {
     const groups: MessageGroup[] = [ ]
     let index = 0
-
+    
     while (index < messages.length) {
         const msg = messages[index]
         if (!is_tool_message(msg) || index === messages.length - 1) {
@@ -516,7 +516,7 @@ function group_messages (messages: IMessage[]): MessageGroup[] {
             index += 1
             continue
         }
-
+        
         const start_index = index
         const tool_messages: IMessage[] = [ ]
         while (index < messages.length - 1 && is_tool_message(messages[index])) {
@@ -526,7 +526,7 @@ function group_messages (messages: IMessage[]): MessageGroup[] {
                     break
                 groups.push({ type: 'natural_text', text: natural_text, index })
             }
-
+            
             tool_messages.push(messages[index])
             index += 1
         }
@@ -534,20 +534,20 @@ function group_messages (messages: IMessage[]): MessageGroup[] {
             continue
         groups.push({ type: 'tools', messages: tool_messages, start_index, end_index: index - 1 })
     }
-
+    
     return groups
 }
 
 
 function get_tool_pairs (messages: IMessage[]) {
     const pairs: Array<{ call: IMessage | null, result: IMessage | null, messages: IMessage[] }> = [ ]
-
+    
     for (const msg of messages) {
         if (msg.messageType === 'tool_call') {
             pairs.push({ call: msg, result: null, messages: [msg] })
             continue
         }
-
+        
         const last = pairs[pairs.length - 1]
         if (last && !last.result) {
             last.result = msg
@@ -555,7 +555,7 @@ function get_tool_pairs (messages: IMessage[]) {
         } else
             pairs.push({ call: null, result: msg, messages: [msg] })
     }
-
+    
     return pairs
 }
 
@@ -579,7 +579,7 @@ function is_edit_tool (name: string) {
 function summarize_tool_group (pairs: ReturnType<typeof get_tool_pairs>) {
     const calls = pairs.map(pair => pair.call).filter((msg): msg is IMessage => Boolean(msg))
     const edited_files = new Set<string>()
-
+    
     for (const call of calls) {
         const parsed = parse_tool_call(call)
         if (!parsed || !is_edit_tool(parsed.name))
@@ -588,7 +588,7 @@ function summarize_tool_group (pairs: ReturnType<typeof get_tool_pairs>) {
         if (file_name)
             edited_files.add(file_name)
     }
-
+    
     const command_text = t('已运行 {{count}} 条命令', { count: calls.length })
     if (edited_files.size > 0)
         return `${t('已编辑 {{count}} 个文件', { count: edited_files.size })}，${command_text}`
@@ -607,8 +607,9 @@ function get_tool_command_preview (pair: ReturnType<typeof get_tool_pairs>[numbe
 
 function ToolMessageGroup ({ group, is_last }: { group: Extract<MessageGroup, { type: 'tools' }>, is_last: boolean }) {
     const pairs = get_tool_pairs(group.messages)
-
+ 
     return <div
+        className='ai-tool-group-row'
         style={{
             padding: '10px 0 10px 0',
             borderBottom: is_last ? 'none' : '1px solid #f0f0f0',
@@ -674,18 +675,18 @@ function AiMessageRow ({
 }) {
     const current_tool_call = msg.messageType === 'tool_call' ? parse_tool_call(msg) : null
     const previous_tool_call = prev?.messageType === 'tool_call' ? parse_tool_call(prev) : null
-
+    
     const hide_title_for_merged_outcome =
         (msg.messageType === 'tool_result' || msg.messageType === 'skill_result' || msg.messageType === 'tool_error') &&
         prev?.messageType === 'tool_call'
-
+        
     const hide_divider_for_tool_call =
         msg.messageType === 'tool_call' &&
         (next?.messageType === 'tool_result' || next?.messageType === 'skill_result' || next?.messageType === 'tool_error')
-
+        
     const row_padding_top = hide_title_for_merged_outcome ? 4 : 12
     const row_padding_bottom = hide_divider_for_tool_call ? 4 : 12
-
+    
     const tool_name = resolve_tool_name(msg, current_tool_call, previous_tool_call)
     const is_tool_like = TOOL_LIKE_MESSAGE_TYPES.has(msg.messageType ?? '')
     const show_title = is_tool_like && !hide_title_for_merged_outcome
@@ -700,40 +701,40 @@ function AiMessageRow ({
     const [reasoning_active_keys, set_reasoning_active_keys] = useState<string[]>([ ])
     const last_reasoning_msg_id = useRef(msg.msgId)
     const closed_after_content = useRef(false)
-
+    
     useEffect(() => {
         if (last_reasoning_msg_id.current !== msg.msgId) {
             last_reasoning_msg_id.current = msg.msgId
             closed_after_content.current = false
             set_reasoning_active_keys([ ])
         }
-
+        
         if (!has_reasoning) {
             closed_after_content.current = false
             set_reasoning_active_keys([ ])
             return
         }
-
+        
         if (is_reasoning_streaming) {
             set_reasoning_active_keys([reasoning_key])
             return
         }
-
+        
         if (!has_content) {
             set_reasoning_active_keys([ ])
             return
         }
-
+        
         if (!closed_after_content.current) {
             closed_after_content.current = true
             set_reasoning_active_keys([ ])
         }
     }, [msg.msgId, has_reasoning, has_content, is_reasoning_streaming, reasoning_key])
-
+    
     // DdbObj 不在这里内联展示，而是路由到 DataView
     // 但保留引用检测，以便在消息中显示一个提示
     const has_ddb_obj = msg._has_ddb_result || Boolean(parse_ddb_obj_from_content_object(msg.content_object))
-
+    
     return <div
         className={`ai-message-row ${!is_tool_like && msg.role === 'user' ? 'ai-message-row-user' : 'ai-message-row-assistant'}`}
         style={{
@@ -746,8 +747,8 @@ function AiMessageRow ({
                 {title}
             </Text>
         </div>}
-
-        {msg.reasoning_content && <div>
+        
+        {msg.reasoning_content && <div className='ai-reasoning'>
             <Collapse
                 ghost
                 size='small'
@@ -764,13 +765,13 @@ function AiMessageRow ({
                 items={[{
                     key: reasoning_key,
                     label: <span><BulbOutlined /> {is_reasoning_streaming ? t('思考中') : t('思考过程')}</span>,
-                    children: <div style={{ wordBreak: 'break-word' }}>
+                    children: <div className='ai-reasoning-content'>
                         <div dangerouslySetInnerHTML={{ __html: render_markdown(msg.reasoning_content) }} />
                     </div>,
                 }]}
             />
         </div>}
-
+        
         {is_tool_like
             ? <ToolMessageRenderer
                 message={msg}
@@ -788,7 +789,7 @@ function AiMessageRow ({
                     : <div className='ai-message-content' dangerouslySetInnerHTML={{ __html: render_markdown(msg.content) }} />
             )
         }
-
+        
         {has_ddb_obj && <div style={{ marginLeft: 12, marginTop: 4 }}>
             <Text type='secondary' style={{ fontSize: 12 }}>
                 📊 {t('输出结果已显示在下方面板')}
