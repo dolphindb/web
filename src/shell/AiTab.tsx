@@ -437,7 +437,7 @@ function has_matching_tool_result_after (messages: IMessage[], index: number) {
             break
         if (!is_tool_outcome_message(candidate))
             continue
-        if (!call_ids.size || call_ids.has(candidate.tool_call_id || ''))
+        if (!candidate.tool_call_id || !call_ids.size || call_ids.has(candidate.tool_call_id))
             return true
     }
     return false
@@ -456,7 +456,7 @@ function has_matching_print_result_after (messages: IMessage[], index: number) {
             break
         if (!has_tool_result_print(candidate))
             continue
-        if (!call_ids.size || call_ids.has(candidate.tool_call_id || ''))
+        if (!candidate.tool_call_id || !call_ids.size || call_ids.has(candidate.tool_call_id))
             return true
     }
     return false
