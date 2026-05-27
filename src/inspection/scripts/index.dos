@@ -1,3 +1,18 @@
+def getAliveRunnableNodes(modes=NULL) {
+    if (modes.form() == 0) {
+        if (isNull(modes)) {
+            return exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1 and mode != 2 and state == 1
+        }
+        return exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode == int(modes) and state == 1
+    }
+
+    return exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode in modes and state == 1
+}
+
+def getAliveNonAgentNodes() {
+    return exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1 and state == 1
+}
+
 def canConfigureEmail() {
     ret = dict(STRING, ANY)
     ret["errCode"] = 0
@@ -33,15 +48,45 @@ def canConfigureEmail() {
         return ret
     }
 
-    allNodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2 // 排除代理节点和控制节点
-    info = select * from pnodeRun(listPluginsInner{"httpClient"}, allNodes)
-    if (info.size() == 0) {
+    allNodes = getAliveRunnableNodes()
+    if (allNodes.size() == 0) {
         ret["errCode"] = 1
         ret["errMsg"] = toStdJson(allNodes)
         return ret
     }
+    info = table(1:0, `node`pluginName`version, [STRING, STRING, STRING])
+    checkedNodes = []$STRING
+    for (node in allNodes) {
+        node_ = node
+        try {
+            info_ = rpc(node_, listPluginsInner, "httpClient")
+            checkedNodes.append!(node_)
+            if (info_.size() > 0) {
+                update info_ set node = node_
+                reorderColumns!(info_, ["node", "pluginName", "version"])
+                info.append!(info_)
+            }
+        } catch(err) {
+            if (err.form() == 0) {
+                errMsg = string(err)
+            } else {
+                errMsg = string(err).last()
+            }
+            writeLog("autoInspection: canConfigureEmail skip unavailable node: " + node_ + ", err msg: " + errMsg)
+        }
+    }
+    if (checkedNodes.size() == 0) {
+        ret["errCode"] = 1
+        ret["errMsg"] = toStdJson(allNodes)
+        return ret
+    }
+    if (info.size() == 0) {
+        ret["errCode"] = 1
+        ret["errMsg"] = toStdJson(checkedNodes)
+        return ret
+    }
 
-    allNodes = set(allNodes)
+    allNodes = set(checkedNodes)
     nodes = exec node from info
     nodes = set(nodes)
     if (nodes != allNodes) {
@@ -374,6 +419,22 @@ def extractUsedParams(params, metricName) {
     return usedParams
 }
 
+def containsDataNodeUnavailable(obj) {
+    if (isVoid(obj)) {
+        return false
+    }
+    text = string(snippet(obj))
+    return strFind(text, "DataNodeNotAvail") >= 0 or strFind(text, "node is not available") >= 0
+}
+
+def shouldFailOnNodeUnavailable(metricName) {
+    nodeRelatedMetrics = ["nodeStatus", "licenseExpiration", "connectionNum", "nodeVersion", "pluginVersion", "diskUsage", "memUsage", "levelFileIndexCacheStatus", "errorLogs", "coredump", "commonSystemConfig"]
+    if (metricName in nodeRelatedMetrics) {
+        return true
+    }
+    return metricName.startsWith("checkConfigs::")
+}
+
 def runMetric(name, script, func, mutable params) {
     print("start to run metric: " + name + " on node: " + getNodeAlias())
     print("params: ")
@@ -414,6 +475,31 @@ def runMetric(name, script, func, mutable params) {
     }
 
     if (!success) {
+        if (!shouldFailOnNodeUnavailable(name)) {
+            unavailableErr = false
+            if (containsDataNodeUnavailable(detail)) {
+                unavailableErr = true
+            }
+            if (!unavailableErr) {
+                if (containsDataNodeUnavailable(extraDetail)) {
+                    unavailableErr = true
+                }
+            }
+            if (!unavailableErr) {
+                if (containsDataNodeUnavailable(suggestion)) {
+                    unavailableErr = true
+                }
+            }
+            if (unavailableErr) {
+                success = true
+                detail = "检测到集群存在离线节点，该项依赖完整集群环境，已跳过。节点离线已由节点状态指标报告。"
+                suggestion = "请先恢复离线节点后再检查该项。"
+                extraDetail = NULL
+            }
+        }
+    }
+
+    if (!success) {
         print("error: ", detail)
         if (!isVoid(extraDetail)) {
             print("extra detail: ", extraDetail)
@@ -421,6 +507,26 @@ def runMetric(name, script, func, mutable params) {
     }
     print("success: " + string(success))
     return success, toStdJson(detail), string(suggestion), toStdJson(extraDetail), params // 记得更新 params
+}
+
+def appendFailedReportDetail(reportId, planId, metricName, metricVersion, metricParams, node, detail, suggestion=NULL) {
+    ts = now()
+    reportDetail = table(
+        reportId as reportId,
+        planId as planId,
+        metricName as metricName,
+        metricVersion as metricVersion,
+        metricParams as metricParams,
+        node as node,
+        string(NULL) as jobId,
+        ts as startTime,
+        ts as endTime,
+        false as success,
+        toStdJson(detail) as detail,
+        toStdJson(NULL) as extraDetail,
+        string(suggestion) as suggestion
+    )
+    loadTable("dfs://autoInspection", "reportDetails").append!(reportDetail)
 }
 
 def runPlanInner(planId, reportId) {
@@ -469,7 +575,14 @@ def runPlanInner(planId, reportId) {
         }
         updateMetricParams(params, planId, name) // 更新自定义参数值
         usedParams = extractUsedParams(params, name) // 提取出 metrics 表里定义的参数字段
+        if (usedParams.keys().size() == 0) {
+            usedParamsJson = toStdJson(NULL)
+        } else {
+            usedParamsJson = toStdJson(usedParams)
+        }
 
+        aliveNodes = getAliveNonAgentNodes()
+        submittedNodes = []$STRING
         jobIds = []$STRING
         runScript(script)
         metricFuncName = name
@@ -487,18 +600,49 @@ def runPlanInner(planId, reportId) {
         for (node in nodes) {
             name_ = strReplace(name, "::", "") // 例如指标名 checkConfigs::commonDolphinDBConfig 特殊处理
             jobId_ = "runMetric_" + name_ + "_" + version + "_" + ts
-            jobId = rpc(node, submitJob, jobId_, reportId, runMetric{name, script, funcByName(metricFuncName), usedParams})
-            jobIds.append!(jobId)
+            if (!in(node, aliveNodes)) {
+                appendFailedReportDetail(
+                    reportId,
+                    planId,
+                    name,
+                    version,
+                    usedParamsJson,
+                    node,
+                    "node is not available: " + node,
+                    "请检查该节点是否已停止或网络是否异常。"
+                )
+                continue
+            }
+
+            try {
+                jobId = rpc(node, submitJob, jobId_, reportId, runMetric{name, script, funcByName(metricFuncName), usedParams})
+                jobIds.append!(jobId)
+                submittedNodes.append!(node)
+            } catch(err) {
+                if (err.form() == 0) {
+                    detail = string(err)
+                } else {
+                    detail = string(err.last())
+                }
+                appendFailedReportDetail(
+                    reportId,
+                    planId,
+                    name,
+                    version,
+                    usedParamsJson,
+                    node,
+                    detail,
+                    "请检查该节点是否已停止或网络是否异常。"
+                )
+            }
         }
         print("job ids: ", jobIds)
-        if (usedParams.keys().size() == 0) {
-            usedParamsJson = toStdJson(NULL)
-        } else {
-            usedParamsJson = toStdJson(usedParams)
+        if (submittedNodes.size() == 0) {
+            continue
         }
-        for (i in 0..(nodes.size()-1)) {
+        for (i in 0..(submittedNodes.size()-1)) {
             jobId = jobIds[i]
-            node = nodes[i]
+            node = submittedNodes[i]
 
             try {
                 success, detail, suggestion, extraDetail, usedParams_ = rpc(node, getJobReturnEx, jobId, true)
@@ -514,11 +658,28 @@ def runPlanInner(planId, reportId) {
                 } else {
                     detail = string(err.last())
                 }
-                extraDetail = string(NULL)
+                detail = toStdJson(detail)
+                extraDetail = toStdJson(NULL)
                 suggestion = string(NULL)
                 print("run metric failed! Node: " + node + ", job id: " + jobId + ", error: " + detail)
             }
-            res = rpc(node, getJobStatusEx, jobId)
+            try {
+                res = rpc(node, getJobStatusEx, jobId)
+                startTime_ = res["startTime"].first()
+                endTime_ = res["endTime"].first()
+            } catch(err) {
+                startTime_ = now()
+                endTime_ = startTime_
+                if (err.form() == 0) {
+                    statusErr = string(err)
+                } else {
+                    statusErr = string(err.last())
+                }
+                success = false
+                detail = toStdJson("get job status failed: " + statusErr)
+                extraDetail = toStdJson(NULL)
+                suggestion = "请检查该节点是否已停止或网络是否异常。"
+            }
             reportDetail = table(
                 reportId as reportId,
                 planId as planId,
@@ -527,8 +688,8 @@ def runPlanInner(planId, reportId) {
                 usedParamsJson as metricParams,
                 node as node,
                 jobId as jobId,
-                res["startTime"].first() as startTime,
-                res["endTime"].first() as endTime,
+                startTime_ as startTime,
+                endTime_ as endTime,
                 success as success,
                 detail as detail,
                 extraDetail as extraDetail,
@@ -717,12 +878,12 @@ def runPlan(planId, blocking=false) {
         throw "plan id: " + planId + " not found"
     }
     planInfo = planInfo[0]
-    validNodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
+    validNodes = getAliveRunnableNodes()
     if (validNodes.size() == 0) {
         throw "failed to find a valid node, please check nodes' aliveness by getClusterPerf()"
     }
     enabledNode = planInfo.enabledNode
-    if (isNull(planInfo.enabledNode)) {
+    if (isNull(planInfo.enabledNode) or !in(enabledNode, validNodes)) {
         enabledNode = validNodes.first()
     }
     name = planInfo["name"]
@@ -822,11 +983,11 @@ def enablePlan(id) {
         throw "plan id " + id_ + " is already enabled"
     }
 
-    if (isNull(plan.enabledNode)) {
-        validNodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
-        if (validNodes.size() == 0) {
-            throw "failed to find a valid node, please check nodes' aliveness by getClusterPerf()"
-        }
+    validNodes = getAliveRunnableNodes()
+    if (validNodes.size() == 0) {
+        throw "failed to find a valid node, please check nodes' aliveness by getClusterPerf()"
+    }
+    if (isNull(plan.enabledNode) or !in(plan.enabledNode, validNodes)) {
         enabledNode_ = validNodes.first()
     } else {
         enabledNode_ = plan.enabledNode
@@ -915,7 +1076,7 @@ def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, sc
         nodes_ = nodes_.first()
         if (!isNull(nodes_)) { // 对于支持配置指定节点运行的指标
             mode_ = nodes_.split(",").strip().int()
-            nodes_ = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode in mode_
+            nodes_ = getAliveRunnableNodes(mode_)
             // nodes[i] 为标量时只可能为 NULL，直接视为 NULL
             if (nodes[i].form() == 0) { // 如果没配置任何节点，则等价于配置了所有节点
                 nodesCopy[i] = nodes_
@@ -944,7 +1105,7 @@ def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, sc
     if (cnt > 0) {
         throw "duplicated plan name: " + name
     }
-    validNodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
+    validNodes = getAliveRunnableNodes()
     if (validNodes.size() == 0) {
         throw "failed to find a valid node, please check nodes' aliveness by getClusterPerf()"
     }
@@ -1240,7 +1401,7 @@ def getMetrics(name=NULL, language="cn") {
             nodes_.append!(string(NULL))
         } else {
             mode_ = node.split(",").strip().int()
-            t = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode in mode_
+            t = getAliveRunnableNodes(mode_)
             nodes_.append!(t.concat(","))
         }
     }

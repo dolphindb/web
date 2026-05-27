@@ -93,8 +93,11 @@ desc = "检查各个节点版本是否一致。"
 nodes = NULL
 script = '
 def nodeVersion(params) {
-    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1 and iif(mode==2, isLeader, true)
-    ver = pnodeRun(version, nodes)
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1 and mode != 2 and state == 1
+    ver = table(1:0, `node`value, [STRING, STRING])
+    if (nodes.size() > 0) {
+        ver = pnodeRun(version, nodes)
+    }
     insert into ver values (getControllerAlias(), rpc(getControllerAlias(), version))
     cnt = select distinct(value) from ver
     if (cnt.size() > 1) {
@@ -3792,7 +3795,7 @@ def commonSystemConfig(params) {
     }
     for (volumeCfg in volumesCfg) {
         // volumeCfg = volumesCfg[0]
-        shell("df -hT " + volumeCfg + " > " + tmpFilename)
+        res = shell("df -hT " + volumeCfg + " > " + tmpFilename)
         if (res != 0) {
             continue
         }
@@ -3800,7 +3803,10 @@ def commonSystemConfig(params) {
         line = readLine(f)
         line = readLine(f) // 文件类型在第二行
         f.close()
-        if (line.strFind("xfs") == -1) {
+        if (isNull(line)) {
+            continue
+        }
+        if (strFind(string(line), "xfs") == -1) {
             insert into ret values ("df -hT " + volumeCfg, line, "WARNING", "volumes 配置项值所在的硬盘格式不为 xfs，建议将其格式化为 xfs，以避免 inode 满的问题。")
         }
     }
