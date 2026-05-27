@@ -57,6 +57,7 @@ export const show_config: ScriptConfig = {
                 tool: type,
                 returnedVoid: result_info.returnedVoid,
                 resultType: result_info.resultType,
+                ...(print_messages.length ? { print: print_messages } : { }),
                 content: result_info.returnedVoid ? '展示成功，但脚本没有最终返回值。' : '展示成功，数据已进入结果视图。',
                 hint: result_info.returnedVoid
                     ? '脚本执行成功但没有最终返回值；如果需要展示结构化结果，请让最后一行返回需要展示的值。'

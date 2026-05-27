@@ -27,6 +27,7 @@ import {
     to_message_text,
     normalize_args,
     get_arg_text,
+    get_tool_result_print,
 } from '@/chat/utils/message.ts'
 import { parse_ddb_obj_from_content_object } from '@/chat/utils/ddb-object.ts'
 
@@ -419,6 +420,11 @@ function is_tool_outcome_message (msg: IMessage) {
 }
 
 
+function has_tool_result_print (msg: IMessage) {
+    return is_tool_outcome_message(msg) && get_tool_result_print(msg.content).length > 0
+}
+
+
 function has_matching_tool_result_after (messages: IMessage[], index: number) {
     const msg = messages[index]
     if (msg.messageType !== 'tool_call')
@@ -430,6 +436,25 @@ function has_matching_tool_result_after (messages: IMessage[], index: number) {
         if (!is_tool_message(candidate))
             break
         if (!is_tool_outcome_message(candidate))
+            continue
+        if (!call_ids.size || call_ids.has(candidate.tool_call_id || ''))
+            return true
+    }
+    return false
+}
+
+
+function has_matching_print_result_after (messages: IMessage[], index: number) {
+    const msg = messages[index]
+    if (msg.messageType !== 'tool_call')
+        return false
+    
+    const call_ids = new Set((msg.tool_calls || [ ]).map(tool_call => tool_call.id).filter(Boolean))
+    for (let i = index + 1;  i < messages.length;  i += 1) {
+        const candidate = messages[i]
+        if (!is_tool_message(candidate))
+            break
+        if (!has_tool_result_print(candidate))
             continue
         if (!call_ids.size || call_ids.has(candidate.tool_call_id || ''))
             return true
@@ -555,8 +580,11 @@ function group_messages (messages: IMessage[], pending_script_approval_msg_id?: 
             
             if (
                 messages[index].messageType === 'tool_call' &&
-                !has_matching_tool_result_after(messages, index)
+                (!has_matching_tool_result_after(messages, index) || has_matching_print_result_after(messages, index))
             )
+                break
+            
+            if (has_tool_result_print(messages[index]))
                 break
             
             const natural_text = get_tool_message_natural_text(messages[index])

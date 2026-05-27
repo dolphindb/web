@@ -514,6 +514,7 @@ export const execute_file_config: ScriptConfig = {
                     tool: type,
                     returnedVoid: result_info.returnedVoid,
                     resultType: result_info.resultType,
+                    ...(print_messages.length ? { print: print_messages } : { }),
                     content: truncate_tool_content(result_info.content),
                 }), content_object),
             }

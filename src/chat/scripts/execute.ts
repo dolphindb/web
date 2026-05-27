@@ -58,6 +58,7 @@ export const execute_config: ScriptConfig = {
                 tool: type,
                 returnedVoid: result_info.returnedVoid,
                 resultType: result_info.resultType,
+                ...(print_messages.length ? { print: print_messages } : { }),
                 content: truncate_tool_content(result_info.content),
                 hint: result_info.returnedVoid
                     ? '脚本执行成功但没有最终返回值；如果需要继续推理，请让最后一行返回表、字典、字符串或标量。'

@@ -144,6 +144,7 @@ export type ToolResultEnvelope = {
     resultType?: string
     resultCount?: number
     rowCount?: number | null
+    print?: string[]
     preview?: unknown
     results?: unknown
 }

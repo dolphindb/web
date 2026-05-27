@@ -245,6 +245,21 @@ export function parse_tool_result_payload (content: string): ToolResultPayloadVi
 }
 
 
+export function get_tool_result_print (content: string): string[] {
+    const result = parse_tool_result_payload(content)
+    const candidates = [
+        result.envelope?.print,
+        is_object_record(result.payload) ? result.payload.print : undefined,
+    ]
+    
+    for (const candidate of candidates)
+        if (Array.isArray(candidate))
+            return candidate.map(item => to_message_text(item)).filter(Boolean)
+    
+    return [ ]
+}
+
+
 export function get_structured_payload (message: IMessage): Record<string, unknown> | unknown[] | null {
     if (message.messageType === 'tool_result' || message.messageType === 'skill_result' || message.messageType === 'tool_error') {
         const parsed_tool_result = parse_tool_result_payload(message.content).payload

@@ -17,6 +17,7 @@ import {
     format_pretty_json,
     should_use_structured_render,
     get_tool_natural_text as get_tool_message_natural_text,
+    get_tool_result_print,
 } from './utils/message.ts'
 
 
@@ -84,6 +85,14 @@ const PRE_STYLE: React.CSSProperties = {
 
 const MARKDOWN_STYLE: React.CSSProperties = {
     wordBreak: 'break-word',
+}
+
+const PRINT_STYLE: React.CSSProperties = {
+    ...PRE_STYLE,
+    padding: '8px 10px',
+    background: '#fff',
+    border: '1px solid #f0f0f0',
+    borderRadius: 6,
 }
 
 
@@ -461,12 +470,17 @@ function ExecuteLikeRenderer (props: ToolRendererProps) {
                 />}
         </div>
         
+    const print_messages = get_tool_result_print(message.content)
     const outcome = render_outcome_detail(message, structured_payload)
-    if (!outcome)
+    if (!outcome && !print_messages.length)
         return null
         
-    return <div style={{ marginLeft: 12, marginTop: 2 }}>
-        <Collapse
+    return <div style={STACK_STYLE}>
+        {print_messages.length > 0 && <div>
+            <Text strong style={{ color: '#d48806', fontSize: 13 }}>PRINT</Text>
+            <pre style={{ ...PRINT_STYLE, marginTop: 6 }}>{print_messages.join('\n')}</pre>
+        </div>}
+        {outcome && <Collapse
             ghost
             size='small'
             destroyOnHidden
@@ -476,7 +490,7 @@ function ExecuteLikeRenderer (props: ToolRendererProps) {
                 label: get_outcome_toggle_label(message, tool_name),
                 children: outcome,
             }]}
-        />
+        />}
     </div>
 }
 
