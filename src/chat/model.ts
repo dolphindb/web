@@ -586,7 +586,11 @@ class ChatModel extends Model<ChatModel> {
     
     _session_script_approval_modes = new Map<string, ScriptExecuteApprovalMode>()
     
-    _loop_tool_call_counts = new Map<string, number>()
+    _last_tool_call_signature = ''
+    
+    _last_tool_call_failed = false
+    
+    _consecutive_failed_tool_call_count = 0
     
     _consecutive_ddb_failures = 0
     
@@ -1553,7 +1557,9 @@ class ChatModel extends Model<ChatModel> {
     
     
     reset_loop_guard () {
-        this._loop_tool_call_counts.clear()
+        this._last_tool_call_signature = ''
+        this._last_tool_call_failed = false
+        this._consecutive_failed_tool_call_count = 0
         this._consecutive_ddb_failures = 0
         this._tool_turn_limit = MAX_TOOL_TURNS
     }
@@ -1612,15 +1618,46 @@ class ChatModel extends Model<ChatModel> {
             return null
         
         const signature = this.get_tool_call_signature(parsed_call)
-        const count = (this._loop_tool_call_counts.get(signature) || 0) + 1
-        this._loop_tool_call_counts.set(signature, count)
-        if (count <= MAX_REPEATED_TOOL_CALLS)
+        if (
+            signature !== this._last_tool_call_signature ||
+            !this._last_tool_call_failed ||
+            this._consecutive_failed_tool_call_count < MAX_REPEATED_TOOL_CALLS
+        )
             return null
+        
+        const count = this._consecutive_failed_tool_call_count + 1
+        this._consecutive_failed_tool_call_count = count
         return this.build_repeated_tool_call_result(
             parsed_call,
             count,
             count > MAX_REPEATED_TOOL_CALLS + 1
         )
+    }
+    
+    
+    is_failed_tool_result (tool_name: string, message?: IMessage) {
+        if (!message)
+            return false
+        if (message.messageType === 'tool_error' || message.messageType === 'agent_error')
+            return true
+        
+        const payload = parse_tool_result_json(message.content)
+        return Boolean(
+            payload &&
+            payload.tool === tool_name &&
+            (payload.ok === false || payload.repeatedCall)
+        )
+    }
+    
+    
+    update_repeated_tool_call_state (parsed_call: ParsedToolCall, message?: IMessage) {
+        const signature = this.get_tool_call_signature(parsed_call)
+        const failed = this.is_failed_tool_result(parsed_call.type, message)
+        this._consecutive_failed_tool_call_count = signature === this._last_tool_call_signature && failed
+            ? this._consecutive_failed_tool_call_count + 1
+            : failed ? 1 : 0
+        this._last_tool_call_signature = signature
+        this._last_tool_call_failed = failed
     }
     
     
@@ -2251,6 +2288,7 @@ class ChatModel extends Model<ChatModel> {
             }
             stop_loop = guarded.stop
         }
+        this.update_repeated_tool_call_state(parsed_call, script_result.save_message)
         
         // 显示工具结果消息
         if (script_result.save_message) {
