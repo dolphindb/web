@@ -19,11 +19,16 @@ type SkillFileTreeNode = {
 
 
 function to_file_paths (value: unknown): string[] {
-    if (!is_record(value) || !Array.isArray(value.items))
+    const items = Array.isArray(value)
+        ? value
+        : is_record(value)
+            ? value.items ?? value.files ?? value.filePaths ?? value.file_paths ?? value.data
+            : null
+    if (!Array.isArray(items))
         return [ ]
     
-    return value.items
-        .map(item => typeof item === 'string' ? item.trim() : is_record(item) ? String(item.filePath ?? item.file_path ?? '').trim() : '')
+    return items
+        .map(item => typeof item === 'string' ? item.trim() : is_record(item) ? String(item.filePath ?? item.file_path ?? item.path ?? item.name ?? '').trim() : '')
         .filter(Boolean)
 }
 

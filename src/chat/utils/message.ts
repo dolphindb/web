@@ -7,6 +7,12 @@ export interface ToolCallViewModel {
     args: unknown
 }
 
+export interface ToolResultPayloadView {
+    tool?: string
+    payload: unknown
+    envelope?: Record<string, unknown>
+}
+
 
 export const TOOL_LIKE_MESSAGE_TYPES = new Set<string>(['tool_call', 'tool_result', 'skill_result', 'tool_error', 'agent_error'])
 
@@ -70,6 +76,11 @@ export function parse_maybe_json (value: string): unknown | null {
     } catch {
         return null
     }
+}
+
+
+export function parse_json_or_text (value: string): unknown {
+    return parse_maybe_json(value) ?? value
 }
 
 
@@ -140,6 +151,13 @@ function parse_tool_call_from_object (value: unknown): ToolCallViewModel | null 
         return null
     
     const obj = value as Record<string, unknown>
+
+    const native_function = obj.function
+    if (native_function && typeof native_function === 'object' && !Array.isArray(native_function)) {
+        const name = (native_function as { name?: unknown }).name
+        if (typeof name === 'string' && name.trim())
+            return { name: name.trim(), args: parse_json_or_text(to_message_text((native_function as { arguments?: unknown }).arguments ?? [ ])) }
+    }
     
     const tool_call = obj.tool_call
     if (typeof tool_call === 'string' && tool_call.trim())
@@ -201,7 +219,39 @@ function is_structured_payload (value: unknown): value is Record<string, unknown
 }
 
 
+export function strip_tool_result_prefix (content: string): { tool?: string, content: string } {
+    const match = /^\s*\[tool_result:([a-zA-Z0-9_:-]+)\]\s*([\s\S]*)$/.exec(content)
+    if (!match)
+        return { content }
+    return { tool: match[1], content: match[2] || '' }
+}
+
+
+export function parse_tool_result_payload (content: string): ToolResultPayloadView {
+    const prefixed = strip_tool_result_prefix(content)
+    const parsed = parse_json_or_text(prefixed.content)
+    if (!is_object_record(parsed))
+        return { tool: prefixed.tool, payload: parsed }
+    
+    const tool = to_message_text(parsed.tool || prefixed.tool).trim() || undefined
+    const nested = parsed.content
+    if (typeof nested === 'string') {
+        const nested_parsed = parse_json_or_text(nested)
+        if (is_structured_payload(nested_parsed))
+            return { tool, payload: nested_parsed, envelope: parsed }
+    }
+    
+    return { tool, payload: parsed }
+}
+
+
 export function get_structured_payload (message: IMessage): Record<string, unknown> | unknown[] | null {
+    if (message.messageType === 'tool_result' || message.messageType === 'skill_result' || message.messageType === 'tool_error') {
+        const parsed_tool_result = parse_tool_result_payload(message.content).payload
+        if (is_structured_payload(parsed_tool_result))
+            return parsed_tool_result as Record<string, unknown> | unknown[]
+    }
+    
     const co = message.content_object ? to_content_object(message.content_object) : null
     if (is_structured_payload(co))
         return co as Record<string, unknown> | unknown[]
@@ -357,6 +407,14 @@ export function get_display_color (message: IMessage): string {
 
 
 function infer_tool_name_from_content (content: string): string | undefined {
+    const prefixed = strip_tool_result_prefix(content)
+    if (prefixed.tool)
+        return prefixed.tool
+    
+    const payload = parse_tool_result_payload(content)
+    if (payload.tool)
+        return payload.tool
+    
     const trimmed = content.trim()
     if (!trimmed)
         return undefined
@@ -391,17 +449,39 @@ export function normalize_args (raw: unknown): unknown[] {
         const parsed = parse_maybe_json(raw)
         if (Array.isArray(parsed))
             return parsed
+        if (parsed && typeof parsed === 'object') {
+            const parsed_obj = parsed as Record<string, unknown>
+            if (parsed_obj.args !== undefined)
+                return normalize_args(parsed_obj.args)
+            return [parsed]
+        }
         return raw.trim() ? [raw] : [ ]
     }
-    if (raw && typeof raw === 'object')
+    if (raw && typeof raw === 'object') {
+        const obj = raw as Record<string, unknown>
+        if (Array.isArray(obj.args))
+            return obj.args
+        if (obj.args !== undefined)
+            return normalize_args(obj.args)
         return [raw]
+    }
     return [ ]
 }
 
 
-export function get_arg_text (args: unknown, index: number): string {
+export function get_arg_value (args: unknown, index: number, keys: string[] = [ ]): unknown {
     const list = normalize_args(args)
-    return to_message_text(list[index]).trim()
+    const first = list[0]
+    if (is_object_record(first))
+        for (const key of keys)
+            if (first[key] !== undefined)
+                return first[key]
+    return list[index]
+}
+
+
+export function get_arg_text (args: unknown, index: number, keys: string[] = [ ]): string {
+    return to_message_text(get_arg_value(args, index, keys)).trim()
 }
 
 

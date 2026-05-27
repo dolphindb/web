@@ -3,7 +3,6 @@ import { RedoOutlined } from '@ant-design/icons'
 import { marked } from 'marked'
 
 import { t } from '@i18n'
-import { Editor } from '@components/Editor/index.tsx'
 import { shell } from '@/shell/model.ts'
 
 import { chat_model } from './model.ts'
@@ -224,23 +223,12 @@ function create_markdown_detail (key: string, label: string, value: unknown): De
 function create_code_view (code: string, action?: React.ReactNode) {
     return <div style={CODE_VIEWER_STYLE}>
         {action && <div style={CODE_VIEWER_ACTION_STYLE}>{action}</div>}
-        <Editor
-            value={code}
-            readonly
-            height={get_editor_height(code)}
-            options={{
-                automaticLayout: true,
-                lineNumbers: 'on',
-                glyphMargin: false,
-                folding: true,
-                minimap: { enabled: false },
-                scrollBeyondLastLine: false,
-                overviewRulerBorder: false,
-                overviewRulerLanes: 0,
-                wordWrap: 'on',
-                padding: { top: 10, bottom: 10 },
-            }}
-        />
+        <pre style={{
+            ...PRE_STYLE,
+            maxHeight: get_editor_height(code),
+            overflow: 'auto',
+            padding: 10,
+        }}>{code}</pre>
     </div>
 }
 
@@ -457,8 +445,7 @@ function render_outcome_detail (message: IMessage, structured_payload: Record<st
 function ExecuteLikeRenderer (props: ToolRendererProps) {
     const { args, message, structured_payload, collapse_key_suffix, tool_name } = props
     const { pending_script_approval } = chat_model.use(['pending_script_approval'])
-    const arg_list = normalize_args(args)
-    const script = to_message_text(arg_list[0]).trim()
+    const script = get_arg_text(args, 0, ['script'])
     const is_waiting_approval = pending_script_approval?.messageId === message.msgId
     
     if (!props.is_outcome)
@@ -496,7 +483,7 @@ function ExecuteLikeRenderer (props: ToolRendererProps) {
 
 function ColdefsRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
-        const table_handle = get_arg_text(args, 0)
+        const table_handle = get_arg_text(args, 0, ['table'])
         const summary = get_table_like_summary(structured_payload)
         return {
             param_rows: [{ label: t('表'), value: table_handle || '-' }],
@@ -513,7 +500,7 @@ function ColdefsRenderer (props: ToolRendererProps) {
 
 function TestsqlRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
-        const table_handle = get_arg_text(args, 0)
+        const table_handle = get_arg_text(args, 0, ['table'])
         const summary = get_table_like_summary(structured_payload)
         return {
             param_rows: [{ label: t('表'), value: table_handle || '-' }],
@@ -533,8 +520,8 @@ function DocSearchRenderer (props: ToolRendererProps) {
     if (!props.is_outcome)
         return null
         
-    return <ParamResultSection props={props} build_data={({ args, structured_payload }) => {
-        const query = get_arg_text(args, 0)
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
+        const query = get_arg_text(args, 0, ['query'])
         const parsed = is_object_record(structured_payload) ? structured_payload : null
         const total = to_message_text(parsed?.totalSearchItems).trim()
         const items = Array.isArray(parsed?.items) ? parsed.items : [ ]
@@ -548,7 +535,7 @@ function DocSearchRenderer (props: ToolRendererProps) {
 
 function DocReadRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload, is_outcome }) => {
-        const url = get_arg_text(args, 0)
+        const url = get_arg_text(args, 0, ['url'])
         const parsed = is_object_record(structured_payload) ? structured_payload : null
         const title = to_message_text(parsed?.title).trim()
         const page_url = to_message_text(parsed?.url).trim()
@@ -569,16 +556,8 @@ function DocReadRenderer (props: ToolRendererProps) {
 }
 
 
-function get_object_arg_text (args: unknown, key: string): string {
-    const first = normalize_args(args)[0]
-    if (is_object_record(first))
-        return to_message_text(first[key]).trim()
-    return ''
-}
-
-
 function get_named_arg_text (args: unknown): string {
-    return get_object_arg_text(args, 'name') || get_object_arg_text(args, 'path') || get_arg_text(args, 0)
+    return get_arg_text(args, 0, ['name', 'path'])
 }
 
 
@@ -605,7 +584,7 @@ function VfsListRenderer (props: ToolRendererProps) {
 function VfsCreateRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
         const path = get_named_arg_text(args)
-        const content = get_object_arg_text(args, 'content') || get_arg_text(args, 1)
+        const content = get_arg_text(args, 1, ['content'])
         const parsed = is_object_record(structured_payload) ? structured_payload : null
         const hash = to_message_text(parsed?.hash).trim()
         return {
@@ -642,8 +621,8 @@ function VfsReadRenderer (props: ToolRendererProps) {
 function VfsUpdateRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
         const path = get_named_arg_text(args)
-        const hash = get_object_arg_text(args, 'hash') || get_arg_text(args, 1)
-        const replacements = get_object_arg_text(args, 'replacements') || to_message_text(normalize_args(args)[2]).trim()
+        const hash = get_arg_text(args, 1, ['hash'])
+        const replacements = get_arg_text(args, 2, ['replacements'])
         const parsed = is_object_record(structured_payload) ? structured_payload : null
         const new_hash = to_message_text(parsed?.hash).trim()
         return {
@@ -662,10 +641,10 @@ function VfsUpdateRenderer (props: ToolRendererProps) {
 
 
 function VfsSearchRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_data={({ args, message }) => ({
-        param_rows: [{ label: t('搜索'), value: to_preview_text(args, 120) }],
+    return <ParamResultSection props={props} build_data={({ args, structured_payload }) => ({
+        param_rows: [{ label: t('搜索'), value: to_preview_text(get_arg_text(args, 0, ['query']) || args, 120) }],
         result_details: compact_sections([
-            create_json_detail('search-result', t('查看搜索结果'), parse_json_or_text(message.content)),
+            create_json_detail('search-result', t('查看搜索结果'), structured_payload),
         ]),
     })} />
 }
@@ -697,7 +676,10 @@ function ExecuteFileRenderer (props: ToolRendererProps) {
 
 function StepCreateRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message }) => {
-        const tasks = normalize_args(args).map(item => to_message_text(item).trim()).filter(Boolean)
+        const first = normalize_args(args)[0]
+        const tasks = is_object_record(first) && first.tasks !== undefined
+            ? (Array.isArray(first.tasks) ? first.tasks : [first.tasks]).map(item => to_message_text(item).trim()).filter(Boolean)
+            : normalize_args(args).map(item => to_message_text(item).trim()).filter(Boolean)
         return {
             param_rows: [{ label: t('任务'), value: String(tasks.length) }],
             result_rows: [{ label: t('结果'), value: to_preview_text(message.content, 120) }],
@@ -711,8 +693,8 @@ function StepCreateRenderer (props: ToolRendererProps) {
 
 function StepUpdateRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message }) => {
-        const index = get_arg_text(args, 0)
-        const checked = get_arg_text(args, 1)
+        const index = get_arg_text(args, 0, ['index'])
+        const checked = get_arg_text(args, 1, ['checked'])
         return {
             param_rows: [
                 { label: t('索引'), value: index || '-' },
@@ -742,8 +724,8 @@ function WorkspaceStateReadRenderer (props: ToolRendererProps) {
 
 function WorkspaceStateUpdateRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message }) => {
-        const old_string = get_arg_text(args, 0)
-        const new_string = get_arg_text(args, 1)
+        const old_string = get_arg_text(args, 0, ['old_string', 'oldString'])
+        const new_string = get_arg_text(args, 1, ['new_string', 'newString'])
         return {
             result_rows: [{ label: t('结果'), value: to_preview_text(message.content, 120) }],
             param_details: compact_sections([
@@ -757,14 +739,18 @@ function WorkspaceStateUpdateRenderer (props: ToolRendererProps) {
 
 function SkillReadRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
-        const skill_id = get_arg_text(args, 0)
+        const skill_id = get_arg_text(args, 0, ['skill_id', 'skillId'])
         const parsed = is_object_record(structured_payload) ? structured_payload : null
         const nested_skill_data = Array.isArray(parsed?.data) ? parsed.data[0] : null
         const skill_obj = is_object_record(nested_skill_data) ? nested_skill_data : parsed
         const skill_name = skill_obj?.displayName ?? skill_obj?.name ?? skill_obj?.skillName ?? '-'
         const description = skill_obj?.description
         const instruction = skill_obj?.instruction
-        const files = Array.isArray(skill_obj?.files) ? skill_obj.files : [ ]
+        const files = Array.isArray(skill_obj?.files)
+            ? skill_obj.files
+            : is_object_record(skill_obj?.filesDetail) && Array.isArray(skill_obj.filesDetail.items)
+                ? skill_obj.filesDetail.items
+                : [ ]
         return {
             param_rows: [{ label: 'skillId', value: skill_id || '-' }],
             result_rows: [
@@ -783,8 +769,14 @@ function SkillReadRenderer (props: ToolRendererProps) {
 
 function SkillFileReadRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
-        const skill_id = get_arg_text(args, 0)
-        const file_paths = normalize_args(args).slice(1).map(item => to_message_text(item)).filter(Boolean)
+        const skill_id = get_arg_text(args, 0, ['skill_id', 'skillId'])
+        const first = normalize_args(args)[0]
+        const file_paths = is_object_record(first)
+            ? [first.file_path, first.filePath, first.file_paths, first.filePaths, first.paths]
+                .flatMap(item => Array.isArray(item) ? item : item ? [item] : [ ])
+                .map(item => to_message_text(item).trim())
+                .filter(Boolean)
+            : normalize_args(args).slice(1).map(item => to_message_text(item)).filter(Boolean)
         const parsed = is_object_record(structured_payload) ? structured_payload : null
         const files = Array.isArray(parsed?.files) ? parsed.files.filter(is_object_record) : [ ]
         const single_content = to_message_text(parsed?.content ?? message.content).trim()
@@ -818,6 +810,30 @@ function SkillFileReadRenderer (props: ToolRendererProps) {
             result_details: compact_sections([
                 create_text_detail('content', t('查看内容'), single_content),
             ]),
+        }
+    }} />
+}
+
+
+function SkillFileCopyRenderer (props: ToolRendererProps) {
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
+        const skill_id = get_arg_text(args, 0, ['skill_id', 'skillId'])
+        const source_path = get_arg_text(args, 1, ['file_path', 'filePath'])
+        const target_path = get_arg_text(args, 2, ['target_path', 'targetPath'])
+        const parsed = is_object_record(structured_payload) ? structured_payload : null
+        const result_target = to_message_text(parsed?.targetPath ?? parsed?.target_path).trim()
+        const hash = to_message_text(parsed?.hash).trim()
+        return {
+            param_rows: [
+                { label: 'skillId', value: skill_id || '-' },
+                { label: t('源文件'), value: source_path || '-' },
+                { label: t('目标文件'), value: target_path || result_target || '-' },
+            ],
+            result_rows: [
+                ...(result_target ? [{ label: t('已复制'), value: result_target }] : [ ]),
+                ...(hash ? [{ label: 'hash', value: hash }] : [ ]),
+                ...(!result_target && !hash ? [{ label: t('结果'), value: to_preview_text(message.content, 120) }] : [ ]),
+            ],
         }
     }} />
 }
@@ -876,6 +892,7 @@ const TOOL_RENDERERS: Record<string, (props: ToolRendererProps) => React.ReactNo
     skill_read: props => <SkillReadRenderer {...props} />,
     skill_file_search: props => <VfsSearchRenderer {...props} />,
     skill_file_read: props => <SkillFileReadRenderer {...props} />,
+    skill_file_copy: props => <SkillFileCopyRenderer {...props} />,
     doc_search: props => <DocSearchRenderer {...props} />,
     doc_read: props => <DocReadRenderer {...props} />,
     vfs_list: props => <VfsListRenderer {...props} />,

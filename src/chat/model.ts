@@ -23,6 +23,7 @@ import { INVALID_TOOL_CALL_FORMAT } from './tool_call_parser.ts'
 import type { ParsedToolCall } from './tool_call_parser.ts'
 import { chat_workspace_store } from './workspace.ts'
 import type { IChatWorkspace, IWorkspaceStep } from './workspace.ts'
+import { parse_tool_result_payload } from './utils/message.ts'
 
 
 export type MessageRole = 'system' | 'user' | 'assistant' | 'tool'
@@ -1337,6 +1338,10 @@ class ChatModel extends Model<ChatModel> {
         
         let display_content = content
         let display_role = m.role as string
+        if (message_type === 'tool_result' || message_type === 'skill_result' || message_type === 'tool_error')
+            name = parse_tool_result_payload(content).tool
+        else if (message_type === 'tool_call' && tool_calls?.length === 1)
+            name = tool_calls[0].function.name
         
         return {
             msgId: m.messageId || `msg_${Date.now()}_${Math.random().toString(36).slice(2)}`,

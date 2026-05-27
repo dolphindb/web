@@ -25,6 +25,8 @@ import {
     get_tool_natural_text as get_tool_message_natural_text,
     to_preview_text,
     to_message_text,
+    normalize_args,
+    get_arg_text,
 } from '@/chat/utils/message.ts'
 import { parse_ddb_obj_from_content_object } from '@/chat/utils/ddb-object.ts'
 
@@ -280,7 +282,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         return <div
                             key={`natural-${group.index}`}
                             className='ai-message-row ai-message-row-assistant'
-                            style={{ borderBottom: is_last ? 'none' : '1px solid #f0f0f0' }}
+                            // style={{ borderBottom: is_last ? 'none' : '1px solid #f0f0f0' }}
                         >
                             <div className='ai-message-content' dangerouslySetInnerHTML={{ __html: render_markdown(group.text) }} />
                         </div>
@@ -519,7 +521,7 @@ function group_messages (messages: IMessage[]): MessageGroup[] {
         
         const start_index = index
         const tool_messages: IMessage[] = [ ]
-        while (index < messages.length - 1 && is_tool_message(messages[index])) {
+        while (index < messages.length && is_tool_message(messages[index])) {
             const natural_text = get_tool_message_natural_text(messages[index])
             if (natural_text) {
                 if (tool_messages.length)
@@ -548,10 +550,14 @@ function get_tool_pairs (messages: IMessage[]) {
             continue
         }
         
-        const last = pairs[pairs.length - 1]
-        if (last && !last.result) {
-            last.result = msg
-            last.messages.push(msg)
+        const matched = msg.tool_call_id
+            ? pairs.find(pair => !pair.result && pair.call?.tool_calls?.some(tool_call => tool_call.id === msg.tool_call_id))
+            : null
+        const fallback = pairs.find(pair => !pair.result)
+        const pair = matched || fallback
+        if (pair) {
+            pair.result = msg
+            pair.messages.push(msg)
         } else
             pairs.push({ call: null, result: msg, messages: [msg] })
     }
@@ -561,13 +567,29 @@ function get_tool_pairs (messages: IMessage[]) {
 
 
 function get_tool_file_name (args: unknown) {
-    const list = Array.isArray(args) ? args : [args]
+    const list = normalize_args(args)
     const first = list[0]
     if (first && typeof first === 'object' && !Array.isArray(first)) {
         const obj = first as Record<string, unknown>
         return to_message_text(obj.name ?? obj.path ?? obj.target_path ?? obj.targetPath).trim()
     }
     return to_message_text(first).trim()
+}
+
+
+function get_tool_preview_arg (tool_name: string, args: unknown) {
+    const normalized = tool_name.trim().toLowerCase()
+    if (normalized === 'execute' || normalized === 'show')
+        return get_arg_text(args, 0, ['script'])
+    if (normalized === 'coldefs' || normalized === 'testsql')
+        return get_arg_text(args, 0, ['table'])
+    if (normalized === 'doc_search')
+        return get_arg_text(args, 0, ['query'])
+    if (normalized === 'doc_read')
+        return get_arg_text(args, 0, ['url'])
+    if (normalized.startsWith('skill_'))
+        return get_arg_text(args, 0, ['skill_id', 'skillId'])
+    return get_tool_file_name(args) || get_arg_text(args, 0, ['name', 'path'])
 }
 
 
@@ -600,7 +622,7 @@ function get_tool_command_preview (pair: ReturnType<typeof get_tool_pairs>[numbe
     const parsed = pair.call ? parse_tool_call(pair.call) : null
     const name = parsed?.name || pair.result?.name || t('未知工具')
     const label = get_tool_display_name(name)
-    const arg_text = parsed ? get_tool_file_name(parsed.args) || to_message_text(parsed.args).trim() : ''
+    const arg_text = parsed ? get_tool_preview_arg(parsed.name, parsed.args) : ''
     return `${label}${arg_text ? ` ${to_preview_text(arg_text, 80)}` : ''}`
 }
 
@@ -612,7 +634,7 @@ function ToolMessageGroup ({ group, is_last }: { group: Extract<MessageGroup, { 
         className='ai-tool-group-row'
         style={{
             padding: '10px 0 10px 0',
-            borderBottom: is_last ? 'none' : '1px solid #f0f0f0',
+            // borderBottom: is_last ? 'none' : '1px solid #f0f0f0',
         }}
     >
         <Collapse
@@ -739,7 +761,7 @@ function AiMessageRow ({
         className={`ai-message-row ${!is_tool_like && msg.role === 'user' ? 'ai-message-row-user' : 'ai-message-row-assistant'}`}
         style={{
             padding: `${row_padding_top}px 0 ${row_padding_bottom}px 0`,
-            borderBottom: hide_divider_for_tool_call || is_last ? 'none' : '1px solid #f0f0f0',
+            // borderBottom: hide_divider_for_tool_call || is_last ? 'none' : '1px solid #f0f0f0',
         }}
     >
         {show_title && <div style={{ marginBottom: 8, marginLeft: 12 }}>
