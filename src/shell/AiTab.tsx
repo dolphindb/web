@@ -73,9 +73,9 @@ function route_ddb_obj_to_dataview (obj: DdbObj<DdbValue>) {
 
 export function AiTab ({ session_id }: { session_id: string }) {
     const {
-        messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, sessions, pending_tool_loop_control, steps,
+        messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, sessions, pending_tool_loop_control, pending_script_approval, steps,
     } = chat_model.use([
-        'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'sessions', 'pending_tool_loop_control', 'steps',
+        'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'sessions', 'pending_tool_loop_control', 'pending_script_approval', 'steps',
     ])
     
     const [input_value, set_input_value] = useState('')
@@ -246,8 +246,9 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const visible_buffered = current_session_id === session_id ? buffered_messages : [ ]
     const visible_status = current_session_id === session_id ? agent_status : { status: 'idle' as const }
     const visible_loop_control = current_session_id === session_id ? pending_tool_loop_control : null
+    const visible_script_approval = current_session_id === session_id ? pending_script_approval : null
     const visible_steps = current_session_id === session_id ? steps : [ ]
-    const visible_groups = group_messages(visible_messages)
+    const visible_groups = group_messages(visible_messages, visible_script_approval?.messageId)
     const status_text = get_agent_status_text(visible_status)
     const has_virtual = visible_status.status !== 'idle' || visible_buffered.length > 0 || Boolean(visible_loop_control)
     const session = sessions.find(item => item.sessionId === session_id)
@@ -413,6 +414,30 @@ function is_tool_message (msg: IMessage) {
 }
 
 
+function is_tool_outcome_message (msg: IMessage) {
+    return msg.messageType === 'tool_result' || msg.messageType === 'skill_result' || msg.messageType === 'tool_error'
+}
+
+
+function has_matching_tool_result_after (messages: IMessage[], index: number) {
+    const msg = messages[index]
+    if (msg.messageType !== 'tool_call')
+        return false
+    
+    const call_ids = new Set((msg.tool_calls || [ ]).map(tool_call => tool_call.id).filter(Boolean))
+    for (let i = index + 1;  i < messages.length;  i += 1) {
+        const candidate = messages[i]
+        if (!is_tool_message(candidate))
+            break
+        if (!is_tool_outcome_message(candidate))
+            continue
+        if (!call_ids.size || call_ids.has(candidate.tool_call_id || ''))
+            return true
+    }
+    return false
+}
+
+
 function parse_json_value (value: string): unknown {
     try {
         return JSON.parse(value)
@@ -507,7 +532,7 @@ function expand_tool_call_envelopes (messages: IMessage[]): IMessage[] {
 }
 
 
-function group_messages (messages: IMessage[]): MessageGroup[] {
+function group_messages (messages: IMessage[], pending_script_approval_msg_id?: string) {
     const groups: MessageGroup[] = [ ]
     let index = 0
     
@@ -522,6 +547,18 @@ function group_messages (messages: IMessage[]): MessageGroup[] {
         const start_index = index
         const tool_messages: IMessage[] = [ ]
         while (index < messages.length && is_tool_message(messages[index])) {
+            if (
+                messages[index].messageType === 'tool_call' &&
+                messages[index].msgId === pending_script_approval_msg_id
+            )
+                break
+            
+            if (
+                messages[index].messageType === 'tool_call' &&
+                !has_matching_tool_result_after(messages, index)
+            )
+                break
+            
             const natural_text = get_tool_message_natural_text(messages[index])
             if (natural_text) {
                 if (tool_messages.length)
@@ -532,8 +569,11 @@ function group_messages (messages: IMessage[]): MessageGroup[] {
             tool_messages.push(messages[index])
             index += 1
         }
-        if (!tool_messages.length)
+        if (!tool_messages.length) {
+            groups.push({ type: 'message', msg, index })
+            index += 1
             continue
+        }
         groups.push({ type: 'tools', messages: tool_messages, start_index, end_index: index - 1 })
     }
     

@@ -343,7 +343,7 @@ export interface IBuiltinInitResult {
 
 const AGENT_ID_KEY = 'ddb.chat.agent_id'
 const BIZ_USER_ID_KEY = 'ddb.chat.biz_user_id'
-const USE_NATIVE_TOOL_CALLING = true
+const USE_NATIVE_TOOL_CALLING = false
 
 /** 最大工具调用轮次，防止无限循环 */
 const MAX_TOOL_TURNS = 12
