@@ -6,6 +6,7 @@ import { Button, Card, Empty, Input, InputNumber, Modal, Popconfirm, Select, Spa
 import { t } from '@i18n'
 import { model } from '@model'
 import { access } from '@/access/model.ts'
+import { shell } from '@/shell/model.ts'
 
 import { chat_model } from './model.ts'
 import type {
@@ -64,7 +65,6 @@ function SessionSection () {
     const { agent_id, options } = use_agent_options()
     
     const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
-    const [status, set_status] = useState(0)
     const [sessions, set_sessions] = useState<ISession[]>([ ])
     const [summary_session, set_summary_session] = useState<ISession | null>(null)
     const [editing_session, set_editing_session] = useState<ISession | null>(null)
@@ -90,7 +90,6 @@ function SessionSection () {
         try {
             const result = await chat_model.list_sessions({
                 agentId: selected_agent_id,
-                status,
                 limit: 100,
             })
             set_sessions(result.items)
@@ -104,19 +103,7 @@ function SessionSection () {
     useEffect(() => {
         if (selected_agent_id)
             load_sessions()
-    }, [selected_agent_id, status])
-    
-    async function archive_session (session_id: string) {
-        if (!session_id)
-            return
-        try {
-            await chat_model.archive_session(session_id)
-            message.success(t('已归档'))
-            await load_sessions()
-        } catch (error) {
-            show_error(error, t('归档失败'))
-        }
-    }
+    }, [selected_agent_id])
     
     
     async function delete_session (session_id: string) {
@@ -183,19 +170,22 @@ function SessionSection () {
         title_modal.open()
     }
     
+    
+    async function restore_session (session: ISession) {
+        if (chat_model.agent_id !== session.agentId) {
+            chat_model.select_agent(session.agentId)
+            await chat_model.ensure_biz_user()
+        }
+        chat_model.set({ sessions: [session, ...chat_model.sessions.filter(item => item.sessionId !== session.sessionId)] })
+        await shell.add_ai_tab(session.sessionId, session.title || t('新会话'))
+        chat_model.set({ settings_visible: false })
+        if (model.view !== 'shell')
+            model.goto('/shell/')
+    }
+    
     return <Section title={t('会话')}>
         <Space wrap>
             <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
-            <Select
-                style={{ width: 120 }}
-                value={status}
-                onChange={set_status}
-                options={[
-                    { value: 0, label: t('活跃') },
-                    { value: 1, label: t('已归档') },
-                    { value: -1, label: t('全部') },
-                ]}
-            />
             <Button loading={loading} onClick={load_sessions}>{t('刷新')}</Button>
         </Space>
         
@@ -211,12 +201,17 @@ function SessionSection () {
                 {
                     title: t('标题'),
                     dataIndex: 'title',
-                    render: (value: string) => <Text ellipsis style={{ maxWidth: 320 }}>{value}</Text>,
-                },
-                {
-                    title: t('状态'),
-                    width: 100,
-                    render: (_: unknown, session: ISession) => <Tag>{session.statusName || session.status}</Tag>,
+                    render: (value: string, session: ISession) => <Text
+                        ellipsis
+                        style={{ maxWidth: 320, cursor: 'pointer' }}
+                        onClick={async () => {
+                            try {
+                                await restore_session(session)
+                            } catch (error) {
+                                show_error(error, t('恢复会话失败'))
+                            }
+                        }}
+                    >{value}</Text>,
                 },
                 {
                     title: t('更新时间'),
@@ -226,13 +221,10 @@ function SessionSection () {
                 },
                 {
                     title: t('操作'),
-                    width: 280,
+                    width: 200,
                     render: (_: unknown, session: ISession) => <Space>
                         <Button size='small' onClick={() => { open_title_modal(session) }}>{t('改标题')}</Button>
                         <Button size='small' onClick={() => { open_summary_modal(session) }}>{t('生成摘要')}</Button>
-                        <Popconfirm title={t('归档后不可继续在该会话中发送消息，确定归档？')} onConfirm={() => archive_session(session.sessionId)}>
-                            <Button size='small' disabled={session.status === 1}>{t('归档')}</Button>
-                        </Popconfirm>
                         <Popconfirm title={t('确定删除此会话？')} onConfirm={() => delete_session(session.sessionId)}>
                             <Button danger size='small'>{t('删除')}</Button>
                         </Popconfirm>
@@ -1055,7 +1047,6 @@ function ContextPreviewSection () {
         }
         const result = await chat_model.list_sessions({
             agentId: selected_agent_id,
-            status: -1,
             limit: 100,
         })
         set_sessions(result.items)

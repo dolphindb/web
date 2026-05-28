@@ -417,6 +417,114 @@
                         display: flex
                         flex-direction: column
                         overflow: hidden
+                        position: relative
+
+                        .ai-workspace-toggle
+                            position: absolute
+                            top: 56px
+                            right: 0
+                            z-index: 31
+                            width: 32px
+                            min-height: 88px
+                            padding: 8px 4px
+                            border: 1px solid #d9d9d9
+                            border-right: 0
+                            border-radius: 6px 0 0 6px
+                            background: #fff
+                            color: #555
+                            display: flex
+                            flex-direction: column
+                            align-items: center
+                            justify-content: center
+                            gap: 6px
+                            cursor: pointer
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08)
+                            transition: right 0.18s ease, color 0.18s ease
+
+                            &.open
+                                right: 280px
+                                color: #1677ff
+
+                            span
+                                writing-mode: vertical-rl
+                                letter-spacing: 0
+                                font-size: 12px
+
+                        .ai-workspace-sidebar
+                            position: absolute
+                            top: 0
+                            right: 0
+                            bottom: 0
+                            z-index: 30
+                            width: 280px
+                            background: #fff
+                            border-left: 1px solid #f0f0f0
+                            box-shadow: -4px 0 14px rgba(0, 0, 0, 0.08)
+                            transform: translateX(100%)
+                            transition: transform 0.18s ease
+                            display: flex
+                            flex-direction: column
+
+                            &.open
+                                transform: translateX(0)
+
+                        .ai-workspace-header
+                            height: 40px
+                            padding: 0 10px 0 12px
+                            border-bottom: 1px solid #f0f0f0
+                            display: flex
+                            align-items: center
+                            justify-content: space-between
+
+                        .ai-workspace-body
+                            flex: 1
+                            min-height: 0
+                            overflow: auto
+                            padding: 10px
+
+                        .ai-workspace-loading
+                            height: 120px
+                            display: flex
+                            align-items: center
+                            justify-content: center
+
+                        .ai-workspace-file-list
+                            display: flex
+                            flex-direction: column
+                            gap: 4px
+
+                        .ai-workspace-file
+                            width: 100%
+                            min-height: 34px
+                            border: 0
+                            border-radius: 6px
+                            padding: 6px 8px
+                            background: transparent
+                            display: flex
+                            align-items: center
+                            gap: 8px
+                            cursor: pointer
+                            text-align: left
+                            color: #333
+
+                            &:hover
+                                background: #f5f5f5
+
+                            .anticon
+                                color: #8c8c8c
+                                flex-shrink: 0
+
+                        .ai-workspace-file-name
+                            min-width: 0
+                            flex: 1
+                            overflow: hidden
+                            text-overflow: ellipsis
+                            white-space: nowrap
+                            font-size: 13px
+
+                        .ai-workspace-file-size
+                            flex-shrink: 0
+                            font-size: 12px
 
                         .ai-todo-list
                             background: #fafafa
@@ -603,6 +711,9 @@
                         flex-direction: column
                         align-items: center
                         justify-content: center
+
+                    .ai-workspace-editor
+                        height: 560px
 
             .right-panel
                 min-width: 0px

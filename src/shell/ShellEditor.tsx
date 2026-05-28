@@ -14,7 +14,7 @@ import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 import { chat_model } from '@/chat/model.ts'
 import type { ScriptExecuteApprovalMode } from '@/chat/model.ts'
 
-import { shell } from './model.ts'
+import { is_pending_ai_chat_id, shell } from './model.ts'
 import { AiTab } from './AiTab.tsx'
 
 import { SelectSqlModal } from './SelectSqlModal.tsx'
@@ -116,7 +116,7 @@ export function ShellEditor ({ collapser }) {
             tab.name = newName
             shell.set({ tabs: [...shell.tabs] })
             shell.save()
-            if (tab.chat_id)
+            if (tab.chat_id && !is_pending_ai_chat_id(tab.chat_id))
                 chat_model.update_session_title(tab.chat_id, newName)
                     .catch(error => { model.message?.error(error instanceof Error ? error.message : t('保存失败')) })
         }
@@ -165,8 +165,7 @@ export function ShellEditor ({ collapser }) {
                                 return
                             }
                             
-                            const session = await chat_model.create_session()
-                            await shell.add_ai_tab(session.sessionId)
+                            await shell.add_ai_tab(undefined, t('新会话'))
                         } catch (e) {
                             console.error('Failed to create AI tab:', e)
                             model.message?.error(t('创建 AI 标签页失败'))
@@ -437,6 +436,11 @@ function Tab ({
     let [name, set_name] = useState(initial_name)
     let [renaming, set_renaming] = useState(false)
     
+    useEffect(() => {
+        if (!renaming)
+            set_name(initial_name)
+    }, [initial_name, renaming])
+    
     function commit_rename () {
         onRename?.(name)
         set_renaming(false)
@@ -492,7 +496,7 @@ function AiToolbar ({
         sessions, agents, agent_id, selectable_llms, selected_llm_config_id, script_execute_approval_mode,
     } = chat_model.use(['sessions', 'agents', 'agent_id', 'selectable_llms', 'selected_llm_config_id', 'script_execute_approval_mode'])
     const session = sessions.find(s => s.sessionId === session_id)
-    const title = session?.title || t('新会话')
+    const title = session?.title || shell.tabs.find(item => item.chat_id === session_id)?.name || t('新会话')
     const [editing_title, set_editing_title] = useState(false)
     const [title_value, set_title_value] = useState(title)
     
@@ -500,6 +504,17 @@ function AiToolbar ({
         if (!editing_title)
             set_title_value(title)
     }, [title, editing_title])
+    
+    useEffect(() => {
+        if (!session?.title)
+            return
+        const tab = shell.tabs.find(item => item.chat_id === session_id)
+        if (tab && tab.name !== session.title) {
+            tab.name = session.title
+            shell.set({ tabs: [...shell.tabs] })
+            shell.save()
+        }
+    }, [session?.title, session_id])
     
     async function commit_title () {
         const next_title = title_value.trim()
@@ -513,6 +528,15 @@ function AiToolbar ({
             return
         }
         try {
+            if (is_pending_ai_chat_id(session_id)) {
+                const tab = shell.tabs.find(item => item.chat_id === session_id)
+                if (tab) {
+                    tab.name = next_title
+                    shell.set({ tabs: [...shell.tabs] })
+                    shell.save()
+                }
+                return
+            }
             await chat_model.update_session_title(session_id, next_title)
             const tab = shell.tabs.find(item => item.chat_id === session_id)
             if (tab) {

@@ -1,17 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
-
-import { Alert, Button, Checkbox, Input, Spin, Typography, Space, Collapse } from 'antd'
-import { SendOutlined, BulbOutlined, StopOutlined, CodeOutlined } from '@ant-design/icons'
+import { Alert, Button, Checkbox, Empty, Input, Modal, Spin, Tooltip, Typography, Space, Collapse } from 'antd'
+import { SendOutlined, BulbOutlined, StopOutlined, CodeOutlined, FileTextOutlined, FolderOpenOutlined, ReloadOutlined } from '@ant-design/icons'
 import { type DdbObj, type DdbValue, DdbForm } from 'dolphindb/browser.js'
-
 import { marked } from 'marked'
 
 import { t } from '@i18n'
 import { model } from '@model'
-
+import { Editor } from '@components/Editor/index.tsx'
 import { chat_model } from '@/chat/model.ts'
 import type { AgentStatus, IMessage, IToolCall } from '@/chat/model.ts'
-import type { IWorkspaceStep } from '@/chat/workspace.ts'
+import { chat_workspace_store, normalize_workspace_path } from '@/chat/workspace.ts'
+import type { IWorkspaceFile, IWorkspaceStep } from '@/chat/workspace.ts'
 import { ToolMessageRenderer } from '@/chat/ToolMessageRenderer.tsx'
 import {
     TOOL_LIKE_MESSAGE_TYPES,
@@ -28,16 +27,18 @@ import {
     normalize_args,
     get_arg_text,
     get_tool_result_print,
+    parse_tool_result_payload,
 } from '@/chat/utils/message.ts'
 import { parse_ddb_obj_from_content_object } from '@/chat/utils/ddb-object.ts'
 
-import { shell } from './model.ts'
+import { is_pending_ai_chat_id, shell } from './model.ts'
 
 
 const { Text } = Typography
 
 const AUTO_SCROLL_THRESHOLD = 50
 const AUTO_SCROLL_INTERVAL = 1000
+const WORKSPACE_FILE_MUTATION_TOOLS = new Set(['vfs_create', 'vfs_update', 'vfs_delete', 'skill_file_copy'])
 
 type MessageGroup =
     | { type: 'message', msg: IMessage, index: number }
@@ -74,14 +75,16 @@ function route_ddb_obj_to_dataview (obj: DdbObj<DdbValue>) {
 
 export function AiTab ({ session_id }: { session_id: string }) {
     const {
-        messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, sessions, pending_tool_loop_control, pending_script_approval, steps,
+        messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, pending_tool_loop_control, pending_script_approval, steps,
     } = chat_model.use([
-        'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'sessions', 'pending_tool_loop_control', 'pending_script_approval', 'steps',
+        'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'pending_tool_loop_control', 'pending_script_approval', 'steps',
     ])
     
     const [input_value, set_input_value] = useState('')
     const [inited, set_inited] = useState(false)
     const [init_error, set_init_error] = useState('')
+    const [creating_session, set_creating_session] = useState(false)
+    const pending_session = is_pending_ai_chat_id(session_id)
     
     const messages_ref = useRef<HTMLDivElement>(null)
     const should_auto_scroll = useRef(true)
@@ -106,7 +109,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 if (cancelled)
                     return
                     
-                if (current_session_id !== session_id)
+                if (!pending_session && current_session_id !== session_id)
                     await chat_model.select_session(session_id)
                     
                 set_inited(true)
@@ -118,18 +121,18 @@ export function AiTab ({ session_id }: { session_id: string }) {
         })()
         
         return () => { cancelled = true }
-    }, [session_id])
+    }, [session_id, pending_session])
     
     // When tab switches back, re-select the correct session
     useEffect(() => {
-        if (inited && current_session_id !== session_id)
+        if (inited && !pending_session && current_session_id !== session_id)
             chat_model.select_session(session_id)
                 .then(() => { set_init_error('') })
                 .catch(error => {
                     console.error(error)
                     set_init_error(error instanceof Error ? error.message : String(error))
                 })
-    }, [inited, session_id])
+    }, [inited, pending_session, session_id])
     
     // Auto-scroll periodic check
     useEffect(() => {
@@ -230,16 +233,30 @@ export function AiTab ({ session_id }: { session_id: string }) {
         last_scroll_top.current = current
     }
     
-    function handle_send () {
+    async function handle_send () {
         if (!input_value.trim())
+            return
+        if (creating_session)
             return
         if (!chat_model.is_ddb_connected()) {
             model.message?.warning(t('DolphinDB 连接已断开，无法发送消息'))
             return
         }
-        chat_model.send_message(input_value)
-        set_input_value('')
-        should_auto_scroll.current = true
+        const message = input_value.trim()
+        try {
+            if (pending_session) {
+                set_creating_session(true)
+                const session = await chat_model.create_session()
+                shell.bind_ai_tab_session(session_id, session.sessionId, session.title || t('新会话'))
+            }
+            chat_model.send_message(message)
+            set_input_value('')
+            should_auto_scroll.current = true
+        } catch (error) {
+            model.message?.error(error instanceof Error ? error.message : t('创建 AI 会话失败'))
+        } finally {
+            set_creating_session(false)
+        }
     }
     
     // Only show messages for our session
@@ -252,8 +269,6 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const visible_groups = group_messages(visible_messages, visible_script_approval?.messageId)
     const status_text = get_agent_status_text(visible_status)
     const has_virtual = visible_status.status !== 'idle' || visible_buffered.length > 0 || Boolean(visible_loop_control)
-    const session = sessions.find(item => item.sessionId === session_id)
-    const archived = session?.status === 1 || session?.statusName === 'ARCHIVED'
     const can_interrupt = current_session_id === session_id && !['idle', 'error'].includes(visible_status.status)
     
     if (!inited)
@@ -273,6 +288,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         </div>
         
     return <div className='ai-tab'>
+        {!pending_session && <WorkspaceSidebar session_id={session_id} current_session_id={current_session_id} messages={messages} />}
         <TodoList steps={visible_steps} />
         
         {/* Messages */}
@@ -342,12 +358,12 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     value={input_value}
                     onChange={e => { set_input_value(e.target.value) }}
                     onPressEnter={() => {
-                        if (input_value.trim() && !archived)
+                        if (input_value.trim())
                             handle_send()
                     }}
-                    placeholder={archived ? t('归档会话不可继续发送消息') : t('输入消息发送给助手...')}
+                    placeholder={t('输入消息发送给助手...')}
                     size='large'
-                    disabled={archived}
+                    disabled={creating_session}
                 />
                 {can_interrupt && <Button
                     danger
@@ -361,7 +377,8 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     type='primary'
                     size='large'
                     icon={<SendOutlined />}
-                    disabled={!input_value.trim() || archived}
+                    loading={creating_session}
+                    disabled={!input_value.trim() || creating_session}
                     onClick={handle_send}
                 >
                     {t('发送')}
@@ -369,6 +386,207 @@ export function AiTab ({ session_id }: { session_id: string }) {
             </Space.Compact>
         </div>
     </div>
+}
+
+
+function WorkspaceSidebar ({
+    session_id,
+    current_session_id,
+    messages,
+}: {
+    session_id: string
+    current_session_id: string
+    messages: IMessage[]
+}) {
+    const [visible, set_visible] = useState(false)
+    const [has_workspace, set_has_workspace] = useState(false)
+    const [files, set_files] = useState<IWorkspaceFile[]>([ ])
+    const [files_loading, set_files_loading] = useState(false)
+    const [files_error, set_files_error] = useState('')
+    const [opened_file, set_opened_file] = useState<IWorkspaceFile | null>(null)
+    const [file_loading, set_file_loading] = useState(false)
+    const list_request_ref = useRef(0)
+    const file_request_ref = useRef(0)
+    const last_message_id_ref = useRef('')
+    
+    async function refresh_files ({ silent = false }: { silent?: boolean } = { }) {
+        const request_id = ++list_request_ref.current
+        if (!silent)
+            set_files_loading(true)
+        set_files_error('')
+        try {
+            const next_files = await chat_workspace_store.list_files(session_id, (path, options) => chat_model.api_fetch(path, options))
+            if (request_id === list_request_ref.current) {
+                const exists = next_files.length > 0
+                set_files(next_files)
+                set_has_workspace(exists)
+                if (!exists) {
+                    set_visible(false)
+                    set_opened_file(null)
+                } else if (opened_file && !next_files.some(file => normalize_workspace_path(file.path) === normalize_workspace_path(opened_file.path)))
+                    set_opened_file(null)
+            }
+        } catch (error) {
+            if (request_id === list_request_ref.current) {
+                set_has_workspace(false)
+                set_visible(false)
+                set_opened_file(null)
+                if (!silent)
+                    set_files_error(error instanceof Error ? error.message : String(error))
+            }
+        } finally {
+            if (request_id === list_request_ref.current)
+                set_files_loading(false)
+        }
+    }
+    
+    
+    async function open_file (path: string) {
+        const request_id = ++file_request_ref.current
+        set_file_loading(true)
+        try {
+            const file = await chat_workspace_store.get_file(session_id, (api_path, options) => chat_model.api_fetch(api_path, options), path)
+            if (request_id !== file_request_ref.current)
+                return
+            if (!file) {
+                model.message?.warning(t('文件不存在或已被删除'))
+                set_opened_file(null)
+                return
+            }
+            set_opened_file(file)
+        } catch (error) {
+            if (request_id === file_request_ref.current)
+                model.message?.error(error instanceof Error ? error.message : t('加载文件失败'))
+        } finally {
+            if (request_id === file_request_ref.current)
+                set_file_loading(false)
+        }
+    }
+    
+    
+    useEffect(() => {
+        set_files([ ])
+        set_files_error('')
+        set_has_workspace(false)
+        set_visible(false)
+        set_opened_file(null)
+        last_message_id_ref.current = ''
+        refresh_files({ silent: true })
+    }, [session_id])
+    
+    
+    useEffect(() => {
+        if (visible)
+            refresh_files()
+    }, [visible, session_id])
+    
+    
+    useEffect(() => {
+        if (current_session_id !== session_id)
+            return
+        
+        const last_message_id = messages[messages.length - 1]?.msgId || ''
+        if (!last_message_id)
+            return
+        
+        const last_seen_id = last_message_id_ref.current
+        if (!last_seen_id) {
+            last_message_id_ref.current = last_message_id
+            return
+        }
+        
+        const last_seen_index = messages.findIndex(message => message.msgId === last_seen_id)
+        const start_index = last_seen_index >= 0 ? last_seen_index + 1 : 0
+        last_message_id_ref.current = last_message_id
+        
+        let should_refresh_files = false
+        let should_refresh_opened_file = false
+        const opened_path = normalize_workspace_path(opened_file?.path || '')
+        for (let index = start_index;  index < messages.length;  index++) {
+            const change = get_workspace_file_change(messages, index)
+            if (!change)
+                continue
+            should_refresh_files = true
+            if (opened_path && change.path && normalize_workspace_path(change.path) === opened_path)
+                should_refresh_opened_file = true
+        }
+        
+        if (should_refresh_files)
+            refresh_files({ silent: !visible })
+        if (should_refresh_opened_file && opened_file)
+            open_file(opened_file.path)
+    }, [messages, current_session_id, session_id, visible, opened_file?.path])
+    
+    if (!has_workspace)
+        return null
+    
+    return <>
+        <Tooltip title={visible ? t('关闭工作区') : t('打开工作区')}>
+            <button
+                type='button'
+                className={`ai-workspace-toggle ${visible ? 'open' : ''}`}
+                onClick={() => { set_visible(!visible) }}
+            >
+                <FolderOpenOutlined />
+                <span>{t('工作区')}</span>
+            </button>
+        </Tooltip>
+        <div className={`ai-workspace-sidebar ${visible ? 'open' : ''}`}>
+            <div className='ai-workspace-header'>
+                <Text strong>{t('工作区文件')}</Text>
+                <Button type='text' size='small' icon={<ReloadOutlined />} loading={files_loading} onClick={() => { refresh_files() }} />
+            </div>
+            <div className='ai-workspace-body'>
+                {files_error
+                    ? <Alert type='error' showIcon message={t('加载工作区失败')} description={files_error} />
+                    : files_loading
+                        ? <div className='ai-workspace-loading'><Spin /></div>
+                        : files.length === 0
+                            ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无文件')} />
+                            : <div className='ai-workspace-file-list'>
+                                {files.map(file =>
+                                    <button
+                                        type='button'
+                                        key={file.key}
+                                        className='ai-workspace-file'
+                                        onClick={() => { open_file(file.path) }}
+                                    >
+                                        <FileTextOutlined />
+                                        <span className='ai-workspace-file-name' title={file.path}>{file.path}</span>
+                                        {file.size !== undefined && <Text type='secondary' className='ai-workspace-file-size'>
+                                            {format_file_size(file.size)}
+                                        </Text>}
+                                    </button>
+                                )}
+                            </div>
+                }
+            </div>
+        </div>
+        <Modal
+            title={opened_file?.path || t('工作区文件')}
+            open={Boolean(opened_file)}
+            onCancel={() => { set_opened_file(null) }}
+            footer={null}
+            width={960}
+            destroyOnClose
+        >
+            <Spin spinning={file_loading}>
+                <div className='ai-workspace-editor'>
+                    <Editor
+                        readonly
+                        value={opened_file?.content || ''}
+                        height={560}
+                        minimap
+                        options={{
+                            wordWrap: 'on',
+                            scrollBeyondLastLine: false,
+                            automaticLayout: true,
+                        }}
+                    />
+                </div>
+            </Spin>
+        </Modal>
+    </>
 }
 
 
@@ -631,6 +849,99 @@ function get_tool_pairs (messages: IMessage[]) {
     }
     
     return pairs
+}
+
+
+function file_basename (path: string) {
+    return path.replace(/\\/g, '/').split('/').filter(Boolean).pop() || ''
+}
+
+
+function format_file_size (size: number) {
+    if (size < 1024)
+        return `${size} B`
+    if (size < 1024 * 1024)
+        return `${Math.round(size / 1024)} KB`
+    return `${(size / 1024 / 1024).toFixed(1)} MB`
+}
+
+
+function get_workspace_file_name_from_args (tool_name: string, args: unknown) {
+    const list = normalize_args(args)
+    const first = list[0]
+    const normalized = tool_name.trim()
+    if (first && typeof first === 'object' && !Array.isArray(first)) {
+        const obj = first as Record<string, unknown>
+        const keys = normalized === 'skill_file_copy'
+            ? ['target_path', 'targetPath', 'name', 'path']
+            : ['name', 'path', 'target_path', 'targetPath']
+        for (const key of keys) {
+            const value = to_message_text(obj[key]).trim()
+            if (value)
+                return value
+        }
+    }
+    
+    if (normalized === 'skill_file_copy')
+        return to_message_text(list[2]).trim() || file_basename(to_message_text(list[1]).trim())
+    return get_tool_file_name(args)
+}
+
+
+function get_workspace_file_name_from_result (tool_name: string, content: string) {
+    const result = parse_tool_result_payload(content)
+    const payload = result.payload
+    if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+        const obj = payload as Record<string, unknown>
+        const keys = tool_name === 'skill_file_copy'
+            ? ['targetPath', 'target_path', 'name', 'path']
+            : ['name', 'path', 'targetPath', 'target_path']
+        for (const key of keys) {
+            const value = to_message_text(obj[key]).trim()
+            if (value)
+                return value
+        }
+    }
+    
+    if (tool_name === 'vfs_delete') {
+        const match = /File deleted successfully:\s*(.+)$/i.exec(content.trim())
+        if (match?.[1])
+            return match[1].trim()
+    }
+    return ''
+}
+
+
+function find_related_tool_call (messages: IMessage[], result_index: number) {
+    const result = messages[result_index]
+    const call_id = result.tool_call_id
+    for (let index = result_index - 1;  index >= 0 && index >= result_index - 12;  index--) {
+        const candidate = messages[index]
+        if (candidate.messageType !== 'tool_call')
+            continue
+        if (!call_id || candidate.tool_calls?.some(tool_call => tool_call.id === call_id))
+            return candidate
+    }
+    return null
+}
+
+
+function get_workspace_file_change (messages: IMessage[], index: number) {
+    const message = messages[index]
+    if (message.messageType !== 'tool_result')
+        return null
+    
+    const tool_name = (message.name || parse_tool_result_payload(message.content).tool || '').trim()
+    if (!WORKSPACE_FILE_MUTATION_TOOLS.has(tool_name))
+        return null
+    
+    const call = find_related_tool_call(messages, index)
+    const parsed_call = call ? parse_tool_call(call) : null
+    const path = parsed_call
+        ? get_workspace_file_name_from_args(parsed_call.name, parsed_call.args)
+        : get_workspace_file_name_from_result(tool_name, message.content)
+    
+    return { tool_name, path }
 }
 
 

@@ -42,6 +42,14 @@ import { DdbVar } from './Variables.tsx'
 type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef } | { type: 'lineage' }
 
 
+export const PENDING_AI_CHAT_ID_PREFIX = 'pending-ai-'
+
+
+export function is_pending_ai_chat_id (chat_id?: string) {
+    return Boolean(chat_id?.startsWith(PENDING_AI_CHAT_ID_PREFIX))
+}
+
+
 class ShellModel extends Model<ShellModel> {
     language: DdbLanguage
     
@@ -109,6 +117,8 @@ class ShellModel extends Model<ShellModel> {
     
     /** 所有的 tabs */
     tabs: Tab[] = [ ]
+    
+    ai_session_tab_indices = new Map<string, number>()
     
     monaco_inited = false
     
@@ -514,34 +524,75 @@ class ShellModel extends Model<ShellModel> {
     
     
     /** 将当前标签页转为 AI 标签页，或新建一个 AI 标签页 */
-    async add_ai_tab (chat_id: string, name?: string) {
-        if (!this.monaco_inited)
-            return
+    async add_ai_tab (chat_id = `${PENDING_AI_CHAT_ID_PREFIX}${Date.now()}`, name?: string) {
+        if (!this.monaco_inited && this.tabs.length === 0)
+            this.init_tabs()
         
         // 检查是否已有该 chatId 的 AI 标签页
         const existing = this.tabs.find(t => t.chat_id === chat_id)
         if (existing) {
-            this.switch_tab(existing.index)
+            if (name && existing.name !== name) {
+                existing.name = name
+                this.set({ tabs: [...this.tabs] })
+                localStorage.setItem(`${storage_keys.code}.${existing.index}`, JSON.stringify(existing))
+            }
+            if (this.monaco_inited)
+                this.switch_tab(existing.index)
+            else {
+                this.set({ itab: existing.index })
+                localStorage.setItem(storage_keys.current_tab, existing.index.toString())
+            }
             return
         }
         
-        this.save()
+        if (this.monaco_inited)
+            this.save()
         const index_set = new Set(this.tabs.map(t => t.index))
         let new_tab_index = 1
         while (index_set.has(new_tab_index))
             new_tab_index++
         
         const tab_name = name || (t('AI 助手') + ' ' + new_tab_index)
+        const new_tab = {
+            name: tab_name,
+            code: '',
+            index: new_tab_index,
+            chat_id,
+        }
         this.set({
             itab: new_tab_index,
-            tabs: [...this.tabs, {
-                name: tab_name,
-                code: '',
-                index: new_tab_index,
-                chat_id,
-            }],
+            tabs: [...this.tabs, new_tab],
         })
-            this.editor?.setValue('')
+        localStorage.setItem(`${storage_keys.code}.${new_tab_index}`, JSON.stringify(new_tab))
+        localStorage.setItem(storage_keys.current_tab, new_tab_index.toString())
+        this.editor?.setValue('')
+    }
+    
+    
+    bind_ai_tab_session (old_chat_id: string, session_id: string, name?: string) {
+        const tab = this.tabs.find(t => t.chat_id === old_chat_id)
+        if (!tab)
+            return
+        tab.chat_id = session_id
+        this.ai_session_tab_indices.set(session_id, tab.index)
+        if (name)
+            tab.name = name
+        this.set({ tabs: [...this.tabs] })
+        localStorage.setItem(`${storage_keys.code}.${tab.index}`, JSON.stringify(tab))
+    }
+    
+    
+    update_ai_tab_title (session_id: string, title: string) {
+        let tab = this.tabs.find(t => t.chat_id === session_id)
+        if (!tab) {
+            const tab_index = this.ai_session_tab_indices.get(session_id)
+            tab = this.tabs.find(t => t.index === tab_index)
+        }
+        if (!tab || tab.name === title)
+            return
+        tab.name = title
+        this.set({ tabs: [...this.tabs] })
+        localStorage.setItem(`${storage_keys.code}.${tab.index}`, JSON.stringify(tab))
     }
     
     

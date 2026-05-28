@@ -2,6 +2,7 @@ import { Model } from 'react-object-model'
 
 import { t } from '@i18n'
 import { model, storage_keys } from '@model'
+import { shell } from '@/shell/model.ts'
 
 import { init_scripts } from './scripts/init.ts'
 import { get_script_handler } from './scripts/index.ts'
@@ -76,8 +77,8 @@ export interface ISession {
     agentId: string
     bizUserId: string
     title: string
-    status: number
-    statusName: string
+    status?: number
+    statusName?: string
     llmConfigId?: string
     createTime?: string
     updateTime?: string
@@ -974,7 +975,6 @@ class ChatModel extends Model<ChatModel> {
         const params = new URLSearchParams({
             agentId: this.agent_id,
             bizUserId: this.biz_user_id,
-            status: '0',
         })
         const result = await this.api_fetch(`/session/list?${params}`)
         const sessions: ISession[] = (result.items || [ ]).map((s: any) => ({
@@ -1101,6 +1101,9 @@ class ChatModel extends Model<ChatModel> {
             return
             
         this.abort_sse()
+        const session = this.sessions.find(s => s.sessionId === session_id) || await this.get_session(session_id)
+        if (!this.sessions.some(s => s.sessionId === session_id))
+            this.set({ sessions: [session, ...this.sessions] })
         
         this.set({
             current_session_id: session_id,
@@ -1110,7 +1113,7 @@ class ChatModel extends Model<ChatModel> {
             latest_ddb_result: null,
             script_execute_approval_mode: this.get_session_script_execute_approval_mode(session_id),
             // 同步会话级 LLM 选择
-            selected_llm_config_id: this.sessions.find(s => s.sessionId === session_id)?.llmConfigId || '',
+            selected_llm_config_id: session.llmConfigId || '',
         })
         
         await this.refresh_workspace_context(session_id)
@@ -1126,7 +1129,7 @@ class ChatModel extends Model<ChatModel> {
     
     
     async delete_session (session_id: string) {
-        await this.api_fetch(`/session/${session_id}/delete`, { method: 'POST' })
+        await this.api_fetch(`/session/${session_id}`, { method: 'DELETE' })
         const new_sessions = this.sessions.filter(s => s.sessionId !== session_id)
         
         if (this.current_session_id === session_id) {
@@ -1165,14 +1168,12 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    async list_sessions (params: { agentId?: string, targetUserId?: string, status?: number, offset?: number, limit?: number } = { }): Promise<{ items: ISession[], size: number, offset?: number, limit?: number }> {
+    async list_sessions (params: { agentId?: string, targetUserId?: string, offset?: number, limit?: number } = { }): Promise<{ items: ISession[], size: number, offset?: number, limit?: number }> {
         const search = new URLSearchParams()
         if (params.agentId)
             search.set('agentId', params.agentId)
         if (params.targetUserId)
             search.set('targetUserId', params.targetUserId)
-        if (params.status !== undefined)
-            search.set('status', String(params.status))
         if (params.offset !== undefined)
             search.set('offset', String(params.offset))
         if (params.limit !== undefined)
@@ -1185,16 +1186,6 @@ class ChatModel extends Model<ChatModel> {
         }
     }
     
-    
-    async archive_session (session_id: string): Promise<ISession> {
-        const result = this.map_session(await this.api_fetch(`/session/${session_id}/archive`, { method: 'POST' }))
-        this.set({
-            sessions: this.sessions.map(s => s.sessionId === session_id ? result : s)
-        })
-        return result
-    }
-    
-    
     async update_session_title (session_id: string, title: string) {
         await this.api_fetch(`/session/${session_id}`, {
             method: 'PUT',
@@ -1205,6 +1196,7 @@ class ChatModel extends Model<ChatModel> {
                 s.sessionId === session_id ? { ...s, title, updateTime: new Date().toISOString() } : s
             )
         })
+        shell.update_ai_tab_title(session_id, title)
     }
     
     
@@ -1669,11 +1661,6 @@ class ChatModel extends Model<ChatModel> {
             model.message?.warning(t('DolphinDB 连接已断开，无法发送消息'))
             return
         }
-        const current_session = this.sessions.find(session => session.sessionId === this.current_session_id)
-        if (current_session?.status === 1 || current_session?.statusName === 'ARCHIVED') {
-            model.message?.warning(t('归档会话不可继续发送消息'))
-            return
-        }
         
         if (this.agent_status.status !== 'idle' || this.sse_controller)
             this.interrupt_chat()
@@ -2018,11 +2005,6 @@ class ChatModel extends Model<ChatModel> {
     retry_last_message () {
         if (!this.current_session_id)
             return
-        const current_session = this.sessions.find(session => session.sessionId === this.current_session_id)
-        if (current_session?.status === 1 || current_session?.statusName === 'ARCHIVED') {
-            model.message?.warning(t('归档会话不可继续发送消息'))
-            return
-        }
         if (this.sse_controller)
             this.abort_sse()
             
