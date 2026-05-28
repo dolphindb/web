@@ -629,7 +629,7 @@ function TodoList ({ steps }: { steps: IWorkspaceStep[] }) {
 
 
 function is_tool_message (msg: IMessage) {
-    return TOOL_LIKE_MESSAGE_TYPES.has(msg.messageType ?? '')
+    return TOOL_LIKE_MESSAGE_TYPES.has(msg.messageType ?? '') && msg.messageType !== 'agent_error'
 }
 
 
