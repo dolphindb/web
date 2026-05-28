@@ -69,7 +69,6 @@ demo2.zip
     * [创建会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%9B%E5%BB%BA%E4%BC%9A%E8%AF%9D)
     * [获取会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E4%BC%9A%E8%AF%9D)
     * [更新会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E4%BC%9A%E8%AF%9D)
-    * [归档会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%BD%92%E6%A1%A3%E4%BC%9A%E8%AF%9D)
     * [删除会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4%E4%BC%9A%E8%AF%9D)
     * [列出会话](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E4%BC%9A%E8%AF%9D)
   * [2.3 Chat Completions](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.3-Chat-Completions)
@@ -219,7 +218,6 @@ demo2.zip
   * [渐进式加载模型（Progressive Disclosure）](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B8%90%E8%BF%9B%E5%BC%8F%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9E%8B%EF%BC%88Progressive-Disclosure%EF%BC%89)
   * [调用控制矩阵](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%B0%83%E7%94%A8%E6%8E%A7%E5%88%B6%E7%9F%A9%E9%98%B5)
   * [注册时的解析流程](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B3%A8%E5%86%8C%E6%97%B6%E7%9A%84%E8%A7%A3%E6%9E%90%E6%B5%81%E7%A8%8B)
-  * [ReasoningContent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#ReasoningContent)
 
 ## 1. 通用约定
 
@@ -397,13 +395,11 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 **响应:** [SessionInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#sessioninfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#sessioninfo")
 
-说明：请求体不接受 `userId`；会话 owner 固定为当前登录用户。
+说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
+* 请求体不接受 `userId`；会话 owner 固定为当前登录用户。
+* 请求体只接受表格中列出的字段。
+* `agentId` 必须对应可调用的 ACTIVE agent。
 
 ---
 
@@ -445,23 +441,9 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 至少提供一个可更新字段。
-* 只有 session owner 可更新；已删除会话不可更新。
-
-**响应:** [SessionInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#sessioninfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#sessioninfo")
-
----
-
-#### 归档会话
-
-`POST /agent-bus/v1/session/{sessionId}/archive `
-
-归档后的会话不可追加消息。
+* 只有 session owner 可更新。
+* 请求体只接受表格中列出的字段。
 
 **响应:** [SessionInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#sessioninfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#sessioninfo")
 
@@ -469,9 +451,19 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 #### 删除会话
 
-`POST /agent-bus/v1/session/{sessionId}/delete `
+`DELETE /agent-bus/v1/session/{sessionId} `
 
-**响应:** [SessionInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#sessioninfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#sessioninfo")（状态变为 DELETED）
+删除会话会物理删除会话行、消息行和对应 workspace 目录，并清理 session affinity 与 working memory。已写入的 LLM token usage 保留在独立账本中。
+
+**响应:**
+
+`{ "sessionId": "sess_001", "deleted": true } `
+
+说明：
+
+* 只有 session owner 可删除存在的会话。
+* 对不存在的 `sessionId` 返回 `deleted=true`。
+* 删除后 `GET /session/{sessionId}` 和 `GET /session/{sessionId}/messages` 返回 `BUS_SESSION_NOT_FOUND`。
 
 ---
 
@@ -499,11 +491,12 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 | -------------------- | -------- | -------------- | ----------------------------------------------------- |
 | `agentId`      | string | x-agent-id   | 按 Agent 过滤                                       |
 | `targetUserId` | string | 当前登录用户 | 只读过滤目标用户。仅`AGENT_ADMIN`可查看他人数据 |
-| `status`       | int    | -1（全部）   | 0=ACTIVE, 1=ARCHIVED, 2=DELETED                     |
 | `offset`       | int    | 0            |                                                     |
 | `limit`        | int    | 100          |                                                     |
 
 **响应:** `{ items: [SessionInfo, ...], offset, limit, size }`
+
+说明：查询参数和请求体只接受表格中列出的字段。
 
 ---
 
@@ -537,7 +530,7 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 ```
 
 | -------------------------------------------------------------- | ------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `sessionId`                                              | string            | 是       | 会话 ID，必须为 ACTIVE 状态                                                                                                              |
+| `sessionId`                                              | string            | 是       | 会话 ID，当前用户必须具备写权限                                                                                                          |
 | `message`                                                | string            | 条件必填 | 用户消息文本，会被自动追加到会话历史中。`message`和`toolResults`至少提供一个                                                     |
 | `toolResults`                                            | ToolResult[]      | 条件必填 | 工具执行结果列表，与`message`至少提供一个。框架自动追加为`role=tool`消息后调用 LLM 续传                                          |
 | `stream`                                                 | bool              | 否       | 是否流式返回（默认 true）。true 时返回 SSE 流，false 时返回完整 JSON                                                                     |
@@ -624,7 +617,7 @@ ToolResult 结构:
 ```
 
 | -------------------------------------------------------------- | ------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `sessionId`                                              | string            | 是       | 会话 ID，必须为 ACTIVE 状态                                                                                              |
+| `sessionId`                                              | string            | 是       | 会话 ID，当前用户必须具备写权限                                                                                          |
 | `message`                                                | string            | 条件必填 | 用户消息文本，与`toolResults`至少提供一个                                                                            |
 | `toolResults`                                            | ToolResult[]      | 条件必填 | 工具执行结果列表，与`message`至少提供一个                                                                            |
 | `stream`                                                 | bool              | 否       | 是否流式返回（默认 true）                                                                                                |
@@ -1055,7 +1048,7 @@ Workspace 是面向 coding agent 的会话级临时文本文件区。它用于�
 * Workspace 由 `sessionId` 定位，当前用户必须拥有该 session 的读写权限。
 * 文件在单个 session workspace 内平铺，不支持子目录。`name` 只能是普通文件名，不能包含 `/`、`\`、`..`，不能以 `.` 开头。
 * `read/search/write/replace` 只面向 UTF-8 文本文件；二进制文件不作为首版目标。
-* `ACTIVE` session 允许读写；`ARCHIVED` session 只允许 `list/read/search`；`DELETED` session 拒绝访问。
+* session 存在且权限校验通过时允许读写；session 删除后 workspace 目录随会话删除，workspace 接口返回 `BUS_SESSION_NOT_FOUND`。
 * 单 workspace 默认限制为 100 个文件、5 MiB 总大小、512 KiB 单文件大小。读取和搜索有服务端配置上限；写入和替换受单文件与 workspace 总配额限制。
 * 当请求到达非 workspace home node 时，服务端不会内部转发，而是返回 `WORKSPACE_REDIRECT` payload。客户端应使用同样的 method、query、body 和认证信息，向 `workspaceBaseUrl + retryPath` 重试。
 
@@ -1882,9 +1875,9 @@ ToolDefinition 结构:
 | `content`          | string | 否   | 消息内容，格式取决于 contentType                                                                                                                                                                                                                                                                                                                                                     |
 | `toolCallId`       | string | 否   | 工具调用关联 ID。contentType 为`tool_result`时必填，需与 assistant 返回的 tool\_call 中的 id 一致，LLM 据此将工具结果关联到对应的调用                                                                                                                                                                                                                                            |
 | `llmModel`         | string | 否   | 产生该消息的 LLM 模型名称（通常仅 assistant 消息需要填写）                                                                                                                                                                                                                                                                                                                           |
-| `promptTokens`     | int    | 否   | 输入 token 数（LLM 返回的 usage 统计），用于 token 消耗计量                                                                                                                                                                                                                                                                                                                          |
-| `completionTokens` | int    | 否   | 输出 token 数（LLM 返回的 usage 统计），用于 token 消耗计量                                                                                                                                                                                                                                                                                                                          |
-| `totalTokens`      | int    | 否   | 总 token 数（默认 prompt + completion），用于摘要与上下文 token 估算                                                                                                                                                                                                                                                                                                                 |
+| `promptTokens`     | int    | 否   | 输入 token 数（LLM 返回的 usage 统计）                                                                                                                                                                                                                                                                                                                                               |
+| `completionTokens` | int    | 否   | 输出 token 数（LLM 返回的 usage 统计）                                                                                                                                                                                                                                                                                                                                               |
+| `totalTokens`      | int    | 否   | 总 token 数（默认 prompt + completion）。assistant 和 summary 消息会按该值写入 LLM usage 账本                                                                                                                                                                                                                                                                                        |
 | `metadata`         | object | 否   | 自定义元数据，JSON 格式                                                                                                                                                                                                                                                                                                                                                              |
 
 **响应:** [MessageInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#messageinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#messageinfo")
@@ -2407,6 +2400,7 @@ ToolDefinition 结构:
 | `timeoutMs`          | int    | 否       | 单次请求超时时间（毫秒）                                                                                                                                                                                                                                                                                                                                                                    |
 | `retryConfig`        | object | 否       | 重试配置，详见[retryConfig 说明](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#retryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#retryconfig")           |
 | `enabled`            | bool   | 否       | 是否启用，默认`true`                                                                                                                                                                                                                                                                                                                                                                    |
+| `customData`         | string | 否       | 外部自定义数据，原样写入和返回；框架不解析、不参与运行时逻辑                                                                                                                                                                                                                                                                                                                                |
 | `extra`              | string | 否       | 预留扩展字段                                                                                                                                                                                                                                                                                                                                                                                |
 
 **响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
@@ -2509,6 +2503,7 @@ ToolDefinition 结构:
 | `timeoutMs`          | int    | 否             | 单次请求超时时间；必须为非负整数                                                    |
 | `retryConfig`        | object | 否             | 重试配置，整体替换                                                                  |
 | `enabled`            | bool   | 否             | 是否启用                                                                            |
+| `customData`         | string | 否             | 外部自定义数据，整体替换；空字符串表示清空                                          |
 | `extra`              | string | 否             | 预留扩展字段                                                                        |
 
 **响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
@@ -2541,7 +2536,7 @@ ToolDefinition 结构:
 * `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
 * `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 删除前要求不存在任何用户授权（`user_llm_access`）、任何 agent 绑定（`agent_llm_access`）、任何非 `DELETED` agent 的默认模型字段、任何非 `DELETED` agent 的 `contextConfig.summaryConfig.summaryLlmConfigId`，以及任何非 `DELETED` session 引用
+* 删除前要求不存在任何用户授权（`user_llm_access`）、任何 agent 绑定（`agent_llm_access`）、任何非 `DELETED` agent 的默认模型字段、任何非 `DELETED` agent 的 `contextConfig.summaryConfig.summaryLlmConfigId`，以及任何现存 session 的 `llmConfigId` 引用
 * 删除成功后不参与 list、get 和 runtime
 * 删除成功后的 GET 返回 404
 
@@ -3207,13 +3202,11 @@ ToolDefinition 结构:
 
 `{ "agentId": "agent_xxx", "userId": "alice", "startTime": 1711699200000, "endTime": 1711785600000, "totalPromptTokens": 50000, "totalCompletionTokens": 15000, "totalTokens": 65000, "requestCount": 100, "tokensByModel": { "gpt-4.1": 54000, "claude-sonnet-4": 11000 } } `
 
-说明：`tokensByModel` 的 value 为该模型累计 `totalTokens`。
+说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
+* `tokensByModel` 的 value 为该模型累计 `totalTokens`。
+* 统计来源是 `agent_llm_usage` 账本。
+* 删除会话和消息不影响已记录的 usage 聚合结果。
 
 ---
 
@@ -3742,6 +3735,7 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 | `retryConfig`        | object                                                                                                                                                                                                                                                                                                                                                                     | 重试配置：`maxRetries`（默认 3）、`initialDelayMs`（默认 1000）、`backoffMultiplier`（默认 2.0）、`maxDelayMs`（默认 30000）、`retryableStatusCodes`（默认 [429, 500, 502, 503]）        |
 | `enabled`            | bool                                                                                                                                                                                                                                                                                                                                                                       | 是否启用                                                                                                                                                                                                     |
 | `schemaVersion`      | int                                                                                                                                                                                                                                                                                                                                                                        | 行 Schema 版本号                                                                                                                                                                                             |
+| `customData`         | string                                                                                                                                                                                                                                                                                                                                                                     | 外部自定义数据，原样返回；框架不解析、不参与运行时逻辑                                                                                                                                                       |
 | `extra`              | string                                                                                                                                                                                                                                                                                                                                                                     | 预留扩展字段                                                                                                                                                                                                 |
 | `createTime`         | timestamp                                                                                                                                                                                                                                                                                                                                                                  | 创建时间                                                                                                                                                                                                     |
 | `updateTime`         | timestamp                                                                                                                                                                                                                                                                                                                                                                  | 最后更新时间                                                                                                                                                                                                 |
@@ -3806,25 +3800,23 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
   | 说明
 
 
-                                                                                                              |
+                                                                                         |
 ```
 
-| --------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `sessionId`     | string    | 全局唯一 ID，创建时自动生成                                                                                           |
-| `agentId`       | string    | 所属 Agent ID，创建时指定，不可变更                                                                                   |
-| `userId`        | string    | 所属 DolphinDB 用户 ID，创建时由当前登录用户确定，不可变更                                                            |
-| `llmConfigId`   | string    | 会话级 LLM 配置 ID。为空时继承 agent 默认模型；非空时必须属于当前用户在该 agent 下的有效可选集合                      |
-| `affinityNode`  | string    | 亲和节点（框架内部分配，不可由用户指定）。该会话的所有写请求会被路由到此节点                                          |
-| `title`         | string    | 会话标题，可通过 updateSession 修改                                                                                   |
-| `status`        | int       | 状态值：0=ACTIVE, 1=ARCHIVED, 2=DELETED                                                                               |
-| `statusName`    | string    | 状态名称：`ACTIVE`（活跃，可追加消息和调用 LLM）/`ARCHIVED`（归档，只读不可追加消息）/`DELETED`（已删除） |
-| `lastSeqNum`    | long      | 最后一条消息的序列号，每次追加消息后自动更新                                                                          |
-| `messageCount`  | int       | 消息总数（等于 lastSeqNum，每次追加消息后同步更新）                                                                   |
-| `metadata`      | object    | 自定义元数据，可通过 updateSession 修改，JSON 格式存储                                                                |
-| `schemaVersion` | int       | 行 Schema 版本号                                                                                                      |
-| `extra`         | string    | 预留扩展字段                                                                                                          |
-| `createTime`    | timestamp | 创建时间                                                                                                              |
-| `updateTime`    | timestamp | 最后更新时间（追加消息、更新元数据等操作均会刷新）                                                                    |
+| --------------------- | ----------- | -------------------------------------------------------------------------------------------------- |
+| `sessionId`     | string    | 全局唯一 ID，创建时自动生成                                                                      |
+| `agentId`       | string    | 所属 Agent ID，创建时指定，不可变更                                                              |
+| `userId`        | string    | 所属 DolphinDB 用户 ID，创建时由当前登录用户确定，不可变更                                       |
+| `llmConfigId`   | string    | 会话级 LLM 配置 ID。为空时继承 agent 默认模型；非空时必须属于当前用户在该 agent 下的有效可选集合 |
+| `affinityNode`  | string    | 亲和节点（框架内部分配，不可由用户指定）。该会话的所有写请求会被路由到此节点                     |
+| `title`         | string    | 会话标题，可通过 updateSession 修改                                                              |
+| `lastSeqNum`    | long      | 最后一条消息的序列号，每次追加消息后自动更新                                                     |
+| `messageCount`  | int       | 消息总数（等于 lastSeqNum，每次追加消息后同步更新）                                              |
+| `metadata`      | object    | 自定义元数据，可通过 updateSession 修改，JSON 格式存储                                           |
+| `schemaVersion` | int       | 行 Schema 版本号                                                                                 |
+| `extra`         | string    | 预留扩展字段                                                                                     |
+| `createTime`    | timestamp | 创建时间                                                                                         |
+| `updateTime`    | timestamp | 最后更新时间（追加消息、更新元数据等操作均会刷新）                                               |
 
 ---
 
@@ -3852,9 +3844,9 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 | `content`          | string    | 消息内容。格式取决于 contentType：text 和 tool\_result 为纯文本，tool\_call 为 JSON（`{"toolCalls":[...]}`或`[{...}]`），multimodal 为 JSON 数组（`[{"type":"text","text":"..."},{"type":"image_url","imageUrl":"..."}]`）                                                                                                                                                                                                                                                                                                      |
 | `toolCallId`       | string    | 工具调用关联 ID。contentType 为`tool_result`时必填，用于将工具执行结果关联到 assistant 发起的对应 tool\_call（同一个 toolCallId）                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `llmModel`         | string    | 产生该消息的 LLM 模型名称（如`gpt-4`），通常仅 assistant 消息和 summary 消息有此值                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `promptTokens`     | int       | 产生该消息时的输入 token 数（LLM 返回的 usage 统计），用于计量                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `completionTokens` | int       | 产生该消息时的输出 token 数（LLM 返回的 usage 统计），用于计量                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `totalTokens`      | int       | 总 token 数（通常等于 promptTokens + completionTokens），用于摘要与上下文 token 估算                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `promptTokens`     | int       | 产生该消息时的输入 token 数（LLM 返回的 usage 统计）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `completionTokens` | int       | 产生该消息时的输出 token 数（LLM 返回的 usage 统计）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `totalTokens`      | int       | 总 token 数（通常等于 promptTokens + completionTokens），用于摘要、上下文估算和 usage 账本写入                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `metadata`         | object    | 自定义元数据，JSON 格式                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `schemaVersion`    | int       | 行 Schema 版本号                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `extra`            | string    | 预留扩展字段                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
@@ -4269,7 +4261,6 @@ Workspace 业务错误通过上述 DataBus 错误 envelope 返回，具体原因
 | `invalid_text`         | 文件内容或 replacement 文本不是 UTF-8                         |
 | `file_not_found`       | workspace 文件不存在                                          |
 | `quota_exceeded`       | workspace 总大小、单文件大小或文件数量超过限制                |
-| `readonly_session`     | session 已归档或已删除，不允许写入                            |
 | `target_invalid`       | 目标不是 workspace 内的普通文件                               |
 
 ---
@@ -4331,7 +4322,7 @@ WebSocket 没有 URL 路径和 HTTP 方法，所以 HTTP 接口里的"路径参�
 1. `agentId`**​ 和 ​**`sessionId`​**​ 放到帧的顶层字段**​（因为它们是信封级字段，服务端有专门的解析路径）。
 2. **其它所有参数都放进 ​**`payload`，键名与 HTTP 文档里描述的字段名一致：
    * HTTP 路径里的 `{userId}` / `{memoryId}` / `{llmConfigId}` / `{skillId}` / `{skillName}` / `{id}` → 在 `payload` 里用对应字段（`userId` / `memoryId` / `llmConfigId` / `skillId` / `skillName`，而 `{id}` 按接口语义转成 `agentId` / `sessionId` / `skillId` / `memoryId` / `llmConfigId` 之一）
-   * HTTP 查询串里的 `?status=0&limit=100&offset=20` → 在 `payload` 里写 `"status": 0, "limit": 100, "offset": 20`
+   * HTTP 查询串里的 `?limit=100&offset=20` → 在 `payload` 里写 `"limit": 100, "offset": 20`
    * HTTP JSON 请求体字段 → 原样放进 `payload`
 
 同一个字段不能在"顶层 + payload"里同时出现且取值不同，否则服务端会以 `agentId in payload conflicts with ...` 之类的错误拒绝。
@@ -4350,11 +4341,11 @@ WebSocket：
 
 HTTP：
 
-`GET /agent-bus/v1/session/list?agentId=agent_xxx&status=0&limit=50&offset=0 `
+`GET /agent-bus/v1/session/list?agentId=agent_xxx&limit=50&offset=0 `
 
 WebSocket：
 
-`{ "type": "REQUEST", "requestId": "req_43", "action": "session.list", "agentId": "agent_xxx", "payload": { "status": 0, "limit": 50, "offset": 0 } } `
+`{ "type": "REQUEST", "requestId": "req_43", "action": "session.list", "agentId": "agent_xxx", "payload": { "limit": 50, "offset": 0 } } `
 
 **示例 3：路径参数 + 请求体**
 
@@ -4421,8 +4412,7 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 | `session.create`          | POST /session/create                      |
 | `session.get`             | GET /session/{id}                         |
 | `session.update`          | PUT /session/{id}                         |
-| `session.archive`         | POST /session/{id}/archive                |
-| `session.delete`          | POST /session/{id}/delete                 |
+| `session.delete`          | DELETE /session/{id}                      |
 | `session.list`            | GET /session/list                         |
 | `session.appendMessage`   | POST /session/{id}/message                |
 | `session.getMessages`     | GET /session/{id}/messages                |
@@ -4714,6 +4704,19 @@ You can use this skill to query DolphinDB distributed tables.
 
 |
 | -------------------------------- | ---------------------- | ---------------- | ------------ | ---------------------- |
+
+| `disable-model-invocation`
+
+| `user-invocable`
+
+| LLM 可自动发现
+
+| 用户可调用
+
+| 描述注入 Tier-1 目录
+
+|
+| -------------------------------- | ---------------------- | ---------------- | ------------ | ---------------------- |
 | false                          | true                 | 是             | 是         | 是                   |
 | false                          | false                | 是             | 否         | 是                   |
 | true                           | true                 | 否             | 是         | 否                   |
@@ -4731,7 +4734,3 @@ You can use this skill to query DolphinDB distributed tables.
 6. 校验 `name` 格式和唯一性（启用状态下不可重名）
 7. 合并 API 传入的 `overrides`（覆盖 frontmatter 同名字段）
 8. 写入存储，返回 [SkillInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo")
-
-### ReasoningContent
-
-`agent_session_message` 内部保存 provider 返回的 `reasoningContent`，用于审计和 DeepSeek 工具调用后的协议回放。默认 API 响应不暴露该列；调用方只能通过 `includeReasoning=true` 获取本次 LLM 响应流中的可见 `reasoning`。DeepSeek 回放仅对 `adapterType=deepseek` 生效。
