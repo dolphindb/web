@@ -76,8 +76,10 @@ function route_ddb_obj_to_dataview (obj: DdbObj<DdbValue>) {
 export function AiTab ({ session_id }: { session_id: string }) {
     const {
         messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, pending_tool_loop_control, pending_script_approval, steps,
+        tool_call_limit_enabled,
     } = chat_model.use([
         'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'pending_tool_loop_control', 'pending_script_approval', 'steps',
+        'tool_call_limit_enabled',
     ])
     
     const [input_value, set_input_value] = useState('')
@@ -346,6 +348,9 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         <Button type='primary' size='small' onClick={() => { chat_model.continue_tool_loop() }}>
                             {t('继续')}
                         </Button>
+                        {tool_call_limit_enabled && <Button size='small' onClick={() => { chat_model.ignore_tool_call_limit() }}>
+                            {t('继续且不再询问')}
+                        </Button>}
                     </Space>}
                 </div>}
             </div>

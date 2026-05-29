@@ -6881,6 +6881,18 @@
     "工具调用": {
         "en": "Tool Call"
     },
+    "工具调用已达到 {{count}} 轮，等待选择停止、继续或以后忽略。": {
+        "en": "Tool calls reached {{count}} turns. Choose stop, continue, or ignore in the future."
+    },
+    "工具调用限制已关闭": {
+        "en": "Tool call limit is disabled"
+    },
+    "继续且不再询问": {
+        "en": "Continue and do not ask again"
+    },
+    "支持原生 tool call": {
+        "en": "Native tool call support"
+    },
     "工具": {
         "en": "Tool"
     },

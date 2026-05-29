@@ -584,7 +584,7 @@ function AiToolbar ({
             allowClear
             style={{ minWidth: 120, maxWidth: 200, marginRight: 8 }}
             onChange={(value: string | undefined) => {
-                chat_model.set({ selected_llm_config_id: value || '' })
+                chat_model.select_llm_config(value || '')
             }}
             options={llm_options}
         />}

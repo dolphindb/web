@@ -137,6 +137,8 @@ export interface ILlmConfig {
     rateLimitRPM?: number
     timeoutMs?: number
     retryConfig?: Record<string, unknown>
+    customData?: string
+    custom?: Record<string, unknown>
     extra?: string
     enabled: boolean
     status: number
@@ -344,7 +346,7 @@ export interface IBuiltinInitResult {
 
 const AGENT_ID_KEY = 'ddb.chat.agent_id'
 const BIZ_USER_ID_KEY = 'ddb.chat.biz_user_id'
-const USE_NATIVE_TOOL_CALLING = true
+const TOOL_CALL_LIMIT_ENABLED_KEY = 'ddb.chat.tool_call_limit_enabled'
 
 /** 最大工具调用轮次，防止无限循环 */
 const MAX_TOOL_TURNS = 12
@@ -385,6 +387,32 @@ function parse_json_string (value: string): unknown {
     )
         try { return JSON.parse(trimmed) } catch { }
     return value
+}
+
+
+function normalize_json_object (value: unknown): Record<string, unknown> | undefined {
+    const parsed = typeof value === 'string' ? parse_json_string(value) : value
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))
+        return undefined
+    return parsed as Record<string, unknown>
+}
+
+
+function normalize_json_object_string (value: unknown): string | undefined {
+    if (typeof value === 'string')
+        return value
+    if (!normalize_json_object(value))
+        return undefined
+    try { return JSON.stringify(value) } catch { }
+    return undefined
+}
+
+
+function get_stored_boolean (key: string, fallback: boolean) {
+    const value = localStorage.getItem(key)
+    if (value === null)
+        return fallback
+    return value !== 'false'
 }
 
 
@@ -510,6 +538,10 @@ class ChatModel extends Model<ChatModel> {
     
     /** 用户显式选择的 LLM 配置 ID（不选则由后端使用 agent 默认） */
     selected_llm_config_id = ''
+    
+    use_native_tool_calling = true
+    
+    tool_call_limit_enabled = get_stored_boolean(TOOL_CALL_LIMIT_ENABLED_KEY, true)
     
     /** 最近一次工具执行产生的 DdbObj，用于直接路由到 DataView */
     latest_ddb_result: unknown = null
@@ -908,12 +940,34 @@ class ChatModel extends Model<ChatModel> {
             current_session_id: '',
             messages: [ ],
             selected_llm_config_id: '',
+            use_native_tool_calling: true,
             selectable_llms: [ ],
             latest_ddb_result: null,
         })
         localStorage.setItem(AGENT_ID_KEY, agent_id)
         // 异步加载新 agent 的可选 LLM 列表
         this.load_selectable_llms(agent_id)
+    }
+    
+    
+    get_llm_for_tool_call_mode (llm_config_id = this.selected_llm_config_id, llms = this.selectable_llms) {
+        if (llm_config_id)
+            return llms.find(llm => llm.llmConfigId === llm_config_id)
+        return llms.find(llm => llm.isAgentDefault) || llms[0]
+    }
+    
+    
+    should_use_native_tool_calling (llm_config_id = this.selected_llm_config_id, llms = this.selectable_llms) {
+        const llm = this.get_llm_for_tool_call_mode(llm_config_id, llms)
+        return llm?.custom?.tool_call !== false
+    }
+    
+    
+    select_llm_config (llm_config_id: string) {
+        this.set({
+            selected_llm_config_id: llm_config_id,
+            use_native_tool_calling: this.should_use_native_tool_calling(llm_config_id),
+        })
     }
     
     
@@ -1091,6 +1145,7 @@ class ChatModel extends Model<ChatModel> {
             script_execute_approval_mode: 'approval',
             // 新会话同步 LLM 选择（后端可能返回实际绑定的 llmConfigId）
             selected_llm_config_id: session.llmConfigId || '',
+            use_native_tool_calling: this.should_use_native_tool_calling(session.llmConfigId || ''),
         })
         return session
     }
@@ -1114,6 +1169,7 @@ class ChatModel extends Model<ChatModel> {
             script_execute_approval_mode: this.get_session_script_execute_approval_mode(session_id),
             // 同步会话级 LLM 选择
             selected_llm_config_id: session.llmConfigId || '',
+            use_native_tool_calling: this.should_use_native_tool_calling(session.llmConfigId || ''),
         })
         
         await this.refresh_workspace_context(session_id)
@@ -1502,7 +1558,10 @@ class ChatModel extends Model<ChatModel> {
     
     
     get_tool_call_adapter (): ToolCallAdapter {
-        return USE_NATIVE_TOOL_CALLING
+        const use_native_tool_calling = this.should_use_native_tool_calling()
+        if (use_native_tool_calling !== this.use_native_tool_calling)
+            this.set({ use_native_tool_calling })
+        return use_native_tool_calling
             ? native_tool_call_adapter
             : legacy_json_tool_call_adapter
     }
@@ -1627,9 +1686,22 @@ class ChatModel extends Model<ChatModel> {
             },
             agent_status: {
                 status: 'tool_running',
-                message: t('工具调用已达到 {{count}} 轮，等待选择停止或继续。', { count: this._tool_turn_limit }),
+                message: t('工具调用已达到 {{count}} 轮，等待选择停止、继续或以后忽略。', { count: this._tool_turn_limit }),
             },
         })
+    }
+    
+    
+    set_tool_call_limit_enabled (enabled: boolean) {
+        localStorage.setItem(TOOL_CALL_LIMIT_ENABLED_KEY, String(enabled))
+        this.set({ tool_call_limit_enabled: enabled })
+    }
+    
+    
+    ignore_tool_call_limit () {
+        this.set_tool_call_limit_enabled(false)
+        model.message?.success(t('工具调用限制已关闭'))
+        this.continue_tool_loop()
     }
     
     
@@ -1800,7 +1872,7 @@ class ChatModel extends Model<ChatModel> {
     
     
     async do_chat_completions (message: string, options: ChatCompletionOptions = { }, _tool_turn = 0, request_seq = this._active_request_seq) {
-        if (_tool_turn > this._tool_turn_limit) {
+        if (this.tool_call_limit_enabled && _tool_turn > this._tool_turn_limit) {
             this.request_tool_loop_decision(message, options, _tool_turn, request_seq)
             return
         }
@@ -2315,6 +2387,8 @@ class ChatModel extends Model<ChatModel> {
             rateLimitRPM: item.rateLimitRPM,
             timeoutMs: item.timeoutMs,
             retryConfig: item.retryConfig,
+            customData: normalize_json_object_string(item.customData ?? item.custom),
+            custom: normalize_json_object(item.customData ?? item.custom),
             extra: item.extra,
             enabled: get_enabled(item),
             status: get_status(item),
@@ -2444,6 +2518,7 @@ class ChatModel extends Model<ChatModel> {
         rateLimitRPM?: number
         timeoutMs?: number
         retryConfig?: Record<string, unknown>
+        customData?: string
         enabled?: boolean
         extra?: string
     }): Promise<ILlmConfig> {
@@ -2588,11 +2663,14 @@ class ChatModel extends Model<ChatModel> {
                 participatesInFallback: item.participatesInFallback ?? false,
                 fallbackPriority: item.fallbackPriority ?? null,
             }))
-            this.set({ selectable_llms: items })
+            this.set({
+                selectable_llms: items,
+                use_native_tool_calling: this.should_use_native_tool_calling(this.selected_llm_config_id, items),
+            })
             return items
         } catch {
             if (aid === this.agent_id)
-                this.set({ selectable_llms: [ ] })
+                this.set({ selectable_llms: [ ], use_native_tool_calling: true })
             return [ ]
         }
     }

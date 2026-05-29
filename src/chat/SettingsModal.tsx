@@ -192,6 +192,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
     const [all_skills, set_all_skills] = useState<ISkillInfo[]>([ ])
     const [loading, set_loading] = useState(true)
     const [saving_agent, set_saving_agent] = useState(false)
+    const [binding_tab_key, set_binding_tab_key] = useState('llm')
     const [agent_form, set_agent_form] = useState({
         description: agent.description || '',
         systemPrompt: agent.systemPrompt || '',
@@ -337,7 +338,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
         
         {loading
             ? <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
-            : <Tabs size='small' items={[
+            : <Tabs size='small' activeKey={binding_tab_key} onChange={set_binding_tab_key} items={[
                 {
                     key: 'llm',
                     label: t('模型绑定') + ` (${bound_llms.length})`,
@@ -576,6 +577,8 @@ const DEFAULT_CONFIG_FORM = {
     rateLimitRPM: undefined as number | undefined,
     timeoutMs: undefined as number | undefined,
     retryConfig: '',
+    nativeToolCall: true,
+    custom: { } as Record<string, unknown>,
 }
 
 
@@ -588,6 +591,11 @@ function parse_json_field (value: string, field_label: string): Record<string, u
         message.error(t('{{field}} JSON 格式错误', { field: field_label }))
         throw new Error('invalid json')
     }
+}
+
+
+function supports_native_tool_call (custom?: Record<string, unknown>) {
+    return custom?.tool_call !== false
 }
 
 
@@ -770,6 +778,8 @@ function LlmConfigTab () {
             rateLimitRPM: cfg.rateLimitRPM,
             timeoutMs: cfg.timeoutMs,
             retryConfig: cfg.retryConfig ? JSON.stringify(cfg.retryConfig, null, 2) : '',
+            nativeToolCall: supports_native_tool_call(cfg.custom),
+            custom: cfg.custom || { },
         })
     }
     
@@ -813,6 +823,7 @@ function LlmConfigTab () {
             rateLimitRPM: config_form.rateLimitRPM,
             timeoutMs: config_form.timeoutMs,
             retryConfig: retry_config,
+            customData: JSON.stringify({ ...config_form.custom, tool_call: config_form.nativeToolCall }),
         }
         if (is_embedding) {
             payload.embeddingDimension = config_form.embeddingDimension
@@ -831,6 +842,7 @@ function LlmConfigTab () {
             }
             set_config_modal_mode('closed')
             await load()
+            chat_model.load_selectable_llms().catch(() => { })
         } catch (e: any) {
             message.error(e.message || t('保存失败'))
         } finally {
@@ -1141,6 +1153,13 @@ function LlmConfigTab () {
                         min={1000}
                         step={1000}
                     />
+                </div>
+                <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Switch
+                        checked={config_form.nativeToolCall}
+                        onChange={checked => { set_config_form({ ...config_form, nativeToolCall: checked }) }}
+                    />
+                    <span style={{ fontSize: 13 }}>{t('支持原生 tool call')}</span>
                 </div>
                 {is_embedding_form && <>
                     <div>
