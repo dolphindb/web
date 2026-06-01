@@ -172,10 +172,8 @@ function SessionSection () {
     
     
     async function restore_session (session: ISession) {
-        if (chat_model.agent_id !== session.agentId) {
+        if (chat_model.agent_id !== session.agentId)
             chat_model.select_agent(session.agentId)
-            await chat_model.ensure_biz_user()
-        }
         chat_model.set({ sessions: [session, ...chat_model.sessions.filter(item => item.sessionId !== session.sessionId)] })
         await shell.add_ai_tab(session.sessionId, session.title || t('新会话'))
         chat_model.set({ settings_visible: false })
@@ -1066,10 +1064,9 @@ function ContextPreviewSection () {
         set_loading(true)
         try {
             set_preview(await chat_model.preview_context({
-                agentId: selected_agent_id,
                 sessionId: selected_session_id,
                 message: message_text.trim(),
-            }))
+            }, selected_agent_id))
         } catch (error) {
             show_error(error, t('加载上下文预览失败'))
         } finally {

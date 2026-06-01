@@ -31,7 +31,6 @@ function AgentTab () {
     const [selected_agent, set_selected_agent] = useState<IAgentInfo | null>(null)
     const [form, set_form] = useState({
         agentName: '',
-        agentType: 'chat',
         description: '',
         systemPrompt: '',
     })
@@ -71,13 +70,12 @@ function AgentTab () {
         try {
             await chat_model.register_agent({
                 agentName: form.agentName.trim(),
-                agentType: form.agentType,
                 description: form.description || undefined,
                 systemPrompt: form.systemPrompt || undefined,
             })
             message.success(t('Agent 创建成功'))
             set_creating(false)
-            set_form({ agentName: '', agentType: 'chat', description: '', systemPrompt: '' })
+            set_form({ agentName: '', description: '', systemPrompt: '' })
         } catch (e: any) {
             message.error(e.message || t('创建失败'))
         } finally {
@@ -120,7 +118,7 @@ function AgentTab () {
                                     {a.agentId === agent_id && <Tag color='blue' style={{ fontSize: 11 }}>{t('当前')}</Tag>}
                                 </div>
                                 <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>
-                                    {a.description || a.agentType}
+                                    {a.description}
                                 </div>
                             </div>
                         )
@@ -132,25 +130,13 @@ function AgentTab () {
         <div style={{ flex: 1, minWidth: 0, overflow: 'auto', padding: '0 16px' }}>
             {creating
                 ? <div style={{ padding: '16px 0' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
+                    <div style={{ display: 'grid', gap: '12px 16px' }}>
                         <div>
                             <div style={{ marginBottom: 4, fontSize: 13 }}>{t('Agent 名称')} *</div>
                             <Input
                                 value={form.agentName}
                                 onChange={e => { set_form({ ...form, agentName: e.target.value }) }}
                                 placeholder={t('例如: DolphinDB 助手')}
-                            />
-                        </div>
-                        <div>
-                            <div style={{ marginBottom: 4, fontSize: 13 }}>{t('类型')}</div>
-                            <Select
-                                style={{ width: '100%' }}
-                                value={form.agentType}
-                                onChange={val => { set_form({ ...form, agentType: val }) }}
-                                options={[
-                                    { value: 'chat', label: 'Chat' },
-                                    { value: 'task', label: 'Task' },
-                                ]}
                             />
                         </div>
                         <div style={{ gridColumn: '1 / -1' }}>
@@ -258,7 +244,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
             <div>
                 <div style={{ fontSize: 16, fontWeight: 500 }}>{agent.agentName}</div>
                 <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
-                    {agent.description || agent.agentType} · {agent.agentId.slice(0, 20)}...
+                    {agent.description ? `${agent.description} · ` : ''}{agent.agentId.slice(0, 20)}...
                 </div>
             </div>
             <Space size={4}>

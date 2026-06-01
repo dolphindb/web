@@ -75,7 +75,6 @@ export interface IToolCall {
 export interface ISession {
     sessionId: string
     agentId: string
-    bizUserId: string
     title: string
     status?: number
     statusName?: string
@@ -209,7 +208,6 @@ export interface ISkillBinding {
 export interface IAgentInfo {
     agentId: string
     agentName: string
-    agentType: string
     ownerUserId?: string
     description?: string
     systemPrompt?: string
@@ -345,7 +343,6 @@ export interface IBuiltinInitResult {
 
 
 const AGENT_ID_KEY = 'ddb.chat.agent_id'
-const BIZ_USER_ID_KEY = 'ddb.chat.biz_user_id'
 const TOOL_CALL_LIMIT_ENABLED_KEY = 'ddb.chat.tool_call_limit_enabled'
 
 /** 最大工具调用轮次，防止无限循环 */
@@ -505,8 +502,6 @@ init_scripts()
 
 class ChatModel extends Model<ChatModel> {
     agent_id = localStorage.getItem(AGENT_ID_KEY) || ''
-    
-    biz_user_id = localStorage.getItem(BIZ_USER_ID_KEY) || ''
     
     agents: IAgentInfo[] = [ ]
     
@@ -687,7 +682,6 @@ class ChatModel extends Model<ChatModel> {
             if (!this.agent_id)
                 return
                 
-            await this.ensure_biz_user()
             await Promise.all([
                 this.load_sessions(),
                 this.load_selectable_llms(),
@@ -706,7 +700,6 @@ class ChatModel extends Model<ChatModel> {
         return {
             agentId: a.agentId,
             agentName: a.agentName || a.agentId,
-            agentType: a.agentType || '',
             ownerUserId: a.ownerUserId,
             description: a.description,
             systemPrompt: a.systemPrompt,
@@ -770,7 +763,6 @@ class ChatModel extends Model<ChatModel> {
     /** 注册新 Agent 并激活 */
     async register_agent (params: {
         agentName: string
-        agentType: string
         description?: string
         systemPrompt?: string
     }): Promise<IAgentInfo> {
@@ -789,7 +781,6 @@ class ChatModel extends Model<ChatModel> {
         const agent: IAgentInfo = {
             agentId: activated.agentId || agent_id,
             agentName: activated.agentName || params.agentName,
-            agentType: activated.agentType || params.agentType,
             description: activated.description || params.description,
             systemPrompt: activated.systemPrompt || params.systemPrompt,
             status: activated.status ?? 1,
@@ -918,7 +909,7 @@ class ChatModel extends Model<ChatModel> {
     async grant_global_agent_admin (user_id: string): Promise<IAccessInfo[]> {
         const result = await this.api_fetch('/admin/access', {
             method: 'POST',
-            body: JSON.stringify({ userId: user_id, permission: 'AGENT_ADMIN' }),
+            body: JSON.stringify({ userId: user_id }),
         })
         return result.items || [ ]
     }
@@ -971,70 +962,14 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    async ensure_biz_user () {
-        // 尝试使用缓存的 biz_user_id
-        if (this.biz_user_id)
-            try {
-                await this.api_fetch(`/bizuser/${this.biz_user_id}`)
-                // 确保已授权
-                await this.grant_biz_user_access()
-                return
-            } catch {
-                this.set({ biz_user_id: '' })
-                localStorage.removeItem(BIZ_USER_ID_KEY)
-            }
-            
-        // 注册业务用户
-        try {
-            const result = await this.api_fetch('/bizuser/register', {
-                method: 'POST',
-                body: JSON.stringify({
-                    displayName: model.username || 'web_user'
-                })
-            })
-            this.set({ biz_user_id: result.bizUserId })
-            localStorage.setItem(BIZ_USER_ID_KEY, this.biz_user_id)
-        } catch (e: any) {
-            // 注册失败可能是已存在，尝试从 agent 的业务用户列表获取
-            console.warn('BizUser registration:', e.message)
-            try {
-                const result = await this.api_fetch(`/agent/${this.agent_id}/bizuser/list`)
-                const users = Array.isArray(result) ? result : (result?.items || [ ])
-                if (users.length > 0) {
-                    this.set({ biz_user_id: users[0].bizUserId })
-                    localStorage.setItem(BIZ_USER_ID_KEY, this.biz_user_id)
-                }
-            } catch { }
-        }
-        
-        await this.grant_biz_user_access()
-    }
-    
-    
-    async grant_biz_user_access () {
-        if (!this.agent_id || !this.biz_user_id)
-            return
-        try {
-            await this.api_fetch(`/agent/${this.agent_id}/bizuser/access`, {
-                method: 'POST',
-                body: JSON.stringify({ bizUserId: this.biz_user_id })
-            })
-        } catch {
-            // 已授权则忽略
-        }
-    }
-    
-    
     async load_sessions () {
         const params = new URLSearchParams({
             agentId: this.agent_id,
-            bizUserId: this.biz_user_id,
         })
         const result = await this.api_fetch(`/session/list?${params}`)
         const sessions: ISession[] = (result.items || [ ]).map((s: any) => ({
             sessionId: s.sessionId,
             agentId: s.agentId,
-            bizUserId: s.bizUserId,
             title: s.title || t('新会话'),
             status: s.status,
             statusName: s.statusName,
@@ -1109,7 +1044,6 @@ class ChatModel extends Model<ChatModel> {
     async create_session (): Promise<ISession> {
         const body: Record<string, any> = {
             agentId: this.agent_id,
-            bizUserId: this.biz_user_id,
             title: t('新会话'),
         }
         if (this.selected_llm_config_id)
@@ -1122,7 +1056,6 @@ class ChatModel extends Model<ChatModel> {
         const session: ISession = {
             sessionId: result.sessionId,
             agentId: result.agentId,
-            bizUserId: result.bizUserId,
             title: result.title || t('新会话'),
             status: result.status,
             statusName: result.statusName,
@@ -1208,7 +1141,6 @@ class ChatModel extends Model<ChatModel> {
         return {
             sessionId: s.sessionId,
             agentId: s.agentId,
-            bizUserId: s.bizUserId,
             title: s.title || t('新会话'),
             status: s.status,
             statusName: s.statusName,
@@ -1276,9 +1208,10 @@ class ChatModel extends Model<ChatModel> {
     }
     
     
-    async preview_context (params: Record<string, unknown>): Promise<any> {
+    async preview_context (params: Record<string, unknown>, agent_id?: string): Promise<any> {
         return this.api_fetch('/context/preview', {
             method: 'POST',
+            ...(agent_id ? { headers: { 'x-agent-id': agent_id } } : { }),
             body: JSON.stringify(params),
         })
     }
