@@ -500,7 +500,7 @@ function parse_sse_event (raw_event: string): { event: string, data: string } | 
 init_scripts()
 
 
-class ChatModel extends Model<ChatModel> {
+export class ChatModel extends Model<ChatModel> {
     agent_id = localStorage.getItem(AGENT_ID_KEY) || ''
     
     agents: IAgentInfo[] = [ ]
@@ -2915,6 +2915,31 @@ class ChatModel extends Model<ChatModel> {
     async set_skill_enabled (skill_id: string, enabled: boolean): Promise<void> {
         await this.update_skill(skill_id, undefined, { enabled })
     }
+}
+
+
+const chat_model_instances = new Map<string, ChatModel>()
+
+export function get_chat_model (session_id: string) {
+    if (!session_id)
+        return chat_model
+    
+    let chat = chat_model_instances.get(session_id)
+    if (!chat) {
+        chat = new ChatModel()
+        chat_model_instances.set(session_id, chat)
+    }
+    return chat
+}
+
+
+export function bind_chat_model_session (old_session_id: string, session_id: string) {
+    const chat = chat_model_instances.get(old_session_id)
+    if (!chat || old_session_id === session_id)
+        return
+    
+    chat_model_instances.delete(old_session_id)
+    chat_model_instances.set(session_id, chat)
 }
 
 

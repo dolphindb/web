@@ -7,8 +7,8 @@ import { marked } from 'marked'
 import { t } from '@i18n'
 import { model } from '@model'
 import { Editor } from '@components/Editor/index.tsx'
-import { chat_model } from '@/chat/model.ts'
-import type { AgentStatus, IMessage, IToolCall } from '@/chat/model.ts'
+import { bind_chat_model_session, get_chat_model } from '@/chat/model.ts'
+import type { AgentStatus, ChatModel, IMessage, IToolCall } from '@/chat/model.ts'
 import { chat_workspace_store, normalize_workspace_path } from '@/chat/workspace.ts'
 import type { IWorkspaceFile, IWorkspaceStep } from '@/chat/workspace.ts'
 import { ToolMessageRenderer } from '@/chat/ToolMessageRenderer.tsx'
@@ -74,10 +74,11 @@ function route_ddb_obj_to_dataview (obj: DdbObj<DdbValue>) {
 
 
 export function AiTab ({ session_id }: { session_id: string }) {
+    const chat = get_chat_model(session_id)
     const {
         messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, pending_tool_loop_control, pending_script_approval, steps,
         tool_call_limit_enabled,
-    } = chat_model.use([
+    } = chat.use([
         'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'pending_tool_loop_control', 'pending_script_approval', 'steps',
         'tool_call_limit_enabled',
     ])
@@ -99,20 +100,20 @@ export function AiTab ({ session_id }: { session_id: string }) {
         ;(async () => {
             try {
                 set_init_error('')
-                if (!chat_model.agent_id)
-                    await chat_model.init()
-                else if (chat_model.agents.length === 0)
-                    await chat_model.load_agents()
+                if (!chat.agent_id)
+                    await chat.init()
+                else if (chat.agents.length === 0)
+                    await chat.load_agents()
                     
                 // 确保可选 LLM 已加载
-                if (chat_model.agent_id && chat_model.selectable_llms.length === 0)
-                    await chat_model.load_selectable_llms()
+                if (chat.agent_id && chat.selectable_llms.length === 0)
+                    await chat.load_selectable_llms()
                     
                 if (cancelled)
                     return
                     
                 if (!pending_session && current_session_id !== session_id)
-                    await chat_model.select_session(session_id)
+                    await chat.select_session(session_id)
                     
                 set_inited(true)
             } catch (e) {
@@ -123,18 +124,18 @@ export function AiTab ({ session_id }: { session_id: string }) {
         })()
         
         return () => { cancelled = true }
-    }, [session_id, pending_session])
+    }, [chat, session_id, pending_session])
     
     // When tab switches back, re-select the correct session
     useEffect(() => {
         if (inited && !pending_session && current_session_id !== session_id)
-            chat_model.select_session(session_id)
+            chat.select_session(session_id)
                 .then(() => { set_init_error('') })
                 .catch(error => {
                     console.error(error)
                     set_init_error(error instanceof Error ? error.message : String(error))
                 })
-    }, [inited, pending_session, session_id])
+    }, [chat, inited, pending_session, session_id])
     
     // Auto-scroll periodic check
     useEffect(() => {
@@ -240,7 +241,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
             return
         if (creating_session)
             return
-        if (!chat_model.is_ddb_connected()) {
+        if (!chat.is_ddb_connected()) {
             model.message?.warning(t('DolphinDB 连接已断开，无法发送消息'))
             return
         }
@@ -248,10 +249,11 @@ export function AiTab ({ session_id }: { session_id: string }) {
         try {
             if (pending_session) {
                 set_creating_session(true)
-                const session = await chat_model.create_session()
+                const session = await chat.create_session()
+                bind_chat_model_session(session_id, session.sessionId)
                 shell.bind_ai_tab_session(session_id, session.sessionId, session.title || t('新会话'))
             }
-            chat_model.send_message(message)
+            chat.send_message(message)
             set_input_value('')
             should_auto_scroll.current = true
         } catch (error) {
@@ -290,7 +292,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         </div>
         
     return <div className='ai-tab'>
-        {!pending_session && <WorkspaceSidebar session_id={session_id} current_session_id={current_session_id} messages={messages} />}
+        {!pending_session && <WorkspaceSidebar chat={chat} session_id={session_id} current_session_id={current_session_id} messages={messages} />}
         <TodoList steps={visible_steps} />
         
         {/* Messages */}
@@ -308,7 +310,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         </div>
                         
                     if (group.type === 'tools')
-                        return <ToolMessageGroup key={`tools-${group.start_index}-${group.end_index}`} group={group} is_last={is_last} />
+                        return <ToolMessageGroup key={`tools-${group.start_index}-${group.end_index}`} chat={chat} group={group} is_last={is_last} />
                         
                     const msg = group.msg
                     const prev = group.index > 0 ? visible_messages[group.index - 1] : null
@@ -320,6 +322,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         next={next}
                         is_last={is_last}
                         agent_status={visible_status.status}
+                        chat={chat}
                     />
                 })}
                 
@@ -342,13 +345,13 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         <Text type='secondary' style={{ fontSize: 12 }}>{status_text}</Text>
                     </div>}
                     {visible_loop_control && <Space style={{ marginTop: 8 }} wrap>
-                        <Button danger size='small' icon={<StopOutlined />} onClick={() => { chat_model.interrupt_chat() }}>
+                        <Button danger size='small' icon={<StopOutlined />} onClick={() => { chat.interrupt_chat() }}>
                             {t('停止')}
                         </Button>
-                        <Button type='primary' size='small' onClick={() => { chat_model.continue_tool_loop() }}>
+                        <Button type='primary' size='small' onClick={() => { chat.continue_tool_loop() }}>
                             {t('继续')}
                         </Button>
-                        {tool_call_limit_enabled && <Button size='small' onClick={() => { chat_model.ignore_tool_call_limit() }}>
+                        {tool_call_limit_enabled && <Button size='small' onClick={() => { chat.ignore_tool_call_limit() }}>
                             {t('继续且不再询问')}
                         </Button>}
                     </Space>}
@@ -374,7 +377,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     danger
                     size='large'
                     icon={<StopOutlined />}
-                    onClick={() => { chat_model.interrupt_chat() }}
+                    onClick={() => { chat.interrupt_chat() }}
                 >
                     {t('中断')}
                 </Button>}
@@ -395,10 +398,12 @@ export function AiTab ({ session_id }: { session_id: string }) {
 
 
 function WorkspaceSidebar ({
+    chat,
     session_id,
     current_session_id,
     messages,
 }: {
+    chat: ChatModel
     session_id: string
     current_session_id: string
     messages: IMessage[]
@@ -420,7 +425,7 @@ function WorkspaceSidebar ({
             set_files_loading(true)
         set_files_error('')
         try {
-            const next_files = await chat_workspace_store.list_files(session_id, (path, options) => chat_model.api_fetch(path, options))
+            const next_files = await chat_workspace_store.list_files(session_id, (path, options) => chat.api_fetch(path, options))
             if (request_id === list_request_ref.current) {
                 const exists = next_files.length > 0
                 set_files(next_files)
@@ -450,7 +455,7 @@ function WorkspaceSidebar ({
         const request_id = ++file_request_ref.current
         set_file_loading(true)
         try {
-            const file = await chat_workspace_store.get_file(session_id, (api_path, options) => chat_model.api_fetch(api_path, options), path)
+            const file = await chat_workspace_store.get_file(session_id, (api_path, options) => chat.api_fetch(api_path, options), path)
             if (request_id !== file_request_ref.current)
                 return
             if (!file) {
@@ -1011,7 +1016,7 @@ function get_tool_command_preview (pair: ReturnType<typeof get_tool_pairs>[numbe
 }
 
 
-function ToolMessageGroup ({ group, is_last }: { group: Extract<MessageGroup, { type: 'tools' }>, is_last: boolean }) {
+function ToolMessageGroup ({ chat, group, is_last }: { chat: ChatModel, group: Extract<MessageGroup, { type: 'tools' }>, is_last: boolean }) {
     const pairs = get_tool_pairs(group.messages)
  
     return <div
@@ -1053,6 +1058,7 @@ function ToolMessageGroup ({ group, is_last }: { group: Extract<MessageGroup, { 
                                             next={msg_index < pair.messages.length - 1 ? pair.messages[msg_index + 1] : null}
                                             is_last={msg_index === pair.messages.length - 1}
                                             agent_status='idle'
+                                            chat={chat}
                                         />
                                     })}
                                 </div>,
@@ -1067,12 +1073,14 @@ function ToolMessageGroup ({ group, is_last }: { group: Extract<MessageGroup, { 
 
 
 function AiMessageRow ({
+    chat,
     msg,
     prev,
     next,
     is_last,
     agent_status,
 }: {
+    chat: ChatModel
     msg: IMessage
     prev: IMessage | null
     next: IMessage | null
@@ -1186,6 +1194,7 @@ function AiMessageRow ({
                 previous_tool_call={previous_tool_call}
                 structured_payload={structured_payload}
                 collapse_key_suffix={collapse_key}
+                chat={chat}
             />
             : msg.content.trim() && (
                 msg.role === 'user'

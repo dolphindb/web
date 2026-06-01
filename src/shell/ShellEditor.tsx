@@ -11,7 +11,7 @@ import { model, storage_keys } from '@model'
 
 import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 
-import { chat_model } from '@/chat/model.ts'
+import { chat_model, get_chat_model } from '@/chat/model.ts'
 import type { ScriptExecuteApprovalMode } from '@/chat/model.ts'
 
 import { is_pending_ai_chat_id, shell } from './model.ts'
@@ -117,7 +117,7 @@ export function ShellEditor ({ collapser }) {
             shell.set({ tabs: [...shell.tabs] })
             shell.save()
             if (tab.chat_id && !is_pending_ai_chat_id(tab.chat_id))
-                chat_model.update_session_title(tab.chat_id, newName)
+                get_chat_model(tab.chat_id).update_session_title(tab.chat_id, newName)
                     .catch(error => { model.message?.error(error instanceof Error ? error.message : t('保存失败')) })
         }
     }
@@ -249,6 +249,7 @@ export function ShellEditor ({ collapser }) {
         </div> }
         
         { monaco_inited && is_ai_tab && <AiToolbar
+            key={`ai-toolbar-${current_tab.chat_id}`}
             session_id={current_tab.chat_id}
             collapsed={collapsed}
             on_toggle_collapsed={() => {
@@ -257,7 +258,7 @@ export function ShellEditor ({ collapser }) {
             }}
         /> }
         
-        {is_ai_tab && <AiTab session_id={current_tab.chat_id} />}
+        {is_ai_tab && <AiTab key={current_tab.chat_id} session_id={current_tab.chat_id} />}
         <div style={is_ai_tab ? { display: 'none' } : { flex: 1, minHeight: 0 }}>
             <Editor
             readonly={readonly}
@@ -492,9 +493,10 @@ function AiToolbar ({
     collapsed: boolean
     on_toggle_collapsed: () => void
 }) {
+    const chat = get_chat_model(session_id)
     const {
         sessions, agents, agent_id, selectable_llms, selected_llm_config_id, script_execute_approval_mode,
-    } = chat_model.use(['sessions', 'agents', 'agent_id', 'selectable_llms', 'selected_llm_config_id', 'script_execute_approval_mode'])
+    } = chat.use(['sessions', 'agents', 'agent_id', 'selectable_llms', 'selected_llm_config_id', 'script_execute_approval_mode'])
     const session = sessions.find(s => s.sessionId === session_id)
     const title = session?.title || shell.tabs.find(item => item.chat_id === session_id)?.name || t('新会话')
     const [editing_title, set_editing_title] = useState(false)
@@ -537,7 +539,7 @@ function AiToolbar ({
                 }
                 return
             }
-            await chat_model.update_session_title(session_id, next_title)
+            await chat.update_session_title(session_id, next_title)
             const tab = shell.tabs.find(item => item.chat_id === session_id)
             if (tab) {
                 tab.name = next_title
@@ -584,7 +586,7 @@ function AiToolbar ({
             allowClear
             style={{ minWidth: 120, maxWidth: 200, marginRight: 8 }}
             onChange={(value: string | undefined) => {
-                chat_model.select_llm_config(value || '')
+                chat.select_llm_config(value || '')
             }}
             options={llm_options}
         />}
@@ -594,7 +596,7 @@ function AiToolbar ({
                 size='small'
                 value={script_execute_approval_mode}
                 style={{ minWidth: 110, marginRight: 8 }}
-                onChange={(value: ScriptExecuteApprovalMode) => { chat_model.set_script_execute_approval_mode(value) }}
+                onChange={(value: ScriptExecuteApprovalMode) => { chat.set_script_execute_approval_mode(value) }}
                 options={[
                     { value: 'approval', label: t('需要审批') },
                     { value: 'auto', label: t('自动执行') },
@@ -609,8 +611,8 @@ function AiToolbar ({
             style={{ minWidth: 120, maxWidth: 200, marginRight: 8 }}
             disabled={active_agents.length <= 1}
             onChange={async (value: string) => {
-                chat_model.select_agent(value)
-                await chat_model.load_sessions()
+                chat.select_agent(value)
+                await chat.load_sessions()
             }}
             options={active_agents.map(a => ({
                 value: a.agentId,

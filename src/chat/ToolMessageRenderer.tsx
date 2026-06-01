@@ -5,8 +5,7 @@ import { marked } from 'marked'
 import { t } from '@i18n'
 import { shell } from '@/shell/model.ts'
 
-import { chat_model } from './model.ts'
-import type { IMessage } from './model.ts'
+import type { ChatModel, IMessage } from './model.ts'
 import {
     type ToolCallViewModel,
     normalize_args,
@@ -97,6 +96,7 @@ const PRINT_STYLE: React.CSSProperties = {
 
 
 interface ToolRendererProps {
+    chat: ChatModel
     message: IMessage
     tool_name: string
     current_tool_call: ToolCallViewModel | null
@@ -279,7 +279,7 @@ function create_rerun_button (tool_name: string, script: string) {
 }
 
 
-function ScriptApprovalActions () {
+function ScriptApprovalActions ({ chat }: { chat: ChatModel }) {
     return <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -298,20 +298,20 @@ function ScriptApprovalActions () {
             <Button
                 size='small'
                 danger
-                onClick={() => { chat_model.resolve_script_execution_approval('deny') }}
+                onClick={() => { chat.resolve_script_execution_approval('deny') }}
             >
                 {t('不允许')}
             </Button>
             <Button
                 size='small'
-                onClick={() => { chat_model.resolve_script_execution_approval('allow_session') }}
+                onClick={() => { chat.resolve_script_execution_approval('allow_session') }}
             >
                 {t('允许且此会话默认允许')}
             </Button>
             <Button
                 size='small'
                 type='primary'
-                onClick={() => { chat_model.resolve_script_execution_approval('allow') }}
+                onClick={() => { chat.resolve_script_execution_approval('allow') }}
             >
                 {t('允许')}
             </Button>
@@ -452,8 +452,8 @@ function render_outcome_detail (message: IMessage, structured_payload: Record<st
 
 
 function ExecuteLikeRenderer (props: ToolRendererProps) {
-    const { args, message, structured_payload, collapse_key_suffix, tool_name } = props
-    const { pending_script_approval } = chat_model.use(['pending_script_approval'])
+    const { args, chat, message, structured_payload, collapse_key_suffix, tool_name } = props
+    const { pending_script_approval } = chat.use(['pending_script_approval'])
     const script = get_arg_text(args, 0, ['script'])
     const is_waiting_approval = pending_script_approval?.messageId === message.msgId
     
@@ -462,7 +462,7 @@ function ExecuteLikeRenderer (props: ToolRendererProps) {
             {script
                 ? <>
                     {create_code_view(script, is_waiting_approval ? null : create_rerun_button(tool_name, script))}
-                    {is_waiting_approval && <ScriptApprovalActions />}
+                    {is_waiting_approval && <ScriptApprovalActions chat={chat} />}
                 </>
                 : <SummaryBox
                     rows={[{ label: t('脚本'), value: to_preview_text(args, 160) }]}
@@ -877,7 +877,7 @@ function FallbackRenderer (props: ToolRendererProps) {
 }
 
 
-function AgentErrorRenderer ({ message }: ToolRendererProps) {
+function AgentErrorRenderer ({ chat, message }: ToolRendererProps) {
     const content = message.content.trim() || t('助手执行出现错误')
     return <div
         style={{
@@ -890,7 +890,7 @@ function AgentErrorRenderer ({ message }: ToolRendererProps) {
         }}
     >
         <Text type='danger'>{content}</Text>
-        <Button size='small' icon={<RedoOutlined />} onClick={() => { chat_model.retry_last_message() }}>
+        <Button size='small' icon={<RedoOutlined />} onClick={() => { chat.retry_last_message() }}>
             {t('重试')}
         </Button>
     </div>
@@ -938,6 +938,7 @@ function resolve_args (current_tool_call: ToolCallViewModel | null, previous_too
 
 
 export interface ToolMessageRendererProps {
+    chat: ChatModel
     message: IMessage
     tool_name: string
     current_tool_call: ToolCallViewModel | null
@@ -948,6 +949,7 @@ export interface ToolMessageRendererProps {
 
 
 export function ToolMessageRenderer ({
+    chat,
     message,
     tool_name,
     current_tool_call,
@@ -963,6 +965,7 @@ export function ToolMessageRenderer ({
     const natural_text = !is_outcome ? get_tool_message_natural_text(message, structured_payload) : ''
     
     const renderer_props: ToolRendererProps = {
+        chat,
         message,
         tool_name,
         current_tool_call,

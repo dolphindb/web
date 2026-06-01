@@ -8,7 +8,7 @@ import { model } from '@model'
 import { access } from '@/access/model.ts'
 import { shell } from '@/shell/model.ts'
 
-import { chat_model } from './model.ts'
+import { chat_model, get_chat_model } from './model.ts'
 import type {
     IAccessInfo, ILlmConfig, ILlmUsageStats, IMemoryEntry, ISession, ISkillInfo, IUserLlmAccessInfo,
 } from './model.ts'
@@ -175,6 +175,11 @@ function SessionSection () {
         if (chat_model.agent_id !== session.agentId)
             chat_model.select_agent(session.agentId)
         chat_model.set({ sessions: [session, ...chat_model.sessions.filter(item => item.sessionId !== session.sessionId)] })
+        get_chat_model(session.sessionId).set({
+            agent_id: session.agentId,
+            sessions: [session],
+            selected_llm_config_id: session.llmConfigId || '',
+        })
         await shell.add_ai_tab(session.sessionId, session.title || t('新会话'))
         chat_model.set({ settings_visible: false })
         if (model.view !== 'shell')
