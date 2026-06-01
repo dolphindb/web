@@ -76,8 +76,6 @@ export interface ISession {
     sessionId: string
     agentId: string
     title: string
-    status?: number
-    statusName?: string
     llmConfigId?: string
     createTime?: string
     updateTime?: string
@@ -971,8 +969,6 @@ export class ChatModel extends Model<ChatModel> {
             sessionId: s.sessionId,
             agentId: s.agentId,
             title: s.title || t('新会话'),
-            status: s.status,
-            statusName: s.statusName,
             llmConfigId: s.llmConfigId,
             createTime: s.createTime,
             updateTime: s.updateTime,
@@ -1057,8 +1053,6 @@ export class ChatModel extends Model<ChatModel> {
             sessionId: result.sessionId,
             agentId: result.agentId,
             title: result.title || t('新会话'),
-            status: result.status,
-            statusName: result.statusName,
             llmConfigId: result.llmConfigId,
             createTime: result.createTime,
             updateTime: result.updateTime,
@@ -1142,8 +1136,6 @@ export class ChatModel extends Model<ChatModel> {
             sessionId: s.sessionId,
             agentId: s.agentId,
             title: s.title || t('新会话'),
-            status: s.status,
-            statusName: s.statusName,
             llmConfigId: s.llmConfigId,
             createTime: s.createTime,
             updateTime: s.updateTime,
