@@ -29,43 +29,30 @@ let dolphindb_registered = false
 /** language 为 dolphindb 的 editor */
 export function Editor ({
     default_value,
-    readonly = false,
-    minimap = false,
-    enter_completion,
+    readonly,
     observe_resize,
+    theme = 'light',
+    options,
     on_loaded,
     on_change,
-    on_save,
-    options,
-    theme = 'light'
+    on_save
 }: {
     default_value?: string
     readonly?: boolean
-    minimap?: boolean
-    enter_completion?: boolean
     observe_resize?: boolean
+    theme?: 'light' | 'dark'
+    options?: monacoapi.editor.IStandaloneEditorConstructionOptions
+    
     on_loaded? (
         monaco: Monaco,
         editor: CodeEditor
     ): void
     on_change? (value: string): void
     on_save? (text: string): void
-    options?: monacoapi.editor.IStandaloneEditorConstructionOptions
-    theme?: 'light' | 'dark'
 }) {
     const { docs } = model.use(['docs'])
     
     let rerender = use_rerender()
-    
-    const monaco_options = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => ({
-            minimap: { enabled: minimap },
-            
-            acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
-            
-            ...options,
-        }),
-        [minimap, enter_completion, options])
-    
     
     useEffect(() => {
         if (docs || docs_initing)
@@ -116,10 +103,10 @@ export function Editor ({
         on_change={on_change}
         language='dolphindb'
         observe_resize={observe_resize}
-        options={monaco_options}
+        theme={theme}
+        options={options}
         on_loaded={on_loaded}
         on_save={on_save}
-        theme={theme}
         
         // 注册 dolphindb 语言相关
         before_create_editor={async monaco => {

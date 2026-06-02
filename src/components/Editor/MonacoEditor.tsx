@@ -145,11 +145,12 @@ export function MonacoEditor ({
     
     // options 更新时重新应用
     useEffect(() => {
-        if (deep_equals(options, roption.current))
-            return
+        const equals = deep_equals(options, roption.current)
         
         roption.current = options
-        reditor.current?.updateOptions(options)
+        
+        if (!equals)
+            reditor.current?.updateOptions(options)
     }, [options])
     
     return <div className={`monaco-editor-container ${theme}`} ref={rdiv} />

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Input, Select, Switch, Tooltip } from 'antd'
 import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined } from '@ant-design/icons'
@@ -9,7 +9,7 @@ import { t } from '@i18n'
 
 import { model, storage_keys } from '@model'
 
-import { Editor } from '@components/Editor/index.tsx'
+import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 
 import { shell } from './model.ts'
 
@@ -52,6 +52,15 @@ export function ShellEditor ({ collapser }) {
     useEffect(() => {
         localStorage.setItem(storage_keys.current_tab, itab.toString())
     }, [itab])
+    
+    
+    const monaco_options = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => ({
+            minimap: { enabled: minimap },
+            
+            acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
+        }),
+        [minimap, enter_completion])
+    
     
     function handle_tab_close (tabId) {
         if (!shell.monaco_inited)
@@ -174,13 +183,11 @@ export function ShellEditor ({ collapser }) {
         </div> }
         
         <Editor
-            minimap={minimap}
-            
             readonly={readonly}
             
-            enter_completion={enter_completion}
-            
             observe_resize
+            
+            options={monaco_options}
             
             on_loaded={(monaco, editor) => {
                 editor.setValue(shell.itab > -1 

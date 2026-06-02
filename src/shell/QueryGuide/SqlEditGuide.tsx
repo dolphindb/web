@@ -32,7 +32,6 @@ export function SqlEditGuide (props: IProps) {
     const view_map = useMemo(() => ({
             0: <div className='query-code-editor'>
                 <Editor
-                    enter_completion
                     default_value={code}
                     theme='light'
                     on_change={code => {

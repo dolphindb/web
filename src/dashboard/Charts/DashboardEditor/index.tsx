@@ -1,7 +1,7 @@
 import './index.sass'
 
 import { Button } from 'antd'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef } from 'react'
 import { debounce } from 'lodash'
 
 import { Editor } from '@components/Editor/index.tsx'
@@ -9,7 +9,6 @@ import { type Widget, dashboard } from '@/dashboard/model.ts'
 import { EditorFields } from '@/dashboard/ChartFormFields/EditorFields.tsx'
 import { type IEditorConfig } from '@/dashboard/type.ts'
 import { get_editor_value, type CodeEditor } from '@components/Editor/MonacoEditor.tsx'
-import { editor } from 'monaco-editor'
 
 
 export function DashboardEditor ({ widget }: { widget: Widget }) {
@@ -36,13 +35,12 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
         <div className='editor'>
             <Editor
                 theme='dark'
-                enter_completion
+                default_value={(widget?.config as IEditorConfig)?.code}
                 on_change={code => {
                     save_debounced(code)
                 }}
                 on_loaded={(monaco, editor) => {
                     reditor.current = editor
-                    editor.setValue((widget?.config as IEditorConfig)?.code || '')
                 }}
             />
         </div>

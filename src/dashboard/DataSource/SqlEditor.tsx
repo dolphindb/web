@@ -51,7 +51,6 @@ export function SqlEditor ({
                 <Editor
                     theme='dark'
                     readonly={loading}
-                    enter_completion
                     on_loaded={(monaco, editor) => {
                         editor?.setValue(get_data_source(current_data_source.id).code)
                         dashboard.set({ sql_editor: editor, monaco })

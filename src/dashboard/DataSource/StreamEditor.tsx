@@ -225,9 +225,8 @@ export function StreamEditor ({
                                             <div className='streameditor-main-right-filter-main'>
                                                 <Editor
                                                     readonly={loading}
-                                                    enter_completion
+                                                    default_value={get_data_source(current_data_source.id).filter_column}
                                                     on_loaded={(monaco, editor) => {
-                                                        editor.setValue(get_data_source(current_data_source.id).filter_column || '')
                                                         dashboard.set({ filter_column_editor: editor, monaco })
                                                     }}
                                                     on_change={() => { change_no_save_flag(true) }}
@@ -245,9 +244,8 @@ export function StreamEditor ({
                                                 <Editor
                                                     theme='dark'
                                                     readonly={loading}
-                                                    enter_completion
+                                                    default_value={get_data_source(current_data_source.id).filter_expression}
                                                     on_loaded={(monaco, editor) => {
-                                                        editor.setValue(get_data_source(current_data_source.id).filter_expression || '')
                                                         dashboard.set({ filter_expression_editor: editor, monaco })
                                                     }}
                                                     on_change={() => { change_no_save_flag(true) }}
