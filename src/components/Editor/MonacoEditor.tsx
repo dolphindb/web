@@ -13,8 +13,10 @@ export type CodeEditor = monacoapi.editor.IStandaloneCodeEditor
 import { delay, load_script, deep_equals } from 'xshell/utils.browser.js'
 
 import { language, t } from '@i18n'
+import { model } from '@model'
 
 
+/** default_value、language、readonly、theme 等 props 在首次渲染后变更不会生效 */
 export function MonacoEditor ({
     theme = 'light',
     default_value,
@@ -165,6 +167,21 @@ async function load_monaco () {
         return monaco
     
     return pmonaco ??= new Promise<Monaco>(async (resolve, reject) => {
+        const loader_config = {
+            paths: {
+                // 必须是　vs, 否则 /vs/base/common/worker/simpleWorker.nls.js 路径找不到实际文件
+                vs: `${location.origin}${model.assets_root}vendors/monaco-editor/${ PRODUCTION ? 'min' : 'dev' }/vs`
+            },
+            
+            ... language === 'zh' ? {
+                'vs/nls': {
+                    availableLanguages: {
+                        '*': 'zh-cn'
+                    }
+                }
+            } : { }
+        }
+        
         try {
             await load_script(`${loader_config.paths.vs}/loader.js`)
             const { require } = window as any as { require: Function & { config: Function } }
@@ -190,22 +207,6 @@ const get_value_options = { preserveBOM: false, lineEnding: '\n' } as const
 
 export function get_editor_value (editor: CodeEditor) {
     return editor.getValue(get_value_options)
-}
-
-
-const loader_config = {
-    paths: {
-        // 必须是　vs, 否则 /vs/base/common/worker/simpleWorker.nls.js 路径找不到实际文件
-        vs: `${location.origin}/vendors/monaco-editor/${ PRODUCTION ? 'min' : 'dev' }/vs`
-    },
-    
-    ... language === 'zh' ? {
-        'vs/nls': {
-            availableLanguages: {
-                '*': 'zh-cn'
-            }
-        }
-    } : { }
 }
 
 

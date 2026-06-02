@@ -26,7 +26,8 @@ let oniguruma: undefined | 'loading' | 'loaded'
 let dolphindb_registered = false
 
 
-/** language 为 dolphindb 的 editor */
+/** language 为 dolphindb 的 editor  
+    default_value、language、readonly、theme 等 props 在首次渲染后变更不会生效 */
 export function Editor ({
     default_value,
     readonly,
