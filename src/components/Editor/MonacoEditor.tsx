@@ -10,7 +10,7 @@ export type { monacoapi }
 export type Monaco = typeof monacoapi
 export type CodeEditor = monacoapi.editor.IStandaloneCodeEditor
 
-import { delay, load_script } from 'xshell/utils.browser.js'
+import { delay, load_script, deep_equals } from 'xshell/utils.browser.js'
 
 import { language, t } from '@i18n'
 
@@ -40,6 +40,8 @@ export function MonacoEditor ({
     let reditor = useRef<CodeEditor>(undefined)
     
     let rdiv = useRef<HTMLDivElement>(undefined)
+    
+    let roption = useRef<editor.IStandaloneEditorConstructionOptions>(options)
     
     useEffect(() => {
         (async () => {
@@ -135,6 +137,13 @@ export function MonacoEditor ({
         return () => { reditor.current?.dispose() }
     }, [ ])
     
+    // options 更新时重新应用
+    useEffect(() => {
+        if (deep_equals(options, roption.current))
+            return
+        
+        reditor.current?.updateOptions(options)
+    }, [options])
     
     return <div className='monaco-editor-container' ref={rdiv} />
 }

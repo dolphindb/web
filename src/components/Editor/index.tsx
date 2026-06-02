@@ -135,22 +135,4 @@ export function Editor ({
             set_color_map(monaco, theme ?? 'light')
         }}
     />
-    
-    // return <MonacoDolphinDBEditor
-    //     className={class_name}
-    //     
-    //     dolphinDBLanguageOptions={{ docs, theme }}
-    //     
-    //     wrapperProps={{ className: `monaco-editor-container ${theme}` }}
-    //     
-    //     value={value}
-    //     
-    //     height={height}
-    //     
-    //     theme={theme === 'light' ? 'vs' : 'vs-dark'}
-    //     
-    //     defaultValue={default_value}
-    //     
-    //     loading={<div className='editor-loading'>{t('正在加载代码编辑器...')}</div>}
-    // />
 }
