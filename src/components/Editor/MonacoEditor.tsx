@@ -19,6 +19,7 @@ export function MonacoEditor ({
     default_value,
     readonly,
     language = 'plaintext',
+    observe_resize,
     options,
     on_change,
     on_loaded,
@@ -28,6 +29,7 @@ export function MonacoEditor ({
     default_value?: string
     readonly?: boolean
     language?: string
+    observe_resize?: boolean
     options?: editor.IStandaloneEditorConstructionOptions
     on_change? (value: string): void
     on_loaded? (
@@ -54,7 +56,7 @@ export function MonacoEditor ({
                 rdiv.current,
                 {
                     model: monaco.editor.createModel(default_value || '\n', language),
-                    automaticLayout: false,
+                    automaticLayout: observe_resize || false,
                     
                     // 禁用错误波浪线
                     renderValidationDecorations: 'off',
@@ -142,6 +144,7 @@ export function MonacoEditor ({
         if (deep_equals(options, roption.current))
             return
         
+        roption.current = options
         reditor.current?.updateOptions(options)
     }, [options])
     

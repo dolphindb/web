@@ -283,6 +283,7 @@ async function on_keydown (event: KeyboardEvent) {
         key === 'r' && 
         (target as HTMLElement).tagName !== 'INPUT' && 
         (target as HTMLElement).tagName !== 'TEXTAREA' && 
+        !(target as HTMLElement).classList.contains('native-edit-context') && 
         !ctrl && 
         !alt
     ) {

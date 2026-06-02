@@ -9,9 +9,9 @@ import { t } from '@i18n'
 
 import { model, storage_keys } from '@model'
 
-import { Editor, type monacoapi } from '@components/Editor/index.tsx'
+import { Editor } from '@components/Editor/index.tsx'
 
-import { shell, type Tab } from './model.ts'
+import { shell } from './model.ts'
 
 import { SelectSqlModal } from './SelectSqlModal.tsx'
 import { ExecuteAction } from './ExecuteAction.tsx'
@@ -180,6 +180,8 @@ export function ShellEditor ({ collapser }) {
             
             enter_completion={enter_completion}
             
+            observe_resize
+            
             on_loaded={(monaco, editor) => {
                 editor.setValue(shell.itab > -1 
                     ? shell.tabs.find(t => t.index === shell.itab).code
@@ -309,8 +311,8 @@ export function Tabs ({
 }
 
 
-export function Tab ({
-    name: initialName,
+function Tab ({
+    name: initial_name,
     active,
     closeable = true,
     renameable = true,
@@ -328,7 +330,7 @@ export function Tab ({
     onRename?: (newName: string) => void
     icon?: React.ReactNode
 }) {
-    let [name, set_name] = useState(initialName)
+    let [name, set_name] = useState(initial_name)
     let [renaming, set_renaming] = useState(false)
     
     function commit_rename () {

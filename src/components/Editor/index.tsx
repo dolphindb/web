@@ -32,6 +32,7 @@ export function Editor ({
     readonly = false,
     minimap = false,
     enter_completion,
+    observe_resize,
     on_loaded,
     on_change,
     on_save,
@@ -42,6 +43,7 @@ export function Editor ({
     readonly?: boolean
     minimap?: boolean
     enter_completion?: boolean
+    observe_resize?: boolean
     on_loaded? (
         monaco: Monaco,
         editor: CodeEditor
@@ -112,6 +114,7 @@ export function Editor ({
         default_value={default_value}
         on_change={on_change}
         language='dolphindb'
+        observe_resize={observe_resize}
         options={monaco_options}
         on_loaded={on_loaded}
         on_save={on_save}
