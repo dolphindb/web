@@ -19,7 +19,6 @@ interface IProps {
 
 
 export function EditorField ({ onChange, disabled = false, ...others }: any) {
-    
     const [mode, set_mode] = useState(0)
     
     return <>
@@ -32,7 +31,7 @@ export function EditorField ({ onChange, disabled = false, ...others }: any) {
             ]} 
         />
         {mode === 0 && <Editor readonly={disabled} on_change={onChange} {...others}/> }
-        {mode === 1 && <Editor readonly={disabled} value={template_code} />}
+        {mode === 1 && <Editor readonly={disabled} default_value={template_code} />}
     
     </>  
 }

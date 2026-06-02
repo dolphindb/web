@@ -1,18 +1,21 @@
 import './index.sass'
 
 import { Button } from 'antd'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { debounce } from 'lodash'
 
 import { Editor } from '@components/Editor/index.tsx'
 import { type Widget, dashboard } from '@/dashboard/model.ts'
 import { EditorFields } from '@/dashboard/ChartFormFields/EditorFields.tsx'
 import { type IEditorConfig } from '@/dashboard/type.ts'
+import { get_editor_value, type CodeEditor } from '@components/Editor/MonacoEditor.tsx'
+import { editor } from 'monaco-editor'
 
 
 export function DashboardEditor ({ widget }: { widget: Widget }) {
     const { config, widgets } = dashboard.use(['config', 'widgets'])
-    const [code, set_code] = useState((widget?.config as IEditorConfig)?.code || '')
+    
+    let reditor = useRef<CodeEditor>(undefined)
     
     async function save (code: string) {
         // 本地的 widgets 更新
@@ -32,21 +35,23 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
         <h2>{(widget?.config as IEditorConfig)?.title || 'editor'}</h2>
         <div className='editor'>
             <Editor
-                enter_completion
-                value={code}
-                on_change={async code => {
-                    set_code(code)
-                    await save_debounced(code)
-                }}
-                options={{
-                    fixedOverflowWidgets: true
-                }}
                 theme='dark'
+                enter_completion
+                on_change={code => {
+                    save_debounced(code)
+                }}
+                on_loaded={(monaco, editor) => {
+                    reditor.current = editor
+                    editor.setValue((widget?.config as IEditorConfig)?.code || '')
+                }}
             />
         </div>
         <Button
             onClick={async () => {
-                const { type, result } = await dashboard.execute_code(code)
+                const { type, result } = await dashboard.execute_code(
+                    get_editor_value(
+                        reditor.current))
+                
                 if (type === 'error')
                     throw new Error(result as string)
             }}

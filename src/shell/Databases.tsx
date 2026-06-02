@@ -444,12 +444,8 @@ function ConfirmCommandModal () {
             <Form.Item>
                 <div className='confirm-command-code-editor'>
                     <Editor
-                        value={generated_command}
+                        default_value={generated_command}
                         readonly
-                        options={{
-                            padding: { top: 8 },
-                            overviewRulerBorder: false,
-                        }}
                     />
                     <CopyIconButton
                         type='link'
