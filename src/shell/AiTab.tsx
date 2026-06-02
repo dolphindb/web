@@ -362,13 +362,18 @@ export function AiTab ({ session_id }: { session_id: string }) {
         {/* Input */}
         <div className='ai-tab-input'>
             <Space.Compact style={{ width: '100%' }}>
-                <Input
+                <Input.TextArea
+                    className='ai-tab-message-input'
                     value={input_value}
                     onChange={e => { set_input_value(e.target.value) }}
-                    onPressEnter={() => {
+                    onPressEnter={e => {
+                        if (e.shiftKey)
+                            return
+                        e.preventDefault()
                         if (input_value.trim())
                             handle_send()
                     }}
+                    autoSize={{ minRows: 1, maxRows: 3 }}
                     placeholder={t('输入消息发送给助手...')}
                     size='large'
                     disabled={creating_session}
