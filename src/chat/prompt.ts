@@ -106,8 +106,8 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = {
     },
     step_create: {
         summary: '为当前会话创建新的待办事项清单，会自动停用旧的 active 待办。',
-        args_desc: 'args[0...n]=task_content(必填, 每个字符串为一个待办事项)。',
-        args_hint: '["步骤1：确认需求","步骤2：修改脚本","步骤3：验证结果"]',
+        args_desc: '必须传对象参数 tasks，类型为字符串数组；不要把多条待办拼成一个换行字符串。',
+        args_hint: '{"tool_call":"step_create","args":{"tasks":["步骤1：确认需求","步骤2：修改脚本","步骤3：验证结果"]}}',
     },
     step_update: {
         summary: '更新当前会话待办事项的完成状态。',

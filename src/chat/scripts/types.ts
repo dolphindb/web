@@ -37,7 +37,7 @@ export interface ToolDefinition {
         description: string
         parameters: {
             type: 'object'
-            properties: Record<string, { type: string, description: string }>
+            properties: Record<string, { type: string, description: string, items?: { type: string } }>
             required: string[]
         }
     }

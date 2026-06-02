@@ -251,6 +251,17 @@ function get_state_update_args (content: unknown) {
 }
 
 
+function get_step_create_tasks (content: unknown) {
+    const parsed = parse_payload(content)
+    const tasks = is_record(parsed) ? parsed.tasks : parsed
+    if (!Array.isArray(tasks))
+        throw new Error('step_create requires tasks as a string array.')
+    if (tasks.some(task => typeof task !== 'string' || !task.trim()))
+        throw new Error('step_create requires every task to be a non-empty string.')
+    return tasks.map(task => task.trim())
+}
+
+
 const WORKSPACE_FILE_NAME_RULE = '文件名必须是普通文件名，不能包含 /、\\、..，不能以 . 开头'
 
 
@@ -671,7 +682,7 @@ export const step_create_config: ScriptConfig = {
             parameters: {
                 type: 'object',
                 properties: {
-                    tasks: { type: 'string', description: '一个或多个待办事项字符串；也可通过 args 数组传入多项' },
+                    tasks: { type: 'array', items: { type: 'string' }, description: '待办事项数组，每个元素是一条独立待办' },
                 },
                 required: ['tasks'],
             },
@@ -679,7 +690,7 @@ export const step_create_config: ScriptConfig = {
     },
     handler: async (type, content, context): Promise<ScriptResult> => {
         try {
-            const tasks = normalize_script_args(content)
+            const tasks = get_step_create_tasks(content)
             await context.workspace_store.create_step_batch(require_session(context), context.api_fetch, tasks)
             return {
                 next_loop: true,

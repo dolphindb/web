@@ -10,6 +10,25 @@ function is_record (value: unknown): value is Record<string, unknown> {
 }
 
 
+function parse_payload (content: unknown): unknown {
+    if (typeof content !== 'string')
+        return content
+    const trimmed = content.trim()
+    if (!trimmed)
+        return content
+    try { return JSON.parse(trimmed) } catch { return content }
+}
+
+
+function get_skill_id (content: unknown) {
+    const parsed = parse_payload(content)
+    const args = normalize_script_args(content)
+    if (is_record(parsed))
+        return String(parsed.skill_id ?? parsed.skillId ?? args[0] ?? '').trim()
+    return (args[0] || '').trim()
+}
+
+
 type SkillFileTreeNode = {
     name: string
     path: string
@@ -81,8 +100,7 @@ export const skill_read_config: ScriptConfig = {
     },
     handler: async (type, content, context): Promise<ScriptResult> => {
         try {
-            const args = normalize_script_args(content)
-            const skill_id = (args[0] || '').trim()
+            const skill_id = get_skill_id(content)
             if (!skill_id)
                 return {
                     next_loop: true,
@@ -91,7 +109,7 @@ export const skill_read_config: ScriptConfig = {
                         role: 'tool',
                         messageType: 'tool_error',
                         name: type,
-                        content: 'skill_read requires args[0] as skillId.',
+                        content: 'skill_read requires skill_id.',
                     },
                 }
                 
