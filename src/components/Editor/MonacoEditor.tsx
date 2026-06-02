@@ -198,7 +198,7 @@ const default_options: editor.IStandaloneEditorConstructionOptions = {
     },
     
     fontFamily: 'MyFont, monospace',
-    fontSize: 16,
+    fontSize: 18,
     insertSpaces: true,
     codeLensFontFamily: 'MyFont, monospace',
     folding: true,

@@ -32,7 +32,6 @@ export const LogModal = NiceModal.create(({ report_id, node }: LogModalProps) =>
         <MonacoEditor
             key={logs}
             readonly
-            options={{ wordWrap: 'on' }}
             default_value={logs}
             language='logs'
         />

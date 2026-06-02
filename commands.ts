@@ -70,7 +70,7 @@ async function dev () {
             
             const { path } = request
             
-            if (path === '/favicon.ico') {
+            if (path === '/favicon.ico' || path === '/vendors/monaco-editor/min-maps/vs/loader.js.map') {
                 response.status = 404
                 return true
             }
