@@ -69,9 +69,12 @@ export interface IWorkspaceReplacement {
     replaceAll?: boolean
 }
 
+let id_index = 0
+
 
 function new_id (prefix: string) {
-    return `${prefix}_${crypto.randomUUID()}`
+    id_index += 1
+    return `${prefix}_${Date.now().toString(36)}_${id_index.toString(36)}_${Math.random().toString(36).slice(2)}`
 }
 
 
