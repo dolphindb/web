@@ -61,6 +61,7 @@ export function Editor ({
             minimap: { enabled: minimap },
             
             acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
+            
             ...options,
         }),
         [minimap, enter_completion, options])
@@ -118,24 +119,24 @@ export function Editor ({
         options={monaco_options}
         on_loaded={on_loaded}
         on_save={on_save}
+        theme={theme}
         
         // 注册 dolphindb 语言相关
         before_create_editor={async monaco => {
-            if (dolphindb_registered)
-                return
+            if (!dolphindb_registered) {
+                dolphindb_registered = true
+                
+                let { languages } = monaco
+                
+                languages.register({ id: 'dolphindb' })
+                
+                set_docs_provider(new DocsProvider(docs))
+                register_monaco_language_providers(monaco)
+                
+                await register_tokenizer(languages)
+            }
             
-            dolphindb_registered = true
-            
-            let { languages } = monaco
-            
-            languages.register({ id: 'dolphindb' })
-            
-            set_docs_provider(new DocsProvider(docs))
-            register_monaco_language_providers(monaco)
-            
-            await register_tokenizer(languages)
-            
-            set_color_map(monaco, theme ?? 'light')
+            set_color_map(monaco, theme)
         }}
     />
 }

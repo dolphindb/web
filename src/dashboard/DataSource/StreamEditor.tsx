@@ -243,6 +243,7 @@ export function StreamEditor ({
                                             </div>
                                             <div className='streameditor-main-right-filter-main'>
                                                 <Editor
+                                                    theme='dark'
                                                     readonly={loading}
                                                     enter_completion
                                                     on_loaded={(monaco, editor) => {
@@ -250,7 +251,6 @@ export function StreamEditor ({
                                                         dashboard.set({ filter_expression_editor: editor, monaco })
                                                     }}
                                                     on_change={() => { change_no_save_flag(true) }}
-                                                    theme='dark'
                                                 />
                                             </div>
                                         </div>

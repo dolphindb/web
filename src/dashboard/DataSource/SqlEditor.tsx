@@ -49,6 +49,7 @@ export function SqlEditor ({
         <div className='sqleditor'>
             <div className='sqleditor-main' style={{ height: show_preview ? '40%' : '100%' }}>
                 <Editor
+                    theme='dark'
                     readonly={loading}
                     enter_completion
                     on_loaded={(monaco, editor) => {
@@ -56,7 +57,6 @@ export function SqlEditor ({
                         dashboard.set({ sql_editor: editor, monaco })
                     }}
                     on_change={() => { change_no_save_flag(true) }}
-                    theme='dark'
                 />
             </div>
             {show_preview &&

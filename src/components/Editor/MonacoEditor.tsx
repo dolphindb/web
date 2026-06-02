@@ -16,6 +16,7 @@ import { language, t } from '@i18n'
 
 
 export function MonacoEditor ({
+    theme = 'light',
     default_value,
     readonly,
     language = 'plaintext',
@@ -26,6 +27,7 @@ export function MonacoEditor ({
     before_create_editor,
     on_save,
 }: {
+    theme?: 'light' | 'dark'
     default_value?: string
     readonly?: boolean
     language?: string
@@ -63,6 +65,8 @@ export function MonacoEditor ({
                     
                     readOnly: readonly,
                     domReadOnly: readonly,
+                    
+                    theme: theme === 'light' ? 'light' : 'vs-dark',
                     
                     ...default_options,
                     
@@ -148,7 +152,7 @@ export function MonacoEditor ({
         reditor.current?.updateOptions(options)
     }, [options])
     
-    return <div className='monaco-editor-container' ref={rdiv} />
+    return <div className={`monaco-editor-container ${theme}`} ref={rdiv} />
 }
 
 
