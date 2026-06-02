@@ -7,7 +7,7 @@ import { tm_language } from 'dolphindb/language.js'
 import { theme_dark } from './themes/dark.ts'
 import { theme_light } from './themes/light.ts'
 
-import { Monaco, monacoapi } from './MonacoEditor.tsx'
+import type { Monaco, monacoapi } from './MonacoEditor.tsx'
 
 const SCOPE_NAME = 'source.dolphindb'
 
