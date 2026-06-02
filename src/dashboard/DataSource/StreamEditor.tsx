@@ -227,7 +227,7 @@ export function StreamEditor ({
                                                     readonly={loading}
                                                     enter_completion
                                                     on_loaded={(monaco, editor) => {
-                                                        editor?.setValue(get_data_source(current_data_source.id).filter_column || '')
+                                                        editor.setValue(get_data_source(current_data_source.id).filter_column || '')
                                                         dashboard.set({ filter_column_editor: editor, monaco })
                                                     }}
                                                     on_change={() => { change_no_save_flag(true) }}
@@ -246,7 +246,7 @@ export function StreamEditor ({
                                                     readonly={loading}
                                                     enter_completion
                                                     on_loaded={(monaco, editor) => {
-                                                        editor?.setValue(get_data_source(current_data_source.id).filter_expression || '')
+                                                        editor.setValue(get_data_source(current_data_source.id).filter_expression || '')
                                                         dashboard.set({ filter_expression_editor: editor, monaco })
                                                     }}
                                                     on_change={() => { change_no_save_flag(true) }}

@@ -4,6 +4,7 @@ import { isNil, pickBy } from 'lodash'
 import { createRef } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 import dayjs from 'dayjs'
+import type * as echarts from 'echarts'
 
 
 import { t } from '@i18n'

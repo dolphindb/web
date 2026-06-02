@@ -201,7 +201,7 @@ export function VariableEditor ({
                             <Editor 
                                 enter_completion
                                 on_loaded={(monaco, editor) => {
-                                    editor?.setValue(current_variable.code)
+                                    editor.setValue(current_variable.code)
                                     dashboard.set({ variable_editor: editor, monaco })
                                 }}
                                 on_change={() => { change_no_save_flag(true) }}
