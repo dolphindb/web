@@ -10,7 +10,7 @@ import { ReloadOutlined } from '@ant-design/icons'
 
 import { type DdbObj, format, DdbType } from 'dolphindb/browser.js'
 
-import { Editor } from '@monaco-editor/react'
+import { MonacoEditor } from '@components/Editor/MonacoEditor.tsx'
 
 import { language, t } from '@i18n'
 
@@ -596,7 +596,7 @@ function JobMessageShow ({ job, disabled }: { job: DdbJob, disabled?: boolean })
             open={show}
         >
             <div className='job-message'>
-                <Editor height='100%' width='100%' defaultLanguage='plaintext' value={message.join_lines()} options={{ readOnly: true }} />
+                <MonacoEditor default_value={message.join_lines()} readonly />
             </div>
             <div>
                 {!show_all && show_see_more && <Link title={t('当前显示的是日志的一部分，点击以查看完整日志')} onClick={show_all_messages}>{t('当前显示的是日志的一部分，点击以查看完整日志')}</Link>}

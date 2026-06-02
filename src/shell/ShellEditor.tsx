@@ -180,11 +180,10 @@ export function ShellEditor ({ collapser }) {
             
             enter_completion={enter_completion}
             
-            on_mount={(editor, monaco) => {
+            on_loaded={(monaco, editor) => {
                 editor.setValue(shell.itab > -1 
                     ? shell.tabs.find(t => t.index === shell.itab).code
-                    : localStorage.getItem(storage_keys.code) || ''
-                )
+                    : localStorage.getItem(storage_keys.code) || '')
                 
                 async function execute (selection: 'line' | 'all') {
                     if (shell.executing)
@@ -227,49 +226,6 @@ export function ShellEditor ({ collapser }) {
                     }
                 })
                 
-                editor.addAction({
-                    id: 'dolphindb.save',
-                    
-                    keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS
-                    ],
-                    
-                    label: t('DolphinDB: 保存代码'),
-                    
-                    run () {
-                        shell.save()
-                    },
-                })
-                
-                editor.addAction({
-                    id: 'duplicate_line',
-                    
-                    keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyD
-                    ],
-                    
-                    label: t('向下复制行'),
-                    
-                    async run (editor: monacoapi.editor.IStandaloneCodeEditor) {
-                        await editor.getAction('editor.action.copyLinesDownAction').run()
-                    }
-                })
-                
-                editor.addAction({
-                    id: 'delete_lines',
-                    
-                    keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyY
-                    ],
-                    
-                    label: t('删除行'),
-                    
-                    async run (editor: monacoapi.editor.IStandaloneCodeEditor) {
-                        await editor.getAction('editor.action.deleteLines').run()
-                    }
-                })
-                
-                
                 shell.set({
                     editor,
                     monaco,
@@ -277,8 +233,12 @@ export function ShellEditor ({ collapser }) {
                 })
             }}
             
-            on_change={(value, event) => {
+            on_change={value => {
                 shell.save_debounced(value)
+            }}
+            
+            on_save={value => {
+                shell.save(value)
             }}
         />
     </div>

@@ -12,16 +12,13 @@ import { ExecuteResult } from '@/guide/iot-guide/type.ts'
 
 import { DownloadConfigModal } from './DownloadConfigModal.tsx'
 
-interface IProps { 
+
+export function CodeViewStep ({ code, back, config, go }: {
     code: string
     back: () => void
     config: any
     go: (infos: any) => void
-}
-
-export function CodeViewStep (props: IProps) {
-    const { code, back, config, go } = props
-   
+}) {
     const execute_code = useCallback(async () => { 
         try {
             await model.ddb.eval(code)
@@ -31,8 +28,6 @@ export function CodeViewStep (props: IProps) {
         }
     }, [code, go])
     
-    
-    
     const on_download = useCallback(async () => 
         NiceModal.show(DownloadConfigModal, { config })
     , [config])
@@ -40,7 +35,6 @@ export function CodeViewStep (props: IProps) {
     
     return <div className='code-view-wrapper'>
         <ReadonlyEditor code={code} className='view-code-editor'/>
-        
         
         <BottomFixedFooter>
             <Space>

@@ -200,7 +200,7 @@ export function VariableEditor ({
                             </div>
                             <Editor 
                                 enter_completion
-                                on_mount={(editor, monaco) => {
+                                on_loaded={(monaco, editor) => {
                                     editor?.setValue(current_variable.code)
                                     dashboard.set({ variable_editor: editor, monaco })
                                 }}

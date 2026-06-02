@@ -35,14 +35,14 @@ export function StreamEditor ({
     change_no_save_flag,
     change_current_data_source_property
  }: PropsType) {
-    const { filter_column_editor, filter_expression_editor } = dashboard.use(['filter_column_editor', 'filter_expression_editor'])
+    const { filter_column_editor, filter_expression_editor, monaco } = dashboard.use(['filter_column_editor', 'filter_expression_editor', 'monaco'])
     
     const [stream_tables, set_stream_tables] = useState<MenuProps['items']>([ ])
     const [current_stream, set_current_stream] = useState(current_data_source?.stream_table || '')
     const [stream_filter_col, set_stream_filter_col] = useState('')
     const [cur_focus_editor, set_cur_focus_editor] = useState<editor.IStandaloneCodeEditor>()
     
-    const { on_monaco_insert } = use_monaco_insert(cur_focus_editor)
+    const on_monaco_insert = use_monaco_insert(monaco, cur_focus_editor)
     const tree_ref = useRef(null)
     const ip_list_ref = useRef<{ label: string, value: string }[]>([ ])
     const table_list_ref = useRef(null)
@@ -226,7 +226,7 @@ export function StreamEditor ({
                                                 <Editor
                                                     readonly={loading}
                                                     enter_completion
-                                                    on_mount={(editor, monaco) => {
+                                                    on_loaded={(monaco, editor) => {
                                                         editor?.setValue(get_data_source(current_data_source.id).filter_column || '')
                                                         dashboard.set({ filter_column_editor: editor, monaco })
                                                     }}
@@ -245,7 +245,7 @@ export function StreamEditor ({
                                                 <Editor
                                                     readonly={loading}
                                                     enter_completion
-                                                    on_mount={(editor, monaco) => {
+                                                    on_loaded={(monaco, editor) => {
                                                         editor?.setValue(get_data_source(current_data_source.id).filter_expression || '')
                                                         dashboard.set({ filter_expression_editor: editor, monaco })
                                                     }}

@@ -3,30 +3,30 @@ import './index.scss'
 import { CopyOutlined } from '@ant-design/icons'
 import { Button, Tooltip } from 'antd'
 import { useCallback } from 'react'
-import classNames from 'classnames'
+import cn from 'classnames'
 
 import { t } from '@i18n'
 import { model } from '@model'
 import { Editor } from '@components/Editor/index.tsx'
 import { copy } from '@utils'
 
-interface IProps { 
+
+export function ReadonlyEditor ({
+    code,
+    className
+}: {
     code: string
     className?: string
-}
-
-export function ReadonlyEditor (props: IProps) { 
-    const { code, className } = props
-        
+}) {
     const copy_code = useCallback(async () => {
         await copy(code)
         model.message.success(t('复制成功'))
     }, [code])
     
-    return <div className={classNames('readonly-editor', { [className]: true })}>
+    return <div className={cn('readonly-editor', className)}>
         <Tooltip title={t('复制代码')}>
             <Button className='copy-btn' icon={<CopyOutlined />} onClick={copy_code} />
         </Tooltip>
-        <Editor value={code} readonly />
+        <Editor default_value={code} readonly />
     </div>
 }
