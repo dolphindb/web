@@ -95,7 +95,7 @@ export function Editor ({
     }, [ ])
     
     
-    if (!docs || !oniguruma)
+    if (!docs || oniguruma !== 'loaded')
         return <div className='editor-loading'>{t('正在加载代码编辑器...')}</div>
     
     return <MonacoEditor
