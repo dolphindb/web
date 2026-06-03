@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { Input, Select, Switch, Tooltip } from 'antd'
+import { Input, InputNumber, Select, Switch, Tooltip } from 'antd'
 import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined } from '@ant-design/icons'
 
 import { storage } from 'xshell/storage.js'
@@ -11,7 +11,7 @@ import { model, storage_keys } from '@model'
 
 import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 
-import { shell, type Tab } from './model.ts'
+import { shell } from './model.ts'
 
 import { SelectSqlModal } from './SelectSqlModal.tsx'
 import { ExecuteAction } from './ExecuteAction.tsx'
@@ -26,6 +26,9 @@ export function ShellEditor ({ collapser }) {
     
     const [enter_completion, set_enter_completion] = useState(() => 
         storage.get_bool(storage_keys.enter_completion))
+    
+    const [font_size, set_font_size] = useState(() => 
+        storage.get(storage_keys.font_size, 16))
     
     const [collapsed, set_collapsed] = useState(false)
     
@@ -52,6 +55,17 @@ export function ShellEditor ({ collapser }) {
     useEffect(() => {
         localStorage.setItem(storage_keys.current_tab, itab.toString())
     }, [itab])
+    
+    
+    const monaco_options = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => ({
+            minimap: { enabled: minimap },
+            
+            acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
+            
+            fontSize: font_size,
+        }),
+        [minimap, enter_completion, font_size])
+    
     
     function handle_tab_close (tabId) {
         if (!shell.monaco_inited)
@@ -147,6 +161,23 @@ export function ShellEditor ({ collapser }) {
                     }}
                 />
                 
+                <Tooltip title={t('设置默认字体大小（临时修改可将鼠标移到编辑器区域，通过 ctrl + 滚轮上下 调整）')}>
+                    <span className='setting'>
+                        <span className='title'>{t('字体大小:')}</span>
+                        <InputNumber
+                            className='font-size-input'
+                            value={font_size}
+                            size='small'
+                            min={0}
+                            step={1}
+                            onChange={(size = 16) => {
+                                set_font_size(size)
+                                storage.set(storage_keys.font_size, size)
+                            }}
+                        />
+                    </span>
+                </Tooltip>
+                
                 <LanguageSelect />
                 
                 <SelectSqlModal/>
@@ -174,13 +205,13 @@ export function ShellEditor ({ collapser }) {
         </div> }
         
         <Editor
-            minimap={minimap}
-            
             readonly={readonly}
             
-            enter_completion={enter_completion}
+            observe_resize
             
-            on_mount={(editor, monaco) => {
+            options={monaco_options}
+            
+            on_loaded={(monaco, editor) => {
                 editor.setValue(shell.get_active_code())
                 
                 async function execute (selection: 'line' | 'all') {
@@ -224,49 +255,6 @@ export function ShellEditor ({ collapser }) {
                     }
                 })
                 
-                editor.addAction({
-                    id: 'dolphindb.save',
-                    
-                    keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS
-                    ],
-                    
-                    label: t('DolphinDB: 保存代码'),
-                    
-                    run () {
-                        shell.save()
-                    },
-                })
-                
-                editor.addAction({
-                    id: 'duplicate_line',
-                    
-                    keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyD
-                    ],
-                    
-                    label: t('向下复制行'),
-                    
-                    async run (editor: monacoapi.editor.IStandaloneCodeEditor) {
-                        await editor.getAction('editor.action.copyLinesDownAction').run()
-                    }
-                })
-                
-                editor.addAction({
-                    id: 'delete_lines',
-                    
-                    keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyY
-                    ],
-                    
-                    label: t('删除行'),
-                    
-                    async run (editor: monacoapi.editor.IStandaloneCodeEditor) {
-                        await editor.getAction('editor.action.deleteLines').run()
-                    }
-                })
-                
-                
                 shell.set({
                     editor,
                     monaco,
@@ -274,8 +262,12 @@ export function ShellEditor ({ collapser }) {
                 })
             }}
             
-            on_change={(value, event) => {
+            on_change={value => {
                 shell.save_debounced(value)
+            }}
+            
+            on_save={value => {
+                shell.save(value)
             }}
         />
     </div>
@@ -346,8 +338,8 @@ export function Tabs ({
 }
 
 
-export function Tab ({
-    name: initialName,
+function Tab ({
+    name: initial_name,
     active,
     closeable = true,
     renameable = true,
@@ -365,7 +357,7 @@ export function Tab ({
     onRename?: (newName: string) => void
     icon?: React.ReactNode
 }) {
-    let [name, set_name] = useState(initialName)
+    let [name, set_name] = useState(initial_name)
     let [renaming, set_renaming] = useState(false)
     
     function commit_rename () {
@@ -453,4 +445,3 @@ function LanguageSelect () {
         />
     </span>
 }
-

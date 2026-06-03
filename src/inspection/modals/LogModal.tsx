@@ -1,5 +1,5 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Editor } from '@monaco-editor/react'
+import { MonacoEditor } from '@components/Editor/MonacoEditor.tsx'
 import { Modal } from 'antd'
 import useSWR from 'swr'
 
@@ -11,32 +11,29 @@ interface LogModalProps {
     report_id: string
 }
 
-
-export const LogModal =  NiceModal.create(({ report_id, node }: LogModalProps) => {
+export const LogModal = NiceModal.create(({ report_id, node }: LogModalProps) => {
     const modal = useModal()
     
-    const { data: logs, isLoading } = useSWR(['get_logs', report_id, node], async () => inspection.get_logs(report_id, node))
+    const { data: logs, isLoading } = useSWR(['get_logs', report_id, node], async () =>
+        inspection.get_logs(report_id, node))
+    
+    if (isLoading)
+        return
+    
     return <Modal
-        className='add-param-modal'       
-        width='80%'    
+        className='add-param-modal'
+        width='80%'
         open={modal.visible}
         afterClose={modal.remove}
         onCancel={modal.hide}
         footer={null}
         title={t('查看日志')}
     >
-      <Editor
-        key={logs}
-        options={{
-          readOnly: true,
-          minimap: {
-            enabled: false,
-          },
-          wordWrap: 'on',
-        }}
-        loading={isLoading}
-        value={logs}
-        language='logs'
-      />
+        <MonacoEditor
+            key={logs}
+            readonly
+            default_value={logs}
+            language='logs'
+        />
     </Modal>
 })

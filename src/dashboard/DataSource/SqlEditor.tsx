@@ -28,9 +28,9 @@ export function SqlEditor ({
     change_no_save_flag: (value: boolean) => void
     change_current_data_source_property: (key: string, value: DataSourcePropertyType, save_confirm?: boolean) => void
 }) {
-    const { result, sql_editor } = dashboard.use(['result', 'sql_editor'])
+    const { result, sql_editor, monaco } = dashboard.use(['result', 'sql_editor', 'monaco'])
     
-    const { on_monaco_insert } = use_monaco_insert(sql_editor)
+    const on_monaco_insert = use_monaco_insert(monaco, sql_editor)
     
     useEffect(() => {
         dashboard.sql_editor?.updateOptions({ readOnly: loading })
@@ -49,14 +49,13 @@ export function SqlEditor ({
         <div className='sqleditor'>
             <div className='sqleditor-main' style={{ height: show_preview ? '40%' : '100%' }}>
                 <Editor
+                    theme='dark'
                     readonly={loading}
-                    enter_completion
-                    on_mount={(editor, monaco) => {
+                    on_loaded={(monaco, editor) => {
                         editor?.setValue(get_data_source(current_data_source.id).code)
                         dashboard.set({ sql_editor: editor, monaco })
                     }}
                     on_change={() => { change_no_save_flag(true) }}
-                    theme='dark'
                 />
             </div>
             {show_preview &&

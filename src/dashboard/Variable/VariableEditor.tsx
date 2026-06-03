@@ -199,13 +199,12 @@ export function VariableEditor ({
                                 </Button>
                             </div>
                             <Editor 
-                                enter_completion
-                                on_mount={(editor, monaco) => {
-                                    editor?.setValue(current_variable.code)
+                                theme='dark'
+                                default_value={current_variable.code}
+                                on_loaded={(monaco, editor) => {
                                     dashboard.set({ variable_editor: editor, monaco })
                                 }}
                                 on_change={() => { change_no_save_flag(true) }}
-                                theme='dark'
                             />
                         </div>
                         <OptionList

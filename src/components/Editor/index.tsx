@@ -2,134 +2,129 @@ import './index.sass'
 
 import { useEffect, useMemo } from 'react'
 
-import { Editor as MonacoEditor, loader, type OnChange, type OnMount } from '@monaco-editor/react'
-
-import type monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
-export type Monaco = typeof monacoapi
-export type { monacoapi }
-
-import { MonacoDolphinDBEditor } from 'donaco/react'
-
 import { loadWASM } from 'vscode-oniguruma'
 
 import { request_json } from 'xshell/net.browser.js'
+
+import { DocsProvider } from 'dolphindb/docs.js'
+
+import { use_rerender } from 'react-object-model/hooks.js'
 
 import { t, language } from '@i18n'
 
 import { model } from '@model'
 
+import { MonacoEditor, monacoapi, Monaco, type CodeEditor } from './MonacoEditor.tsx'
+import { register_monaco_language_providers, set_docs_provider } from './docs.ts'
+import { register_tokenizer, set_color_map } from './tokenizer.ts'
 
-// 在 React DevTool 中显示的组件名字
-MonacoEditor.displayName = 'MonacoEditor'
+export type { monacoapi, Monaco } from './MonacoEditor.tsx'
 
-loader.config({
-    paths: {
-        // 必须是　vs, 否则 /vs/base/common/worker/simpleWorker.nls.js 路径找不到实际文件
-        // 必须是完整 https 前缀，不能只是路径，否则会报错
-        vs: `${location.origin}${model.assets_root}vendors/monaco-editor/${ PRODUCTION ? 'min' : 'dev' }/vs`
-    },
-    ... language === 'zh' ? {
-        'vs/nls': {
-            availableLanguages: {
-                '*': 'zh-cn'
-            }
-        }
-    } : { },
-})
 
 let docs_initing = false
+let oniguruma: undefined | 'loading' | 'loaded'
+let dolphindb_registered = false
 
 
+/** language 为 dolphindb 的 editor  
+    default_value、language、readonly、theme 等 props 在首次渲染后变更不会生效 */
 export function Editor ({
-    class_name = 'editor',
-    readonly = false,
     default_value,
-    value,
-    height,
-    minimap = false,
-    enter_completion,
-    on_mount,
-    on_change,
+    readonly,
+    observe_resize,
+    theme = 'light',
     options,
-    theme = 'light'
+    on_loaded,
+    on_change,
+    on_save
 }: {
-    class_name?: string
-    readonly?: boolean
     default_value?: string
-    value?: string
-    height?: number
-    minimap?: boolean
-    enter_completion?: boolean
-    on_mount?: OnMount
-    on_change?: OnChange
-    options?: monacoapi.editor.IStandaloneEditorConstructionOptions
+    readonly?: boolean
+    observe_resize?: boolean
     theme?: 'light' | 'dark'
+    options?: monacoapi.editor.IStandaloneEditorConstructionOptions
+    
+    on_loaded? (
+        monaco: Monaco,
+        editor: CodeEditor
+    ): void
+    on_change? (value: string): void
+    on_save? (text: string): void
 }) {
     const { docs } = model.use(['docs'])
     
+    let rerender = use_rerender()
+    
     useEffect(() => {
-        (async () => {
-            if (!docs && !docs_initing) {
-                docs_initing = true
-                try {
-                    model.set({
-                        docs: await request_json(
-                            `${model.assets_root}docs.${ language === 'zh' ? 'zh' : 'en' }.json`, 
-                            { timeout: 1000 * 60 /* 文档可能比较大，默认 5s 超时可能会导致弱网环境出现文档加载超时错误的问题 */ })
-                    })
-                } finally {
-                    docs_initing = false
-                }
+        if (docs || docs_initing)
+            return
+        
+        ;(async () => {
+            docs_initing = true
+            try {
+                model.set({
+                    docs: await request_json(
+                        `${model.assets_root}docs.${ language === 'zh' ? 'zh' : 'en' }.json`, 
+                        { timeout: 1000 * 60 /* 文档可能比较大，默认 5s 超时可能会导致弱网环境出现文档加载超时错误的问题 */ })
+                })
+            } finally {
+                docs_initing = false
             }
         })()
     }, [ ])
     
-    const monaco_options = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => ({
-            fontSize: 16,
+    useEffect(() => {
+        if (oniguruma)
+            return
+        
+        ;(async () => {
+            oniguruma = 'loading'
             
-            minimap: { enabled: minimap },
-            
-            fixedOverflowWidgets: true,
-            
-            acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
-            
-            readOnly: readonly,
-            domReadOnly: readonly,
-            
-            ...options,
-        }),
-        [minimap, enter_completion, readonly, options]
-    )
+            try {
+                await loadWASM(await fetch(`${model.assets_root}vendors/vscode-oniguruma/release/onig.wasm`))
+                
+                oniguruma = 'loaded'
+                
+                rerender()
+            } catch (error) {
+                oniguruma = undefined
+                
+                throw error
+            }
+        })()
+    }, [ ])
     
-    return docs ?
-        <MonacoDolphinDBEditor
-            className={class_name}
+    
+    if (!docs || oniguruma !== 'loaded')
+        return <div className='editor-loading'>{t('正在加载代码编辑器...')}</div>
+    
+    return <MonacoEditor
+        readonly={readonly}
+        default_value={default_value}
+        on_change={on_change}
+        language='dolphindb'
+        observe_resize={observe_resize}
+        theme={theme}
+        options={options}
+        on_loaded={on_loaded}
+        on_save={on_save}
+        
+        // 注册 dolphindb 语言相关
+        before_create_editor={async monaco => {
+            if (!dolphindb_registered) {
+                dolphindb_registered = true
+                
+                let { languages } = monaco
+                
+                languages.register({ id: 'dolphindb' })
+                
+                set_docs_provider(new DocsProvider(docs))
+                register_monaco_language_providers(monaco)
+                
+                await register_tokenizer(languages)
+            }
             
-            dolphinDBLanguageOptions={{ docs, theme }}
-            
-            wrapperProps={{ className: `monaco-editor-container ${theme}` }}
-            
-            value={value}
-            
-            height={height}
-            
-            theme={theme === 'light' ? 'vs' : 'vs-dark'}
-            
-            defaultValue={default_value}
-            
-            loading={<div className='editor-loading'>{t('正在加载代码编辑器...')}</div>}
-            
-            beforeMonacoInit={async () => loadWASM(await fetch(`${model.assets_root}vendors/vscode-oniguruma/release/onig.wasm`)) }
-            
-            onMonacoInitFailed={error => { model.show_error({ error }) }}
-            
-            options={monaco_options}
-            
-            onMount={on_mount}
-            
-            onChange={on_change}
-        />
-    :
-        <div className='editor-loading'>{t('正在加载代码编辑器...')}</div>
+            set_color_map(monaco, theme)
+        }}
+    />
 }
-

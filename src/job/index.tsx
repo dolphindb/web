@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
     Button, Input, Popconfirm, Table, Typography, Tooltip, Spin,
@@ -10,7 +10,7 @@ import { ReloadOutlined } from '@ant-design/icons'
 
 import { type DdbObj, format, DdbType } from 'dolphindb/browser.js'
 
-import { Editor } from '@monaco-editor/react'
+import { MonacoEditor, type CodeEditor } from '@components/Editor/MonacoEditor.tsx'
 
 import { language, t } from '@i18n'
 
@@ -507,13 +507,17 @@ type DdbJobColumn = TableColumnType<DdbJob>
 const message_lines_limit = 500
 
 function JobMessageShow ({ job, disabled }: { job: DdbJob, disabled?: boolean }) {
-    const [message, set_message] = useState<string[]>([ ])
     const [show, set_show] = useState(false)
+    let rmessages = useRef<string[]>([ ])
+    let reditor = useRef<CodeEditor>(undefined)
     const [show_all, set_show_all] = useState(false)
     const [show_see_more, set_show_see_more] = useState(false)
     const node = job.node
     
-    const text = message.join_lines()
+    function set_messages (messages: string[]) {
+        rmessages.current = messages
+        reditor.current?.setValue(messages.join_lines())
+    }
     
     async function get_job_message () {
         set_show_all(false)
@@ -549,7 +553,7 @@ function JobMessageShow ({ job, disabled }: { job: DdbJob, disabled?: boolean })
             model.node_alias === node ? undefined : { node }
         )
         set_show(true)
-        set_message(result)
+        set_messages(result)
     }
     
     async function show_all_messages () {
@@ -559,10 +563,11 @@ function JobMessageShow ({ job, disabled }: { job: DdbJob, disabled?: boolean })
             [job.jobId ? job.jobId : job.rootJobId],
             model.node_alias === node ? undefined : { node }
         )
-        set_message(result.split_lines())
+        set_messages(result.split_lines())
     }
     
     async function copy_to_clipboard () {
+        const text = rmessages.current.join_lines()
         if (navigator.clipboard?.writeText) {
             await navigator.clipboard.writeText(text)
             model.message.success(t('复制成功'))
@@ -596,7 +601,14 @@ function JobMessageShow ({ job, disabled }: { job: DdbJob, disabled?: boolean })
             open={show}
         >
             <div className='job-message'>
-                <Editor height='100%' width='100%' defaultLanguage='plaintext' value={message.join_lines()} options={{ readOnly: true }} />
+                <MonacoEditor
+                    readonly
+                    observe_resize
+                    on_loaded={(_, editor) => {
+                        reditor.current = editor
+                        editor.setValue(rmessages.current.join_lines())
+                    }}
+                />
             </div>
             <div>
                 {!show_all && show_see_more && <Link title={t('当前显示的是日志的一部分，点击以查看完整日志')} onClick={show_all_messages}>{t('当前显示的是日志的一部分，点击以查看完整日志')}</Link>}

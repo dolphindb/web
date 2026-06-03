@@ -108,12 +108,8 @@ function CreateTableModalPreviewCode () {
     return <div className='create-table-preview-code'>
         <div className='create-table-preview-code-editor'>
             <Editor
-                value={code}
+                default_value={code}
                 readonly
-                options={{
-                    padding: { top: 8 },
-                    overviewRulerBorder: false
-                }}
             />
             <CopyIconButton
                 type='link'

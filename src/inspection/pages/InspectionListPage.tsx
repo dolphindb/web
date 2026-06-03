@@ -262,60 +262,60 @@ function ReportListTable  ({
     ], [ ])
     
     return <DDBTable
-                scroll={{ x: 'max-content' }}
-                buttons={
-                    <Button 
-                        icon={<DeleteOutlined />} 
-                        danger 
-                        disabled={ids.length === 0}
-                        onClick={() => {
-                            if (ids.length) 
-                                NiceModal.show(DeleteReportsModal, { 
-                                    ids,
-                                    refresher,
-                                    set_current_page 
-                                })
-                            
-                        }}
-                    >
-                        {t('批量删除')}
-                    </Button>
-                }
-                title={t('巡检结果')}
-                filter_form={
-                    <DatePicker.RangePicker 
-                    value={dates} 
-                    onChange={set_dates} 
-                    showTime 
-                    placeholder={[t('开始时间'), t('结束时间')]}/>
-                }
-                onChange={(_, filter, sorter) => {
-                    if (filter?.success && filter.success.length > 0) 
-                        set_success(Number(filter.success[0]))
-                    else
-                        set_success(null)
+        scroll={{ x: 'max-content' }}
+        buttons={
+            <Button 
+                icon={<DeleteOutlined />} 
+                danger 
+                disabled={ids.length === 0}
+                onClick={() => {
+                    if (ids.length) 
+                        NiceModal.show(DeleteReportsModal, { 
+                            ids,
+                            refresher,
+                            set_current_page 
+                        })
                     
-                    if (Array.isArray(sorter))
-                        sorter = sorter[0]
-                    if (sorter.order) 
-                        set_sorter([String(sorter.field), sorter.order === 'ascend' ? 1 : 0])
                 }}
-                rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
-                dataSource={reports_obj?.records} 
-                columns={cols}
-                rowKey='id' 
-                pagination={{
-                    current: current_page,
-                    pageSize: current_page_size,
-                    pageSizeOptions: [5, 10, 20, 50, 100],
-                    total: Number(reports_obj?.total),
-                    showSizeChanger: true,
-                    onChange: (current_page, current_page_size) => {
-                        set_current_page(current_page)
-                        set_current_page_size(current_page_size)
-                    }
-            }} 
-        />
+            >
+                {t('批量删除')}
+            </Button>
+        }
+        title={t('巡检结果')}
+        filter_form={
+            <DatePicker.RangePicker 
+                value={dates} 
+                onChange={set_dates as any} 
+                showTime 
+                placeholder={[t('开始时间'), t('结束时间')]} />
+        }
+        onChange={(_, filter, sorter) => {
+            if (filter?.success && filter.success.length > 0) 
+                set_success(Number(filter.success[0]))
+            else
+                set_success(null)
+            
+            if (Array.isArray(sorter))
+                sorter = sorter[0]
+            if (sorter.order) 
+                set_sorter([String(sorter.field), sorter.order === 'ascend' ? 1 : 0])
+        }}
+        rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
+        dataSource={reports_obj?.records} 
+        columns={cols}
+        rowKey='id' 
+        pagination={{
+            current: current_page,
+            pageSize: current_page_size,
+            pageSizeOptions: [5, 10, 20, 50, 100],
+            total: Number(reports_obj?.total),
+            showSizeChanger: true,
+            onChange: (current_page, current_page_size) => {
+                set_current_page(current_page)
+                set_current_page_size(current_page_size)
+            }
+        }}
+    />
 }
 
 function PlanListTable  ({

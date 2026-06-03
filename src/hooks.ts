@@ -1,12 +1,10 @@
 import { useCallback } from 'react'
 
 import type { editor } from 'monaco-editor'
-import { useMonaco } from '@monaco-editor/react'
+import type { Monaco } from '@components/Editor/index.tsx'
 
-export function use_monaco_insert (editor: editor.IStandaloneCodeEditor) {
-    const monaco = useMonaco()
-    
-    const on_monaco_insert = useCallback(
+export function use_monaco_insert (monaco: Monaco, editor: editor.IStandaloneCodeEditor) {
+    return useCallback(
         (content: string) => {
             const position = editor?.getPosition?.()
             editor.executeEdits('', [
@@ -23,8 +21,5 @@ export function use_monaco_insert (editor: editor.IStandaloneCodeEditor) {
             
             editor.focus()
         },
-        [editor]
-    )
-    
-    return { on_monaco_insert }
+        [monaco, editor])
 }

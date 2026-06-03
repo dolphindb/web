@@ -1178,6 +1178,9 @@
     "回车补全:": {
         "en": "Enter Completion"
     },
+    "字体大小:": {
+        "en": "Font Size:"
+    },
     "是否取消执行中的作业？": {
         "en": "Do you want to cancel the job in progress?"
     },
@@ -6835,5 +6838,11 @@
     },
     "自定义侧边菜单配置": {
         "en": "Custom Side Menu Configuration"
+    },
+    "保存代码": {
+        "en": "Save Code"
+    },
+    "设置默认字体大小（临时修改可将鼠标移到编辑器区域，通过 ctrl + 滚轮上下 调整）": {
+        "en": "Set the default font size (for temporary modifications, you can move the mouse to the editor area and adjust it up and down using ctrl + wheel)"
     }
 }
