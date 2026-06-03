@@ -210,15 +210,18 @@ export function get_editor_value (editor: CodeEditor) {
 }
 
 
+const font = "MyFont, Menlo, 'Ubuntu Mono', Consolas, 'Dejavu Sans Mono', 'Noto Sans Mono', PingFangSC, 'Microsoft YaHei', monospace" as const
+
+
 const default_options: editor.IStandaloneEditorConstructionOptions = {
     minimap: {
         enabled: false
     },
     
-    fontFamily: 'MyFont, monospace',
+    fontFamily: font,
     fontSize: 18,
     insertSpaces: true,
-    codeLensFontFamily: 'MyFont, monospace',
+    codeLensFontFamily: font,
     folding: true,
     largeFileOptimizations: true,
     matchBrackets: 'always',
