@@ -392,10 +392,6 @@ class ShellModel extends Model<ShellModel> {
         
         if (this.itab > -1) {
             let tab = this.tabs.find(t => t.index === this.itab)
-            if (!tab) {
-                this.clear_code_storage()
-                return
-            }
             tab.code = code
             this.set({ tabs: [...this.tabs] })
             try {
@@ -514,87 +510,38 @@ class ShellModel extends Model<ShellModel> {
         this.set({ tabs: [...this.tabs] })
         this.save()
     }
-    
-    
-    get_active_code (): string {
-        if (this.itab > -1)
-            return this.tabs.find(t => t.index === this.itab).code
-            
-        return localStorage.getItem(storage_keys.code) || ''
-    }
-    
- 
     switch_tab (tab_index: number) {
         if (!this.monaco_inited)
             return
         
         this.save()
-        if (tab_index > -1 && !this.tabs.some(t => t.index === tab_index)) {
-            this.clear_code_storage()
-            this.editor.setValue('')
-            return
-        }
-        
         this.set({ itab: tab_index })
-        this.editor.setValue(this.get_active_code())
+        if (tab_index > -1)
+            this.editor.setValue(this.tabs.find(t => t.index === tab_index).code)
+        else
+            this.editor.setValue(localStorage.getItem(`${storage_keys.code}`) || '')
     }
-    
-    
-    clear_code_storage () {
-        localStorage.removeItem(storage_keys.code)
-        localStorage.removeItem(storage_keys.current_tab)
-        
-        for (const key of Object.keys(localStorage))
-            if (key.startsWith(`${storage_keys.code}.`))
-                localStorage.removeItem(key)
-                
-        this.set({ tabs: [ ], itab: -1 })
-    }
-    
-    
     init_tabs () {
-        let tabs: Tab[] = [ ]
-        let indexes = new Set<number>()
-        let itab = Number(localStorage.getItem(storage_keys.current_tab) || -1)
-        if (!Number.isInteger(itab) || itab < -1) {
-            this.clear_code_storage()
-            return
-        }
-        
-        for (const key of Object.keys(localStorage).filter(key => key.startsWith(`${storage_keys.code}.`))) {
-            let tab: Tab
-            try {
-                tab = JSON.parse(localStorage.getItem(key) || '')
-            } catch {
-                localStorage.removeItem(key)
-                continue
-            }
+        try {
+            const tabs = Object.keys(localStorage)
+                .filter(key => key.startsWith(`${storage_keys.code}.`))
+                .map(key => JSON.parse(localStorage.getItem(key) || '') as Tab)
+                .sort((a, b) => a.index - b.index)
+                
+            if (this.itab > -1 && !tabs.some(tab => tab.index === this.itab))
+                throw new Error('invalid current tab')
+                
+            this.set({ tabs })
+        } catch {
+            localStorage.removeItem(storage_keys.code)
+            localStorage.removeItem(storage_keys.current_tab)
             
-            if (
-                !tab ||
-                typeof tab !== 'object' ||
-                typeof tab.index !== 'number' ||
-                !Number.isInteger(tab.index) ||
-                tab.index < 1 ||
-                indexes.has(tab.index) ||
-                key !== `${storage_keys.code}.${tab.index}` ||
-                typeof tab.name !== 'string' ||
-                typeof tab.code !== 'string'
-            ) {
-                localStorage.removeItem(key)
-                continue
-            }
-            
-            indexes.add(tab.index)
-            tabs.push(tab)
+            for (const key of Object.keys(localStorage))
+                if (key.startsWith(`${storage_keys.code}.`))
+                    localStorage.removeItem(key)
+                    
+            this.set({ tabs: [ ], itab: -1 })
         }
-        
-        if (itab > -1 && !indexes.has(itab)) {
-            this.clear_code_storage()
-            return
-        }
-        
-        this.set({ tabs: tabs.sort((a, b) => a.index - b.index), itab })
     }
     
     
