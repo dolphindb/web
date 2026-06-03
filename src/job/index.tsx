@@ -603,7 +603,11 @@ function JobMessageShow ({ job, disabled }: { job: DdbJob, disabled?: boolean })
             <div className='job-message'>
                 <MonacoEditor
                     readonly
-                    on_loaded={(_, editor) => { reditor.current = editor }}
+                    observe_resize
+                    on_loaded={(_, editor) => {
+                        reditor.current = editor
+                        editor.setValue(rmessages.current.join_lines())
+                    }}
                 />
             </div>
             <div>
