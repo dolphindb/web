@@ -1317,6 +1317,7 @@ export const storage_keys = {
     session: 'ddb.session',
     minimap: 'ddb.editor.minimap',
     enter_completion: 'ddb.editor.enter_completion',
+    font_size: 'ddb.editor.font_size',
     sql: 'ddb.sql',
     language: 'ddb.language',
     timezone: 'ddb.timezone',

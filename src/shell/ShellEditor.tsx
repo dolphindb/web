@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { Input, Select, Switch, Tooltip } from 'antd'
+import { Input, InputNumber, Select, Switch, Tooltip } from 'antd'
 import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined } from '@ant-design/icons'
 
 import { storage } from 'xshell/storage.js'
@@ -26,6 +26,9 @@ export function ShellEditor ({ collapser }) {
     
     const [enter_completion, set_enter_completion] = useState(() => 
         storage.get_bool(storage_keys.enter_completion))
+    
+    const [font_size, set_font_size] = useState(() => 
+        storage.get(storage_keys.font_size, 16))
     
     const [collapsed, set_collapsed] = useState(false)
     
@@ -58,8 +61,10 @@ export function ShellEditor ({ collapser }) {
             minimap: { enabled: minimap },
             
             acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
+            
+            fontSize: font_size,
         }),
-        [minimap, enter_completion])
+        [minimap, enter_completion, font_size])
     
     
     function handle_tab_close (tabId) {
@@ -155,6 +160,23 @@ export function ShellEditor ({ collapser }) {
                         storage.set_bool(storage_keys.enter_completion, checked)
                     }}
                 />
+                
+                <Tooltip title={t('设置默认字体大小（临时修改可将鼠标移到编辑器区域，通过 ctrl + 滚轮上下 调整）')}>
+                    <span className='setting'>
+                        <span className='title'>{t('字体大小:')}</span>
+                        <InputNumber
+                            className='font-size-input'
+                            value={font_size}
+                            size='small'
+                            min={0}
+                            step={1}
+                            onChange={(size = 16) => {
+                                set_font_size(size)
+                                storage.set(storage_keys.font_size, size)
+                            }}
+                        />
+                    </span>
+                </Tooltip>
                 
                 <LanguageSelect />
                 
