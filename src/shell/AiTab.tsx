@@ -603,13 +603,13 @@ function WorkspaceSidebar ({
                 <div className='ai-workspace-editor'>
                     <Editor
                         readonly
-                        value={opened_file?.content || ''}
-                        height={560}
-                        minimap
+                        default_value={opened_file?.content || ''}
                         options={{
+                            minimap: { enabled: true },
                             wordWrap: 'on',
                             scrollBeyondLastLine: false,
                             automaticLayout: true,
+                            dimension: { width: 0, height: 560 },
                         }}
                     />
                 </div>

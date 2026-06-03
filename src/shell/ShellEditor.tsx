@@ -321,7 +321,7 @@ export function ShellEditor ({ collapser }) {
                 })
             }}
             
-            on_change={(value, event) => {
+            on_change={value => {
                 if (value !== undefined)
                     shell.save_debounced(value)
             }}
