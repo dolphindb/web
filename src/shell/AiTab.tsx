@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { type MouseEvent, useEffect, useRef, useState } from 'react'
 import { Alert, Button, Checkbox, Empty, Input, Modal, Spin, Tooltip, Typography, Space, Collapse } from 'antd'
 import { SendOutlined, BulbOutlined, StopOutlined, CodeOutlined, FileTextOutlined, FolderOpenOutlined, ReloadOutlined } from '@ant-design/icons'
 import { type DdbObj, type DdbValue, DdbForm } from 'dolphindb/browser.js'
@@ -6,6 +6,7 @@ import { marked } from 'marked'
 
 import { t } from '@i18n'
 import { model } from '@model'
+import { copy } from '@utils'
 import { Editor } from '@components/Editor/index.tsx'
 import { bind_chat_model_session, get_chat_model } from '@/chat/model.ts'
 import type { AgentStatus, ChatModel, IMessage, IToolCall } from '@/chat/model.ts'
@@ -50,7 +51,10 @@ marked.setOptions({ breaks: true, gfm: true })
 
 function render_markdown (content: string): string {
     try {
-        return marked.parse(content) as string
+        return (marked.parse(content) as string).replace(
+            /<pre><code(.*?)>([\s\S]*?)<\/code><\/pre>/g,
+            `<pre class="ai-code-block"><button class="ai-code-copy" type="button">${t('复制')}</button><code$1>$2</code></pre>`
+        )
     } catch {
         return content
     }
@@ -236,6 +240,16 @@ export function AiTab ({ session_id }: { session_id: string }) {
         last_scroll_top.current = current
     }
     
+    async function handle_message_click (event: MouseEvent<HTMLDivElement>) {
+        const button = (event.target as HTMLElement).closest<HTMLButtonElement>('.ai-code-copy')
+        if (!button)
+            return
+        event.stopPropagation()
+        await copy(button.parentElement?.querySelector('code')?.textContent || '')
+        button.textContent = t('已复制')
+        setTimeout(() => { button.textContent = t('复制') }, 1500)
+    }
+    
     async function handle_send () {
         if (!input_value.trim())
             return
@@ -296,7 +310,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         <TodoList steps={visible_steps} />
         
         {/* Messages */}
-        <div className='ai-tab-messages' ref={messages_ref} onScroll={handle_message_scroll}>
+        <div className='ai-tab-messages' ref={messages_ref} onScroll={handle_message_scroll} onClick={handle_message_click}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {visible_groups.map((group, idx) => {
                     const is_last = idx === visible_groups.length - 1

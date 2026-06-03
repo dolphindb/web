@@ -3,6 +3,7 @@ import { RedoOutlined } from '@ant-design/icons'
 import { marked } from 'marked'
 
 import { t } from '@i18n'
+import { copy } from '@utils'
 import { shell } from '@/shell/model.ts'
 
 import type { ChatModel, IMessage } from './model.ts'
@@ -129,7 +130,10 @@ interface SectionData {
 
 function render_markdown (content: string): string {
     try {
-        return marked.parse(content) as string
+        return (marked.parse(content) as string).replace(
+            /<pre><code(.*?)>([\s\S]*?)<\/code><\/pre>/g,
+            `<pre class="ai-code-block"><button class="ai-code-copy" type="button">${t('复制')}</button><code$1>$2</code></pre>`
+        )
     } catch {
         return content
     }
@@ -231,14 +235,34 @@ function create_markdown_detail (key: string, label: string, value: unknown): De
 
 function create_code_view (code: string, action?: React.ReactNode) {
     return <div style={CODE_VIEWER_STYLE}>
-        {action && <div style={CODE_VIEWER_ACTION_STYLE}>{action}</div>}
+        <div style={CODE_VIEWER_ACTION_STYLE}>
+            <Space size={6}>
+                {create_copy_button(code)}
+                {action}
+            </Space>
+        </div>
         <pre style={{
             ...PRE_STYLE,
             maxHeight: get_editor_height(code),
             overflow: 'auto',
-            padding: 10,
+            padding: '42px 10px 10px',
         }}>{code}</pre>
     </div>
+}
+
+
+function create_copy_button (code: string) {
+    return <Button
+        size='small'
+        onClick={event => {
+            event.stopPropagation()
+            copy(code).catch(error => {
+                console.error('[ai] copy script failed:', error)
+            })
+        }}
+    >
+        {t('复制')}
+    </Button>
 }
 
 
