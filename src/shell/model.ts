@@ -510,6 +510,8 @@ class ShellModel extends Model<ShellModel> {
         this.set({ tabs: [...this.tabs] })
         this.save()
     }
+    
+    
     switch_tab (tab_index: number) {
         if (!this.monaco_inited)
             return
@@ -521,25 +523,30 @@ class ShellModel extends Model<ShellModel> {
         else
             this.editor.setValue(localStorage.getItem(`${storage_keys.code}`) || '')
     }
+    
+    
     init_tabs () {
+        const prefix = `${storage_keys.code}.`
         try {
             const tabs = Object.keys(localStorage)
-                .filter(key => key.startsWith(`${storage_keys.code}.`))
+                .filter(key => key.startsWith(prefix))
                 .map(key => JSON.parse(localStorage.getItem(key) || '') as Tab)
                 .sort((a, b) => a.index - b.index)
-                
+            
             if (this.itab > -1 && !tabs.some(tab => tab.index === this.itab))
                 throw new Error('invalid current tab')
-                
+            
             this.set({ tabs })
-        } catch {
+        } catch (error) {
+            console.warn(error)
+            
             localStorage.removeItem(storage_keys.code)
             localStorage.removeItem(storage_keys.current_tab)
             
             for (const key of Object.keys(localStorage))
-                if (key.startsWith(`${storage_keys.code}.`))
+                if (key.startsWith(prefix))
                     localStorage.removeItem(key)
-                    
+            
             this.set({ tabs: [ ], itab: -1 })
         }
     }
