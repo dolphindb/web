@@ -344,7 +344,7 @@ const AGENT_ID_KEY = 'ddb.chat.agent_id'
 const TOOL_CALL_LIMIT_ENABLED_KEY = 'ddb.chat.tool_call_limit_enabled'
 
 /** 最大工具调用轮次，防止无限循环 */
-const MAX_TOOL_TURNS = 12
+const MAX_TOOL_TURNS = 200
 
 const MAX_REPEATED_TOOL_CALLS = 2
 
@@ -1611,7 +1611,7 @@ export class ChatModel extends Model<ChatModel> {
             },
             agent_status: {
                 status: 'tool_running',
-                message: t('工具调用已达到 {{count}} 轮，等待选择停止、继续或以后忽略。', { count: this._tool_turn_limit }),
+                message: t('Agent 已连续运行较长时间，是否继续'),
             },
         })
     }
@@ -1625,7 +1625,6 @@ export class ChatModel extends Model<ChatModel> {
     
     ignore_tool_call_limit () {
         this.set_tool_call_limit_enabled(false)
-        model.message?.success(t('工具调用限制已关闭'))
         this.continue_tool_loop()
     }
     

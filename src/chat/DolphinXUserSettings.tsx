@@ -29,6 +29,19 @@ function Section ({ title, children }: { title: string, children: React.ReactNod
 }
 
 
+function format_browser_time (value?: string) {
+    if (!value)
+        return '-'
+    const normalized = value.includes('T') ? value : value.replace(' ', 'T')
+    const time = Date.parse(/(?:Z|[+-]\d{2}:?\d{2})$/.test(normalized) ? normalized : `${normalized}Z`)
+    if (!Number.isFinite(time))
+        return value
+    const date = new Date(time)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+}
+
+
 function use_agent_options () {
     const { agents, agent_id } = chat_model.use(['agents', 'agent_id'])
     
@@ -220,7 +233,7 @@ function SessionSection () {
                     title: t('更新时间'),
                     dataIndex: 'updateTime',
                     width: 180,
-                    render: (value: string) => value || '-',
+                    render: format_browser_time,
                 },
                 {
                     title: t('操作'),
