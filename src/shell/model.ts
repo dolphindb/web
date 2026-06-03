@@ -392,8 +392,11 @@ class ShellModel extends Model<ShellModel> {
         
         if (this.itab > -1) {
             let tab = this.tabs.find(t => t.index === this.itab)
-            if (tab)
-                tab.code = code
+            if (!tab) {
+                this.clear_code_storage()
+                return
+            }
+            tab.code = code
             this.set({ tabs: [...this.tabs] })
             try {
                 localStorage.setItem(`${storage_keys.code}.${this.itab}`, JSON.stringify(tab))
@@ -513,103 +516,85 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
-    /** 返回当前活动标签页应显示的代码；若 itab 指向不存在的 tab 则自动回退 */
     get_active_code (): string {
-        try {
-            if (this.itab > -1) {
-                const tab = this.tabs.find(t => t.index === this.itab)
-                if (!tab) {
-                    console.error(
-                        'get_active_code: 当前 itab 对应的标签页不存在，回退到默认标签页',
-                        { itab: this.itab, tabs: this.tabs }
-                    )
-                    this.set({ itab: -1 })
-                    try {
-                        localStorage.setItem(storage_keys.current_tab, '-1')
-                    } catch { }
-                } else
-                    return tab.code ?? ''
-            }
-            return localStorage.getItem(storage_keys.code) || ''
-        } catch (error) {
-            console.error('get_active_code: 获取当前代码失败，回退为空', error)
-            return ''
-        }
+        if (this.itab > -1)
+            return this.tabs.find(t => t.index === this.itab).code
+            
+        return localStorage.getItem(storage_keys.code) || ''
     }
     
-    
+ 
     switch_tab (tab_index: number) {
         if (!this.monaco_inited)
             return
         
         this.save()
+        if (tab_index > -1 && !this.tabs.some(t => t.index === tab_index)) {
+            this.clear_code_storage()
+            this.editor.setValue('')
+            return
+        }
+        
         this.set({ itab: tab_index })
         this.editor.setValue(this.get_active_code())
     }
     
     
+    clear_code_storage () {
+        localStorage.removeItem(storage_keys.code)
+        localStorage.removeItem(storage_keys.current_tab)
+        
+        for (const key of Object.keys(localStorage))
+            if (key.startsWith(`${storage_keys.code}.`))
+                localStorage.removeItem(key)
+                
+        this.set({ tabs: [ ], itab: -1 })
+    }
+    
+    
     init_tabs () {
         let tabs: Tab[] = [ ]
-        let tab_keys: string[] = [ ]
+        let indexes = new Set<number>()
+        let itab = Number(localStorage.getItem(storage_keys.current_tab) || -1)
+        if (!Number.isInteger(itab) || itab < -1) {
+            this.clear_code_storage()
+            return
+        }
         
-        try {
-            tab_keys = Object.keys(localStorage)
-                .filter(key => key.startsWith(`${storage_keys.code}.`))
-            
-            for (const key of tab_keys) {
-                const raw = localStorage.getItem(key)
-                let parsed: any
-                try {
-                    parsed = JSON.parse(raw || '')
-                } catch (error) {
-                    console.error('init_tabs: 解析标签页数据失败，已移除损坏条目', { key, raw, error })
-                    localStorage.removeItem(key)
-                    continue
-                }
-                
-                // 校验 tab 结构，避免后续访问 .code 崩溃
-                if (
-                    !parsed ||
-                    typeof parsed !== 'object' ||
-                    typeof parsed.index !== 'number' ||
-                    !Number.isFinite(parsed.index)
-                ) {
-                    console.error('init_tabs: 标签页数据结构异常，已移除', { key, parsed })
-                    localStorage.removeItem(key)
-                    continue
-                }
-                
-                // 兜底补齐必要字段，避免后续访问 undefined
-                if (typeof parsed.code !== 'string')
-                    parsed.code = ''
-                if (typeof parsed.name !== 'string')
-                    parsed.name = t('标签页 ') + parsed.index
-                
-                tabs.push(parsed as Tab)
+        for (const key of Object.keys(localStorage).filter(key => key.startsWith(`${storage_keys.code}.`))) {
+            let tab: Tab
+            try {
+                tab = JSON.parse(localStorage.getItem(key) || '')
+            } catch {
+                localStorage.removeItem(key)
+                continue
             }
             
-            tabs.sort((a, b) => a.index - b.index)
-        } catch (error) {
-            // 兜底：init_tabs 任何异常都不应阻塞交互编程的初始化
-            console.error('init_tabs: 初始化标签页失败，重置为默认状态', error)
-            tabs = [ ]
-            try {
-                for (const key of tab_keys)
-                    localStorage.removeItem(key)
-            } catch { }
+            if (
+                !tab ||
+                typeof tab !== 'object' ||
+                typeof tab.index !== 'number' ||
+                !Number.isInteger(tab.index) ||
+                tab.index < 1 ||
+                indexes.has(tab.index) ||
+                key !== `${storage_keys.code}.${tab.index}` ||
+                typeof tab.name !== 'string' ||
+                typeof tab.code !== 'string'
+            ) {
+                localStorage.removeItem(key)
+                continue
+            }
+            
+            indexes.add(tab.index)
+            tabs.push(tab)
         }
         
-        // 如果 itab 指向一个不存在的 tab，重置为默认标签页，避免访问 .code 时抛错
-        let itab = this.itab
-        if (itab > -1 && !tabs.some(t => t.index === itab)) {
-            console.error('init_tabs: 当前 itab 对应的标签页不存在，重置为默认标签页', { itab, tabs })
-            itab = -1
-            try {
-                localStorage.setItem(storage_keys.current_tab, '-1')
-            } catch { }
+        if (itab > -1 && !indexes.has(itab)) {
+            this.clear_code_storage()
+            return
         }
         
-        this.set({ tabs, itab })
+        this.set({ tabs: tabs.sort((a, b) => a.index - b.index), itab })
     }
     
     
