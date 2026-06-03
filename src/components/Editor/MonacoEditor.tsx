@@ -219,7 +219,7 @@ const default_options: editor.IStandaloneEditorConstructionOptions = {
     },
     
     fontFamily: font,
-    fontSize: 18,
+    fontSize: 16,
     insertSpaces: true,
     codeLensFontFamily: font,
     folding: true,
