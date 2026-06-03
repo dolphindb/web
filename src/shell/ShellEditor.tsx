@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { Input, InputNumber, Select, Switch, Tooltip } from 'antd'
 import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons'
@@ -42,11 +42,13 @@ export function ShellEditor ({ collapser }) {
     const current_tab = tabs.find(t => t.index === itab)
     const readonly = current_tab?.read_only
     const is_ai_tab = Boolean(current_tab?.chat_id)
-    
+
+    useLayoutEffect(() => {
+        shell.init_tabs()
+    }, [ ])
+
     // 标签页关闭前自动保存代码
     useEffect(() => {
-        shell.init_tabs()
-        
         function beforeunload (event: BeforeUnloadEvent) {
             shell.save()
             // event.returnValue = ''
@@ -268,10 +270,9 @@ export function ShellEditor ({ collapser }) {
             options={monaco_options}
             
             on_loaded={(monaco, editor) => {
-                editor.setValue(shell.itab > -1 
-                    ? shell.tabs.find(t => t.index === shell.itab)?.code || ''
-                    : localStorage.getItem(storage_keys.code) || ''
-                )
+                editor.setValue(shell.itab > -1
+                    ? shell.tabs.find(t => t.index === shell.itab && !t.chat_id)?.code || ''
+                    : localStorage.getItem(storage_keys.code) || '')
                 
                 async function execute (selection: 'line' | 'all') {
                     if (shell.executing)

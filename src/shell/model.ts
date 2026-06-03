@@ -402,8 +402,9 @@ class ShellModel extends Model<ShellModel> {
         
         if (this.itab > -1) {
             let tab = this.tabs.find(t => t.index === this.itab)
-            if (tab)
-                tab.code = code
+            if (!tab)
+                return
+            tab.code = tab.chat_id ? '' : code
             this.set({ tabs: [...this.tabs] })
             try {
                 localStorage.setItem(`${storage_keys.code}.${this.itab}`, JSON.stringify(tab))
@@ -603,28 +604,36 @@ class ShellModel extends Model<ShellModel> {
         this.save()
         this.set({ itab: tab_index })
         if (tab_index > -1)
-            this.editor?.setValue(this.tabs.find(t => t.index === tab_index)?.code || '')
+            this.editor?.setValue(this.tabs.find(t => t.index === tab_index && !t.chat_id)?.code || '')
         else
             this.editor?.setValue(localStorage.getItem(`${storage_keys.code}`) || '')
     }
     
     
     init_tabs () {
-        const tab_keys = Object.keys(localStorage)
-            .filter(key => key.startsWith(`${storage_keys.code}.`))
-        
-        let tabs: Tab[] = [ ]
-        
-        for (const key of tab_keys) 
-            try {
-                tabs.push(
-                    JSON.parse(
-                        localStorage.getItem(key) || ''))
-            } catch {
-                localStorage.removeItem(key)
-            }
-        
-        this.set({ tabs: tabs.sort((a, b) => a.index - b.index) })
+        const prefix = `${storage_keys.code}.`
+        try {
+            const tabs = Object.keys(localStorage)
+                .filter(key => key.startsWith(prefix))
+                .map(key => JSON.parse(localStorage.getItem(key) || '') as Tab)
+                .sort((a, b) => a.index - b.index)
+
+            if (this.itab > -1 && !tabs.some(tab => tab.index === this.itab))
+                throw new Error('invalid current tab')
+
+            this.set({ tabs })
+        } catch (error) {
+            console.warn(error)
+
+            localStorage.removeItem(storage_keys.code)
+            localStorage.removeItem(storage_keys.current_tab)
+
+            for (const key of Object.keys(localStorage))
+                if (key.startsWith(prefix))
+                    localStorage.removeItem(key)
+
+            this.set({ tabs: [ ], itab: -1 })
+        }
     }
     
     
