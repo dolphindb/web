@@ -282,6 +282,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                 </Popconfirm>}
                 <Popconfirm
                     title={t('确定删除此 Agent？')}
+                    okButtonProps={{ danger: true }}
                     onConfirm={async () => {
                         try {
                             await chat_model.delete_agent(agent.agentId)
@@ -1041,6 +1042,7 @@ function LlmConfigTab () {
                                         </Popconfirm>}
                                         <Popconfirm
                                             title={t('确定删除此模型配置？')}
+                                            okButtonProps={{ danger: true }}
                                             onConfirm={async () => { await delete_config(cfg) }}
                                         >
                                             <Button type='text' size='small' danger icon={<DeleteOutlined />} />
@@ -1511,6 +1513,7 @@ function SkillsTab () {
                             }
                             <Popconfirm
                                 title={t('确定删除此技能？')}
+                                okButtonProps={{ danger: true }}
                                 onConfirm={async () => {
                                     try {
                                         await chat_model.delete_skill(s.skillId)

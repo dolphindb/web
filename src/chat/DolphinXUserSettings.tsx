@@ -241,7 +241,7 @@ function SessionSection () {
                     render: (_: unknown, session: ISession) => <Space>
                         <Button size='small' onClick={() => { open_title_modal(session) }}>{t('改标题')}</Button>
                         <Button size='small' onClick={() => { open_summary_modal(session) }}>{t('生成摘要')}</Button>
-                        <Popconfirm title={t('确定删除此会话？')} onConfirm={() => delete_session(session.sessionId)}>
+                        <Popconfirm title={t('确定删除此会话？')} okButtonProps={{ danger: true }} onConfirm={() => delete_session(session.sessionId)}>
                             <Button danger size='small'>{t('删除')}</Button>
                         </Popconfirm>
                     </Space>,
@@ -481,7 +481,7 @@ function MemorySection () {
                     render: (_: unknown, item: IMemoryEntry) => <Space>
                         <Button size='small' onClick={() => { set_detail_memory(item) }}>{t('详情')}</Button>
                         <Button size='small' onClick={() => { open_edit_memory(item) }}>{t('编辑')}</Button>
-                        <Popconfirm title={t('确定删除这条记忆？')} onConfirm={() => delete_memory(item.memoryId)}>
+                        <Popconfirm title={t('确定删除这条记忆？')} okButtonProps={{ danger: true }} onConfirm={() => delete_memory(item.memoryId)}>
                             <Button danger size='small'>{t('删除')}</Button>
                         </Popconfirm>
                     </Space>,
