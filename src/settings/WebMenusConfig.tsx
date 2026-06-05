@@ -140,7 +140,7 @@ export function WebMenusConfig () {
             <Form
                 ref={rform}
                 layout='inline'
-                onFinish={async (values) => {
+                onFinish={async values => {
                     await save_menus(
                         editing_index === -1
                             ? [...menus, values]
@@ -162,7 +162,7 @@ export function WebMenusConfig () {
                         {t('保存')}
                     </Button>
                     
-                    <Button className='btn-cancel' onClick={() => set_editing_index(null)}>
+                    <Button className='btn-cancel' onClick={() => { set_editing_index(null) }}>
                         {t('取消')}
                     </Button>
                 </Form.Item>

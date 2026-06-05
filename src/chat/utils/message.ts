@@ -151,7 +151,7 @@ function parse_tool_call_from_object (value: unknown): ToolCallViewModel | null 
         return null
     
     const obj = value as Record<string, unknown>
-
+    
     const native_function = obj.function
     if (native_function && typeof native_function === 'object' && !Array.isArray(native_function)) {
         const name = (native_function as { name?: unknown }).name
@@ -194,7 +194,7 @@ export function parse_tool_call (message: IMessage): ToolCallViewModel | null {
         if (parsed)
             return parsed
     }
-
+    
     const parsed_text_call = parse_text_tool_calls(undefined, message.content)[0]
     if (parsed_text_call)
         return { name: parsed_text_call.type, args: parsed_text_call.payload }
@@ -305,7 +305,7 @@ function strip_tool_call_segments (text: string): string {
     while ((match = code_regex.exec(text)) !== null)
         if (has_tool_call_payload(match[1] || ''))
             ranges.push([match.index, code_regex.lastIndex])
-
+            
     let start = -1
     let depth = 0
     let in_string = false
@@ -340,11 +340,11 @@ function strip_tool_call_segments (text: string): string {
             }
         }
     }
-
+    
     let result = text
     for (const [from, to] of merge_ranges(ranges).reverse())
         result = `${result.slice(0, from)}\n${result.slice(to)}`
-
+        
     return result
         .split(/\r?\n/)
         .map(line => line.trimEnd())

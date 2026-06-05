@@ -42,11 +42,11 @@ export function ShellEditor ({ collapser }) {
     const current_tab = tabs.find(t => t.index === itab)
     const readonly = current_tab?.read_only
     const is_ai_tab = Boolean(current_tab?.chat_id)
-
+    
     useLayoutEffect(() => {
         shell.init_tabs()
     }, [ ])
-
+    
     // 标签页关闭前自动保存代码
     useEffect(() => {
         function beforeunload (event: BeforeUnloadEvent) {

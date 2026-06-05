@@ -617,21 +617,21 @@ class ShellModel extends Model<ShellModel> {
                 .filter(key => key.startsWith(prefix))
                 .map(key => JSON.parse(localStorage.getItem(key) || '') as Tab)
                 .sort((a, b) => a.index - b.index)
-
+                
             if (this.itab > -1 && !tabs.some(tab => tab.index === this.itab))
                 throw new Error('invalid current tab')
-
+                
             this.set({ tabs })
         } catch (error) {
             console.warn(error)
-
+            
             localStorage.removeItem(storage_keys.code)
             localStorage.removeItem(storage_keys.current_tab)
-
+            
             for (const key of Object.keys(localStorage))
                 if (key.startsWith(prefix))
                     localStorage.removeItem(key)
-
+                    
             this.set({ tabs: [ ], itab: -1 })
         }
     }

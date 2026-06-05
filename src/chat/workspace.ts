@@ -194,8 +194,8 @@ class ChatWorkspaceStore {
         await this.write_file(session_id, api_fetch, STATE_FILE, current_state)
         return this.get_workspace(session_id, api_fetch)
     }
-
-
+    
+    
     async ensure_default_workspace (session_id: string, api_fetch: ApiFetch): Promise<IChatWorkspace> {
         return this.get_workspace(session_id, api_fetch)
     }
@@ -324,8 +324,8 @@ class ChatWorkspaceStore {
                 throw error
         }
     }
-
-
+    
+    
     async write_file (session_id: string, api_fetch: ApiFetch, name: string, content: string): Promise<any> {
         name = normalize_workspace_name(name)
         return api_fetch(`/workspace/${encodeURIComponent(session_id)}/file`, {
@@ -333,8 +333,8 @@ class ChatWorkspaceStore {
             body: JSON.stringify({ name, content }),
         })
     }
-
-
+    
+    
     async read_internal_file (session_id: string, api_fetch: ApiFetch, name: string) {
         try {
             const file = await this.get_file(session_id, api_fetch, name)
@@ -345,8 +345,8 @@ class ChatWorkspaceStore {
             throw error
         }
     }
-
-
+    
+    
     async write_steps (session_id: string, api_fetch: ApiFetch, steps: IWorkspaceStep[]) {
         await this.write_file(session_id, api_fetch, STEPS_FILE, JSON.stringify(steps))
     }

@@ -5,10 +5,10 @@ import { useMemo, useRef } from 'react'
 import { debounce } from 'lodash'
 
 import { Editor } from '@components/Editor/index.tsx'
+import { get_editor_value, type CodeEditor } from '@components/Editor/MonacoEditor.tsx'
 import { type Widget, dashboard } from '@/dashboard/model.ts'
 import { EditorFields } from '@/dashboard/ChartFormFields/EditorFields.tsx'
 import { type IEditorConfig } from '@/dashboard/type.ts'
-import { get_editor_value, type CodeEditor } from '@components/Editor/MonacoEditor.tsx'
 
 
 export function DashboardEditor ({ widget }: { widget: Widget }) {

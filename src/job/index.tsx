@@ -1,21 +1,16 @@
 import './index.sass'
 
 import { useEffect, useRef, useState } from 'react'
-
 import {
     Button, Input, Popconfirm, Table, Typography, Tooltip, Spin,
     type TablePaginationConfig, type TableColumnType, Modal, Result
 } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
-
 import { type DdbObj, format, DdbType } from 'dolphindb/browser.js'
 
-import { MonacoEditor, type CodeEditor } from '@components/Editor/MonacoEditor.tsx'
-
 import { language, t } from '@i18n'
-
 import { model, type DdbJob } from '@model'
-
+import { MonacoEditor, type CodeEditor } from '@components/Editor/MonacoEditor.tsx'
 import { DDBTable } from '@components/DDBTable/index.tsx'
 import { StatusTag, StatusType } from '@components/tags/index.tsx'
 

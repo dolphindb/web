@@ -17,7 +17,7 @@ import type { NodesConfig } from './type.ts'
 class ConfigModel extends Model<ConfigModel> {
     nodes_configs: Map<string, NodesConfig>
     
-    menus: WebMenuItem[] = []
+    menus: WebMenuItem[] = [ ]
     
     
     load_controller_configs () {
