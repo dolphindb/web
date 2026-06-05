@@ -875,9 +875,9 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 去登录页，或者跳转到 oauth 登录 */
     async goto_login () {
-        const { pathname } = location
+        const { pathname, search, hash } = location
         if (pathname !== `${this.assets_root}login/`)
-            this.pathname_before_login = pathname
+            this.pathname_before_login = `${pathname}${search}${hash}`
         
         if (this.oauth && !this.oauth_allow_password_login)
             await this.goto_oauth()
