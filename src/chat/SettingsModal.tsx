@@ -20,7 +20,7 @@ import type { IBuiltinInitResult, ILlmConfig, ILlmProvider, IAgentLlmBinding, IS
 import { DolphinXAdminTab, DolphinXUserTab } from './DolphinXUserSettings.tsx'
 
 
-const { Text } = Typography
+const { Paragraph, Text } = Typography
 
 
 function AgentTab () {
@@ -83,7 +83,14 @@ function AgentTab () {
         }
     }
     
-    const visible_agents = agents.filter(a => a.statusName !== 'DELETED')
+    const agent_create_time = (agent: IAgentInfo) => Date.parse(agent.createTime || '') || 0
+    const visible_agents = agents
+        .filter(a => a.statusName !== 'DELETED')
+        .sort((a, b) =>
+            a.agentId === agent_id ? -1 :
+            b.agentId === agent_id ? 1 :
+            agent_create_time(b) - agent_create_time(a)
+        )
     
     return <div style={{ display: 'flex', height: 520 }}>
         {/* 左侧 Agent 列表 */}
@@ -117,9 +124,9 @@ function AgentTab () {
                                     </Tag>
                                     {a.agentId === agent_id && <Tag color='blue' style={{ fontSize: 11 }}>{t('当前')}</Tag>}
                                 </div>
-                                <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>
+                                {a.description && <Paragraph type='secondary' style={{ fontSize: 11, margin: '2px 0 0' }} ellipsis={{ rows: 2, tooltip: a.description }}>
                                     {a.description}
-                                </div>
+                                </Paragraph>}
                             </div>
                         )
                 }
@@ -241,11 +248,11 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
     return <div style={{ padding: '12px 0' }}>
         {/* Agent 基本信息 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div>
+            <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontSize: 16, fontWeight: 500 }}>{agent.agentName}</div>
-                <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
-                    {agent.description ? `${agent.description} · ` : ''}{agent.agentId.slice(0, 20)}...
-                </div>
+                {agent.description && <Text type='secondary' style={{ display: 'block', fontSize: 12, marginTop: 2 }} ellipsis={{ tooltip: agent.description }}>
+                    {agent.description}
+                </Text>}
             </div>
             <Space size={4}>
                 {!is_current && agent.statusName === 'ACTIVE' && <Button
