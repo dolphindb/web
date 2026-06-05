@@ -32,7 +32,8 @@ function Section ({ title, children }: { title: string, children: React.ReactNod
 function format_browser_time (value?: string) {
     if (!value)
         return '-'
-    const normalized = value.includes('T') ? value : value.replace(' ', 'T')
+    const normalized = (value.includes('T') ? value : value.replace(' ', 'T'))
+        .replace(/^(\d{4})\.(\d{2})\.(\d{2})/, '$1-$2-$3')
     const time = Date.parse(/(?:Z|[+-]\d{2}:?\d{2})$/.test(normalized) ? normalized : `${normalized}Z`)
     if (!Number.isFinite(time))
         return value
@@ -212,14 +213,16 @@ function SessionSection () {
             loading={loading}
             dataSource={sessions}
             pagination={false}
+            tableLayout='fixed'
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无会话')} /> }}
             columns={[
                 {
                     title: t('标题'),
                     dataIndex: 'title',
+                    ellipsis: true,
                     render: (value: string, session: ISession) => <Text
-                        ellipsis
-                        style={{ maxWidth: 320, cursor: 'pointer' }}
+                        ellipsis={{ tooltip: value }}
+                        style={{ display: 'block', color: '#1677ff', cursor: 'pointer' }}
                         onClick={async () => {
                             try {
                                 await restore_session(session)
@@ -232,7 +235,7 @@ function SessionSection () {
                 {
                     title: t('更新时间'),
                     dataIndex: 'updateTime',
-                    width: 180,
+                    width: 210,
                     render: format_browser_time,
                 },
                 {
