@@ -1148,7 +1148,7 @@ function ContextPreviewSection () {
             />}
             <Table
                 size='small'
-                pagination={{ pageSize: 8 }}
+                pagination={{ defaultPageSize: 8 }}
                 rowKey={(_, index) => String(index)}
                 dataSource={messages}
                 columns={[
