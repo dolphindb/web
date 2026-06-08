@@ -553,7 +553,7 @@ class ShellModel extends Model<ShellModel> {
         while (index_set.has(new_tab_index))
             new_tab_index++
         
-        const tab_name = name || (t('AI 助手') + ' ' + new_tab_index)
+        const tab_name = name || (t('新会话 ') + new_tab_index)
         const new_tab = {
             name: tab_name,
             code: '',

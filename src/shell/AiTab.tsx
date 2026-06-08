@@ -263,9 +263,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
         try {
             if (pending_session) {
                 set_creating_session(true)
-                const session = await chat.create_session()
+                const tab_name = shell.tabs.find(tab => tab.chat_id === session_id)?.name
+                const session = await chat.create_session(tab_name || t('新会话'))
                 bind_chat_model_session(session_id, session.sessionId)
-                shell.bind_ai_tab_session(session_id, session.sessionId, session.title || t('新会话'))
+                shell.bind_ai_tab_session(session_id, session.sessionId, session.title || tab_name || t('新会话'))
             }
             chat.send_message(message)
             set_input_value('')

@@ -167,7 +167,7 @@ export function ShellEditor ({ collapser }) {
                                 return
                             }
                             
-                            await shell.add_ai_tab(undefined, t('新会话'))
+                            await shell.add_ai_tab()
                         } catch (e) {
                             console.error('Failed to create AI tab:', e)
                             model.message?.error(t('创建 AI 标签页失败'))

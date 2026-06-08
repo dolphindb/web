@@ -1037,10 +1037,10 @@ export class ChatModel extends Model<ChatModel> {
     }
     
     
-    async create_session (): Promise<ISession> {
+    async create_session (title = t('新会话')): Promise<ISession> {
         const body: Record<string, any> = {
             agentId: this.agent_id,
-            title: t('新会话'),
+            title,
         }
         if (this.selected_llm_config_id)
             body.llmConfigId = this.selected_llm_config_id
