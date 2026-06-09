@@ -266,6 +266,16 @@ export interface IMemoryStats {
 }
 
 
+export interface ISkillFileInfo {
+    skillId: string
+    contentRevision?: number
+    filePath: string
+    size?: number
+    isText?: boolean
+    lineCount?: number
+}
+
+
 export interface ISkillFileContent {
     skillId: string
     filePath: string
@@ -2720,9 +2730,11 @@ export class ChatModel extends Model<ChatModel> {
     }
     
     
-    async load_skill_files (skill_id: string): Promise<{ skillId: string, items: string[], size: number }> {
+    async load_skill_files (skill_id: string): Promise<{ skillId: string, items: ISkillFileInfo[], size: number }> {
         const result = await this.api_fetch(`/skill/${encodeURIComponent(skill_id)}/files/list`)
-        return { ...result, items: result.items || [ ] }
+        if (!Array.isArray(result.items))
+            console.error('Invalid skill files response:', result)
+        return { ...result, items: Array.isArray(result.items) ? result.items : [ ] }
     }
     
     

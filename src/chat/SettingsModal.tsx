@@ -16,7 +16,7 @@ import { t } from '@i18n'
 import { model } from '@model'
 
 import { chat_model } from './model.ts'
-import type { IBuiltinInitResult, ILlmConfig, ILlmProvider, IAgentLlmBinding, ISkillInfo, ISkillBinding, IAgentInfo } from './model.ts'
+import type { IBuiltinInitResult, ILlmConfig, ILlmProvider, IAgentLlmBinding, ISkillInfo, ISkillBinding, IAgentInfo, ISkillFileInfo } from './model.ts'
 import { DolphinXAdminTab, DolphinXUserTab } from './DolphinXUserSettings.tsx'
 
 
@@ -1292,6 +1292,19 @@ function SkillsTab () {
     }
     
     
+    function get_skill_file_paths (items: (ISkillFileInfo | string)[]) {
+        const paths = items
+            .map(item => typeof item === 'string' ? item : item.filePath)
+            .filter((item): item is string => typeof item === 'string' && Boolean(item.trim()))
+            .map(item => item.trim())
+        if (paths.length !== items.length) {
+            console.error('Invalid skill files list:', items)
+            message.error(t('技能文件列表格式异常，已忽略无效文件'))
+        }
+        return paths
+    }
+    
+    
     async function open_skill_detail (skill: ISkillInfo) {
         const request_id = ++detail_request_ref.current
         file_request_ref.current += 1
@@ -1303,14 +1316,22 @@ function SkillsTab () {
         set_loading_detail(true)
         try {
             const [instruction, files] = await Promise.all([
-                chat_model.load_skill_instruction(skill.skillId).catch(() => null),
-                chat_model.load_skill_files(skill.skillId).catch(() => ({ items: [ ] })),
+                chat_model.load_skill_instruction(skill.skillId).catch(error => {
+                    console.error('Load skill instruction failed:', error)
+                    message.error(t('加载技能指令失败'))
+                    return null
+                }),
+                chat_model.load_skill_files(skill.skillId).catch(error => {
+                    console.error('Load skill files failed:', error)
+                    message.error(t('加载技能文件失败'))
+                    return { items: [ ] }
+                }),
             ])
             if (request_id !== detail_request_ref.current)
                 return
             if (instruction)
                 set_skill_instruction(instruction.instruction || instruction.content || JSON.stringify(instruction, null, 2))
-            set_skill_files(files.items || [ ])
+            set_skill_files(get_skill_file_paths(files.items || [ ]))
         } finally {
             if (request_id === detail_request_ref.current)
                 set_loading_detail(false)
