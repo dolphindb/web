@@ -21,7 +21,7 @@ export function ExecuteAction () {
             model.message.success(t('取消作业指令发送成功'))
         }}
     >
-        <span
+        <div
             className='action execute'
             title={executing ? t('点击可以取消当前执行中的作业') : t('执行选中代码或全部代码')}
             onClick={async () => {
@@ -36,6 +36,6 @@ export function ExecuteAction () {
         >
             {executing && show_executing ? <LoadingOutlined /> : <CaretRightOutlined />}
             <span className={`text ${language}`}>{executing && show_executing ? t('执行中') : t('执行')}</span>
-        </span>
+        </div>
     </Popconfirm>
 }

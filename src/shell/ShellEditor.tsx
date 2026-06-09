@@ -15,7 +15,8 @@ import { shell } from './model.ts'
 
 import { SelectSqlModal } from './SelectSqlModal.tsx'
 import { ExecuteAction } from './ExecuteAction.tsx'
-import { UploadAction } from './UploadAction.tsx'
+import { UploadTabAction } from './UploadTabAction.tsx'
+import { UploadFilesAction } from './UploadFilesAction.tsx'
 
 
 export function ShellEditor ({ collapser }) {
@@ -139,7 +140,8 @@ export function ShellEditor ({ collapser }) {
         { monaco_inited && <div className='toolbar'>
             <div className='actions'>
                 <ExecuteAction />
-                { logined && <UploadAction /> }
+                { logined && <UploadTabAction /> }
+                { logined && <UploadFilesAction /> }
             </div>
             
             <div className='settings'>

@@ -32,8 +32,8 @@ export function UploadTabAction () {
     
     return <>
         <Tooltip title={title}>
-            <span
-                className='action upload'
+            <div
+                className='action upload-tab'
                 onClick={async () => {
                     const { itab, tabs } = shell
                     
@@ -50,7 +50,7 @@ export function UploadTabAction () {
             >
                 <CloudUploadOutlined />
                 <span className={`text ${language}`}>{t('上传标签页')}</span>
-            </span>
+            </div>
         </Tooltip>
         
         <Modal

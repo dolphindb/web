@@ -338,32 +338,28 @@
                                 
                                 .text
                                     margin-left: 6px
-                            
-                            .action.execute
-                                display: flex
                                 
-                                .text
-                                    margin-left: 6px
-                                    width: 48px
-                                    
-                                    &.en
-                                        width: 70px
+                                span
+                                    display: inline-block
                             
-                            .action.upload
-                                display: flex
+                            .action.execute .text
+                                width: 48px
                                 
-                                .text
-                                    margin-left: 6px
-                                    
-                                    &.en
-                                        width: 40px
+                                &.en
+                                    width: 70px
+                            
+                            .action.upload-tab .text
+                                width: 90px
+                            
+                            .action.upload-files .text
+                                width: 100px
                         
                         .settings
                             gap: 24px
                             
                             display: flex
                             
-                            margin-left: 24px
+                            margin-left: 10px
                             
                             .setting
                                 display: flex
@@ -502,6 +498,64 @@
 
 .ant-modal-mask
     background-color: unset
+
+// 和 plugins/index.sass 中的 .plugins-install-modal 样式类似
+.ant-modal-root
+    .upload-files-modal
+        .ant-form-item-label
+            width: 110px
+            
+        .ant-form-item-control
+            margin-left: 8px
+        
+        .files-item
+            margin-bottom: 12px
+            
+            .files-uploader
+                .result
+                    padding: unset
+                    
+                    height: 90px
+                    
+                    display: flex
+                    flex-direction: column
+                    align-items: center
+                    justify-content: center
+                    
+                    .ant-result-icon
+                        margin-bottom: unset
+                        
+                        .anticon
+                            font-size: 50px
+                            color: #bbbbbb
+                        
+                    .ant-result-title
+                        color: #999999
+                        font-size: 14px
+                        
+                        margin-top: 16px
+        
+        .files-table
+            margin-left: 110px
+            margin-bottom: 16px
+            
+            .ant-table-cell
+                padding: 8px 12px
+            
+            .fp
+                display: flex
+                align-items: center
+                
+                .anticon
+                    margin-right: 8px
+        
+        .submit-line
+            display: flex
+            
+            gap: 12px
+            
+            .upload-button
+                margin-left: auto
 
 .db-modal
     .db-modal-link
