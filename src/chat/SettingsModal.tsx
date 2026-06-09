@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 
 import {
     Modal, Tabs, Input, Button, Switch, Space, Tag, Tooltip,
     Popconfirm, InputNumber, Empty, Spin, Select, message, Upload, Table, Typography,
-    Tree, type TreeDataNode,
+    Alert, Tree, type TreeDataNode,
 } from 'antd'
 import {
     PlusOutlined, DeleteOutlined, EditOutlined,
@@ -23,11 +23,22 @@ import { DolphinXAdminTab, DolphinXUserTab } from './DolphinXUserSettings.tsx'
 const { Paragraph, Text } = Typography
 
 
+function required_label (label: ReactNode) {
+    return <>{label} <span style={{ color: '#ff4d4f' }}>*</span></>
+}
+
+
+function form_error_alert (error: string) {
+    return error ? <Alert type='error' showIcon message={error} style={{ marginBottom: 12 }} /> : null
+}
+
+
 function AgentTab () {
     const { agents, agent_id } = chat_model.use(['agents', 'agent_id'])
     
     const [creating, set_creating] = useState(false)
     const [loading, set_loading] = useState(false)
+    const [form_error, set_form_error] = useState('')
     const [selected_agent, set_selected_agent] = useState<IAgentInfo | null>(null)
     const [form, set_form] = useState({
         agentName: '',
@@ -63,9 +74,10 @@ function AgentTab () {
     
     async function handle_create () {
         if (!form.agentName.trim()) {
-            message.warning(t('请输入 Agent 名称'))
+            set_form_error(t('请输入 Agent 名称'))
             return
         }
+        set_form_error('')
         set_loading(true)
         try {
             await chat_model.register_agent({
@@ -96,7 +108,10 @@ function AgentTab () {
         {/* 左侧 Agent 列表 */}
         <div style={{ width: 260, borderRight: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
             <div style={{ padding: '0 12px 12px', borderBottom: '1px solid #f0f0f0' }}>
-                <Button type='dashed' block icon={<PlusOutlined />} onClick={() => { set_creating(!creating) }}>
+                <Button type='dashed' block icon={<PlusOutlined />} onClick={() => {
+                    set_creating(!creating)
+                    set_form_error('')
+                }}>
                     {t('新建 Agent')}
                 </Button>
             </div>
@@ -137,9 +152,10 @@ function AgentTab () {
         <div style={{ flex: 1, minWidth: 0, overflow: 'auto', padding: '0 16px' }}>
             {creating
                 ? <div style={{ padding: '16px 0' }}>
+                    {form_error_alert(form_error)}
                     <div style={{ display: 'grid', gap: '12px 16px' }}>
                         <div>
-                            <div style={{ marginBottom: 4, fontSize: 13 }}>{t('Agent 名称')} *</div>
+                            <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('Agent 名称'))}</div>
                             <Input
                                 value={form.agentName}
                                 onChange={e => { set_form({ ...form, agentName: e.target.value }) }}
@@ -165,7 +181,10 @@ function AgentTab () {
                         </div>
                     </div>
                     <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                        <Button onClick={() => { set_creating(false) }}>{t('取消')}</Button>
+                        <Button onClick={() => {
+                            set_creating(false)
+                            set_form_error('')
+                        }}>{t('取消')}</Button>
                         <Button type='primary' loading={loading} onClick={handle_create}>{t('创建并激活')}</Button>
                     </div>
                 </div>
@@ -593,6 +612,12 @@ function supports_native_tool_call (custom?: Record<string, unknown>) {
 }
 
 
+function optional_positive_number (value: unknown) {
+    const num = Number(value)
+    return Number.isFinite(num) && num > 0 ? num : undefined
+}
+
+
 function LlmConfigTab () {
     const [providers, set_providers] = useState<ILlmProvider[]>([ ])
     const [configs, set_configs] = useState<ILlmConfig[]>([ ])
@@ -607,6 +632,8 @@ function LlmConfigTab () {
     const [loading, set_loading] = useState(false)
     const [saving_provider, set_saving_provider] = useState(false)
     const [saving_config, set_saving_config] = useState(false)
+    const [provider_error, set_provider_error] = useState('')
+    const [config_error, set_config_error] = useState('')
     
     async function load () {
         set_loading(true)
@@ -642,6 +669,7 @@ function LlmConfigTab () {
         set_selected_provider_id('')
         set_provider_mode('create')
         set_provider_form({ ...DEFAULT_PROVIDER_FORM })
+        set_provider_error('')
     }
     
     function open_edit_provider (p: ILlmProvider) {
@@ -653,17 +681,19 @@ function LlmConfigTab () {
             baseUrl: p.baseUrl,
             apiKey: p.apiKey || '',
         })
+        set_provider_error('')
     }
     
     async function save_provider () {
         if (!provider_form.name.trim()) {
-            message.warning(t('请输入 Provider 名称'))
+            set_provider_error(t('请输入 Provider 名称'))
             return
         }
         if (!provider_form.baseUrl.trim()) {
-            message.warning(t('请输入 Base URL'))
+            set_provider_error(t('请输入 Base URL'))
             return
         }
+        set_provider_error('')
         set_saving_provider(true)
         try {
             if (provider_mode === 'create') {
@@ -753,6 +783,7 @@ function LlmConfigTab () {
         set_editing_config_id('')
         set_config_modal_mode('create')
         set_config_form({ ...DEFAULT_CONFIG_FORM })
+        set_config_error('')
     }
     
     function open_edit_config (cfg: ILlmConfig) {
@@ -768,28 +799,30 @@ function LlmConfigTab () {
             embeddingDimension: cfg.embeddingDimension ?? 1536,
             embeddingMetric: (cfg.embeddingMetric as 'euclidean' | 'cosine') || 'euclidean',
             embeddingNormalize: cfg.embeddingNormalize ?? false,
-            maxConcurrency: cfg.maxConcurrency,
-            rateLimitRPM: cfg.rateLimitRPM,
-            timeoutMs: cfg.timeoutMs,
+            maxConcurrency: optional_positive_number(cfg.maxConcurrency),
+            rateLimitRPM: optional_positive_number(cfg.rateLimitRPM),
+            timeoutMs: optional_positive_number(cfg.timeoutMs),
             retryConfig: cfg.retryConfig ? JSON.stringify(cfg.retryConfig, null, 2) : '',
             nativeToolCall: supports_native_tool_call(cfg.custom),
             custom: cfg.custom || { },
         })
+        set_config_error('')
     }
     
     async function save_config () {
         if (!config_form.name.trim()) {
-            message.warning(t('请输入配置名称'))
+            set_config_error(t('请输入配置名称'))
             return
         }
         if (!config_form.model.trim()) {
-            message.warning(t('请输入模型名称'))
+            set_config_error(t('请输入模型名称'))
             return
         }
         if (!config_form.requestPath.trim() || !config_form.requestPath.startsWith('/')) {
-            message.warning(t('请求路径必须以 / 开头'))
+            set_config_error(t('请求路径必须以 / 开头'))
             return
         }
+        set_config_error('')
         
         let default_params: Record<string, unknown> | undefined
         let retry_config: Record<string, unknown> | undefined
@@ -812,13 +845,18 @@ function LlmConfigTab () {
             capability: config_form.capability,
             requestPath: config_form.requestPath.trim(),
             contextWindow: config_form.contextWindow,
-            defaultParams: default_params,
-            maxConcurrency: config_form.maxConcurrency,
-            rateLimitRPM: config_form.rateLimitRPM,
-            timeoutMs: config_form.timeoutMs,
-            retryConfig: retry_config,
             customData: JSON.stringify({ ...config_form.custom, tool_call: config_form.nativeToolCall }),
         }
+        if (default_params)
+            payload.defaultParams = default_params
+        if (config_form.maxConcurrency)
+            payload.maxConcurrency = config_form.maxConcurrency
+        if (config_form.rateLimitRPM)
+            payload.rateLimitRPM = config_form.rateLimitRPM
+        if (config_form.timeoutMs)
+            payload.timeoutMs = config_form.timeoutMs
+        if (retry_config)
+            payload.retryConfig = retry_config
         if (is_embedding) {
             payload.embeddingDimension = config_form.embeddingDimension
             payload.embeddingMetric = config_form.embeddingMetric
@@ -935,9 +973,10 @@ function LlmConfigTab () {
                     <div style={{ fontWeight: 500, fontSize: 15, marginBottom: 12 }}>
                         {provider_mode === 'create' ? t('新建 Provider') : t('编辑 Provider')}
                     </div>
+                    {form_error_alert(provider_error)}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
                         <div>
-                            <div style={{ marginBottom: 4, fontSize: 13 }}>{t('Provider 名称')}</div>
+                            <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('Provider 名称'))}</div>
                             <Input
                                 value={provider_form.name}
                                 onChange={e => { set_provider_form({ ...provider_form, name: e.target.value }) }}
@@ -945,7 +984,7 @@ function LlmConfigTab () {
                             />
                         </div>
                         <div>
-                            <div style={{ marginBottom: 4, fontSize: 13 }}>{t('适配器类型')}</div>
+                            <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('适配器类型'))}</div>
                             <Select
                                 style={{ width: '100%' }}
                                 value={provider_form.adapterType}
@@ -954,7 +993,7 @@ function LlmConfigTab () {
                             />
                         </div>
                         <div style={{ gridColumn: '1 / -1' }}>
-                            <div style={{ marginBottom: 4, fontSize: 13 }}>Base URL</div>
+                            <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label('Base URL')}</div>
                             <Input
                                 value={provider_form.baseUrl}
                                 onChange={e => { set_provider_form({ ...provider_form, baseUrl: e.target.value }) }}
@@ -1067,7 +1106,10 @@ function LlmConfigTab () {
         <Modal
             title={config_modal_mode === 'create' ? t('新增模型配置') : t('编辑模型配置')}
             open={config_modal_mode !== 'closed'}
-            onCancel={() => { set_config_modal_mode('closed') }}
+            onCancel={() => {
+                set_config_modal_mode('closed')
+                set_config_error('')
+            }}
             onOk={save_config}
             confirmLoading={saving_config}
             okText={t('保存')}
@@ -1075,16 +1117,17 @@ function LlmConfigTab () {
             width={720}
             destroyOnClose
         >
+            {form_error_alert(config_error)}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px', marginTop: 12 }}>
                 <div>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('配置名称')}</div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('配置名称'))}</div>
                     <Input
                         value={config_form.name}
                         onChange={e => { set_config_form({ ...config_form, name: e.target.value }) }}
                     />
                 </div>
                 <div>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('能力')}</div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('能力'))}</div>
                     <Select
                         style={{ width: '100%' }}
                         value={config_form.capability}
@@ -1096,7 +1139,7 @@ function LlmConfigTab () {
                     />
                 </div>
                 <div>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('模型名称')}</div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('模型名称'))}</div>
                     <Input
                         value={config_form.model}
                         onChange={e => { set_config_form({ ...config_form, model: e.target.value }) }}
@@ -1104,7 +1147,7 @@ function LlmConfigTab () {
                     />
                 </div>
                 <div>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('请求路径')}</div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('请求路径'))}</div>
                     <Input
                         value={config_form.requestPath}
                         onChange={e => { set_config_form({ ...config_form, requestPath: e.target.value }) }}
@@ -1126,7 +1169,7 @@ function LlmConfigTab () {
                     <InputNumber
                         style={{ width: '100%' }}
                         value={config_form.maxConcurrency}
-                        onChange={val => { set_config_form({ ...config_form, maxConcurrency: val ?? undefined }) }}
+                        onChange={val => { set_config_form({ ...config_form, maxConcurrency: optional_positive_number(val ?? undefined) }) }}
                         min={1}
                     />
                 </div>
@@ -1135,7 +1178,7 @@ function LlmConfigTab () {
                     <InputNumber
                         style={{ width: '100%' }}
                         value={config_form.rateLimitRPM}
-                        onChange={val => { set_config_form({ ...config_form, rateLimitRPM: val ?? undefined }) }}
+                        onChange={val => { set_config_form({ ...config_form, rateLimitRPM: optional_positive_number(val ?? undefined) }) }}
                         min={1}
                     />
                 </div>
@@ -1144,7 +1187,7 @@ function LlmConfigTab () {
                     <InputNumber
                         style={{ width: '100%' }}
                         value={config_form.timeoutMs}
-                        onChange={val => { set_config_form({ ...config_form, timeoutMs: val ?? undefined }) }}
+                        onChange={val => { set_config_form({ ...config_form, timeoutMs: optional_positive_number(val ?? undefined) }) }}
                         min={1000}
                         step={1000}
                     />
@@ -1213,6 +1256,7 @@ function SkillsTab () {
     const [all_skills, set_all_skills] = useState<ISkillInfo[]>([ ])
     const [loading, set_loading] = useState(false)
     const [creating, set_creating] = useState(false)
+    const [form_error, set_form_error] = useState('')
     const [detail_skill, set_detail_skill] = useState<ISkillInfo | null>(null)
     const [skill_instruction, set_skill_instruction] = useState('')
     const [skill_files, set_skill_files] = useState<string[]>([ ])
@@ -1369,7 +1413,10 @@ function SkillsTab () {
             <Button
                 type='dashed'
                 icon={<PlusOutlined />}
-                onClick={() => { set_creating(!creating) }}
+                onClick={() => {
+                    set_creating(!creating)
+                    set_form_error('')
+                }}
             >
                 {t('注册技能')}
             </Button>
@@ -1378,8 +1425,9 @@ function SkillsTab () {
         {creating && <div style={{
             border: '1px solid #d9d9d9', borderRadius: 6, padding: 16, marginBottom: 16,
         }}>
+            {form_error_alert(form_error)}
             <div style={{ marginBottom: 12 }}>
-                <div style={{ marginBottom: 4, fontSize: 13 }}>{t('技能包')} (ZIP) *</div>
+                <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(<>{t('技能包')} (ZIP)</>)}</div>
                 <Upload
                     accept='.zip'
                     maxCount={1}
@@ -1443,13 +1491,15 @@ function SkillsTab () {
                 <Button onClick={() => {
                     set_creating(false)
                     set_skill_file(null)
+                    set_form_error('')
                     set_overrides({ name: '', displayName: '', description: '', category: '', version: '' })
                 }}>{t('取消')}</Button>
                 <Button type='primary' loading={loading} onClick={async () => {
                     if (!skill_file) {
-                        message.warning(t('请选择技能包 ZIP 文件'))
+                        set_form_error(t('请选择技能包 ZIP 文件'))
                         return
                     }
+                    set_form_error('')
                     set_loading(true)
                     try {
                         const override_obj: Record<string, string> = { }

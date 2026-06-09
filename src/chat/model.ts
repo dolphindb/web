@@ -413,6 +413,12 @@ function normalize_json_object_string (value: unknown): string | undefined {
 }
 
 
+function optional_positive_number (value: unknown) {
+    const num = Number(value)
+    return Number.isFinite(num) && num > 0 ? num : undefined
+}
+
+
 function get_stored_boolean (key: string, fallback: boolean) {
     const value = localStorage.getItem(key)
     if (value === null)
@@ -2317,9 +2323,9 @@ export class ChatModel extends Model<ChatModel> {
             requestPath: item.requestPath || '',
             defaultParams: item.defaultParams,
             contextWindow: item.contextWindow,
-            maxConcurrency: item.maxConcurrency,
-            rateLimitRPM: item.rateLimitRPM,
-            timeoutMs: item.timeoutMs,
+            maxConcurrency: optional_positive_number(item.maxConcurrency),
+            rateLimitRPM: optional_positive_number(item.rateLimitRPM),
+            timeoutMs: optional_positive_number(item.timeoutMs),
             retryConfig: item.retryConfig,
             customData: normalize_json_object_string(item.customData ?? item.custom),
             custom: normalize_json_object(item.customData ?? item.custom),
