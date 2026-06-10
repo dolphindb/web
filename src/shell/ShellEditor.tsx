@@ -435,7 +435,7 @@ function LanguageSelect () {
     const { language } = shell.use(['language'])
     
     return <span className='setting'>
-        <span className='title'>{t('编程语言:')}</span>
+        <span className='title'>{t('语言:')}</span>
         <Select
             className='select-language'
             value={language}
