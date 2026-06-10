@@ -911,10 +911,8 @@ function UserLlmSection ({ user_id }: { user_id?: string }) {
 
 
 function SkillAccessSection ({ user_id }: { user_id?: string }) {
-    const { agent_id, options } = use_agent_options()
     const user_options = use_user_options()
     const [skills, set_skills] = useState<ISkillInfo[]>([ ])
-    const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
     const [selected_user_id, set_selected_user_id] = useState(user_id || '')
     const [denied_skill_ids, set_denied_skill_ids] = useState<string[]>([ ])
     
@@ -930,40 +928,36 @@ function SkillAccessSection ({ user_id }: { user_id?: string }) {
     }, [user_id])
     
     useEffect(() => {
-        if (!selected_agent_id && options.length > 0)
-            set_selected_agent_id(options[0].value)
-    }, [options, selected_agent_id])
-    
-    useEffect(() => {
         load_denied().catch(error => { show_error(error, t('加载禁用技能失败')) })
-    }, [selected_agent_id, selected_user_id])
+    }, [selected_user_id])
     
     async function load_denied () {
-        if (!selected_agent_id || !selected_user_id)
+        if (!selected_user_id) {
+            set_denied_skill_ids([ ])
             return
-        const result = await chat_model.load_denied_user_skills(selected_agent_id, selected_user_id)
+        }
+        const result = await chat_model.load_denied_user_skills(selected_user_id)
         set_denied_skill_ids(result.skillIds)
     }
     
     
     async function allow (skill_id: string) {
-        const result = await chat_model.allow_user_skill(selected_agent_id, skill_id, selected_user_id)
+        const result = await chat_model.allow_user_skill(skill_id, selected_user_id)
         set_denied_skill_ids(result.skillIds || [ ])
         message.success(t('已允许'))
     }
     
     
     async function deny (skill_id: string) {
-        const result = await chat_model.deny_user_skill(selected_agent_id, skill_id, selected_user_id)
+        const result = await chat_model.deny_user_skill(skill_id, selected_user_id)
         set_denied_skill_ids(result.skillIds || [ ])
         message.success(t('已禁用'))
     }
     
     return <Section title={t('用户技能权限')}>
-        <Space wrap style={{ marginBottom: 12 }}>
-            <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
-            {!user_id && <Select showSearch style={{ width: 180 }} placeholder={t('选择用户')} value={selected_user_id || undefined} onChange={set_selected_user_id} options={user_options} />}
-        </Space>
+        {!user_id && <Space wrap style={{ marginBottom: 12 }}>
+            <Select showSearch style={{ width: 180 }} placeholder={t('选择用户')} value={selected_user_id || undefined} onChange={set_selected_user_id} options={user_options} />
+        </Space>}
         <Table
             size='small'
             rowKey='skillId'
@@ -989,8 +983,8 @@ function SkillAccessSection ({ user_id }: { user_id?: string }) {
                     title: t('操作'),
                     width: 120,
                     render: (_: unknown, skill: ISkillInfo) => denied_skill_ids.includes(skill.skillId)
-                        ? <Button size='small' disabled={!selected_agent_id || !selected_user_id} onClick={() => { allow(skill.skillId) }}>{t('允许')}</Button>
-                        : <Button danger size='small' disabled={!selected_agent_id || !selected_user_id} onClick={() => { deny(skill.skillId) }}>{t('禁用')}</Button>,
+                        ? <Button size='small' disabled={!selected_user_id} onClick={() => { allow(skill.skillId) }}>{t('允许')}</Button>
+                        : <Button danger size='small' disabled={!selected_user_id} onClick={() => { deny(skill.skillId) }}>{t('禁用')}</Button>,
                 },
             ]}
         />

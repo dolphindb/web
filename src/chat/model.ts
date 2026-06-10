@@ -2771,24 +2771,24 @@ export class ChatModel extends Model<ChatModel> {
     }
     
     
-    async deny_user_skill (agent_id: string, skill_id: string, user_id: string): Promise<any> {
+    async deny_user_skill (skill_id: string, user_id: string): Promise<any> {
         return this.api_fetch('/skill/user/deny', {
             method: 'POST',
-            body: JSON.stringify({ agentId: agent_id, skillId: skill_id, userId: user_id }),
+            body: JSON.stringify({ skillId: skill_id, userId: user_id }),
         })
     }
     
     
-    async allow_user_skill (agent_id: string, skill_id: string, user_id: string): Promise<any> {
+    async allow_user_skill (skill_id: string, user_id: string): Promise<any> {
         return this.api_fetch('/skill/user/allow', {
             method: 'POST',
-            body: JSON.stringify({ agentId: agent_id, skillId: skill_id, userId: user_id }),
+            body: JSON.stringify({ skillId: skill_id, userId: user_id }),
         })
     }
     
     
-    async load_denied_user_skills (agent_id: string, user_id: string): Promise<{ agentId: string, userId: string, skillIds: string[], size: number }> {
-        const result = await this.api_fetch(`/skill/${encodeURIComponent(agent_id)}/user/${encodeURIComponent(user_id)}/denied`)
+    async load_denied_user_skills (user_id: string): Promise<{ userId: string, skillIds: string[], size: number }> {
+        const result = await this.api_fetch(`/skill/user/${encodeURIComponent(user_id)}/denied`)
         return { ...result, skillIds: result.skillIds || [ ] }
     }
     
