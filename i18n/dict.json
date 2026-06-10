@@ -6845,6 +6845,9 @@
     "设置默认字体大小（临时修改可将鼠标移到编辑器区域，通过 ctrl + 滚轮上下 调整）": {
         "en": "Set the default font size (for temporary modifications, you can move the mouse to the editor area and adjust it up and down using ctrl + wheel)"
     },
+    "设置初始字体大小（临时修改可将鼠标移到编辑器区域，通过 ctrl + 滚轮上下 调整）": {
+        "en": "Set the initial font size (for temporary modifications, you can move the mouse to the editor area and adjust it up and down using ctrl + wheel)"
+    },
     "智能助手": {
         "en": "AI Assistant"
     },

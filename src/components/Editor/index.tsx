@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 
 import { loadWASM } from 'vscode-oniguruma'
 

@@ -207,14 +207,15 @@ export function ShellEditor ({ collapser }) {
                     }}
                 />
                 
-                <Tooltip title={t('设置默认字体大小（临时修改可将鼠标移到编辑器区域，通过 ctrl + 滚轮上下 调整）')}>
+                <Tooltip title={t('设置初始字体大小（临时修改可将鼠标移到编辑器区域，通过 ctrl + 滚轮上下 调整）')}>
                     <span className='setting'>
                         <span className='title'>{t('字体大小:')}</span>
                         <InputNumber
                             className='font-size-input'
                             value={font_size}
                             size='small'
-                            min={0}
+                            min={1}
+                            max={100}
                             step={1}
                             onChange={(size = 16) => {
                                 set_font_size(size)
