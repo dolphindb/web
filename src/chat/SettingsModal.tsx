@@ -476,36 +476,19 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                             {binding.enabled ? t('启用') : t('禁用')}
                                         </Tag>
                                     </div>
-                                    <Space size={4}>
-                                        <Switch
-                                            size='small'
-                                            checked={binding.enabled}
-                                            onChange={async checked => {
-                                                try {
-                                                    await chat_model.toggle_skill_binding(binding.skillId, checked, agent.agentId)
-                                                    message.success(checked ? t('已启用') : t('已禁用'))
-                                                    await load()
-                                                } catch (err: any) {
-                                                    message.error(err.message || t('操作失败'))
-                                                }
-                                            }}
-                                        />
-                                        <Tooltip title={t('解绑')}>
-                                            <Button
-                                                type='text' size='small' danger
-                                                icon={<DisconnectOutlined />}
-                                                onClick={async () => {
-                                                    try {
-                                                        await chat_model.unbind_skill(binding.skillId, agent.agentId)
-                                                        message.success(t('已解绑'))
-                                                        await load()
-                                                    } catch (err: any) {
-                                                        message.error(err.message || t('解绑失败'))
-                                                    }
-                                                }}
-                                            />
-                                        </Tooltip>
-                                    </Space>
+                                    <Switch
+                                        size='small'
+                                        checked={binding.enabled}
+                                        onChange={async checked => {
+                                            try {
+                                                await chat_model.toggle_skill_binding(binding.skillId, checked, agent.agentId)
+                                                message.success(checked ? t('已启用') : t('已禁用'))
+                                                await load()
+                                            } catch (err: any) {
+                                                message.error(err.message || t('操作失败'))
+                                            }
+                                        }}
+                                    />
                                 </div>
                             })}
                         </div>}
