@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
-import { Input, InputNumber, Select, Switch, Tooltip } from 'antd'
+import { Checkbox, Input, InputNumber, Select, Tooltip } from 'antd'
 import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined } from '@ant-design/icons'
 
 import { storage } from 'xshell/storage.js'
@@ -142,28 +142,28 @@ export function ShellEditor ({ collapser }) {
                 <ExecuteAction />
                 { logined && <UploadTabAction /> }
                 { logined && <UploadFilesAction /> }
-            </div>
-            
-            <div className='settings'>
-                <SettingSwitch
-                    title={t('代码地图:')}
+                
+                <SettingCheckbox
                     help={t('控制是否显示缩略图')}
                     checked={minimap}
                     onChange={checked => {
                         set_minimap(checked)
                         storage.set_bool(storage_keys.minimap, checked)
                     }}
-                />
+                >
+                    {t('代码地图')}
+                </SettingCheckbox>
                 
-                <SettingSwitch
-                    title={t('回车补全:')}
+                <SettingCheckbox
                     help={t('控制除了 Tab 键以外，Enter 键是否同样可以接受建议。这能减少"插入新行"和"接受建议"命令之间的歧义。')}
                     checked={enter_completion}
                     onChange={checked => {
                         set_enter_completion(checked)
                         storage.set_bool(storage_keys.enter_completion, checked)
                     }}
-                />
+                >
+                    {t('回车补全')}
+                </SettingCheckbox>
                 
                 <Tooltip title={t('设置初始字体大小（临时修改可将鼠标移到编辑器区域，通过 ctrl + 滚轮上下 调整）')}>
                     <span className='setting'>
@@ -409,26 +409,24 @@ function Tab ({
 }
 
 
-function SettingSwitch ({
-    title,
+function SettingCheckbox ({
+    children,
     help,
     checked,
     onChange,
 }: {
-    title: string
+    children: React.ReactNode
     help: string
     checked: boolean
     onChange: (checked: boolean) => void
 }) {
     return <Tooltip title={help}>
-        <span className='setting'>
-            <span className='title'>{title}</span>
-            <Switch
-                checked={checked}
-                size='small'
-                onChange={onChange}
-            />
-        </span>
+        <Checkbox
+            checked={checked}
+            onChange={e => { onChange(e.target.checked) }}
+        >
+            {children}
+        </Checkbox>
     </Tooltip>
 }
 

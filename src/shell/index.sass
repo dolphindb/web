@@ -333,8 +333,17 @@
                         .actions
                             display: flex
                             
+                            flex-shrink: 1
+                            
+                            gap: 8px
+                            
+                            overflow-x: auto
+                            overflow-y: hidden
+                            
                             .action
                                 cursor: pointer
+                                
+                                flex-shrink: 0
                                 
                                 .text
                                     margin-left: 6px
@@ -349,31 +358,46 @@
                                     width: 70px
                             
                             .action.upload-tab .text
-                                width: 90px
+                                width: 80px
+                                
+                                &.en
+                                    width: 100px
                             
                             .action.upload-files .text
-                                width: 100px
+                                width: 90px
                                 
                                 &.en
                                     width: 130px
-                        
-                        .settings
-                            gap: 24px
                             
-                            display: flex
+                            &::-webkit-scrollbar
+                                height: 2px !important
                             
-                            margin-left: 10px
+                            &::-webkit-scrollbar-track
+                                background: transparent
+                            
+                            &::-webkit-scrollbar-thumb
+                                background: rgba(0, 0, 0, 0.2)
+                                
+                                &:hover
+                                    background: rgba(0, 0, 0, 0.3)
                             
                             .setting
                                 display: flex
                                 
                                 align-items: center
                                 
+                                white-space: nowrap
+                                
+                                flex-shrink: 0
+                                
+                                .ant-checkbox-wrapper
+                                    white-space: nowrap
+                                
                                 .title
-                                    margin-right: 10px
+                                    margin-right: 4px
                                 
                                 .select-sql, .select-language
-                                    width: 110px
+                                    width: 100px
                                 
                                 .font-size-input
                                     width: 50px
@@ -391,6 +415,7 @@
                             flex: 1
                         
                         .collapse-btn
+                            flex-shrink: 0
                             align-self: flex-end
                             cursor: pointer
             

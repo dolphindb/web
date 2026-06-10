@@ -1,4 +1,4 @@
-import { Popconfirm } from 'antd'
+import { Popconfirm, Tooltip } from 'antd'
 import { CaretRightOutlined, LoadingOutlined } from '@ant-design/icons'
 
 import { t, language } from '@i18n'
@@ -21,21 +21,22 @@ export function ExecuteAction () {
             model.message.success(t('取消作业指令发送成功'))
         }}
     >
-        <div
-            className='action execute'
-            title={executing ? t('点击可以取消当前执行中的作业') : t('执行选中代码或全部代码')}
-            onClick={async () => {
-                try {
-                    // shell 上的 executing 状态才是最新的
-                    if (!shell.executing)
-                        await shell.execute('all')
-                } catch (error) {
-                    // 忽略用户执行脚本的报错
-                }
-            }}
-        >
-            {executing && show_executing ? <LoadingOutlined /> : <CaretRightOutlined />}
-            <span className={`text ${language}`}>{executing && show_executing ? t('执行中') : t('执行')}</span>
-        </div>
+        <Tooltip title={executing ? t('点击可以取消当前执行中的作业') : t('执行选中代码或全部代码')}>
+            <div
+                className='action execute'
+                onClick={async () => {
+                    try {
+                        // shell 上的 executing 状态才是最新的
+                        if (!shell.executing)
+                            await shell.execute('all')
+                    } catch (error) {
+                        // 忽略用户执行脚本的报错
+                    }
+                }}
+            >
+                {executing && show_executing ? <LoadingOutlined /> : <CaretRightOutlined />}
+                <span className={`text ${language}`}>{executing && show_executing ? t('执行中') : t('执行')}</span>
+            </div>
+        </Tooltip>
     </Popconfirm>
 }
