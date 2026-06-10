@@ -800,16 +800,13 @@ function LlmConfigTab () {
             capability: config_form.capability,
             requestPath: config_form.requestPath.trim(),
             contextWindow: config_form.contextWindow,
+            maxConcurrency: config_form.maxConcurrency ?? null,
+            rateLimitRPM: config_form.rateLimitRPM ?? null,
+            timeoutMs: config_form.timeoutMs ?? null,
             customData: JSON.stringify({ ...config_form.custom, tool_call: config_form.nativeToolCall }),
         }
         if (default_params)
             payload.defaultParams = default_params
-        if (config_form.maxConcurrency)
-            payload.maxConcurrency = config_form.maxConcurrency
-        if (config_form.rateLimitRPM)
-            payload.rateLimitRPM = config_form.rateLimitRPM
-        if (config_form.timeoutMs)
-            payload.timeoutMs = config_form.timeoutMs
         if (retry_config)
             payload.retryConfig = retry_config
         if (is_embedding) {
