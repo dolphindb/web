@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
-import { Input, InputNumber, Select, Switch, Tooltip } from 'antd'
+import { Checkbox, Input, InputNumber, Select, Tooltip } from 'antd'
 import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { storage } from 'xshell/storage.js'
@@ -19,70 +19,71 @@ import { AiTab } from './AiTab.tsx'
 
 import { SelectSqlModal } from './SelectSqlModal.tsx'
 import { ExecuteAction } from './ExecuteAction.tsx'
-import { UploadAction } from './UploadAction.tsx'
+import { UploadTabAction } from './UploadTabAction.tsx'
+import { UploadFilesAction } from './UploadFilesAction.tsx'
 
 import SvgAi from './icons/ai.icon.svg'
 
 
 export function ShellEditor ({ collapser }) {
     const { logined } = model.use(['logined'])
-    
-    const [minimap, set_minimap] = useState(() => 
+
+    const [minimap, set_minimap] = useState(() =>
         storage.get_bool(storage_keys.minimap))
-    
-    const [enter_completion, set_enter_completion] = useState(() => 
+
+    const [enter_completion, set_enter_completion] = useState(() =>
         storage.get_bool(storage_keys.enter_completion))
-    
-    const [font_size, set_font_size] = useState(() => 
+
+    const [font_size, set_font_size] = useState(() =>
         storage.get(storage_keys.font_size, 16))
-    
+
     const [collapsed, set_collapsed] = useState(false)
-    
+
     const { itab, tabs, monaco_inited } = shell.use(['itab', 'tabs', 'monaco_inited'])
     const current_tab = tabs.find(t => t.index === itab)
     const readonly = current_tab?.read_only
     const is_ai_tab = Boolean(current_tab?.chat_id)
-    
+
     useLayoutEffect(() => {
         shell.init_tabs()
     }, [ ])
-    
+
     // 标签页关闭前自动保存代码
     useEffect(() => {
         function beforeunload (event: BeforeUnloadEvent) {
             shell.save()
             // event.returnValue = ''
         }
-        
+
         window.addEventListener('beforeunload', beforeunload)
-        
+
         return () => {
             window.removeEventListener('beforeunload', beforeunload)
         }
     }, [ ])
-    
+
     useEffect(() => {
         localStorage.setItem(storage_keys.current_tab, itab.toString())
     }, [itab])
-    
-    
+
+
     const monaco_options = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => ({
             minimap: { enabled: minimap },
-            
+
             acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
-            
+
             fontSize: font_size,
         }),
         [minimap, enter_completion, font_size])
-    
-    
+
+
     function handle_tab_close (tabId) {
         if (!shell.monaco_inited)
             return
-        
+
         const tab = shell.tabs.find(t => t.index === tabId)
         const { tabs, itab } = shell
-        
+
         function remove_tab () {
             const index = tabs.findIndex(t => t.index === tabId)
             const new_tabs = tabs.filter(t => t.index !== tabId)
@@ -93,10 +94,10 @@ export function ShellEditor ({ collapser }) {
                     shell.switch_tab(new_tabs[0].index)
                 else
                     shell.switch_tab(new_tabs[index - 1].index)
-                    
+
             shell.remove_tab(tabId as number)
         }
-        
+
         const code = tab.code
         if (code)
             model.modal.confirm({
@@ -111,7 +112,7 @@ export function ShellEditor ({ collapser }) {
         else
             remove_tab()
     }
-    
+
     function handle_tab_rename (tabId, newName) {
         const tab = shell.tabs.find(t => t.index === tabId)
         if (tab) {
@@ -123,11 +124,11 @@ export function ShellEditor ({ collapser }) {
                     .catch(error => { model.message?.error(error instanceof Error ? error.message : t('保存失败')) })
         }
     }
-    
+
     return <div className='shell-editor'>
-        { monaco_inited && <Tabs 
+        { monaco_inited && <Tabs
             tabs={[
-                { key: -1, name: t('默认标签页'), closeable: false, renameable: false, icon: <FileTextOutlined /> }, 
+                { key: -1, name: t('默认标签页'), closeable: false, renameable: false, icon: <FileTextOutlined /> },
                 ...tabs.map(tab => ({
                     key: tab.index,
                     name: tab.name,
@@ -157,16 +158,16 @@ export function ShellEditor ({ collapser }) {
                                 chat_model.set({ settings_visible: true })
                                 return
                             }
-                            
+
                             if (!chat_model.agent_id)
                                 await chat_model.init()
-                            
+
                             if (!chat_model.agent_id) {
                                 model.message?.warning(t('请先在 AI 设置中创建并配置 Agent'))
                                 chat_model.set({ settings_visible: true })
                                 return
                             }
-                            
+
                             await shell.add_ai_tab()
                         } catch (e) {
                             console.error('Failed to create AI tab:', e)
@@ -179,34 +180,35 @@ export function ShellEditor ({ collapser }) {
                 </div>
             }
         /> }
-        
+
         { monaco_inited && !is_ai_tab && <div className='toolbar'>
             <div className='actions'>
                 <ExecuteAction />
-                { logined && <UploadAction /> }
-            </div>
-            
-            <div className='settings'>
-                <SettingSwitch
-                    title={t('代码地图:')}
+                { logined && <UploadTabAction /> }
+                { logined && <UploadFilesAction /> }
+
+                <SettingCheckbox
                     help={t('控制是否显示缩略图')}
                     checked={minimap}
                     onChange={checked => {
                         set_minimap(checked)
                         storage.set_bool(storage_keys.minimap, checked)
                     }}
-                />
-                
-                <SettingSwitch
-                    title={t('回车补全:')}
+                >
+                    {t('代码地图')}
+                </SettingCheckbox>
+
+                <SettingCheckbox
                     help={t('控制除了 Tab 键以外，Enter 键是否同样可以接受建议。这能减少"插入新行"和"接受建议"命令之间的歧义。')}
                     checked={enter_completion}
                     onChange={checked => {
                         set_enter_completion(checked)
                         storage.set_bool(storage_keys.enter_completion, checked)
                     }}
-                />
-                
+                >
+                    {t('回车补全')}
+                </SettingCheckbox>
+
                 <Tooltip title={t('设置初始字体大小（临时修改可将鼠标移到编辑器区域，通过 ctrl + 滚轮上下 调整）')}>
                     <span className='setting'>
                         <span className='title'>{t('字体大小:')}</span>
@@ -224,14 +226,14 @@ export function ShellEditor ({ collapser }) {
                         />
                     </span>
                 </Tooltip>
-                
+
                 <LanguageSelect />
-                
+
                 <SelectSqlModal/>
             </div>
-            
+
             <div className='padding' />
-            
+
             <div
                 className='collapse-btn'
                 onClick={() => {
@@ -250,7 +252,7 @@ export function ShellEditor ({ collapser }) {
                 }
             </div>
         </div> }
-        
+
         { monaco_inited && is_ai_tab && <AiToolbar
             key={`ai-toolbar-${current_tab.chat_id}`}
             session_id={current_tab.chat_id}
@@ -260,21 +262,21 @@ export function ShellEditor ({ collapser }) {
                 collapser(collapsed)
             }}
         /> }
-        
+
         {is_ai_tab && <AiTab key={current_tab.chat_id} session_id={current_tab.chat_id} />}
         <div style={is_ai_tab ? { display: 'none' } : { flex: 1, minHeight: 0 }}>
             <Editor
             readonly={readonly}
-            
+
             observe_resize
-            
+
             options={monaco_options}
-            
+
             on_loaded={(monaco, editor) => {
                 editor.setValue(shell.itab > -1
                     ? shell.tabs.find(t => t.index === shell.itab && !t.chat_id)?.code || ''
                     : localStorage.getItem(storage_keys.code) || '')
-                
+
                 async function execute (selection: 'line' | 'all') {
                     if (shell.executing)
                         model.message.warning(t('当前连接正在执行作业，请等待'))
@@ -285,49 +287,49 @@ export function ShellEditor ({ collapser }) {
                             // 忽略用户执行脚本的错误
                         }
                 }
-                
-                
+
+
                 editor.addAction({
                     id: 'dolphindb.execute',
-                    
+
                     keybindings: [
                         monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE,
                         monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter
                     ],
-                    
+
                     label: t('DolphinDB: 执行当前行代码'),
-                    
+
                     async run () {
                         await execute('line')
                     }
                 })
-                
+
                 editor.addAction({
                     id: 'dolphindb.execute_all',
-                    
+
                     keybindings: [
                         monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyE
                     ],
-                    
+
                     label: t('DolphinDB: 执行代码'),
-                    
+
                     async run () {
                         await execute('all')
                     }
                 })
-                
+
                 shell.set({
                     editor,
                     monaco,
                     monaco_inited: true
                 })
             }}
-            
+
             on_change={value => {
                 if (value !== undefined)
                     shell.save_debounced(value)
             }}
-            
+
             on_save={value => {
                 shell.save(value)
             }}
@@ -367,21 +369,21 @@ export function Tabs ({
     right_extra
 }: TabsProps) {
     let tabs_container_ref = useRef<HTMLDivElement>(undefined)
-    
+
     useEffect(() => {
         function on_wheel (event: WheelEvent) {
             event.preventDefault()
             tabs_container_ref.current.scrollLeft += event.deltaY
             tabs_container_ref.current.scrollLeft += event.deltaX
         }
-        
+
         tabs_container_ref.current.addEventListener('wheel', on_wheel)
-        
+
         return () => { tabs_container_ref.current?.removeEventListener('wheel', on_wheel) }
     }, [ ])
-    
+
     const tabs_content = <>
-        {tabs.map(tab => 
+        {tabs.map(tab =>
             <Tab
                 key={tab.key}
                 name={tab.name}
@@ -394,13 +396,13 @@ export function Tabs ({
                 icon={tab.icon}
             />
         )}
-        {show_add_button && 
+        {show_add_button &&
             <div className='add-tab' onClick={on_add_tab}>
                 <PlusOutlined style={{ fontSize: 12 }} />
             </div>
         }
     </>
-    
+
     if (right_extra)
         return <div className='tabs-bar'>
             <div className='tabs' ref={tabs_container_ref}>
@@ -410,7 +412,7 @@ export function Tabs ({
                 {right_extra}
             </div>
         </div>
-    
+
     return <div className='tabs' ref={tabs_container_ref}>
         {tabs_content}
     </div>
@@ -438,23 +440,23 @@ function Tab ({
 }) {
     let [name, set_name] = useState(initial_name)
     let [renaming, set_renaming] = useState(false)
-    
+
     useEffect(() => {
         if (!renaming)
             set_name(initial_name)
     }, [initial_name, renaming])
-    
+
     function commit_rename () {
         onRename?.(name)
         set_renaming(false)
     }
-    
+
     return <div
         className={`tab ${active ? 'active' : ''}`}
         onClick={onClick}
     >
         {icon && <div className='tab-icon'>{icon}</div>}
-        {renaming ? 
+        {renaming ?
             <Input
                 placeholder={t('标签页名称')}
                 value={name}
@@ -503,12 +505,12 @@ function AiToolbar ({
     const title = session?.title || shell.tabs.find(item => item.chat_id === session_id)?.name || t('新会话')
     const [editing_title, set_editing_title] = useState(false)
     const [title_value, set_title_value] = useState(title)
-    
+
     useEffect(() => {
         if (!editing_title)
             set_title_value(title)
     }, [title, editing_title])
-    
+
     useEffect(() => {
         if (!session?.title)
             return
@@ -519,7 +521,7 @@ function AiToolbar ({
             shell.save()
         }
     }, [session?.title, session_id])
-    
+
     async function commit_title () {
         const next_title = title_value.trim()
         if (!next_title) {
@@ -555,15 +557,15 @@ function AiToolbar ({
             set_editing_title(false)
         }
     }
-    
+
     const active_agents = agents.filter(a => a.statusName === 'ACTIVE')
-    
+
     // 构建 LLM 选项，默认模型标注
     const llm_options = selectable_llms.map(llm => ({
         value: llm.llmConfigId,
         label: llm.isAgentDefault ? `${llm.name} (${t('默认')})` : llm.name,
     }))
-    
+
     return <div className='toolbar ai-toolbar'>
         {editing_title
             ? <Input
@@ -578,9 +580,9 @@ function AiToolbar ({
             : <div className='ai-toolbar-title' title={title} onDoubleClick={() => { set_editing_title(true) }}>
                 {title}
             </div>}
-        
+
         <div className='padding' />
-        
+
         {llm_options.length > 0 && <Select
             size='small'
             value={selected_llm_config_id || undefined}
@@ -592,7 +594,7 @@ function AiToolbar ({
             }}
             options={llm_options}
         />}
-        
+
         <Tooltip title={t('DolphinDB 脚本执行审批')}>
             <Select
                 size='small'
@@ -605,7 +607,7 @@ function AiToolbar ({
                 ]}
             />
         </Tooltip>
-        
+
         <Select
             size='small'
             value={agent_id || undefined}
@@ -621,7 +623,7 @@ function AiToolbar ({
                 label: a.agentName,
             }))}
         />
-        
+
         <Tooltip title={t('AI 设置')}>
             <div
                 className='collapse-btn'
@@ -631,9 +633,9 @@ function AiToolbar ({
                 <span style={{ marginLeft: 4 }}>{t('AI 设置')}</span>
             </div>
         </Tooltip>
-        
+
         <div className='toolbar-divider' />
-        
+
         <div
             className='collapse-btn'
             onClick={on_toggle_collapsed}
@@ -651,35 +653,33 @@ function AiToolbar ({
 }
 
 
-function SettingSwitch ({
-    title,
+function SettingCheckbox ({
+    children,
     help,
     checked,
     onChange,
 }: {
-    title: string
+    children: React.ReactNode
     help: string
     checked: boolean
     onChange: (checked: boolean) => void
 }) {
     return <Tooltip title={help}>
-        <span className='setting'>
-            <span className='title'>{title}</span>
-            <Switch
-                checked={checked}
-                size='small'
-                onChange={onChange}
-            />
-        </span>
+        <Checkbox
+            checked={checked}
+            onChange={e => { onChange(e.target.checked) }}
+        >
+            {children}
+        </Checkbox>
     </Tooltip>
 }
 
 
 function LanguageSelect () {
     const { language } = shell.use(['language'])
-    
+
     return <span className='setting'>
-        <span className='title'>{t('编程语言:')}</span>
+        <span className='title'>{t('语言:')}</span>
         <Select
             className='select-language'
             value={language}

@@ -318,7 +318,7 @@
                     display: flex
                     flex-direction: column
                     overflow: hidden
-                    
+
                     .toolbar
                         display: flex
                         align-items: center
@@ -333,52 +333,75 @@
                         .actions
                             display: flex
 
+                            flex-shrink: 1
+
+                            gap: 8px
+
+                            overflow-x: auto
+                            overflow-y: hidden
+
                             .action
                                 cursor: pointer
 
-                                .text
-                                    margin-left: 6px
-
-                            .action.execute
-                                display: flex
-
-                                .text
-                                    margin-left: 6px
-                                    width: 48px
-
-                                    &.en
-                                        width: 70px
-
-                            .action.upload
-                                display: flex
+                                flex-shrink: 0
 
                                 .text
                                     margin-left: 6px
 
-                                    &.en
-                                        width: 40px
+                                span
+                                    display: inline-block
 
-                        .settings
-                            gap: 24px
+                            .action.execute .text
+                                width: 48px
 
-                            display: flex
+                                &.en
+                                    width: 70px
 
-                            margin-left: 24px
+                            .action.upload-tab .text
+                                width: 80px
+
+                                &.en
+                                    width: 100px
+
+                            .action.upload-files .text
+                                width: 90px
+
+                                &.en
+                                    width: 130px
+
+                            &::-webkit-scrollbar
+                                height: 2px !important
+
+                            &::-webkit-scrollbar-track
+                                background: transparent
+
+                            &::-webkit-scrollbar-thumb
+                                background: rgba(0, 0, 0, 0.2)
+
+                                &:hover
+                                    background: rgba(0, 0, 0, 0.3)
+
+                            .ant-checkbox-wrapper
+                                white-space: nowrap
 
                             .setting
                                 display: flex
 
                                 align-items: center
 
+                                white-space: nowrap
+
+                                flex-shrink: 0
+
                                 .title
-                                    margin-right: 10px
+                                    margin-right: 4px
 
                                 .select-sql, .select-language
-                                    width: 110px
-                                
+                                    width: 100px
+
                                 .font-size-input
                                     width: 50px
-                                    
+
                                 .ant-select-selector
                                     border: 0
                                     padding: 0 5px
@@ -392,6 +415,7 @@
                             flex: 1
 
                         .collapse-btn
+                            flex-shrink: 0
                             align-self: flex-end
                             cursor: pointer
 
@@ -891,6 +915,64 @@
 
 .ant-modal-mask
     background-color: unset
+
+// 和 plugins/index.sass 中的 .plugins-install-modal 样式类似
+.ant-modal-root
+    .upload-files-modal
+        .ant-form-item-label
+            width: 110px
+
+        .ant-form-item-control
+            margin-left: 8px
+
+        .files-item
+            margin-bottom: 12px
+
+            .files-uploader
+                .result
+                    padding: unset
+
+                    height: 90px
+
+                    display: flex
+                    flex-direction: column
+                    align-items: center
+                    justify-content: center
+
+                    .ant-result-icon
+                        margin-bottom: unset
+
+                        .anticon
+                            font-size: 50px
+                            color: #bbbbbb
+
+                    .ant-result-title
+                        color: #999999
+                        font-size: 14px
+
+                        margin-top: 16px
+
+        .files-table
+            margin-left: 110px
+            margin-bottom: 16px
+
+            .ant-table-cell
+                padding: 8px 12px
+
+            .fp
+                display: flex
+                align-items: center
+
+                .anticon
+                    margin-right: 8px
+
+        .submit-line
+            display: flex
+
+            gap: 12px
+
+            .upload-button
+                margin-left: auto
 
 .db-modal
     .db-modal-link

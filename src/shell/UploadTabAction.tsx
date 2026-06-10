@@ -15,7 +15,7 @@ import { model } from '@model'
 import { shell } from './model.ts'
 
 
-export function UploadAction () {
+export function UploadTabAction () {
     interface Fields {
         fp: string
     }
@@ -32,8 +32,8 @@ export function UploadAction () {
     
     return <>
         <Tooltip title={title}>
-            <span
-                className='action upload'
+            <div
+                className='action upload-tab'
                 onClick={async () => {
                     const { itab, tabs } = shell
                     
@@ -49,8 +49,8 @@ export function UploadAction () {
                 }}
             >
                 <CloudUploadOutlined />
-                <span className={`text ${language}`}>{t('上传')}</span>
-            </span>
+                <span className={`text ${language}`}>{t('上传标签页')}</span>
+            </div>
         </Tooltip>
         
         <Modal

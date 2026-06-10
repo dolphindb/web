@@ -6846,7 +6846,7 @@
         "en": "Set the default font size (for temporary modifications, you can move the mouse to the editor area and adjust it up and down using ctrl + wheel)"
     },
     "设置初始字体大小（临时修改可将鼠标移到编辑器区域，通过 ctrl + 滚轮上下 调整）": {
-        "en": "Set the initial font size (for temporary modifications, you can move the mouse to the editor area and adjust it up and down using ctrl + wheel)"
+        "en": "Set initial font size (temporarily adjust by hovering over the editor area and using Ctrl + scroll wheel up/down)"
     },
     "智能助手": {
         "en": "AI Assistant"
@@ -7093,5 +7093,53 @@
     },
     "创建 AI 标签页失败": {
         "en": "Failed to create AI tab"
+    },
+    "上传本地文本文件到服务器（目前版本暂不支持上传二进制文件，二进制文件会被自动忽略）": {
+        "en": "Upload local text files to server (binary files are not supported in this version and will be automatically ignored)"
+    },
+    "上传本地文件": {
+        "en": "Upload Local Files"
+    },
+    "上传成功": {
+        "en": "Upload successful"
+    },
+    "成功上传 {{count}} 个文本文件到 {{fpd}}": {
+        "en": "Successfully uploaded {{count}} text file to {{fpd}}"
+    },
+    "成功上传 {{count}} 个文本文件到 {{fpd}}_plural": {
+        "en": "Successfully uploaded {{count}} text files to {{fpd}}"
+    },
+    "跳过 {{count}} 个二进制文件:": {
+        "en": "Skipped {{count}} binary file:"
+    },
+    "跳过 {{count}} 个二进制文件:_plural": {
+        "en": "Skipped {{count}} binary files:"
+    },
+    "远程路径": {
+        "en": "Remote path"
+    },
+    "上传到服务器的目录路径，文件名将保持原名": {
+        "en": "Directory path on the server to upload to, filenames will be kept unchanged"
+    },
+    "选择文件": {
+        "en": "Select files"
+    },
+    "不支持上传文件夹": {
+        "en": "Uploading folders is not supported"
+    },
+    "待上传的文本文件": {
+        "en": "Text files to upload"
+    },
+    "上传标签页": {
+        "en": "Upload Tab"
+    },
+    "代码地图": {
+        "en": "Code Map"
+    },
+    "回车补全": {
+        "en": "Enter Completion"
+    },
+    "语言:": {
+        "en": "Language:"
     }
 }
