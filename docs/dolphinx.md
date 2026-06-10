@@ -6,7 +6,7 @@
 
 收听
 
-57
+62
 
 添加反应
 
@@ -14,7 +14,7 @@
 
 最好定期下载新版本，下载方式是ftp：
 
-* [<u>ftpuser@192.168.1.204</u>](mailto:ftpuser@192.168.1.204 "mailto:ftpuser@192.168.1.204"):/hdd/ftp/origin/release300.agentRuntime/Release/ALL/release2/cmake\_release\_all/    密码DolphinDB123
+* [<u>ftpuser@192.168.1.204</u>](mailto:ftpuser@192.168.1.204 "mailto:ftpuser@192.168.1.204"):/hdd/ftp/origin/release300.codeRefactor/Release/ALL/release2/cmake\_release\_all/    密码DolphinDB123
 
 这是Agent 框架对外提供的全部接口的说明文档。​**注意，Agent框架不是一个Agent，它只提供了构建一个Agent所必须的组件服务**​。
 
@@ -453,7 +453,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 `DELETE /agent-bus/v1/session/{sessionId} `
 
-删除会话会物理删除会话行、消息行和对应 workspace 目录，并清理 session affinity 与 working memory。已写入的 LLM token usage 保留在独立账本中。
+删除会话会物理删除会话行、消息行和对应 workspace 目录，并清理 session affinity 与 working memory。删除前会等待本节点已确认的 pending 消息和 usage 热写完成 flush；已写入的 LLM token usage 保留在独立账本中。
 
 **响应:**
 
@@ -463,6 +463,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 * 只有 session owner 可删除存在的会话。
 * 对不存在的 `sessionId` 返回 `deleted=true`。
+* 删除开始后，该 session 的新消息追加请求返回失败。
 * 删除后 `GET /session/{sessionId}` 和 `GET /session/{sessionId}/messages` 返回 `BUS_SESSION_NOT_FOUND`。
 
 ---
@@ -1881,6 +1882,11 @@ ToolDefinition 结构:
 | `metadata`         | object | 否   | 自定义元数据，JSON 格式                                                                                                                                                                                                                                                                                                                                                              |
 
 **响应:** [MessageInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#messageinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#messageinfo")
+
+说明：
+
+* 响应返回时消息已进入会话可读视图，可被后续消息查询、上下文装配和摘要读取。
+* 消息行和 usage 账本由后台热写队列批量落盘。
 
 ---
 
@@ -3800,23 +3806,21 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
   | 说明
 
 
-                                                                                         |
+                                                                                                     |
 ```
 
-| --------------------- | ----------- | -------------------------------------------------------------------------------------------------- |
-| `sessionId`     | string    | 全局唯一 ID，创建时自动生成                                                                      |
-| `agentId`       | string    | 所属 Agent ID，创建时指定，不可变更                                                              |
-| `userId`        | string    | 所属 DolphinDB 用户 ID，创建时由当前登录用户确定，不可变更                                       |
-| `llmConfigId`   | string    | 会话级 LLM 配置 ID。为空时继承 agent 默认模型；非空时必须属于当前用户在该 agent 下的有效可选集合 |
-| `affinityNode`  | string    | 亲和节点（框架内部分配，不可由用户指定）。该会话的所有写请求会被路由到此节点                     |
-| `title`         | string    | 会话标题，可通过 updateSession 修改                                                              |
-| `lastSeqNum`    | long      | 最后一条消息的序列号，每次追加消息后自动更新                                                     |
-| `messageCount`  | int       | 消息总数（等于 lastSeqNum，每次追加消息后同步更新）                                              |
-| `metadata`      | object    | 自定义元数据，可通过 updateSession 修改，JSON 格式存储                                           |
-| `schemaVersion` | int       | 行 Schema 版本号                                                                                 |
-| `extra`         | string    | 预留扩展字段                                                                                     |
-| `createTime`    | timestamp | 创建时间                                                                                         |
-| `updateTime`    | timestamp | 最后更新时间（追加消息、更新元数据等操作均会刷新）                                               |
+| --------------------- | ----------- | -------------------------------------------------------------------------------------------------------------- |
+| `sessionId`     | string    | 全局唯一 ID，创建时自动生成                                                                                  |
+| `agentId`       | string    | 所属 Agent ID，创建时指定，不可变更                                                                          |
+| `userId`        | string    | 所属 DolphinDB 用户 ID，创建时由当前登录用户确定，不可变更                                                   |
+| `llmConfigId`   | string    | 会话级 LLM 配置 ID。为空时继承 agent 默认模型；非空时必须属于当前用户在该 agent 下的有效可选集合             |
+| `affinityNode`  | string    | 亲和节点（框架内部分配，不可由用户指定）。该会话的所有写请求会被路由到此节点                                 |
+| `title`         | string    | 会话标题，可通过 updateSession 修改                                                                          |
+| `metadata`      | object    | 自定义元数据，可通过 updateSession 修改，JSON 格式存储                                                       |
+| `schemaVersion` | int       | 行 Schema 版本号                                                                                             |
+| `extra`         | string    | 预留扩展字段                                                                                                 |
+| `createTime`    | timestamp | 创建时间                                                                                                     |
+| `updateTime`    | timestamp | 最近会话消息时间。无消息时等于`createTime`；该字段从消息表和本节点 pending 写缓存派生，不写入 session 表 |
 
 ---
 
@@ -4415,6 +4419,7 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 | `session.delete`          | DELETE /session/{id}                      |
 | `session.list`            | GET /session/list                         |
 | `session.appendMessage`   | POST /session/{id}/message                |
+| `session.appendMessages`  | POST /session/{id}/messages               |
 | `session.getMessages`     | GET /session/{id}/messages                |
 | `session.generateSummary` | POST /session/{id}/summary                |
 | `workspace.list`          | GET /workspace/{sessionId}/files          |
@@ -4691,6 +4696,19 @@ You can use this skill to query DolphinDB distributed tables.
 | Tier 3 | 应用层按需提取时（通过`skill.files.get`/`skill.files.batchGet`等原语） | 包内的脚本、模板、参考文档等                     | 不限             |
 
 ### 调用控制矩阵
+
+| `disable-model-invocation`
+
+| `user-invocable`
+
+| LLM 可自动发现
+
+| 用户可调用
+
+| 描述注入 Tier-1 目录
+
+|
+| -------------------------------- | ---------------------- | ---------------- | ------------ | ---------------------- |
 
 | `disable-model-invocation`
 
