@@ -263,6 +263,10 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
     
     const bound_skill_ids = new Set(bound_skills.map(s => s.skillId))
     const unbound_skills = all_skills.filter(s => !bound_skill_ids.has(s.skillId) && s.enabled !== false)
+    const skill_items = [
+        ...bound_skills.map(binding => ({ binding, skill: binding.skill || all_skills.find(s => s.skillId === binding.skillId) })),
+        ...unbound_skills.map(skill => ({ binding: undefined, skill })),
+    ]
     
     return <div style={{ padding: '12px 0' }}>
         {/* Agent 基本信息 */}
@@ -462,26 +466,27 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                     key: 'skills',
                     label: t('技能绑定') + ` (${bound_skills.length})`,
                     children: <div>
-                        {/* 已绑定的技能 */}
-                        {bound_skills.length > 0 && <div style={{ marginBottom: 12 }}>
-                            {bound_skills.map(binding => {
-                                const skill = binding.skill || all_skills.find(s => s.skillId === binding.skillId)
-                                return <div key={binding.skillId} style={{
+                        {skill_items.length > 0
+                            ? <div style={{ marginBottom: 12 }}>
+                            {skill_items.map(({ binding, skill }) => {
+                                const skill_id = binding?.skillId ?? skill!.skillId
+                                return <div key={skill_id} style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    padding: '6px 10px', border: '1px solid #f0f0f0', borderRadius: 4, marginBottom: 4,
+                                    padding: '6px 10px', border: binding ? '1px solid #f0f0f0' : '1px dashed #d9d9d9', borderRadius: 4, marginBottom: 4,
                                 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <span style={{ fontWeight: 500, fontSize: 13 }}>{skill?.displayName || skill?.name || binding.skillId}</span>
-                                        <Tag color={binding.enabled ? 'green' : 'default'} style={{ fontSize: 11 }}>
-                                            {binding.enabled ? t('启用') : t('禁用')}
+                                        <span style={{ fontWeight: 500, fontSize: 13 }}>{skill?.displayName || skill?.name || skill_id}</span>
+                                        <Tag color={binding?.enabled ? 'green' : 'default'} style={{ fontSize: 11 }}>
+                                            {binding?.enabled ? t('启用') : t('禁用')}
                                         </Tag>
+                                        {skill?.description && <span style={{ color: '#999', fontSize: 12 }}>{skill.description.slice(0, 40)}</span>}
                                     </div>
                                     <Switch
                                         size='small'
-                                        checked={binding.enabled}
+                                        checked={!!binding?.enabled}
                                         onChange={async checked => {
                                             try {
-                                                await chat_model.toggle_skill_binding(binding.skillId, checked, agent.agentId)
+                                                await chat_model.toggle_skill_binding(skill_id, checked, agent.agentId)
                                                 message.success(checked ? t('已启用') : t('已禁用'))
                                                 await load()
                                             } catch (err: any) {
@@ -491,41 +496,8 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                     />
                                 </div>
                             })}
-                        </div>}
-                        
-                        {/* 可绑定的技能 */}
-                        {unbound_skills.length > 0
-                            ? <div>
-                                <div style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>{t('可用技能')}</div>
-                                {unbound_skills.map(skill =>
-                                    <div key={skill.skillId} style={{
-                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                        padding: '6px 10px', border: '1px dashed #d9d9d9', borderRadius: 4, marginBottom: 4,
-                                    }}>
-                                        <div>
-                                            <span style={{ fontSize: 13 }}>{skill.displayName || skill.name}</span>
-                                            {skill.description && <span style={{ color: '#999', fontSize: 12, marginLeft: 8 }}>{skill.description.slice(0, 40)}</span>}
-                                        </div>
-                                        <Tooltip title={t('绑定')}>
-                                            <Button
-                                                type='text' size='small'
-                                                icon={<LinkOutlined />}
-                                                onClick={async () => {
-                                                    try {
-                                                        await chat_model.bind_skill(skill.skillId, agent.agentId)
-                                                        message.success(t('已绑定'))
-                                                        await load()
-                                                    } catch (err: any) {
-                                                        message.error(err.message || t('绑定失败'))
-                                                    }
-                                                }}
-                                            />
-                                        </Tooltip>
-                                    </div>
-                                )}
                             </div>
-                            : bound_skills.length === 0 && <Empty description={t('暂无可用技能，请先在「技能管理」中上传')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                        }
+                            : <Empty description={t('暂无可用技能，请先在「技能管理」中上传')} image={Empty.PRESENTED_IMAGE_SIMPLE} />}
                     </div>,
                 },
             ]} />
