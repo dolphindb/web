@@ -559,6 +559,7 @@ function UsageSection ({ admin = false }: { admin?: boolean }) {
     const [usage_by_user, set_usage_by_user] = useState<Record<string, ILlmUsageStats>>({ })
     const [loading_usage, set_loading_usage] = useState(false)
     const user_ids_key = user_options.map(user => user.value).join('\n')
+    const selected_agent_name = options.find(option => option.value === selected_agent_id)?.label || selected_agent_id || '-'
     
     useEffect(() => {
         if (!selected_agent_id && agent_id)
@@ -622,12 +623,12 @@ function UsageSection ({ admin = false }: { admin?: boolean }) {
                 <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
                 <Button loading={loading_usage} onClick={load_usage}>{t('刷新')}</Button>
             </Space>
-            <Table<{ agentId: string, userId: string, usage: ILlmUsageStats | null }>
+            <Table<{ agentId: string, agentName: string, userId: string, usage: ILlmUsageStats | null }>
                 style={{ marginTop: 12 }}
                 size='small'
                 rowKey='agentId'
                 loading={loading_usage}
-                dataSource={selected_agent_id ? [{ agentId: selected_agent_id, userId: usage?.userId || username, usage }] : [ ]}
+                dataSource={selected_agent_id ? [{ agentId: selected_agent_id, agentName: selected_agent_name, userId: usage?.userId || username, usage }] : [ ]}
                 pagination={false}
                 locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用量')} /> }}
                 columns={[
@@ -636,8 +637,8 @@ function UsageSection ({ admin = false }: { admin?: boolean }) {
                         dataIndex: 'userId',
                     },
                     {
-                        title: 'Agent',
-                        dataIndex: 'agentId',
+                        title: t('Agent 名称'),
+                        dataIndex: 'agentName',
                     },
                     {
                         title: t('请求次数'),
@@ -668,13 +669,17 @@ function UsageSection ({ admin = false }: { admin?: boolean }) {
             size='small'
             rowKey='value'
             loading={loading_usage}
-            dataSource={user_options.map(user => ({ ...user, usage: usage_by_user[user.value] }))}
+            dataSource={user_options.map(user => ({ ...user, agentName: selected_agent_name, usage: usage_by_user[user.value] }))}
             pagination={false}
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用户')} /> }}
             columns={[
                 {
                     title: t('用户'),
                     dataIndex: 'label',
+                },
+                {
+                    title: t('Agent 名称'),
+                    dataIndex: 'agentName',
                 },
                 {
                     title: t('请求次数'),
