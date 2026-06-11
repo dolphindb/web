@@ -15,7 +15,7 @@ export const chat_model_agent_actions = {
         if (pathname.startsWith('/agent/') || url.searchParams.has('agentId'))
             return false
             
-        if (/^\/skill\/[^/]+\/(catalog|context|bindings|user\/[^/]+\/denied)$/.test(pathname))
+        if (/^\/skill\/(?:[^/]+\/(catalog|context|bindings)|user\/(deny|allow|[^/]+\/denied))$/.test(pathname))
             return false
             
         if (typeof options.body === 'string')
