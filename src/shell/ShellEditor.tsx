@@ -37,6 +37,23 @@ export function ShellEditor ({ collapser }) {
     const current_tab = tabs.find(t => t.index === itab)
     const readonly = current_tab?.read_only
     
+    const toolbar_ref = useRef<HTMLDivElement>(undefined)
+    
+    useEffect(() => {
+        if (!toolbar_ref.current)
+            return
+        
+        function on_wheel (event: WheelEvent) {
+            event.preventDefault()
+            toolbar_ref.current.scrollLeft += event.deltaY
+            toolbar_ref.current.scrollLeft += event.deltaX
+        }
+        
+        toolbar_ref.current.addEventListener('wheel', on_wheel)
+        
+        return () => { toolbar_ref.current?.removeEventListener('wheel', on_wheel) }
+    }, [monaco_inited])
+    
     useLayoutEffect(() => {
         shell.init_tabs()
     }, [ ])
@@ -137,7 +154,7 @@ export function ShellEditor ({ collapser }) {
             on_add_tab={() => { shell.add_tab() }}
         /> }
         
-        { monaco_inited && <div className='toolbar'>
+        { monaco_inited && <div className='toolbar' ref={toolbar_ref}>
             <div className='actions'>
                 <ExecuteAction />
                 { logined && <UploadTabAction /> }
