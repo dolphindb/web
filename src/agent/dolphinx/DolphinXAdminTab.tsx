@@ -118,7 +118,8 @@ function UserLlmSection ({ user_id }: { user_id?: string }) {
     const [items, set_items] = useState<IUserLlmAccessInfo[]>([ ])
     
     useEffect(() => {
-        chat_model.load_llm_configs()
+        chat_model.load_llm_providers()
+            .then(providers => chat_model.load_llm_configs(new Map(providers.map(provider => [provider.providerId, provider]))))
             .then(set_configs)
             .catch(error => { show_error(error, t('加载模型配置失败')) })
     }, [ ])

@@ -9,7 +9,7 @@ import { t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
 import type { ILlmConfig, ILlmProvider } from '@/agent/model.ts'
-import { field_error, required_label } from './common.tsx'
+import { form_error_alert, required_label } from './common.tsx'
 
 
 const ADAPTER_TYPE_OPTIONS = [
@@ -434,6 +434,7 @@ export function LlmConfigTab () {
                     <div style={{ fontWeight: 500, fontSize: 15, marginBottom: 12 }}>
                         {provider_mode === 'create' ? t('新建 Provider') : t('编辑 Provider')}
                     </div>
+                    {form_error_alert(provider_error)}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
                         <div>
                             <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('Provider 名称'))}</div>
@@ -442,7 +443,6 @@ export function LlmConfigTab () {
                                 onChange={e => { set_provider_form({ ...provider_form, name: e.target.value }) }}
                                 placeholder={t('名称')}
                             />
-                            {field_error(provider_error, t('请输入 Provider 名称'))}
                         </div>
                         <div>
                             <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('适配器类型'))}</div>
@@ -460,7 +460,6 @@ export function LlmConfigTab () {
                                 onChange={e => { set_provider_form({ ...provider_form, baseUrl: e.target.value }) }}
                                 placeholder='https://api.openai.com'
                             />
-                            {field_error(provider_error, t('请输入 Base URL'))}
                         </div>
                         <div style={{ gridColumn: '1 / -1' }}>
                             <div style={{ marginBottom: 4, fontSize: 13 }}>API Key</div>
@@ -579,6 +578,7 @@ export function LlmConfigTab () {
             width={720}
             destroyOnClose
         >
+            {form_error_alert(config_error)}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px', marginTop: 12 }}>
                 <div>
                     <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('配置名称'))}</div>
@@ -586,7 +586,6 @@ export function LlmConfigTab () {
                         value={config_form.name}
                         onChange={e => { set_config_form({ ...config_form, name: e.target.value }) }}
                     />
-                    {field_error(config_error, t('请输入配置名称'))}
                 </div>
                 <div>
                     <div style={{ marginBottom: 4, fontSize: 13 }}>{t('能力')}</div>
@@ -607,7 +606,6 @@ export function LlmConfigTab () {
                         onChange={e => { set_config_form({ ...config_form, model: e.target.value }) }}
                         placeholder='gpt-4o'
                     />
-                    {field_error(config_error, t('请输入模型名称'))}
                 </div>
                 <div>
                     <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('请求路径'))}</div>
@@ -616,7 +614,6 @@ export function LlmConfigTab () {
                         onChange={e => { set_config_form({ ...config_form, requestPath: e.target.value }) }}
                         placeholder='/v1/chat/completions'
                     />
-                    {field_error(config_error, t('请求路径必须以 / 开头'))}
                 </div>
                 <div>
                     <div style={{ marginBottom: 4, fontSize: 13 }}>Context Window</div>

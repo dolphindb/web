@@ -9,7 +9,7 @@ import { t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
 import type { ISkillFileInfo, ISkillInfo } from '@/agent/model.ts'
-import { field_error, required_label } from './common.tsx'
+import { form_error_alert, required_label } from './common.tsx'
 
 
 const { Text } = Typography
@@ -188,6 +188,7 @@ export function SkillsTab () {
         {creating && <div style={{
             border: '1px solid #d9d9d9', borderRadius: 6, padding: 16, marginBottom: 16,
         }}>
+            {form_error_alert(form_error)}
             <div style={{ marginBottom: 12 }}>
                 <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(<>{t('技能包')} (ZIP)</>)}</div>
                 <Upload
@@ -204,7 +205,6 @@ export function SkillsTab () {
                 <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
                     {t('ZIP 包须包含 SKILL.md 入口文件（含 YAML frontmatter 元数据和 Markdown 指令体）')}
                 </div>
-                {field_error(form_error, t('请选择技能包 ZIP 文件'))}
             </div>
             <div style={{ marginBottom: 8, fontSize: 13, color: '#666' }}>{t('覆盖元数据（可选，覆盖 SKILL.md 中的同名字段）')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>

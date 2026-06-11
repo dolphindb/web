@@ -11,7 +11,7 @@ import { t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
 import type { IAgentInfo, IAgentLlmBinding, ILlmConfig, ISkillBinding, ISkillInfo } from '@/agent/model.ts'
-import { field_error, required_label } from './common.tsx'
+import { form_error_alert, required_label } from './common.tsx'
 
 
 const { Paragraph, Text } = Typography
@@ -136,6 +136,7 @@ export function AgentTab () {
         <div style={{ flex: 1, minWidth: 0, overflow: 'auto', padding: '0 16px' }}>
             {creating
                 ? <div style={{ padding: '16px 0' }}>
+                    {form_error_alert(form_error)}
                     <div style={{ display: 'grid', gap: '12px 16px' }}>
                         <div>
                             <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('Agent 名称'))}</div>
@@ -144,7 +145,6 @@ export function AgentTab () {
                                 onChange={e => { set_form({ ...form, agentName: e.target.value }) }}
                                 placeholder={t('例如: DolphinDB 助手')}
                             />
-                            {field_error(form_error, t('请输入 Agent 名称'))}
                         </div>
                         <div style={{ gridColumn: '1 / -1' }}>
                             <div style={{ marginBottom: 4, fontSize: 13 }}>{t('描述')}</div>
