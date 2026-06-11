@@ -13,9 +13,9 @@ import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 
 import { chat_model, get_chat_model } from '@/agent/model.ts'
 import type { ScriptExecuteApprovalMode } from '@/agent/model.ts'
+import { AiTab } from '@/agent/ai-tab/AiTab.tsx'
 
 import { is_pending_ai_chat_id, shell } from './model.ts'
-import { AiTab } from './AiTab.tsx'
 
 import { SelectSqlModal } from './SelectSqlModal.tsx'
 import { ExecuteAction } from './ExecuteAction.tsx'

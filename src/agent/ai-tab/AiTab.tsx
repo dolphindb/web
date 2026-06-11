@@ -15,7 +15,7 @@ import { AiMessageRow, expand_tool_call_envelopes, group_messages, ToolMessageGr
 import { TodoList } from '@/agent/ai-tab/TodoList.tsx'
 import { WorkspaceSidebar } from '@/agent/ai-tab/WorkspaceSidebar.tsx'
 
-import { is_pending_ai_chat_id, shell } from './model.ts'
+import { is_pending_ai_chat_id, shell } from '@/shell/model.ts'
 
 
 const { Text } = Typography
