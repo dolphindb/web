@@ -129,11 +129,11 @@ export interface ILlmConfig {
     embeddingNormalize?: boolean
     requestPath: string
     defaultParams?: Record<string, unknown>
-    contextWindow?: number
-    maxConcurrency?: number
-    rateLimitRPM?: number
-    timeoutMs?: number
-    retryConfig?: Record<string, unknown>
+    contextWindow?: number | null
+    maxConcurrency?: number | null
+    rateLimitRPM?: number | null
+    timeoutMs?: number | null
+    retryConfig?: Record<string, unknown> | null
     customData?: string
     custom?: Record<string, unknown>
     extra?: string
@@ -2453,7 +2453,7 @@ export class ChatModel extends Model<ChatModel> {
         embeddingNormalize?: boolean
         requestPath: string
         defaultParams?: Record<string, unknown> | null
-        contextWindow?: number
+        contextWindow?: number | null
         maxConcurrency?: number | null
         rateLimitRPM?: number | null
         timeoutMs?: number | null

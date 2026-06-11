@@ -520,9 +520,6 @@ const EMBEDDING_METRIC_OPTIONS = [
 ]
 
 
-const DEFAULT_CONTEXT_WINDOW = 256000
-
-
 const DEFAULT_PROVIDER_FORM = {
     name: '',
     adapterType: 'openai',
@@ -536,7 +533,7 @@ const DEFAULT_CONFIG_FORM = {
     model: '',
     capability: 'chat' as 'chat' | 'embedding',
     requestPath: '/v1/chat/completions',
-    contextWindow: DEFAULT_CONTEXT_WINDOW,
+    contextWindow: undefined as number | undefined,
     defaultParams: '',
     embeddingDimension: 1536,
     embeddingMetric: 'euclidean' as 'euclidean' | 'cosine',
@@ -570,6 +567,14 @@ function supports_native_tool_call (custom?: Record<string, unknown>) {
 function optional_positive_number (value: unknown) {
     const num = Number(value)
     return Number.isFinite(num) && num > 0 ? num : undefined
+}
+
+
+function optional_nonnegative_number (value: unknown) {
+    if (value === null || value === undefined || value === '')
+        return undefined
+    const num = Number(value)
+    return Number.isFinite(num) && num >= 0 ? num : undefined
 }
 
 
@@ -749,7 +754,7 @@ function LlmConfigTab () {
             model: cfg.model,
             capability: (cfg.capability as 'chat' | 'embedding') || 'chat',
             requestPath: cfg.requestPath || '/v1/chat/completions',
-            contextWindow: cfg.contextWindow ?? DEFAULT_CONTEXT_WINDOW,
+            contextWindow: optional_nonnegative_number(cfg.contextWindow),
             defaultParams: cfg.defaultParams ? JSON.stringify(cfg.defaultParams, null, 2) : '',
             embeddingDimension: cfg.embeddingDimension ?? 1536,
             embeddingMetric: (cfg.embeddingMetric as 'euclidean' | 'cosine') || 'euclidean',
@@ -799,7 +804,7 @@ function LlmConfigTab () {
             model: config_form.model.trim(),
             capability: config_form.capability,
             requestPath: config_form.requestPath.trim(),
-            contextWindow: config_form.contextWindow,
+            contextWindow: config_form.contextWindow ?? null,
             maxConcurrency: config_form.maxConcurrency ?? null,
             rateLimitRPM: config_form.rateLimitRPM ?? null,
             timeoutMs: config_form.timeoutMs ?? null,
@@ -1112,8 +1117,8 @@ function LlmConfigTab () {
                     <InputNumber
                         style={{ width: '100%' }}
                         value={config_form.contextWindow}
-                        onChange={val => { set_config_form({ ...config_form, contextWindow: val ?? DEFAULT_CONTEXT_WINDOW }) }}
-                        min={1024}
+                        onChange={val => { set_config_form({ ...config_form, contextWindow: val ?? undefined }) }}
+                        min={0}
                         step={1024}
                     />
                 </div>

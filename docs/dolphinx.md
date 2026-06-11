@@ -6,13 +6,13 @@
 
 收听
 
-62
+64
 
 添加反应
 
 注意：所有接口尚处于试用、联调过程中，可能随着用户的反馈会有变动。
 
-最好定期下载新版本，下载方式是ftp：
+最好定期下载新版本(代码分支是release300.codeRefactor)，下载方式是ftp：
 
 * [<u>ftpuser@192.168.1.204</u>](mailto:ftpuser@192.168.1.204 "mailto:ftpuser@192.168.1.204"):/hdd/ftp/origin/release300.codeRefactor/Release/ALL/release2/cmake\_release\_all/    密码DolphinDB123
 
@@ -2378,36 +2378,36 @@ ToolDefinition 结构:
 
 ```
 | 类型
-```
 
-| 必填
 
-```
-| 说明
+ | 必填
+
+
+ | 说明
 
 
                                                                                                                                                                                                                                                                                                                                                                                     |
 ```
 
-| -------------------------- | -------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `llmConfigId`        | string | 否       | LLM 配置 ID；不传时由框架生成                                                                                                                                                                                                                                                                                                                                                               |
-| `name`               | string | 是       | 配置名称，用于标识和展示                                                                                                                                                                                                                                                                                                                                                                    |
-| `providerId`         | string | 是       | 关联的 provider ID，必须存在；`enabled=true`时 provider 必须启用                                                                                                                                                                                                                                                                                                                        |
-| `model`              | string | 是       | 模型名称（如`gpt-4.1`、`claude-sonnet-4-20250514`），传递给 LLM API                                                                                                                                                                                                                                                                                                                 |
-| `capability`         | string | 否       | 配置能力类型，默认`chat`：`chat`/`embedding`                                                                                                                                                                                                                                                                                                                                    |
-| `embeddingDimension` | int    | 条件必填 | `capability=embedding`时必填，表示向量维度                                                                                                                                                                                                                                                                                                                                              |
-| `embeddingMetric`    | string | 否       | `capability=embedding`时使用的相似度规则：`euclidean`/`cosine`。省略时默认`euclidean`                                                                                                                                                                                                                                                                                       |
-| `embeddingNormalize` | bool   | 否       | `capability=embedding`时是否对向量做归一化。`embeddingMetric=cosine`时必须为`true`                                                                                                                                                                                                                                                                                              |
-| `requestPath`        | string | 是       | 相对`provider.baseUrl`的请求路径，必须以`/`开头，可包含查询串，例如`/v1/chat/completions`或`/openai/deployments/x/chat/completions?api-version=2024-10-21`                                                                                                                                                                                                                  |
-| `defaultParams`      | object | 否       | 默认请求参数，详见[defaultParams 说明](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#defaultparams "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#defaultparams") |
-| `contextWindow`      | int    | 否       | 模型上下文窗口大小（token 数），用于上下文组装时的预算计算                                                                                                                                                                                                                                                                                                                                  |
-| `maxConcurrency`     | int    | 否       | 最大并发请求数                                                                                                                                                                                                                                                                                                                                                                              |
-| `rateLimitRPM`       | int    | 否       | 速率限制（每分钟最大请求数）                                                                                                                                                                                                                                                                                                                                                                |
-| `timeoutMs`          | int    | 否       | 单次请求超时时间（毫秒）                                                                                                                                                                                                                                                                                                                                                                    |
-| `retryConfig`        | object | 否       | 重试配置，详见[retryConfig 说明](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#retryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#retryconfig")           |
-| `enabled`            | bool   | 否       | 是否启用，默认`true`                                                                                                                                                                                                                                                                                                                                                                    |
-| `customData`         | string | 否       | 外部自定义数据，原样写入和返回；框架不解析、不参与运行时逻辑                                                                                                                                                                                                                                                                                                                                |
-| `extra`              | string | 否       | 预留扩展字段                                                                                                                                                                                                                                                                                                                                                                                |
+| -------------------------- | ---------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `llmConfigId`        | string   | 否       | LLM 配置 ID；不传时由框架生成                                                                                                                                                                                                                                                                                                                                                               |
+| `name`               | string   | 是       | 配置名称，用于标识和展示                                                                                                                                                                                                                                                                                                                                                                    |
+| `providerId`         | string   | 是       | 关联的 provider ID，必须存在；`enabled=true`时 provider 必须启用                                                                                                                                                                                                                                                                                                                        |
+| `model`              | string   | 是       | 模型名称（如`gpt-4.1`、`claude-sonnet-4-20250514`），传递给 LLM API                                                                                                                                                                                                                                                                                                                 |
+| `capability`         | string   | 否       | 配置能力类型，默认`chat`：`chat`/`embedding`                                                                                                                                                                                                                                                                                                                                    |
+| `embeddingDimension` | int      | 条件必填 | `capability=embedding`时必填，表示向量维度                                                                                                                                                                                                                                                                                                                                              |
+| `embeddingMetric`    | string   | 否       | `capability=embedding`时使用的相似度规则：`euclidean`/`cosine`。省略时默认`euclidean`                                                                                                                                                                                                                                                                                       |
+| `embeddingNormalize` | bool     | 否       | `capability=embedding`时是否对向量做归一化。`embeddingMetric=cosine`时必须为`true`                                                                                                                                                                                                                                                                                              |
+| `requestPath`        | string   | 是       | 相对`provider.baseUrl`的请求路径，必须以`/`开头，可包含查询串，例如`/v1/chat/completions`或`/openai/deployments/x/chat/completions?api-version=2024-10-21`                                                                                                                                                                                                                  |
+| `defaultParams`      | object   | 否       | 默认请求参数，详见[defaultParams 说明](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#defaultparams "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#defaultparams") |
+| `contextWindow`      | int/null | 否       | 模型上下文窗口大小（token 数），用于上下文组装时的预算计算；正整数表示显式配置，省略、`null`或`0`表示未设置                                                                                                                                                                                                                                                                         |
+| `maxConcurrency`     | int/null | 否       | 最大并发请求数；正整数表示显式配置，省略、`null`或`0`表示未设置                                                                                                                                                                                                                                                                                                                     |
+| `rateLimitRPM`       | int/null | 否       | 速率限制（每分钟最大请求数）；正整数表示显式配置，省略、`null`或`0`表示未设置                                                                                                                                                                                                                                                                                                       |
+| `timeoutMs`          | int/null | 否       | 单次请求超时时间（毫秒）；正整数表示显式配置，省略、`null`或`0`表示未设置                                                                                                                                                                                                                                                                                                           |
+| `retryConfig`        | object   | 否       | 重试配置，详见[retryConfig 说明](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#retryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#retryconfig")           |
+| `enabled`            | bool     | 否       | 是否启用，默认`true`                                                                                                                                                                                                                                                                                                                                                                    |
+| `customData`         | string   | 否       | 外部自定义数据，原样写入和返回；框架不解析、不参与运行时逻辑                                                                                                                                                                                                                                                                                                                                |
+| `extra`              | string   | 否       | 预留扩展字段                                                                                                                                                                                                                                                                                                                                                                                |
 
 **响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
 
@@ -2481,36 +2481,36 @@ ToolDefinition 结构:
 
 ```
 | 类型
-```
 
-| 必填
 
-```
-| 说明
+ | 必填
+
+
+       | 说明
 
 
                                                                             |
 ```
 
-| -------------------------- | -------- | ---------------- | ------------------------------------------------------------------------------------- |
-| `llmConfigId`        | string | 路径已提供时否 | LLM 配置 ID；若同时出现在路径和 body 中，必须一致                                   |
-| `name`               | string | 否             | 配置名称                                                                            |
-| `providerId`         | string | 否             | 关联的 provider ID；`enabled=true`时 provider 必须启用                          |
-| `model`              | string | 否             | 模型名称                                                                            |
-| `capability`         | string | 否             | 配置能力类型：`chat`/`embedding`                                            |
-| `embeddingDimension` | int    | 条件必填       | 更新为`capability=embedding`时必须为正数                                        |
-| `embeddingMetric`    | string | 否             | `euclidean`/`cosine`；`capability=embedding`且省略时默认`euclidean` |
-| `embeddingNormalize` | bool   | 否             | `embeddingMetric=cosine`时必须为`true`                                      |
-| `requestPath`        | string | 否             | 相对`provider.baseUrl`的请求路径，必须以`/`开头                             |
-| `defaultParams`      | object | 否             | 默认请求参数，整体替换                                                              |
-| `contextWindow`      | int    | 否             | 模型上下文窗口大小；必须为非负整数                                                  |
-| `maxConcurrency`     | int    | 否             | 最大并发请求数；必须为非负整数                                                      |
-| `rateLimitRPM`       | int    | 否             | 速率限制；必须为非负整数                                                            |
-| `timeoutMs`          | int    | 否             | 单次请求超时时间；必须为非负整数                                                    |
-| `retryConfig`        | object | 否             | 重试配置，整体替换                                                                  |
-| `enabled`            | bool   | 否             | 是否启用                                                                            |
-| `customData`         | string | 否             | 外部自定义数据，整体替换；空字符串表示清空                                          |
-| `extra`              | string | 否             | 预留扩展字段                                                                        |
+| -------------------------- | ---------- | ---------------- | ------------------------------------------------------------------------------------- |
+| `llmConfigId`        | string   | 路径已提供时否 | LLM 配置 ID；若同时出现在路径和 body 中，必须一致                                   |
+| `name`               | string   | 否             | 配置名称                                                                            |
+| `providerId`         | string   | 否             | 关联的 provider ID；`enabled=true`时 provider 必须启用                          |
+| `model`              | string   | 否             | 模型名称                                                                            |
+| `capability`         | string   | 否             | 配置能力类型：`chat`/`embedding`                                            |
+| `embeddingDimension` | int      | 条件必填       | 更新为`capability=embedding`时必须为正数                                        |
+| `embeddingMetric`    | string   | 否             | `euclidean`/`cosine`；`capability=embedding`且省略时默认`euclidean` |
+| `embeddingNormalize` | bool     | 否             | `embeddingMetric=cosine`时必须为`true`                                      |
+| `requestPath`        | string   | 否             | 相对`provider.baseUrl`的请求路径，必须以`/`开头                             |
+| `defaultParams`      | object   | 否             | 默认请求参数，整体替换                                                              |
+| `contextWindow`      | int/null | 否             | 模型上下文窗口大小；正整数表示显式配置，`null`或`0`表示清空；省略表示不更新 |
+| `maxConcurrency`     | int/null | 否             | 最大并发请求数；正整数表示显式配置，`null`或`0`表示清空；省略表示不更新     |
+| `rateLimitRPM`       | int/null | 否             | 速率限制；正整数表示显式配置，`null`或`0`表示清空；省略表示不更新           |
+| `timeoutMs`          | int/null | 否             | 单次请求超时时间；正整数表示显式配置，`null`或`0`表示清空；省略表示不更新   |
+| `retryConfig`        | object   | 否             | 重试配置，整体替换                                                                  |
+| `enabled`            | bool     | 否             | 是否启用                                                                            |
+| `customData`         | string   | 否             | 外部自定义数据，整体替换；空字符串表示清空                                          |
+| `extra`              | string   | 否             | 预留扩展字段                                                                        |
 
 **响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
 
@@ -2970,12 +2970,11 @@ ToolDefinition 结构:
 |
 ```
 
-| --------------- | -------- | ------ | ------------------------------------------------------------------- |
-| `agentId` | string | 是   | Agent ID；也可通过`x-agent-id`header 提供，重复提供时必须一致 |
-| `skillId` | string | 是   | 要禁止使用的技能 ID                                               |
-| `userId`  | string | 是   | 业务用户 ID                                                       |
+| --------------- | -------- | ------ | --------------------- |
+| `skillId` | string | 是   | 要禁止使用的技能 ID |
+| `userId`  | string | 是   | 业务用户 ID         |
 
-说明：重复 deny 会更新或保持该用户在该 Agent 下对该技能的禁用记录。
+说明：重复 deny 会更新或保持该用户对该技能的全局禁用记录。该接口需要全局管理员权限。
 
 * 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
 * `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
@@ -2983,7 +2982,7 @@ ToolDefinition 结构:
 * `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 
-**响应:** `{ agentId, userId, skillIds: [...], size }`
+**响应:** `{ userId, skillIds: [...], size }`
 
 ---
 
@@ -3007,12 +3006,11 @@ ToolDefinition 结构:
 |
 ```
 
-| --------------- | -------- | ------ | ------------------------------------------------------------------- |
-| `agentId` | string | 是   | Agent ID；也可通过`x-agent-id`header 提供，重复提供时必须一致 |
-| `skillId` | string | 是   | 要恢复使用的技能 ID                                               |
-| `userId`  | string | 是   | 业务用户 ID                                                       |
+| --------------- | -------- | ------ | --------------------- |
+| `skillId` | string | 是   | 要恢复使用的技能 ID |
+| `userId`  | string | 是   | 业务用户 ID         |
 
-说明：allow 会删除该用户在该 Agent 下对该技能的禁用记录；不存在禁用记录时为幂等 no-op。
+说明：allow 会删除该用户对该技能的全局禁用记录；不存在禁用记录时为幂等 no-op。该接口需要全局管理员权限。
 
 * 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
 * `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
@@ -3020,15 +3018,15 @@ ToolDefinition 结构:
 * `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 
-**响应:** `{ agentId, userId, skillIds: [...], size }`
+**响应:** `{ userId, skillIds: [...], size }`
 
 ---
 
 #### 列出业务用户被禁止的技能
 
-`GET /agent-bus/v1/skill/{agentId}/user/{userId}/denied `
+`GET /agent-bus/v1/skill/user/{userId}/denied `
 
-**响应:** `{ agentId, userId, skillIds: [...], size }`
+**响应:** `{ userId, skillIds: [...], size }`
 
 ---
 
@@ -3218,7 +3216,7 @@ ToolDefinition 结构:
 
 ### 3.11 内置 Agent/Skill 初始化
 
-本章接口用于部署或升级后初始化发布包内预置的 Agent 和 Skill。接口由管控 Web 调用，不面向普通业务用户；调用者必须具备全局 `AGENT_ADMIN` 权限。
+本章接口用于部署或升级后初始化发布包内预置的 Agent 和 Skill。执行初始化属于管控操作，调用者必须具备全局 `AGENT_ADMIN` 权限；查询基础初始化状态用于客户端启动探测，允许未登录用户和普通用户调用。
 
 初始化流程只读取 DolphinDB 可执行文件同级目录下的 `agentBuiltins/manifest.json`，不允许客户端通过请求参数指定 manifest 路径或 Skill 根目录。
 
@@ -3288,17 +3286,27 @@ ToolDefinition 结构:
 | 说明
 
 
-                                     |
+                                                                    |
 ```
 
-| ---------------------- | ------ | ------------- | ---------------------------------------------- |
-| `includeDetails` | bool | `false` | 是否返回初始化状态表中的明细记录`states` |
+| ---------------------- | ------ | ------------- | ----------------------------------------------------------------------------- |
+| `includeDetails` | bool | `false` | 是否返回初始化状态表中的明细记录`states`；仅全局`AGENT_ADMIN`可使用 |
 
 WebSocket 调用时，`includeDetails` 放在 `payload` 中。
 
+权限与响应裁剪：
+
+* 未登录用户和普通用户只能查询基础状态。响应只包含 `initialized`、`state`、`manifestId`、`manifestVersion`。
+* 全局 `AGENT_ADMIN` 用户可查询完整状态；传 `includeDetails=true` 时额外返回初始化状态表明细。
+* 非管理员传 `includeDetails=true` 返回权限错误。
+
 **响应:** [BuiltinInitResult](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#builtininitresult "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#builtininitresult")
 
-**响应示例:**
+**基础响应示例:**
+
+`{ "initialized": false, "state": "STALE", "manifestId": "dolphindb-agent-builtins", "manifestVersion": "2026.05.13" } `
+
+**管理员完整响应示例:**
 
 `{ "initialized": false, "state": "STALE", "manifestId": "dolphindb-agent-builtins", "manifestVersion": "2026.05.13", "manifestHash": "sha256:...", "lastRunId": "builtin_init_xxx", "lastRunTime": "2026.05.13 12:30:00.000", "summary": { "createdAgents": 1, "createdSkills": 2, "updatedSkills": 0, "createdBindings": 1, "skippedExisting": 0, "skippedUnchanged": 0, "skippedUserModified": 0, "failed": 0 }, "lastFailures": [] } `
 
@@ -3734,10 +3742,10 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 | `embeddingNormalize` | bool                                                                                                                                                                                                                                                                                                                                                                       | embedding 是否归一化；`capability=chat`时为`false`                                                                                                                                                   |
 | `requestPath`        | string                                                                                                                                                                                                                                                                                                                                                                     | 相对`provider.baseUrl`的请求路径，必须以`/`开头，可包含查询串                                                                                                                                        |
 | `defaultParams`      | object                                                                                                                                                                                                                                                                                                                                                                     | 默认请求参数，支持`temperature`（double）、`maxTokens`/`max_tokens`/`max_completion_tokens`（int）、`topP`/`top_p`（double）、`stop`（string[]）等。请求级参数可覆盖此处的默认值 |
-| `contextWindow`      | int                                                                                                                                                                                                                                                                                                                                                                        | 模型上下文窗口大小（token 数），用于上下文组装时的预算计算。为 0 时使用`contextConfig.maxContextTokens`                                                                                                  |
-| `maxConcurrency`     | int                                                                                                                                                                                                                                                                                                                                                                        | 该 LLM 配置的最大并发请求数                                                                                                                                                                                  |
-| `rateLimitRPM`       | int                                                                                                                                                                                                                                                                                                                                                                        | 速率限制（每分钟最大请求数）                                                                                                                                                                                 |
-| `timeoutMs`          | int                                                                                                                                                                                                                                                                                                                                                                        | 单次 LLM 请求超时时间（毫秒）                                                                                                                                                                                |
+| `contextWindow`      | int/null                                                                                                                                                                                                                                                                                                                                                                   | 模型上下文窗口大小（token 数），用于上下文组装时的预算计算；未设置时返回`null`，运行时使用`contextConfig.maxContextTokens`                                                                           |
+| `maxConcurrency`     | int/null                                                                                                                                                                                                                                                                                                                                                                   | 该 LLM 配置的最大并发请求数；未设置时返回`null`，运行时使用系统默认并发                                                                                                                                  |
+| `rateLimitRPM`       | int/null                                                                                                                                                                                                                                                                                                                                                                   | 速率限制（每分钟最大请求数）；未设置时返回`null`，运行时不启用该配置项限速                                                                                                                               |
+| `timeoutMs`          | int/null                                                                                                                                                                                                                                                                                                                                                                   | 单次 LLM 请求超时时间（毫秒）；未设置时返回`null`，运行时使用系统默认超时                                                                                                                                |
 | `retryConfig`        | object                                                                                                                                                                                                                                                                                                                                                                     | 重试配置：`maxRetries`（默认 3）、`initialDelayMs`（默认 1000）、`backoffMultiplier`（默认 2.0）、`maxDelayMs`（默认 30000）、`retryableStatusCodes`（默认 [429, 500, 502, 503]）        |
 | `enabled`            | bool                                                                                                                                                                                                                                                                                                                                                                       | 是否启用                                                                                                                                                                                                     |
 | `schemaVersion`      | int                                                                                                                                                                                                                                                                                                                                                                        | 行 Schema 版本号                                                                                                                                                                                             |
@@ -3979,8 +3987,8 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 | `id`            | string    | 绑定记录 ID                                                             |
 | `agentId`       | string    | 绑定到的 Agent ID                                                       |
 | `skillId`       | string    | 被绑定的技能 ID                                                         |
-| `subjectType`   | string    | 绑定主体类型：`AGENT`（agent 级别绑定）/`DB_USER`（用户级限制） |
-| `subjectId`     | string    | 绑定主体 ID（agentId 或 DolphinDB userId）                              |
+| `subjectType`   | string    | 绑定主体类型，固定为`AGENT`（agent 级别绑定）                       |
+| `subjectId`     | string    | 绑定主体 ID，等于 agentId                                               |
 | `available`     | bool      | 派生可用状态。为`false`时该技能不进入 catalog 和 context            |
 | `source`        | string    | 绑定来源：`EXPLICIT`、`COMMON_INHERITED`、`COMMON_DISABLED` |
 | `schemaVersion` | int       | 行 Schema 版本号                                                        |
@@ -3993,7 +4001,7 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 
 ### BuiltinInitResult
 
-`/builtin/init` 与 `/builtin/init/status` 的响应结构。初始化接口返回当前执行结果；状态接口返回最近一次非 dryRun 初始化状态。
+`/builtin/init` 与 `/builtin/init/status` 的响应结构。初始化接口返回当前执行结果；管理员状态接口返回最近一次非 dryRun 初始化状态。未登录用户和普通用户查询状态时只返回 `initialized`、`state`、`manifestId`、`manifestVersion` 字段。
 
 | 字段
 
@@ -4228,20 +4236,24 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 |
 ```
 
-| ------------------------------ | ------------- | ------------------------------------------------------------------------------------- |
-| `BUS_AUTH_FAILED`        | 403         | 鉴权失败，当前用户无权执行此操作                                                    |
-| `BUS_UNKNOWN_ACTION`     | 404         | 未知的 action，请求的接口/action 名称不存在                                         |
-| `BUS_AGENT_NOT_FOUND`    | 404         | 指定的 Agent 不存在或已被删除                                                       |
-| `BUS_SESSION_NOT_FOUND`  | 404         | 指定的会话不存在                                                                    |
-| `BUS_QUEUE_FULL`         | 429         | DataBus 请求队列已满，服务端过载，请稍后重试                                        |
-| `BUS_TIMEOUT`            | 504         | 请求处理超时（包括 LLM 调用超时）                                                   |
-| `BUS_NODE_UNREACHABLE`   | 503         | 集群模式下目标亲和节点不可达，请求无法路由                                          |
-| `BUS_HANDLER_ERROR`      | 500         | 处理器内部错误（如参数校验失败、状态冲突、LLM 调用失败等），详见 error.message      |
-| `BUS_STREAM_INTERRUPTED` | 499         | 流式传输中断（SSE 连接断开或 LLM 流式响应异常终止）                                 |
-| `BUS_INVALID_ARGUMENT`   | 400         | 请求参数不合法（缺少必填字段、类型错误、值超出范围等）                              |
-| `REPLACE_REJECTED`       | 409         | workspace replace 请求被拒绝，详见`error.reason`和`error.message`           |
-| `WORKSPACE_REJECTED`     | 400         | workspace 状态、文件或平台约束导致拒绝，详见`error.reason`和`error.message` |
-| `BUS_NOT_STARTED`        | 500         | DataBus 尚未完成初始化，服务暂不可用                                                |
+| ------------------------------ | ------------- | -------------------------------------------------------------------------------------------- |
+| `BUS_UNAUTHENTICATED`    | 401         | 未认证或登录态失效，客户端应重新登录                                                       |
+| `BUS_PERMISSION_DENIED`  | 403         | 已认证但无权执行此操作，客户端不应清除登录态                                               |
+| `BUS_UNKNOWN_ACTION`     | 404         | 未知的 action，请求的接口/action 名称不存在                                                |
+| `BUS_NOT_FOUND`          | 404         | 通用资源不存在                                                                             |
+| `BUS_AGENT_NOT_FOUND`    | 404         | 指定的 Agent 不存在或已被删除                                                              |
+| `BUS_SESSION_NOT_FOUND`  | 404         | 指定的会话不存在                                                                           |
+| `BUS_QUEUE_FULL`         | 429         | DataBus 请求队列已满，服务端过载，请稍后重试                                               |
+| `BUS_TIMEOUT`            | 504         | 请求处理超时（包括 LLM 调用超时）                                                          |
+| `BUS_NODE_UNREACHABLE`   | 503         | 集群模式下目标亲和节点不可达，请求无法路由                                                 |
+| `BUS_HANDLER_ERROR`      | 500         | 处理器内部错误，详见 error.message                                                         |
+| `BUS_LLM_PROVIDER_ERROR` | 502         | 上游 LLM provider 返回错误或异常；provider 原始 HTTP 状态见`headers.llmProviderStatus` |
+| `BUS_STREAM_INTERRUPTED` | 499         | 流式传输中断（SSE 连接断开或 LLM 流式响应异常终止）                                        |
+| `BUS_INVALID_ARGUMENT`   | 400         | 请求参数不合法（缺少必填字段、类型错误、值超出范围等）                                     |
+| `BUS_PAYLOAD_TOO_LARGE`  | 413         | 请求体或 payload 超限                                                                      |
+| `REPLACE_REJECTED`       | 409         | workspace replace 请求被拒绝，详见`error.reason`和`error.message`                  |
+| `WORKSPACE_REJECTED`     | 400         | workspace 状态、文件或平台约束导致拒绝，详见`error.reason`和`error.message`        |
+| `BUS_NOT_STARTED`        | 503         | DataBus 尚未完成初始化，服务暂不可用                                                       |
 
 Workspace 业务错误通过上述 DataBus 错误 envelope 返回，具体原因在 `error.reason` 和 `error.message` 中体现。常见标识如下：
 
@@ -4335,11 +4347,11 @@ WebSocket 没有 URL 路径和 HTTP 方法，所以 HTTP 接口里的"路径参�
 
 HTTP：
 
-`GET /agent-bus/v1/skill/{agentId}/user/{userId}/denied `
+`GET /agent-bus/v1/skill/user/{userId}/denied `
 
 WebSocket：
 
-`{ "type": "REQUEST", "requestId": "req_42", "action": "skill.user.denied", "agentId": "agent_xxx", "payload": { "userId": "business_user_001" } } `
+`{ "type": "REQUEST", "requestId": "req_42", "action": "skill.user.denied", "payload": { "userId": "business_user_001" } } `
 
 **示例 2：路径参数 + 查询串**
 
@@ -4371,89 +4383,89 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 | 对应 HTTP 接口
 
 
-                        |
+                  |
 ```
 
-| ------------------------------- | ------------------------------------------- |
-| `agent.register`          | POST /agent/register                      |
-| `agent.get`               | GET /agent/{id}                           |
-| `agent.update`            | PUT /agent/{id}                           |
-| `agent.activate`          | POST /agent/{id}/activate                 |
-| `agent.suspend`           | POST /agent/{id}/suspend                  |
-| `agent.delete`            | POST /agent/{id}/delete                   |
-| `agent.list`              | GET /agent/list                           |
-| `agent.auth.grant`        | POST /agent/{id}/auth                     |
-| `agent.auth.revoke`       | DELETE /agent/{id}/auth                   |
-| `agent.auth.list`         | GET /agent/{id}/auth/list                 |
-| `agent.accessible`        | GET /agent/accessible                     |
-| `agent.llm.grant`         | POST /agent/{id}/llm/access               |
-| `agent.llm.revoke`        | DELETE /agent/{id}/llm/access             |
-| `agent.llm.list`          | GET /agent/{id}/llm/list                  |
-| `agent.llm.selectable`    | GET /agent/{id}/llm/selectable            |
-| `admin.access.grant`      | POST /admin/access                        |
-| `admin.access.revoke`     | DELETE /admin/access                      |
-| `admin.access.list`       | GET /admin/access                         |
-| `user.llm.access.grant`   | POST /user/{id}/llm/access                |
-| `user.llm.access.revoke`  | DELETE /user/{id}/llm/access              |
-| `user.llm.access.list`    | GET /user/{id}/llm/access                 |
-| `llm.provider.register`   | POST /llm/provider/register               |
-| `llm.provider.get`        | GET /llm/provider/{id}                    |
-| `llm.provider.list`       | GET /llm/provider/list                    |
-| `llm.provider.update`     | PUT /llm/provider/{id}                    |
-| `llm.provider.delete`     | DELETE /llm/provider/{id}                 |
-| `llm.config.register`     | POST /llm/config/register                 |
-| `llm.config.get`          | GET /llm/config/{id}                      |
-| `llm.config.list`         | GET /llm/config/list                      |
-| `llm.config.update`       | PUT /llm/config/{id}                      |
-| `llm.config.delete`       | DELETE /llm/config/{id}                   |
-| `llm.complete`            | POST /llm/complete                        |
-| `llm.usage`               | GET /llm/usage                            |
-| `network.fetch`           | POST /network/fetch                       |
-| `builtin.init`            | POST /builtin/init                        |
-| `builtin.init.status`     | GET /builtin/init/status                  |
-| `chat.completions`        | POST /chat/completions                    |
-| `context.preview`         | POST /context/preview                     |
-| `session.create`          | POST /session/create                      |
-| `session.get`             | GET /session/{id}                         |
-| `session.update`          | PUT /session/{id}                         |
-| `session.delete`          | DELETE /session/{id}                      |
-| `session.list`            | GET /session/list                         |
-| `session.appendMessage`   | POST /session/{id}/message                |
-| `session.appendMessages`  | POST /session/{id}/messages               |
-| `session.getMessages`     | GET /session/{id}/messages                |
-| `session.generateSummary` | POST /session/{id}/summary                |
-| `workspace.list`          | GET /workspace/{sessionId}/files          |
-| `workspace.read`          | GET /workspace/{sessionId}/file           |
-| `workspace.write`         | POST /workspace/{sessionId}/file          |
-| `workspace.delete`        | DELETE /workspace/{sessionId}/file        |
-| `workspace.search`        | POST /workspace/{sessionId}/search        |
-| `workspace.replace`       | POST /workspace/{sessionId}/replace       |
-| `memory.store`            | POST /memory/store                        |
-| `memory.get`              | GET /memory/{id}                          |
-| `memory.update`           | PUT /memory/{id}                          |
-| `memory.delete`           | DELETE /memory/{id}                       |
-| `memory.search`           | POST /memory/search                       |
-| `memory.list`             | GET /memory/list                          |
-| `memory.stats`            | GET /memory/stats                         |
-| `skill.register`          | POST /skill/register                      |
-| `skill.get`               | GET /skill/{id}                           |
-| `skill.getByName`         | GET /skill/byName/{name}                  |
-| `skill.update`            | PUT /skill/{id}                           |
-| `skill.delete`            | DELETE /skill/{id}                        |
-| `skill.list`              | GET /skill/list                           |
-| `skill.getInstruction`    | GET /skill/{id}/instruction               |
-| `skill.files.list`        | GET /skill/{id}/files/list                |
-| `skill.files.get`         | GET /skill/{id}/files/get                 |
-| `skill.files.search`      | POST /skill/{id}/files/search             |
-| `skill.files.batchGet`    | POST /skill/{id}/files/batchGet           |
-| `skill.bind`              | POST /skill/bind                          |
-| `skill.unbind`            | POST /skill/unbind                        |
-| `skill.bindings`          | GET /skill/{agentId}/bindings             |
-| `skill.catalog`           | GET /skill/{agentId}/catalog              |
-| `skill.context`           | POST /skill/{agentId}/context             |
-| `skill.user.deny`         | POST /skill/user/deny                     |
-| `skill.user.allow`        | POST /skill/user/allow                    |
-| `skill.user.denied`       | GET /skill/{agentId}/user/{userId}/denied |
+| ------------------------------- | ------------------------------------- |
+| `agent.register`          | POST /agent/register                |
+| `agent.get`               | GET /agent/{id}                     |
+| `agent.update`            | PUT /agent/{id}                     |
+| `agent.activate`          | POST /agent/{id}/activate           |
+| `agent.suspend`           | POST /agent/{id}/suspend            |
+| `agent.delete`            | POST /agent/{id}/delete             |
+| `agent.list`              | GET /agent/list                     |
+| `agent.auth.grant`        | POST /agent/{id}/auth               |
+| `agent.auth.revoke`       | DELETE /agent/{id}/auth             |
+| `agent.auth.list`         | GET /agent/{id}/auth/list           |
+| `agent.accessible`        | GET /agent/accessible               |
+| `agent.llm.grant`         | POST /agent/{id}/llm/access         |
+| `agent.llm.revoke`        | DELETE /agent/{id}/llm/access       |
+| `agent.llm.list`          | GET /agent/{id}/llm/list            |
+| `agent.llm.selectable`    | GET /agent/{id}/llm/selectable      |
+| `admin.access.grant`      | POST /admin/access                  |
+| `admin.access.revoke`     | DELETE /admin/access                |
+| `admin.access.list`       | GET /admin/access                   |
+| `user.llm.access.grant`   | POST /user/{id}/llm/access          |
+| `user.llm.access.revoke`  | DELETE /user/{id}/llm/access        |
+| `user.llm.access.list`    | GET /user/{id}/llm/access           |
+| `llm.provider.register`   | POST /llm/provider/register         |
+| `llm.provider.get`        | GET /llm/provider/{id}              |
+| `llm.provider.list`       | GET /llm/provider/list              |
+| `llm.provider.update`     | PUT /llm/provider/{id}              |
+| `llm.provider.delete`     | DELETE /llm/provider/{id}           |
+| `llm.config.register`     | POST /llm/config/register           |
+| `llm.config.get`          | GET /llm/config/{id}                |
+| `llm.config.list`         | GET /llm/config/list                |
+| `llm.config.update`       | PUT /llm/config/{id}                |
+| `llm.config.delete`       | DELETE /llm/config/{id}             |
+| `llm.complete`            | POST /llm/complete                  |
+| `llm.usage`               | GET /llm/usage                      |
+| `network.fetch`           | POST /network/fetch                 |
+| `builtin.init`            | POST /builtin/init                  |
+| `builtin.init.status`     | GET /builtin/init/status            |
+| `chat.completions`        | POST /chat/completions              |
+| `context.preview`         | POST /context/preview               |
+| `session.create`          | POST /session/create                |
+| `session.get`             | GET /session/{id}                   |
+| `session.update`          | PUT /session/{id}                   |
+| `session.delete`          | DELETE /session/{id}                |
+| `session.list`            | GET /session/list                   |
+| `session.appendMessage`   | POST /session/{id}/message          |
+| `session.appendMessages`  | POST /session/{id}/messages         |
+| `session.getMessages`     | GET /session/{id}/messages          |
+| `session.generateSummary` | POST /session/{id}/summary          |
+| `workspace.list`          | GET /workspace/{sessionId}/files    |
+| `workspace.read`          | GET /workspace/{sessionId}/file     |
+| `workspace.write`         | POST /workspace/{sessionId}/file    |
+| `workspace.delete`        | DELETE /workspace/{sessionId}/file  |
+| `workspace.search`        | POST /workspace/{sessionId}/search  |
+| `workspace.replace`       | POST /workspace/{sessionId}/replace |
+| `memory.store`            | POST /memory/store                  |
+| `memory.get`              | GET /memory/{id}                    |
+| `memory.update`           | PUT /memory/{id}                    |
+| `memory.delete`           | DELETE /memory/{id}                 |
+| `memory.search`           | POST /memory/search                 |
+| `memory.list`             | GET /memory/list                    |
+| `memory.stats`            | GET /memory/stats                   |
+| `skill.register`          | POST /skill/register                |
+| `skill.get`               | GET /skill/{id}                     |
+| `skill.getByName`         | GET /skill/byName/{name}            |
+| `skill.update`            | PUT /skill/{id}                     |
+| `skill.delete`            | DELETE /skill/{id}                  |
+| `skill.list`              | GET /skill/list                     |
+| `skill.getInstruction`    | GET /skill/{id}/instruction         |
+| `skill.files.list`        | GET /skill/{id}/files/list          |
+| `skill.files.get`         | GET /skill/{id}/files/get           |
+| `skill.files.search`      | POST /skill/{id}/files/search       |
+| `skill.files.batchGet`    | POST /skill/{id}/files/batchGet     |
+| `skill.bind`              | POST /skill/bind                    |
+| `skill.unbind`            | POST /skill/unbind                  |
+| `skill.bindings`          | GET /skill/{agentId}/bindings       |
+| `skill.catalog`           | GET /skill/{agentId}/catalog        |
+| `skill.context`           | POST /skill/{agentId}/context       |
+| `skill.user.deny`         | POST /skill/user/deny               |
+| `skill.user.allow`        | POST /skill/user/allow              |
+| `skill.user.denied`       | GET /skill/user/{userId}/denied     |
 
 ---
 
@@ -4709,25 +4721,12 @@ You can use this skill to query DolphinDB distributed tables.
 
 |
 | -------------------------------- | ---------------------- | ---------------- | ------------ | ---------------------- |
-
-| `disable-model-invocation`
-
-| `user-invocable`
-
-| LLM 可自动发现
-
-| 用户可调用
-
-| 描述注入 Tier-1 目录
-
-|
-| -------------------------------- | ---------------------- | ---------------- | ------------ | ---------------------- |
 | false                          | true                 | 是             | 是         | 是                   |
 | false                          | false                | 是             | 否         | 是                   |
 | true                           | true                 | 否             | 是         | 否                   |
 | true                           | false                | 否             | 否         | 否                   |
 
-注：以上设置来自 Skill 自身配置；绑定关系不提供 agent 级描述或配置覆盖。
+可以注：以上设置来自 Skill 自身配置；绑定关系不提供 agent 级描述或配置覆盖。
 
 ### 注册时的解析流程
 
