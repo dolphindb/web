@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { Button, Empty, Input, Select, Space, Table, Tabs, Tag, Typography, message } from 'antd'
+import { Button, Empty, Select, Space, Table, Tabs, Tag, Typography, message } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
 
 import { chat_model } from '@/agent/model.ts'
-import type { IAccessInfo, ILlmConfig, ISession, ISkillInfo, IUserLlmAccessInfo } from '@/agent/model.ts'
+import type { IAccessInfo, ILlmConfig, ISkillInfo, IUserLlmAccessInfo } from '@/agent/model.ts'
 import { Section, show_error, use_agent_options, use_user_options } from './common.tsx'
 import { UsageSection } from './DolphinXUserTab.tsx'
 
@@ -330,126 +330,6 @@ function UserPermissionTab () {
 }
 
 
-function ContextPreviewSection () {
-    const { agent_id, options } = use_agent_options()
-    const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
-    const [sessions, set_sessions] = useState<ISession[]>([ ])
-    const [selected_session_id, set_selected_session_id] = useState('')
-    const [message_text, set_message_text] = useState('')
-    const [preview, set_preview] = useState<any>(null)
-    const [loading, set_loading] = useState(false)
-    
-    useEffect(() => {
-        if (!selected_agent_id && agent_id)
-            set_selected_agent_id(agent_id)
-    }, [agent_id])
-    
-    async function load_sessions () {
-        if (!selected_agent_id) {
-            set_sessions([ ])
-            set_selected_session_id('')
-            return
-        }
-        const result = await chat_model.list_sessions({
-            agentId: selected_agent_id,
-            limit: 100,
-        })
-        set_sessions(result.items)
-        if (!selected_session_id || !result.items.some(item => item.sessionId === selected_session_id))
-            set_selected_session_id(result.items[0]?.sessionId || '')
-    }
-    
-    useEffect(() => {
-        load_sessions().catch(error => { show_error(error, t('加载会话失败')) })
-    }, [selected_agent_id])
-    
-    async function load_preview () {
-        if (!selected_agent_id || !selected_session_id || !message_text.trim()) {
-            message.warning(t('请选择 Agent、会话并输入消息'))
-            return
-        }
-        set_loading(true)
-        try {
-            set_preview(await chat_model.preview_context({
-                sessionId: selected_session_id,
-                message: message_text.trim(),
-            }, selected_agent_id))
-        } catch (error) {
-            show_error(error, t('加载上下文预览失败'))
-        } finally {
-            set_loading(false)
-        }
-    }
-    
-    const detail = preview?.detail || { }
-    const token_breakdown = preview?.tokenBreakdown || { }
-    const messages = Array.isArray(preview?.messages) ? preview.messages : [ ]
-    
-    return <Section title={t('上下文预览')}>
-        <Space wrap>
-            <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
-            <Select
-                style={{ width: 260 }}
-                placeholder={t('选择会话')}
-                value={selected_session_id || undefined}
-                onChange={set_selected_session_id}
-                options={sessions.map(session => ({ value: session.sessionId, label: session.title || session.sessionId }))}
-            />
-            <Button loading={loading} onClick={load_preview}>{t('预览')}</Button>
-        </Space>
-        <Input.TextArea
-            style={{ marginTop: 12 }}
-            value={message_text}
-            onChange={event => { set_message_text(event.target.value) }}
-            placeholder={t('输入待预览的用户消息')}
-            rows={3}
-        />
-        {preview && <Space direction='vertical' style={{ width: '100%', marginTop: 12 }}>
-            <Table
-                size='small'
-                pagination={false}
-                rowKey='key'
-                dataSource={[
-                    { key: 'tokens', label: t('预估 Token'), value: preview.estimatedTokens ?? '-' },
-                    { key: 'mode', label: t('组装模式'), value: detail.assemblyMode || preview.assemblyMode || '-' },
-                    { key: 'memories', label: t('记忆数量'), value: detail.memoriesIncluded ?? '-' },
-                    { key: 'messages', label: t('历史消息数'), value: detail.messagesIncluded ?? '-' },
-                    { key: 'skills', label: t('技能数量'), value: detail.skillsInCatalog ?? '-' },
-                    { key: 'summary', label: t('包含摘要'), value: detail.summaryIncluded === undefined ? '-' : String(detail.summaryIncluded) },
-                ]}
-                columns={[
-                    { title: t('项目'), dataIndex: 'label', width: 140 },
-                    { title: t('值'), dataIndex: 'value' },
-                ]}
-            />
-            {Object.keys(token_breakdown).length > 0 && <Table
-                size='small'
-                pagination={false}
-                rowKey='key'
-                dataSource={Object.entries(token_breakdown).map(([key, value]) => ({ key, value }))}
-                columns={[
-                    { title: t('Token 项'), dataIndex: 'key' },
-                    { title: t('数量'), dataIndex: 'value', width: 120 },
-                ]}
-            />}
-            <Table
-                size='small'
-                pagination={{ defaultPageSize: 8 }}
-                rowKey={(_, index) => String(index)}
-                dataSource={messages}
-                columns={[
-                    { title: t('角色'), dataIndex: 'role', width: 100 },
-                    {
-                        title: t('内容'),
-                        render: (_: unknown, row: any) => <Text ellipsis style={{ maxWidth: 620 }}>{String(row.content || '')}</Text>,
-                    },
-                ]}
-            />
-        </Space>}
-    </Section>
-}
-
-
 export function DolphinXAdminTab () {
     if (!model.admin)
         return <Empty description={t('仅管理员可访问')} />
@@ -466,11 +346,6 @@ export function DolphinXAdminTab () {
                 key: 'usage',
                 label: t('用量'),
                 children: <UsageSection admin />,
-            },
-            {
-                key: 'context',
-                label: t('上下文预览'),
-                children: <ContextPreviewSection />,
             },
         ]}
     />

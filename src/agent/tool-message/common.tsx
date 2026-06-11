@@ -1,6 +1,7 @@
 import { Button, Collapse, Space, Tooltip, Typography } from 'antd'
 import { RedoOutlined } from '@ant-design/icons'
 import { marked } from 'marked'
+import { useEffect, useState } from 'react'
 
 import { t } from '@i18n'
 import { copy } from '@utils'
@@ -248,16 +249,33 @@ export function create_code_view (code: string, action?: React.ReactNode) {
 
 
 export function create_copy_button (code: string) {
+    return <CodeCopyButton code={code} />
+}
+
+
+function CodeCopyButton ({ code }: { code: string }) {
+    const [copied, set_copied] = useState(false)
+    
+    useEffect(() => {
+        if (!copied)
+            return
+        const timer = setTimeout(() => { set_copied(false) }, 1500)
+        return () => { clearTimeout(timer) }
+    }, [copied])
+    
     return <Button
         size='small'
-        onClick={event => {
+        onClick={async event => {
             event.stopPropagation()
-            copy(code).catch(error => {
+            try {
+                await copy(code)
+                set_copied(true)
+            } catch (error) {
                 console.error('[ai] copy script failed:', error)
-            })
+            }
         }}
     >
-        {t('复制')}
+        {copied ? t('已复制') : t('复制')}
     </Button>
 }
 
@@ -483,4 +501,3 @@ export function resolve_args (current_tool_call: ToolCallViewModel | null, previ
         return previous_tool_call.args
     return [ ]
 }
-

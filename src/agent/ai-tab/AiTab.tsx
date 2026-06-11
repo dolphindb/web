@@ -192,9 +192,14 @@ export function AiTab ({ session_id }: { session_id: string }) {
         if (!button)
             return
         event.stopPropagation()
-        await copy(button.parentElement?.querySelector('code')?.textContent || '')
-        button.textContent = t('已复制')
-        setTimeout(() => { button.textContent = t('复制') }, 1500)
+        try {
+            await copy(button.closest('.ai-code-block')?.querySelector('code')?.textContent || '')
+            clearTimeout(Number(button.dataset.copyTimer))
+            button.textContent = t('已复制')
+            button.dataset.copyTimer = String(setTimeout(() => { button.textContent = t('复制') }, 1500))
+        } catch (error) {
+            console.error('[ai] copy code failed:', error)
+        }
     }
     
     async function handle_send () {

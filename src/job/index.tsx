@@ -13,6 +13,7 @@ import { model, type DdbJob } from '@model'
 import { MonacoEditor, type CodeEditor } from '@components/Editor/MonacoEditor.tsx'
 import { DDBTable } from '@components/DDBTable/index.tsx'
 import { StatusTag, StatusType } from '@components/tags/index.tsx'
+import { copy } from '@utils'
 
 const { Text, Link } = Typography
 
@@ -562,21 +563,11 @@ function JobMessageShow ({ job, disabled }: { job: DdbJob, disabled?: boolean })
     }
     
     async function copy_to_clipboard () {
-        const text = rmessages.current.join_lines()
-        if (navigator.clipboard?.writeText) {
-            await navigator.clipboard.writeText(text)
+        try {
+            await copy(rmessages.current.join_lines())
             model.message.success(t('复制成功'))
-        } else {
-            const textarea = document.createElement('textarea')
-            textarea.value = text
-            textarea.style.position = 'fixed'  // Avoid scrolling to bottom
-            textarea.style.opacity = '0'      // Make it invisible
-            document.body.appendChild(textarea)
-            textarea.focus()
-            textarea.select()
-            if (document.execCommand('copy'))
-                model.message.success(t('复制成功'))
-            document.body.removeChild(textarea)
+        } catch {
+            model.message.error(t('复制失败'))
         }
     }
     
