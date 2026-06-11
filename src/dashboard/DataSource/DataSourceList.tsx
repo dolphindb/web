@@ -175,9 +175,16 @@ export function DataSourceList ({
                 set_menu_items([...menu_items])
             }
         }
-        tmp_menu_item.title = (
-            <Input size='small' autoFocus className='bottom-menu-rename-input' defaultValue={old_name} onBlur={handler} onPressEnter={handler} />
-        )
+        tmp_menu_item.title =
+            <Input
+                size='small'
+                autoFocus
+                className='bottom-menu-rename-input'
+                defaultValue={old_name}
+                onBlur={handler}
+                onPressEnter={handler}
+                onFocus={event => { event.stopPropagation() }} />
+        
         set_menu_items([...menu_items])
     }
     
