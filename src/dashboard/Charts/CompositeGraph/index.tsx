@@ -136,7 +136,12 @@ export function CompositeChart ({ widget, data_source: { data } }: GraphComponen
         const { thresholds = [ ] } = widget.config as IChartConfig
             for (let threshold of thresholds.filter(Boolean)) { 
                 const { axis_type, axis } = threshold
-                const [min, max] = get_axis_range(axis_type, echart_instance, axis)
+                const range = get_axis_range(axis_type, echart_instance, axis)
+                
+                if (!range)
+                    continue
+                
+                const [min, max] = range
                 const key = (axis_type === 0 ? 'x' : 'y') + '_' + axis
                 // 轴范围与之前的不一致才需要更新 axis_range_map, 一致则不需要更新
                 if (axis_range_map?.[key]?.min !== min || axis_range_map?.[key]?.max !== max)  
