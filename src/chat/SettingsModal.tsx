@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
     Modal, Tabs, Input, Button, Switch, Space, Tag, Tooltip,
     Popconfirm, InputNumber, Empty, Spin, Select, message, Upload, Table, Typography,
-    Alert, Tree, type TreeDataNode,
+    Tree, type TreeDataNode,
 } from 'antd'
 import {
     PlusOutlined, DeleteOutlined, EditOutlined,
@@ -28,8 +28,8 @@ function required_label (label: ReactNode) {
 }
 
 
-function form_error_alert (error: string) {
-    return error ? <Alert type='error' showIcon message={error} style={{ marginBottom: 12 }} /> : null
+function field_error (error: string, message_text: string) {
+    return error === message_text ? <div style={{ color: '#ff4d4f', fontSize: 12, marginTop: 4 }}>{message_text}</div> : null
 }
 
 
@@ -152,7 +152,6 @@ function AgentTab () {
         <div style={{ flex: 1, minWidth: 0, overflow: 'auto', padding: '0 16px' }}>
             {creating
                 ? <div style={{ padding: '16px 0' }}>
-                    {form_error_alert(form_error)}
                     <div style={{ display: 'grid', gap: '12px 16px' }}>
                         <div>
                             <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('Agent 名称'))}</div>
@@ -161,6 +160,7 @@ function AgentTab () {
                                 onChange={e => { set_form({ ...form, agentName: e.target.value }) }}
                                 placeholder={t('例如: DolphinDB 助手')}
                             />
+                            {field_error(form_error, t('请输入 Agent 名称'))}
                         </div>
                         <div style={{ gridColumn: '1 / -1' }}>
                             <div style={{ marginBottom: 4, fontSize: 13 }}>{t('描述')}</div>
@@ -656,7 +656,7 @@ function LlmConfigTab () {
                     name: provider_form.name.trim(),
                     adapterType: provider_form.adapterType,
                     baseUrl: provider_form.baseUrl.trim(),
-                    apiKey: provider_form.apiKey || undefined,
+                    apiKey: provider_form.apiKey || null,
                     enabled: true,
                 })
                 message.success(t('创建成功'))
@@ -669,8 +669,8 @@ function LlmConfigTab () {
                     adapterType: provider_form.adapterType,
                     baseUrl: provider_form.baseUrl.trim(),
                 }
-                if (provider_form.apiKey && provider_form.apiKey !== (selected_provider?.apiKey || ''))
-                    payload.apiKey = provider_form.apiKey
+                if (provider_form.apiKey !== (selected_provider?.apiKey || ''))
+                    payload.apiKey = provider_form.apiKey || null
                 
                 await chat_model.update_llm_provider(selected_provider_id, payload)
                 message.success(t('保存成功'))
@@ -805,10 +805,8 @@ function LlmConfigTab () {
             timeoutMs: config_form.timeoutMs ?? null,
             customData: JSON.stringify({ ...config_form.custom, tool_call: config_form.nativeToolCall }),
         }
-        if (default_params)
-            payload.defaultParams = default_params
-        if (retry_config)
-            payload.retryConfig = retry_config
+        payload.defaultParams = default_params ?? null
+        payload.retryConfig = retry_config ?? null
         if (is_embedding) {
             payload.embeddingDimension = config_form.embeddingDimension
             payload.embeddingMetric = config_form.embeddingMetric
@@ -925,7 +923,6 @@ function LlmConfigTab () {
                     <div style={{ fontWeight: 500, fontSize: 15, marginBottom: 12 }}>
                         {provider_mode === 'create' ? t('新建 Provider') : t('编辑 Provider')}
                     </div>
-                    {form_error_alert(provider_error)}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
                         <div>
                             <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('Provider 名称'))}</div>
@@ -934,6 +931,7 @@ function LlmConfigTab () {
                                 onChange={e => { set_provider_form({ ...provider_form, name: e.target.value }) }}
                                 placeholder={t('名称')}
                             />
+                            {field_error(provider_error, t('请输入 Provider 名称'))}
                         </div>
                         <div>
                             <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('适配器类型'))}</div>
@@ -951,6 +949,7 @@ function LlmConfigTab () {
                                 onChange={e => { set_provider_form({ ...provider_form, baseUrl: e.target.value }) }}
                                 placeholder='https://api.openai.com'
                             />
+                            {field_error(provider_error, t('请输入 Base URL'))}
                         </div>
                         <div style={{ gridColumn: '1 / -1' }}>
                             <div style={{ marginBottom: 4, fontSize: 13 }}>API Key</div>
@@ -1069,7 +1068,6 @@ function LlmConfigTab () {
             width={720}
             destroyOnClose
         >
-            {form_error_alert(config_error)}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px', marginTop: 12 }}>
                 <div>
                     <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('配置名称'))}</div>
@@ -1077,9 +1075,10 @@ function LlmConfigTab () {
                         value={config_form.name}
                         onChange={e => { set_config_form({ ...config_form, name: e.target.value }) }}
                     />
+                    {field_error(config_error, t('请输入配置名称'))}
                 </div>
                 <div>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('能力'))}</div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('能力')}</div>
                     <Select
                         style={{ width: '100%' }}
                         value={config_form.capability}
@@ -1097,6 +1096,7 @@ function LlmConfigTab () {
                         onChange={e => { set_config_form({ ...config_form, model: e.target.value }) }}
                         placeholder='gpt-4o'
                     />
+                    {field_error(config_error, t('请输入模型名称'))}
                 </div>
                 <div>
                     <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('请求路径'))}</div>
@@ -1105,6 +1105,7 @@ function LlmConfigTab () {
                         onChange={e => { set_config_form({ ...config_form, requestPath: e.target.value }) }}
                         placeholder='/v1/chat/completions'
                     />
+                    {field_error(config_error, t('请求路径必须以 / 开头'))}
                 </div>
                 <div>
                     <div style={{ marginBottom: 4, fontSize: 13 }}>Context Window</div>
@@ -1153,7 +1154,7 @@ function LlmConfigTab () {
                 </div>
                 {is_embedding_form && <>
                     <div>
-                        <div style={{ marginBottom: 4, fontSize: 13 }}>Embedding Dimension</div>
+                        <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label('Embedding Dimension')}</div>
                         <InputNumber
                             style={{ width: '100%' }}
                             value={config_form.embeddingDimension}
@@ -1377,7 +1378,6 @@ function SkillsTab () {
         {creating && <div style={{
             border: '1px solid #d9d9d9', borderRadius: 6, padding: 16, marginBottom: 16,
         }}>
-            {form_error_alert(form_error)}
             <div style={{ marginBottom: 12 }}>
                 <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(<>{t('技能包')} (ZIP)</>)}</div>
                 <Upload
@@ -1394,6 +1394,7 @@ function SkillsTab () {
                 <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
                     {t('ZIP 包须包含 SKILL.md 入口文件（含 YAML frontmatter 元数据和 Markdown 指令体）')}
                 </div>
+                {field_error(form_error, t('请选择技能包 ZIP 文件'))}
             </div>
             <div style={{ marginBottom: 8, fontSize: 13, color: '#666' }}>{t('覆盖元数据（可选，覆盖 SKILL.md 中的同名字段）')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>

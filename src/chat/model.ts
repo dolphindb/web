@@ -2396,7 +2396,7 @@ export class ChatModel extends Model<ChatModel> {
         name: string
         adapterType: string
         baseUrl: string
-        apiKey?: string
+        apiKey?: string | null
         enabled?: boolean
         extra?: string
     }): Promise<ILlmProvider> {
@@ -2452,12 +2452,12 @@ export class ChatModel extends Model<ChatModel> {
         embeddingMetric?: 'euclidean' | 'cosine'
         embeddingNormalize?: boolean
         requestPath: string
-        defaultParams?: Record<string, unknown>
+        defaultParams?: Record<string, unknown> | null
         contextWindow?: number
-        maxConcurrency?: number
-        rateLimitRPM?: number
-        timeoutMs?: number
-        retryConfig?: Record<string, unknown>
+        maxConcurrency?: number | null
+        rateLimitRPM?: number | null
+        timeoutMs?: number | null
+        retryConfig?: Record<string, unknown> | null
         customData?: string
         enabled?: boolean
         extra?: string
