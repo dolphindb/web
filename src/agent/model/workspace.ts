@@ -1,5 +1,5 @@
-import { chat_workspace_store } from '@/chat/workspace.ts'
-import type { IChatWorkspace, IWorkspaceStep } from '@/chat/workspace.ts'
+import { chat_workspace_store } from '@/agent/workspace.ts'
+import type { IChatWorkspace, IWorkspaceStep } from '@/agent/workspace.ts'
 
 export const chat_model_workspace_actions = {
     async load_workspaces (this: any) {

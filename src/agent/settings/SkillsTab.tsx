@@ -7,8 +7,8 @@ import { CheckCircleOutlined, DeleteOutlined, PlusOutlined, StopOutlined, Upload
 
 import { t } from '@i18n'
 
-import { chat_model } from '@/chat/model.ts'
-import type { ISkillFileInfo, ISkillInfo } from '@/chat/model.ts'
+import { chat_model } from '@/agent/model.ts'
+import type { ISkillFileInfo, ISkillInfo } from '@/agent/model.ts'
 import { field_error, required_label } from './common.tsx'
 
 

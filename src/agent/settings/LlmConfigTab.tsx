@@ -7,8 +7,8 @@ import { CheckCircleOutlined, DeleteOutlined, EditOutlined, PlusOutlined, SaveOu
 
 import { t } from '@i18n'
 
-import { chat_model } from '@/chat/model.ts'
-import type { ILlmConfig, ILlmProvider } from '@/chat/model.ts'
+import { chat_model } from '@/agent/model.ts'
+import type { ILlmConfig, ILlmProvider } from '@/agent/model.ts'
 import { field_error, required_label } from './common.tsx'
 
 

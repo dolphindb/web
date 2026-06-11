@@ -1,4 +1,4 @@
-import type { IMessage } from '@/chat/model.ts'
+import type { IMessage } from '@/agent/model.ts'
 
 import type { ScriptConfig, ScriptResult, ToolContext } from './types.ts'
 import {

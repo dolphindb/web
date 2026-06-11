@@ -1,7 +1,7 @@
 import { t } from '@i18n'
 import { shell } from '@/shell/model.ts'
-import { chat_workspace_store } from '@/chat/workspace.ts'
-import { parse_tool_result_payload } from '@/chat/utils/message.ts'
+import { chat_workspace_store } from '@/agent/workspace.ts'
+import { parse_tool_result_payload } from '@/agent/utils/message.ts'
 
 import type { IMessage, ISession, IToolCall } from './types.ts'
 

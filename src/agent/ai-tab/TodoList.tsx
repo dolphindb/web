@@ -2,7 +2,7 @@ import { Checkbox, Collapse, Typography } from 'antd'
 
 import { t } from '@i18n'
 
-import type { IWorkspaceStep } from '@/chat/workspace.ts'
+import type { IWorkspaceStep } from '@/agent/workspace.ts'
 
 
 const { Text } = Typography

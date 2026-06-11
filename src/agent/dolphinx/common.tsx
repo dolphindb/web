@@ -6,7 +6,7 @@ import { t } from '@i18n'
 import { model } from '@model'
 import { access } from '@/access/model.ts'
 
-import { chat_model } from '@/chat/model.ts'
+import { chat_model } from '@/agent/model.ts'
 
 
 export function show_error (error: unknown, fallback: string) {

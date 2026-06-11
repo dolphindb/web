@@ -6,7 +6,7 @@ import { t } from '@i18n'
 import { copy } from '@utils'
 import { shell } from '@/shell/model.ts'
 
-import type { ChatModel, IMessage } from '@/chat/model.ts'
+import type { ChatModel, IMessage } from '@/agent/model.ts'
 import {
     type ToolCallViewModel,
     to_message_text,
@@ -14,7 +14,7 @@ import {
     is_object_record,
     format_pretty_json,
     should_use_structured_render,
-} from '@/chat/utils/message.ts'
+} from '@/agent/utils/message.ts'
 
 
 const { Text } = Typography

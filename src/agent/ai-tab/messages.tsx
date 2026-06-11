@@ -4,8 +4,8 @@ import { Collapse, Typography } from 'antd'
 import { BulbOutlined, CodeOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import type { AgentStatus, ChatModel, IMessage, IToolCall } from '@/chat/model.ts'
-import { ToolMessageRenderer } from '@/chat/ToolMessageRenderer.tsx'
+import type { AgentStatus, ChatModel, IMessage, IToolCall } from '@/agent/model.ts'
+import { ToolMessageRenderer } from '@/agent/ToolMessageRenderer.tsx'
 import {
     TOOL_LIKE_MESSAGE_TYPES,
     parse_tool_call,
@@ -21,8 +21,8 @@ import {
     get_arg_text,
     get_tool_result_print,
     parse_tool_result_payload,
-} from '@/chat/utils/message.ts'
-import { parse_ddb_obj_from_content_object } from '@/chat/utils/ddb-object.ts'
+} from '@/agent/utils/message.ts'
+import { parse_ddb_obj_from_content_object } from '@/agent/utils/ddb-object.ts'
 
 import { render_markdown } from './markdown.ts'
 

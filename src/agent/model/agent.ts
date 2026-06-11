@@ -1,7 +1,7 @@
 import { t } from '@i18n'
 import { model, storage_keys } from '@model'
 
-import type { ChatCompletionOptions } from '@/chat/tool_call_adapters.ts'
+import type { ChatCompletionOptions } from '@/agent/tool_call_adapters.ts'
 import type { IAccessInfo, IAgentInfo, ISelectableLlmInfo } from './types.ts'
 import { AGENT_ID_KEY } from './constants.ts'
 

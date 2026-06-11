@@ -9,7 +9,7 @@ import {
     to_preview_text,
     is_object_record,
     get_tool_result_print,
-} from '@/chat/utils/message.ts'
+} from '@/agent/utils/message.ts'
 import {
     compact_sections,
     create_code_view,

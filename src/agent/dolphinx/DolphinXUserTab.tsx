@@ -7,8 +7,8 @@ import { t } from '@i18n'
 import { model } from '@model'
 import { shell } from '@/shell/model.ts'
 
-import { chat_model, get_chat_model } from '@/chat/model.ts'
-import type { ILlmUsageStats, IMemoryEntry, ISession } from '@/chat/model.ts'
+import { chat_model, get_chat_model } from '@/agent/model.ts'
+import type { ILlmUsageStats, IMemoryEntry, ISession } from '@/agent/model.ts'
 import { format_browser_time, Section, show_error, use_agent_options, use_user_options } from './common.tsx'
 
 

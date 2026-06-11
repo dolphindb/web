@@ -6,9 +6,9 @@ import { FileTextOutlined, FolderOpenOutlined, ReloadOutlined } from '@ant-desig
 import { t } from '@i18n'
 import { model } from '@model'
 import { Editor } from '@components/Editor/index.tsx'
-import type { ChatModel, IMessage } from '@/chat/model.ts'
-import { chat_workspace_store, normalize_workspace_path } from '@/chat/workspace.ts'
-import type { IWorkspaceFile } from '@/chat/workspace.ts'
+import type { ChatModel, IMessage } from '@/agent/model.ts'
+import { chat_workspace_store, normalize_workspace_path } from '@/agent/workspace.ts'
+import type { IWorkspaceFile } from '@/agent/workspace.ts'
 
 import { format_file_size, get_workspace_file_change } from './messages.tsx'
 

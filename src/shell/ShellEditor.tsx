@@ -11,8 +11,8 @@ import { model, storage_keys } from '@model'
 
 import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 
-import { chat_model, get_chat_model } from '@/chat/model.ts'
-import type { ScriptExecuteApprovalMode } from '@/chat/model.ts'
+import { chat_model, get_chat_model } from '@/agent/model.ts'
+import type { ScriptExecuteApprovalMode } from '@/agent/model.ts'
 
 import { is_pending_ai_chat_id, shell } from './model.ts'
 import { AiTab } from './AiTab.tsx'

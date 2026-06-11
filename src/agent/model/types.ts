@@ -1,4 +1,4 @@
-import type { ChatCompletionOptions } from '@/chat/tool_call_adapters.ts'
+import type { ChatCompletionOptions } from '@/agent/tool_call_adapters.ts'
 
 
 export type MessageRole = 'system' | 'user' | 'assistant' | 'tool'

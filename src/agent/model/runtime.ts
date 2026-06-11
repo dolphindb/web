@@ -1,24 +1,24 @@
 import { t } from '@i18n'
 import { model, storage_keys } from '@model'
 
-import { get_script_handler } from '@/chat/scripts/index.ts'
-import type { ToolContext, ScriptResult } from '@/chat/scripts/types.ts'
+import { get_script_handler } from '@/agent/scripts/index.ts'
+import type { ToolContext, ScriptResult } from '@/agent/scripts/types.ts'
 import {
     append_tool_result_hint,
     is_structured_tool_result_helpful,
     normalize_script_args,
     parse_tool_result_json,
     tool_result_json,
-} from '@/chat/scripts/helpers.ts'
-import { build_current_todo_prompt } from '@/chat/prompt.ts'
+} from '@/agent/scripts/helpers.ts'
+import { build_current_todo_prompt } from '@/agent/prompt.ts'
 import {
     legacy_json_tool_call_adapter,
     native_tool_call_adapter,
-} from '@/chat/tool_call_adapters.ts'
-import type { ChatCompletionOptions, ToolCallAdapter, ToolResultPayload } from '@/chat/tool_call_adapters.ts'
-import { INVALID_TOOL_CALL_FORMAT } from '@/chat/tool_call_parser.ts'
-import type { ParsedToolCall } from '@/chat/tool_call_parser.ts'
-import { chat_workspace_store } from '@/chat/workspace.ts'
+} from '@/agent/tool_call_adapters.ts'
+import type { ChatCompletionOptions, ToolCallAdapter, ToolResultPayload } from '@/agent/tool_call_adapters.ts'
+import { INVALID_TOOL_CALL_FORMAT } from '@/agent/tool_call_parser.ts'
+import type { ParsedToolCall } from '@/agent/tool_call_parser.ts'
+import { chat_workspace_store } from '@/agent/workspace.ts'
 import type { ChatCompletionStreamResult, IMessage, IScriptExecutionApproval, IToolCall, MessageType, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode, ToolExecutionResult } from './types.ts'
 import { MAX_CONSECUTIVE_DDB_FAILURES_BEFORE_HINT, MAX_REPEATED_TOOL_CALLS, MAX_TOOL_TURNS, REPEAT_GUARD_EXEMPT_TOOLS, DDB_RESULT_TOOLS, SCRIPT_APPROVAL_TOOLS, TOOL_CALL_LIMIT_ENABLED_KEY } from './constants.ts'
 import { get_reasoning_text, parse_sse_event, stable_json_stringify, to_stream_text } from './helpers.ts'

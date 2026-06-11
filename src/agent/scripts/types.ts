@@ -1,6 +1,6 @@
 import type { DdbEvalOptions } from 'dolphindb/browser.js'
-import type { IMessage } from '@/chat/model.ts'
-import type { chat_workspace_store } from '@/chat/workspace.ts'
+import type { IMessage } from '@/agent/model.ts'
+import type { chat_workspace_store } from '@/agent/workspace.ts'
 
 
 export type ScriptType = 'execute' | 'coldefs' | 'testsql' | 'show' | 'doc_search' | 'doc_read' | 'skill_read' | 'skill_file_search' | 'skill_file_read' | string

@@ -5,8 +5,8 @@ import { Button, Empty, Input, Select, Space, Table, Tabs, Tag, Typography, mess
 import { t } from '@i18n'
 import { model } from '@model'
 
-import { chat_model } from '@/chat/model.ts'
-import type { IAccessInfo, ILlmConfig, ISession, ISkillInfo, IUserLlmAccessInfo } from '@/chat/model.ts'
+import { chat_model } from '@/agent/model.ts'
+import type { IAccessInfo, ILlmConfig, ISession, ISkillInfo, IUserLlmAccessInfo } from '@/agent/model.ts'
 import { Section, show_error, use_agent_options, use_user_options } from './common.tsx'
 import { UsageSection } from './DolphinXUserTab.tsx'
 

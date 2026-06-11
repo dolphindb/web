@@ -1,5 +1,5 @@
-import type { IMessage, MessageType } from '@/chat/model.ts'
-import { parse_tool_calls as parse_text_tool_calls } from '@/chat/tool_call_parser.ts'
+import type { IMessage, MessageType } from '@/agent/model.ts'
+import { parse_tool_calls as parse_text_tool_calls } from '@/agent/tool_call_parser.ts'
 
 
 export interface ToolCallViewModel {

@@ -10,7 +10,7 @@ import { t } from '@i18n'
 
 import { model, storage_keys } from '@model'
 
-import { chat_model } from '@/chat/model.ts'
+import { chat_model } from '@/agent/model.ts'
 
 
 export function Settings () {
