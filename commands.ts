@@ -2,7 +2,10 @@
 
 import type { Context } from 'koa'
 
-import { ramdisk, fwrite, noprint, fequals, fcopy, fdclear, Remote, set_inspect_options, fdelete } from 'xshell'
+import {
+    ramdisk, fwrite, noprint, fcopy, fdclear, Remote, set_inspect_options, fdelete, fread, crc32, 
+    fexists
+} from 'xshell'
 import { Git } from 'xshell/git.js'
 import { Bundler, type BundlerOptions } from 'xshell/builder.js'
 import { Server } from 'xshell/server.js'
@@ -42,23 +45,36 @@ async function main () {
             await dev()
             
             break
+            
+        case 'preview':
+            await dev(true)
+            
+            break
     }
 }
 
 
-async function dev () {
+async function dev (preview = false) {
     console.log('项目根目录:', fpd_root)
     
     await setup_vscode_settings(fpd_root)
     
     
     async function stop () {
+        if (preview)
+            return
+        
         await builder.close()
         remote?.disconnect()
     }
     
     
     async function recompile () {
+        if (preview) {
+            console.log('预览模式跳过编译，仅刷新')
+            return
+        }
+        
         await builder.run()
         console.log(info)
     }
@@ -77,15 +93,16 @@ async function dev () {
             
             if (path === '/api/recompile') {
                 response.status = 200
+                
                 await recompile()
+                
                 return true
             }
             
             return this.try_send(
                 ctx, 
                 path.fext ? path.slice(1) : 'index.html', 
-                { fpd_root: fpd_out }
-            )
+                { fpd_root: fpd_out })
         }
     }
     
@@ -99,7 +116,7 @@ async function dev () {
     
     await Promise.all([
         server.start(),
-        builder.build(false)
+        !preview && builder.build(false)
     ])
     
     
@@ -124,26 +141,30 @@ async function dev () {
                     break
             }
         },
-        stop
-    )
+        stop)
     
     const url = 'http://localhost:8432/'
     
     const info = `${url}\n`.blue.underline
     
+    const name = `${preview ? '预览' : '开发'}服务器`
+    
     console.log(
         '\n' +
-        '开发服务器启动成功，请使用浏览器打开:\n'.green +
+        `${name}启动成功，请使用浏览器打开:\n`.green +
         info +
         '终端快捷键:\n' +
-        'r: 重新编译\n' +
+        (preview ? '' : 'r: 重新编译\n') +
         'i: 打印地址信息\n' +
-        'x: 退出开发服务器\n')
+        `x: 退出${name}\n`)
     
     
     let remote: Remote
     
     if (ramdisk) {
+        if (preview)
+            return
+        
         remote = new Remote({
             url: 'ws://localhost',
             
@@ -191,16 +212,20 @@ let builder = {
             ['antd-icons', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco', 'plotly']
         
         
-        // --- 根据 package.json, deps.ts 缓存 deps.js
-        const deps_src = ['package.json', 'src/deps.ts']
+        // --- 根据 {production}, package.json, deps.ts 缓存 deps.{hash[8]}.js
+        const hash = crc32(
+            (production ? 'production' : 'dev') + '\n' +
+            (await Promise.all(
+                ['package.json', 'src/deps.ts'].map(fp =>
+                    fread(fpd_root + fp, noprint)))
+            ).join(''))
         
-        if ((
-            await Promise.all(deps_src.map(fp => 
-                fequals(`${fpd_root}${fp}`, `${fpdt_cache}${fp.fname}`, noprint)
-            ))).every(Boolean)
-        )
-            console.log('deps.js 使用已缓存的版本')
-        else
+        const cache = `deps.${hash}.js`
+        const fpt_cache = fpdt_cache + cache
+        
+        if (fexists(fpt_cache, noprint))
+            console.log(`deps.js 使用已有缓存 ${cache}`)
+        else {
             this.deps_bundler = new Bundler(
                 'deps', 
                 'web',
@@ -209,15 +234,23 @@ let builder = {
                 fpdt_cache,
                 { 'deps.js': './src/deps.ts' },
                 {
-                    source_map: true,
+                    source_map,
                     external_dayjs: true,
                     production,
                     dependencies,
                     expose: true
-                }
-            )
+                })
+            
+            await this.deps_bundler.build()
+            
+            await Promise.all([
+                fcopy(fpdt_cache + 'deps.js', fpt_cache, noprint),
+                source_map && fcopy(fpdt_cache + 'deps.js.map', fpt_cache + '.map', noprint),
+            ])
+        }
         
         
+        // this.bundler 依赖 deps_bundler 生成的文件
         this.bundler = new Bundler(
             'web',
             'web',
@@ -258,7 +291,7 @@ let builder = {
                         scripts: {
                             before: [{
                                 // deps_bundler 构建出来的 deps.js 缓存
-                                src: `${fpdt_cache}deps.js`,
+                                src: fpt_cache,
                                 out: 'deps.js'
                             }]
                         },
@@ -290,23 +323,16 @@ let builder = {
                             ({ src: `node_modules/dolphindb/docs.${language}.json`, out: `docs.${language}.json` })),
                         
                         ... source_map ? [{
-                            src: `${fpdt_cache}deps.js.map`,
+                            src: `${fpt_cache}.map`,
                             out: 'deps.js.map'
                         }] : [ ]
                     ]
                 }
-            }
-        )
+            })
         
-        // this.bundler 依赖 deps_bundler 生成的文件
-        await this.deps_bundler?.build()
         
         await Promise.all([
             this.deps_bundler?.close(),
-            // 缓存依赖
-            this.deps_bundler && Promise.all(
-                deps_src.map(fp => 
-                    fcopy(`${fpd_root}${fp}`, `${fpdt_cache}${fp.fname}`, noprint))),
             this.bundler.build_all(),
             fwrite(`${fpd_out}version.json`, info, noprint)
         ])
