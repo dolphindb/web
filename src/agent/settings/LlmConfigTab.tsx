@@ -264,7 +264,7 @@ export function LlmConfigTab () {
             defaultParams: cfg.defaultParams ? JSON.stringify(cfg.defaultParams, null, 2) : '',
             embeddingDimension: cfg.embeddingDimension ?? 1536,
             embeddingMetric: (cfg.embeddingMetric as 'euclidean' | 'cosine') || 'euclidean',
-            embeddingNormalize: cfg.embeddingNormalize ?? false,
+            embeddingNormalize: cfg.embeddingMetric === 'cosine' || (cfg.embeddingNormalize ?? false),
             maxConcurrency: optional_positive_number(cfg.maxConcurrency),
             rateLimitRPM: optional_positive_number(cfg.rateLimitRPM),
             timeoutMs: optional_positive_number(cfg.timeoutMs),
@@ -314,14 +314,14 @@ export function LlmConfigTab () {
             maxConcurrency: config_form.maxConcurrency ?? null,
             rateLimitRPM: config_form.rateLimitRPM ?? null,
             timeoutMs: config_form.timeoutMs ?? null,
-            customData: JSON.stringify({ ...config_form.custom, tool_call: config_form.nativeToolCall }),
+            customData: JSON.stringify(is_embedding ? config_form.custom : { ...config_form.custom, tool_call: config_form.nativeToolCall }),
         }
         payload.defaultParams = default_params ?? null
         payload.retryConfig = retry_config ?? null
         if (is_embedding) {
             payload.embeddingDimension = config_form.embeddingDimension
             payload.embeddingMetric = config_form.embeddingMetric
-            payload.embeddingNormalize = config_form.embeddingNormalize
+            payload.embeddingNormalize = config_form.embeddingMetric === 'cosine' || config_form.embeddingNormalize
         }
         
         set_saving_config(true)
@@ -616,7 +616,7 @@ export function LlmConfigTab () {
                     />
                 </div>
                 <div>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>Context Window</div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('上下文窗口')}</div>
                     <InputNumber
                         style={{ width: '100%' }}
                         value={config_form.contextWindow}
@@ -653,16 +653,16 @@ export function LlmConfigTab () {
                         step={1000}
                     />
                 </div>
-                <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 8 }}>
+                {!is_embedding_form && <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Switch
                         checked={config_form.nativeToolCall}
                         onChange={checked => { set_config_form({ ...config_form, nativeToolCall: checked }) }}
                     />
                     <span style={{ fontSize: 13 }}>{t('支持原生 tool call')}</span>
-                </div>
+                </div>}
                 {is_embedding_form && <>
                     <div>
-                        <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label('Embedding Dimension')}</div>
+                        <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(t('嵌入维度'))}</div>
                         <InputNumber
                             style={{ width: '100%' }}
                             value={config_form.embeddingDimension}
@@ -671,17 +671,18 @@ export function LlmConfigTab () {
                         />
                     </div>
                     <div>
-                        <div style={{ marginBottom: 4, fontSize: 13 }}>Embedding Metric</div>
+                        <div style={{ marginBottom: 4, fontSize: 13 }}>{t('嵌入度量')}</div>
                         <Select
                             style={{ width: '100%' }}
                             value={config_form.embeddingMetric}
-                            onChange={val => { set_config_form({ ...config_form, embeddingMetric: val }) }}
+                            onChange={val => { set_config_form({ ...config_form, embeddingMetric: val, embeddingNormalize: val === 'cosine' || config_form.embeddingNormalize }) }}
                             options={EMBEDDING_METRIC_OPTIONS}
                         />
                     </div>
                     <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 8 }}>
                         <Switch
-                            checked={config_form.embeddingNormalize}
+                            checked={config_form.embeddingMetric === 'cosine' || config_form.embeddingNormalize}
+                            disabled={config_form.embeddingMetric === 'cosine'}
                             onChange={checked => { set_config_form({ ...config_form, embeddingNormalize: checked }) }}
                         />
                         <span style={{ fontSize: 13 }}>{t('对向量做归一化（metric=cosine 时必须开启）')}</span>
