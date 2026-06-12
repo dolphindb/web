@@ -45,15 +45,16 @@ export function AgentTab () {
     
     // 自动选中当前 agent
     useEffect(() => {
+        const current = agents.find(a => a.agentId === agent_id && a.statusName !== 'DELETED')
+        const fallback = current || agents.find(a => a.statusName === 'ACTIVE') || null
         if (selected_agent) {
-            const updated = agents.find(a => a.agentId === selected_agent.agentId)
+            const updated = agents.find(a => a.agentId === selected_agent.agentId && a.statusName !== 'DELETED')
             if (updated && updated !== selected_agent)
                 set_selected_agent(updated)
-        } else if (agents.length > 0) {
-            const current = agents.find(a => a.agentId === agent_id)
-            if (current)
-                set_selected_agent(current)
-        }
+            else if (!updated)
+                set_selected_agent(fallback)
+        } else if (fallback)
+            set_selected_agent(fallback)
     }, [agents, agent_id])
     
     async function handle_create () {
@@ -64,12 +65,13 @@ export function AgentTab () {
         set_form_error('')
         set_loading(true)
         try {
-            await chat_model.agent.register_agent({
+            const agent = await chat_model.agent.register_agent({
                 agentName: form.agentName.trim(),
                 description: form.description || undefined,
                 systemPrompt: form.systemPrompt || undefined,
             })
             message.success(t('Agent 创建成功'))
+            set_selected_agent(agent)
             set_creating(false)
             set_form({ agentName: '', description: '', systemPrompt: '' })
         } catch (e: any) {

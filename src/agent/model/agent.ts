@@ -8,6 +8,31 @@ import { AGENT_ID_KEY } from './constants.ts'
 
 export class ChatAgentModel {
     constructor (private chat: ChatModel) { }
+    set_active_agent (agent_id: string, agents = this.chat.agents) {
+        this.chat.runtime.abort_sse()
+        this.chat.set({
+            agents,
+            agent_id,
+            sessions: [ ],
+            current_session_id: '',
+            workspaces: [ ],
+            current_workspace_id: '',
+            current_workspace: null,
+            steps: [ ],
+            messages: [ ],
+            buffered_messages: [ ],
+            selected_llm_config_id: '',
+            use_native_tool_calling: true,
+            selectable_llms: [ ],
+            latest_ddb_result: null,
+            agent_status: { status: 'idle' },
+        })
+        if (agent_id) {
+            localStorage.setItem(AGENT_ID_KEY, agent_id)
+            this.chat.llm.load_selectable_llms(agent_id)
+        } else
+            localStorage.removeItem(AGENT_ID_KEY)
+    }
     should_attach_agent_header (path: string, options: RequestInit) {
         if (!this.chat.agent_id)
             return false
@@ -44,11 +69,6 @@ export class ChatAgentModel {
             
         const { headers: _ignored, ...rest_options } = options
         const response = await fetch(url, { ...rest_options, headers })
-        
-        if (response.status === 403) {
-            this.chat.agent.handle_auth_failed()
-            throw new Error('Access denied')
-        }
         
         if (!response.ok) {
             const text = await response.text()
@@ -135,24 +155,19 @@ export class ChatAgentModel {
                 result = await this.chat.agent.api_fetch('/agent/accessible')
             }
             const items: IAgentInfo[] = (result.items || [ ]).map((a: any) => this.chat.agent.map_agent(a))
-            this.chat.set({ agents: items })
             
             // 如果缓存的 agent_id 仍然有效，继续使用
             if (this.chat.agent_id) {
                 const cached = items.find(a => a.agentId === this.chat.agent_id && a.statusName === 'ACTIVE')
-                if (cached)
+                if (cached) {
+                    this.chat.set({ agents: items })
                     return
+                }
             }
             
             // 选择第一个 ACTIVE agent
             const active = items.find(a => a.statusName === 'ACTIVE')
-            if (active) {
-                this.chat.set({ agent_id: active.agentId })
-                localStorage.setItem(AGENT_ID_KEY, active.agentId)
-            } else {
-                this.chat.set({ agent_id: '' })
-                localStorage.removeItem(AGENT_ID_KEY)
-            }
+            this.chat.agent.set_active_agent(active?.agentId || '', items)
         } catch (e) {
             console.warn('Failed to list agents:', e)
             this.chat.set({ agents: [ ], agent_id: '' })
@@ -194,11 +209,7 @@ export class ChatAgentModel {
             updateTime: activated.updateTime,
         }
         
-        this.chat.set({
-            agents: [...this.chat.agents, agent],
-            agent_id: agent.agentId,
-        })
-        localStorage.setItem(AGENT_ID_KEY, agent.agentId)
+        this.chat.agent.set_active_agent(agent.agentId, [...this.chat.agents.filter(a => a.agentId !== agent.agentId), agent])
         
         return agent
     }
@@ -211,8 +222,7 @@ export class ChatAgentModel {
                 ? { ...a, status: result.status ?? 1, statusName: result.statusName || 'ACTIVE' }
                 : a
         )
-        this.chat.set({ agents, agent_id })
-        localStorage.setItem(AGENT_ID_KEY, agent_id)
+        this.chat.agent.set_active_agent(agent_id, agents)
         
         return result
     }
@@ -252,11 +262,7 @@ export class ChatAgentModel {
         if (this.chat.agent_id === agent_id) {
             const next = new_agents.find(a => a.statusName === 'ACTIVE')
             const next_id = next?.agentId || ''
-            this.chat.set({ agent_id: next_id, agents: new_agents })
-            if (next_id)
-                localStorage.setItem(AGENT_ID_KEY, next_id)
-            else
-                localStorage.removeItem(AGENT_ID_KEY)
+            this.chat.agent.set_active_agent(next_id, new_agents)
         } else
             this.chat.set({ agents: new_agents })
     }
@@ -303,19 +309,7 @@ export class ChatAgentModel {
         return result.items || [ ]
     }
     select_agent (agent_id: string) {
-        this.chat.set({
-            agent_id,
-            sessions: [ ],
-            current_session_id: '',
-            messages: [ ],
-            selected_llm_config_id: '',
-            use_native_tool_calling: true,
-            selectable_llms: [ ],
-            latest_ddb_result: null,
-        })
-        localStorage.setItem(AGENT_ID_KEY, agent_id)
-        // 异步加载新 agent 的可选 LLM 列表
-        this.chat.llm.load_selectable_llms(agent_id)
+        this.chat.agent.set_active_agent(agent_id)
     }
     get_llm_for_tool_call_mode (llm_config_id = this.chat.selected_llm_config_id, llms = this.chat.selectable_llms) {
         if (llm_config_id)

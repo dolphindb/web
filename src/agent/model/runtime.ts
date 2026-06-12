@@ -542,20 +542,16 @@ export class ChatRuntimeModel {
                 signal: controller.signal,
             })
             
-            if (response.status === 403) {
-                this.chat.agent.handle_auth_failed()
-                throw new Error('Access denied')
-            }
-            
             if (!response.ok) {
                 const err_text = await response.text()
                 let parsed: any
                 try { parsed = JSON.parse(err_text) } catch { }
-                if (parsed?.error?.code === 'BUS_AUTH_FAILED') {
+                const error_code = parsed?.error?.code || parsed?.headers?.busErrorCode
+                if (error_code === 'BUS_AUTH_FAILED') {
                     this.chat.agent.handle_auth_failed()
                     throw new Error('Access denied')
                 }
-                throw new Error(parsed?.error?.message || err_text)
+                throw new Error(parsed?.error?.message || parsed?.message || err_text || response.statusText)
             }
             
             const content_type = response.headers.get('content-type') || ''
