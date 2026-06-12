@@ -5,3 +5,6 @@ peerDependencyRules:
         - i18next
         - eslint
         - webpack
+
+allowedDeprecatedVersions:
+    '*': '*'
