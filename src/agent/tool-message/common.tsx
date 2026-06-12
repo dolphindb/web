@@ -137,6 +137,31 @@ export function render_markdown (content: string): string {
 }
 
 
+async function handle_markdown_code_copy (event: React.MouseEvent<HTMLDivElement>) {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('.ai-code-copy')
+    if (!button)
+        return
+    event.stopPropagation()
+    try {
+        await copy(button.closest('.ai-code-block')?.querySelector('code')?.textContent || '')
+        clearTimeout(Number(button.dataset.copyTimer))
+        button.textContent = t('已复制')
+        button.dataset.copyTimer = String(setTimeout(() => { button.textContent = t('复制') }, 1500))
+    } catch (error) {
+        console.error('[ai] copy code failed:', error)
+    }
+}
+
+
+function MarkdownContent ({ content, style = MARKDOWN_STYLE }: { content: string, style?: React.CSSProperties }) {
+    return <div
+        style={style}
+        onClick={handle_markdown_code_copy}
+        dangerouslySetInnerHTML={{ __html: render_markdown(content) }}
+    />
+}
+
+
 export function get_table_like_summary (payload: unknown): { rows: number, columns: string[] } | null {
     if (Array.isArray(payload)) {
         if (payload.length === 0)
@@ -200,7 +225,7 @@ export function create_text_detail (key: string, label: string, value: unknown):
     return {
         key,
         label,
-        children: wrap_detail(<pre style={PRE_STYLE}>{text}</pre>),
+        children: create_code_view(text),
     }
 }
 
@@ -212,7 +237,7 @@ export function create_json_detail (key: string, label: string, value: unknown):
     return {
         key,
         label,
-        children: wrap_detail(<pre style={PRE_STYLE}>{format_pretty_json(value)}</pre>),
+        children: create_code_view(format_pretty_json(value)),
     }
 }
 
@@ -225,7 +250,7 @@ export function create_markdown_detail (key: string, label: string, value: unkno
     return {
         key,
         label,
-        children: wrap_detail(<div style={MARKDOWN_STYLE} dangerouslySetInnerHTML={{ __html: render_markdown(text) }} />),
+        children: wrap_detail(<MarkdownContent content={text} />),
     }
 }
 
@@ -283,14 +308,14 @@ function CodeCopyButton ({ code }: { code: string }) {
 export function NaturalTextBlock ({ text }: { text: string }) {
     if (!text)
         return null
-    return <div
+    return <MarkdownContent
+        content={text}
         style={{
             marginLeft: 12,
             marginBottom: 6,
             color: '#595959',
             wordBreak: 'break-word',
         }}
-        dangerouslySetInnerHTML={{ __html: render_markdown(text) }}
     />
 }
 
@@ -479,13 +504,13 @@ export function render_outcome_detail (message: IMessage, structured_payload: Re
     const use_structured = should_use_structured_render(message, structured_payload)
     
     if (use_structured)
-        return wrap_detail(<pre style={PRE_STYLE}>{structured_payload ? format_pretty_json(structured_payload) : message.content}</pre>)
+        return create_code_view(structured_payload ? format_pretty_json(structured_payload) : message.content)
         
     const content = message.content.trim()
     if (!content)
         return null
         
-    return wrap_detail(<div style={MARKDOWN_STYLE} dangerouslySetInnerHTML={{ __html: render_markdown(content) }} />)
+    return wrap_detail(<MarkdownContent content={content} />)
 }
 
 

@@ -408,8 +408,8 @@ export function LlmConfigTab () {
                                 }}
                                 onClick={() => { open_edit_provider(p) }}
                             >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                                    <span style={{ fontWeight: 500, fontSize: 13, minWidth: 0, overflowWrap: 'anywhere' }}>{p.name}</span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flexWrap: 'wrap' }}>
+                                    <span style={{ fontWeight: 500, fontSize: 13 }}>{p.name}</span>
                                     <Tag style={{ fontSize: 11, flexShrink: 0 }}>{p.adapterType}</Tag>
                                     {p.enabled === false && <Tag color='default' style={{ fontSize: 11 }}>{t('禁用')}</Tag>}
                                 </div>

@@ -257,6 +257,9 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontSize: 16, fontWeight: 500 }}>{agent.agentName}</div>
+                <Text type='secondary' style={{ display: 'block', fontSize: 12, marginTop: 2, wordBreak: 'break-all' }}>
+                    Agent ID: {agent.agentId}
+                </Text>
                 {agent.description && <Text type='secondary' style={{ display: 'block', fontSize: 12, marginTop: 2 }} ellipsis={{ tooltip: agent.description }}>
                     {agent.description}
                 </Text>}

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { Alert, Button, Empty, Modal, Spin, Tooltip, Typography } from 'antd'
-import { FileTextOutlined, FolderOpenOutlined, ReloadOutlined } from '@ant-design/icons'
+import { CopyOutlined, DownloadOutlined, FileTextOutlined, FolderOpenOutlined, ReloadOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 import { model } from '@model'
+import { copy } from '@utils'
 import { Editor } from '@components/Editor/index.tsx'
 import type { ChatModel, IMessage } from '@/agent/model.ts'
 import { chat_workspace_store, normalize_workspace_path } from '@/agent/workspace.ts'
@@ -34,6 +35,7 @@ export function WorkspaceSidebar ({
     const [files_error, set_files_error] = useState('')
     const [opened_file, set_opened_file] = useState<IWorkspaceFile | null>(null)
     const [file_loading, set_file_loading] = useState(false)
+    const [file_copied, set_file_copied] = useState(false)
     const list_request_ref = useRef(0)
     const file_request_ref = useRef(0)
     const last_message_id_ref = useRef('')
@@ -93,6 +95,27 @@ export function WorkspaceSidebar ({
     }
     
     
+    function get_download_name () {
+        const name = opened_file?.path.replace(/\\/g, '/').split('/').filter(Boolean).pop() || 'workspace'
+        const base_name = name.replace(/\.[^.]*$/, '') || 'workspace'
+        return /\.dos$/i.test(name) ? name : `${base_name}.dos`
+    }
+    
+    
+    function download_file () {
+        if (!opened_file)
+            return
+        const url = URL.createObjectURL(new Blob([opened_file.content || ''], { type: 'text/plain;charset=utf-8' }))
+        const link = document.createElement('a')
+        link.href = url
+        link.download = get_download_name()
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+    }
+    
+    
     useEffect(() => {
         set_files([ ])
         set_files_error('')
@@ -146,6 +169,19 @@ export function WorkspaceSidebar ({
             open_file(opened_file.path)
     }, [messages, current_session_id, session_id, visible, opened_file?.path])
     
+    
+    useEffect(() => {
+        set_file_copied(false)
+    }, [opened_file?.path, opened_file?.content])
+    
+    
+    useEffect(() => {
+        if (!file_copied)
+            return
+        const timer = setTimeout(() => { set_file_copied(false) }, 1500)
+        return () => { clearTimeout(timer) }
+    }, [file_copied])
+    
     if (!has_workspace)
         return null
     
@@ -195,7 +231,25 @@ export function WorkspaceSidebar ({
             title={opened_file?.path || t('工作区文件')}
             open={Boolean(opened_file)}
             onCancel={() => { set_opened_file(null) }}
-            footer={null}
+            footer={<>
+                <Button
+                    icon={<CopyOutlined />}
+                    disabled={!opened_file}
+                    onClick={async () => {
+                        try {
+                            await copy(opened_file?.content || '')
+                            set_file_copied(true)
+                        } catch (error) {
+                            console.error('[ai] copy workspace file failed:', error)
+                        }
+                    }}
+                >
+                    {file_copied ? t('已复制') : t('复制')}
+                </Button>
+                <Button icon={<DownloadOutlined />} disabled={!opened_file} onClick={download_file}>
+                    {t('下载')}
+                </Button>
+            </>}
             width={960}
             destroyOnClose
         >
