@@ -1,3 +1,5 @@
+import { t } from '@i18n'
+
 type ApiFetch = (path: string, options?: RequestInit) => Promise<any>
 
 const STATE_FILE = '__workspace_state.md'
@@ -182,7 +184,7 @@ class ChatWorkspaceStore {
         const state = await this.read_internal_file(session_id, api_fetch, STATE_FILE)
         return {
             workspace_id: session_id,
-            name: '当前会话工作区',
+            name: t('当前会话工作区'),
             current_state: state,
             create_time: now(),
             update_time: now(),

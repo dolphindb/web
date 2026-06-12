@@ -1,3 +1,4 @@
+import { t } from '@i18n'
 import type { IMessage, MessageType } from '@/agent/model.ts'
 import { parse_tool_calls as parse_text_tool_calls } from '@/agent/tool_call_parser.ts'
 
@@ -200,7 +201,7 @@ export function parse_tool_call (message: IMessage): ToolCallViewModel | null {
         return { name: parsed_text_call.type, args: parsed_text_call.payload }
     
     if (message.content.trim())
-        return { name: message.name || '未知工具', args: parse_maybe_json(message.content) ?? message.content }
+        return { name: message.name || t('未知工具'), args: parse_maybe_json(message.content) ?? message.content }
     
     return null
 }
@@ -209,8 +210,8 @@ export function parse_tool_call (message: IMessage): ToolCallViewModel | null {
 export function get_tool_display_name (tool_name: string): string {
     const normalized = tool_name.trim()
     if (!normalized)
-        return '未知工具'
-    return TOOL_NAME_LABELS[normalized] ?? normalized
+        return t('未知工具')
+    return TOOL_NAME_LABELS[normalized] ? t(TOOL_NAME_LABELS[normalized]) : normalized
 }
 
 
@@ -380,25 +381,25 @@ export function should_use_structured_render (
 export function get_structured_label (message: IMessage): string {
     const type = message.messageType ?? 'text'
     if (type === 'tool_result' || type === 'skill_result')
-        return '结果'
+        return t('结果')
     if (type === 'tool_error' || type === 'agent_error')
-        return '详情'
-    return '内容'
+        return t('详情')
+    return t('内容')
 }
 
 
 export function get_display_title (message: IMessage, tool_call: ToolCallViewModel | null): string {
     const type = message.messageType ?? 'text'
     if (type === 'tool_call')
-        return tool_call ? get_tool_display_name(tool_call.name) : '工具调用'
+        return tool_call ? get_tool_display_name(tool_call.name) : t('工具调用')
     if (type === 'text') {
         if (message.role === 'user')
-            return '用户'
+            return t('用户')
         if (message.role === 'assistant')
-            return '助手'
-        return '文本消息'
+            return t('助手')
+        return t('文本消息')
     }
-    return MESSAGE_TYPE_LABELS[type] ?? type
+    return MESSAGE_TYPE_LABELS[type] ? t(MESSAGE_TYPE_LABELS[type]) : type
 }
 
 
@@ -567,8 +568,8 @@ export function get_agent_status_text (status: { status: string, message?: strin
     if (status.message)
         return status.message
     if (status.status === 'tool_running')
-        return '助手正在调用工具...'
+        return t('助手正在调用工具...')
     if (status.status === 'error')
-        return '助手执行出现错误'
-    return '助手正在思考...'
+        return t('助手执行出现错误')
+    return t('助手正在思考...')
 }

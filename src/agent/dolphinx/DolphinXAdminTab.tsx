@@ -294,8 +294,8 @@ function UserPermissionTab () {
             set_selected_user_id(user_options[0].value)
     }, [user_options, selected_user_id])
     
-    return <div style={{ display: 'flex', gap: 12, minHeight: 520 }}>
-        <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, overflow: 'auto' }}>
+    return <div style={{ display: 'flex', gap: 12, height: 520, minHeight: 0 }}>
+        <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, overflow: 'auto', minHeight: 0 }}>
             <div style={{ fontWeight: 500, marginBottom: 8 }}>{t('用户')}</div>
             {user_options.length === 0
                 ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用户')} />
@@ -315,7 +315,7 @@ function UserPermissionTab () {
                     </div>
                 )}
         </div>
-        <div style={{ flex: 1, minWidth: 0, overflow: 'auto' }}>
+        <div style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto' }}>
             {selected_user_id
                 ? <>
                     <div style={{ fontWeight: 500, marginBottom: 12 }}>
