@@ -105,8 +105,8 @@ export function LlmConfigTab () {
         set_loading(true)
         try {
             const [ps, cs] = await Promise.all([
-                chat_model.load_llm_providers(),
-                chat_model.load_llm_configs(),
+                chat_model.llm.load_llm_providers(),
+                chat_model.llm.load_llm_configs(),
             ])
             const visible_providers = ps.filter(p => p.statusName !== 'DELETED')
             const lookup = new Map(visible_providers.map(p => [p.providerId, p]))
@@ -163,7 +163,7 @@ export function LlmConfigTab () {
         set_saving_provider(true)
         try {
             if (provider_mode === 'create') {
-                const created = await chat_model.register_llm_provider({
+                const created = await chat_model.llm.register_llm_provider({
                     name: provider_form.name.trim(),
                     adapterType: provider_form.adapterType,
                     baseUrl: provider_form.baseUrl.trim(),
@@ -183,7 +183,7 @@ export function LlmConfigTab () {
                 if (provider_form.apiKey !== (selected_provider?.apiKey || ''))
                     payload.apiKey = provider_form.apiKey || null
                 
-                await chat_model.update_llm_provider(selected_provider_id, payload)
+                await chat_model.llm.update_llm_provider(selected_provider_id, payload)
                 message.success(t('保存成功'))
                 await load()
             }
@@ -198,7 +198,7 @@ export function LlmConfigTab () {
         if (!selected_provider_id)
             return
         try {
-            await chat_model.delete_llm_provider(selected_provider_id)
+            await chat_model.llm.delete_llm_provider(selected_provider_id)
             message.success(t('删除成功'))
             set_selected_provider_id('')
             set_provider_mode('idle')
@@ -214,7 +214,7 @@ export function LlmConfigTab () {
         if (!selected_provider_id)
             return
         try {
-            await chat_model.disable_llm_provider(selected_provider_id)
+            await chat_model.llm.disable_llm_provider(selected_provider_id)
             message.success(t('禁用成功'))
             await load()
         } catch (e: any) {
@@ -228,7 +228,7 @@ export function LlmConfigTab () {
         if (!selected_provider_id)
             return
         try {
-            await chat_model.enable_llm_provider(selected_provider_id)
+            await chat_model.llm.enable_llm_provider(selected_provider_id)
             message.success(t('启用成功'))
             await load()
         } catch (e: any) {
@@ -327,15 +327,15 @@ export function LlmConfigTab () {
         set_saving_config(true)
         try {
             if (config_modal_mode === 'create') {
-                await chat_model.register_llm_config({ ...payload, providerId: selected_provider_id, enabled: true })
+                await chat_model.llm.register_llm_config({ ...payload, providerId: selected_provider_id, enabled: true })
                 message.success(t('创建成功'))
             } else if (editing_config_id) {
-                await chat_model.update_llm_config(editing_config_id, payload)
+                await chat_model.llm.update_llm_config(editing_config_id, payload)
                 message.success(t('保存成功'))
             }
             set_config_modal_mode('closed')
             await load()
-            chat_model.load_selectable_llms().catch(() => { })
+            chat_model.llm.load_selectable_llms().catch(() => { })
         } catch (e: any) {
             message.error(e.message || t('保存失败'))
         } finally {
@@ -345,7 +345,7 @@ export function LlmConfigTab () {
     
     async function delete_config (cfg: ILlmConfig) {
         try {
-            await chat_model.delete_llm_config(cfg.llmConfigId)
+            await chat_model.llm.delete_llm_config(cfg.llmConfigId)
             message.success(t('删除成功'))
             await load()
         } catch (e: any) {
@@ -357,7 +357,7 @@ export function LlmConfigTab () {
     
     async function disable_config (cfg: ILlmConfig) {
         try {
-            await chat_model.disable_llm_config(cfg.llmConfigId)
+            await chat_model.llm.disable_llm_config(cfg.llmConfigId)
             message.success(t('禁用成功'))
             await load()
         } catch (e: any) {
@@ -369,7 +369,7 @@ export function LlmConfigTab () {
     
     async function enable_config (cfg: ILlmConfig) {
         try {
-            await chat_model.enable_llm_config(cfg.llmConfigId)
+            await chat_model.llm.enable_llm_config(cfg.llmConfigId)
             message.success(t('启用成功'))
             await load()
         } catch (e: any) {

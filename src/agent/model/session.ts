@@ -1,16 +1,18 @@
 import { t } from '@i18n'
+import type { ChatModel } from '@/agent/model.ts'
 import { shell } from '@/shell/model.ts'
 import { chat_workspace_store } from '@/agent/workspace.ts'
 import { parse_tool_result_payload } from '@/agent/utils/message.ts'
 
 import type { IMessage, ISession, IToolCall } from './types.ts'
 
-export const chat_model_session_actions = {
-    async load_sessions (this: any) {
+export class ChatSessionModel {
+    constructor (private chat: ChatModel) { }
+    async load_sessions () {
         const params = new URLSearchParams({
-            agentId: this.agent_id,
+            agentId: this.chat.agent_id,
         })
-        const result = await this.api_fetch(`/session/list?${params}`)
+        const result = await this.chat.agent.api_fetch(`/session/list?${params}`)
         const sessions: ISession[] = (result.items || [ ]).map((s: any) => ({
             sessionId: s.sessionId,
             agentId: s.agentId,
@@ -24,19 +26,17 @@ export const chat_model_session_actions = {
             const tb = b.updateTime ? Date.parse(b.updateTime) : 0
             return (Number.isFinite(tb) ? tb : 0) - (Number.isFinite(ta) ? ta : 0)
         })
-        this.set({ sessions })
-    },
-    
-    
-    async create_session (this: any, title = t('新会话')): Promise<ISession> {
+        this.chat.set({ sessions })
+    }
+    async create_session (title = t('新会话')): Promise<ISession> {
         const body: Record<string, any> = {
-            agentId: this.agent_id,
+            agentId: this.chat.agent_id,
             title,
         }
-        if (this.selected_llm_config_id)
-            body.llmConfigId = this.selected_llm_config_id
+        if (this.chat.selected_llm_config_id)
+            body.llmConfigId = this.chat.selected_llm_config_id
             
-        const result = await this.api_fetch('/session/create', {
+        const result = await this.chat.agent.api_fetch('/session/create', {
             method: 'POST',
             body: JSON.stringify(body),
         })
@@ -48,10 +48,10 @@ export const chat_model_session_actions = {
             createTime: result.createTime,
             updateTime: result.updateTime,
         }
-        const workspace = await chat_workspace_store.ensure_default_workspace(session.sessionId, (path, options) => this.api_fetch(path, options))
-        const workspaces = await chat_workspace_store.list_workspaces(session.sessionId, (path, options) => this.api_fetch(path, options))
-        this.set({
-            sessions: [session, ...this.sessions],
+        const workspace = await chat_workspace_store.ensure_default_workspace(session.sessionId, (path, options) => this.chat.agent.api_fetch(path, options))
+        const workspaces = await chat_workspace_store.list_workspaces(session.sessionId, (path, options) => this.chat.agent.api_fetch(path, options))
+        this.chat.set({
+            sessions: [session, ...this.chat.sessions],
             current_session_id: session.sessionId,
             workspaces,
             current_workspace_id: workspace.workspace_id,
@@ -63,52 +63,48 @@ export const chat_model_session_actions = {
             script_execute_approval_mode: 'approval',
             // 新会话同步 LLM 选择（后端可能返回实际绑定的 llmConfigId）
             selected_llm_config_id: session.llmConfigId || '',
-            use_native_tool_calling: this.should_use_native_tool_calling(session.llmConfigId || ''),
+            use_native_tool_calling: this.chat.agent.should_use_native_tool_calling(session.llmConfigId || ''),
         })
         return session
-    },
-    
-    
-    async select_session (this: any, session_id: string) {
-        if (session_id === this.current_session_id)
+    }
+    async select_session (session_id: string) {
+        if (session_id === this.chat.current_session_id)
             return
             
-        this.abort_sse()
-        const session = this.sessions.find(s => s.sessionId === session_id) || await this.get_session(session_id)
-        if (!this.sessions.some(s => s.sessionId === session_id))
-            this.set({ sessions: [session, ...this.sessions] })
+        this.chat.runtime.abort_sse()
+        const session = this.chat.sessions.find(s => s.sessionId === session_id) || await this.chat.session.get_session(session_id)
+        if (!this.chat.sessions.some(s => s.sessionId === session_id))
+            this.chat.set({ sessions: [session, ...this.chat.sessions] })
         
-        this.set({
+        this.chat.set({
             current_session_id: session_id,
             messages: [ ],
             buffered_messages: [ ],
             agent_status: { status: 'idle' },
             latest_ddb_result: null,
-            script_execute_approval_mode: this.get_session_script_execute_approval_mode(session_id),
+            script_execute_approval_mode: this.chat.runtime.get_session_script_execute_approval_mode(session_id),
             // 同步会话级 LLM 选择
             selected_llm_config_id: session.llmConfigId || '',
-            use_native_tool_calling: this.should_use_native_tool_calling(session.llmConfigId || ''),
+            use_native_tool_calling: this.chat.agent.should_use_native_tool_calling(session.llmConfigId || ''),
         })
         
-        await this.refresh_workspace_context(session_id)
+        await this.chat.workspace.refresh_workspace_context(session_id)
         
         // 加载历史消息
-        const result = await this.api_fetch(`/session/${session_id}/messages`)
+        const result = await this.chat.agent.api_fetch(`/session/${session_id}/messages`)
         const raw_items: any[] = result.items || [ ]
         const messages = raw_items
-            .map((m: any) => this.map_dolphinx_message(m))
+            .map((m: any) => this.chat.session.map_dolphinx_message(m))
             .filter((m): m is IMessage => m !== null)
-        this.set({ messages })
-    },
-    
-    
-    async delete_session (this: any, session_id: string) {
-        await this.api_fetch(`/session/${session_id}`, { method: 'DELETE' })
-        const new_sessions = this.sessions.filter(s => s.sessionId !== session_id)
+        this.chat.set({ messages })
+    }
+    async delete_session (session_id: string) {
+        await this.chat.agent.api_fetch(`/session/${session_id}`, { method: 'DELETE' })
+        const new_sessions = this.chat.sessions.filter(s => s.sessionId !== session_id)
         
-        if (this.current_session_id === session_id) {
-            this.abort_sse()
-            this.set({
+        if (this.chat.current_session_id === session_id) {
+            this.chat.runtime.abort_sse()
+            this.chat.set({
                 current_session_id: '',
                 current_workspace_id: '',
                 current_workspace: null,
@@ -118,11 +114,9 @@ export const chat_model_session_actions = {
             })
         }
         
-        this.set({ sessions: new_sessions })
-    },
-    
-    
-    map_session (this: any, s: any): ISession {
+        this.chat.set({ sessions: new_sessions })
+    }
+    map_session (s: any): ISession {
         return {
             sessionId: s.sessionId,
             agentId: s.agentId,
@@ -131,15 +125,11 @@ export const chat_model_session_actions = {
             createTime: s.createTime,
             updateTime: s.updateTime,
         }
-    },
-    
-    
-    async get_session (this: any, session_id: string): Promise<ISession> {
-        return this.map_session(await this.api_fetch(`/session/${session_id}`))
-    },
-    
-    
-    async list_sessions (this: any, params: { agentId?: string, targetUserId?: string, offset?: number, limit?: number } = { }): Promise<{ items: ISession[], size: number, offset?: number, limit?: number }> {
+    }
+    async get_session (session_id: string): Promise<ISession> {
+        return this.chat.session.map_session(await this.chat.agent.api_fetch(`/session/${session_id}`))
+    }
+    async list_sessions (params: { agentId?: string, targetUserId?: string, offset?: number, limit?: number } = { }): Promise<{ items: ISession[], size: number, offset?: number, limit?: number }> {
         const search = new URLSearchParams()
         if (params.agentId)
             search.set('agentId', params.agentId)
@@ -150,77 +140,63 @@ export const chat_model_session_actions = {
         if (params.limit !== undefined)
             search.set('limit', String(params.limit))
         
-        const result = await this.api_fetch(`/session/list?${search}`)
+        const result = await this.chat.agent.api_fetch(`/session/list?${search}`)
         return {
             ...result,
-            items: (result.items || [ ]).map((s: any) => this.map_session(s)),
+            items: (result.items || [ ]).map((s: any) => this.chat.session.map_session(s)),
         }
-    },
-    
-    
-    async update_session_title (this: any, session_id: string, title: string) {
-        await this.api_fetch(`/session/${session_id}`, {
+    }
+    async update_session_title (session_id: string, title: string) {
+        await this.chat.agent.api_fetch(`/session/${session_id}`, {
             method: 'PUT',
             body: JSON.stringify({ title }),
         })
-        this.set({
-            sessions: this.sessions.map(s =>
+        this.chat.set({
+            sessions: this.chat.sessions.map(s =>
                 s.sessionId === session_id ? { ...s, title, updateTime: new Date().toISOString() } : s
             )
         })
         shell.update_ai_tab_title(session_id, title)
-    },
-    
-    
-    async update_session (this: any, session_id: string, updates: Record<string, unknown>): Promise<ISession> {
-        const result = this.map_session(await this.api_fetch(`/session/${session_id}`, {
+    }
+    async update_session (session_id: string, updates: Record<string, unknown>): Promise<ISession> {
+        const result = this.chat.session.map_session(await this.chat.agent.api_fetch(`/session/${session_id}`, {
             method: 'PUT',
             body: JSON.stringify(updates),
         }))
-        this.set({
-            sessions: this.sessions.map(s => s.sessionId === session_id ? result : s)
+        this.chat.set({
+            sessions: this.chat.sessions.map(s => s.sessionId === session_id ? result : s)
         })
         return result
-    },
-    
-    
-    async generate_session_summary (this: any, session_id: string, params: { instructions?: string, llmConfigId?: string, force?: boolean, metadata?: Record<string, unknown> } = { }): Promise<any> {
-        return this.api_fetch(`/session/${session_id}/summary`, {
+    }
+    async generate_session_summary (session_id: string, params: { instructions?: string, llmConfigId?: string, force?: boolean, metadata?: Record<string, unknown> } = { }): Promise<any> {
+        return this.chat.agent.api_fetch(`/session/${session_id}/summary`, {
             method: 'POST',
             body: JSON.stringify(params),
         })
-    },
-    
-    
-    async preview_context (this: any, params: Record<string, unknown>, agent_id?: string): Promise<any> {
-        return this.api_fetch('/context/preview', {
+    }
+    async preview_context (params: Record<string, unknown>, agent_id?: string): Promise<any> {
+        return this.chat.agent.api_fetch('/context/preview', {
             method: 'POST',
             ...(agent_id ? { headers: { 'x-agent-id': agent_id } } : { }),
             body: JSON.stringify(params),
         })
-    },
-    
-    
-    async auto_generate_title (this: any, session_id: string, message: string) {
+    }
+    async auto_generate_title (session_id: string, message: string) {
         if (!session_id)
             return
             
-        const title = await this.generate_session_title(session_id, message)
+        const title = await this.chat.session.generate_session_title(session_id, message)
         if (title)
-            await this.update_session_title(session_id, title)
-    },
-    
-    
-    make_fallback_title (this: any, message: string) {
+            await this.chat.session.update_session_title(session_id, title)
+    }
+    make_fallback_title (message: string) {
         const MAX_TITLE_LENGTH = 24
         const trimmed = message.replace(/\s+/g, ' ').trim()
         return trimmed.length > MAX_TITLE_LENGTH
             ? trimmed.slice(0, MAX_TITLE_LENGTH) + '...'
             : trimmed
-    },
-    
-    
-    normalize_session_title (this: any, title: string, fallback: string) {
+    }
+    normalize_session_title (title: string, fallback: string) {
         const normalized = title
             .replace(/\s+/g, ' ')
             .replace(/^["'“”‘’`]+|["'“”‘’`]+$/g, '')
@@ -229,20 +205,18 @@ export const chat_model_session_actions = {
         if (!normalized)
             return fallback
         return normalized.length > 24 ? normalized.slice(0, 24) : normalized
-    },
-    
-    
-    async generate_session_title (this: any, session_id: string, message: string) {
-        const fallback = this.make_fallback_title(message)
+    }
+    async generate_session_title (session_id: string, message: string) {
+        const fallback = this.chat.session.make_fallback_title(message)
         try {
-            const result = await this.api_fetch('/llm/complete', {
+            const result = await this.chat.agent.api_fetch('/llm/complete', {
                 method: 'POST',
                 body: JSON.stringify({
-                    agentId: this.agent_id,
+                    agentId: this.chat.agent_id,
                     sessionId: session_id,
                     stream: false,
                     includeReasoning: false,
-                    llmConfigId: this.selected_llm_config_id || undefined,
+                    llmConfigId: this.chat.selected_llm_config_id || undefined,
                     messages: [
                         {
                             role: 'system',
@@ -256,15 +230,13 @@ export const chat_model_session_actions = {
                 }),
             })
             const content = result?.content ?? result?.message ?? ''
-            return this.normalize_session_title(String(content), fallback)
+            return this.chat.session.normalize_session_title(String(content), fallback)
         } catch (error) {
             console.warn('Generate session title by LLM failed, fallback to truncated prompt:', error)
             return fallback
         }
-    },
-    
-    
-    map_dolphinx_message (this: any, m: any): IMessage | null {
+    }
+    map_dolphinx_message (m: any): IMessage | null {
         if (!m)
             return null
         if (m.contentType === 'summary')
@@ -319,5 +291,3 @@ export const chat_model_session_actions = {
         }
     }
 }
-
-export type ChatModelSessionActions = typeof chat_model_session_actions

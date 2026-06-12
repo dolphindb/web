@@ -28,7 +28,7 @@ export function SettingsModal () {
             return
         let disposed = false
         set_checking_builtin(true)
-        chat_model.load_builtin_init_status(false)
+        chat_model.llm.load_builtin_init_status(false)
             .then(result => {
                 if (!disposed)
                     set_builtin_status(result)
@@ -51,11 +51,11 @@ export function SettingsModal () {
     async function initialize_builtins () {
         set_initializing_builtin(true)
         try {
-            const result = await chat_model.init_builtins({ dryRun: false, includeDetails: false })
+            const result = await chat_model.llm.init_builtins({ dryRun: false, includeDetails: false })
             set_builtin_status(result)
             if (result.initialized === true || result.state === 'READY') {
                 message.success(t('初始化完成'))
-                await chat_model.load_agents()
+                await chat_model.agent.load_agents()
             } else {
                 console.warn('Built-in Agent/Skill init finished but is not ready:', result)
                 message.error(t('初始化未完成，详情请查看控制台'))

@@ -473,7 +473,7 @@ export function AgentErrorRenderer ({ chat, message }: ToolRendererProps) {
         }}
     >
         <Text type='danger'>{content}</Text>
-        <Button size='small' icon={<RedoOutlined />} onClick={() => { chat.retry_last_message() }}>
+        <Button size='small' icon={<RedoOutlined />} onClick={() => { chat.runtime.retry_last_message() }}>
             {t('重试')}
         </Button>
     </div>

@@ -120,7 +120,7 @@ export function ShellEditor ({ collapser }) {
             shell.set({ tabs: [...shell.tabs] })
             shell.save()
             if (tab.chat_id && !is_pending_ai_chat_id(tab.chat_id))
-                get_chat_model(tab.chat_id).update_session_title(tab.chat_id, newName)
+                get_chat_model(tab.chat_id).session.update_session_title(tab.chat_id, newName)
                     .catch(error => { model.message?.error(error instanceof Error ? error.message : t('保存失败')) })
         }
     }
@@ -150,7 +150,7 @@ export function ShellEditor ({ collapser }) {
                     className='ai-mode-btn'
                     onClick={async () => {
                         try {
-                            const builtin_status = await chat_model.load_builtin_init_status(false).catch(error => {
+                            const builtin_status = await chat_model.llm.load_builtin_init_status(false).catch(error => {
                                 console.error('Load built-in Agent/Skill init status failed:', error)
                                 return null
                             })
@@ -160,7 +160,7 @@ export function ShellEditor ({ collapser }) {
                             }
                             
                             if (!chat_model.agent_id)
-                                await chat_model.init()
+                                await chat_model.agent.init()
                                 
                             if (!chat_model.agent_id) {
                                 model.message?.warning(t('请先在 AI 设置中创建并配置 Agent'))
@@ -543,7 +543,7 @@ function AiToolbar ({
                 }
                 return
             }
-            await chat.update_session_title(session_id, next_title)
+            await chat.session.update_session_title(session_id, next_title)
             const tab = shell.tabs.find(item => item.chat_id === session_id)
             if (tab) {
                 tab.name = next_title
@@ -590,7 +590,7 @@ function AiToolbar ({
             allowClear
             style={{ minWidth: 120, maxWidth: 200, marginRight: 8 }}
             onChange={(value: string | undefined) => {
-                chat.select_llm_config(value || '')
+                chat.agent.select_llm_config(value || '')
             }}
             options={llm_options}
         />}
@@ -600,7 +600,7 @@ function AiToolbar ({
                 size='small'
                 value={script_execute_approval_mode}
                 style={{ minWidth: 110, marginRight: 8 }}
-                onChange={(value: ScriptExecuteApprovalMode) => { chat.set_script_execute_approval_mode(value) }}
+                onChange={(value: ScriptExecuteApprovalMode) => { chat.runtime.set_script_execute_approval_mode(value) }}
                 options={[
                     { value: 'approval', label: t('需要审批') },
                     { value: 'auto', label: t('自动执行') },
@@ -615,8 +615,8 @@ function AiToolbar ({
             style={{ minWidth: 120, maxWidth: 200, marginRight: 8 }}
             disabled={active_agents.length <= 1}
             onChange={async (value: string) => {
-                chat.select_agent(value)
-                await chat.load_sessions()
+                chat.agent.select_agent(value)
+                await chat.session.load_sessions()
             }}
             options={active_agents.map(a => ({
                 value: a.agentId,

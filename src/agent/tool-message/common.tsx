@@ -336,20 +336,20 @@ export function ScriptApprovalActions ({ chat }: { chat: ChatModel }) {
             <Button
                 size='small'
                 danger
-                onClick={() => { chat.resolve_script_execution_approval('deny') }}
+                onClick={() => { chat.runtime.resolve_script_execution_approval('deny') }}
             >
                 {t('不允许')}
             </Button>
             <Button
                 size='small'
-                onClick={() => { chat.resolve_script_execution_approval('allow_session') }}
+                onClick={() => { chat.runtime.resolve_script_execution_approval('allow_session') }}
             >
                 {t('允许且此会话默认允许')}
             </Button>
             <Button
                 size='small'
                 type='primary'
-                onClick={() => { chat.resolve_script_execution_approval('allow') }}
+                onClick={() => { chat.runtime.resolve_script_execution_approval('allow') }}
             >
                 {t('允许')}
             </Button>

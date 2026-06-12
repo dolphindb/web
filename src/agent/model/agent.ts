@@ -1,16 +1,18 @@
 import { t } from '@i18n'
 import { model, storage_keys } from '@model'
-
+import type { ChatModel } from '@/agent/model.ts'
 import type { ChatCompletionOptions } from '@/agent/tool_call_adapters.ts'
+
 import type { IAccessInfo, IAgentInfo, ISelectableLlmInfo } from './types.ts'
 import { AGENT_ID_KEY } from './constants.ts'
 
-export const chat_model_agent_actions = {
-    should_attach_agent_header (this: any, path: string, options: RequestInit) {
-        if (!this.agent_id)
+export class ChatAgentModel {
+    constructor (private chat: ChatModel) { }
+    should_attach_agent_header (path: string, options: RequestInit) {
+        if (!this.chat.agent_id)
             return false
             
-        const url = new URL(path, this.base_url)
+        const url = new URL(path, this.chat.base_url)
         const pathname = url.pathname.replace(/^\/agent-bus\/v1/, '')
         if (pathname.startsWith('/agent/') || url.searchParams.has('agentId'))
             return false
@@ -26,16 +28,14 @@ export const chat_model_agent_actions = {
             } catch { }
             
         return true
-    },
-    
-    
-    async api_fetch (this: any, path: string, options: RequestInit = { }): Promise<any> {
-        const url = /^https?:\/\//.test(path) ? path : `${this.base_url}${path}`
+    }
+    async api_fetch (path: string, options: RequestInit = { }): Promise<any> {
+        const url = /^https?:\/\//.test(path) ? path : `${this.chat.base_url}${path}`
         const token = (localStorage.getItem(storage_keys.agent_bus_token) || '').replace(/[\r\n]/g, '')
         const headers: Record<string, string> = {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : { }),
-            ...(this.should_attach_agent_header(path, options) ? { 'x-agent-id': this.agent_id } : { }),
+            ...(this.chat.agent.should_attach_agent_header(path, options) ? { 'x-agent-id': this.chat.agent_id } : { }),
         }
         
         // 合并调用方传入的额外 headers
@@ -46,7 +46,7 @@ export const chat_model_agent_actions = {
         const response = await fetch(url, { ...rest_options, headers })
         
         if (response.status === 403) {
-            this.handle_auth_failed()
+            this.chat.agent.handle_auth_failed()
             throw new Error('Access denied')
         }
         
@@ -58,7 +58,7 @@ export const chat_model_agent_actions = {
             // 检查 BUS_AUTH_FAILED 错误码
             const error_code = parsed?.error?.code || parsed?.headers?.busErrorCode
             if (error_code === 'BUS_AUTH_FAILED') {
-                this.handle_auth_failed()
+                this.chat.agent.handle_auth_failed()
                 throw new Error('Access denied')
             }
             
@@ -70,7 +70,7 @@ export const chat_model_agent_actions = {
         if (result.type === 'ERROR') {
             const error_code = result.error?.code || result.headers?.busErrorCode
             if (error_code === 'BUS_AUTH_FAILED') {
-                this.handle_auth_failed()
+                this.chat.agent.handle_auth_failed()
                 throw new Error('Access denied')
             }
             throw new Error(result.error?.message || 'Unknown error')
@@ -78,46 +78,40 @@ export const chat_model_agent_actions = {
         
         const payload = result.payload ?? result.data ?? result
         if (payload?.code === 'WORKSPACE_REDIRECT' && payload.workspaceBaseUrl && payload.retryPath)
-            return this.api_fetch(`${payload.workspaceBaseUrl}${payload.retryPath}`, options)
+            return this.chat.agent.api_fetch(`${payload.workspaceBaseUrl}${payload.retryPath}`, options)
         return payload
-    },
-    
-    
-    handle_auth_failed (this: any) {
+    }
+    handle_auth_failed () {
         console.warn('Agent-bus auth failed, redirecting to login')
         localStorage.removeItem(storage_keys.agent_bus_token)
         localStorage.removeItem(storage_keys.ticket)
         localStorage.removeItem(storage_keys.username)
         model.set({ logined: false, username: 'guest', admin: false })
         model.goto_login()
-    },
-    
-    
-    async init (this: any) {
+    }
+    async init () {
         try {
-            this.set({ loading: true })
+            this.chat.set({ loading: true })
             
-            await this.load_agents()
+            await this.chat.agent.load_agents()
             
             // 没有 agent 时不继续初始化，由 UI 引导用户创建
-            if (!this.agent_id)
+            if (!this.chat.agent_id)
                 return
                 
             await Promise.all([
-                this.load_sessions(),
-                this.load_selectable_llms(),
-                this.load_workspaces(),
+                this.chat.session.load_sessions(),
+                this.chat.llm.load_selectable_llms(),
+                this.chat.workspace.load_workspaces(),
             ])
         } catch (error) {
             console.error('Chat init failed:', error)
             model.message?.error(t('AI 助手初始化失败'))
         } finally {
-            this.set({ loading: false })
+            this.chat.set({ loading: false })
         }
-    },
-    
-    
-    map_agent (this: any, a: any): IAgentInfo {
+    }
+    map_agent (a: any): IAgentInfo {
         return {
             agentId: a.agentId,
             agentName: a.agentName || a.agentId,
@@ -130,24 +124,22 @@ export const chat_model_agent_actions = {
             createTime: a.createTime,
             updateTime: a.updateTime,
         }
-    },
-    
-    
-    async load_agents (this: any) {
+    }
+    async load_agents () {
         try {
             let result: any
             try {
-                result = await this.api_fetch('/agent/list')
+                result = await this.chat.agent.api_fetch('/agent/list')
             } catch (error) {
                 console.warn('Failed to list owned agents, fallback to accessible agents:', error)
-                result = await this.api_fetch('/agent/accessible')
+                result = await this.chat.agent.api_fetch('/agent/accessible')
             }
-            const items: IAgentInfo[] = (result.items || [ ]).map((a: any) => this.map_agent(a))
-            this.set({ agents: items })
+            const items: IAgentInfo[] = (result.items || [ ]).map((a: any) => this.chat.agent.map_agent(a))
+            this.chat.set({ agents: items })
             
             // 如果缓存的 agent_id 仍然有效，继续使用
-            if (this.agent_id) {
-                const cached = items.find(a => a.agentId === this.agent_id && a.statusName === 'ACTIVE')
+            if (this.chat.agent_id) {
+                const cached = items.find(a => a.agentId === this.chat.agent_id && a.statusName === 'ACTIVE')
                 if (cached)
                     return
             }
@@ -155,37 +147,31 @@ export const chat_model_agent_actions = {
             // 选择第一个 ACTIVE agent
             const active = items.find(a => a.statusName === 'ACTIVE')
             if (active) {
-                this.set({ agent_id: active.agentId })
+                this.chat.set({ agent_id: active.agentId })
                 localStorage.setItem(AGENT_ID_KEY, active.agentId)
             } else {
-                this.set({ agent_id: '' })
+                this.chat.set({ agent_id: '' })
                 localStorage.removeItem(AGENT_ID_KEY)
             }
         } catch (e) {
             console.warn('Failed to list agents:', e)
-            this.set({ agents: [ ], agent_id: '' })
+            this.chat.set({ agents: [ ], agent_id: '' })
             localStorage.removeItem(AGENT_ID_KEY)
         }
-    },
-    
-    
-    async load_all_agents (this: any): Promise<IAgentInfo[]> {
-        const result = await this.api_fetch('/agent/list')
-        return (result.items || [ ]).map((a: any) => this.map_agent(a))
-    },
-    
-    
-    async get_agent (this: any, agent_id: string): Promise<IAgentInfo> {
-        return this.map_agent(await this.api_fetch(`/agent/${agent_id}`))
-    },
-    
-    
-    async register_agent (this: any, params: {
+    }
+    async load_all_agents (): Promise<IAgentInfo[]> {
+        const result = await this.chat.agent.api_fetch('/agent/list')
+        return (result.items || [ ]).map((a: any) => this.chat.agent.map_agent(a))
+    }
+    async get_agent (agent_id: string): Promise<IAgentInfo> {
+        return this.chat.agent.map_agent(await this.chat.agent.api_fetch(`/agent/${agent_id}`))
+    }
+    async register_agent (params: {
         agentName: string
         description?: string
         systemPrompt?: string
     }): Promise<IAgentInfo> {
-        const result = await this.api_fetch('/agent/register', {
+        const result = await this.chat.agent.api_fetch('/agent/register', {
             method: 'POST',
             body: JSON.stringify(params),
         })
@@ -195,7 +181,7 @@ export const chat_model_agent_actions = {
             throw new Error('Register response missing agentId')
             
         // 激活
-        const activated = await this.activate_agent(agent_id)
+        const activated = await this.chat.agent.activate_agent(agent_id)
         
         const agent: IAgentInfo = {
             agentId: activated.agentId || agent_id,
@@ -208,50 +194,44 @@ export const chat_model_agent_actions = {
             updateTime: activated.updateTime,
         }
         
-        this.set({
-            agents: [...this.agents, agent],
+        this.chat.set({
+            agents: [...this.chat.agents, agent],
             agent_id: agent.agentId,
         })
         localStorage.setItem(AGENT_ID_KEY, agent.agentId)
         
         return agent
-    },
-    
-    
-    async activate_agent (this: any, agent_id: string) {
-        const result = await this.api_fetch(`/agent/${agent_id}/activate`, { method: 'POST' })
+    }
+    async activate_agent (agent_id: string) {
+        const result = await this.chat.agent.api_fetch(`/agent/${agent_id}/activate`, { method: 'POST' })
         
         // 更新本地列表中的状态
-        const agents = this.agents.map(a =>
+        const agents = this.chat.agents.map(a =>
             a.agentId === agent_id
                 ? { ...a, status: result.status ?? 1, statusName: result.statusName || 'ACTIVE' }
                 : a
         )
-        this.set({ agents, agent_id })
+        this.chat.set({ agents, agent_id })
         localStorage.setItem(AGENT_ID_KEY, agent_id)
         
         return result
-    },
-    
-    
-    async suspend_agent (this: any, agent_id: string) {
-        const result = await this.api_fetch(`/agent/${agent_id}/suspend`, { method: 'POST' })
-        const agents = this.agents.map(a =>
+    }
+    async suspend_agent (agent_id: string) {
+        const result = await this.chat.agent.api_fetch(`/agent/${agent_id}/suspend`, { method: 'POST' })
+        const agents = this.chat.agents.map(a =>
             a.agentId === agent_id
                 ? { ...a, status: result.status ?? a.status, statusName: result.statusName || 'SUSPENDED' }
                 : a
         )
-        this.set({ agents })
+        this.chat.set({ agents })
         return result
-    },
-    
-    
-    async update_agent (this: any, agent_id: string, updates: Record<string, any>) {
-        const result = await this.api_fetch(`/agent/${agent_id}`, {
+    }
+    async update_agent (agent_id: string, updates: Record<string, any>) {
+        const result = await this.chat.agent.api_fetch(`/agent/${agent_id}`, {
             method: 'PUT',
             body: JSON.stringify(updates),
         })
-        const agents = this.agents.map(a =>
+        const agents = this.chat.agents.map(a =>
             a.agentId === agent_id
                 ? {
                     ...a,
@@ -262,86 +242,68 @@ export const chat_model_agent_actions = {
                 }
                 : a
         )
-        this.set({ agents })
+        this.chat.set({ agents })
         return result
-    },
-    
-    
-    async delete_agent (this: any, agent_id: string) {
-        await this.api_fetch(`/agent/${agent_id}/delete`, { method: 'POST' })
-        const new_agents = this.agents.filter(a => a.agentId !== agent_id)
+    }
+    async delete_agent (agent_id: string) {
+        await this.chat.agent.api_fetch(`/agent/${agent_id}/delete`, { method: 'POST' })
+        const new_agents = this.chat.agents.filter(a => a.agentId !== agent_id)
         
-        if (this.agent_id === agent_id) {
+        if (this.chat.agent_id === agent_id) {
             const next = new_agents.find(a => a.statusName === 'ACTIVE')
             const next_id = next?.agentId || ''
-            this.set({ agent_id: next_id, agents: new_agents })
+            this.chat.set({ agent_id: next_id, agents: new_agents })
             if (next_id)
                 localStorage.setItem(AGENT_ID_KEY, next_id)
             else
                 localStorage.removeItem(AGENT_ID_KEY)
         } else
-            this.set({ agents: new_agents })
-    },
-    
-    
-    _map_access_info (this: any, item: any): IAccessInfo {
+            this.chat.set({ agents: new_agents })
+    }
+    _map_access_info (item: any): IAccessInfo {
         return {
             ...item,
             userId: item.userId || item.subjectId,
             subjectId: item.subjectId,
             permission: item.permission,
         }
-    },
-    
-    
-    async load_agent_auth (this: any, agent_id: string): Promise<IAccessInfo[]> {
-        const result = await this.api_fetch(`/agent/${agent_id}/auth/list`)
-        return (result.items || [ ]).map((item: any) => this._map_access_info(item))
-    },
-    
-    
-    async grant_agent_auth (this: any, agent_id: string, user_id: string): Promise<IAccessInfo[]> {
-        const result = await this.api_fetch(`/agent/${agent_id}/auth`, {
+    }
+    async load_agent_auth (agent_id: string): Promise<IAccessInfo[]> {
+        const result = await this.chat.agent.api_fetch(`/agent/${agent_id}/auth/list`)
+        return (result.items || [ ]).map((item: any) => this.chat.agent._map_access_info(item))
+    }
+    async grant_agent_auth (agent_id: string, user_id: string): Promise<IAccessInfo[]> {
+        const result = await this.chat.agent.api_fetch(`/agent/${agent_id}/auth`, {
             method: 'POST',
             body: JSON.stringify({ userId: user_id }),
         })
-        return (result.items || [ ]).map((item: any) => this._map_access_info(item))
-    },
-    
-    
-    async revoke_agent_auth (this: any, agent_id: string, user_id: string): Promise<IAccessInfo[]> {
-        const result = await this.api_fetch(`/agent/${agent_id}/auth?userId=${encodeURIComponent(user_id)}`, {
+        return (result.items || [ ]).map((item: any) => this.chat.agent._map_access_info(item))
+    }
+    async revoke_agent_auth (agent_id: string, user_id: string): Promise<IAccessInfo[]> {
+        const result = await this.chat.agent.api_fetch(`/agent/${agent_id}/auth?userId=${encodeURIComponent(user_id)}`, {
             method: 'DELETE',
         })
-        return (result.items || [ ]).map((item: any) => this._map_access_info(item))
-    },
-    
-    
-    async load_global_agent_admins (this: any): Promise<IAccessInfo[]> {
-        const result = await this.api_fetch('/admin/access')
+        return (result.items || [ ]).map((item: any) => this.chat.agent._map_access_info(item))
+    }
+    async load_global_agent_admins (): Promise<IAccessInfo[]> {
+        const result = await this.chat.agent.api_fetch('/admin/access')
         return result.items || [ ]
-    },
-    
-    
-    async grant_global_agent_admin (this: any, user_id: string): Promise<IAccessInfo[]> {
-        const result = await this.api_fetch('/admin/access', {
+    }
+    async grant_global_agent_admin (user_id: string): Promise<IAccessInfo[]> {
+        const result = await this.chat.agent.api_fetch('/admin/access', {
             method: 'POST',
             body: JSON.stringify({ userId: user_id }),
         })
         return result.items || [ ]
-    },
-    
-    
-    async revoke_global_agent_admin (this: any, user_id: string): Promise<IAccessInfo[]> {
-        const result = await this.api_fetch(`/admin/access?userId=${encodeURIComponent(user_id)}`, {
+    }
+    async revoke_global_agent_admin (user_id: string): Promise<IAccessInfo[]> {
+        const result = await this.chat.agent.api_fetch(`/admin/access?userId=${encodeURIComponent(user_id)}`, {
             method: 'DELETE',
         })
         return result.items || [ ]
-    },
-    
-    
-    select_agent (this: any, agent_id: string) {
-        this.set({
+    }
+    select_agent (agent_id: string) {
+        this.chat.set({
             agent_id,
             sessions: [ ],
             current_session_id: '',
@@ -353,29 +315,21 @@ export const chat_model_agent_actions = {
         })
         localStorage.setItem(AGENT_ID_KEY, agent_id)
         // 异步加载新 agent 的可选 LLM 列表
-        this.load_selectable_llms(agent_id)
-    },
-    
-    
-    get_llm_for_tool_call_mode (this: any, llm_config_id = this.selected_llm_config_id, llms = this.selectable_llms) {
+        this.chat.llm.load_selectable_llms(agent_id)
+    }
+    get_llm_for_tool_call_mode (llm_config_id = this.chat.selected_llm_config_id, llms = this.chat.selectable_llms) {
         if (llm_config_id)
             return llms.find(llm => llm.llmConfigId === llm_config_id)
         return llms.find(llm => llm.isAgentDefault) || llms[0]
-    },
-    
-    
-    should_use_native_tool_calling (this: any, llm_config_id = this.selected_llm_config_id, llms = this.selectable_llms) {
-        const llm = this.get_llm_for_tool_call_mode(llm_config_id, llms)
+    }
+    should_use_native_tool_calling (llm_config_id = this.chat.selected_llm_config_id, llms = this.chat.selectable_llms) {
+        const llm = this.chat.agent.get_llm_for_tool_call_mode(llm_config_id, llms)
         return llm?.custom?.tool_call !== false
-    },
-    
-    
-    select_llm_config (this: any, llm_config_id: string) {
-        this.set({
+    }
+    select_llm_config (llm_config_id: string) {
+        this.chat.set({
             selected_llm_config_id: llm_config_id,
-            use_native_tool_calling: this.should_use_native_tool_calling(llm_config_id),
+            use_native_tool_calling: this.chat.agent.should_use_native_tool_calling(llm_config_id),
         })
     }
 }
-
-export type ChatModelAgentActions = typeof chat_model_agent_actions

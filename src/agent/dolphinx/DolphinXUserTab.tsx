@@ -44,7 +44,7 @@ function SessionSection () {
         }
         set_loading(true)
         try {
-            const result = await chat_model.list_sessions({
+            const result = await chat_model.session.list_sessions({
                 agentId: selected_agent_id,
                 limit: 100,
             })
@@ -66,7 +66,7 @@ function SessionSection () {
         if (!session_id)
             return
         try {
-            await chat_model.delete_session(session_id)
+            await chat_model.session.delete_session(session_id)
             message.success(t('删除成功'))
             await load_sessions()
         } catch (error) {
@@ -84,7 +84,7 @@ function SessionSection () {
             return
         }
         try {
-            await chat_model.update_session_title(editing_session.sessionId, title)
+            await chat_model.session.update_session_title(editing_session.sessionId, title)
             message.success(t('保存成功'))
             title_modal.close()
             set_editing_session(null)
@@ -101,7 +101,7 @@ function SessionSection () {
         set_generating_summary(true)
         set_summary_generated(false)
         try {
-            const result = await chat_model.generate_session_summary(summary_session.sessionId, {
+            const result = await chat_model.session.generate_session_summary(summary_session.sessionId, {
                 instructions: summary_instructions || undefined,
                 force: force_summary,
             })
@@ -134,7 +134,7 @@ function SessionSection () {
     
     async function restore_session (session: ISession) {
         if (chat_model.agent_id !== session.agentId)
-            chat_model.select_agent(session.agentId)
+            chat_model.agent.select_agent(session.agentId)
         chat_model.set({ sessions: [session, ...chat_model.sessions.filter(item => item.sessionId !== session.sessionId)] })
         get_chat_model(session.sessionId).set({
             agent_id: session.agentId,
@@ -270,7 +270,7 @@ function MemorySection () {
         }
         set_loading(true)
         try {
-            const result = await chat_model.search_memory({
+            const result = await chat_model.memory.search_memory({
                 agentId: selected_agent_id,
                 scope: scope === 'all' ? undefined : scope,
                 category: category || undefined,
@@ -279,7 +279,7 @@ function MemorySection () {
                 sortBy: sort_by,
             })
             set_items(result.items)
-            set_stats(await chat_model.load_memory_stats(selected_agent_id))
+            set_stats(await chat_model.memory.load_memory_stats(selected_agent_id))
         } catch (error) {
             show_error(error, t('加载记忆失败'))
         } finally {
@@ -294,13 +294,13 @@ function MemorySection () {
         }
         try {
             if (editing_memory_id)
-                await chat_model.update_memory(editing_memory_id, {
+                await chat_model.memory.update_memory(editing_memory_id, {
                     category: form_category.trim(),
                     content: form_content.trim(),
                     importance: form_importance,
                 })
             else
-                await chat_model.store_memory({
+                await chat_model.memory.store_memory({
                     agentId: selected_agent_id,
                     scope: 'user',
                     category: form_category.trim(),
@@ -340,7 +340,7 @@ function MemorySection () {
         if (!memory_id)
             return
         try {
-            await chat_model.delete_memory(memory_id)
+            await chat_model.memory.delete_memory(memory_id)
             message.success(t('删除成功'))
             await search_memory()
         } catch (error) {
@@ -517,7 +517,7 @@ function ContextPreviewSection () {
             set_selected_session_id('')
             return
         }
-        const result = await chat_model.list_sessions({
+        const result = await chat_model.session.list_sessions({
             agentId: selected_agent_id,
             limit: 100,
         })
@@ -537,7 +537,7 @@ function ContextPreviewSection () {
         }
         set_loading(true)
         try {
-            set_preview(await chat_model.preview_context({
+            set_preview(await chat_model.session.preview_context({
                 sessionId: selected_session_id,
                 message: message_text.trim(),
             }, selected_agent_id))
@@ -654,7 +654,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
         }
         set_loading_usage(true)
         try {
-            set_usage(await chat_model.load_llm_usage({
+            set_usage(await chat_model.llm.load_llm_usage({
                 agentId: selected_agent_id,
             }))
         } catch (error) {
@@ -675,7 +675,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
         try {
             const entries = await Promise.all(user_options.map(async user => [
                 user.value,
-                await chat_model.load_llm_usage({
+                await chat_model.llm.load_llm_usage({
                     agentId: selected_agent_id,
                     targetUserId: user.value,
                 }),

@@ -31,7 +31,7 @@ function AdminAccessSection ({ user_id }: { user_id?: string }) {
         set_loading(true)
         try {
             const entries = await Promise.all(options.map(async agent => {
-                const auth_list = await chat_model.load_agent_auth(agent.value)
+                const auth_list = await chat_model.agent.load_agent_auth(agent.value)
                 return [agent.value, auth_list.find(item => item.userId === selected_user_id)] as const
             }))
             set_agent_auth_map(Object.fromEntries(entries))
@@ -52,7 +52,7 @@ function AdminAccessSection ({ user_id }: { user_id?: string }) {
     }, [agent_ids_key, selected_user_id])
     
     async function grant (agent_id: string) {
-        const auth_list = await chat_model.grant_agent_auth(agent_id, selected_user_id)
+        const auth_list = await chat_model.agent.grant_agent_auth(agent_id, selected_user_id)
         set_agent_auth_map(map => ({
             ...map,
             [agent_id]: auth_list.find(item => item.userId === selected_user_id),
@@ -62,7 +62,7 @@ function AdminAccessSection ({ user_id }: { user_id?: string }) {
     
     
     async function revoke (agent_id: string) {
-        const auth_list = await chat_model.revoke_agent_auth(agent_id, selected_user_id)
+        const auth_list = await chat_model.agent.revoke_agent_auth(agent_id, selected_user_id)
         set_agent_auth_map(map => ({
             ...map,
             [agent_id]: auth_list.find(item => item.userId === selected_user_id),
@@ -118,8 +118,8 @@ function UserLlmSection ({ user_id }: { user_id?: string }) {
     const [items, set_items] = useState<IUserLlmAccessInfo[]>([ ])
     
     useEffect(() => {
-        chat_model.load_llm_providers()
-            .then(providers => chat_model.load_llm_configs(new Map(providers.map(provider => [provider.providerId, provider]))))
+        chat_model.llm.load_llm_providers()
+            .then(providers => chat_model.llm.load_llm_configs(new Map(providers.map(provider => [provider.providerId, provider]))))
             .then(set_configs)
             .catch(error => { show_error(error, t('加载模型配置失败')) })
     }, [ ])
@@ -127,7 +127,7 @@ function UserLlmSection ({ user_id }: { user_id?: string }) {
     useEffect(() => {
         if (user_id) {
             set_selected_user_id(user_id)
-            chat_model.load_user_llm_access(user_id)
+            chat_model.llm.load_user_llm_access(user_id)
                 .then(set_items)
                 .catch(error => { show_error(error, t('加载用户 LLM 授权失败')) })
         }
@@ -146,17 +146,17 @@ function UserLlmSection ({ user_id }: { user_id?: string }) {
     async function load () {
         if (!selected_user_id)
             return
-        set_items(await chat_model.load_user_llm_access(selected_user_id))
+        set_items(await chat_model.llm.load_user_llm_access(selected_user_id))
     }
     
     async function grant (llm_config_id: string) {
-        set_items(await chat_model.grant_user_llm_access(selected_user_id, llm_config_id))
+        set_items(await chat_model.llm.grant_user_llm_access(selected_user_id, llm_config_id))
         message.success(t('已授权'))
     }
     
     
     async function revoke (llm_config_id: string) {
-        set_items(await chat_model.revoke_user_llm_access(selected_user_id, llm_config_id))
+        set_items(await chat_model.llm.revoke_user_llm_access(selected_user_id, llm_config_id))
         message.success(t('已撤销'))
     }
     
@@ -210,7 +210,7 @@ function SkillAccessSection ({ user_id }: { user_id?: string }) {
     const [denied_skill_ids, set_denied_skill_ids] = useState<string[]>([ ])
     
     useEffect(() => {
-        chat_model.load_skills()
+        chat_model.skill.load_skills()
             .then(set_skills)
             .catch(error => { show_error(error, t('加载技能失败')) })
     }, [ ])
@@ -229,20 +229,20 @@ function SkillAccessSection ({ user_id }: { user_id?: string }) {
             set_denied_skill_ids([ ])
             return
         }
-        const result = await chat_model.load_denied_user_skills(selected_user_id)
+        const result = await chat_model.skill.load_denied_user_skills(selected_user_id)
         set_denied_skill_ids(result.skillIds)
     }
     
     
     async function allow (skill_id: string) {
-        const result = await chat_model.allow_user_skill(skill_id, selected_user_id)
+        const result = await chat_model.skill.allow_user_skill(skill_id, selected_user_id)
         set_denied_skill_ids(result.skillIds || [ ])
         message.success(t('已允许'))
     }
     
     
     async function deny (skill_id: string) {
-        const result = await chat_model.deny_user_skill(skill_id, selected_user_id)
+        const result = await chat_model.skill.deny_user_skill(skill_id, selected_user_id)
         set_denied_skill_ids(result.skillIds || [ ])
         message.success(t('已禁用'))
     }

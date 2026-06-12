@@ -33,7 +33,7 @@ export function AgentTab () {
     async function refresh () {
         set_loading(true)
         try {
-            await chat_model.load_agents()
+            await chat_model.agent.load_agents()
         } catch {
             message.error(t('加载 Agent 列表失败'))
         } finally {
@@ -64,7 +64,7 @@ export function AgentTab () {
         set_form_error('')
         set_loading(true)
         try {
-            await chat_model.register_agent({
+            await chat_model.agent.register_agent({
                 agentName: form.agentName.trim(),
                 description: form.description || undefined,
                 systemPrompt: form.systemPrompt || undefined,
@@ -198,10 +198,10 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
         set_loading(true)
         try {
             const [llms, global_llms, skills, global_skills] = await Promise.all([
-                chat_model.load_agent_llm_bindings(agent.agentId),
-                chat_model.load_llm_configs(),
-                chat_model.load_skill_bindings(agent.agentId),
-                chat_model.load_skills(),
+                chat_model.llm.load_agent_llm_bindings(agent.agentId),
+                chat_model.llm.load_llm_configs(),
+                chat_model.skill.load_skill_bindings(agent.agentId),
+                chat_model.skill.load_skills(),
             ])
             set_bound_llms(llms)
             set_all_llms(global_llms)
@@ -209,7 +209,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
             set_all_skills(global_skills)
             // 同步刷新工具栏的可选 LLM 下拉列表
             if (is_current)
-                chat_model.load_selectable_llms(agent.agentId)
+                chat_model.llm.load_selectable_llms(agent.agentId)
         } catch {
             message.error(t('加载绑定信息失败'))
         } finally {
@@ -228,7 +228,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
     async function save_agent () {
         set_saving_agent(true)
         try {
-            await chat_model.update_agent(agent.agentId, {
+            await chat_model.agent.update_agent(agent.agentId, {
                 description: agent_form.description || undefined,
                 systemPrompt: agent_form.systemPrompt || undefined,
             })
@@ -265,14 +265,14 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                 {!is_current && agent.statusName === 'ACTIVE' && <Button
                     size='small'
                     type='primary'
-                    onClick={() => { chat_model.select_agent(agent.agentId) }}
+                    onClick={() => { chat_model.agent.select_agent(agent.agentId) }}
                 >{t('设为当前')}</Button>}
                 {agent.statusName !== 'ACTIVE' && <Button
                     size='small'
                     icon={<CheckCircleOutlined />}
                     onClick={async () => {
                         try {
-                            await chat_model.activate_agent(agent.agentId)
+                            await chat_model.agent.activate_agent(agent.agentId)
                             message.success(t('已激活'))
                             on_refresh()
                         } catch (err: any) {
@@ -284,7 +284,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                     title={t('确定挂起此 Agent？')}
                     onConfirm={async () => {
                         try {
-                            await chat_model.suspend_agent(agent.agentId)
+                            await chat_model.agent.suspend_agent(agent.agentId)
                             message.success(t('已挂起'))
                             on_refresh()
                         } catch (err: any) {
@@ -299,7 +299,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                     okButtonProps={{ danger: true }}
                     onConfirm={async () => {
                         try {
-                            await chat_model.delete_agent(agent.agentId)
+                            await chat_model.agent.delete_agent(agent.agentId)
                             message.success(t('已删除'))
                             on_refresh()
                         } catch (err: any) {
@@ -368,7 +368,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                                     if (value === null || value === llm.priority)
                                                         return
                                                     try {
-                                                        await chat_model.bind_llm_to_agent(agent.agentId, llm.llmConfigId, llm.isDefault, value)
+                                                        await chat_model.llm.bind_llm_to_agent(agent.agentId, llm.llmConfigId, llm.isDefault, value)
                                                         await load()
                                                     } catch (err: any) {
                                                         message.error(err.message || t('设置失败'))
@@ -382,7 +382,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                                 icon={<CheckCircleOutlined />}
                                                 onClick={async () => {
                                                     try {
-                                                        await chat_model.bind_llm_to_agent(agent.agentId, llm.llmConfigId, true)
+                                                        await chat_model.llm.bind_llm_to_agent(agent.agentId, llm.llmConfigId, true)
                                                         message.success(t('已设为默认'))
                                                         await load()
                                                     } catch (err: any) {
@@ -397,7 +397,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                                 icon={<DisconnectOutlined />}
                                                 onClick={async () => {
                                                     try {
-                                                        await chat_model.unbind_llm_from_agent(agent.agentId, llm.llmConfigId)
+                                                        await chat_model.llm.unbind_llm_from_agent(agent.agentId, llm.llmConfigId)
                                                         message.success(t('已解绑'))
                                                         await load()
                                                     } catch (err: any) {
@@ -430,7 +430,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                                 icon={<LinkOutlined />}
                                                 onClick={async () => {
                                                     try {
-                                                        await chat_model.bind_llm_to_agent(agent.agentId, llm.llmConfigId, bound_llms.length === 0)
+                                                        await chat_model.llm.bind_llm_to_agent(agent.agentId, llm.llmConfigId, bound_llms.length === 0)
                                                         message.success(t('已绑定'))
                                                         await load()
                                                     } catch (err: any) {
@@ -470,7 +470,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                         checked={!!binding?.enabled}
                                         onChange={async checked => {
                                             try {
-                                                await chat_model.toggle_skill_binding(skill_id, checked, agent.agentId)
+                                                await chat_model.skill.toggle_skill_binding(skill_id, checked, agent.agentId)
                                                 message.success(checked ? t('已启用') : t('已禁用'))
                                                 await load()
                                             } catch (err: any) {

@@ -44,7 +44,7 @@ export function WorkspaceSidebar ({
             set_files_loading(true)
         set_files_error('')
         try {
-            const next_files = await chat_workspace_store.list_files(session_id, (path, options) => chat.api_fetch(path, options))
+            const next_files = await chat_workspace_store.list_files(session_id, (path, options) => chat.agent.api_fetch(path, options))
             if (request_id === list_request_ref.current) {
                 const exists = next_files.length > 0
                 set_files(next_files)
@@ -74,7 +74,7 @@ export function WorkspaceSidebar ({
         const request_id = ++file_request_ref.current
         set_file_loading(true)
         try {
-            const file = await chat_workspace_store.get_file(session_id, (api_path, options) => chat.api_fetch(api_path, options), path)
+            const file = await chat_workspace_store.get_file(session_id, (api_path, options) => chat.agent.api_fetch(api_path, options), path)
             if (request_id !== file_request_ref.current)
                 return
             if (!file) {

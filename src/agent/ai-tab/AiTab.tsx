@@ -52,19 +52,19 @@ export function AiTab ({ session_id }: { session_id: string }) {
             try {
                 set_init_error('')
                 if (!chat.agent_id)
-                    await chat.init()
+                    await chat.agent.init()
                 else if (chat.agents.length === 0)
-                    await chat.load_agents()
+                    await chat.agent.load_agents()
                     
                 // 确保可选 LLM 已加载
                 if (chat.agent_id && chat.selectable_llms.length === 0)
-                    await chat.load_selectable_llms()
+                    await chat.llm.load_selectable_llms()
                     
                 if (cancelled)
                     return
                     
                 if (!pending_session && current_session_id !== session_id)
-                    await chat.select_session(session_id)
+                    await chat.session.select_session(session_id)
                     
                 set_inited(true)
             } catch (e) {
@@ -80,7 +80,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     // When tab switches back, re-select the correct session
     useEffect(() => {
         if (inited && !pending_session && current_session_id !== session_id)
-            chat.select_session(session_id)
+            chat.session.select_session(session_id)
                 .then(() => { set_init_error('') })
                 .catch(error => {
                     console.error(error)
@@ -207,7 +207,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
             return
         if (creating_session)
             return
-        if (!chat.is_ddb_connected()) {
+        if (!chat.runtime.is_ddb_connected()) {
             model.message?.warning(t('DolphinDB 连接已断开，无法发送消息'))
             return
         }
@@ -216,11 +216,11 @@ export function AiTab ({ session_id }: { session_id: string }) {
             if (pending_session) {
                 set_creating_session(true)
                 const tab_name = shell.tabs.find(tab => tab.chat_id === session_id)?.name
-                const session = await chat.create_session(tab_name || t('新会话'))
+                const session = await chat.session.create_session(tab_name || t('新会话'))
                 bind_chat_model_session(session_id, session.sessionId)
                 shell.bind_ai_tab_session(session_id, session.sessionId, session.title || tab_name || t('新会话'))
             }
-            chat.send_message(message)
+            chat.runtime.send_message(message)
             set_input_value('')
             should_auto_scroll.current = true
         } catch (error) {
@@ -312,13 +312,13 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         <Text type='secondary' style={{ fontSize: 12 }}>{status_text}</Text>
                     </div>}
                     {visible_loop_control && <Space style={{ marginTop: 8 }} wrap>
-                        <Button danger size='small' icon={<StopOutlined />} onClick={() => { chat.interrupt_chat() }}>
+                        <Button danger size='small' icon={<StopOutlined />} onClick={() => { chat.runtime.interrupt_chat() }}>
                             {t('停止')}
                         </Button>
-                        <Button type='primary' size='small' onClick={() => { chat.continue_tool_loop() }}>
+                        <Button type='primary' size='small' onClick={() => { chat.runtime.continue_tool_loop() }}>
                             {t('继续')}
                         </Button>
-                        {tool_call_limit_enabled && <Button size='small' onClick={() => { chat.ignore_tool_call_limit() }}>
+                        {tool_call_limit_enabled && <Button size='small' onClick={() => { chat.runtime.ignore_tool_call_limit() }}>
                             {t('继续且不再询问')}
                         </Button>}
                     </Space>}
@@ -349,7 +349,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     danger
                     size='large'
                     icon={<StopOutlined />}
-                    onClick={() => { chat.interrupt_chat() }}
+                    onClick={() => { chat.runtime.interrupt_chat() }}
                 >
                     {t('中断')}
                 </Button>}

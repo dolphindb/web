@@ -40,7 +40,7 @@ export function SkillsTab () {
     async function load () {
         set_loading(true)
         try {
-            const skills = await chat_model.load_skills()
+            const skills = await chat_model.skill.load_skills()
             set_all_skills(skills)
         } catch {
             message.error(t('加载技能列表失败'))
@@ -123,12 +123,12 @@ export function SkillsTab () {
         set_loading_detail(true)
         try {
             const [instruction, files] = await Promise.all([
-                chat_model.load_skill_instruction(skill.skillId).catch(error => {
+                chat_model.skill.load_skill_instruction(skill.skillId).catch(error => {
                     console.error('Load skill instruction failed:', error)
                     message.error(t('加载技能指令失败'))
                     return null
                 }),
-                chat_model.load_skill_files(skill.skillId).catch(error => {
+                chat_model.skill.load_skill_files(skill.skillId).catch(error => {
                     console.error('Load skill files failed:', error)
                     message.error(t('加载技能文件失败'))
                     return { items: [ ] }
@@ -155,7 +155,7 @@ export function SkillsTab () {
         set_skill_file_content('')
         set_loading_detail(true)
         try {
-            const file = await chat_model.get_skill_file(skill_id, file_path)
+            const file = await chat_model.skill.get_skill_file(skill_id, file_path)
             if (request_id !== file_request_ref.current || skill_id !== detail_skill.skillId)
                 return
             set_skill_file_content(decode_skill_file(file.content, file.encoding))
@@ -270,7 +270,7 @@ export function SkillsTab () {
                             if (v.trim())
                                 override_obj[k] = v.trim()
                                 
-                        await chat_model.register_skill(
+                        await chat_model.skill.register_skill(
                             skill_file,
                             Object.keys(override_obj).length > 0 ? override_obj : undefined,
                         )
@@ -329,7 +329,7 @@ export function SkillsTab () {
                                     icon={<CheckCircleOutlined />}
                                     onClick={async () => {
                                         try {
-                                            await chat_model.set_skill_enabled(s.skillId, true)
+                                            await chat_model.skill.set_skill_enabled(s.skillId, true)
                                             message.success(t('已激活'))
                                             await load()
                                         } catch (e: any) {
@@ -341,7 +341,7 @@ export function SkillsTab () {
                                     title={t('确定禁用此技能？')}
                                     onConfirm={async () => {
                                         try {
-                                            await chat_model.set_skill_enabled(s.skillId, false)
+                                            await chat_model.skill.set_skill_enabled(s.skillId, false)
                                             message.success(t('已禁用'))
                                             await load()
                                         } catch (e: any) {
@@ -357,7 +357,7 @@ export function SkillsTab () {
                                 okButtonProps={{ danger: true }}
                                 onConfirm={async () => {
                                     try {
-                                        await chat_model.delete_skill(s.skillId)
+                                        await chat_model.skill.delete_skill(s.skillId)
                                         message.success(t('已删除'))
                                         await load()
                                     } catch (e: any) {

@@ -10,10 +10,10 @@ import { type DdbObj, format, DdbType } from 'dolphindb/browser.js'
 
 import { language, t } from '@i18n'
 import { model, type DdbJob } from '@model'
+import { copy } from '@utils'
 import { MonacoEditor, type CodeEditor } from '@components/Editor/MonacoEditor.tsx'
 import { DDBTable } from '@components/DDBTable/index.tsx'
 import { StatusTag, StatusType } from '@components/tags/index.tsx'
-import { copy } from '@utils'
 
 const { Text, Link } = Typography
 

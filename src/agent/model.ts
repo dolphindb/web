@@ -7,20 +7,13 @@ import type { ChatCompletionOptions } from './tool_call_adapters.ts'
 import type { IChatWorkspace, IWorkspaceStep } from './workspace.ts'
 import { AGENT_ID_KEY, MAX_TOOL_TURNS, TOOL_CALL_LIMIT_ENABLED_KEY } from './model/constants.ts'
 import { get_stored_boolean } from './model/helpers.ts'
-import { chat_model_agent_actions } from './model/agent.ts'
-import { chat_model_workspace_actions } from './model/workspace.ts'
-import { chat_model_session_actions } from './model/session.ts'
-import { chat_model_runtime_actions } from './model/runtime.ts'
-import { chat_model_llm_actions } from './model/llm.ts'
-import { chat_model_memory_actions } from './model/memory.ts'
-import { chat_model_skill_actions } from './model/skill.ts'
-import type { ChatModelAgentActions } from './model/agent.ts'
-import type { ChatModelWorkspaceActions } from './model/workspace.ts'
-import type { ChatModelSessionActions } from './model/session.ts'
-import type { ChatModelRuntimeActions } from './model/runtime.ts'
-import type { ChatModelLlmActions } from './model/llm.ts'
-import type { ChatModelMemoryActions } from './model/memory.ts'
-import type { ChatModelSkillActions } from './model/skill.ts'
+import { ChatAgentModel } from './model/agent.ts'
+import { ChatWorkspaceModel } from './model/workspace.ts'
+import { ChatSessionModel } from './model/session.ts'
+import { ChatRuntimeModel } from './model/runtime.ts'
+import { ChatLlmModel } from './model/llm.ts'
+import { ChatMemoryModel } from './model/memory.ts'
+import { ChatSkillModel } from './model/skill.ts'
 import type { AgentStatus, IAgentInfo, IAgentStatusEvent, ISelectableLlmInfo, IScriptExecutionApproval, ISession, ISkillInfo, IMessage, IToolLoopControl, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
 import type { IToolCall, MessageType } from './model/types.ts'
 
@@ -32,6 +25,20 @@ init_scripts()
 
 
 export class ChatModel extends Model<ChatModel> {
+    readonly agent = new ChatAgentModel(this)
+    
+    readonly workspace = new ChatWorkspaceModel(this)
+    
+    readonly session = new ChatSessionModel(this)
+    
+    readonly runtime = new ChatRuntimeModel(this)
+    
+    readonly llm = new ChatLlmModel(this)
+    
+    readonly memory = new ChatMemoryModel(this)
+    
+    readonly skill = new ChatSkillModel(this)
+    
     agent_id = localStorage.getItem(AGENT_ID_KEY) || ''
     
     agents: IAgentInfo[] = [ ]
@@ -115,27 +122,6 @@ export class ChatModel extends Model<ChatModel> {
         return `${protocol}//${hostname}${port ? ':' + port : ''}/agent-bus/v1`
     }
 }
-
-
-export interface ChatModel extends
-    ChatModelAgentActions,
-    ChatModelWorkspaceActions,
-    ChatModelSessionActions,
-    ChatModelRuntimeActions,
-    ChatModelLlmActions,
-    ChatModelMemoryActions,
-    ChatModelSkillActions { }
-
-Object.assign(
-    ChatModel.prototype,
-    chat_model_agent_actions,
-    chat_model_workspace_actions,
-    chat_model_session_actions,
-    chat_model_runtime_actions,
-    chat_model_llm_actions,
-    chat_model_memory_actions,
-    chat_model_skill_actions,
-)
 
 
 const chat_model_instances = new Map<string, ChatModel>()

@@ -40,7 +40,7 @@ export function use_agent_options () {
     
     useEffect(() => {
         if (agents.length === 0)
-            chat_model.load_agents().catch(error => { show_error(error, t('加载 Agent 失败')) })
+            chat_model.agent.load_agents().catch(error => { show_error(error, t('加载 Agent 失败')) })
     }, [ ])
     
     return {
