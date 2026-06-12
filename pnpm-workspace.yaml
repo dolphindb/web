@@ -1,0 +1,7 @@
+peerDependencyRules:
+    allowAny:
+        - antd
+        - typescript
+        - i18next
+        - eslint
+        - webpack

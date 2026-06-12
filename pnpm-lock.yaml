@@ -129,8 +129,8 @@ importers:
         specifier: ^9.3.2
         version: 9.3.2
       xshell:
-        specifier: ^1.3.74
-        version: 1.3.74(postcss@8.5.6)(react-dom@19.2.7(react@19.2.7))
+        specifier: ^1.3.75
+        version: 1.3.75(postcss@8.5.6)(react-dom@19.2.7(react@19.2.7))
     devDependencies:
       '@types/js-cookie':
         specifier: ^3.0.6
@@ -1564,12 +1564,6 @@ packages:
 
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
-
-  '@types/eslint-scope@3.7.7':
-    resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
-
-  '@types/eslint@9.6.1':
-    resolution: {integrity: sha512-FXx2pKgId/WyYo2jXw63kk7/+TY7u7AziEJxJAnSFzHlqTAS3Ync6SvgYAN/k4/PQpnnVuzoMuVnByKK2qp0ag==}
 
   '@types/esrecurse@4.3.1':
     resolution: {integrity: sha512-xJBAbDifo5hpffDBuHl0Y8ywswbiAp/Wi7Y/GtAgSlZyIABppyurxVueOPE8LUQOxdlgi6Zqce7uoEpqNTeiUw==}
@@ -3783,6 +3777,11 @@ packages:
     engines: {node: '>=20.19.0'}
     hasBin: true
 
+  sass@1.101.0:
+    resolution: {integrity: sha512-OL3GoQyoUdDt843DpVmDO6y2k1sc5IhUDSpu8XucEI+35neq5QivZ1iuegnpraEVTJXlQGK1gl27zKcTLEPbQw==}
+    engines: {node: '>=20.19.0'}
+    hasBin: true
+
   scheduler@0.27.0:
     resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
 
@@ -4253,16 +4252,6 @@ packages:
     resolution: {integrity: sha512-HPuy+uuoTCaaoEoI1LQ3JN9+vrPBvEesnnX1jADHy728cHSMlq4wUc4afYqahq2B1mhQVZxCXOkNTnXltr+2vQ==}
     engines: {node: '>=10.13.0'}
 
-  webpack@5.106.2:
-    resolution: {integrity: sha512-wGN3qcrBQIFmQ/c0AiOAQBvrZ5lmY8vbbMv4Mxfgzqd/B6+9pXtLo73WuS1dSGXM5QYY3hZnIbvx+K1xxe6FyA==}
-    engines: {node: '>=10.13.0'}
-    hasBin: true
-    peerDependencies:
-      webpack-cli: '*'
-    peerDependenciesMeta:
-      webpack-cli:
-        optional: true
-
   webpack@5.107.2:
     resolution: {integrity: sha512-v7RhXaJbpMlV0D7hC7lb2EbnxkoeUqf9qhKr6lozx3Q48pmFrqqNRmZFUEGmi7pSwm6fCQ2H1IjvCkHqdpVdjQ==}
     engines: {node: '>=10.13.0'}
@@ -4313,12 +4302,12 @@ packages:
     resolution: {integrity: sha512-3sFIGLiaDP7rTO4xh3g+b3AzhYDIUGGywE/WsmqzJWDxus5aJXVnPTNC/6L+r2WzrwXqVOdD262OaO+cEyPMSQ==}
     engines: {node: '>=20'}
 
-  xshell@1.3.73:
-    resolution: {integrity: sha512-3DP1830wVHBTCQY1vFHPaHFJLSqnt6tnsQu5p62Uv65JDW7v2V72TnmaS//Q/skVB2yJWsvce+vNlfSfwU3UMQ==}
-    hasBin: true
-
   xshell@1.3.74:
     resolution: {integrity: sha512-Tzpm2EpQzXq3vUCRpjc/kfTSIgdmhDM2RAt67LKHcgEfLANcLCAy8doJ/n3Yx6KxMLkZY81Jcj9xOCkjNhx1XQ==}
+    hasBin: true
+
+  xshell@1.3.75:
+    resolution: {integrity: sha512-yO6UvxF3PaPfpNe8Es5BS4kP6KRqMsaBiLhGQb+YmZiCKiJwfnjzZB+sUTDJ3a1cJbmJ80HMWTDQ0ctVHow02A==}
     hasBin: true
 
   xtend@4.0.2:
@@ -6113,16 +6102,6 @@ snapshots:
     dependencies:
       '@types/ms': 0.7.34
 
-  '@types/eslint-scope@3.7.7':
-    dependencies:
-      '@types/eslint': 9.6.1
-      '@types/estree': 1.0.8
-
-  '@types/eslint@9.6.1':
-    dependencies:
-      '@types/estree': 1.0.8
-      '@types/json-schema': 7.0.15
-
   '@types/esrecurse@4.3.1': {}
 
   '@types/estree@1.0.8': {}
@@ -6902,19 +6881,6 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  css-loader@7.1.4(webpack@5.106.2(postcss@8.5.6)):
-    dependencies:
-      icss-utils: 5.1.0(postcss@8.5.6)
-      postcss: 8.5.6
-      postcss-modules-extract-imports: 3.1.0(postcss@8.5.6)
-      postcss-modules-local-by-default: 4.0.5(postcss@8.5.6)
-      postcss-modules-scope: 3.2.0(postcss@8.5.6)
-      postcss-modules-values: 4.0.0(postcss@8.5.6)
-      postcss-value-parser: 4.2.0
-      semver: 7.7.3
-    optionalDependencies:
-      webpack: 5.106.2(postcss@8.5.6)
-
   css-loader@7.1.4(webpack@5.107.2(postcss@8.5.6)):
     dependencies:
       icss-utils: 5.1.0(postcss@8.5.6)
@@ -7075,7 +7041,7 @@ snapshots:
       dayjs: 1.11.20
       ipaddr.js: 2.3.0
       tslib: 2.8.1
-      xshell: 1.3.73(postcss@8.5.6)(react-dom@19.2.7(react@19.2.7))
+      xshell: 1.3.74(postcss@8.5.6)(react-dom@19.2.7(react@19.2.7))
     transitivePeerDependencies:
       - '@minify-html/node'
       - '@rspack/core'
@@ -7899,12 +7865,6 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
-
-  license-webpack-plugin@4.0.2(webpack@5.106.2(postcss@8.5.6)):
-    dependencies:
-      webpack-sources: 3.5.0
-    optionalDependencies:
-      webpack: 5.106.2(postcss@8.5.6)
 
   license-webpack-plugin@4.0.2(webpack@5.107.2(postcss@8.5.6)):
     dependencies:
@@ -8775,17 +8735,25 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sass-loader@17.0.0(sass@1.100.0)(webpack@5.106.2(postcss@8.5.6)):
-    optionalDependencies:
-      sass: 1.100.0
-      webpack: 5.106.2(postcss@8.5.6)
-
   sass-loader@17.0.0(sass@1.100.0)(webpack@5.107.2(postcss@8.5.6)):
     optionalDependencies:
       sass: 1.100.0
       webpack: 5.107.2(postcss@8.5.6)
 
+  sass-loader@17.0.0(sass@1.101.0)(webpack@5.107.2(postcss@8.5.6)):
+    optionalDependencies:
+      sass: 1.101.0
+      webpack: 5.107.2(postcss@8.5.6)
+
   sass@1.100.0:
+    dependencies:
+      chokidar: 5.0.0
+      immutable: 5.1.5
+      source-map-js: 1.2.1
+    optionalDependencies:
+      '@parcel/watcher': 2.4.1
+
+  sass@1.101.0:
     dependencies:
       chokidar: 5.0.0
       immutable: 5.1.5
@@ -8895,12 +8863,6 @@ snapshots:
 
   source-map-js@1.2.1: {}
 
-  source-map-loader@5.0.0(webpack@5.106.2(postcss@8.5.6)):
-    dependencies:
-      iconv-lite: 0.6.3
-      source-map-js: 1.2.1
-      webpack: 5.106.2(postcss@8.5.6)
-
   source-map-loader@5.0.0(webpack@5.107.2(postcss@8.5.6)):
     dependencies:
       iconv-lite: 0.6.3
@@ -8995,10 +8957,6 @@ snapshots:
     dependencies:
       ansi-regex: 6.2.2
 
-  style-loader@4.0.0(webpack@5.106.2(postcss@8.5.6)):
-    dependencies:
-      webpack: 5.106.2(postcss@8.5.6)
-
   style-loader@4.0.0(webpack@5.107.2(postcss@8.5.6)):
     dependencies:
       webpack: 5.107.2(postcss@8.5.6)
@@ -9043,16 +9001,6 @@ snapshots:
   teex@1.0.1:
     dependencies:
       streamx: 2.15.0
-
-  terser-webpack-plugin@5.6.1(postcss@8.5.6)(webpack@5.106.2(postcss@8.5.6)):
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.29
-      jest-worker: 27.5.1
-      schema-utils: 4.3.3
-      terser: 5.39.0
-      webpack: 5.106.2(postcss@8.5.6)
-    optionalDependencies:
-      postcss: 8.5.6
 
   terser-webpack-plugin@5.6.1(postcss@8.5.6)(webpack@5.107.2(postcss@8.5.6)):
     dependencies:
@@ -9116,16 +9064,6 @@ snapshots:
   ts-api-utils@2.5.0(typescript@6.0.3):
     dependencies:
       typescript: 6.0.3
-
-  ts-loader@9.6.0(typescript@6.0.3)(webpack@5.106.2(postcss@8.5.6)):
-    dependencies:
-      chalk: 4.1.2
-      enhanced-resolve: 5.23.0
-      micromatch: 4.0.5
-      semver: 7.7.3
-      source-map: 0.7.4
-      typescript: 6.0.3
-      webpack: 5.106.2(postcss@8.5.6)
 
   ts-loader@9.6.0(typescript@6.0.3)(webpack@5.107.2(postcss@8.5.6)):
     dependencies:
@@ -9341,46 +9279,6 @@ snapshots:
 
   webpack-sources@3.5.0: {}
 
-  webpack@5.106.2(postcss@8.5.6):
-    dependencies:
-      '@types/eslint-scope': 3.7.7
-      '@types/estree': 1.0.8
-      '@types/json-schema': 7.0.15
-      '@webassemblyjs/ast': 1.14.1
-      '@webassemblyjs/wasm-edit': 1.14.1
-      '@webassemblyjs/wasm-parser': 1.14.1
-      acorn: 8.16.0
-      acorn-import-phases: 1.0.4(acorn@8.16.0)
-      browserslist: 4.28.1
-      chrome-trace-event: 1.0.3
-      enhanced-resolve: 5.23.0
-      es-module-lexer: 2.1.0
-      eslint-scope: 5.1.1
-      events: 3.3.0
-      glob-to-regexp: 0.4.1
-      graceful-fs: 4.2.11
-      loader-runner: 4.3.2
-      mime-db: 1.54.0
-      neo-async: 2.6.2
-      schema-utils: 4.3.3
-      tapable: 2.3.3
-      terser-webpack-plugin: 5.6.1(postcss@8.5.6)(webpack@5.106.2(postcss@8.5.6))
-      watchpack: 2.5.1
-      webpack-sources: 3.5.0
-    transitivePeerDependencies:
-      - '@minify-html/node'
-      - '@swc/core'
-      - '@swc/css'
-      - '@swc/html'
-      - clean-css
-      - cssnano
-      - csso
-      - esbuild
-      - html-minifier-terser
-      - lightningcss
-      - postcss
-      - uglify-js
-
   webpack@5.107.2(postcss@8.5.6):
     dependencies:
       '@types/estree': 1.0.8
@@ -9474,74 +9372,6 @@ snapshots:
       is-wsl: 3.1.0
       powershell-utils: 0.1.0
 
-  xshell@1.3.73(postcss@8.5.6)(react-dom@19.2.7(react@19.2.7)):
-    dependencies:
-      '@babel/core': 7.29.7
-      '@babel/parser': 7.29.7
-      '@babel/traverse': 7.29.7
-      '@koa/cors': 5.0.0
-      '@stylistic/eslint-plugin': 5.10.0(eslint@10.4.1)
-      '@svgr/webpack': 8.1.0
-      '@types/sass-loader': 8.0.10
-      '@typescript-eslint/eslint-plugin': 8.61.0(@typescript-eslint/parser@8.61.0(eslint@10.4.1)(typescript@6.0.3))(eslint@10.4.1)(typescript@6.0.3)
-      '@typescript-eslint/parser': 8.61.0(eslint@10.4.1)(typescript@6.0.3)
-      '@typescript-eslint/utils': 8.61.0(eslint@10.4.1)(typescript@6.0.3)
-      archiver: 8.0.0
-      chalk: 5.6.2
-      commander: 15.0.0
-      css-loader: 7.1.4(webpack@5.106.2(postcss@8.5.6))
-      emoji-regex: 10.6.0
-      eslint: 10.4.1
-      eslint-plugin-react: 7.37.5(eslint@10.4.1)
-      https-proxy-agent: 9.1.0
-      i18next: 25.8.1(typescript@6.0.3)
-      i18next-scanner: 4.6.0(typescript@6.0.3)
-      koa: 3.2.1
-      koa-compress: 5.2.1
-      license-webpack-plugin: 4.0.2(webpack@5.106.2(postcss@8.5.6))
-      mime-types: 3.0.2
-      p-map: 7.0.4
-      react: 19.2.7
-      react-i18next: 17.0.8(i18next@25.8.1(typescript@6.0.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)
-      resolve-path: 1.4.0
-      sass: 1.100.0
-      sass-loader: 17.0.0(sass@1.100.0)(webpack@5.106.2(postcss@8.5.6))
-      source-map-loader: 5.0.0(webpack@5.106.2(postcss@8.5.6))
-      strip-ansi: 7.2.0
-      style-loader: 4.0.0(webpack@5.106.2(postcss@8.5.6))
-      tough-cookie: 6.0.1
-      ts-loader: 9.6.0(typescript@6.0.3)(webpack@5.106.2(postcss@8.5.6))
-      tslib: 2.8.1
-      typescript: 6.0.3
-      undici: 8.4.1
-      webpack: 5.106.2(postcss@8.5.6)
-      webpack-bundle-analyzer: 5.3.0
-      ws: 8.21.0
-    transitivePeerDependencies:
-      - '@minify-html/node'
-      - '@rspack/core'
-      - '@swc/core'
-      - '@swc/css'
-      - '@swc/html'
-      - bufferutil
-      - clean-css
-      - cssnano
-      - csso
-      - esbuild
-      - html-minifier-terser
-      - jiti
-      - kerberos
-      - lightningcss
-      - loader-utils
-      - postcss
-      - react-dom
-      - react-native
-      - sass-embedded
-      - supports-color
-      - uglify-js
-      - utf-8-validate
-      - webpack-cli
-
   xshell@1.3.74(postcss@8.5.6)(react-dom@19.2.7(react@19.2.7)):
     dependencies:
       '@babel/core': 7.29.7
@@ -9574,6 +9404,74 @@ snapshots:
       resolve-path: 1.4.0
       sass: 1.100.0
       sass-loader: 17.0.0(sass@1.100.0)(webpack@5.107.2(postcss@8.5.6))
+      source-map-loader: 5.0.0(webpack@5.107.2(postcss@8.5.6))
+      strip-ansi: 7.2.0
+      style-loader: 4.0.0(webpack@5.107.2(postcss@8.5.6))
+      tough-cookie: 6.0.1
+      ts-loader: 9.6.0(typescript@6.0.3)(webpack@5.107.2(postcss@8.5.6))
+      tslib: 2.8.1
+      typescript: 6.0.3
+      undici: 8.4.1
+      webpack: 5.107.2(postcss@8.5.6)
+      webpack-bundle-analyzer: 5.3.0
+      ws: 8.21.0
+    transitivePeerDependencies:
+      - '@minify-html/node'
+      - '@rspack/core'
+      - '@swc/core'
+      - '@swc/css'
+      - '@swc/html'
+      - bufferutil
+      - clean-css
+      - cssnano
+      - csso
+      - esbuild
+      - html-minifier-terser
+      - jiti
+      - kerberos
+      - lightningcss
+      - loader-utils
+      - postcss
+      - react-dom
+      - react-native
+      - sass-embedded
+      - supports-color
+      - uglify-js
+      - utf-8-validate
+      - webpack-cli
+
+  xshell@1.3.75(postcss@8.5.6)(react-dom@19.2.7(react@19.2.7)):
+    dependencies:
+      '@babel/core': 7.29.7
+      '@babel/parser': 7.29.7
+      '@babel/traverse': 7.29.7
+      '@koa/cors': 5.0.0
+      '@stylistic/eslint-plugin': 5.10.0(eslint@10.4.1)
+      '@svgr/webpack': 8.1.0
+      '@types/sass-loader': 8.0.10
+      '@typescript-eslint/eslint-plugin': 8.61.0(@typescript-eslint/parser@8.61.0(eslint@10.4.1)(typescript@6.0.3))(eslint@10.4.1)(typescript@6.0.3)
+      '@typescript-eslint/parser': 8.61.0(eslint@10.4.1)(typescript@6.0.3)
+      '@typescript-eslint/utils': 8.61.0(eslint@10.4.1)(typescript@6.0.3)
+      archiver: 8.0.0
+      chalk: 5.6.2
+      commander: 15.0.0
+      css-loader: 7.1.4(webpack@5.107.2(postcss@8.5.6))
+      emoji-regex: 10.6.0
+      eslint: 10.4.1
+      eslint-plugin-react: 7.37.5(eslint@10.4.1)
+      https-proxy-agent: 9.1.0
+      i18next: 25.8.1(typescript@6.0.3)
+      i18next-scanner: 4.6.0(typescript@6.0.3)
+      koa: 3.2.1
+      koa-compress: 5.2.1
+      license-webpack-plugin: 4.0.2(webpack@5.107.2(postcss@8.5.6))
+      mime-types: 3.0.2
+      p-map: 7.0.4
+      react: 19.2.7
+      react-i18next: 17.0.8(i18next@25.8.1(typescript@6.0.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)
+      resolve-path: 1.4.0
+      sass: 1.101.0
+      sass-loader: 17.0.0(sass@1.101.0)(webpack@5.107.2(postcss@8.5.6))
       source-map-loader: 5.0.0(webpack@5.107.2(postcss@8.5.6))
       strip-ansi: 7.2.0
       style-loader: 4.0.0(webpack@5.107.2(postcss@8.5.6))
