@@ -384,14 +384,14 @@ export function LlmConfigTab () {
         {/* 左侧 Provider 列表 */}
         <div style={{
             width: 260, borderRight: '1px solid #f0f0f0', display: 'flex',
-            flexDirection: 'column', flexShrink: 0,
+            flexDirection: 'column', flexShrink: 0, minWidth: 0,
         }}>
             <div style={{ padding: '0 12px 12px', borderBottom: '1px solid #f0f0f0' }}>
                 <Button type='dashed' block icon={<PlusOutlined />} onClick={open_create_provider}>
                     {t('新建 Provider')}
                 </Button>
             </div>
-            <div style={{ flex: 1, overflow: 'auto', padding: '8px 0' }}>
+            <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '8px 0', minWidth: 0 }}>
                 {loading
                     ? <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
                     : providers.length === 0
@@ -404,12 +404,13 @@ export function LlmConfigTab () {
                                     padding: '10px 16px', cursor: 'pointer',
                                     background: p.providerId === selected_provider_id ? '#e6f4ff' : 'transparent',
                                     borderLeft: p.providerId === selected_provider_id ? '3px solid #1677ff' : '3px solid transparent',
+                                    boxSizing: 'border-box',
                                 }}
                                 onClick={() => { open_edit_provider(p) }}
                             >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    <span style={{ fontWeight: 500, fontSize: 13 }}>{p.name}</span>
-                                    <Tag style={{ fontSize: 11 }}>{p.adapterType}</Tag>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                                    <span style={{ fontWeight: 500, fontSize: 13, minWidth: 0, overflowWrap: 'anywhere' }}>{p.name}</span>
+                                    <Tag style={{ fontSize: 11, flexShrink: 0 }}>{p.adapterType}</Tag>
                                     {p.enabled === false && <Tag color='default' style={{ fontSize: 11 }}>{t('禁用')}</Tag>}
                                 </div>
                                 <div style={{ fontSize: 12, color: '#999', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -425,7 +426,7 @@ export function LlmConfigTab () {
         </div>
         
         {/* 右侧 Provider 编辑器 + 内嵌模型列表 */}
-        <div style={{ flex: 1, overflow: 'auto', padding: '0 20px' }}>
+        <div style={{ flex: 1, minWidth: 0, overflow: 'auto', padding: '0 20px' }}>
             {provider_mode === 'idle'
                 ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                     <Empty description={t('请从左侧选择一个 Provider，或点击上方新建')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
