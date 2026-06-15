@@ -123,12 +123,12 @@ export const skill_file_read_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'skill_file_read',
-            description: '读取指定 Skill 包内一个或多个文件的文本内容',
+            description: '读取指定 Skill 包内一个或多个文件的文本内容；Skill 包文件必须用本工具读取，不要用 vfs_read',
             parameters: {
                 type: 'object',
                 properties: {
                     skill_id: { type: 'string', description: '技能 ID' },
-                    file_path: { type: 'string', description: '相对 Skill 包根目录的文件路径；也可以用 file_paths 传多个路径' },
+                    file_path: { type: 'string', description: '相对 Skill 包根目录的文件路径，不是工作区文件名；也可以用 file_paths 传多个路径' },
                 },
                 required: ['skill_id', 'file_path'],
             },

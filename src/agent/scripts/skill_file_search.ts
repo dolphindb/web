@@ -95,7 +95,7 @@ export const skill_file_search_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'skill_file_search',
-            description: '检索指定 Skill 包内的文本文件，按字面量子串匹配，不支持 regex',
+            description: '检索指定 Skill 包内的文本文件，按字面量子串匹配，不支持 regex；Skill 包请用本工具，不要用 vfs_search',
             parameters: {
                 type: 'object',
                 properties: {
@@ -105,7 +105,7 @@ export const skill_file_search_config: ScriptConfig = {
                     any: { type: 'array', description: '多个搜索词任意匹配即命中；query、all、any 必须且只能提供一个' },
                     scope: { type: 'string', description: '可选，file 或 line，默认 file' },
                     caseSensitive: { type: 'boolean', description: '可选，是否大小写敏感，默认 false' },
-                    filePaths: { type: 'array', description: '可选，限定 Skill 包内相对路径列表' },
+                    filePaths: { type: 'array', description: '可选，限定 Skill 包内相对路径列表，不是工作区文件名' },
                     extensions: { type: 'array', description: '可选，限定文件后缀，如 .md、.json、.dos' },
                     contextLines: { type: 'number', description: '可选，命中行前后的上下文行数' },
                     maxResults: { type: 'number', description: '可选，返回命中总数上限' },

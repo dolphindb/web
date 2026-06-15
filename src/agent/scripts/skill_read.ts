@@ -88,7 +88,7 @@ export const skill_read_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'skill_read',
-            description: '读取 Agent 技能详情，包括技能名称、描述和指令内容',
+            description: '读取 Agent 技能详情，包括技能名称、描述、指令内容和 Skill 包文件目录；只用于 Skill 元信息，不读取工作区文件',
             parameters: {
                 type: 'object',
                 properties: {

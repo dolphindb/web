@@ -333,11 +333,11 @@ export const vfs_read_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'vfs_read',
-            description: '读取当前会话工作区中的代码文件',
+            description: '读取当前会话工作区中的代码文件；只读工作区，不能读取 Skill 包文件，Skill 包请用 skill_file_read',
             parameters: {
                 type: 'object',
                 properties: {
-                    name: { type: 'string', description: WORKSPACE_FILE_NAME_RULE },
+                    name: { type: 'string', description: `工作区文件名，不是 Skill 包路径；${WORKSPACE_FILE_NAME_RULE}` },
                     startLine: { type: 'string', description: '可选，起始行，1-based' },
                     endLine: { type: 'string', description: '可选，结束行，闭区间' },
                 },
@@ -439,7 +439,7 @@ export const vfs_search_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'vfs_search',
-            description: '搜索当前会话工作区中的文本文件，按字面量子串匹配，不支持 regex',
+            description: '搜索当前会话工作区中的文本文件，按字面量子串匹配，不支持 regex；只搜索工作区，不能搜索 Skill 包，Skill 包请用 skill_file_search',
             parameters: {
                 type: 'object',
                 properties: {
@@ -448,7 +448,7 @@ export const vfs_search_config: ScriptConfig = {
                     any: { type: 'array', description: '多个搜索词任意匹配即命中；query、all、any 必须且只能提供一个' },
                     scope: { type: 'string', description: '可选，file 或 line，默认 file' },
                     caseSensitive: { type: 'boolean', description: '可选，是否大小写敏感，默认 false' },
-                    names: { type: 'array', description: `可选，限定文件名列表；每项${WORKSPACE_FILE_NAME_RULE}` },
+                    names: { type: 'array', description: `可选，限定工作区文件名列表，不是 Skill 包路径；每项${WORKSPACE_FILE_NAME_RULE}` },
                     extensions: { type: 'array', description: '可选，限定文件后缀，如 .dos、.md' },
                     contextLines: { type: 'number', description: '可选，命中行前后的上下文行数' },
                     maxResults: { type: 'number', description: '可选，返回命中总数上限' },
