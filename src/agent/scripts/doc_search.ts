@@ -79,7 +79,7 @@ export const doc_search_config: ScriptConfig = {
                 type: 'object',
                 properties: {
                     query: { type: 'string', description: '搜索关键词' },
-                    page: { type: 'string', description: '页码，默认为 1' },
+                    page: { type: 'number', description: '页码，默认为 1' },
                 },
                 required: ['query'],
             },

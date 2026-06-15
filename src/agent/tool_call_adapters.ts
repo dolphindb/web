@@ -133,23 +133,7 @@ function get_native_natural_text (content: string): string {
 
 
 function normalize_tool_definitions_for_native () {
-    return get_all_tool_definitions().map(definition => ({
-        ...definition,
-        function: {
-            ...definition.function,
-            parameters: {
-                ...definition.function.parameters,
-                properties: Object.fromEntries(
-                    Object.entries(definition.function.parameters.properties).map(([key, value]) => [
-                        key,
-                        value.type === 'array' && !(value as any).items
-                            ? { ...value, items: { type: 'string' } }
-                            : value,
-                    ])
-                ),
-            },
-        },
-    }))
+    return get_all_tool_definitions()
 }
 
 

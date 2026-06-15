@@ -50,7 +50,7 @@ export class ChatSkillModel {
             updateTime: s.updateTime,
         }
     }
-
+    
     async load_skill_page (params: ISkillListParams = { }): Promise<ISkillListResult> {
         const search = new URLSearchParams()
         for (const [key, value] of Object.entries(params))

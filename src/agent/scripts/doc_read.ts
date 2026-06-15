@@ -198,12 +198,12 @@ export const doc_read_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'doc_read',
-            description: '读取 DolphinDB 官方文档页面内容，支持 URL 或文档路径',
+            description: '读取 DolphinDB 官方文档页面内容，支持 URL 或文档路径；不能读取 Skill 包内文件或 references，Skill 包文件请用 skill_file_read',
             parameters: {
                 type: 'object',
                 properties: {
                     url: { type: 'string', description: '文档 URL 或路径' },
-                    max_chars: { type: 'string', description: '最大返回字符数，默认 50000' },
+                    max_chars: { type: 'number', description: '最大返回字符数，默认 50000' },
                 },
                 required: ['url'],
             },

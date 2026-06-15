@@ -257,7 +257,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
             <Spin />
             <Text type='secondary' style={{ marginTop: 12 }}>{t('正在连接 AI 助手...')}</Text>
         </div>
-
+        
     if (unsupported_node)
         return <div className='ai-tab' style={{ position: 'relative' }}>
             <div style={{

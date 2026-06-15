@@ -30,6 +30,16 @@ export interface ToolContext {
 export type ScriptHandler = (type: ScriptType, content: unknown, context: ToolContext) => Promise<ScriptResult> | ScriptResult
 
 
+export type ToolParameterSchema = {
+    type: string
+    description?: string
+    items?: ToolParameterSchema
+    properties?: Record<string, ToolParameterSchema>
+    required?: string[]
+    additionalProperties?: boolean
+}
+
+
 export interface ToolDefinition {
     type: 'function'
     function: {
@@ -37,7 +47,7 @@ export interface ToolDefinition {
         description: string
         parameters: {
             type: 'object'
-            properties: Record<string, { type: string, description: string, items?: { type: string } }>
+            properties: Record<string, ToolParameterSchema>
             required: string[]
         }
     }
