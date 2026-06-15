@@ -70,32 +70,25 @@ export class ChatAgentModel {
         const { headers: _ignored, ...rest_options } = options
         const response = await fetch(url, { ...rest_options, headers })
         
+        if (response.status === 401) {
+            this.chat.agent.handle_auth_failed()
+            throw new Error('Unauthorized')
+        }
+        
         if (!response.ok) {
             const text = await response.text()
             let parsed: any
             try { parsed = JSON.parse(text) } catch { parsed = { message: text } }
-            
-            // 检查 BUS_AUTH_FAILED 错误码
-            const error_code = parsed?.error?.code || parsed?.headers?.busErrorCode
-            if (error_code === 'BUS_AUTH_FAILED') {
-                this.chat.agent.handle_auth_failed()
-                throw new Error('Access denied')
-            }
             
             throw new Error(parsed?.error?.message || parsed?.message || response.statusText)
         }
         
         const result = await response.json()
         
-        if (result.type === 'ERROR') {
-            const error_code = result.error?.code || result.headers?.busErrorCode
-            if (error_code === 'BUS_AUTH_FAILED') {
-                this.chat.agent.handle_auth_failed()
-                throw new Error('Access denied')
-            }
+        if (result.type === 'ERROR')
             throw new Error(result.error?.message || 'Unknown error')
-        }
-        
+            
+            
         const payload = result.payload ?? result.data ?? result
         if (payload?.code === 'WORKSPACE_REDIRECT' && payload.workspaceBaseUrl && payload.retryPath)
             return this.chat.agent.api_fetch(`${payload.workspaceBaseUrl}${payload.retryPath}`, options)

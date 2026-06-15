@@ -17,6 +17,12 @@ import { form_error_alert, required_label } from './common.tsx'
 const { Paragraph, Text } = Typography
 
 
+function get_llm_config_display_name (llm: ILlmConfig) {
+    const provider_name = llm.providerName || llm.providerId || llm.adapterType || '-'
+    return `${provider_name} / ${llm.name}`
+}
+
+
 export function AgentTab () {
     const { agents, agent_id } = chat_model.use(['agents', 'agent_id'])
     
@@ -199,9 +205,11 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
     async function load () {
         set_loading(true)
         try {
+            const providers = await chat_model.llm.load_llm_providers()
+            const provider_lookup = new Map(providers.map(provider => [provider.providerId, provider]))
             const [llms, global_llms, skills, global_skills] = await Promise.all([
-                chat_model.llm.load_agent_llm_bindings(agent.agentId),
-                chat_model.llm.load_llm_configs(),
+                chat_model.llm.load_agent_llm_bindings(agent.agentId, provider_lookup),
+                chat_model.llm.load_llm_configs(provider_lookup),
                 chat_model.skill.load_skill_bindings(agent.agentId),
                 chat_model.skill.load_skills(),
             ])
@@ -357,8 +365,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                     padding: '6px 10px', border: '1px solid #f0f0f0', borderRadius: 4, marginBottom: 4,
                                 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4 }}>
-                                        <span style={{ fontWeight: 500, fontSize: 13 }}>{llm.name}</span>
-                                        <span style={{ color: '#999', fontSize: 12 }}>{llm.providerName || llm.adapterType || ''}/{llm.model}</span>
+                                        <span style={{ fontWeight: 500, fontSize: 13 }}>{get_llm_config_display_name(llm)}</span>
                                         {llm.isDefault && <Tag color='blue'>{t('默认')}</Tag>}
                                     </div>
                                     <Space size={4}>
@@ -426,8 +433,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                         padding: '6px 10px', border: '1px dashed #d9d9d9', borderRadius: 4, marginBottom: 4,
                                     }}>
                                         <div>
-                                            <span style={{ fontSize: 13 }}>{llm.name}</span>
-                                            <span style={{ color: '#999', fontSize: 12, marginLeft: 8 }}>{llm.providerName || llm.adapterType || ''}/{llm.model}</span>
+                                            <span style={{ fontSize: 13 }}>{get_llm_config_display_name(llm)}</span>
                                         </div>
                                         <Tooltip title={t('绑定')}>
                                             <Button

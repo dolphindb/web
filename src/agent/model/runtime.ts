@@ -24,6 +24,16 @@ import type { ChatCompletionStreamResult, IMessage, IScriptExecutionApproval, IT
 import { MAX_CONSECUTIVE_DDB_FAILURES_BEFORE_HINT, MAX_REPEATED_TOOL_CALLS, MAX_TOOL_TURNS, REPEAT_GUARD_EXEMPT_TOOLS, DDB_RESULT_TOOLS, SCRIPT_APPROVAL_TOOLS, TOOL_CALL_LIMIT_ENABLED_KEY } from './constants.ts'
 import { get_reasoning_text, parse_sse_event, stable_json_stringify, to_stream_text } from './helpers.ts'
 
+
+function get_agent_bus_error_message (payload: any, fallback: string) {
+    return payload?.error?.message ||
+        payload?.message ||
+        payload?.data?.error?.message ||
+        payload?.data?.message ||
+        fallback
+}
+
+
 export class ChatRuntimeModel {
     constructor (private chat: ChatModel) { }
     abort_sse () {
@@ -402,7 +412,7 @@ export class ChatRuntimeModel {
             }
             
             if (type === 'ERROR' || type === 'STREAM_ERROR')
-                throw new Error(data?.message || payload.message || t('流式响应返回错误'))
+                throw new Error(get_agent_bus_error_message(payload, t('流式响应返回错误')))
         }
         
         function consume_buffer () {
@@ -542,16 +552,16 @@ export class ChatRuntimeModel {
                 signal: controller.signal,
             })
             
+            if (response.status === 401) {
+                this.chat.agent.handle_auth_failed()
+                throw new Error('Unauthorized')
+            }
+            
             if (!response.ok) {
                 const err_text = await response.text()
                 let parsed: any
                 try { parsed = JSON.parse(err_text) } catch { }
-                const error_code = parsed?.error?.code || parsed?.headers?.busErrorCode
-                if (error_code === 'BUS_AUTH_FAILED') {
-                    this.chat.agent.handle_auth_failed()
-                    throw new Error('Access denied')
-                }
-                throw new Error(parsed?.error?.message || parsed?.message || err_text || response.statusText)
+                throw new Error(get_agent_bus_error_message(parsed, err_text || response.statusText))
             }
             
             const content_type = response.headers.get('content-type') || ''
@@ -568,6 +578,8 @@ export class ChatRuntimeModel {
                 tool_calls = stream_result.tool_calls
             } else {
                 raw_result = await response.json()
+                if (raw_result.type === 'ERROR')
+                    throw new Error(get_agent_bus_error_message(raw_result, t('流式响应返回错误')))
                 const data = raw_result.data || raw_result
                 content = data.content || ''
                 reasoning_content = data.reasoning || data.reasoning_content || data.reasoningContent || ''
