@@ -7,7 +7,7 @@ import { storage } from 'xshell/storage.js'
 
 import { t } from '@i18n'
 
-import { model, storage_keys } from '@model'
+import { model, NodeType, storage_keys } from '@model'
 
 import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 
@@ -26,7 +26,7 @@ import SvgAi from './icons/ai.icon.svg'
 
 
 export function ShellEditor ({ collapser }) {
-    const { logined } = model.use(['logined'])
+    const { logined, node_type } = model.use(['logined', 'node_type'])
     
     const [minimap, set_minimap] = useState(() =>
         storage.get_bool(storage_keys.minimap))
@@ -149,6 +149,11 @@ export function ShellEditor ({ collapser }) {
                 <div
                     className='ai-mode-btn'
                     onClick={async () => {
+                        if (node_type === NodeType.controller || node_type === NodeType.data) {
+                            model.message?.warning(t('集群模式下 AI 模式需要在计算节点使用。'))
+                            return
+                        }
+
                         try {
                             const builtin_status = await chat_model.llm.load_builtin_init_status(false).catch(error => {
                                 console.error('Load built-in Agent/Skill init status failed:', error)
