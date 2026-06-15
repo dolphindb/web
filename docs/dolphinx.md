@@ -93,12 +93,6 @@ demo2.zip
     * [搜索 Workspace 文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%90%9C%E7%B4%A2-Workspace-%E6%96%87%E4%BB%B6)
     * [局部修改 Workspace 文件](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%B1%80%E9%83%A8%E4%BF%AE%E6%94%B9-Workspace-%E6%96%87%E4%BB%B6)
   * [2.6 记忆运行时能力](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.6-%E8%AE%B0%E5%BF%86%E8%BF%90%E8%A1%8C%E6%97%B6%E8%83%BD%E5%8A%9B)
-    * [运行时并发调度](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%BF%90%E8%A1%8C%E6%97%B6%E5%B9%B6%E5%8F%91%E8%B0%83%E5%BA%A6)
-    * [存储记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%AD%98%E5%82%A8%E8%AE%B0%E5%BF%86)
-    * [获取记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E8%AE%B0%E5%BF%86)
-    * [更新记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BF%86)
-    * [删除记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4%E8%AE%B0%E5%BF%86)
-    * [搜索记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%90%9C%E7%B4%A2%E8%AE%B0%E5%BF%86)
   * [2.7 网络访问能力](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.7-%E7%BD%91%E7%BB%9C%E8%AE%BF%E9%97%AE%E8%83%BD%E5%8A%9B)
     * [发起外部网络请求](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%8F%91%E8%B5%B7%E5%A4%96%E9%83%A8%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82)
   * [2.8 会话摘要](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.8-%E4%BC%9A%E8%AF%9D%E6%91%98%E8%A6%81)
@@ -161,11 +155,27 @@ demo2.zip
     * [允许业务用户使用技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%85%81%E8%AE%B8%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E4%BD%BF%E7%94%A8%E6%8A%80%E8%83%BD)
     * [列出业务用户被禁止的技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E4%B8%9A%E5%8A%A1%E7%94%A8%E6%88%B7%E8%A2%AB%E7%A6%81%E6%AD%A2%E7%9A%84%E6%8A%80%E8%83%BD)
   * [3.9 Memory 管控](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.9-Memory-%E7%AE%A1%E6%8E%A7)
-    * [按分类列出记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%8C%89%E5%88%86%E7%B1%BB%E5%88%97%E5%87%BA%E8%AE%B0%E5%BF%86)
+    * [个人记忆设置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86%E8%AE%BE%E7%BD%AE)
+    * [创建个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%9B%E5%BB%BA%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
+    * [获取个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
+    * [更新个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
+    * [删除个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
+    * [列出个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
+    * [搜索个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%90%9C%E7%B4%A2%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
+    * [忘记会话个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%BF%98%E8%AE%B0%E4%BC%9A%E8%AF%9D%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
+    * [创建公共记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%9B%E5%BB%BA%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86)
+    * [列出公共记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86)
+    * [搜索公共记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%90%9C%E7%B4%A2%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86)
+    * [更新公共记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86)
+    * [删除公共记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86)
     * [记忆统计](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%AE%B0%E5%BF%86%E7%BB%9F%E8%AE%A1)
-    * [重建记忆 Embedding](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E9%87%8D%E5%BB%BA%E8%AE%B0%E5%BF%86-Embedding)
-    * [查询记忆 Embedding 重建状态](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9F%A5%E8%AF%A2%E8%AE%B0%E5%BF%86-Embedding-%E9%87%8D%E5%BB%BA%E7%8A%B6%E6%80%81)
-    * [取消记忆 Embedding 重建](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%8F%96%E6%B6%88%E8%AE%B0%E5%BF%86-Embedding-%E9%87%8D%E5%BB%BA)
+    * [读取记忆配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%AF%BB%E5%8F%96%E8%AE%B0%E5%BF%86%E9%85%8D%E7%BD%AE)
+    * [更新记忆配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BF%86%E9%85%8D%E7%BD%AE)
+    * [列出记忆任务](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E8%AE%B0%E5%BF%86%E4%BB%BB%E5%8A%A1)
+    * [获取记忆任务](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E8%AE%B0%E5%BF%86%E4%BB%BB%E5%8A%A1)
+    * [重试记忆任务](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E9%87%8D%E8%AF%95%E8%AE%B0%E5%BF%86%E4%BB%BB%E5%8A%A1)
+    * [触发记忆流水线](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%A7%A6%E5%8F%91%E8%AE%B0%E5%BF%86%E6%B5%81%E6%B0%B4%E7%BA%BF)
+    * [重置用户个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E9%87%8D%E7%BD%AE%E7%94%A8%E6%88%B7%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
   * [3.10 LLM 使用统计](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.10-LLM-%E4%BD%BF%E7%94%A8%E7%BB%9F%E8%AE%A1)
     * [查询 LLM 使用统计](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9F%A5%E8%AF%A2-LLM-%E4%BD%BF%E7%94%A8%E7%BB%9F%E8%AE%A1)
   * [3.11 内置 Agent/Skill 初始化](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.11-%E5%86%85%E7%BD%AE-Agent%2FSkill-%E5%88%9D%E5%A7%8B%E5%8C%96)
@@ -190,7 +200,7 @@ demo2.zip
   * [SessionInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SessionInfo)
   * [MessageInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#MessageInfo)
   * [MemoryEntry](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#MemoryEntry)
-  * [MemoryRebuildStatus](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#MemoryRebuildStatus)
+  * [MemoryJob](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#MemoryJob)
   * [SkillInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SkillInfo)
   * [SkillAccessInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SkillAccessInfo)
   * [BuiltinInitResult](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#BuiltinInitResult)
@@ -236,7 +246,6 @@ demo2.zip
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
 * `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
 * `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
 * `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
@@ -246,9 +255,15 @@ demo2.zip
 
 常规 DataBus 错误响应：
 
-`{ "type": "ERROR", "msgId": "...", "correlationId": "<requestId>", "action": "<action>", "agentId": "<agentId>", "sessionId": "<sessionId>", "error": { "code": "<BusErrorCode>", "message": "<错误描述>" }, "headers": { "busErrorCode": "<BusErrorCode>", "httpStatus": "<HTTP 状态码>" } } `
+`{ "type": "ERROR", "msgId": "...", "correlationId": "<requestId>", "action": "<action>", "agentId": "<agentId>", "sessionId": "<sessionId>", "error": { "code": "<BusErrorCode>", "message": "<错误描述>", "reason": "<业务原因，可选>", "providerStatus": "<LLM provider HTTP 状态码，可选>", "providerCode": "<LLM provider 错误码，可选>", "retryable": "<true|false，可选>" }, "headers": { "busErrorCode": "<BusErrorCode>", "httpStatus": "<HTTP 状态码>", "llmProviderStatus": "<LLM provider HTTP 状态码，可选>", "providerCode": "<LLM provider 错误码，可选>", "retryable": "<true|false，可选>" } } `
 
-协议适配器在请求尚未进入 DataBus 前发现的解析错误，可能只返回最小错误体 `{"type":"ERROR","error":{...}}`。
+说明：
+
+* HTTP 响应状态码与 `headers.httpStatus` 一致。
+* `BUS_UNAUTHENTICATED` 只表示当前 Agent Runtime 请求未认证或登录态失效；LLM provider 的 401/403/404 归类为 LLM 配置或 provider 错误，不会触发客户端退出当前登录态。
+* `reason` 用于 workspace 等业务错误的细分原因。
+* `providerStatus`、`providerCode`、`retryable` 只在 LLM provider 调用失败且有对应信息时返回；同名 header 用于不解析 `error` 对象的客户端快速判断。
+* 协议适配器在请求尚未进入 DataBus 前发现的解析错误，可能只返回最小错误体 `{"type":"ERROR","error":{...}}`。
 
 ### 分页参数
 
@@ -268,11 +283,11 @@ demo2.zip
 |
 ```
 
-| -------------- | ------ | -------- | -------------- |
-| `offset` | int  | 0      | 跳过前 N 条  |
-| `limit`  | int  | 100    | 返回条数上限 |
+| -------------- | ------ | -------- | ------------------------------------------------- |
+| `offset` | int  | 0      | 跳过前 N 条，必须为非负整数                     |
+| `limit`  | int  | 100    | 返回条数上限，必须为非负整数；`0`返回空列表 |
 
-分页参数支持 query string 或 request body 传入。
+分页参数支持 query string 或 request body 传入。`offset` 或 `limit` 为负数时返回 `400 BUS_INVALID_ARGUMENT`。
 
 ### 参数来源与兼容写法
 
@@ -453,7 +468,7 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 
 `DELETE /agent-bus/v1/session/{sessionId} `
 
-删除会话会物理删除会话行、消息行和对应 workspace 目录，并清理 session affinity 与 working memory。删除前会等待本节点已确认的 pending 消息和 usage 热写完成 flush；已写入的 LLM token usage 保留在独立账本中。
+删除会话会物理删除会话行、消息行和当前节点可见的对应 workspace 目录，并清理 working memory。删除前会等待本节点已确认的 pending 消息和 usage 热写完成 flush；已写入的 LLM token usage 保留在独立账本中。
 
 **响应:**
 
@@ -532,8 +547,8 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 | -------------------------------------------------------------- | ------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | `sessionId`                                              | string            | 是       | 会话 ID，当前用户必须具备写权限                                                                                                          |
-| `message`                                                | string            | 条件必填 | 用户消息文本，会被自动追加到会话历史中。`message`和`toolResults`至少提供一个                                                     |
-| `toolResults`                                            | ToolResult[]      | 条件必填 | 工具执行结果列表，与`message`至少提供一个。框架自动追加为`role=tool`消息后调用 LLM 续传                                          |
+| `message`                                                | string            | 条件必填 | 用户消息文本，会被自动追加到会话历史中。`message`和`toolResults`必须且只能提供一个                                               |
+| `toolResults`                                            | ToolResult[]      | 条件必填 | 工具执行结果列表，必须对应上一轮 assistant 返回的`toolCalls`。`message`和`toolResults`必须且只能提供一个                     |
 | `stream`                                                 | bool              | 否       | 是否流式返回（默认 true）。true 时返回 SSE 流，false 时返回完整 JSON                                                                     |
 | `contextEvent`                                           | bool              | 否       | 是否在本次对话补全响应中返回上下文处理事件（默认 false）。仅 HTTP SSE 和 WebSocket 支持；普通 HTTP JSON 响应会忽略该参数                 |
 | `includeReasoning`                                       | bool              | 否       | 是否返回 provider 给出的可展示思考过程（默认 false）。该内容只用于本次展示，不必持久化存储                                               |
@@ -587,8 +602,10 @@ ToolResult 结构:
 * `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
 * `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* `toolResults` 只传工具结果、不传 `message` 是合法用法，适用于 tool calling 的续传轮次
-* 当 `message` 和 `toolResults` 同时存在时，框架会按 `toolResults -> message` 的顺序作为当前轮输入参与装配，并在窗口检查通过后按同顺序落库
+* `message` 不能为空白字符串。
+* `toolResults` 只传工具结果、不传 `message` 是合法用法，适用于 tool calling 的续传轮次。
+* `toolResults` 必须与当前 session 最近待续传的 assistant `toolCalls` 匹配；没有待续传工具调用或 `toolCallId` 不匹配时返回 `BUS_INVALID_ARGUMENT` / HTTP 400。
+* `message` 和 `toolResults` 同时存在时返回 `BUS_INVALID_ARGUMENT` / HTTP 400。
 * 自动装配中的记忆检索仅使用当前 `message` 作为查询文本；如果本轮只有 `toolResults`，则不会额外执行记忆查询
 * `activeSkillNames` 仅表示本次请求显式附加的 Tier-2；是否在 agent loop 中续传或变更由应用层决定
 * 框架不会基于 Tier-1 catalog 自动推断、激活或恢复 Skill
@@ -619,8 +636,8 @@ ToolResult 结构:
 
 | -------------------------------------------------------------- | ------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `sessionId`                                              | string            | 是       | 会话 ID，当前用户必须具备写权限                                                                                          |
-| `message`                                                | string            | 条件必填 | 用户消息文本，与`toolResults`至少提供一个                                                                            |
-| `toolResults`                                            | ToolResult[]      | 条件必填 | 工具执行结果列表，与`message`至少提供一个                                                                            |
+| `message`                                                | string            | 条件必填 | 用户消息文本。`message`和`toolResults`必须且只能提供一个                                                         |
+| `toolResults`                                            | ToolResult[]      | 条件必填 | 工具执行结果列表，必须对应上一轮 assistant 返回的`toolCalls`。`message`和`toolResults`必须且只能提供一个     |
 | `stream`                                                 | bool              | 否       | 是否流式返回（默认 true）                                                                                                |
 | `contextEvent`                                           | bool              | 否       | 是否在本次对话补全响应中返回上下文处理事件（默认 false）。仅 HTTP SSE 和 WebSocket 支持；普通 HTTP JSON 响应会忽略该参数 |
 | `includeReasoning`                                       | bool              | 否       | 是否返回 provider 给出的可展示思考过程（默认 false）。该内容只用于本次展示，不必持久化存储                               |
@@ -1051,7 +1068,7 @@ Workspace 是面向 coding agent 的会话级临时文本文件区。它用于�
 * `read/search/write/replace` 只面向 UTF-8 文本文件；二进制文件不作为首版目标。
 * session 存在且权限校验通过时允许读写；session 删除后 workspace 目录随会话删除，workspace 接口返回 `BUS_SESSION_NOT_FOUND`。
 * 单 workspace 默认限制为 100 个文件、5 MiB 总大小、512 KiB 单文件大小。读取和搜索有服务端配置上限；写入和替换受单文件与 workspace 总配额限制。
-* 当请求到达非 workspace home node 时，服务端不会内部转发，而是返回 `WORKSPACE_REDIRECT` payload。客户端应使用同样的 method、query、body 和认证信息，向 `workspaceBaseUrl + retryPath` 重试。
+* workspace 请求在接收请求的计算节点本地执行；如果多个计算节点需要访问同一份 workspace，部署侧应将 `agentWorkspaceRoot` 配置到所有相关节点可见的共享存储路径。
 
 #### Workspace 文件 hash
 
@@ -1090,9 +1107,7 @@ Workspace中的hash值是读workSpace文件时DolphinX返的一个字段，在�
 | `workspace.replace` | 请求必须携带`hash`；成功响应返回新`hash` | 请求中的`hash`用于陈旧读检测；响应中的新`hash`应用于后续继续修改同一文件。                 |
 | `workspace.delete`  | 否                                               | 删除文件后无可继续修改的内容，不返回 hash。                                                        |
 
-`WORKSPACE_REDIRECT` 响应示例：
-
-`{ "code": "WORKSPACE_REDIRECT", "sessionId": "sess_001", "workspaceNodeId": "nodeA", "workspaceBaseUrl": "http://nodeA:8848/agent-bus/v1", "retryPath": "/workspace/sess_001/file?name=main.dos" } `
+集群部署中，如果各计算节点使用本地磁盘作为 `agentWorkspaceRoot`，同一 session 在不同节点访问到的是各节点本地的 workspace 目录；框架不自动复制、迁移或合并这些文件。
 
 ---
 
@@ -1335,199 +1350,16 @@ Workspace中的hash值是读workSpace文件时DolphinX返的一个字段，在�
 
 ### 2.6 记忆运行时能力
 
-#### 运行时并发调度
+记忆运行时能力由 `chat.completions` 和 `context.preview` 自动使用，调用方通常不需要单独编排记忆检索接口。
 
-Memory API 的 HTTP 路由、请求体和响应体不包含 lane 配置；lane 策略由服务端启动配置控制：
+运行时语义：
 
-| 配置项
+* 当 Agent 允许记忆且 `contextConfig.includeMemory=true` 时，框架会为当前用户检索相关个人记忆，并检索该 Agent 的公共记忆，然后按上下文预算注入到本轮 LLM 请求。
+* `contextConfig.memoryTopK` 和 `contextConfig.memoryTokenBudget` 控制记忆注入数量和 token 预算。
+* `memoryConfig.allowPersonalMemory` 与当前用户的个人记忆设置共同决定是否读取和维护个人记忆。
+* `context.preview` 可用于调试本轮上下文装配结果，包括实际注入的记忆数量和 token 占用。
 
-```
-| 类型
-```
-
-| 默认值
-
-```
-| 说明
-
-
-                                                                                                                                                                                                                                                                                                                              |
-```
-
-| ---------------------------------------- | -------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `agentFramework.memory.lanePolicy` | string | `user` | memory 写请求的串行化粒度：`legacy`使用`AGENT_WRITE`agentId 粒度；`agent`按`memory:agent:{agentId}`串行；`user`将 user-scope memory 按`memory:user:{agentId}:{userId}`串行、agent-scope memory 按`memory:agent:{agentId}`串行；`memoryId`将`memory.update/delete`按`memory:id:{memoryId}`串行 |
-
-说明：
-
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* `memory.store/update/delete` 属于写请求，会按上述 lane 策略串行化。
-* `memory.get/search/list/stats` 对外仍是只读接口，不需要客户端提供 lane 信息。
-* `agentFramework.memory.lanePolicy` 是全局运行时配置，不属于 `memoryConfig`，也不会随 agent 注册请求落库。
-
-#### 存储记忆
-
-`POST /agent-bus/v1/memory/store `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ------------------ | -------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `agentId`    | string | 是   | 所属 Agent ID                                                                                                                        |
-| `scope`      | string | 否   | 作用域（默认`agent`）：`agent`（agent 级别，所有用户可读，仅`AGENT_ADMIN`可写）/`user`（用户级别，写入当前登录用户） |
-| `category`   | string | 是   | 分类标签（如`"fact"`、`"preference"`、`"instruction"`），用于按分类检索和统计                                            |
-| `content`    | string | 是   | 记忆文本内容                                                                                                                         |
-| `importance` | double | 是   | 重要度，取值范围 [0, 1]。参与混合排序                                                                                                |
-| `metadata`   | object | 否   | 自定义元数据，JSON 格式                                                                                                              |
-| `source`     | string | 否   | 来源标识（默认`manual`）：`manual`（手动创建）/`auto_extract`（自动提取）/`api`（API 写入）                          |
-| `sourceRef`  | string | 否   | 来源引用信息（如来源的 sessionId 或 messageId），便于溯源                                                                            |
-| `expireTime` | long   | 否   | 过期时间（毫秒时间戳），为空表示永不过期                                                                                             |
-
-**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
-
-说明：
-
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 当 `agent.memoryConfig.embeddingEnabled=true` 时，`memory.store` 由框架根据启用的 embedding 配置生成 document embedding，并同步写入记忆主表和 embedding 表
-* 当 `agent.memoryConfig.embeddingEnabled=false` 时，`memory.store` 只写入记忆主表，不生成 embedding
-* 请求体不接受 `userId`、`embedding`、`embeddingModel`
-
----
-
-#### 获取记忆
-
-`GET /agent-bus/v1/memory/{memoryId} `
-
-**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
-
----
-
-#### 更新记忆
-
-`PUT /agent-bus/v1/memory/{memoryId} `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-
-
-      | 必填
-
-
-       | 说明
-
-
-                                           |
-```
-
-| ------------------ | --------------- | ---------------- | ---------------------------------------------------- |
-| `memoryId`   | string        | 路径已提供时否 | 记忆 ID；若同时出现在路径和 body 中，必须一致      |
-| `category`   | string        | 否             | 分类标签；非空字符串                               |
-| `content`    | string        | 否             | 记忆文本内容；非空字符串                           |
-| `importance` | double        | 否             | 重要度，取值范围`[0, 1]`                       |
-| `expireTime` | long / null   | 否             | 过期时间（毫秒时间戳）；传`null`清除过期时间   |
-| `source`     | string        | 否             | 来源标识                                           |
-| `sourceRef`  | string        | 否             | 来源引用信息                                       |
-| `metadata`   | object / null | 否             | 自定义元数据，整体替换；传`null`清空为`{}` |
-
-说明：
-
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 至少提供一个可更新字段。
-* 当 `agent.memoryConfig.embeddingEnabled=true` 且更新 `content` 时，框架会先生成新的 document embedding，再同步更新记忆主表和 embedding 表
-* 当 `agent.memoryConfig.embeddingEnabled=false` 时，更新仅作用于记忆主表，不生成或更新 embedding
-* 请求体不接受 `scope`、`userId`、`embedding`、`embeddingModel`
-
-**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
-
----
-
-#### 删除记忆
-
-`DELETE /agent-bus/v1/memory/{memoryId} `
-
-**响应:**
-
-`{ "memoryId": "mem_xxx", "deleted": true } `
-
----
-
-#### 搜索记忆
-
-`POST /agent-bus/v1/memory/search `
-
-**请求体:**
-
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| --------------------- | -------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `agentId`       | string | 是   | 搜索范围限定的 Agent ID                                                                                                                                                                                                                                                        |
-| `targetUserId`  | string | 否   | 只读过滤目标用户。未指定时搜索当前登录用户可见的范围；仅`AGENT_ADMIN`可查看他人数据                                                                                                                                                                                        |
-| `scope`         | string | 否   | 按作用域过滤：`agent`（仅 agent 级别）/`user`（仅用户级别）。不指定时搜索 agent 级别 + 目标用户的 user 级记忆                                                                                                                                                          |
-| `category`      | string | 否   | 按分类标签精确过滤                                                                                                                                                                                                                                                             |
-| `textQuery`     | string | 否   | 搜索文本。`TEXT_SEARCH`必填；`RELEVANCE`必填并用于生成 query embedding；`HYBRID`非空时同时参与全文召回和语义召回                                                                                                                                                   |
-| `textMatchMode` | string | 否   | 全文搜索匹配模式（默认`any`）：`any`调用 textdb`matchAny`，匹配任一分词即可命中；`all`调用`matchAll`，所有分词都匹配才命中。仅全文搜索分支使用                                                                                                             |
-| `topK`          | int    | 否   | 最多返回条数（默认 10）                                                                                                                                                                                                                                                        |
-| `minImportance` | double | 否   | 最小重要度过滤阈值（默认 0，不过滤）                                                                                                                                                                                                                                           |
-| `sortBy`        | string | 否   | 排序策略（默认`HYBRID`）：`RECENCY`（按创建时间降序）/`IMPORTANCE`（按重要度降序）/`RELEVANCE`（用`textQuery`做语义向量召回并按相关度排序）/`TEXT_SEARCH`（按 textdb 全文搜索得分降序）/`HYBRID`（合并语义、全文、最近和重要度候选后按综合分排序） |
-
-**响应:**
-
-`{ "items": [ MemoryEntry, ... ], "size": 5 } `
-
-每条 MemoryEntry 额外包含评分字段：`textScore`, `relevanceScore`, `hybridScore`。
-
-说明：
-
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* `RELEVANCE` 和 `TEXT_SEARCH` 都要求 `textQuery` 非空；`HYBRID` 可以不传 `textQuery`，此时只使用最近和重要度等非文本候选。
-* 当 `sortBy=RELEVANCE/HYBRID` 且 `textQuery` 非空、`agent.memoryConfig.embeddingEnabled=true` 时，`memory.search` 由框架内部生成 query embedding，不接受 `embedding`、`embeddingModel`。
-* 当 `agent.memoryConfig.embeddingEnabled=false` 时，`RELEVANCE` 直接失败，`HYBRID` 退化为全文/importance/recency 检索。
-* 当 `agent.memoryConfig.embeddingEnabled=true` 但启用的 embedding 配置不可用时，`RELEVANCE` 直接失败，`HYBRID` 退化为全文/importance/recency 检索。
-* 当 `scope='agent'` 时，不允许同时传 `targetUserId`
+个人记忆和公共记忆的增删改查接口见 [3.9 Memory 管控](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#39-memory-%E7%AE%A1%E6%8E%A7 "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#39-memory-%E7%AE%A1%E6%8E%A7")。
 
 ---
 
@@ -1662,8 +1494,8 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 | -------------------------------------------------------------- | ------------------ | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sessionId`                                              | string           | 是       | 会话 ID，必须可读；可通过 path/header/query/body 提供，重复提供时必须一致                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `message`                                                | string           | 条件必填 | 用户消息文本，与`toolResults`至少提供一个                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `toolResults`                                            | ToolResult[]     | 条件必填 | 工具执行结果列表，与`message`至少提供一个                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `message`                                                | string           | 条件必填 | 用户消息文本。`message`和`toolResults`必须且只能提供一个                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `toolResults`                                            | ToolResult[]     | 条件必填 | 工具执行结果列表，必须对应上一轮 assistant 返回的`toolCalls`。`message`和`toolResults`必须且只能提供一个                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `tools`                                                  | ToolDefinition[] | 否       | 自动组装模式下的工具定义列表；存在`assemblyConfig`时请改放到`assemblyConfig.tools`                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | `activeSkillNames`                                       | string[]         | 否       | 自动组装模式下显式附加的 Tier-2 技能名称；存在`assemblyConfig`时请改放到`assemblyConfig.activeSkillNames`                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `llmConfigId`                                            | string           | 否       | 用于解析上下文窗口和 token 预算的 LLM 配置 ID；不传时按 session/agent 默认配置解析                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
@@ -1679,6 +1511,7 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `context/preview` 会按与 `/chat/completions` 相同的规则组装当前轮输入
 * 预览中的 `message` / `toolResults` 仅作为 pending turn 参与组装，不会写入 session
+* `message` 不能为空白字符串；`message` 与 `toolResults` 同时存在、都不存在或 `toolResults` 没有匹配的待续传工具调用时返回 `BUS_INVALID_ARGUMENT` / HTTP 400。
 * 该接口不会调用 LLM，也不会追加 assistant 回复
 * `activeSkillNames` 仍表示调用方显式附加的 Tier-2，不代表框架自动维护激活状态
 
@@ -1830,6 +1663,9 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 * `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
 * `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
+* `messages` 必须非空；每条消息的 `role` 必须是 `system`、`user`、`assistant` 或 `tool`。
+* `tool` 消息必须携带 `tool_call_id` / `toolCallId`；非 `tool` 消息不接受工具结果 ID。
+* `temperature` 范围为 `[0, 2]`；`topP` / `top_p` 范围为 `(0, 1]`；`maxTokens` / `max_tokens` / `max_completion_tokens` 必须为正整数。违反这些约束返回 `BUS_INVALID_ARGUMENT` / HTTP 400。
 * 该接口不接受 `userId` 或 `targetUserId`；指定 `sessionId` 时使用 session owner，否则使用当前登录用户。
 
 LLMMessage 结构:
@@ -1968,9 +1804,8 @@ ToolDefinition 结构:
 * `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `agent.register` 不接受 `agentId` 和 `ownerUserId`；`agentId` 由框架生成
-* `memoryConfig.embeddingEnabled` 在 `agent.register` 时完成一次性决策并落库
-* 注册请求未显式传入 `memoryConfig.embeddingEnabled` 时，系统会按默认值 `false` 补齐并持久化
-* 当 `memoryConfig.embeddingEnabled=true` 时，注册时要求系统当前存在且只存在一条启用的 embedding 配置
+* `agentName` 在未删除 Agent 范围内唯一；重复名称返回 `BUS_CONFLICT` / HTTP 409；Agent 删除后名称可复用
+* `memoryConfig` 由记忆策略服务读取，未提供字段按默认策略处理
 
 ---
 
@@ -2008,7 +1843,7 @@ ToolDefinition 结构:
 | `systemPrompt`  | string | 否             | 系统提示词                                                             |
 | `llmConfigId`   | string | 否             | 默认 LLM 配置 ID；非空时必须是可用 chat 配置，空字符串表示清除默认配置 |
 | `contextConfig` | object | 否             | 上下文组装配置，整体替换                                               |
-| `memoryConfig`  | object | 否             | 记忆管理配置，整体替换；`embeddingEnabled`约束见下方说明           |
+| `memoryConfig`  | object | 否             | 记忆管理配置，整体替换                                                 |
 | `config`        | object | 否             | 自定义扩展配置，整体替换                                               |
 | `extra`         | string | 否             | 预留扩展字段                                                           |
 
@@ -2019,9 +1854,8 @@ ToolDefinition 结构:
 * `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
 * `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 至少提供一个可更新字段；已删除 Agent 不可更新
-* `memoryConfig.embeddingEnabled` 在注册后不可变；更新时如果显式传入且与当前值不同，请求会被拒绝
-* 更新 `memoryConfig` 但省略 `embeddingEnabled` 时，框架会保留原值
+* 至少提供一个可更新字段；已删除 Agent 返回 `BUS_AGENT_NOT_FOUND` / HTTP 404
+* `agentName` 在未删除 Agent 范围内唯一；更新为其它未删除 Agent 的名称返回 `BUS_CONFLICT` / HTTP 409
 * 更新成功会递增 Agent `version`
 
 **响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")
@@ -2252,6 +2086,7 @@ ToolDefinition 结构:
 * `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `baseUrl` 由框架规范化保存：末尾 `/` 会被移除
+* `name` 在未删除 Provider 范围内唯一；重复名称返回 `BUS_CONFLICT` / HTTP 409；Provider 删除后名称可复用
 * Provider 负责承载共享连接信息；模型级配置保存 `requestPath`、`defaultParams` 等模型参数
 * `enabled=false` 的 provider 可保存配置，但运行时不会通过该 provider 发起 LLM 调用
 
@@ -2343,6 +2178,7 @@ ToolDefinition 结构:
 * `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 至少提供一个可更新字段
+* `name` 在未删除 Provider 范围内唯一；更新为其它未删除 Provider 的名称返回 `BUS_CONFLICT` / HTTP 409
 * `enabled=false` 时，引用该 provider 的 LLM 配置保留，运行时不可用
 * `enabled=true` 时，引用该 provider 且自身启用的 LLM 配置可参与运行时解析
 * 已删除的 provider 返回 404
@@ -2363,6 +2199,7 @@ ToolDefinition 结构:
 * `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 删除前要求不存在任何未删除的 LLM 配置引用该 provider
+* 存在引用时返回 `BUS_CONFLICT` / HTTP 409，`error.message` 包含引用的 `llmConfigId`
 * 删除成功后不参与 list、get 和 runtime
 * 删除成功后的 GET 返回 404
 
@@ -2419,7 +2256,7 @@ ToolDefinition 结构:
 * `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 运行时最终请求地址按 `provider.baseUrl + requestPath` 拼接
-* `capability=embedding` 的配置供 memory 模块生成 document/query embedding 使用
+* `capability=embedding` 的配置用于通用 embedding 调用能力
 * `enabled=true` 时，系统全局只允许一条启用的 `capability='embedding'` 配置
 * `enabled=false` 的配置可引用存在但未启用的 provider
 
@@ -2543,6 +2380,7 @@ ToolDefinition 结构:
 * `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 删除前要求不存在任何用户授权（`user_llm_access`）、任何 agent 绑定（`agent_llm_access`）、任何非 `DELETED` agent 的默认模型字段、任何非 `DELETED` agent 的 `contextConfig.summaryConfig.summaryLlmConfigId`，以及任何现存 session 的 `llmConfigId` 引用
+* 存在引用时返回 `BUS_CONFLICT` / HTTP 409，`error.message` 指明引用类型和示例 ID
 * 删除成功后不参与 list、get 和 runtime
 * 删除成功后的 GET 返回 404
 
@@ -3032,13 +2870,50 @@ ToolDefinition 结构:
 
 ### 3.9 Memory 管控
 
-#### 按分类列出记忆
+本节包括当前登录用户的个人记忆管理、管理员公共记忆管理、记忆配置和记忆任务运维接口。
 
-`GET /agent-bus/v1/memory/list `
+个人记忆接口只作用于当前登录用户在目标 Agent 下的个人记忆。公共记忆、记忆配置、统计和任务运维接口要求当前用户拥有目标 Agent 的 `AGENT_ADMIN` 权限。
 
-**查询参数:**
+#### 个人记忆设置
 
-| 参数
+`GET /agent-bus/v1/memory/personal/settings?agentId=xxx POST /agent-bus/v1/memory/personal/settings `
+
+GET 使用查询参数 `agentId`。POST 请求体：
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+```
+| 说明
+
+
+                     |
+```
+
+| --------------- | -------- | ----------- | ------------------------------ |
+| `agentId` | string | 是        | Agent ID                     |
+| `enabled` | bool   | POST 必填 | 当前登录用户是否启用个人记忆 |
+
+**响应:**
+
+`{ "agentId": "agent_xxx", "userId": "alice", "personalMemoryEnabled": true } `
+
+---
+
+#### 创建个人记忆
+
+`POST /agent-bus/v1/memory/personal `
+
+创建当前登录用户的个人记忆。
+
+**请求体:**
+
+| 字段
 
 ```
 | 类型
@@ -3052,28 +2927,233 @@ ToolDefinition 结构:
 |
 ```
 
-| ---------------- | -------- | ------ | ---------- |
-| `agentId`  | string | 是   | Agent ID |
-| `category` | string | 是   | 分类     |
-| `offset`   | int    | 否   | 默认 0   |
-| `limit`    | int    | 否   | 默认 100 |
+| ------------------ | -------- | ------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `agentId`    | string | 是   | Agent ID                                                                                                                    |
+| `category`   | string | 否   | 分类标签，默认`general`                                                                                                 |
+| `content`    | string | 是   | 记忆文本内容                                                                                                                |
+| `importance` | double | 否   | 重要度，取值范围`[0, 1]`，默认`0.7`                                                                                 |
+| `metadata`   | object | 否   | 自定义元数据；可包含`memoryType`、`canonicalKey`、`title`、`shortSummary`、`keywords`作为结构化检索字段 |
+| `sourceRefs` | string | 否   | JSON 字符串或业务引用字符串，便于审计来源                                                                                   |
+| `expireTime` | long   | 否   | 过期时间，毫秒时间戳；为空表示永不过期                                                                                      |
 
-**响应:** `{ items: [MemoryEntry, ...], offset, limit, size }`
+**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 需要当前用户拥有该 agent 的 `AGENT_ADMIN` 权限。
+* 记忆归属固定为当前登录用户。
+* `source` 固定为 `manual`。
+* 请求体不接收 `userId`、`targetUserId`、`scope`、`scopeType`、`status`。
+* 请求校验拒绝 `embedding`、`embeddingModel`。
+
+---
+
+#### 获取个人记忆
+
+`GET /agent-bus/v1/memory/personal/{memoryId} `
+
+仅允许读取当前登录用户所属的个人记忆。
+
+**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
+
+---
+
+#### 更新个人记忆
+
+`PUT /agent-bus/v1/memory/personal/{memoryId} `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+
+
+      | 必填
+
+
+       | 说明
+
+
+                                           |
+```
+
+| -------------------- | --------------- | ---------------- | ---------------------------------------------------- |
+| `memoryId`     | string        | 路径已提供时否 | 记忆 ID；若同时出现在路径和 body 中，必须一致      |
+| `category`     | string        | 否             | 分类标签                                           |
+| `memoryType`   | string        | 否             | 记忆类型                                           |
+| `canonicalKey` | string        | 否             | 归一化 key                                         |
+| `title`        | string        | 否             | 标题                                               |
+| `content`      | string        | 否             | 记忆文本内容；非空字符串                           |
+| `shortSummary` | string        | 否             | 短摘要                                             |
+| `keywords`     | string        | 否             | 检索关键词                                         |
+| `importance`   | double        | 否             | 重要度，取值范围`[0, 1]`                       |
+| `confidence`   | double        | 否             | 置信度，会裁剪到`[0, 1]`                       |
+| `source`       | string        | 否             | 来源标识                                           |
+| `sourceRefs`   | string        | 否             | 来源引用信息                                       |
+| `expireTime`   | long / null   | 否             | 过期时间，毫秒时间戳；传`null`清除过期时间     |
+| `metadata`     | object / null | 否             | 自定义元数据，整体替换；传`null`清空为`{}` |
+
+**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
+
+说明：
+
+* 至少提供一个可更新字段。
+* 未提供 `source` 时，个人记忆更新会写入 `source=user_edited`。
+* `agentId` 不参与字段更新；请求校验拒绝 `scopeType`、`userId`、`embedding`、`embeddingModel` 等身份和向量字段。
+
+---
+
+#### 删除个人记忆
+
+`DELETE /agent-bus/v1/memory/personal/{memoryId} `
+
+**响应:**
+
+`{ "memoryId": "mem_xxx", "deleted": true } `
+
+---
+
+#### 列出个人记忆
+
+`GET /agent-bus/v1/memory/personal/list?agentId=xxx&offset=0&limit=100 `
+
+**响应:** `{ items: [MemoryEntry, ...], offset, limit, size }`
+
+---
+
+#### 搜索个人记忆
+
+`POST /agent-bus/v1/memory/personal/search `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------------- | -------- | ------ | ------------------------------------------------------------------------------------------- |
+| `agentId`       | string | 是   | Agent ID                                                                                  |
+| `category`      | string | 否   | 分类标签过滤                                                                              |
+| `memoryType`    | string | 否   | 记忆类型过滤                                                                              |
+| `textQuery`     | string | 否   | 搜索文本；`TEXT_SEARCH`排序必填                                                       |
+| `textMatchMode` | string | 否   | 文本匹配模式，`any`/`all`，默认`any`                                          |
+| `topK`          | int    | 否   | 最多返回条数（默认 10）                                                                   |
+| `minImportance` | double | 否   | 最小重要度过滤阈值，默认`0`                                                           |
+| `sortBy`        | string | 否   | 排序策略，默认`RANKED`：`RECENCY`/`IMPORTANCE`/`TEXT_SEARCH`/`RANKED` |
+
+**响应:**
+
+`{ "items": [ MemoryEntry, ... ], "size": 5 } `
+
+说明：
+
+* 查询范围固定为当前登录用户的 active 个人记忆。
+* 请求校验拒绝 `userId`、`targetUserId`、`scope`、`scopeType`、`status`、`embedding`、`embeddingModel`。
+* 每条命中的 [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry") 包含 `rankScore`。
+
+---
+
+#### 忘记会话个人记忆
+
+`POST /agent-bus/v1/memory/personal/forgetSession `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ----------------- | -------- | ------ | ----------------- |
+| `agentId`   | string | 是   | Agent ID        |
+| `sessionId` | string | 是   | 要遗忘的会话 ID |
+
+**响应:** `{ agentId, sessionId, forgotten }`
+
+说明：
+
+* 该接口用于让系统忘记从指定会话中自动提取出的个人记忆来源，并重新整理当前登录用户在该 Agent 下的个人记忆。
+* 处理完成后，后续对话不再继续使用该会话作为个人记忆来源。
+* 手动创建或手动编辑的个人记忆不会被自动删除；如需删除某条具体记忆，请使用“删除个人记忆”接口。
+* 接口返回表示忘记请求已受理；相关记忆的重新整理可能由后台任务完成。
+
+---
+
+#### 创建公共记忆
+
+`POST /agent-bus/v1/admin/memory/public `
+
+创建 Agent 公共记忆，需要当前用户拥有该 Agent 的 `AGENT_ADMIN` 权限。
+
+请求体字段与“创建个人记忆”一致，默认 `importance=0.8`，`source=admin_created`；不接收 `userId`、`targetUserId`、`scope`、`scopeType`、`status`。
+
+**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
+
+---
+
+#### 列出公共记忆
+
+`GET /agent-bus/v1/admin/memory/public/list?agentId=xxx&offset=0&limit=100 `
+
+需要当前用户拥有该 Agent 的 `AGENT_ADMIN` 权限。
+
+**响应:** `{ items: [MemoryEntry, ...], offset, limit, size }`
+
+---
+
+#### 搜索公共记忆
+
+`POST /agent-bus/v1/admin/memory/public/search `
+
+需要当前用户拥有该 Agent 的 `AGENT_ADMIN` 权限。请求体字段与“搜索个人记忆”一致；查询范围固定为 active 公共记忆，请求校验拒绝 `userId`、`targetUserId`、`scope`、`scopeType`、`status`、`embedding`、`embeddingModel`。
+
+**响应:** `{ items: [MemoryEntry, ...], size }`
+
+---
+
+#### 更新公共记忆
+
+`PUT /agent-bus/v1/admin/memory/public/{memoryId} `
+
+需要当前用户拥有该 Agent 的 `AGENT_ADMIN` 权限。请求体字段与“更新个人记忆”一致，`memoryId` 必须引用公共记忆。
+
+**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
+
+---
+
+#### 删除公共记忆
+
+`DELETE /agent-bus/v1/admin/memory/public/{memoryId} `
+
+需要当前用户拥有该 Agent 的 `AGENT_ADMIN` 权限，`memoryId` 必须引用公共记忆。
+
+**响应:** `{ memoryId, deleted }`
 
 ---
 
 #### 记忆统计
 
-`GET /agent-bus/v1/memory/stats `
+`GET /agent-bus/v1/admin/memory/stats `
 
 **查询参数:**
 
@@ -3094,34 +3174,53 @@ ToolDefinition 结构:
 | --------------- | -------- | ------ | ---------- |
 | `agentId` | string | 是   | Agent ID |
 
-说明：
-
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 需要当前用户拥有该 agent 的 `AGENT_ADMIN` 权限。
-
 **响应:**
 
-`{ "totalCount": 120, "agentScopeCount": 80, "userScopeCount": 40, "avgImportance": 0.65, "categoryDistribution": { "fact": 50, "preference": 30, "instruction": 40 } } `
+`{ "totalCount": 120, "agentPublicCount": 30, "userPersonalCount": 90, "activeCount": 110, "deletedCount": 10, "avgImportance": 0.65, "scopeDistribution": { "agent_public": 30, "user_personal": 90 }, "statusDistribution": { "active": 110, "deleted": 10 }, "categoryDistribution": { "preference": 20 }, "typeDistribution": { "knowledge": 80 }, "sourceDistribution": { "manual": 40, "auto_extract": 70 }, "jobStatusDistribution": { "pending": 1, "succeeded": 7 } } `
 
 ---
 
-#### 重建记忆 Embedding
+#### 读取记忆配置
 
-`POST /agent-bus/v1/memory/rebuildEmbeddings `
+`GET /agent-bus/v1/admin/memory/config?agentId=xxx `
 
-启动一个后台任务，重建所有已启用 `agent.memoryConfig.embeddingEnabled=true` 的记忆 embedding 表。
-
-**响应:** [MemoryRebuildStatus](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryrebuildstatus "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryrebuildstatus")
+**响应:** `{ agentId, memoryConfig }`
 
 ---
 
-#### 查询记忆 Embedding 重建状态
+#### 更新记忆配置
 
-`GET /agent-bus/v1/memory/rebuildEmbeddings/status?jobId=xxx `
+`PUT /agent-bus/v1/admin/memory/config `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| -------------------------------- | -------- | ------ | ---------------------------------------- |
+| `agentId`                  | string | 是   | Agent ID                               |
+| `patch`/`memoryConfig` | object | 否   | 要合并到 agent memoryConfig 的配置片段 |
+
+也可以将配置字段直接放在请求体顶层，服务端会排除 `agentId` 后作为配置 patch。
+
+**响应:** `{ agentId, memoryConfig }`
+
+---
+
+#### 列出记忆任务
+
+`GET /agent-bus/v1/admin/memory/jobs `
 
 **查询参数:**
 
@@ -3139,20 +3238,73 @@ ToolDefinition 结构:
 |
 ```
 
-| ------------- | -------- | ------ | ----------------------------------------- |
-| `jobId` | string | 否   | 重建任务 ID；不传时返回最近一次任务状态 |
+| -------------------- | -------- | ------ | -------------------------------------------------------------------------- |
+| `agentId`      | string | 是   | Agent ID                                                                 |
+| `kind`         | string | 否   | 任务类型过滤；通常无需指定，可使用列表响应中的`kind`值继续查询或重试 |
+| `status`       | string | 否   | 任务状态过滤                                                             |
+| `targetUserId` | string | 否   | 用户过滤                                                                 |
+| `offset`       | int    | 否   | 默认`0`                                                              |
+| `limit`        | int    | 否   | 默认`100`                                                            |
 
-**响应:** [MemoryRebuildStatus](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryrebuildstatus "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryrebuildstatus")
+**响应:** `{ items: [MemoryJob, ...], offset, limit, size }`
 
 ---
 
-#### 取消记忆 Embedding 重建
+#### 获取记忆任务
 
-`POST /agent-bus/v1/memory/rebuildEmbeddings/cancel `
+`GET /agent-bus/v1/admin/memory/jobs/{kind}/{jobKey}?agentId=xxx `
 
-**请求体 / 查询参数:**
+**响应:** [MemoryJob](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryjob "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryjob")
 
-| 参数
+---
+
+#### 重试记忆任务
+
+`POST /agent-bus/v1/admin/memory/jobs/{kind}/{jobKey}/retry?agentId=xxx `
+
+**响应:** [MemoryJob](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryjob "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryjob")
+
+---
+
+#### 触发记忆流水线
+
+`POST /agent-bus/v1/admin/memory/pipeline/trigger `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+```
+| 说明
+
+
+                     |
+```
+
+| --------------------------------- | -------- | ---------- | ------------------------------ |
+| `agentId`                   | string | 是       | Agent ID                     |
+| `sessionId`                 | string | 条件必填 | 安排指定会话的自动记忆提取   |
+| `targetUserId`/`userId` | string | 条件必填 | 安排指定用户个人记忆重新整理 |
+
+`sessionId` 和 `targetUserId` 至少提供一个。
+
+**响应:** `{ agentId, sessionId, targetUserId, scheduled }`
+
+---
+
+#### 重置用户个人记忆
+
+`POST /agent-bus/v1/admin/memory/reset `
+
+**请求体:**
+
+| 字段
 
 ```
 | 类型
@@ -3166,11 +3318,13 @@ ToolDefinition 结构:
 |
 ```
 
-| -------------- | -------- | ------ | ------------------------------------- |
-| `jobId`  | string | 否   | 重建任务 ID；不传时取消最近一次任务 |
-| `reason` | string | 否   | 取消原因                            |
+| --------------------------------- | -------- | ------ | ---------------------------------------------------------------------- |
+| `agentId`                   | string | 是   | Agent ID                                                             |
+| `targetUserId`/`userId` | string | 是   | 目标业务用户                                                         |
+| `includeMemories`           | bool   | 否   | 是否移除 active`user_personal`记忆，默认`true`               |
+| `includeStage1`             | bool   | 否   | 是否同时清除该用户从历史会话自动提取出的中间记忆结果，默认`true` |
 
-**响应:** [MemoryRebuildStatus](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryrebuildstatus "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryrebuildstatus")，并额外包含 `cancelled` 表示本次是否成功发出取消请求。
+**响应:** `{ agentId, targetUserId, includeMemories, includeStage1, ignoredStage1Count, removedMemoryCount, reset }`
 
 ---
 
@@ -3216,9 +3370,11 @@ ToolDefinition 结构:
 
 ### 3.11 内置 Agent/Skill 初始化
 
-本章接口用于部署或升级后初始化发布包内预置的 Agent 和 Skill。执行初始化属于管控操作，调用者必须具备全局 `AGENT_ADMIN` 权限；查询基础初始化状态用于客户端启动探测，允许未登录用户和普通用户调用。
+本章接口用于部署或升级后初始化发布包内预置的 Agent 和 Skill。执行初始化属于管控操作，调用者必须具备 DolphinDB admin 身份或全局 `AGENT_ADMIN` 权限；首次系统表未就绪时只能由 DolphinDB admin 执行。查询基础初始化状态用于客户端启动探测，允许未登录用户和普通用户调用。
 
 初始化流程只读取 DolphinDB 可执行文件同级目录下的 `agentBuiltins/manifest.json`，不允许客户端通过请求参数指定 manifest 路径或 Skill 根目录。
+
+初始化接口在 SINGLE 模式或计算节点上调用。集群模式下，计算节点通过 controller 上的内部租约保证同一时间只有一个初始化流程在执行。
 
 #### 执行初始化
 
@@ -3255,11 +3411,6 @@ ToolDefinition 结构:
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 初始化按 manifest 顺序逐个处理 Skill zip，不一次性加载、解压或缓存所有 Skill 包。
 * 普通公开接口 `agent.register` 仍不允许传 `agentId`；固定 `agent_builtin_<uuid>` 只允许内置初始化内部流程使用。
 * 内置 Agent 初始化时不自动授权给任何用户、用户组或 PUBLIC，也不绑定默认 LLM。管理员后续通过现有授权和 LLM 绑定接口配置。
@@ -3286,18 +3437,18 @@ ToolDefinition 结构:
 | 说明
 
 
-                                                                    |
+                                                                                       |
 ```
 
-| ---------------------- | ------ | ------------- | ----------------------------------------------------------------------------- |
-| `includeDetails` | bool | `false` | 是否返回初始化状态表中的明细记录`states`；仅全局`AGENT_ADMIN`可使用 |
+| ---------------------- | ------ | ------------- | ------------------------------------------------------------------------------------------------ |
+| `includeDetails` | bool | `false` | 是否返回初始化状态表中的明细记录`states`；仅 DolphinDB admin 或全局`AGENT_ADMIN`可使用 |
 
 WebSocket 调用时，`includeDetails` 放在 `payload` 中。
 
 权限与响应裁剪：
 
 * 未登录用户和普通用户只能查询基础状态。响应只包含 `initialized`、`state`、`manifestId`、`manifestVersion`。
-* 全局 `AGENT_ADMIN` 用户可查询完整状态；传 `includeDetails=true` 时额外返回初始化状态表明细。
+* DolphinDB admin 和全局 `AGENT_ADMIN` 用户可查询完整状态；传 `includeDetails=true` 时额外返回初始化状态表明细。
 * 非管理员传 `includeDetails=true` 返回权限错误。
 
 **响应:** [BuiltinInitResult](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#builtininitresult "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#builtininitresult")
@@ -3310,7 +3461,7 @@ WebSocket 调用时，`includeDetails` 放在 `payload` 中。
 
 `{ "initialized": false, "state": "STALE", "manifestId": "dolphindb-agent-builtins", "manifestVersion": "2026.05.13", "manifestHash": "sha256:...", "lastRunId": "builtin_init_xxx", "lastRunTime": "2026.05.13 12:30:00.000", "summary": { "createdAgents": 1, "createdSkills": 2, "updatedSkills": 0, "createdBindings": 1, "skippedExisting": 0, "skippedUnchanged": 0, "skippedUserModified": 0, "failed": 0 }, "lastFailures": [] } `
 
-状态查询允许触发初始化状态表创建，便于管控 Web 在首次部署后直接查询。
+状态查询不创建系统表。系统表尚未初始化时，基础状态查询返回未就绪状态；管理员完整视图包含 `errorCode` 和 `message`。部署或升级流程应调用 `builtin.init` 完成系统表和内置资源初始化。
 
 #### 状态与资源动作
 
@@ -3398,7 +3549,7 @@ WebSocket 调用时，`includeDetails` 放在 `payload` 中。
 | `systemPrompt`  | string    | 系统提示词，自动装配时作为 context 的首条 system message 注入                                                                                                                                                                                                                                                                                                                                                                                   |
 | `llmConfigId`   | string    | 默认 LLM 配置 ID。注册时如果指定，会自动创建 agent 与该 LLM 的绑定关系（`isDefault=true`,`priority=0`）                                                                                                                                                                                                                                                                                                                                 |
 | `contextConfig` | object    | 上下文组装配置，控制历史摘要、记忆检索、技能注入、摘要触发等行为，详见[contextConfig 结构](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#contextconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#contextconfig") |
-| `memoryConfig`  | object    | 记忆管理配置，当前包含`embeddingEnabled`等字段，详见[memoryConfig 结构](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig")                  |
+| `memoryConfig`  | object    | 记忆管理配置，详见[memoryConfig 结构](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig")                                                        |
 | `config`        | object    | 自定义扩展配置，框架原样存储不做解析，可用于业务层自定义用途                                                                                                                                                                                                                                                                                                                                                                                    |
 | `version`       | int       | 配置版本号，注册时为 1，可用于客户端缓存失效判断                                                                                                                                                                                                                                                                                                                                                                                                |
 | `schemaVersion` | int       | 行 Schema 版本号                                                                                                                                                                                                                                                                                                                                                                                                                                |
@@ -3438,7 +3589,7 @@ WebSocket 调用时，`includeDetails` 放在 `payload` 中。
 
 ### memoryConfig
 
-Agent 级记忆配置。`memoryConfig.embeddingEnabled` 用于决定该 agent 是否启用 memory embedding 能力。
+Agent 级记忆配置。所有字段可选，未提供时由 `MemoryPolicyService` 使用默认策略。
 
 | 字段
 
@@ -3452,11 +3603,21 @@ Agent 级记忆配置。`memoryConfig.embeddingEnabled` 用于决定该 agent �
 | 说明
 
 
-                                                                                                |
+                                                    |
 ```
 
-| ------------------------ | ------ | ------------- | --------------------------------------------------------------------------------------------------------- |
-| `embeddingEnabled` | bool | `false` | 是否为该 agent 启用 memory embedding。注册时未显式传入会按默认值`false`落库；注册成功后该字段不可变 |
+| -------------------------------------- | -------- | ----------------------------- | ------------------------------------------------------------- |
+| `allowPersonalMemory`            | bool   | `true`                  | Agent 是否允许个人记忆。关闭后不读写`user_personal`记忆 |
+| `memoryLlmConfigId`              | string | Agent 默认`llmConfigId` | 自动记忆提取和整理使用的 LLM 配置                           |
+| `memoryTopK`                     | int    | `5`                     | context assembly 相关记忆注入上限                           |
+| `memoryRegistryTopK`             | int    | `20`                    | registry 候选主题召回上限                                   |
+| `personalMemoryBudget`           | int    | `2000`                  | 个人记忆上下文预算                                          |
+| `agentPublicMemoryBudget`        | int    | `1000`                  | 公共记忆上下文预算                                          |
+| `minSessionIdleMinutes`          | int    | `360`                   | 会话结束后等待多久才允许自动提取记忆                        |
+| `maxSessionAgeDays`              | int    | `10`                    | 自动记忆提取可处理的最大会话年龄                            |
+| `phase2CooldownMinutes`          | int    | `10`                    | 同一用户记忆自动整理的冷却时间                              |
+| `maxRawMemoriesForConsolidation` | int    | `256`                   | 单次自动整理处理的候选记忆上限                              |
+| `maxUnusedDays`                  | int    | `30`                    | 记忆低频维护使用的未使用天数阈值                            |
 
 注意：memory 写请求的 lane 并发策略由全局服务端配置 `agentFramework.memory.lanePolicy` 控制，不属于 agent 级 `memoryConfig`。
 
@@ -3822,7 +3983,6 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 | `agentId`       | string    | 所属 Agent ID，创建时指定，不可变更                                                                          |
 | `userId`        | string    | 所属 DolphinDB 用户 ID，创建时由当前登录用户确定，不可变更                                                   |
 | `llmConfigId`   | string    | 会话级 LLM 配置 ID。为空时继承 agent 默认模型；非空时必须属于当前用户在该 agent 下的有效可选集合             |
-| `affinityNode`  | string    | 亲和节点（框架内部分配，不可由用户指定）。该会话的所有写请求会被路由到此节点                                 |
 | `title`         | string    | 会话标题，可通过 updateSession 修改                                                                          |
 | `metadata`      | object    | 自定义元数据，可通过 updateSession 修改，JSON 格式存储                                                       |
 | `schemaVersion` | int       | 行 Schema 版本号                                                                                             |
@@ -3874,36 +4034,43 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 | 类型
 
 
-  | 说明
+         | 说明
 
 
-                                                                                                                                                         |
+                                                                                         |
 ```
 
-| ---------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `memoryId`       | string    | 记忆唯一 ID，存储时自动生成                                                                                                                                      |
-| `agentId`        | string    | 所属 Agent ID                                                                                                                                                    |
-| `userId`         | string    | scope 为`user`时标识所属用户；scope 为`agent`时为空                                                                                                      |
-| `scope`          | string    | 作用域：`agent`（agent 级别，所有用户可读）/`user`（用户级别，仅该 userId 可读写）                                                                       |
-| `category`       | string    | 分类标签（如`"fact"`、`"preference"`、`"instruction"`），用于按分类检索和统计                                                                        |
-| `content`        | string    | 记忆文本内容                                                                                                                                                     |
-| `importance`     | double    | 重要度，取值范围 [0, 1]。参与混合排序                                                                                                                            |
-| `accessCount`    | int       | 访问次数，每次通过 get 或 search 命中时自动 +1。参与混合排序                                                                                                     |
-| `lastAccessTime` | timestamp | 最后访问时间，每次通过 get 或 search 命中时自动更新                                                                                                              |
-| `expireTime`     | timestamp | 过期时间（毫秒时间戳），为空表示永不过期                                                                                                                         |
-| `source`         | string    | 记忆来源：`manual`（手动创建）/`auto_extract`（自动提取）/`api`（API 写入）                                                                          |
-| `sourceRef`      | string    | 来源引用信息（如来源的 sessionId 或 messageId）                                                                                                                  |
-| `metadata`       | object    | 自定义元数据，JSON 格式                                                                                                                                          |
-| `schemaVersion`  | int       | 行 Schema 版本号                                                                                                                                                 |
-| `createTime`     | timestamp | 创建时间。参与混合排序中的时间衰减得分                                                                                                                           |
-| `updateTime`     | timestamp | 最后更新时间                                                                                                                                                     |
-| `textScore`      | double    | 全文搜索得分（仅搜索结果中返回），由 textdb 全文索引计算                                                                                                         |
-| `relevanceScore` | double    | 语义检索得分（仅搜索结果中返回）。仅当所属 agent 启用了 memory embedding 时有意义，由启用的 embedding 配置中的`embeddingMetric`/`embeddingNormalize`定义 |
-| `hybridScore`    | double    | 混合排序得分（仅搜索结果中返回），综合 importance、recency、semantic、access、text 等信号；当所属 agent 未启用 embedding 或语义分支不可用时，基于剩余信号计算    |
+| ---------------------- | ------------------ | -------------------------------------------------------------------------------------------------- |
+| `memoryId`       | string           | 记忆唯一 ID，存储时自动生成                                                                      |
+| `agentId`        | string           | 所属 Agent ID                                                                                    |
+| `userId`         | string           | `user_personal`记忆所属用户；`agent_public`记忆为`*`                                 |
+| `scopeType`      | string           | 作用域：`agent_public`/`user_personal`                                                   |
+| `category`       | string           | 分类标签，用于过滤和统计                                                                         |
+| `memoryType`     | string           | 记忆类型，如`knowledge`/`preference`/`procedure`/`workflow`/`failure_shield` |
+| `canonicalKey`   | string           | 归一化 key，用于同义、冲突和重复合并判断                                                         |
+| `title`          | string           | 标题                                                                                             |
+| `content`        | string           | 记忆文本内容                                                                                     |
+| `shortSummary`   | string           | 短摘要                                                                                           |
+| `keywords`       | string           | 检索关键词                                                                                       |
+| `importance`     | double           | 重要度，取值范围`[0, 1]`                                                                     |
+| `confidence`     | double           | 置信度，取值范围`[0, 1]`                                                                     |
+| `status`         | string           | 状态，如`active`/`deleted`                                                               |
+| `accessCount`    | long             | recall 聚合访问次数                                                                              |
+| `lastAccessTime` | timestamp / null | 最近 recall 时间                                                                                 |
+| `usageCount`     | long             | actual usage 聚合次数                                                                            |
+| `lastUsageTime`  | timestamp / null | 最近 actual usage 时间                                                                           |
+| `expireTime`     | timestamp / null | 过期时间，空表示永不过期                                                                         |
+| `source`         | string           | 记忆来源，如`manual`/`user_edited`/`admin_created`/`auto_extract`                |
+| `sourceRefs`     | string           | 来源引用信息                                                                                     |
+| `metadata`       | object           | 自定义元数据，JSON 格式                                                                          |
+| `schemaVersion`  | int              | 行 Schema 版本号                                                                                 |
+| `createTime`     | timestamp        | 创建时间                                                                                         |
+| `updateTime`     | timestamp        | 最后更新时间                                                                                     |
+| `rankScore`      | double           | `RANKED`搜索的应用层排序分                                                                   |
 
 ---
 
-### MemoryRebuildStatus
+### MemoryJob
 
 | 字段
 
@@ -3914,18 +4081,28 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
          | 说明
 
 
-                                                                                        |
+            |
 ```
 
-| ----------------------- | ------------------ | ------------------------------------------------------------------------------------------------- |
-| `jobId`           | string           | 重建任务 ID；没有历史任务时为空                                                                 |
-| `state`           | string           | 任务状态：`queued`/`running`/`succeeded`/`failed`/`cancelled`/`unknown` |
-| `completed`       | int              | 已处理的记忆条数                                                                                |
-| `total`           | int              | 本次任务需要处理的记忆条数                                                                      |
-| `error`           | string           | 失败或取消原因；成功时为空                                                                      |
-| `startTime`       | timestamp / null | 任务开始时间                                                                                    |
-| `updateTime`      | timestamp / null | 最近状态更新时间                                                                                |
-| `cancelRequested` | bool             | 是否已收到取消请求                                                                              |
+| ---------------------------- | ------------------ | --------------------- |
+| `jobShardKey`          | string           | 任务分片 key        |
+| `kind`                 | string           | 任务类型            |
+| `jobKey`               | string           | 任务 key            |
+| `scopeShardKey`        | string           | 记忆 scope 分片 key |
+| `scopeKey`             | string           | 业务 scope key      |
+| `status`               | string           | 任务状态            |
+| `workerId`             | string           | 当前 worker ID      |
+| `workerLeaseBootId`    | string           | worker 启动 ID      |
+| `workerLeaseEpoch`     | long             | worker lease epoch  |
+| `startedTime`          | timestamp / null | 开始时间            |
+| `finishedTime`         | timestamp / null | 完成时间            |
+| `retryAt`              | timestamp / null | 下次重试时间        |
+| `retryRemaining`       | int              | 剩余重试次数        |
+| `lastError`            | string           | 最近错误            |
+| `inputWatermark`       | string           | 输入水位            |
+| `lastSuccessWatermark` | string           | 最近成功水位        |
+| `schemaVersion`        | int              | 行 Schema 版本号    |
+| `extra`                | string           | 扩展信息            |
 
 ---
 
@@ -4236,24 +4413,47 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 |
 ```
 
-| ------------------------------ | ------------- | -------------------------------------------------------------------------------------------- |
-| `BUS_UNAUTHENTICATED`    | 401         | 未认证或登录态失效，客户端应重新登录                                                       |
-| `BUS_PERMISSION_DENIED`  | 403         | 已认证但无权执行此操作，客户端不应清除登录态                                               |
-| `BUS_UNKNOWN_ACTION`     | 404         | 未知的 action，请求的接口/action 名称不存在                                                |
-| `BUS_NOT_FOUND`          | 404         | 通用资源不存在                                                                             |
-| `BUS_AGENT_NOT_FOUND`    | 404         | 指定的 Agent 不存在或已被删除                                                              |
-| `BUS_SESSION_NOT_FOUND`  | 404         | 指定的会话不存在                                                                           |
-| `BUS_QUEUE_FULL`         | 429         | DataBus 请求队列已满，服务端过载，请稍后重试                                               |
-| `BUS_TIMEOUT`            | 504         | 请求处理超时（包括 LLM 调用超时）                                                          |
-| `BUS_NODE_UNREACHABLE`   | 503         | 集群模式下目标亲和节点不可达，请求无法路由                                                 |
-| `BUS_HANDLER_ERROR`      | 500         | 处理器内部错误，详见 error.message                                                         |
-| `BUS_LLM_PROVIDER_ERROR` | 502         | 上游 LLM provider 返回错误或异常；provider 原始 HTTP 状态见`headers.llmProviderStatus` |
-| `BUS_STREAM_INTERRUPTED` | 499         | 流式传输中断（SSE 连接断开或 LLM 流式响应异常终止）                                        |
-| `BUS_INVALID_ARGUMENT`   | 400         | 请求参数不合法（缺少必填字段、类型错误、值超出范围等）                                     |
-| `BUS_PAYLOAD_TOO_LARGE`  | 413         | 请求体或 payload 超限                                                                      |
-| `REPLACE_REJECTED`       | 409         | workspace replace 请求被拒绝，详见`error.reason`和`error.message`                  |
-| `WORKSPACE_REJECTED`     | 400         | workspace 状态、文件或平台约束导致拒绝，详见`error.reason`和`error.message`        |
-| `BUS_NOT_STARTED`        | 503         | DataBus 尚未完成初始化，服务暂不可用                                                       |
+| ----------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BUS_UNAUTHENTICATED`         | 401         | 未认证或登录态失效，客户端应重新登录                                                                                                                   |
+| `BUS_PERMISSION_DENIED`       | 403         | 已认证但无权执行此操作，客户端不应清除登录态                                                                                                           |
+| `BUS_UNKNOWN_ACTION`          | 404         | 未知的 action，请求的接口/action 名称不存在                                                                                                            |
+| `BUS_NOT_FOUND`               | 404         | 通用资源不存在                                                                                                                                         |
+| `BUS_AGENT_NOT_FOUND`         | 404         | 指定的 Agent 不存在或已被删除                                                                                                                          |
+| `BUS_SESSION_NOT_FOUND`       | 404         | 指定的会话不存在                                                                                                                                       |
+| `BUS_CONFLICT`                | 409         | 资源状态冲突，例如重复创建、版本冲突、资源仍被引用、LLM provider/config 删除前仍有引用                                                                 |
+| `BUS_QUEUE_FULL`              | 429         | DataBus 请求队列已满，服务端过载，请稍后重试                                                                                                           |
+| `BUS_RATE_LIMITED`            | 429         | Agent Runtime 侧限流                                                                                                                                   |
+| `BUS_TIMEOUT`                 | 504         | Agent Runtime 请求处理超时                                                                                                                             |
+| `BUS_NODE_UNREACHABLE`        | 503         | 集群模式下目标节点不可达，请求无法路由                                                                                                                 |
+| `BUS_HANDLER_ERROR`           | 500         | 处理器内部错误，详见 error.message                                                                                                                     |
+| `BUS_LLM_PROVIDER_ERROR`      | 502         | 上游 LLM provider 返回 5xx、响应无法解析或没有有效 assistant 输出；provider 原始 HTTP 状态见`error.providerStatus`/`headers.llmProviderStatus` |
+| `BUS_LLM_CONFIG_ERROR`        | 502         | LLM 配置、provider、鉴权密钥或模型选择不可用；provider 401/403/404 归入此类                                                                            |
+| `BUS_LLM_QUOTA_EXCEEDED`      | 402         | LLM provider 账户余额、额度、账单或 token quota 不足                                                                                                   |
+| `BUS_LLM_RATE_LIMITED`        | 429         | LLM provider 限流或返回 too many requests                                                                                                              |
+| `BUS_LLM_PROVIDER_TIMEOUT`    | 504         | LLM provider 请求超时或 provider 返回 408/504                                                                                                          |
+| `BUS_CONTEXT_LENGTH_EXCEEDED` | 413         | 上下文窗口或 token 限制超出，包含本地上下文预算失败和 provider context length 错误                                                                     |
+| `BUS_STREAM_INTERRUPTED`      | 499         | 流式传输中断（SSE 连接断开或 LLM 流式响应异常终止）                                                                                                    |
+| `BUS_INVALID_ARGUMENT`        | 400         | 请求参数不合法（缺少必填字段、类型错误、值超出范围等）                                                                                                 |
+| `BUS_PAYLOAD_TOO_LARGE`       | 413         | 请求体或 payload 超限                                                                                                                                  |
+| `REPLACE_REJECTED`            | 409         | workspace replace 请求被拒绝，详见`error.reason`和`error.message`                                                                              |
+| `WORKSPACE_REJECTED`          | 400         | workspace 状态、文件或平台约束导致拒绝，详见`error.reason`和`error.message`                                                                    |
+| `BUS_NOT_STARTED`             | 503         | DataBus 尚未完成初始化，服务暂不可用                                                                                                                   |
+
+LLM provider 错误响应会尽量在 `error` 与 `headers` 中携带以下附加字段：
+
+| 字段
+
+```
+| 说明
+
+
+                                                                                                                                |
+```
+
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `providerStatus`/`llmProviderStatus` | provider 原始 HTTP 状态码                                                                                                               |
+| `providerCode`                           | provider 原始错误码，若能从响应中解析出来                                                                                               |
+| `retryable`                              | 字符串`"true"`或`"false"`；`BUS_LLM_RATE_LIMITED`、`BUS_LLM_PROVIDER_TIMEOUT`、`BUS_LLM_PROVIDER_ERROR`为可重试类别 |
 
 Workspace 业务错误通过上述 DataBus 错误 envelope 返回，具体原因在 `error.reason` 和 `error.message` 中体现。常见标识如下：
 
@@ -4263,21 +4463,20 @@ Workspace 业务错误通过上述 DataBus 错误 envelope 返回，具体原因
 | 说明
 
 
-                                                      |
+                                       |
 ```
 
-| ---------------------------- | --------------------------------------------------------------- |
-| `WORKSPACE_REDIRECT`   | 非错误 payload，表示客户端应重定向到 workspace home node 重试 |
-| `missing_hash`         | replace 请求缺少 hash                                         |
-| `stale_file`           | replace 请求 hash 与当前文件 hash 不一致                      |
-| `invalid_replacements` | replacements 缺失、为空或格式非法                             |
-| `empty_old`            | replacement old 为空                                          |
-| `old_not_found`        | replacement old 不存在                                        |
-| `old_not_unique`       | `replaceAll=false`时 old 出现多次                         |
-| `invalid_text`         | 文件内容或 replacement 文本不是 UTF-8                         |
-| `file_not_found`       | workspace 文件不存在                                          |
-| `quota_exceeded`       | workspace 总大小、单文件大小或文件数量超过限制                |
-| `target_invalid`       | 目标不是 workspace 内的普通文件                               |
+| ---------------------------- | ------------------------------------------------ |
+| `missing_hash`         | replace 请求缺少 hash                          |
+| `stale_file`           | replace 请求 hash 与当前文件 hash 不一致       |
+| `invalid_replacements` | replacements 缺失、为空或格式非法              |
+| `empty_old`            | replacement old 为空                           |
+| `old_not_found`        | replacement old 不存在                         |
+| `old_not_unique`       | `replaceAll=false`时 old 出现多次          |
+| `invalid_text`         | 文件内容或 replacement 文本不是 UTF-8          |
+| `file_not_found`       | workspace 文件不存在                           |
+| `quota_exceeded`       | workspace 总大小、单文件大小或文件数量超过限制 |
+| `target_invalid`       | 目标不是 workspace 内的普通文件                |
 
 ---
 
@@ -4285,7 +4484,17 @@ Workspace 业务错误通过上述 DataBus 错误 envelope 返回，具体原因
 
 ### 连接
 
-WebSocket 端点路径与 HTTP 相同（通过协议升级）。
+WebSocket 端点路径与 HTTP 相同（通过协议升级）：
+
+`ws://<host>:<port>/agent-bus/v1 wss://<host>:<port>/agent-bus/v1 `
+
+服务端按 `/agent-bus` 路径接入 Agent Bus WebSocket 协议。客户端推荐在握手时声明 `agent-bus` subprotocol；服务端仅在客户端声明该 subprotocol 时回显：
+
+`Sec-WebSocket-Protocol: agent-bus Authorization: Bearer <token> `
+
+Python `websockets` 示例：
+
+`async with websockets.connect( "ws://localhost:8700/agent-bus/v1", additional_headers={"Authorization": f"Bearer {token}"}, subprotocols=["agent-bus"], ) as ws: await ws.send(json.dumps({ "type": "REQUEST", "requestId": "req_001", "action": "agent.accessible", })) `
 
 ### 消息格式
 
@@ -4329,7 +4538,7 @@ WebSocket 对话补全也支持 `contextEvent=true`，上下文压缩事件使�
 
 **错误帧:**
 
-`{ "type": "ERROR", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "error": { "code": "BUS_HANDLER_ERROR", "message": "session not found" }, "headers": { "busErrorCode": "BUS_HANDLER_ERROR", "httpStatus": "500" } } `
+`{ "type": "ERROR", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "error": { "code": "BUS_SESSION_NOT_FOUND", "message": "session not found" }, "headers": { "busErrorCode": "BUS_SESSION_NOT_FOUND", "httpStatus": "404" } } `
 
 ### HTTP → WebSocket 参数映射规则
 
@@ -4367,11 +4576,11 @@ WebSocket：
 
 HTTP：
 
-`PUT /agent-bus/v1/memory/{memoryId} Body: { "importance": 0.8, "category": "note" } `
+`PUT /agent-bus/v1/memory/personal/{memoryId} Body: { "importance": 0.8, "category": "note" } `
 
 WebSocket：
 
-`{ "type": "REQUEST", "requestId": "req_44", "action": "memory.update", "payload": { "memoryId": "mem_abc", "importance": 0.8, "category": "note" } } `
+`{ "type": "REQUEST", "requestId": "req_44", "action": "memory.personal.update", "payload": { "memoryId": "mem_abc", "importance": 0.8, "category": "note" } } `
 
 ### 支持的 Action
 
@@ -4383,89 +4592,104 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 | 对应 HTTP 接口
 
 
-                  |
+                            |
 ```
 
-| ------------------------------- | ------------------------------------- |
-| `agent.register`          | POST /agent/register                |
-| `agent.get`               | GET /agent/{id}                     |
-| `agent.update`            | PUT /agent/{id}                     |
-| `agent.activate`          | POST /agent/{id}/activate           |
-| `agent.suspend`           | POST /agent/{id}/suspend            |
-| `agent.delete`            | POST /agent/{id}/delete             |
-| `agent.list`              | GET /agent/list                     |
-| `agent.auth.grant`        | POST /agent/{id}/auth               |
-| `agent.auth.revoke`       | DELETE /agent/{id}/auth             |
-| `agent.auth.list`         | GET /agent/{id}/auth/list           |
-| `agent.accessible`        | GET /agent/accessible               |
-| `agent.llm.grant`         | POST /agent/{id}/llm/access         |
-| `agent.llm.revoke`        | DELETE /agent/{id}/llm/access       |
-| `agent.llm.list`          | GET /agent/{id}/llm/list            |
-| `agent.llm.selectable`    | GET /agent/{id}/llm/selectable      |
-| `admin.access.grant`      | POST /admin/access                  |
-| `admin.access.revoke`     | DELETE /admin/access                |
-| `admin.access.list`       | GET /admin/access                   |
-| `user.llm.access.grant`   | POST /user/{id}/llm/access          |
-| `user.llm.access.revoke`  | DELETE /user/{id}/llm/access        |
-| `user.llm.access.list`    | GET /user/{id}/llm/access           |
-| `llm.provider.register`   | POST /llm/provider/register         |
-| `llm.provider.get`        | GET /llm/provider/{id}              |
-| `llm.provider.list`       | GET /llm/provider/list              |
-| `llm.provider.update`     | PUT /llm/provider/{id}              |
-| `llm.provider.delete`     | DELETE /llm/provider/{id}           |
-| `llm.config.register`     | POST /llm/config/register           |
-| `llm.config.get`          | GET /llm/config/{id}                |
-| `llm.config.list`         | GET /llm/config/list                |
-| `llm.config.update`       | PUT /llm/config/{id}                |
-| `llm.config.delete`       | DELETE /llm/config/{id}             |
-| `llm.complete`            | POST /llm/complete                  |
-| `llm.usage`               | GET /llm/usage                      |
-| `network.fetch`           | POST /network/fetch                 |
-| `builtin.init`            | POST /builtin/init                  |
-| `builtin.init.status`     | GET /builtin/init/status            |
-| `chat.completions`        | POST /chat/completions              |
-| `context.preview`         | POST /context/preview               |
-| `session.create`          | POST /session/create                |
-| `session.get`             | GET /session/{id}                   |
-| `session.update`          | PUT /session/{id}                   |
-| `session.delete`          | DELETE /session/{id}                |
-| `session.list`            | GET /session/list                   |
-| `session.appendMessage`   | POST /session/{id}/message          |
-| `session.appendMessages`  | POST /session/{id}/messages         |
-| `session.getMessages`     | GET /session/{id}/messages          |
-| `session.generateSummary` | POST /session/{id}/summary          |
-| `workspace.list`          | GET /workspace/{sessionId}/files    |
-| `workspace.read`          | GET /workspace/{sessionId}/file     |
-| `workspace.write`         | POST /workspace/{sessionId}/file    |
-| `workspace.delete`        | DELETE /workspace/{sessionId}/file  |
-| `workspace.search`        | POST /workspace/{sessionId}/search  |
-| `workspace.replace`       | POST /workspace/{sessionId}/replace |
-| `memory.store`            | POST /memory/store                  |
-| `memory.get`              | GET /memory/{id}                    |
-| `memory.update`           | PUT /memory/{id}                    |
-| `memory.delete`           | DELETE /memory/{id}                 |
-| `memory.search`           | POST /memory/search                 |
-| `memory.list`             | GET /memory/list                    |
-| `memory.stats`            | GET /memory/stats                   |
-| `skill.register`          | POST /skill/register                |
-| `skill.get`               | GET /skill/{id}                     |
-| `skill.getByName`         | GET /skill/byName/{name}            |
-| `skill.update`            | PUT /skill/{id}                     |
-| `skill.delete`            | DELETE /skill/{id}                  |
-| `skill.list`              | GET /skill/list                     |
-| `skill.getInstruction`    | GET /skill/{id}/instruction         |
-| `skill.files.list`        | GET /skill/{id}/files/list          |
-| `skill.files.get`         | GET /skill/{id}/files/get           |
-| `skill.files.search`      | POST /skill/{id}/files/search       |
-| `skill.files.batchGet`    | POST /skill/{id}/files/batchGet     |
-| `skill.bind`              | POST /skill/bind                    |
-| `skill.unbind`            | POST /skill/unbind                  |
-| `skill.bindings`          | GET /skill/{agentId}/bindings       |
-| `skill.catalog`           | GET /skill/{agentId}/catalog        |
-| `skill.context`           | POST /skill/{agentId}/context       |
-| `skill.user.deny`         | POST /skill/user/deny               |
-| `skill.user.allow`        | POST /skill/user/allow              |
-| `skill.user.denied`       | GET /skill/user/{userId}/denied     |
+| ------------------------------------- | ----------------------------------------------- |
+| `agent.register`                | POST /agent/register                          |
+| `agent.get`                     | GET /agent/{id}                               |
+| `agent.update`                  | PUT /agent/{id}                               |
+| `agent.activate`                | POST /agent/{id}/activate                     |
+| `agent.suspend`                 | POST /agent/{id}/suspend                      |
+| `agent.delete`                  | POST /agent/{id}/delete                       |
+| `agent.list`                    | GET /agent/list                               |
+| `agent.auth.grant`              | POST /agent/{id}/auth                         |
+| `agent.auth.revoke`             | DELETE /agent/{id}/auth                       |
+| `agent.auth.list`               | GET /agent/{id}/auth/list                     |
+| `agent.accessible`              | GET /agent/accessible                         |
+| `agent.llm.grant`               | POST /agent/{id}/llm/access                   |
+| `agent.llm.revoke`              | DELETE /agent/{id}/llm/access                 |
+| `agent.llm.list`                | GET /agent/{id}/llm/list                      |
+| `agent.llm.selectable`          | GET /agent/{id}/llm/selectable                |
+| `admin.access.grant`            | POST /admin/access                            |
+| `admin.access.revoke`           | DELETE /admin/access                          |
+| `admin.access.list`             | GET /admin/access                             |
+| `user.llm.access.grant`         | POST /user/{id}/llm/access                    |
+| `user.llm.access.revoke`        | DELETE /user/{id}/llm/access                  |
+| `user.llm.access.list`          | GET /user/{id}/llm/access                     |
+| `llm.provider.register`         | POST /llm/provider/register                   |
+| `llm.provider.get`              | GET /llm/provider/{id}                        |
+| `llm.provider.list`             | GET /llm/provider/list                        |
+| `llm.provider.update`           | PUT /llm/provider/{id}                        |
+| `llm.provider.delete`           | DELETE /llm/provider/{id}                     |
+| `llm.config.register`           | POST /llm/config/register                     |
+| `llm.config.get`                | GET /llm/config/{id}                          |
+| `llm.config.list`               | GET /llm/config/list                          |
+| `llm.config.update`             | PUT /llm/config/{id}                          |
+| `llm.config.delete`             | DELETE /llm/config/{id}                       |
+| `llm.complete`                  | POST /llm/complete                            |
+| `llm.usage`                     | GET /llm/usage                                |
+| `network.fetch`                 | POST /network/fetch                           |
+| `builtin.init`                  | POST /builtin/init                            |
+| `builtin.init.status`           | GET /builtin/init/status                      |
+| `chat.completions`              | POST /chat/completions                        |
+| `context.preview`               | POST /context/preview                         |
+| `session.create`                | POST /session/create                          |
+| `session.get`                   | GET /session/{id}                             |
+| `session.update`                | PUT /session/{id}                             |
+| `session.delete`                | DELETE /session/{id}                          |
+| `session.list`                  | GET /session/list                             |
+| `session.appendMessage`         | POST /session/{id}/message                    |
+| `session.appendMessages`        | POST /session/{id}/messages                   |
+| `session.getMessages`           | GET /session/{id}/messages                    |
+| `session.generateSummary`       | POST /session/{id}/summary                    |
+| `workspace.list`                | GET /workspace/{sessionId}/files              |
+| `workspace.read`                | GET /workspace/{sessionId}/file               |
+| `workspace.write`               | POST /workspace/{sessionId}/file              |
+| `workspace.delete`              | DELETE /workspace/{sessionId}/file            |
+| `workspace.search`              | POST /workspace/{sessionId}/search            |
+| `workspace.replace`             | POST /workspace/{sessionId}/replace           |
+| `memory.personal.getSettings`   | GET /memory/personal/settings                 |
+| `memory.personal.setEnabled`    | POST /memory/personal/settings                |
+| `memory.personal.list`          | GET /memory/personal/list                     |
+| `memory.personal.search`        | POST /memory/personal/search                  |
+| `memory.personal.create`        | POST /memory/personal                         |
+| `memory.personal.get`           | GET /memory/personal/{id}                     |
+| `memory.personal.update`        | PUT /memory/personal/{id}                     |
+| `memory.personal.delete`        | DELETE /memory/personal/{id}                  |
+| `memory.personal.forgetSession` | POST /memory/personal/forgetSession           |
+| `admin.memory.public.create`    | POST /admin/memory/public                     |
+| `admin.memory.public.list`      | GET /admin/memory/public/list                 |
+| `admin.memory.public.search`    | POST /admin/memory/public/search              |
+| `admin.memory.public.update`    | PUT /admin/memory/public/{id}                 |
+| `admin.memory.public.delete`    | DELETE /admin/memory/public/{id}              |
+| `admin.memory.stats`            | GET /admin/memory/stats                       |
+| `admin.memory.config.get`       | GET /admin/memory/config                      |
+| `admin.memory.config.update`    | PUT /admin/memory/config                      |
+| `admin.memory.jobs.list`        | GET /admin/memory/jobs                        |
+| `admin.memory.jobs.get`         | GET /admin/memory/jobs/{kind}/{jobKey}        |
+| `admin.memory.jobs.retry`       | POST /admin/memory/jobs/{kind}/{jobKey}/retry |
+| `admin.memory.pipeline.trigger` | POST /admin/memory/pipeline/trigger           |
+| `admin.memory.reset`            | POST /admin/memory/reset                      |
+| `skill.register`                | POST /skill/register                          |
+| `skill.get`                     | GET /skill/{id}                               |
+| `skill.getByName`               | GET /skill/byName/{name}                      |
+| `skill.update`                  | PUT /skill/{id}                               |
+| `skill.delete`                  | DELETE /skill/{id}                            |
+| `skill.list`                    | GET /skill/list                               |
+| `skill.getInstruction`          | GET /skill/{id}/instruction                   |
+| `skill.files.list`              | GET /skill/{id}/files/list                    |
+| `skill.files.get`               | GET /skill/{id}/files/get                     |
+| `skill.files.search`            | POST /skill/{id}/files/search                 |
+| `skill.files.batchGet`          | POST /skill/{id}/files/batchGet               |
+| `skill.bind`                    | POST /skill/bind                              |
+| `skill.unbind`                  | POST /skill/unbind                            |
+| `skill.bindings`                | GET /skill/{agentId}/bindings                 |
+| `skill.catalog`                 | GET /skill/{agentId}/catalog                  |
+| `skill.context`                 | POST /skill/{agentId}/context                 |
+| `skill.user.deny`               | POST /skill/user/deny                         |
+| `skill.user.allow`              | POST /skill/user/allow                        |
+| `skill.user.denied`             | GET /skill/user/{userId}/denied               |
 
 ---
 
@@ -4589,7 +4813,7 @@ manifest 使用 JSON。`schemaVersion` 表示 manifest 文件结构版本，用�
 
 ### manifest.json 示例
 
-`{ "schemaVersion": 1, "manifestId": "dolphindb-agent-builtins", "manifestVersion": "2026.05.13", "skills": [ { "name": "dolphindb-sql-guide", "package": "skills/dolphindb-sql-guide.zip", "common": true }, { "name": "data-analysis-playbook", "package": "skills/data-analysis-playbook.zip", "common": false } ], "agents": [ { "agentId": "agent_builtin_550e8400-e29b-41d4-a716-446655440000", "agentName": "Data Q&A Assistant", "description": "Built-in data analysis assistant", "status": "ACTIVE", "systemPromptFile": "prompts/data-assistant.md", "skills": [ "data-analysis-playbook" ], "contextConfig": { "includeSkillCatalog": true, "includeMemory": false }, "memoryConfig": { "embeddingEnabled": false }, "config": { "builtin": true, "builtinVersion": "2026.05.13" } } ] } `
+`{ "schemaVersion": 1, "manifestId": "dolphindb-agent-builtins", "manifestVersion": "2026.05.13", "skills": [ { "name": "dolphindb-sql-guide", "package": "skills/dolphindb-sql-guide.zip", "common": true }, { "name": "data-analysis-playbook", "package": "skills/data-analysis-playbook.zip", "common": false } ], "agents": [ { "agentId": "agent_builtin_550e8400-e29b-41d4-a716-446655440000", "agentName": "Data Q&A Assistant", "description": "Built-in data analysis assistant", "status": "ACTIVE", "systemPromptFile": "prompts/data-assistant.md", "skills": [ "data-analysis-playbook" ], "contextConfig": { "includeSkillCatalog": true, "includeMemory": false }, "memoryConfig": { "allowPersonalMemory": true }, "config": { "builtin": true, "builtinVersion": "2026.05.13" } } ] } `
 
 ---
 
@@ -4708,6 +4932,19 @@ You can use this skill to query DolphinDB distributed tables.
 | Tier 3 | 应用层按需提取时（通过`skill.files.get`/`skill.files.batchGet`等原语） | 包内的脚本、模板、参考文档等                     | 不限             |
 
 ### 调用控制矩阵
+
+| `disable-model-invocation`
+
+| `user-invocable`
+
+| LLM 可自动发现
+
+| 用户可调用
+
+| 描述注入 Tier-1 目录
+
+|
+| -------------------------------- | ---------------------- | ---------------- | ------------ | ---------------------- |
 
 | `disable-model-invocation`
 
