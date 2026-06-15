@@ -18,6 +18,9 @@ const { Text } = Typography
 export function SkillsTab () {
     const [all_skills, set_all_skills] = useState<ISkillInfo[]>([ ])
     const [loading, set_loading] = useState(false)
+    const [skill_page, set_skill_page] = useState(1)
+    const [skill_page_size, set_skill_page_size] = useState(20)
+    const [skill_total, set_skill_total] = useState(0)
     const [creating, set_creating] = useState(false)
     const [form_error, set_form_error] = useState('')
     const [detail_skill, set_detail_skill] = useState<ISkillInfo | null>(null)
@@ -37,11 +40,18 @@ export function SkillsTab () {
         version: '',
     })
     
-    async function load () {
+    async function load (page = skill_page, page_size = skill_page_size) {
         set_loading(true)
         try {
-            const skills = await chat_model.skill.load_skills()
-            set_all_skills(skills)
+            const result = await chat_model.skill.load_skill_page({ offset: (page - 1) * page_size, limit: page_size })
+            if (result.items.length === 0 && result.size > 0 && page > 1) {
+                await load(page - 1, page_size)
+                return
+            }
+            set_all_skills(result.items)
+            set_skill_total(result.size)
+            set_skill_page(Math.floor(result.offset / page_size) + 1)
+            set_skill_page_size(result.limit || page_size)
         } catch {
             message.error(t('加载技能列表失败'))
         } finally {
@@ -278,7 +288,7 @@ export function SkillsTab () {
                         set_creating(false)
                         set_skill_file(null)
                         set_overrides({ name: '', displayName: '', description: '', category: '', version: '' })
-                        await load()
+                        await load(1, skill_page_size)
                     } catch (e: any) {
                         message.error(e.message || t('注册失败'))
                     } finally {
@@ -294,7 +304,13 @@ export function SkillsTab () {
                 size='small'
                 rowKey='skillId'
                 dataSource={all_skills}
-                pagination={false}
+                pagination={{
+                    current: skill_page,
+                    pageSize: skill_page_size,
+                    total: skill_total,
+                    showSizeChanger: true,
+                    onChange: load,
+                }}
                 tableLayout='fixed'
                 columns={[
                     {
@@ -342,7 +358,7 @@ export function SkillsTab () {
                                         try {
                                             await chat_model.skill.set_skill_enabled(s.skillId, true)
                                             message.success(t('已激活'))
-                                            await load()
+                                            await load(skill_page, skill_page_size)
                                         } catch (e: any) {
                                             message.error(e.message || t('操作失败'))
                                         }
@@ -354,7 +370,7 @@ export function SkillsTab () {
                                         try {
                                             await chat_model.skill.set_skill_enabled(s.skillId, false)
                                             message.success(t('已禁用'))
-                                            await load()
+                                            await load(skill_page, skill_page_size)
                                         } catch (e: any) {
                                             message.error(e.message || t('操作失败'))
                                         }
@@ -370,7 +386,7 @@ export function SkillsTab () {
                                     try {
                                         await chat_model.skill.delete_skill(s.skillId)
                                         message.success(t('已删除'))
-                                        await load()
+                                        await load(skill_page, skill_page_size)
                                     } catch (e: any) {
                                         message.error(e.message || t('删除失败'))
                                     }

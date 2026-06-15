@@ -4,7 +4,7 @@ import { SendOutlined, StopOutlined } from '@ant-design/icons'
 import { type DdbObj, type DdbValue } from 'dolphindb/browser.js'
 
 import { t } from '@i18n'
-import { model } from '@model'
+import { model, NodeType } from '@model'
 import { copy } from '@utils'
 import { bind_chat_model_session, get_chat_model } from '@/agent/model.ts'
 import { parse_ddb_obj_from_content_object } from '@/agent/utils/ddb-object.ts'
@@ -26,6 +26,7 @@ const AUTO_SCROLL_INTERVAL = 1000
 
 export function AiTab ({ session_id }: { session_id: string }) {
     const chat = get_chat_model(session_id)
+    const { node_type } = model.use(['node_type'])
     const {
         messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, pending_tool_loop_control, pending_script_approval, steps,
         tool_call_limit_enabled,
@@ -39,6 +40,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const [init_error, set_init_error] = useState('')
     const [creating_session, set_creating_session] = useState(false)
     const pending_session = is_pending_ai_chat_id(session_id)
+    const unsupported_node = node_type === NodeType.controller || node_type === NodeType.data
     
     const messages_ref = useRef<HTMLDivElement>(null)
     const should_auto_scroll = useRef(true)
@@ -51,6 +53,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
         ;(async () => {
             try {
                 set_init_error('')
+                if (unsupported_node) {
+                    set_inited(true)
+                    return
+                }
                 if (!chat.agent_id)
                     await chat.agent.init()
                 else if (chat.agents.length === 0)
@@ -75,18 +81,18 @@ export function AiTab ({ session_id }: { session_id: string }) {
         })()
         
         return () => { cancelled = true }
-    }, [chat, session_id, pending_session])
+    }, [chat, session_id, pending_session, unsupported_node])
     
     // When tab switches back, re-select the correct session
     useEffect(() => {
-        if (inited && !pending_session && current_session_id !== session_id)
+        if (inited && !unsupported_node && !pending_session && current_session_id !== session_id)
             chat.session.select_session(session_id)
                 .then(() => { set_init_error('') })
                 .catch(error => {
                     console.error(error)
                     set_init_error(error instanceof Error ? error.message : String(error))
                 })
-    }, [chat, inited, pending_session, session_id])
+    }, [chat, inited, pending_session, session_id, unsupported_node])
     
     // Auto-scroll periodic check
     useEffect(() => {
@@ -205,6 +211,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
     async function handle_send () {
         if (!input_value.trim())
             return
+        if (unsupported_node) {
+            model.message?.warning(t('集群模式下 AI 模式需要在计算节点使用。'))
+            return
+        }
         if (creating_session)
             return
         if (!chat.runtime.is_ddb_connected()) {
@@ -246,6 +256,35 @@ export function AiTab ({ session_id }: { session_id: string }) {
         return <div className='ai-tab-loading'>
             <Spin />
             <Text type='secondary' style={{ marginTop: 12 }}>{t('正在连接 AI 助手...')}</Text>
+        </div>
+
+    if (unsupported_node)
+        return <div className='ai-tab' style={{ position: 'relative' }}>
+            <div style={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: 10,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'rgba(255, 255, 255, 0.92)',
+                backdropFilter: 'blur(1px)',
+                padding: 24,
+            }}>
+                <div style={{
+                    width: 420,
+                    padding: 28,
+                    borderRadius: 8,
+                    background: '#fff',
+                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+                    textAlign: 'center',
+                }}>
+                    <div style={{ fontSize: 18, fontWeight: 500, marginBottom: 8 }}>{t('请在计算节点使用 AI 模式')}</div>
+                    <Text type='secondary'>
+                        {t('集群模式下，控制节点和数据节点暂不支持 AI 模式，请切换到计算节点后使用。')}
+                    </Text>
+                </div>
+            </div>
         </div>
         
     if (init_error)

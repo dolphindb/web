@@ -4,6 +4,22 @@ import type { ChatModel } from '@/agent/model.ts'
 import type { ISkillBinding, ISkillFileContent, ISkillFileInfo, ISkillInfo } from './types.ts'
 import { get_enabled, get_status, get_status_name } from './helpers.ts'
 
+interface ISkillListParams {
+    category?: string
+    enabled?: boolean
+    common?: boolean
+    isCommon?: boolean
+    offset?: number
+    limit?: number
+}
+
+interface ISkillListResult {
+    items: ISkillInfo[]
+    offset: number
+    limit: number
+    size: number
+}
+
 export class ChatSkillModel {
     constructor (private chat: ChatModel) { }
     _map_skill (s: any): ISkillInfo {
@@ -32,6 +48,21 @@ export class ChatSkillModel {
             extra: s.extra,
             createTime: s.createTime,
             updateTime: s.updateTime,
+        }
+    }
+
+    async load_skill_page (params: ISkillListParams = { }): Promise<ISkillListResult> {
+        const search = new URLSearchParams()
+        for (const [key, value] of Object.entries(params))
+            if (value !== undefined)
+                search.set(key, String(value))
+        const query = search.toString()
+        const result = await this.chat.agent.api_fetch(`/skill/list${query ? `?${query}` : ''}`)
+        return {
+            items: (result.items || [ ]).map((s: any) => this.chat.skill._map_skill(s)),
+            offset: result.offset ?? params.offset ?? 0,
+            limit: result.limit ?? params.limit ?? 50,
+            size: result.size ?? 0,
         }
     }
     

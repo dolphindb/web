@@ -8231,6 +8231,15 @@
     "原因：{{reason}}": {
         "en": "Reason: {{reason}}"
     },
+    "请在计算节点使用 AI 模式": {
+        "en": "Use AI Mode on a compute node"
+    },
+    "集群模式下，控制节点和数据节点暂不支持 AI 模式，请切换到计算节点后使用。": {
+        "en": "In cluster mode, AI Mode is not supported on controller or data nodes. Please switch to a compute node."
+    },
+    "集群模式下 AI 模式需要在计算节点使用。": {
+        "en": "In cluster mode, AI Mode must be used on a compute node."
+    },
     "下载": {
         "en": "Download"
     }
