@@ -42,6 +42,11 @@ function is_tool_message (msg: IMessage) {
 }
 
 
+function PlainTextMessageContent ({ content }: { content: string }) {
+    return <div className='ai-message-content' style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{content}</div>
+}
+
+
 function is_tool_outcome_message (msg: IMessage) {
     return msg.messageType === 'tool_result' || msg.messageType === 'skill_result' || msg.messageType === 'tool_error'
 }
@@ -598,7 +603,7 @@ export function AiMessageRow ({
             : msg.content.trim() && (
                 msg.role === 'user'
                     ? <div className='ai-message-bubble'>
-                        <div className='ai-message-content' dangerouslySetInnerHTML={{ __html: render_markdown(msg.content) }} />
+                        <PlainTextMessageContent content={msg.content} />
                     </div>
                     : <div className='ai-message-content' dangerouslySetInnerHTML={{ __html: render_markdown(msg.content) }} />
             )
