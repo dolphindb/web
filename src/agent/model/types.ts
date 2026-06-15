@@ -215,28 +215,45 @@ export interface IMemoryEntry {
     memoryId: string
     agentId: string
     userId?: string
-    scope?: 'agent' | 'user'
+    scopeType?: 'agent_public' | 'user_personal'
     category: string
+    memoryType?: string
+    canonicalKey?: string
+    title?: string
     content: string
+    shortSummary?: string
+    keywords?: string
     importance: number
+    confidence?: number
+    status?: string
+    accessCount?: number
+    lastAccessTime?: string
+    usageCount?: number
+    lastUsageTime?: string
     metadata?: Record<string, unknown>
     source?: string
-    sourceRef?: string
+    sourceRefs?: string
     expireTime?: number
     createTime?: string
     updateTime?: string
-    textScore?: number
-    relevanceScore?: number
-    hybridScore?: number
+    schemaVersion?: number
+    rankScore?: number
 }
 
 
 export interface IMemoryStats {
     totalCount: number
-    agentScopeCount: number
-    userScopeCount: number
+    agentPublicCount: number
+    userPersonalCount: number
+    activeCount?: number
+    deletedCount?: number
     avgImportance: number
+    scopeDistribution?: Record<string, number>
+    statusDistribution?: Record<string, number>
     categoryDistribution?: Record<string, number>
+    typeDistribution?: Record<string, number>
+    sourceDistribution?: Record<string, number>
+    jobStatusDistribution?: Record<string, number>
 }
 
 

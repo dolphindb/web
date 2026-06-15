@@ -8204,6 +8204,15 @@
     "当前会话工作区": {
         "en": "Current Session Workspace"
     },
+    "公共": {
+        "en": "Public"
+    },
+    "公共记忆": {
+        "en": "Public Memories"
+    },
+    "置信度": {
+        "en": "Confidence"
+    },
     "下载": {
         "en": "Download"
     }
