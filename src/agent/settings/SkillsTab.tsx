@@ -295,23 +295,34 @@ export function SkillsTab () {
                 rowKey='skillId'
                 dataSource={all_skills}
                 pagination={false}
+                tableLayout='fixed'
                 columns={[
                     {
                         title: t('技能'),
-                        render: (_: unknown, s: ISkillInfo) => <div>
+                        render: (_: unknown, s: ISkillInfo) => <div style={{ minWidth: 0 }}>
                             <div>{s.displayName || s.name}</div>
-                            <Text type='secondary'>{s.description || t('无描述')}</Text>
+                            <Text
+                                type='secondary'
+                                title={s.description || t('无描述')}
+                                style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                            >
+                                {s.description || t('无描述')}
+                            </Text>
                         </div>,
                     },
                     {
                         title: t('分类'),
-                        width: 110,
-                        render: (_: unknown, s: ISkillInfo) => s.category ? <Tag>{s.category}</Tag> : '-',
+                        width: 150,
+                        render: (_: unknown, s: ISkillInfo) => s.category
+                            ? <Tag title={s.category} style={{ maxWidth: 130, overflow: 'hidden', textOverflow: 'ellipsis', verticalAlign: 'middle' }}>{s.category}</Tag>
+                            : '-',
                     },
                     {
                         title: t('版本'),
-                        width: 90,
-                        render: (_: unknown, s: ISkillInfo) => s.version ? <Tag color='blue'>v{s.version}</Tag> : '-',
+                        width: 110,
+                        render: (_: unknown, s: ISkillInfo) => s.version
+                            ? <Tag color='blue' title={`v${s.version}`} style={{ maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', verticalAlign: 'middle' }}>v{s.version}</Tag>
+                            : '-',
                     },
                     {
                         title: t('状态'),
