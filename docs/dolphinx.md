@@ -300,7 +300,7 @@ demo2.zip
 
 当 `stream=true` 时，HTTP 响应使用 Server-Sent Events 格式：
 
-`Content-Type: text/event-stream; charset=UTF-8 event: stream_start data: {"type":"STREAM_START","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{...}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"..."}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"..."}} event: stream_end data: {"type":"STREAM_END","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"requestId":"req_xxx","sessionId":"sess_001","model":"<resolved-model>","llmConfigId":"llm_xxx","content":"这是LLM的回复","reasoning":"可展示思考过程累计文本","toolCalls":[{"id":"call_xxx","type":"function","function":{"name":"search_database","arguments":"{\"query\":\"SELECT ...\"}"}}],"finishReason":"tool_calls","usage":{"promptTokens":1200,"completionTokens":300,"totalTokens":1500},"latencyMs":2500,"metadata":{}}} `
+`Content-Type: text/event-stream; charset=UTF-8 event: stream_start data: {"type":"STREAM_START","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"requestId":"req_xxx","model":"<resolved-model>","llmConfigId":"llm_actual","requestedLlmConfigId":"llm_requested","fallbackApplied":false}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"..."}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"...","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"..."}} event: stream_end data: {"type":"STREAM_END","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"requestId":"req_xxx","sessionId":"sess_001","model":"<resolved-model>","llmConfigId":"llm_actual","content":"这是LLM的回复","reasoning":"可展示思考过程累计文本","toolCalls":[{"id":"call_xxx","type":"function","function":{"name":"search_database","arguments":"{\"query\":\"SELECT ...\"}"}}],"finishReason":"tool_calls","usage":{"promptTokens":1200,"completionTokens":300,"totalTokens":1500},"latencyMs":2500,"metadata":{"llmConfigId":"llm_actual","requestedLlmConfigId":"llm_requested","fallbackApplied":false}}} `
 
 SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按 UTF-8 解码后，再做事件分帧和 JSON 解析。
 
@@ -366,7 +366,8 @@ SSE 响应体统一使用 UTF-8 编码。客户端应按字节读取并显式按
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 该接口面向当前登录用户，不接受 `userId` 或 `targetUserId`
 * 返回当前用户在该 agent 下的有效可选集合：`AgentAllowed ∪ UserGranted`
-* 未指定模型时，运行时仍优先使用 agent 默认模型；fallback 只走 agent 绑定链
+* 未指定模型时，运行时仍优先使用 agent 默认模型；若没有会话/agent 默认模型，则按 agent 绑定 `priority` 选择首个可用模型。
+* 仅当 `AgentInfo.config.allowLlmFallback=true` 时，运行时才会在当前模型调用失败且尚未产生流式内容时按 agent 绑定 `priority` 自动尝试下一个模型；默认值为 `false`，失败会直接返回错误。
 
 **响应:**
 
@@ -542,25 +543,25 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
  | 说明
 
 
-                                                                                                                                 |
+                                                                                                                                                                                                                                                                            |
 ```
 
-| -------------------------------------------------------------- | ------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `sessionId`                                              | string            | 是       | 会话 ID，当前用户必须具备写权限                                                                                                          |
-| `message`                                                | string            | 条件必填 | 用户消息文本，会被自动追加到会话历史中。`message`和`toolResults`必须且只能提供一个                                               |
-| `toolResults`                                            | ToolResult[]      | 条件必填 | 工具执行结果列表，必须对应上一轮 assistant 返回的`toolCalls`。`message`和`toolResults`必须且只能提供一个                     |
-| `stream`                                                 | bool              | 否       | 是否流式返回（默认 true）。true 时返回 SSE 流，false 时返回完整 JSON                                                                     |
-| `contextEvent`                                           | bool              | 否       | 是否在本次对话补全响应中返回上下文处理事件（默认 false）。仅 HTTP SSE 和 WebSocket 支持；普通 HTTP JSON 响应会忽略该参数                 |
-| `includeReasoning`                                       | bool              | 否       | 是否返回 provider 给出的可展示思考过程（默认 false）。该内容只用于本次展示，不必持久化存储                                               |
-| `tools`                                                  | ToolDefinition[]  | 否       | 应用层工具定义列表（OpenAI function calling 格式），注入到 LLM 请求中                                                                    |
-| `activeSkillNames`                                       | string[]          | 否       | 调用方显式要求本次附加的技能名称列表；若提供，框架会加载这些技能的 Tier-2 指令注入本次上下文，但不维护激活状态                           |
-| `llmConfigId`                                            | string            | 否       | 指定本次请求使用的 LLM 配置 ID，临时覆盖 session/agent 默认配置(会进行权限校验，因此要确保填写的llmConfigId是当前agent/user有权限使用的) |
-| `model`                                                  | string            | 否       | 临时覆盖 LLM 配置中的模型名称                                                                                                            |
-| `temperature`                                            | double            | 否       | 临时覆盖采样温度                                                                                                                         |
-| `maxTokens`/`max_tokens`/`max_completion_tokens` | int               | 否       | 临时覆盖本次输出 token 上限；这三个字段等价                                                                                              |
-| `topP`/`top_p`                                       | double            | 否       | 临时覆盖 nucleus sampling 参数                                                                                                           |
-| `stop`                                                   | string / string[] | 否       | 临时覆盖停止序列                                                                                                                         |
-| `extensions`                                             | object            | 否       | Provider 透传参数。除保留字段外，其他未知顶层字段也会作为 provider extension 合入请求                                                    |
+| -------------------------------------------------------------- | ------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sessionId`                                              | string            | 是       | 会话 ID，当前用户必须具备写权限                                                                                                                                                                                                                                                     |
+| `message`                                                | string            | 条件必填 | 用户消息文本，会被自动追加到会话历史中。`message`和`toolResults`必须且只能提供一个                                                                                                                                                                                          |
+| `toolResults`                                            | ToolResult[]      | 条件必填 | 工具执行结果列表，必须对应上一轮 assistant 返回的`toolCalls`。`message`和`toolResults`必须且只能提供一个                                                                                                                                                                |
+| `stream`                                                 | bool              | 否       | 是否流式返回（默认 true）。true 时返回 SSE 流，false 时返回完整 JSON                                                                                                                                                                                                                |
+| `contextEvent`                                           | bool              | 否       | 是否在本次对话补全响应中返回上下文处理事件（默认 false）。仅 HTTP SSE 和 WebSocket 支持；普通 HTTP JSON 响应会忽略该参数                                                                                                                                                            |
+| `includeReasoning`                                       | bool              | 否       | 是否返回 provider 给出的可展示思考过程（默认 false）。该内容只用于本次展示，不必持久化存储                                                                                                                                                                                          |
+| `tools`                                                  | ToolDefinition[]  | 否       | 应用层工具定义列表（OpenAI function calling 格式），注入到 LLM 请求中                                                                                                                                                                                                               |
+| `activeSkillNames`                                       | string[]          | 否       | 调用方显式要求本次附加的技能名称列表；若提供，框架会加载这些技能的 Tier-2 指令注入本次上下文，但不维护激活状态                                                                                                                                                                      |
+| `llmConfigId`                                            | string            | 否       | 指定本次请求优先使用的 LLM 配置 ID，临时覆盖 session/agent 默认配置。会进行权限校验，因此要确保填写的 llmConfigId 是当前 agent/user 有权限使用的。默认严格使用该模型；仅当`AgentInfo.config.allowLlmFallback=true`时，失败后才可能自动切换到 agent 绑定 fallback 链中的后续模型 |
+| `model`                                                  | string            | 否       | 临时覆盖 LLM 配置中的模型名称                                                                                                                                                                                                                                                       |
+| `temperature`                                            | double            | 否       | 临时覆盖采样温度                                                                                                                                                                                                                                                                    |
+| `maxTokens`/`max_tokens`/`max_completion_tokens` | int               | 否       | 临时覆盖本次输出 token 上限；这三个字段等价                                                                                                                                                                                                                                         |
+| `topP`/`top_p`                                       | double            | 否       | 临时覆盖 nucleus sampling 参数                                                                                                                                                                                                                                                      |
+| `stop`                                                   | string / string[] | 否       | 临时覆盖停止序列                                                                                                                                                                                                                                                                    |
+| `extensions`                                             | object            | 否       | Provider 透传参数。除保留字段外，其他未知顶层字段也会作为 provider extension 合入请求                                                                                                                                                                                               |
 
 ToolResult 结构:
 
@@ -631,24 +632,24 @@ ToolResult 结构:
  | 说明
 
 
-                                                                                                                 |
+                                                                                                                                                              |
 ```
 
-| -------------------------------------------------------------- | ------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `sessionId`                                              | string            | 是       | 会话 ID，当前用户必须具备写权限                                                                                          |
-| `message`                                                | string            | 条件必填 | 用户消息文本。`message`和`toolResults`必须且只能提供一个                                                         |
-| `toolResults`                                            | ToolResult[]      | 条件必填 | 工具执行结果列表，必须对应上一轮 assistant 返回的`toolCalls`。`message`和`toolResults`必须且只能提供一个     |
-| `stream`                                                 | bool              | 否       | 是否流式返回（默认 true）                                                                                                |
-| `contextEvent`                                           | bool              | 否       | 是否在本次对话补全响应中返回上下文处理事件（默认 false）。仅 HTTP SSE 和 WebSocket 支持；普通 HTTP JSON 响应会忽略该参数 |
-| `includeReasoning`                                       | bool              | 否       | 是否返回 provider 给出的可展示思考过程（默认 false）。该内容只用于本次展示，不必持久化存储                               |
-| `llmConfigId`                                            | string            | 否       | 指定本次请求使用的 LLM 配置 ID                                                                                           |
-| `model`                                                  | string            | 否       | 临时覆盖 LLM 配置中的模型名称                                                                                            |
-| `temperature`                                            | double            | 否       | 临时覆盖采样温度                                                                                                         |
-| `maxTokens`/`max_tokens`/`max_completion_tokens` | int               | 否       | 临时覆盖本次输出 token 上限；这三个字段等价                                                                              |
-| `topP`/`top_p`                                       | double            | 否       | 临时覆盖 nucleus sampling 参数                                                                                           |
-| `stop`                                                   | string / string[] | 否       | 临时覆盖停止序列                                                                                                         |
-| `extensions`                                             | object            | 否       | Provider 透传参数。除保留字段外，其他未知顶层字段也会作为 provider extension 合入请求                                    |
-| `assemblyConfig`                                         | object            | 是       | 手动组装配置，由应用层控制上下文构成                                                                                     |
+| -------------------------------------------------------------- | ------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sessionId`                                              | string            | 是       | 会话 ID，当前用户必须具备写权限                                                                                                                                       |
+| `message`                                                | string            | 条件必填 | 用户消息文本。`message`和`toolResults`必须且只能提供一个                                                                                                      |
+| `toolResults`                                            | ToolResult[]      | 条件必填 | 工具执行结果列表，必须对应上一轮 assistant 返回的`toolCalls`。`message`和`toolResults`必须且只能提供一个                                                  |
+| `stream`                                                 | bool              | 否       | 是否流式返回（默认 true）                                                                                                                                             |
+| `contextEvent`                                           | bool              | 否       | 是否在本次对话补全响应中返回上下文处理事件（默认 false）。仅 HTTP SSE 和 WebSocket 支持；普通 HTTP JSON 响应会忽略该参数                                              |
+| `includeReasoning`                                       | bool              | 否       | 是否返回 provider 给出的可展示思考过程（默认 false）。该内容只用于本次展示，不必持久化存储                                                                            |
+| `llmConfigId`                                            | string            | 否       | 指定本次请求优先使用的 LLM 配置 ID。默认严格使用该模型；仅当`AgentInfo.config.allowLlmFallback=true`时，失败后才可能自动切换到 agent 绑定 fallback 链中的后续模型 |
+| `model`                                                  | string            | 否       | 临时覆盖 LLM 配置中的模型名称                                                                                                                                         |
+| `temperature`                                            | double            | 否       | 临时覆盖采样温度                                                                                                                                                      |
+| `maxTokens`/`max_tokens`/`max_completion_tokens` | int               | 否       | 临时覆盖本次输出 token 上限；这三个字段等价                                                                                                                           |
+| `topP`/`top_p`                                       | double            | 否       | 临时覆盖 nucleus sampling 参数                                                                                                                                        |
+| `stop`                                                   | string / string[] | 否       | 临时覆盖停止序列                                                                                                                                                      |
+| `extensions`                                             | object            | 否       | Provider 透传参数。除保留字段外，其他未知顶层字段也会作为 provider extension 合入请求                                                                                 |
+| `assemblyConfig`                                         | object            | 是       | 手动组装配置，由应用层控制上下文构成                                                                                                                                  |
 
 `assemblyConfig` 结构:
 
@@ -722,20 +723,22 @@ ToolResult 结构:
 
 `reasoning` 表示 provider 返回的可展示思考过程，不保证完整、真实或等价于模型内部 CoT；框架只在 `includeReasoning=true` 时提取并返回，不必持久化存储。
 
-`{ "requestId": "req_xxx", "sessionId": "sess_001", "model": "gpt-4", "llmConfigId": "llm_xxx", "content": "这是 LLM 的回复...", "reasoning": "provider 返回的可展示思考过程；未开启或 provider 未返回时为空", "toolCalls": [ { "id": "call_xxx", "type": "function", "function": { "name": "search_database", "arguments": "{\"query\":\"SELECT ...\"}" } } ], "finishReason": "stop", "usage": { "promptTokens": 1200, "completionTokens": 300, "totalTokens": 1500 }, "latencyMs": 2500, "metadata": {} } `
+`{ "requestId": "req_xxx", "sessionId": "sess_001", "model": "gpt-4", "llmConfigId": "llm_actual", "content": "这是 LLM 的回复...", "reasoning": "provider 返回的可展示思考过程；未开启或 provider 未返回时为空", "toolCalls": [ { "id": "call_xxx", "type": "function", "function": { "name": "search_database", "arguments": "{\"query\":\"SELECT ...\"}" } } ], "finishReason": "stop", "usage": { "promptTokens": 1200, "completionTokens": 300, "totalTokens": 1500 }, "latencyMs": 2500, "metadata": { "llmConfigId": "llm_actual", "requestedLlmConfigId": "llm_requested", "fallbackApplied": false } } `
 
 #### 流式响应 (SSE)
 
 当 `stream=true`（默认）时，返回 SSE 流：
 
-`event: event data: {"type":"EVENT","msgId":"...","correlationId":"req_xxx","action":"context.compaction","agentId":"agent_xxx","sessionId":"sess_001","data":{"phase":"start"}} event: event data: {"type":"EVENT","msgId":"...","correlationId":"req_xxx","action":"context.compaction","agentId":"agent_xxx","sessionId":"sess_001","data":{"phase":"end","generated":true}} event: stream_start data: {"type":"STREAM_START","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"requestId":"req_xxx","model":"<resolved-model>","llmConfigId":"llm_xxx"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"这是"}} event: reasoning_delta data: {"type":"STREAM_REASONING","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"reasoning":"可展示思考过程增量"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"","toolCallDeltas":[{"index":0,"id":"call_xxx","type":"function","function":{"name":"search_database","arguments":"{\"query\":"}}],"finishReason":"","usage":{"promptTokens":0,"completionTokens":0,"totalTokens":0}}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"LLM"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"的回复"}} event: stream_end data: {"type":"STREAM_END","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"requestId":"req_xxx","sessionId":"sess_001","model":"<resolved-model>","llmConfigId":"llm_xxx","content":"这是LLM的回复","reasoning":"可展示思考过程累计文本","toolCalls":[{"id":"call_xxx","type":"function","function":{"name":"search_database","arguments":"{\"query\":\"SELECT ...\"}"}}],"finishReason":"tool_calls","usage":{"promptTokens":1200,"completionTokens":300,"totalTokens":1500},"latencyMs":2500,"metadata":{}}} `
+`event: event data: {"type":"EVENT","msgId":"...","correlationId":"req_xxx","action":"context.compaction","agentId":"agent_xxx","sessionId":"sess_001","data":{"phase":"start"}} event: event data: {"type":"EVENT","msgId":"...","correlationId":"req_xxx","action":"context.compaction","agentId":"agent_xxx","sessionId":"sess_001","data":{"phase":"end","generated":true}} event: stream_start data: {"type":"STREAM_START","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"requestId":"req_xxx","model":"<resolved-model>","llmConfigId":"llm_actual","requestedLlmConfigId":"llm_requested","fallbackApplied":false}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"这是"}} event: reasoning_delta data: {"type":"STREAM_REASONING","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"reasoning":"可展示思考过程增量"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"","toolCallDeltas":[{"index":0,"id":"call_xxx","type":"function","function":{"name":"search_database","arguments":"{\"query\":"}}],"finishReason":"","usage":{"promptTokens":0,"completionTokens":0,"totalTokens":0}}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"LLM"}} event: chunk data: {"type":"STREAM_CHUNK","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"content":"的回复"}} event: stream_end data: {"type":"STREAM_END","msgId":"...","correlationId":"req_xxx","action":"chat.completions","agentId":"agent_xxx","sessionId":"sess_001","data":{"requestId":"req_xxx","sessionId":"sess_001","model":"<resolved-model>","llmConfigId":"llm_actual","content":"这是LLM的回复","reasoning":"可展示思考过程累计文本","toolCalls":[{"id":"call_xxx","type":"function","function":{"name":"search_database","arguments":"{\"query\":\"SELECT ...\"}"}}],"finishReason":"tool_calls","usage":{"promptTokens":1200,"completionTokens":300,"totalTokens":1500},"latencyMs":2500,"metadata":{"llmConfigId":"llm_actual","requestedLlmConfigId":"llm_requested","fallbackApplied":false}}} `
 
 说明：
 
 * 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
 * `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
 * `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_START.data.llmConfigId` 是实际开始调用的 LLM 配置 ID；`requestedLlmConfigId` 是本次原始解析出的目标模型。发生自动 fallback 时，`fallbackApplied=true`，并返回 `fallbackFromLlmConfigId`、`fallbackReason`、`fallbackStatusCode`。其中 `fallbackReason` 是触发 fallback 的原模型失败报错信息，客户端应在 fallback 提示中展示。
 * `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* `STREAM_END.data.metadata` 会记录模型选择审计字段：`llmConfigId`（实际使用）、`requestedLlmConfigId`（原始目标）、`fallbackApplied`，以及 fallback 发生时的 `fallbackFromLlmConfigId`、`fallbackReason`、`fallbackStatusCode`。其中 `fallbackReason` 是触发 fallback 的原模型失败报错信息，客户端应在 fallback 提示中展示。
 * 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `context.compaction` 事件只会在请求体中设置 `contextEvent=true` 且本次请求实际触发上下文压缩时返回。
 * `data.phase` 可能为 `start` / `end` / `failed`；`end` 阶段会额外返回 `generated` 表示是否实际生成了摘要。
@@ -1791,7 +1794,7 @@ ToolDefinition 结构:
 | `llmConfigId`   | string | 否   | 默认 LLM 配置 ID，必须是已通过`/llm/config/register`注册的配置 ID。注册时会自动创建 agent 与该 LLM 配置的绑定关系（`isDefault=true`,`priority=0`）                                                                                                                                                                                                                                |
 | `contextConfig` | object | 否   | 上下文组装配置，详见[contextConfig 结构](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#contextconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#contextconfig") |
 | `memoryConfig`  | object | 否   | 记忆管理配置，详见[memoryConfig 结构](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig")      |
-| `config`        | object | 否   | 自定义扩展配置，框架原样存储，不做解析                                                                                                                                                                                                                                                                                                                                                        |
+| `config`        | object | 否   | Agent 扩展配置。框架会读取`allowLlmFallback`（bool，默认 false）控制是否允许模型调用失败时自动 fallback；其他字段原样存储                                                                                                                                                                                                                                                                 |
 | `extra`         | string | 否   | 预留扩展字段                                                                                                                                                                                                                                                                                                                                                                                  |
 
 **响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")
@@ -1806,6 +1809,7 @@ ToolDefinition 结构:
 * `agent.register` 不接受 `agentId` 和 `ownerUserId`；`agentId` 由框架生成
 * `agentName` 在未删除 Agent 范围内唯一；重复名称返回 `BUS_CONFLICT` / HTTP 409；Agent 删除后名称可复用
 * `memoryConfig` 由记忆策略服务读取，未提供字段按默认策略处理
+* `config.allowLlmFallback=false` 时，运行时只调用解析出的目标模型，失败直接报错；设为 `true` 时，目标模型失败且尚未产生流式内容时可按 agent 绑定 priority 自动尝试后续模型。
 
 ---
 
@@ -1833,19 +1837,19 @@ ToolDefinition 结构:
 | 说明
 
 
-                                                               |
+                                                                                                     |
 ```
 
-| --------------------- | -------- | ---------------- | ------------------------------------------------------------------------ |
-| `agentId`       | string | 路径已提供时否 | Agent ID；若同时出现在路径和 body 中，必须一致                         |
-| `agentName`     | string | 否             | Agent 名称                                                             |
-| `description`   | string | 否             | 描述                                                                   |
-| `systemPrompt`  | string | 否             | 系统提示词                                                             |
-| `llmConfigId`   | string | 否             | 默认 LLM 配置 ID；非空时必须是可用 chat 配置，空字符串表示清除默认配置 |
-| `contextConfig` | object | 否             | 上下文组装配置，整体替换                                               |
-| `memoryConfig`  | object | 否             | 记忆管理配置，整体替换                                                 |
-| `config`        | object | 否             | 自定义扩展配置，整体替换                                               |
-| `extra`         | string | 否             | 预留扩展字段                                                           |
+| --------------------- | -------- | ---------------- | -------------------------------------------------------------------------------------------------------------- |
+| `agentId`       | string | 路径已提供时否 | Agent ID；若同时出现在路径和 body 中，必须一致                                                               |
+| `agentName`     | string | 否             | Agent 名称                                                                                                   |
+| `description`   | string | 否             | 描述                                                                                                         |
+| `systemPrompt`  | string | 否             | 系统提示词                                                                                                   |
+| `llmConfigId`   | string | 否             | 默认 LLM 配置 ID；非空时必须是可用 chat 配置，空字符串表示清除默认配置                                       |
+| `contextConfig` | object | 否             | 上下文组装配置，整体替换                                                                                     |
+| `memoryConfig`  | object | 否             | 记忆管理配置，整体替换                                                                                       |
+| `config`        | object | 否             | Agent 扩展配置，整体替换。`allowLlmFallback`为 bool，默认 false，控制是否允许模型调用失败时自动 fallback |
+| `extra`         | string | 否             | 预留扩展字段                                                                                                 |
 
 说明：
 
@@ -2477,10 +2481,10 @@ ToolDefinition 结构:
 |
 ```
 
-| ------------------- | -------- | ------ | ----------------------------------------------------------------------------------------------------------------- |
-| `llmConfigId` | string | 是   | 要绑定的 LLM 配置 ID，必须已启用，且其引用的 provider 也必须启用                                                |
-| `isDefault`   | bool   | 否   | 是否设为默认 LLM（默认 false）。每个 agent 仅允许一个默认配置，设为 true 时 priority 强制为 0                   |
-| `priority`    | int    | 否   | 优先级（默认 0），数值越小优先级越高。运行时按 priority 升序形成 fallback 链，当前 LLM 调用失败时自动尝试下一个 |
+| ------------------- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `llmConfigId` | string | 是   | 要绑定的 LLM 配置 ID，必须已启用，且其引用的 provider 也必须启用                                                                                                                                |
+| `isDefault`   | bool   | 否   | 是否设为默认 LLM（默认 false）。每个 agent 仅允许一个默认配置，设为 true 时 priority 强制为 0                                                                                                   |
+| `priority`    | int    | 否   | 优先级（默认 0），数值越小优先级越高。用于默认模型解析顺序；仅当`AgentInfo.config.allowLlmFallback=true`时，运行时才会按 priority 升序形成 fallback 链并在当前 LLM 调用失败时自动尝试下一个 |
 
 **响应:** Agent 关联的 LLM 配置列表 `{ items: [AgentLlmBindingInfo, ...], size }`
 
@@ -3550,7 +3554,7 @@ WebSocket 调用时，`includeDetails` 放在 `payload` 中。
 | `llmConfigId`   | string    | 默认 LLM 配置 ID。注册时如果指定，会自动创建 agent 与该 LLM 的绑定关系（`isDefault=true`,`priority=0`）                                                                                                                                                                                                                                                                                                                                 |
 | `contextConfig` | object    | 上下文组装配置，控制历史摘要、记忆检索、技能注入、摘要触发等行为，详见[contextConfig 结构](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#contextconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#contextconfig") |
 | `memoryConfig`  | object    | 记忆管理配置，详见[memoryConfig 结构](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig")                                                        |
-| `config`        | object    | 自定义扩展配置，框架原样存储不做解析，可用于业务层自定义用途                                                                                                                                                                                                                                                                                                                                                                                    |
+| `config`        | object    | Agent 扩展配置。`allowLlmFallback`为 bool，默认 false；为 false 时只调用解析出的目标模型，失败直接报错；为 true 时允许按 agent 绑定 priority 自动 fallback。其他字段原样存储，可用于业务层自定义用途                                                                                                                                                                                                                                        |
 | `version`       | int       | 配置版本号，注册时为 1，可用于客户端缓存失效判断                                                                                                                                                                                                                                                                                                                                                                                                |
 | `schemaVersion` | int       | 行 Schema 版本号                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `extra`         | string    | 预留扩展字段                                                                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -3763,7 +3767,7 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 * 网络错误（连接失败、超时等）始终触发重试，不受 `retryableStatusCodes` 限制
 * LLM 返回错误时，仅当状态码在 `retryableStatusCodes` 集合中且异常标记为 retryable 时才重试
 * 如果 LLM 响应头包含 `Retry-After`，优先使用该值作为等待时间，否则按退避公式计算
-* 所有重试耗尽后仍失败，则尝试 fallback 到 agent 绑定的下一个 LLM 配置（按 priority 顺序）
+* 所有重试耗尽后仍失败，且 `AgentInfo.config.allowLlmFallback=true` 时，才尝试 fallback 到 agent 绑定的下一个 LLM 配置（按 priority 顺序）。默认不开启 fallback。
 
 **示例：**
 
@@ -3933,10 +3937,10 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 |
 ```
 
-| ------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `isDefault`   | bool   | 是否为默认 LLM。每个 agent 仅允许一个默认配置，设为`true`时`priority`强制为 0                                                                                           |
-| `priority`    | int    | LLM 选择优先级，数值越小优先级越高。运行时按 priority 升序排列形成 fallback 链：优先使用 priority 最小的，调用失败时自动尝试下一个。请求级`llmConfigId`可临时覆盖优先级排序 |
-| `accessExtra` | string | 绑定级别的扩展字段                                                                                                                                                              |
+| ------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `isDefault`   | bool   | 是否为默认 LLM。每个 agent 仅允许一个默认配置，设为`true`时`priority`强制为 0                                                                                                         |
+| `priority`    | int    | LLM 选择优先级，数值越小优先级越高。用于默认模型解析顺序；仅当`AgentInfo.config.allowLlmFallback=true`时才按 priority 升序排列形成 fallback 链。请求级`llmConfigId`可临时覆盖首选模型 |
+| `accessExtra` | string | 绑定级别的扩展字段                                                                                                                                                                            |
 
 ---
 
@@ -3953,14 +3957,14 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
    | 说明
 
 
-                                                 |
+                                                                                |
 ```
 
-| ------------------------------ | ------------ | ---------------------------------------------------------- |
-| `source`                 | string     | 来源：`agent`/`user`/`both`                  |
-| `isAgentDefault`         | bool       | 是否为该 agent 当前默认模型                              |
-| `participatesInFallback` | bool       | 是否参与 agent fallback 链                               |
-| `fallbackPriority`       | int / null | fallback 顺序；仅`participatesInFallback=true`时有值 |
+| ------------------------------ | ------------ | ----------------------------------------------------------------------------------------- |
+| `source`                 | string     | 来源：`agent`/`user`/`both`                                                 |
+| `isAgentDefault`         | bool       | 是否为该 agent 当前默认模型                                                             |
+| `participatesInFallback` | bool       | 是否来自 agent 绑定并可在`AgentInfo.config.allowLlmFallback=true`时参与 fallback 链 |
+| `fallbackPriority`       | int / null | fallback 顺序；仅`participatesInFallback=true`时有值                                |
 
 ---
 
@@ -4330,23 +4334,23 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
    | 说明
 
 
-                                                                                                                                                                                                                                                   |
+                                                                                                                                                                                                                                                                                                                                                                             |
 ```
 
-| ------------------------------ | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `requestId`              | string     | 请求唯一 ID，用于追踪和日志关联                                                                                                                                                                                                                            |
-| `sessionId`              | string     | 所属会话 ID（如果有）                                                                                                                                                                                                                                      |
-| `model`                  | string     | 实际使用的 LLM 模型名称（由 LLM 提供商返回）                                                                                                                                                                                                               |
-| `llmConfigId`            | string     | 实际使用的 LLM 配置 ID                                                                                                                                                                                                                                     |
-| `content`                | string     | LLM 回复的文本内容                                                                                                                                                                                                                                         |
-| `toolCalls`              | ToolCall[] | LLM 发起的工具调用列表。非空时`finishReason`通常为`tool_calls`/`tool_use`，应用层应执行工具并将结果追加为`tool_result`消息                                                                                                                 |
-| `finishReason`           | string     | 结束原因，值取决于 LLM 提供商。OpenAI 系：`stop`（正常结束）/`tool_calls`（需要调用工具）/`length`（达到 max\_tokens 限制）/`content_filter`（内容过滤）。Anthropic 系：`end_turn`/`tool_use`/`max_tokens`/`stop_sequence` |
-| `usage`                  | object     | 本次请求的 token 用量统计                                                                                                                                                                                                                                  |
-| `usage.promptTokens`     | int        | 输入 token 数（发送给 LLM 的完整上下文消耗的 token）                                                                                                                                                                                                       |
-| `usage.completionTokens` | int        | 输出 token 数（LLM 生成的回复消耗的 token）                                                                                                                                                                                                                |
-| `usage.totalTokens`      | int        | 总 token 数                                                                                                                                                                                                                                                |
-| `latencyMs`              | long       | 本次 LLM 请求的端到端延迟（毫秒）                                                                                                                                                                                                                          |
-| `metadata`               | object     | 额外元数据                                                                                                                                                                                                                                                 |
+| ------------------------------ | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `requestId`              | string     | 请求唯一 ID，用于追踪和日志关联                                                                                                                                                                                                                                                                                                                                                      |
+| `sessionId`              | string     | 所属会话 ID（如果有）                                                                                                                                                                                                                                                                                                                                                                |
+| `model`                  | string     | 实际使用的 LLM 模型名称（由 LLM 提供商返回）                                                                                                                                                                                                                                                                                                                                         |
+| `llmConfigId`            | string     | 实际使用的 LLM 配置 ID                                                                                                                                                                                                                                                                                                                                                               |
+| `content`                | string     | LLM 回复的文本内容                                                                                                                                                                                                                                                                                                                                                                   |
+| `toolCalls`              | ToolCall[] | LLM 发起的工具调用列表。非空时`finishReason`通常为`tool_calls`/`tool_use`，应用层应执行工具并将结果追加为`tool_result`消息                                                                                                                                                                                                                                           |
+| `finishReason`           | string     | 结束原因，值取决于 LLM 提供商。OpenAI 系：`stop`（正常结束）/`tool_calls`（需要调用工具）/`length`（达到 max\_tokens 限制）/`content_filter`（内容过滤）。Anthropic 系：`end_turn`/`tool_use`/`max_tokens`/`stop_sequence`                                                                                                                           |
+| `usage`                  | object     | 本次请求的 token 用量统计                                                                                                                                                                                                                                                                                                                                                            |
+| `usage.promptTokens`     | int        | 输入 token 数（发送给 LLM 的完整上下文消耗的 token）                                                                                                                                                                                                                                                                                                                                 |
+| `usage.completionTokens` | int        | 输出 token 数（LLM 生成的回复消耗的 token）                                                                                                                                                                                                                                                                                                                                          |
+| `usage.totalTokens`      | int        | 总 token 数                                                                                                                                                                                                                                                                                                                                                                          |
+| `latencyMs`              | long       | 本次 LLM 请求的端到端延迟（毫秒）                                                                                                                                                                                                                                                                                                                                                    |
+| `metadata`               | object     | 额外元数据。chat/complete 响应中会包含模型选择审计字段：`llmConfigId`（实际使用的 LLM 配置 ID）、`requestedLlmConfigId`（原始目标 LLM 配置 ID）、`fallbackApplied`（是否发生 fallback）；当`fallbackApplied=true`时还包含`fallbackFromLlmConfigId`、`fallbackReason`、`fallbackStatusCode`，其中`fallbackReason`是触发 fallback 的原模型失败报错信息 |
 
 ---
 
@@ -4532,7 +4536,7 @@ Python `websockets` 示例：
 
 **流式帧:**
 
-`{"type": "EVENT", "msgId": "...", "correlationId": "req_001", "action": "context.compaction", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"phase": "start"}} {"type": "EVENT", "msgId": "...", "correlationId": "req_001", "action": "context.compaction", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"phase": "end", "generated": true}} {"type": "STREAM_START", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"requestId": "req_001", "model": "<resolved-model>", "llmConfigId": "llm_xxx"}} {"type": "STREAM_REASONING", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"reasoning": "..."}} {"type": "STREAM_CHUNK", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"content": "..."}} {"type": "STREAM_END", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {...}} `
+`{"type": "EVENT", "msgId": "...", "correlationId": "req_001", "action": "context.compaction", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"phase": "start"}} {"type": "EVENT", "msgId": "...", "correlationId": "req_001", "action": "context.compaction", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"phase": "end", "generated": true}} {"type": "STREAM_START", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"requestId": "req_001", "model": "<resolved-model>", "llmConfigId": "llm_actual", "requestedLlmConfigId": "llm_requested", "fallbackApplied": false}} {"type": "STREAM_REASONING", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"reasoning": "..."}} {"type": "STREAM_CHUNK", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"content": "..."}} {"type": "STREAM_END", "msgId": "...", "correlationId": "req_001", "action": "chat.completions", "agentId": "agent_xxx", "sessionId": "sess_001", "data": {"metadata": {"llmConfigId": "llm_actual", "requestedLlmConfigId": "llm_requested", "fallbackApplied": false}}} `
 
 WebSocket 对话补全也支持 `contextEvent=true`，上下文压缩事件使用同一个 `correlationId` 返回；普通 HTTP JSON 响应会忽略该参数。
 
