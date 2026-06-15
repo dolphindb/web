@@ -6,6 +6,19 @@ import type { ChatCompletionOptions } from '@/agent/tool_call_adapters.ts'
 import type { IAccessInfo, IAgentInfo, ISelectableLlmInfo } from './types.ts'
 import { AGENT_ID_KEY } from './constants.ts'
 
+function parse_agent_config (value: any) {
+    if (!value)
+        return { }
+    if (typeof value === 'string')
+        try {
+            return JSON.parse(value)
+        } catch {
+            return { }
+        }
+    return typeof value === 'object' ? value : { }
+}
+
+
 export class ChatAgentModel {
     constructor (private chat: ChatModel) { }
     set_active_agent (agent_id: string, agents = this.chat.agents) {
@@ -132,6 +145,7 @@ export class ChatAgentModel {
             description: a.description,
             systemPrompt: a.systemPrompt,
             llmConfigId: a.llmConfigId,
+            config: parse_agent_config(a.config),
             status: a.status,
             statusName: a.statusName || '',
             createTime: a.createTime,
@@ -178,6 +192,7 @@ export class ChatAgentModel {
         agentName: string
         description?: string
         systemPrompt?: string
+        config?: Record<string, any>
     }): Promise<IAgentInfo> {
         const result = await this.chat.agent.api_fetch('/agent/register', {
             method: 'POST',
@@ -196,6 +211,7 @@ export class ChatAgentModel {
             agentName: activated.agentName || params.agentName,
             description: activated.description || params.description,
             systemPrompt: activated.systemPrompt || params.systemPrompt,
+            config: parse_agent_config(activated.config ?? params.config),
             status: activated.status ?? 1,
             statusName: activated.statusName || 'ACTIVE',
             createTime: activated.createTime,
@@ -241,6 +257,7 @@ export class ChatAgentModel {
                     description: result.description ?? updates.description ?? a.description,
                     systemPrompt: result.systemPrompt ?? updates.systemPrompt ?? a.systemPrompt,
                     llmConfigId: result.llmConfigId ?? updates.llmConfigId ?? a.llmConfigId,
+                    config: parse_agent_config(result.config ?? updates.config ?? a.config),
                     updateTime: result.updateTime ?? a.updateTime,
                 }
                 : a

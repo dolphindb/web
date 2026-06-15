@@ -34,6 +34,7 @@ export function AgentTab () {
         agentName: '',
         description: '',
         systemPrompt: '',
+        allowLlmFallback: false,
     })
     
     async function refresh () {
@@ -75,11 +76,12 @@ export function AgentTab () {
                 agentName: form.agentName.trim(),
                 description: form.description || undefined,
                 systemPrompt: form.systemPrompt || undefined,
+                config: { allowLlmFallback: form.allowLlmFallback },
             })
             message.success(t('Agent 创建成功'))
             set_selected_agent(agent)
             set_creating(false)
-            set_form({ agentName: '', description: '', systemPrompt: '' })
+            set_form({ agentName: '', description: '', systemPrompt: '', allowLlmFallback: false })
         } catch (e: any) {
             message.error(e.message || t('创建失败'))
         } finally {
@@ -171,6 +173,15 @@ export function AgentTab () {
                                 rows={3}
                             />
                         </div>
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <Space>
+                                <Switch checked={form.allowLlmFallback} onChange={checked => { set_form({ ...form, allowLlmFallback: checked }) }} />
+                                <span>{t('允许模型失败时自动切换')}</span>
+                            </Space>
+                            <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
+                                {t('开启后，当前模型调用失败且尚未输出内容时，会按模型绑定优先级尝试下一个模型。')}
+                            </div>
+                        </div>
                     </div>
                     <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
                         <Button onClick={() => {
@@ -200,6 +211,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
     const [agent_form, set_agent_form] = useState({
         description: agent.description || '',
         systemPrompt: agent.systemPrompt || '',
+        allowLlmFallback: agent.config?.allowLlmFallback === true,
     })
     
     async function load () {
@@ -232,8 +244,9 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
         set_agent_form({
             description: agent.description || '',
             systemPrompt: agent.systemPrompt || '',
+            allowLlmFallback: agent.config?.allowLlmFallback === true,
         })
-    }, [agent.agentId, agent.description, agent.systemPrompt])
+    }, [agent.agentId, agent.description, agent.systemPrompt, agent.config?.allowLlmFallback])
     
     async function save_agent () {
         set_saving_agent(true)
@@ -241,6 +254,10 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
             await chat_model.agent.update_agent(agent.agentId, {
                 description: agent_form.description || undefined,
                 systemPrompt: agent_form.systemPrompt || undefined,
+                config: {
+                    ...(agent.config || { }),
+                    allowLlmFallback: agent_form.allowLlmFallback,
+                },
             })
             message.success(t('保存成功'))
             on_refresh()
@@ -341,6 +358,15 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                         onChange={e => { set_agent_form({ ...agent_form, systemPrompt: e.target.value }) }}
                         rows={3}
                     />
+                </div>
+                <div>
+                    <Space>
+                        <Switch checked={agent_form.allowLlmFallback} onChange={checked => { set_agent_form({ ...agent_form, allowLlmFallback: checked }) }} />
+                        <span>{t('允许模型失败时自动切换')}</span>
+                    </Space>
+                    <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
+                        {t('开启后，当前模型调用失败且尚未输出内容时，会按模型绑定优先级尝试下一个模型。')}
+                    </div>
                 </div>
             </div>
             <div style={{ marginTop: 12, textAlign: 'right' }}>

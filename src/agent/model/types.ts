@@ -184,6 +184,7 @@ export interface IAgentInfo {
     description?: string
     systemPrompt?: string
     llmConfigId?: string
+    config?: Record<string, any>
     status: number
     statusName: string
     createTime?: string

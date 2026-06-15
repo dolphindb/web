@@ -345,6 +345,38 @@ export class ChatRuntimeModel {
         let content = ''
         let reasoning_content = ''
         let final_data: any
+        let fallback_notice_shown = false
+        
+        const show_fallback_notice = (data: any) => {
+            const metadata = data?.metadata && typeof data.metadata === 'object' ? data.metadata : data
+            if (fallback_notice_shown || !(metadata?.fallbackApplied === true || metadata?.fallbackApplied === 'true'))
+                return
+            fallback_notice_shown = true
+            
+            const parts = [
+                t('模型调用失败，已自动切换到备用模型。'),
+                metadata?.fallbackFromLlmConfigId && metadata?.llmConfigId
+                    ? t('模型：{{from}} → {{to}}', { from: metadata.fallbackFromLlmConfigId, to: metadata.llmConfigId })
+                    : '',
+                metadata?.fallbackStatusCode ? t('状态码：{{status}}', { status: metadata.fallbackStatusCode }) : '',
+                metadata?.fallbackReason ? t('原因：{{reason}}', { reason: metadata.fallbackReason }) : '',
+            ].filter(Boolean)
+            const notice: IMessage = {
+                msgId: `fallback_${Date.now()}`,
+                role: 'assistant',
+                messageType: 'text',
+                content: parts.join('\n\n'),
+            }
+            const index = this.chat.messages.findIndex(message => message.msgId === assistant_msg_id)
+            const messages = index >= 0
+                ? [
+                    ...this.chat.messages.slice(0, index),
+                    notice,
+                    ...this.chat.messages.slice(index),
+                ]
+                : [...this.chat.messages, notice]
+            this.chat.set({ messages })
+        }
         
         const apply_event = (raw_event: string) => {
             const parsed_event = parse_sse_event(raw_event)
@@ -375,8 +407,10 @@ export class ChatRuntimeModel {
             
             this.chat.runtime.clear_context_compaction_status()
             
-            if (type === 'STREAM_START' || parsed_event.event === 'stream_start')
+            if (type === 'STREAM_START' || parsed_event.event === 'stream_start') {
+                show_fallback_notice(data)
                 return
+            }
             
             if (type === 'STREAM_CHUNK' || parsed_event.event === 'chunk') {
                 const delta = to_stream_text(data.content)
@@ -398,6 +432,7 @@ export class ChatRuntimeModel {
             
             if (type === 'STREAM_END' || parsed_event.event === 'stream_end') {
                 final_data = data
+                show_fallback_notice(data)
                 const final_content = to_stream_text(data.content)
                 const final_reasoning = get_reasoning_text(data)
                 if (!content && final_content)

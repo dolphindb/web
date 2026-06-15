@@ -8213,6 +8213,24 @@
     "置信度": {
         "en": "Confidence"
     },
+    "允许模型失败时自动切换": {
+        "en": "Allow automatic model fallback"
+    },
+    "开启后，当前模型调用失败且尚未输出内容时，会按模型绑定优先级尝试下一个模型。": {
+        "en": "When enabled, if the current model call fails before producing output, the next model will be tried by binding priority."
+    },
+    "模型调用失败，已自动切换到备用模型。": {
+        "en": "The model call failed and was automatically switched to a fallback model."
+    },
+    "模型：{{from}} → {{to}}": {
+        "en": "Model: {{from}} → {{to}}"
+    },
+    "状态码：{{status}}": {
+        "en": "Status code: {{status}}"
+    },
+    "原因：{{reason}}": {
+        "en": "Reason: {{reason}}"
+    },
     "下载": {
         "en": "Download"
     }
