@@ -153,7 +153,7 @@ export function ShellEditor ({ collapser }) {
                             model.message?.warning(t('集群模式下 AI 模式需要在计算节点使用。'))
                             return
                         }
-
+                        
                         try {
                             const builtin_status = await chat_model.llm.load_builtin_init_status(false).catch(error => {
                                 console.error('Load built-in Agent/Skill init status failed:', error)
@@ -164,19 +164,10 @@ export function ShellEditor ({ collapser }) {
                                 return
                             }
                             
-                            if (!chat_model.agent_id)
-                                await chat_model.agent.init()
-                                
-                            if (!chat_model.agent_id) {
-                                model.message?.warning(t('请先在 AI 设置中创建并配置 Agent'))
-                                chat_model.set({ settings_visible: true })
-                                return
-                            }
-                            
                             await shell.add_ai_tab()
                         } catch (e) {
                             console.error('Failed to create AI tab:', e)
-                            model.message?.error(t('创建 AI 标签页失败'))
+                            model.message?.error(e instanceof Error ? e.message : t('创建 AI 标签页失败'))
                         }
                     }}
                 >

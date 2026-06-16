@@ -27,6 +27,7 @@ import { model, NodeType, storage_keys } from '@model'
 
 import type { Monaco } from '@components/Editor/index.tsx'
 
+import { no_active_agent_message } from '@/agent/model/agent.ts'
 import type { DdbObjRef } from '@/obj.tsx' 
 
 import { lineage, type TableMeta } from '@/lineage/index.tsx'
@@ -528,6 +529,12 @@ class ShellModel extends Model<ShellModel> {
     async add_ai_tab (chat_id = `${PENDING_AI_CHAT_ID_PREFIX}${Date.now()}`, name?: string) {
         if (!this.monaco_inited && this.tabs.length === 0)
             this.init_tabs()
+            
+        const { chat_model } = await import('@/agent/model.ts')
+        if (!await chat_model.agent.ensure_active_agent()) {
+            model.message?.warning(chat_model.last_agent_load_error || no_active_agent_message())
+            return false
+        }
         
         // 检查是否已有该 chatId 的 AI 标签页
         const existing = this.tabs.find(t => t.chat_id === chat_id)
@@ -543,7 +550,7 @@ class ShellModel extends Model<ShellModel> {
                 this.set({ itab: existing.index })
                 localStorage.setItem(storage_keys.current_tab, existing.index.toString())
             }
-            return
+            return true
         }
         
         if (this.monaco_inited)
@@ -567,6 +574,7 @@ class ShellModel extends Model<ShellModel> {
         localStorage.setItem(`${storage_keys.code}.${new_tab_index}`, JSON.stringify(new_tab))
         localStorage.setItem(storage_keys.current_tab, new_tab_index.toString())
         this.editor?.setValue('')
+        return true
     }
     
     

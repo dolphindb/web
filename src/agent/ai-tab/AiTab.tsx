@@ -7,6 +7,7 @@ import { t } from '@i18n'
 import { model, NodeType } from '@model'
 import { copy } from '@utils'
 import { bind_chat_model_session, get_chat_model } from '@/agent/model.ts'
+import { no_active_agent_message } from '@/agent/model/agent.ts'
 import { parse_ddb_obj_from_content_object } from '@/agent/utils/ddb-object.ts'
 import { get_agent_status_text } from '@/agent/utils/message.ts'
 import { route_ddb_obj_to_dataview } from '@/agent/ai-tab/ddb-result.ts'
@@ -62,6 +63,12 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 else if (chat.agents.length === 0)
                     await chat.agent.load_agents()
                     
+                if (!chat.agent_id) {
+                    set_init_error(chat.last_agent_load_error || no_active_agent_message())
+                    set_inited(true)
+                    return
+                }
+                
                 // 确保可选 LLM 已加载
                 if (chat.agent_id && chat.selectable_llms.length === 0)
                     await chat.llm.load_selectable_llms()
@@ -217,6 +224,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
         }
         if (creating_session)
             return
+        if (!await chat.agent.ensure_active_agent()) {
+            model.message?.warning(chat.last_agent_load_error || no_active_agent_message())
+            return
+        }
         if (!chat.runtime.is_ddb_connected()) {
             model.message?.warning(t('DolphinDB 连接已断开，无法发送消息'))
             return

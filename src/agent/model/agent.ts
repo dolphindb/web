@@ -6,6 +6,14 @@ import type { ChatCompletionOptions } from '@/agent/tool_call_adapters.ts'
 import type { IAccessInfo, IAgentInfo, ISelectableLlmInfo } from './types.ts'
 import { AGENT_ID_KEY } from './constants.ts'
 
+export function agent_access_denied_message () {
+    return t('没有权限访问 AI 助手，请联系管理员授权。')
+}
+
+export function no_active_agent_message () {
+    return t('当前账号没有可用的 Agent，请联系管理员授权。')
+}
+
 function parse_agent_config (value: any) {
     if (!value)
         return { }
@@ -93,13 +101,19 @@ export class ChatAgentModel {
             let parsed: any
             try { parsed = JSON.parse(text) } catch { parsed = { message: text } }
             
+            if (response.status === 403)
+                throw new Error(agent_access_denied_message())
+                
             throw new Error(parsed?.error?.message || parsed?.message || response.statusText)
         }
         
         const result = await response.json()
         
-        if (result.type === 'ERROR')
+        if (result.type === 'ERROR') {
+            if (Number(result.headers?.httpStatus) === 403)
+                throw new Error(agent_access_denied_message())
             throw new Error(result.error?.message || 'Unknown error')
+        }
             
             
         const payload = result.payload ?? result.data ?? result
@@ -162,6 +176,7 @@ export class ChatAgentModel {
                 result = await this.chat.agent.api_fetch('/agent/accessible')
             }
             const items: IAgentInfo[] = (result.items || [ ]).map((a: any) => this.chat.agent.map_agent(a))
+            this.chat.set({ last_agent_load_error: '' })
             
             // 如果缓存的 agent_id 仍然有效，继续使用
             if (this.chat.agent_id) {
@@ -177,9 +192,14 @@ export class ChatAgentModel {
             this.chat.agent.set_active_agent(active?.agentId || '', items)
         } catch (e) {
             console.warn('Failed to list agents:', e)
-            this.chat.set({ agents: [ ], agent_id: '' })
+            this.chat.set({ agents: [ ], agent_id: '', last_agent_load_error: e instanceof Error ? e.message : '' })
             localStorage.removeItem(AGENT_ID_KEY)
         }
+    }
+    async ensure_active_agent () {
+        if (!this.chat.agent_id || !this.chat.agents.some(a => a.agentId === this.chat.agent_id && a.statusName === 'ACTIVE'))
+            await this.chat.agent.load_agents()
+        return Boolean(this.chat.agent_id && this.chat.agents.some(a => a.agentId === this.chat.agent_id && a.statusName === 'ACTIVE'))
     }
     async load_all_agents (): Promise<IAgentInfo[]> {
         const result = await this.chat.agent.api_fetch('/agent/list')

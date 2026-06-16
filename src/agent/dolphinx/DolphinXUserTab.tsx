@@ -141,7 +141,8 @@ function SessionSection () {
             sessions: [session],
             selected_llm_config_id: session.llmConfigId || '',
         })
-        await shell.add_ai_tab(session.sessionId, session.title || t('新会话'))
+        if (!await shell.add_ai_tab(session.sessionId, session.title || t('新会话')))
+            return
         chat_model.set({ settings_visible: false })
         if (model.view !== 'shell')
             model.goto('/shell/')

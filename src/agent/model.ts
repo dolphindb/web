@@ -43,6 +43,8 @@ export class ChatModel extends Model<ChatModel> {
     
     agents: IAgentInfo[] = [ ]
     
+    last_agent_load_error = ''
+    
     sessions: ISession[] = [ ]
     
     current_session_id = ''
