@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import {
     Button, Empty, Input, message, Modal, Popconfirm, Space, Spin, Table, Tabs, Tag, Tree, Typography, Upload, type TreeDataNode,
 } from 'antd'
-import { CheckCircleOutlined, DeleteOutlined, PlusOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, DeleteOutlined, DownloadOutlined, PlusOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { language, t } from '@i18n'
 
@@ -30,6 +30,7 @@ export function SkillsTab () {
     const [skill_file_content, set_skill_file_content] = useState('')
     const [loading_detail, set_loading_detail] = useState(false)
     const [skill_file, set_skill_file] = useState<File | null>(null)
+    const [downloading_skill_id, set_downloading_skill_id] = useState('')
     const detail_request_ref = useRef(0)
     const file_request_ref = useRef(0)
     const [overrides, set_overrides] = useState({
@@ -175,6 +176,26 @@ export function SkillsTab () {
         } finally {
             if (request_id === file_request_ref.current)
                 set_loading_detail(false)
+        }
+    }
+    
+    
+    async function download_skill (skill: ISkillInfo) {
+        set_downloading_skill_id(skill.skillId)
+        try {
+            const { blob, filename } = await chat_model.skill.download_skill(skill.skillId)
+            const url = URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.href = url
+            link.download = filename || `${(skill.name || skill.skillId).replace(/[\\/:*?"<>|]/g, '_')}.zip`
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            URL.revokeObjectURL(url)
+        } catch (error: any) {
+            message.error(error.message || t('下载失败'))
+        } finally {
+            set_downloading_skill_id('')
         }
     }
     
@@ -351,10 +372,11 @@ export function SkillsTab () {
                     },
                     {
                         title: t('操作'),
-                        width: language === 'en' ? 300 : 220,
+                        width: language === 'en' ? 410 : 280,
                         fixed: language === 'en' ? 'right' : undefined,
                         render: (_: unknown, s: ISkillInfo) => <Space size={4} style={{ whiteSpace: 'nowrap' }}>
                             <Button size='small' onClick={() => { open_skill_detail(s) }}>{t('详情')}</Button>
+                            <Button size='small' icon={<DownloadOutlined />} loading={downloading_skill_id === s.skillId} onClick={() => { download_skill(s) }}>{t('下载')}</Button>
                             {s.enabled === false
                                 ? <Button
                                     size='small'

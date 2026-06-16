@@ -97,8 +97,7 @@ export function WorkspaceSidebar ({
     
     function get_download_name () {
         const name = opened_file?.path.replace(/\\/g, '/').split('/').filter(Boolean).pop() || 'workspace'
-        const base_name = name.replace(/\.[^.]*$/, '') || 'workspace'
-        return /\.dos$/i.test(name) ? name : `${base_name}.dos`
+        return name
     }
     
     

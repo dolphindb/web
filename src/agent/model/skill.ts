@@ -20,6 +20,14 @@ interface ISkillListResult {
     size: number
 }
 
+function get_base64_blob (payload: { content?: string, mediaType?: string }) {
+    const binary = atob(payload.content || '')
+    const bytes = new Uint8Array(binary.length)
+    for (let i = 0;  i < binary.length;  i++)
+        bytes[i] = binary.charCodeAt(i)
+    return new Blob([bytes], { type: payload.mediaType || 'application/zip' })
+}
+
 export class ChatSkillModel {
     constructor (private chat: ChatModel) { }
     _map_skill (s: any): ISkillInfo {
@@ -110,6 +118,13 @@ export class ChatSkillModel {
         if (!Array.isArray(result.items))
             console.error('Invalid skill files response:', result)
         return { ...result, items: Array.isArray(result.items) ? result.items : [ ] }
+    }
+    async download_skill (skill_id: string): Promise<{ blob: Blob, filename?: string }> {
+        const result = await this.chat.agent.api_fetch(`/skill/${encodeURIComponent(skill_id)}/download`)
+        return {
+            blob: get_base64_blob(result),
+            filename: result.filename,
+        }
     }
     async get_skill_file (skill_id: string, file_path: string): Promise<ISkillFileContent> {
         return this.chat.agent.api_fetch(`/skill/${encodeURIComponent(skill_id)}/files/get?filePath=${encodeURIComponent(file_path)}`)
