@@ -126,6 +126,7 @@ export class ChatAgentModel {
         localStorage.removeItem(storage_keys.agent_bus_token)
         localStorage.removeItem(storage_keys.ticket)
         localStorage.removeItem(storage_keys.username)
+        this.chat.set({ can_manage_agents: false })
         model.set({ logined: false, username: 'guest', admin: false })
         model.goto_login()
     }
@@ -169,14 +170,16 @@ export class ChatAgentModel {
     async load_agents () {
         try {
             let result: any
+            let can_manage_agents = true
             try {
                 result = await this.chat.agent.api_fetch('/agent/list')
             } catch (error) {
                 console.warn('Failed to list owned agents, fallback to accessible agents:', error)
+                can_manage_agents = false
                 result = await this.chat.agent.api_fetch('/agent/accessible')
             }
             const items: IAgentInfo[] = (result.items || [ ]).map((a: any) => this.chat.agent.map_agent(a))
-            this.chat.set({ last_agent_load_error: '' })
+            this.chat.set({ last_agent_load_error: '', can_manage_agents })
             
             // 如果缓存的 agent_id 仍然有效，继续使用
             if (this.chat.agent_id) {
@@ -192,7 +195,7 @@ export class ChatAgentModel {
             this.chat.agent.set_active_agent(active?.agentId || '', items)
         } catch (e) {
             console.warn('Failed to list agents:', e)
-            this.chat.set({ agents: [ ], agent_id: '', last_agent_load_error: e instanceof Error ? e.message : '' })
+            this.chat.set({ agents: [ ], agent_id: '', can_manage_agents: false, last_agent_load_error: e instanceof Error ? e.message : '' })
             localStorage.removeItem(AGENT_ID_KEY)
         }
     }

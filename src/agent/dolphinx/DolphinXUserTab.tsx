@@ -821,11 +821,6 @@ export function DolphinXUserTab () {
                 children: <MemorySection />,
             },
             {
-                key: 'context',
-                label: t('上下文预览'),
-                children: <ContextPreviewSection />,
-            },
-            {
                 key: 'usage',
                 label: t('用量'),
                 children: <UsageSection />,

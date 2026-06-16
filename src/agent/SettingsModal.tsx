@@ -17,7 +17,7 @@ const { Text } = Typography
 
 
 export function SettingsModal () {
-    const { settings_visible } = chat_model.use(['settings_visible'])
+    const { settings_visible, can_manage_agents } = chat_model.use(['settings_visible', 'can_manage_agents'])
     const { admin } = model.use(['admin'])
     const [builtin_status, set_builtin_status] = useState<IBuiltinInitResult | null>(null)
     const [checking_builtin, set_checking_builtin] = useState(false)
@@ -47,6 +47,7 @@ export function SettingsModal () {
     
     const builtin_ready = builtin_status?.initialized === true || builtin_status?.state === 'READY'
     const show_builtin_init = checking_builtin || Boolean(builtin_status && !builtin_ready)
+    const can_manage_agent = admin || can_manage_agents
     
     async function initialize_builtins () {
         set_initializing_builtin(true)
@@ -80,12 +81,12 @@ export function SettingsModal () {
             <Tabs
                 destroyInactiveTabPane
                 items={[
-                    {
+                    ...can_manage_agent ? [{
                         key: 'agent',
                         label: t('Agent 管理'),
                         children: <AgentTab />,
-                    },
-                    {
+                    }] : [ ],
+                    ...admin ? [{
                         key: 'llm',
                         label: t('模型配置'),
                         children: <LlmConfigTab />,
@@ -94,7 +95,7 @@ export function SettingsModal () {
                         key: 'skills',
                         label: t('技能管理'),
                         children: <SkillsTab />,
-                    },
+                    }] : [ ],
                     {
                         key: 'user',
                         label: t('个人中心'),

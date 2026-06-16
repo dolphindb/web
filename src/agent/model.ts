@@ -45,6 +45,8 @@ export class ChatModel extends Model<ChatModel> {
     
     last_agent_load_error = ''
     
+    can_manage_agents = false
+    
     sessions: ISession[] = [ ]
     
     current_session_id = ''
