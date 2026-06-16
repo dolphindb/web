@@ -15,11 +15,30 @@ import { format_browser_time, Section, show_error, use_agent_options, use_user_o
 const { Text } = Typography
 
 
+function format_file_size (size?: number) {
+    if (size === undefined)
+        return '-'
+    if (size < 1024)
+        return `${size} B`
+    const units = ['KB', 'MB', 'GB']
+    let value = size / 1024
+    for (const unit of units) {
+        if (value < 1024)
+            return `${value.toFixed(value >= 10 ? 1 : 2)} ${unit}`
+        value /= 1024
+    }
+    return `${value.toFixed(1)} TB`
+}
+
+
 function SessionSection () {
     const { agent_id, options } = use_agent_options()
     
     const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
     const [sessions, set_sessions] = useState<ISession[]>([ ])
+    const [session_page, set_session_page] = useState(1)
+    const [session_page_size, set_session_page_size] = useState(20)
+    const [session_total, set_session_total] = useState(0)
     const [summary_session, set_summary_session] = useState<ISession | null>(null)
     const [editing_session, set_editing_session] = useState<ISession | null>(null)
     const [editing_title, set_editing_title] = useState('')
@@ -37,7 +56,7 @@ function SessionSection () {
             set_selected_agent_id(agent_id)
     }, [agent_id])
     
-    async function load_sessions () {
+    async function load_sessions (page = session_page, page_size = session_page_size) {
         if (!selected_agent_id) {
             message.warning(t('请先选择 Agent'))
             return
@@ -46,9 +65,18 @@ function SessionSection () {
         try {
             const result = await chat_model.session.list_sessions({
                 agentId: selected_agent_id,
-                limit: 100,
+                offset: (page - 1) * page_size,
+                limit: page_size,
             })
-            set_sessions(result.items)
+            if (result.items.length === 0 && result.size > 0 && page > 1) {
+                await load_sessions(page - 1, page_size)
+                return
+            }
+            const stats = await Promise.all(result.items.map(session => chat_model.session.load_session_workspace_stats(session.sessionId)))
+            set_sessions(result.items.map((session, index) => stats[index] ? { ...session, ...stats[index] } : session))
+            set_session_page(page)
+            set_session_page_size(page_size)
+            set_session_total(result.size ?? result.items.length)
         } catch (error) {
             show_error(error, t('加载会话失败'))
         } finally {
@@ -58,7 +86,7 @@ function SessionSection () {
     
     useEffect(() => {
         if (selected_agent_id)
-            load_sessions()
+            load_sessions(1, session_page_size)
     }, [selected_agent_id])
     
     
@@ -148,11 +176,13 @@ function SessionSection () {
             model.goto('/shell/')
     }
     
+    const show_workspace_size = sessions.some(session => session.workspaceSize !== undefined)
+    
     return <div style={{ height: 520, minHeight: 0, overflow: 'auto' }}>
         <Section title={t('会话')}>
             <Space wrap>
                 <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
-                <Button loading={loading} onClick={load_sessions}>{t('刷新')}</Button>
+                <Button loading={loading} onClick={() => { load_sessions() }}>{t('刷新')}</Button>
             </Space>
             
             <Table
@@ -161,7 +191,13 @@ function SessionSection () {
                 rowKey='sessionId'
                 loading={loading}
                 dataSource={sessions}
-                pagination={false}
+                pagination={{
+                    current: session_page,
+                    pageSize: session_page_size,
+                    total: session_total,
+                    showSizeChanger: true,
+                    onChange: load_sessions,
+                }}
                 tableLayout='fixed'
                 locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无会话')} /> }}
                 columns={[
@@ -187,6 +223,15 @@ function SessionSection () {
                         width: 210,
                         render: format_browser_time,
                     },
+                    ...show_workspace_size ? [{
+                        title: t('工作区'),
+                        width: 120,
+                        render: (_: unknown, session: ISession) => session.workspaceSize === undefined
+                            ? '-'
+                            : <Text title={t('{{count}} 个文件', { count: session.workspaceFileCount ?? 0 })}>
+                                {format_file_size(session.workspaceSize)}
+                            </Text>,
+                    }] : [ ],
                     {
                         title: t('操作'),
                         width: 200,

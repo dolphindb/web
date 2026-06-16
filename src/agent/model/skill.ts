@@ -68,8 +68,15 @@ export class ChatSkillModel {
     
     async load_skills (): Promise<ISkillInfo[]> {
         try {
-            const result = await this.chat.agent.api_fetch('/skill/list')
-            return (result.items || [ ]).map((s: any) => this.chat.skill._map_skill(s))
+            const items: ISkillInfo[] = [ ]
+            const limit = 50
+            for (let offset = 0;  ;  offset += limit) {
+                const result = await this.chat.skill.load_skill_page({ offset, limit })
+                items.push(...result.items)
+                if (result.items.length < limit || items.length >= result.size)
+                    break
+            }
+            return items
         } catch {
             return [ ]
         }

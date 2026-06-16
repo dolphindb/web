@@ -29,6 +29,19 @@ function parse_agent_config (value: any) {
 
 export class ChatAgentModel {
     constructor (private chat: ChatModel) { }
+    async load_agent_page_items (path: string, limit = 100): Promise<any[]> {
+        const items: any[] = [ ]
+        for (let offset = 0;  ;  offset += limit) {
+            const search = new URLSearchParams({ offset: String(offset), limit: String(limit) })
+            const result = await this.chat.agent.api_fetch(`${path}?${search}`)
+            const page_items = result.items || [ ]
+            items.push(...page_items)
+            const size = Number(result.size)
+            if (page_items.length < limit || Number.isFinite(size) && items.length >= size)
+                break
+        }
+        return items
+    }
     set_active_agent (agent_id: string, agents = this.chat.agents) {
         this.chat.runtime.abort_sse()
         this.chat.set({
@@ -172,11 +185,11 @@ export class ChatAgentModel {
             let result: any
             let can_manage_agents = true
             try {
-                result = await this.chat.agent.api_fetch('/agent/list')
+                result = { items: await this.chat.agent.load_agent_page_items('/agent/list') }
             } catch (error) {
                 console.warn('Failed to list owned agents, fallback to accessible agents:', error)
                 can_manage_agents = false
-                result = await this.chat.agent.api_fetch('/agent/accessible')
+                result = { items: await this.chat.agent.load_agent_page_items('/agent/accessible') }
             }
             const items: IAgentInfo[] = (result.items || [ ]).map((a: any) => this.chat.agent.map_agent(a))
             this.chat.set({ last_agent_load_error: '', can_manage_agents })
@@ -205,8 +218,7 @@ export class ChatAgentModel {
         return Boolean(this.chat.agent_id && this.chat.agents.some(a => a.agentId === this.chat.agent_id && a.statusName === 'ACTIVE'))
     }
     async load_all_agents (): Promise<IAgentInfo[]> {
-        const result = await this.chat.agent.api_fetch('/agent/list')
-        return (result.items || [ ]).map((a: any) => this.chat.agent.map_agent(a))
+        return (await this.chat.agent.load_agent_page_items('/agent/list')).map((a: any) => this.chat.agent.map_agent(a))
     }
     async get_agent (agent_id: string): Promise<IAgentInfo> {
         return this.chat.agent.map_agent(await this.chat.agent.api_fetch(`/agent/${agent_id}`))

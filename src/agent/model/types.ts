@@ -51,6 +51,8 @@ export interface ISession {
     agentId: string
     title: string
     llmConfigId?: string
+    workspaceSize?: number
+    workspaceFileCount?: number
     createTime?: string
     updateTime?: string
 }

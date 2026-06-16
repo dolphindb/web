@@ -13,14 +13,7 @@ export class ChatSessionModel {
             agentId: this.chat.agent_id,
         })
         const result = await this.chat.agent.api_fetch(`/session/list?${params}`)
-        const sessions: ISession[] = (result.items || [ ]).map((s: any) => ({
-            sessionId: s.sessionId,
-            agentId: s.agentId,
-            title: s.title || t('新会话'),
-            llmConfigId: s.llmConfigId,
-            createTime: s.createTime,
-            updateTime: s.updateTime,
-        }))
+        const sessions: ISession[] = (result.items || [ ]).map((s: any) => this.chat.session.map_session(s))
         sessions.sort((a, b) => {
             const ta = a.updateTime ? Date.parse(a.updateTime) : 0
             const tb = b.updateTime ? Date.parse(b.updateTime) : 0
@@ -144,6 +137,22 @@ export class ChatSessionModel {
         return {
             ...result,
             items: (result.items || [ ]).map((s: any) => this.chat.session.map_session(s)),
+        }
+    }
+    async load_session_workspace_stats (session_id: string): Promise<{ workspaceSize: number, workspaceFileCount: number } | null> {
+        try {
+            const result = await this.chat.agent.api_fetch(`/workspace/${encodeURIComponent(session_id)}/files`)
+            const items = Array.isArray(result.items) ? result.items : [ ]
+            return {
+                workspaceSize: items.reduce((total: number, item: any) => {
+                    const size = Number(item.size)
+                    return total + (Number.isFinite(size) ? size : 0)
+                }, 0),
+                workspaceFileCount: items.length,
+            }
+        } catch (error) {
+            console.warn('Load session workspace stats failed:', error)
+            return null
         }
     }
     async update_session_title (session_id: string, title: string) {

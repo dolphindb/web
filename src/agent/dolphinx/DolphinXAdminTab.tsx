@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { Button, Empty, Select, Space, Table, Tabs, Tag, Typography, message } from 'antd'
+import { Button, Empty, Pagination, Select, Space, Table, Tabs, Tag, Typography, message } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
@@ -358,32 +358,56 @@ function SkillAccessSection ({ user_id }: { user_id?: string }) {
 function UserPermissionTab () {
     const user_options = use_user_options()
     const [selected_user_id, set_selected_user_id] = useState('')
+    const [user_page, set_user_page] = useState(1)
+    const user_page_size = 10
+    const paged_user_options = user_options.slice((user_page - 1) * user_page_size, user_page * user_page_size)
     
     useEffect(() => {
         if (!selected_user_id && user_options.length > 0)
             set_selected_user_id(user_options[0].value)
     }, [user_options, selected_user_id])
     
+    useEffect(() => {
+        const max_page = Math.max(1, Math.ceil(user_options.length / user_page_size))
+        if (user_page > max_page)
+            set_user_page(max_page)
+    }, [user_options.length, user_page])
+    
     return <div style={{ display: 'flex', gap: 12, height: 520, minHeight: 0 }}>
-        <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, overflow: 'auto', minHeight: 0 }}>
+        <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontWeight: 500, marginBottom: 8 }}>{t('用户')}</div>
-            {user_options.length === 0
-                ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用户')} />
-                : user_options.map(user =>
-                    <div
-                        key={user.value}
-                        onClick={() => { set_selected_user_id(user.value) }}
-                        style={{
-                            padding: '8px 10px',
-                            borderRadius: 4,
-                            cursor: 'pointer',
-                            marginBottom: 4,
-                            background: selected_user_id === user.value ? '#e6f4ff' : undefined,
-                        }}
-                    >
-                        {user.label}
-                    </div>
-                )}
+            <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+                {user_options.length === 0
+                    ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用户')} />
+                    : paged_user_options.map(user =>
+                        <div
+                            key={user.value}
+                            onClick={() => { set_selected_user_id(user.value) }}
+                            title={user.label}
+                            style={{
+                                padding: '8px 10px',
+                                borderRadius: 4,
+                                cursor: 'pointer',
+                                marginBottom: 4,
+                                background: selected_user_id === user.value ? '#e6f4ff' : undefined,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            {user.label}
+                        </div>
+                    )}
+            </div>
+            {user_options.length > user_page_size && <Pagination
+                size='small'
+                simple
+                current={user_page}
+                pageSize={user_page_size}
+                total={user_options.length}
+                onChange={set_user_page}
+                style={{ marginTop: 8 }}
+            />}
         </div>
         <div style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto' }}>
             {selected_user_id

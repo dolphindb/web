@@ -4,6 +4,19 @@ import { get_enabled, get_status, get_status_name, normalize_json_object, normal
 
 export class ChatLlmModel {
     constructor (private chat: ChatModel) { }
+    async load_page_items (path: string, limit = 100): Promise<any[]> {
+        const items: any[] = [ ]
+        for (let offset = 0;  ;  offset += limit) {
+            const search = new URLSearchParams({ offset: String(offset), limit: String(limit) })
+            const result = await this.chat.agent.api_fetch(`${path}?${search}`)
+            const page_items = result.items || [ ]
+            items.push(...page_items)
+            const size = Number(result.size)
+            if (page_items.length < limit || Number.isFinite(size) && items.length >= size)
+                break
+        }
+        return items
+    }
     _map_llm_config (item: any, provider_lookup?: Map<string, ILlmProvider>): ILlmConfig {
         const provider = item.providerId && provider_lookup?.get(item.providerId)
         return {
@@ -47,8 +60,7 @@ export class ChatLlmModel {
     }
     async load_llm_providers (): Promise<ILlmProvider[]> {
         try {
-            const result = await this.chat.agent.api_fetch('/llm/provider/list')
-            return (result.items || [ ]).map((item: any) => this.chat.llm._map_llm_provider(item))
+            return (await this.chat.llm.load_page_items('/llm/provider/list')).map((item: any) => this.chat.llm._map_llm_provider(item))
         } catch {
             return [ ]
         }
@@ -83,8 +95,7 @@ export class ChatLlmModel {
     }
     async load_llm_configs (provider_lookup?: Map<string, ILlmProvider>): Promise<ILlmConfig[]> {
         try {
-            const result = await this.chat.agent.api_fetch('/llm/config/list')
-            return (result.items || [ ]).map((item: any) => this.chat.llm._map_llm_config(item, provider_lookup))
+            return (await this.chat.llm.load_page_items('/llm/config/list')).map((item: any) => this.chat.llm._map_llm_config(item, provider_lookup))
         } catch {
             return [ ]
         }
