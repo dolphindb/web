@@ -224,6 +224,7 @@ function UserLlmSection ({ user_id }: { user_id?: string }) {
             dataSource={visible_configs}
             pagination={false}
             tableLayout='fixed'
+            scroll={{ x: 740 }}
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无模型')} /> }}
             columns={[
                 {
@@ -239,14 +240,14 @@ function UserLlmSection ({ user_id }: { user_id?: string }) {
                 {
                     title: t('Provider'),
                     dataIndex: 'providerName',
-                    width: 140,
+                    width: 160,
                     render: (value: string) => value
                         ? <Text title={value} style={{ display: 'block', maxWidth: '100%' }} ellipsis>{value}</Text>
                         : '-',
                 },
                 {
                     title: t('状态'),
-                    width: 100,
+                    width: 130,
                     render: (_: unknown, config: ILlmConfig) => items.some(item => item.llmConfigId === config.llmConfigId)
                         ? <Tag color='green'>{t('已授权')}</Tag>
                         : <Tag>{t('未授权')}</Tag>,

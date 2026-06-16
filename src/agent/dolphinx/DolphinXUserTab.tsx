@@ -200,11 +200,13 @@ function SessionSection () {
                     onChange: load_sessions,
                 }}
                 tableLayout='fixed'
+                scroll={{ x: show_workspace_size ? 840 : 720 }}
                 locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无会话')} /> }}
                 columns={[
                     {
                         title: t('标题'),
                         dataIndex: 'title',
+                        width: 260,
                         ellipsis: true,
                         render: (value: string, session: ISession) => <Text
                             ellipsis={{ tooltip: value }}
@@ -221,7 +223,7 @@ function SessionSection () {
                     {
                         title: t('更新时间'),
                         dataIndex: 'updateTime',
-                        width: 210,
+                        width: 190,
                         render: format_browser_time,
                     },
                     ...show_workspace_size ? [{
@@ -235,8 +237,8 @@ function SessionSection () {
                     }] : [ ],
                     {
                         title: t('操作'),
-                        width: 200,
-                        render: (_: unknown, session: ISession) => <Space>
+                        width: 270,
+                        render: (_: unknown, session: ISession) => <Space size={4}>
                             <Button size='small' onClick={() => { open_title_modal(session) }}>{t('改标题')}</Button>
                             <Button size='small' onClick={() => { open_summary_modal(session) }}>{t('生成摘要')}</Button>
                             <Popconfirm title={t('确定删除此会话？')} okButtonProps={{ danger: true }} onConfirm={() => delete_session(session.sessionId)}>

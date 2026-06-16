@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { Button, Modal, Spin, Tabs, Typography, message } from 'antd'
 
-import { t } from '@i18n'
+import { language, t } from '@i18n'
 import { model } from '@model'
 
 import { chat_model } from './model.ts'
@@ -76,10 +76,10 @@ export function SettingsModal () {
         open={settings_visible}
         onCancel={() => { chat_model.set({ settings_visible: false }) }}
         footer={null}
-        width={960}
+        width={language === 'en' ? 'min(1280px, calc(100vw - 72px))' : 960}
         destroyOnClose
     >
-        <div style={{ position: 'relative', minHeight: 520 }}>
+        <div style={{ position: 'relative', minHeight: language === 'en' ? 600 : 520 }}>
             <Tabs
                 destroyInactiveTabPane
                 items={[

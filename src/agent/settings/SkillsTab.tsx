@@ -5,7 +5,7 @@ import {
 } from 'antd'
 import { CheckCircleOutlined, DeleteOutlined, PlusOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons'
 
-import { t } from '@i18n'
+import { language, t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
 import type { ISkillFileInfo, ISkillInfo } from '@/agent/model.ts'
@@ -312,9 +312,11 @@ export function SkillsTab () {
                     onChange: load,
                 }}
                 tableLayout='fixed'
+                scroll={language === 'en' ? { x: 'max-content' } : undefined}
                 columns={[
                     {
                         title: t('技能'),
+                        width: language === 'en' ? 360 : undefined,
                         render: (_: unknown, s: ISkillInfo) => <div style={{ minWidth: 0 }}>
                             <Text title={s.displayName || s.name} style={{ display: 'block', maxWidth: '100%' }} ellipsis>
                                 {s.displayName || s.name}
@@ -344,13 +346,14 @@ export function SkillsTab () {
                     },
                     {
                         title: t('状态'),
-                        width: 90,
+                        width: language === 'en' ? 100 : 90,
                         render: (_: unknown, s: ISkillInfo) => <Tag color={s.enabled !== false ? 'green' : 'default'}>{s.enabled !== false ? t('启用') : t('禁用')}</Tag>,
                     },
                     {
                         title: t('操作'),
-                        width: 220,
-                        render: (_: unknown, s: ISkillInfo) => <Space size={4}>
+                        width: language === 'en' ? 300 : 220,
+                        fixed: language === 'en' ? 'right' : undefined,
+                        render: (_: unknown, s: ISkillInfo) => <Space size={4} style={{ whiteSpace: 'nowrap' }}>
                             <Button size='small' onClick={() => { open_skill_detail(s) }}>{t('详情')}</Button>
                             {s.enabled === false
                                 ? <Button
