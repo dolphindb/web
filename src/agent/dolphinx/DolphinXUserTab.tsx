@@ -169,7 +169,8 @@ function SessionSection () {
             sessions: [session],
             selected_llm_config_id: session.llmConfigId || '',
         })
-        if (!await shell.add_ai_tab(session.sessionId, session.title || t('新会话')))
+        const added = await shell.add_ai_tab(session.sessionId, session.title || t('新会话'))
+        if (!added)
             return
         chat_model.set({ settings_visible: false })
         if (model.view !== 'shell')
@@ -262,7 +263,13 @@ function SessionSection () {
         </Modal>
         
         <Modal
-            title={summary_session ? t('会话摘要：{{title}}', { title: summary_session.title || summary_session.sessionId }) : t('会话摘要')}
+            title={<Text
+                title={summary_session ? t('会话摘要：{{title}}', { title: summary_session.title || summary_session.sessionId }) : t('会话摘要')}
+                style={{ display: 'block', maxWidth: 640 }}
+                ellipsis
+            >
+                {summary_session ? t('会话摘要：{{title}}', { title: summary_session.title || summary_session.sessionId }) : t('会话摘要')}
+            </Text>}
             open={summary_modal.visible}
             onCancel={summary_modal.close}
             footer={null}

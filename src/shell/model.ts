@@ -526,12 +526,13 @@ class ShellModel extends Model<ShellModel> {
     
     
     /** 将当前标签页转为 AI 标签页，或新建一个 AI 标签页 */
-    async add_ai_tab (chat_id = `${PENDING_AI_CHAT_ID_PREFIX}${Date.now()}`, name?: string) {
+    async add_ai_tab (chat_id = `${PENDING_AI_CHAT_ID_PREFIX}${Date.now()}`, name?: string): Promise<boolean> {
         if (!this.monaco_inited && this.tabs.length === 0)
             this.init_tabs()
             
         const { chat_model } = await import('@/agent/model.ts')
-        if (!await chat_model.agent.ensure_active_agent()) {
+        const has_active_agent = await chat_model.agent.ensure_active_agent()
+        if (!has_active_agent) {
             model.message?.warning(chat_model.last_agent_load_error || no_active_agent_message())
             return false
         }
