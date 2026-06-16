@@ -11,7 +11,7 @@ import { Section, show_error, use_agent_options, use_user_options } from './comm
 import { UsageSection } from './DolphinXUserTab.tsx'
 
 
-const { Text } = Typography
+const { Paragraph, Text } = Typography
 
 
 function GlobalAgentAdminSection ({ user_id }: { user_id?: string }) {
@@ -130,11 +130,13 @@ function AdminAccessSection ({ user_id }: { user_id?: string }) {
             loading={loading}
             dataSource={options}
             pagination={false}
+            tableLayout='fixed'
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无 Agent')} /> }}
             columns={[
                 {
                     title: 'Agent',
                     dataIndex: 'label',
+                    render: (value: string) => <Text title={value} style={{ display: 'block', maxWidth: '100%' }} ellipsis>{value}</Text>,
                 },
                 {
                     title: t('权限'),
@@ -221,23 +223,30 @@ function UserLlmSection ({ user_id }: { user_id?: string }) {
             rowKey='llmConfigId'
             dataSource={visible_configs}
             pagination={false}
+            tableLayout='fixed'
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无模型')} /> }}
             columns={[
                 {
                     title: t('模型'),
                     dataIndex: 'name',
-                    render: (_: unknown, config: ILlmConfig) => <div>
-                        <div>{config.name}</div>
-                        <Text type='secondary'>{config.model}</Text>
+                    render: (_: unknown, config: ILlmConfig) => <div style={{ minWidth: 0 }}>
+                        <Text title={config.name} style={{ display: 'block', maxWidth: '100%' }} ellipsis>{config.name}</Text>
+                        <Text type='secondary' title={config.model} style={{ display: 'block', maxWidth: '100%' }} ellipsis>
+                            {config.model}
+                        </Text>
                     </div>,
                 },
                 {
                     title: t('Provider'),
                     dataIndex: 'providerName',
-                    render: (value: string) => value || '-',
+                    width: 140,
+                    render: (value: string) => value
+                        ? <Text title={value} style={{ display: 'block', maxWidth: '100%' }} ellipsis>{value}</Text>
+                        : '-',
                 },
                 {
                     title: t('状态'),
+                    width: 100,
                     render: (_: unknown, config: ILlmConfig) => items.some(item => item.llmConfigId === config.llmConfigId)
                         ? <Tag color='green'>{t('已授权')}</Tag>
                         : <Tag>{t('未授权')}</Tag>,
@@ -308,13 +317,22 @@ function SkillAccessSection ({ user_id }: { user_id?: string }) {
             rowKey='skillId'
             dataSource={skills}
             pagination={false}
+            tableLayout='fixed'
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无技能')} /> }}
             columns={[
                 {
                     title: t('技能'),
-                    render: (_: unknown, skill: ISkillInfo) => <div>
-                        <div>{skill.displayName || skill.name || skill.skillId}</div>
-                        {skill.description && <Text type='secondary'>{skill.description}</Text>}
+                    render: (_: unknown, skill: ISkillInfo) => <div style={{ minWidth: 0 }}>
+                        <Text title={skill.displayName || skill.name || skill.skillId} style={{ display: 'block', maxWidth: '100%' }} ellipsis>
+                            {skill.displayName || skill.name || skill.skillId}
+                        </Text>
+                        {skill.description && <Paragraph
+                            type='secondary'
+                            style={{ margin: 0, wordBreak: 'break-word' }}
+                            ellipsis={{ rows: 3, tooltip: skill.description }}
+                        >
+                            {skill.description}
+                        </Paragraph>}
                     </div>,
                 },
                 {

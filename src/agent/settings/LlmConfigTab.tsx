@@ -409,7 +409,12 @@ export function LlmConfigTab () {
                                 onClick={() => { open_edit_provider(p) }}
                             >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flexWrap: 'wrap' }}>
-                                    <span style={{ fontWeight: 500, fontSize: 13 }}>{p.name}</span>
+                                    <span
+                                        title={p.name}
+                                        style={{ fontWeight: 500, fontSize: 13, minWidth: 0, maxWidth: 210, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                                    >
+                                        {p.name}
+                                    </span>
                                     <Tag style={{ fontSize: 11, flexShrink: 0 }}>{p.adapterType}</Tag>
                                     {p.enabled === false && <Tag color='default' style={{ fontSize: 11 }}>{t('禁用')}</Tag>}
                                 </div>
@@ -513,8 +518,10 @@ export function LlmConfigTab () {
                                     padding: '8px 12px', border: '1px solid #f0f0f0', borderRadius: 4, marginBottom: 6,
                                 }}>
                                     <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ fontWeight: 500, fontSize: 13 }}>
-                                            {cfg.name}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
+                                            <span title={cfg.name} style={{ fontWeight: 500, fontSize: 13, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                {cfg.name}
+                                            </span>
                                             <Tag style={{ marginLeft: 8, fontSize: 11 }} color={cfg.capability === 'embedding' ? 'purple' : 'blue'}>
                                                 {cfg.capability || 'chat'}
                                             </Tag>
@@ -525,7 +532,7 @@ export function LlmConfigTab () {
                                                 {cfg.enabled !== false ? t('启用') : t('禁用')}
                                             </Tag>
                                         </div>
-                                        <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
+                                        <div title={`${cfg.model} · ${cfg.requestPath}`} style={{ fontSize: 12, color: '#999', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                             {cfg.model} · {cfg.requestPath}
                                         </div>
                                     </div>

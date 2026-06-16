@@ -12,7 +12,7 @@ import type { ISkillFileInfo, ISkillInfo } from '@/agent/model.ts'
 import { form_error_alert, required_label } from './common.tsx'
 
 
-const { Text } = Typography
+const { Paragraph, Text } = Typography
 
 
 export function SkillsTab () {
@@ -316,14 +316,16 @@ export function SkillsTab () {
                     {
                         title: t('技能'),
                         render: (_: unknown, s: ISkillInfo) => <div style={{ minWidth: 0 }}>
-                            <div>{s.displayName || s.name}</div>
-                            <Text
+                            <Text title={s.displayName || s.name} style={{ display: 'block', maxWidth: '100%' }} ellipsis>
+                                {s.displayName || s.name}
+                            </Text>
+                            <Paragraph
                                 type='secondary'
-                                title={s.description || t('无描述')}
-                                style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                                style={{ margin: 0, wordBreak: 'break-word' }}
+                                ellipsis={{ rows: 3, tooltip: s.description || t('无描述') }}
                             >
                                 {s.description || t('无描述')}
-                            </Text>
+                            </Paragraph>
                         </div>,
                     },
                     {

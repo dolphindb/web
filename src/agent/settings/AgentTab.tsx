@@ -133,7 +133,7 @@ export function AgentTab () {
                                     </Tag>
                                     {a.agentId === agent_id && <Tag color='blue' style={{ fontSize: 11 }}>{t('当前')}</Tag>}
                                 </div>
-                                {a.description && <Paragraph type='secondary' style={{ fontSize: 11, margin: '2px 0 0' }} ellipsis={{ rows: 2, tooltip: a.description }}>
+                                {a.description && <Paragraph type='secondary' style={{ fontSize: 11, margin: '2px 0 0' }} ellipsis={{ rows: 3, tooltip: a.description }}>
                                     {a.description}
                                 </Paragraph>}
                             </div>
@@ -287,9 +287,9 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                 <Text type='secondary' style={{ display: 'block', fontSize: 12, marginTop: 2, wordBreak: 'break-all' }}>
                     Agent ID: {agent.agentId}
                 </Text>
-                {agent.description && <Text type='secondary' style={{ display: 'block', fontSize: 12, marginTop: 2 }} ellipsis={{ tooltip: agent.description }}>
+                {agent.description && <Paragraph type='secondary' style={{ fontSize: 12, margin: '2px 0 0' }} ellipsis={{ rows: 3, tooltip: agent.description }}>
                     {agent.description}
-                </Text>}
+                </Paragraph>}
             </div>
             <Space size={4}>
                 {!is_current && agent.statusName === 'ACTIVE' && <Button
@@ -495,12 +495,16 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                     padding: '6px 10px', border: binding ? '1px solid #f0f0f0' : '1px dashed #d9d9d9', borderRadius: 4, marginBottom: 4,
                                 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <span style={{ fontWeight: 500, fontSize: 13 }}>{skill?.displayName || skill?.name || skill_id}</span>
-                                        <Tag color={binding?.enabled ? 'green' : 'default'} style={{ fontSize: 11 }}>
-                                            {binding?.enabled ? t('启用') : t('禁用')}
-                                        </Tag>
-                                        {skill?.description && <span style={{ color: '#999', fontSize: 12 }}>{skill.description.slice(0, 40)}</span>}
+                                    <div style={{ minWidth: 0, flex: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <span style={{ fontWeight: 500, fontSize: 13 }}>{skill?.displayName || skill?.name || skill_id}</span>
+                                            <Tag color={binding?.enabled ? 'green' : 'default'} style={{ fontSize: 11 }}>
+                                                {binding?.enabled ? t('启用') : t('禁用')}
+                                            </Tag>
+                                        </div>
+                                        {skill?.description && <Paragraph type='secondary' style={{ fontSize: 12, margin: '2px 0 0' }} ellipsis={{ rows: 3, tooltip: skill.description }}>
+                                            {skill.description}
+                                        </Paragraph>}
                                     </div>
                                     <Switch
                                         size='small'
