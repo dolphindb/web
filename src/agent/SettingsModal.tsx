@@ -27,6 +27,8 @@ export function SettingsModal () {
         if (!settings_visible)
             return
         let disposed = false
+        chat_model.agent.load_agents()
+            .catch(error => { console.error('Load Agent list failed:', error) })
         set_checking_builtin(true)
         chat_model.llm.load_builtin_init_status(false)
             .then(result => {

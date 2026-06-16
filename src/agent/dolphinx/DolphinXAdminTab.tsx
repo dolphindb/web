@@ -14,6 +14,58 @@ import { UsageSection } from './DolphinXUserTab.tsx'
 const { Text } = Typography
 
 
+function GlobalAgentAdminSection ({ user_id }: { user_id?: string }) {
+    const user_options = use_user_options()
+    
+    const [selected_user_id, set_selected_user_id] = useState(user_id || '')
+    const [items, set_items] = useState<IAccessInfo[]>([ ])
+    const [loading, set_loading] = useState(false)
+    
+    async function load () {
+        set_loading(true)
+        try {
+            set_items(await chat_model.agent.load_global_agent_admins())
+        } catch (error) {
+            show_error(error, t('加载 Agent 管理权限失败'))
+        } finally {
+            set_loading(false)
+        }
+    }
+    
+    useEffect(() => {
+        if (user_id)
+            set_selected_user_id(user_id)
+    }, [user_id])
+    
+    useEffect(() => {
+        load()
+    }, [ ])
+    
+    const authorized = items.some(item => item.userId === selected_user_id)
+    
+    async function grant () {
+        set_items(await chat_model.agent.grant_global_agent_admin(selected_user_id))
+        message.success(t('已授予 Agent 管理权限'))
+    }
+    
+    
+    async function revoke () {
+        set_items(await chat_model.agent.revoke_global_agent_admin(selected_user_id))
+        message.success(t('已撤销 Agent 管理权限'))
+    }
+    
+    return <Section title={t('Agent 管理权限')}>
+        {!user_id && <Select showSearch style={{ width: 180, marginBottom: 12 }} placeholder={t('选择用户')} value={selected_user_id || undefined} onChange={set_selected_user_id} options={user_options} />}
+        <Space wrap>
+            <Tag color={authorized ? 'green' : undefined}>{authorized ? t('已授权管理 Agent') : t('未授权管理 Agent')}</Tag>
+            {authorized
+                ? <Button danger size='small' loading={loading} disabled={!selected_user_id} onClick={revoke}>{t('撤销管理权限')}</Button>
+                : <Button size='small' loading={loading} disabled={!selected_user_id} onClick={grant}>{t('授权管理 Agent')}</Button>}
+        </Space>
+    </Section>
+}
+
+
 function AdminAccessSection ({ user_id }: { user_id?: string }) {
     const { options } = use_agent_options()
     const user_options = use_user_options()
@@ -321,6 +373,7 @@ function UserPermissionTab () {
                     <div style={{ fontWeight: 500, marginBottom: 12 }}>
                         {t('正在编辑用户：{{user}}', { user: selected_user_id })}
                     </div>
+                    <GlobalAgentAdminSection user_id={selected_user_id} />
                     <AdminAccessSection user_id={selected_user_id} />
                     <UserLlmSection user_id={selected_user_id} />
                     <SkillAccessSection user_id={selected_user_id} />
