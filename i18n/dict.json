@@ -7562,6 +7562,12 @@
     "触发记忆整理": {
         "en": "Trigger memory consolidation"
     },
+    "重置记忆": {
+        "en": "Reset memory"
+    },
+    "请先选择用户": {
+        "en": "Please select a user first"
+    },
     "重置用户个人记忆": {
         "en": "Reset user personal memory"
     },

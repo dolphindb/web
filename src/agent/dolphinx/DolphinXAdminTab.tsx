@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
+import { use_modal } from 'react-object-model/hooks.js'
 
-import { Button, Empty, Pagination, Popconfirm, Select, Space, Switch, Table, Tabs, Tag, Typography, message } from 'antd'
+import { Button, Empty, Modal, Pagination, Popconfirm, Select, Space, Switch, Table, Tabs, Tag, Typography, message } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
 
 import { chat_model } from '@/agent/model.ts'
 import type { IAccessInfo, ILlmConfig, ISkillInfo, IUserLlmAccessInfo } from '@/agent/model.ts'
-import { AgentListLayout, Section, show_error, use_agent_options, use_user_options } from './common.tsx'
+import { Section, show_error, use_agent_options, use_user_options } from './common.tsx'
 import { UsageSection } from './DolphinXUserTab.tsx'
 
 
@@ -364,6 +365,7 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
     const [include_stage1, set_include_stage1] = useState(true)
     const [loading, set_loading] = useState(false)
     const [trigger_loading, set_trigger_loading] = useState(false)
+    const reset_modal = use_modal()
     
     useEffect(() => {
         if (!selected_agent_id && agent_id)
@@ -381,6 +383,7 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
         try {
             const result = await chat_model.memory.reset_user_personal_memory(selected_agent_id, user_id, include_memories, include_stage1)
             message.success(t('已重置用户个人记忆，移除 {{count}} 条记忆', { count: result.removedMemoryCount ?? 0 }))
+            reset_modal.close()
         } catch (error) {
             show_error(error, t('重置用户个人记忆失败'))
         } finally {
@@ -389,13 +392,13 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
     }
     
     async function trigger_user_memory () {
-        if (!selected_agent_id || !user_id) {
-            message.warning(t('请先选择 Agent 和用户'))
+        if (!user_id) {
+            message.warning(t('请先选择用户'))
             return
         }
         set_trigger_loading(true)
         try {
-            await chat_model.memory.trigger_memory_pipeline(selected_agent_id, { targetUserId: user_id })
+            await chat_model.memory.trigger_memory_pipeline({ targetUserId: user_id })
             message.success(t('记忆任务已触发'))
         } catch (error) {
             show_error(error, t('触发记忆任务失败'))
@@ -405,23 +408,31 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
     }
     
     return <Section title={t('用户记忆维护')}>
-        <AgentListLayout
-            options={options}
-            selected_agent_id={selected_agent_id}
-            set_selected_agent_id={set_selected_agent_id}
-            height={180}
-        >
         <Space wrap>
             <Button loading={trigger_loading} onClick={trigger_user_memory}>{t('触发记忆整理')}</Button>
-            <Switch checked={include_memories} onChange={set_include_memories} />
-            <span>{t('移除个人记忆')}</span>
-            <Switch checked={include_stage1} onChange={set_include_stage1} />
-            <span>{t('清除中间记忆结果')}</span>
-            <Popconfirm title={t('确定重置该用户的个人记忆？')} okButtonProps={{ danger: true }} onConfirm={reset_memory}>
-                <Button danger loading={loading}>{t('重置')}</Button>
-            </Popconfirm>
+            <Button danger onClick={reset_modal.open}>{t('重置记忆')}</Button>
         </Space>
-        </AgentListLayout>
+        <Modal
+            title={t('重置用户个人记忆')}
+            open={reset_modal.visible}
+            onCancel={reset_modal.close}
+            onOk={reset_memory}
+            confirmLoading={loading}
+            okButtonProps={{ danger: true }}
+            okText={t('重置')}
+        >
+            <Space direction='vertical' style={{ width: '100%' }}>
+                <Select style={{ width: '100%' }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
+                <Space>
+                    <Switch checked={include_memories} onChange={set_include_memories} />
+                    <span>{t('移除个人记忆')}</span>
+                </Space>
+                <Space>
+                    <Switch checked={include_stage1} onChange={set_include_stage1} />
+                    <span>{t('清除中间记忆结果')}</span>
+                </Space>
+            </Space>
+        </Modal>
     </Section>
 }
 

@@ -157,7 +157,7 @@ function SessionSection () {
     async function trigger_session_memory (session: ISession) {
         set_triggering_session_id(session.sessionId)
         try {
-            await chat_model.memory.trigger_memory_pipeline(session.agentId || selected_agent_id, { sessionId: session.sessionId })
+            await chat_model.memory.trigger_memory_pipeline({ agentId: session.agentId || selected_agent_id, sessionId: session.sessionId })
             message.success(t('记忆任务已触发'))
         } catch (error) {
             show_error(error, t('触发记忆任务失败'))

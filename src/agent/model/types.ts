@@ -299,7 +299,7 @@ export interface IMemoryResetResult {
 }
 
 export interface IMemoryTriggerResult {
-    agentId: string
+    agentId?: string
     sessionId?: string
     targetUserId?: string
     scheduled: boolean
