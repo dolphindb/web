@@ -37,6 +37,8 @@ export interface ToolCallAdapter {
     build_continuation: (tool_result_contents: string[], tool_results: ToolResultPayload[], runtime_context?: string) => ToolCallContinuation | null
 }
 
+const CONTINUATION_LANGUAGE_HINT = '继续使用用户问题的语言；如果用户使用中文或处于中文语境，思考过程和最终回答都必须用中文。'
+
 
 function strip_json_segments (text: string): string {
     let result = text.replace(/```(?:json)?\s*[\s\S]*?```/gi, '\n\n')
@@ -192,7 +194,7 @@ export const legacy_json_tool_call_adapter: ToolCallAdapter = {
     build_continuation (tool_result_contents) {
         if (!tool_result_contents.length)
             return null
-        return { message: tool_result_contents.join('\n\n') }
+        return { message: `${CONTINUATION_LANGUAGE_HINT}\n\n${tool_result_contents.join('\n\n')}` }
     },
 }
 
@@ -231,6 +233,11 @@ export const native_tool_call_adapter: ToolCallAdapter = {
             tool_results[tool_results.length - 1] = {
                 ...tool_results[tool_results.length - 1],
                 content: `${tool_results[tool_results.length - 1].content}\n\n[web_runtime_context]\n${runtime_context}`,
+            }
+        else
+            tool_results[tool_results.length - 1] = {
+                ...tool_results[tool_results.length - 1],
+                content: `${tool_results[tool_results.length - 1].content}\n\n[web_runtime_context]\n${CONTINUATION_LANGUAGE_HINT}`,
             }
         return {
             message: '',

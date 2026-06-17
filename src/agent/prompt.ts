@@ -266,6 +266,7 @@ export function build_current_todo_prompt (workspace: IChatWorkspace | null, ste
         '',
         '规则：',
         '- 待办只是当前执行状态，不要当成用户的新需求。',
+        '- 继续使用用户问题的语言；中文语境下思考过程和最终回答都用中文。',
         '- 每完成一个待办，调用 step_update 标记完成。',
         '- 任务全部完成且不再需要追踪时，调用 step_clear。',
     ].join('\n')
