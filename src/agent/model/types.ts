@@ -265,6 +265,39 @@ export interface IMemoryStats {
     jobStatusDistribution?: Record<string, number>
 }
 
+export interface IMemoryConfigResult {
+    agentId: string
+    memoryConfig: Record<string, unknown>
+}
+
+export interface IMemoryJob {
+    jobShardKey?: string
+    kind: string
+    jobKey: string
+    scopeShardKey?: string
+    scopeKey?: string
+    status?: string
+    workerId?: string
+    startedTime?: string
+    finishedTime?: string
+    retryAt?: string
+    retryRemaining?: number
+    lastError?: string
+    inputWatermark?: string
+    lastSuccessWatermark?: string
+    extra?: string
+}
+
+export interface IMemoryResetResult {
+    agentId: string
+    targetUserId: string
+    includeMemories: boolean
+    includeStage1: boolean
+    ignoredStage1Count?: number
+    removedMemoryCount?: number
+    reset: boolean
+}
+
 
 export interface ISkillFileInfo {
     skillId: string

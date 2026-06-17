@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { Button, Empty, Pagination, Select, Space, Table, Tabs, Tag, Typography, message } from 'antd'
+import { Button, Empty, Pagination, Popconfirm, Select, Space, Switch, Table, Tabs, Tag, Typography, message } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
@@ -356,6 +356,50 @@ function SkillAccessSection ({ user_id }: { user_id?: string }) {
 }
 
 
+function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
+    const { agent_id, options } = use_agent_options()
+    
+    const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
+    const [include_memories, set_include_memories] = useState(true)
+    const [include_stage1, set_include_stage1] = useState(true)
+    const [loading, set_loading] = useState(false)
+    
+    useEffect(() => {
+        if (!selected_agent_id && agent_id)
+            set_selected_agent_id(agent_id)
+    }, [agent_id])
+    
+    async function reset_memory () {
+        if (!selected_agent_id || !user_id) {
+            message.warning(t('请先选择 Agent 和用户'))
+            return
+        }
+        set_loading(true)
+        try {
+            const result = await chat_model.memory.reset_user_personal_memory(selected_agent_id, user_id, include_memories, include_stage1)
+            message.success(t('已重置用户个人记忆，移除 {{count}} 条记忆', { count: result.removedMemoryCount ?? 0 }))
+        } catch (error) {
+            show_error(error, t('重置用户个人记忆失败'))
+        } finally {
+            set_loading(false)
+        }
+    }
+    
+    return <Section title={t('重置用户个人记忆')}>
+        <Space wrap>
+            <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
+            <Switch checked={include_memories} onChange={set_include_memories} />
+            <span>{t('移除个人记忆')}</span>
+            <Switch checked={include_stage1} onChange={set_include_stage1} />
+            <span>{t('清除中间记忆结果')}</span>
+            <Popconfirm title={t('确定重置该用户的个人记忆？')} okButtonProps={{ danger: true }} onConfirm={reset_memory}>
+                <Button danger loading={loading}>{t('重置')}</Button>
+            </Popconfirm>
+        </Space>
+    </Section>
+}
+
+
 function UserPermissionTab () {
     const user_options = use_user_options()
     const [selected_user_id, set_selected_user_id] = useState('')
@@ -420,6 +464,7 @@ function UserPermissionTab () {
                     <AdminAccessSection user_id={selected_user_id} />
                     <UserLlmSection user_id={selected_user_id} />
                     <SkillAccessSection user_id={selected_user_id} />
+                    <ResetUserMemorySection user_id={selected_user_id} />
                 </>
                 : <Empty description={t('请选择用户')} />}
         </div>

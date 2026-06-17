@@ -8,7 +8,7 @@ import { model } from '@model'
 import { shell } from '@/shell/model.ts'
 
 import { chat_model, get_chat_model } from '@/agent/model.ts'
-import type { ILlmUsageStats, IMemoryEntry, ISession } from '@/agent/model.ts'
+import type { ILlmUsageStats, IMemoryEntry, IMemoryJob, ISession } from '@/agent/model.ts'
 import { format_browser_time, Section, show_error, use_agent_options, use_user_options } from './common.tsx'
 
 
@@ -294,26 +294,31 @@ function SessionSection () {
 type MemoryScopeType = 'user_personal' | 'agent_public'
 
 
-export function MemoryManagementTab ({ can_manage_public_memory = false }: { can_manage_public_memory?: boolean }) {
+export function MemoryManagementTab ({ can_manage_public_memory = false, admin = false }: { can_manage_public_memory?: boolean, admin?: boolean }) {
     return <Tabs
         destroyInactiveTabPane
         items={[
             {
                 key: 'personal',
                 label: t('个人'),
-                children: <MemorySection scope_type='user_personal' />,
+                children: <MemorySection scope_type='user_personal' admin={admin} />,
             },
             ...can_manage_public_memory ? [{
                 key: 'public',
                 label: t('公共'),
-                children: <MemorySection scope_type='agent_public' />,
+                children: <MemorySection scope_type='agent_public' admin={admin} />,
+            }] : [ ],
+            ...admin ? [{
+                key: 'jobs',
+                label: t('任务'),
+                children: <MemoryJobsSection />,
             }] : [ ],
         ]}
     />
 }
 
 
-function MemorySection ({ scope_type }: { scope_type: MemoryScopeType }) {
+function MemorySection ({ scope_type, admin }: { scope_type: MemoryScopeType, admin: boolean }) {
     const { agent_id, options } = use_agent_options()
     const personal_memory = scope_type === 'user_personal'
     
@@ -332,7 +337,11 @@ function MemorySection ({ scope_type }: { scope_type: MemoryScopeType }) {
     const [form_importance, set_form_importance] = useState(0.5)
     const [loading, set_loading] = useState(false)
     const [settings_loading, set_settings_loading] = useState(false)
+    const [forget_sessions, set_forget_sessions] = useState<ISession[]>([ ])
+    const [forget_session_id, set_forget_session_id] = useState('')
+    const [forget_loading, set_forget_loading] = useState(false)
     const memory_modal = use_modal()
+    const forget_modal = use_modal()
     const agent_page_size = 10
     const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
     const has_memory_query = Boolean(query.trim())
@@ -484,6 +493,40 @@ function MemorySection ({ scope_type }: { scope_type: MemoryScopeType }) {
         }
     }
     
+    async function open_forget_modal () {
+        if (!selected_agent_id)
+            return
+        set_forget_loading(true)
+        try {
+            const result = await chat_model.session.list_sessions({ agentId: selected_agent_id, limit: 100 })
+            set_forget_sessions(result.items)
+            set_forget_session_id(result.items[0]?.sessionId || '')
+            forget_modal.open()
+        } catch (error) {
+            show_error(error, t('加载会话失败'))
+        } finally {
+            set_forget_loading(false)
+        }
+    }
+    
+    async function forget_session_memory () {
+        if (!selected_agent_id || !forget_session_id) {
+            message.warning(t('请选择会话'))
+            return
+        }
+        set_forget_loading(true)
+        try {
+            await chat_model.memory.forget_session(selected_agent_id, forget_session_id)
+            message.success(t('忘记请求已提交'))
+            forget_modal.close()
+            await search_memory()
+        } catch (error) {
+            show_error(error, t('忘记会话记忆失败'))
+        } finally {
+            set_forget_loading(false)
+        }
+    }
+    
     return <>
         <div style={{ display: 'flex', gap: 12, height: 520, minHeight: 0 }}>
             <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
@@ -522,7 +565,13 @@ function MemorySection ({ scope_type }: { scope_type: MemoryScopeType }) {
                 />}
             </div>
             <div style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto' }}>
-                {selected_agent_id ? <>
+                {selected_agent_id ? <Tabs
+                    destroyInactiveTabPane
+                    items={[
+                        {
+                            key: 'memories',
+                            label: t('记忆'),
+                            children: <>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                         <Space wrap>
                             {personal_memory && <>
@@ -532,6 +581,7 @@ function MemorySection ({ scope_type }: { scope_type: MemoryScopeType }) {
                         </Space>
                         <Space wrap>
                             <Text type='secondary'>{t('共 {{count}} 条', { count: memory_total })}</Text>
+                            {personal_memory && <Button loading={forget_loading} onClick={open_forget_modal}>{t('忘记')}</Button>}
                             <Button loading={loading} onClick={() => { search_memory() }}>{t('刷新')}</Button>
                             <Button type='primary' onClick={open_create_memory}>{t('新增记忆')}</Button>
                         </Space>
@@ -617,7 +667,15 @@ function MemorySection ({ scope_type }: { scope_type: MemoryScopeType }) {
                             },
                         ]}
                     />
-                </> : <Empty description={t('请选择 Agent')} />}
+                            </>,
+                        },
+                        ...admin ? [{
+                            key: 'config',
+                            label: t('配置'),
+                            children: <MemoryConfigSection agent_id={selected_agent_id} />,
+                        }] : [ ],
+                    ]}
+                /> : <Empty description={t('请选择 Agent')} />}
             </div>
         </div>
         <Modal
@@ -642,6 +700,25 @@ function MemorySection ({ scope_type }: { scope_type: MemoryScopeType }) {
                     <InputNumber min={0} max={1} step={0.1} value={form_importance} onChange={value => { set_form_importance(value ?? 0.5) }} />
                 </div>
             </Space>
+        </Modal>
+        <Modal
+            title={t('忘记会话记忆')}
+            open={forget_modal.visible}
+            onCancel={forget_modal.close}
+            onOk={forget_session_memory}
+            confirmLoading={forget_loading}
+            okText={t('忘记')}
+        >
+            <Select
+                style={{ width: '100%' }}
+                value={forget_session_id || undefined}
+                onChange={set_forget_session_id}
+                placeholder={t('选择会话')}
+                options={forget_sessions.map(session => ({
+                    value: session.sessionId,
+                    label: session.title || session.sessionId,
+                }))}
+            />
         </Modal>
         <Modal
             title={t('记忆详情')}
@@ -675,6 +752,163 @@ function MemorySection ({ scope_type }: { scope_type: MemoryScopeType }) {
             </Space>}
         </Modal>
     </>
+}
+
+
+function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
+    const [config_text, set_config_text] = useState('')
+    const [loading, set_loading] = useState(false)
+    
+    async function load_config () {
+        set_loading(true)
+        try {
+            const result = await chat_model.memory.get_memory_config(agent_id)
+            set_config_text(JSON.stringify(result.memoryConfig || { }, null, 2))
+        } catch (error) {
+            show_error(error, t('加载记忆配置失败'))
+        } finally {
+            set_loading(false)
+        }
+    }
+    
+    async function save_config () {
+        let memory_config: Record<string, unknown>
+        try {
+            memory_config = config_text.trim() ? JSON.parse(config_text) : { }
+        } catch {
+            message.warning(t('请输入合法 JSON'))
+            return
+        }
+        set_loading(true)
+        try {
+            const result = await chat_model.memory.update_memory_config(agent_id, memory_config)
+            set_config_text(JSON.stringify(result.memoryConfig || { }, null, 2))
+            message.success(t('保存成功'))
+        } catch (error) {
+            show_error(error, t('保存记忆配置失败'))
+        } finally {
+            set_loading(false)
+        }
+    }
+    
+    useEffect(() => { load_config() }, [agent_id])
+    
+    return <Space direction='vertical' style={{ width: '100%' }}>
+        <Space wrap>
+            <Button loading={loading} onClick={load_config}>{t('刷新')}</Button>
+            <Button type='primary' loading={loading} onClick={save_config}>{t('保存')}</Button>
+        </Space>
+        <Input.TextArea
+            value={config_text}
+            onChange={event => { set_config_text(event.target.value) }}
+            rows={18}
+            style={{ fontFamily: 'monospace' }}
+            placeholder={t('记忆配置 JSON')}
+        />
+    </Space>
+}
+
+
+function MemoryJobsSection () {
+    const { agent_id, options } = use_agent_options()
+    const user_options = use_user_options()
+    
+    const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
+    const [kind, set_kind] = useState('')
+    const [status, set_status] = useState('')
+    const [target_user_id, set_target_user_id] = useState('')
+    const [jobs, set_jobs] = useState<IMemoryJob[]>([ ])
+    const [job_page, set_job_page] = useState(1)
+    const [job_total, set_job_total] = useState(0)
+    const [loading, set_loading] = useState(false)
+    const job_page_size = 20
+    
+    useEffect(() => {
+        if (!selected_agent_id && agent_id)
+            set_selected_agent_id(agent_id)
+    }, [agent_id])
+    
+    useEffect(() => {
+        if (selected_agent_id)
+            load_jobs(1)
+    }, [selected_agent_id])
+    
+    async function load_jobs (page = job_page) {
+        if (!selected_agent_id) {
+            message.warning(t('请先选择 Agent'))
+            return
+        }
+        set_loading(true)
+        try {
+            const result = await chat_model.memory.list_memory_jobs({
+                agentId: selected_agent_id,
+                kind: kind || undefined,
+                status: status || undefined,
+                targetUserId: target_user_id || undefined,
+                offset: (page - 1) * job_page_size,
+                limit: job_page_size,
+            })
+            set_jobs(result.items)
+            set_job_page(page)
+            set_job_total(result.size ?? result.items.length)
+        } catch (error) {
+            show_error(error, t('加载记忆任务失败'))
+        } finally {
+            set_loading(false)
+        }
+    }
+    
+    async function retry_job (job: IMemoryJob) {
+        if (!selected_agent_id)
+            return
+        set_loading(true)
+        try {
+            await chat_model.memory.retry_memory_job(selected_agent_id, job.kind, job.jobKey)
+            message.success(t('重试请求已提交'))
+            await load_jobs(job_page)
+        } catch (error) {
+            show_error(error, t('重试记忆任务失败'))
+        } finally {
+            set_loading(false)
+        }
+    }
+    
+    return <div style={{ height: 520, minHeight: 0, overflow: 'auto' }}>
+        <Space wrap style={{ marginBottom: 12 }}>
+            <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
+            <Input style={{ width: 140 }} value={kind} onChange={event => { set_kind(event.target.value) }} placeholder={t('任务类型')} />
+            <Input style={{ width: 140 }} value={status} onChange={event => { set_status(event.target.value) }} placeholder={t('任务状态')} />
+            <Select allowClear showSearch style={{ width: 180 }} placeholder={t('用户')} value={target_user_id || undefined} onChange={value => { set_target_user_id(value || '') }} options={user_options} />
+            <Button loading={loading} onClick={() => { load_jobs(1) }}>{t('查询')}</Button>
+        </Space>
+        <Table
+            size='small'
+            rowKey={job => `${job.kind}:${job.jobKey}`}
+            loading={loading}
+            dataSource={jobs}
+            pagination={{
+                current: job_page,
+                pageSize: job_page_size,
+                total: job_total,
+                showSizeChanger: false,
+                onChange: load_jobs,
+            }}
+            columns={[
+                { title: t('任务类型'), dataIndex: 'kind', width: 130 },
+                { title: t('任务状态'), dataIndex: 'status', width: 120 },
+                { title: t('任务 Key'), dataIndex: 'jobKey', ellipsis: true },
+                { title: t('开始时间'), dataIndex: 'startedTime', width: 170, render: format_browser_time },
+                { title: t('完成时间'), dataIndex: 'finishedTime', width: 170, render: format_browser_time },
+                { title: t('剩余重试'), dataIndex: 'retryRemaining', width: 90 },
+                { title: t('最近错误'), dataIndex: 'lastError', ellipsis: true },
+                {
+                    title: t('操作'),
+                    width: 90,
+                    render: (_: unknown, job: IMemoryJob) => <Button size='small' onClick={() => { retry_job(job) }}>{t('重试')}</Button>,
+                },
+            ]}
+        />
+    </div>
 }
 
 

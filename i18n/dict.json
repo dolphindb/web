@@ -7385,6 +7385,33 @@
     "更新记忆设置失败": {
         "en": "Failed to update memory settings"
     },
+    "加载记忆配置失败": {
+        "en": "Failed to load memory config"
+    },
+    "保存记忆配置失败": {
+        "en": "Failed to save memory config"
+    },
+    "记忆配置 JSON": {
+        "en": "Memory config JSON"
+    },
+    "请输入合法 JSON": {
+        "en": "Please enter valid JSON"
+    },
+    "忘记": {
+        "en": "Forget"
+    },
+    "忘记会话记忆": {
+        "en": "Forget session memory"
+    },
+    "请选择会话": {
+        "en": "Please select a session"
+    },
+    "忘记请求已提交": {
+        "en": "Forget request submitted"
+    },
+    "忘记会话记忆失败": {
+        "en": "Failed to forget session memory"
+    },
     "Agent": {
         "en": "Agent"
     },
@@ -7423,6 +7450,51 @@
     },
     "共 {{count}} 条": {
         "en": "{{count}} total"
+    },
+    "任务类型": {
+        "en": "Job type"
+    },
+    "任务状态": {
+        "en": "Job status"
+    },
+    "任务 Key": {
+        "en": "Job Key"
+    },
+    "完成时间": {
+        "en": "Finish Time"
+    },
+    "剩余重试": {
+        "en": "Retries left"
+    },
+    "最近错误": {
+        "en": "Last error"
+    },
+    "重试请求已提交": {
+        "en": "Retry request submitted"
+    },
+    "加载记忆任务失败": {
+        "en": "Failed to load memory jobs"
+    },
+    "重试记忆任务失败": {
+        "en": "Failed to retry memory job"
+    },
+    "重置用户个人记忆": {
+        "en": "Reset user personal memory"
+    },
+    "移除个人记忆": {
+        "en": "Remove personal memory"
+    },
+    "清除中间记忆结果": {
+        "en": "Clear intermediate memory results"
+    },
+    "确定重置该用户的个人记忆？": {
+        "en": "Reset this user's personal memory?"
+    },
+    "已重置用户个人记忆，移除 {{count}} 条记忆": {
+        "en": "User personal memory reset. Removed {{count}} memories"
+    },
+    "重置用户个人记忆失败": {
+        "en": "Failed to reset user personal memory"
     },
     "总记忆": {
         "en": "Total memories"
