@@ -243,6 +243,12 @@ export interface IMemoryEntry {
     rankScore?: number
 }
 
+export interface IMemoryPersonalSettings {
+    agentId: string
+    userId?: string
+    personalMemoryEnabled: boolean
+}
+
 
 export interface IMemoryStats {
     totalCount: number

@@ -1,8 +1,17 @@
 import type { ChatModel } from '@/agent/model.ts'
-import type { IMemoryEntry, IMemoryStats } from './types.ts'
+import type { IMemoryEntry, IMemoryPersonalSettings, IMemoryStats } from './types.ts'
 
 export class ChatMemoryModel {
     constructor (private chat: ChatModel) { }
+    async get_personal_settings (agent_id: string): Promise<IMemoryPersonalSettings> {
+        return this.chat.agent.api_fetch(`/memory/personal/settings?agentId=${encodeURIComponent(agent_id)}`)
+    }
+    async set_personal_enabled (agent_id: string, enabled: boolean): Promise<IMemoryPersonalSettings> {
+        return this.chat.agent.api_fetch('/memory/personal/settings', {
+            method: 'POST',
+            body: JSON.stringify({ agentId: agent_id, enabled }),
+        })
+    }
     async store_memory (memory: {
         agentId: string
         category: string

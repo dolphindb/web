@@ -17,7 +17,7 @@ import { ChatSkillModel } from './model/skill.ts'
 import type { AgentStatus, IAgentInfo, IAgentStatusEvent, ISelectableLlmInfo, IScriptExecutionApproval, ISession, IMessage, IToolLoopControl, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
 import type { IToolCall, MessageType } from './model/types.ts'
 
-export type { AgentStatus, IAccessInfo, IAgentInfo, IAgentLlmBinding, IAgentStatusEvent, IBuiltinInitItem, IBuiltinInitResult, IBuiltinInitSummary, IBuiltinStateRecord, ILlmConfig, ILlmProvider, ILlmUsageStats, IMessage, IMemoryEntry, IMemoryStats, ISelectableLlmInfo, IScriptExecutionApproval, ISession, ISkillBinding, ISkillFileContent, ISkillFileInfo, ISkillInfo, IToolCall, IToolLoopControl, IUserLlmAccessInfo, MessageRole, MessageType, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
+export type { AgentStatus, IAccessInfo, IAgentInfo, IAgentLlmBinding, IAgentStatusEvent, IBuiltinInitItem, IBuiltinInitResult, IBuiltinInitSummary, IBuiltinStateRecord, ILlmConfig, ILlmProvider, ILlmUsageStats, IMessage, IMemoryEntry, IMemoryPersonalSettings, IMemoryStats, ISelectableLlmInfo, IScriptExecutionApproval, ISession, ISkillBinding, ISkillFileContent, ISkillFileInfo, ISkillInfo, IToolCall, IToolLoopControl, IUserLlmAccessInfo, MessageRole, MessageType, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
 
 
 // 初始化工具注册表

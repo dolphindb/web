@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { Button, Empty, Input, InputNumber, Modal, Popconfirm, Select, Space, Statistic, Switch, Table, Tabs, Tag, Typography, message } from 'antd'
+import { Button, Empty, Input, InputNumber, Modal, Pagination, Popconfirm, Select, Space, Switch, Table, Tabs, Tag, Typography, message } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
@@ -177,75 +177,73 @@ function SessionSection () {
     const show_workspace_size = sessions.some(session => session.workspaceSize !== undefined)
     
     return <div style={{ height: 520, minHeight: 0, overflow: 'auto' }}>
-        <Section title={t('会话')}>
-            <Space wrap>
-                <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
-                <Button loading={loading} onClick={() => { load_sessions() }}>{t('刷新')}</Button>
-            </Space>
-            
-            <Table
-                style={{ marginTop: 12 }}
-                size='small'
-                rowKey='sessionId'
-                loading={loading}
-                dataSource={sessions}
-                pagination={{
-                    current: session_page,
-                    pageSize: session_page_size,
-                    total: session_total,
-                    showSizeChanger: true,
-                    onChange: load_sessions,
-                }}
-                tableLayout='fixed'
-                scroll={{ x: show_workspace_size ? 840 : 720 }}
-                locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无会话')} /> }}
-                columns={[
-                    {
-                        title: t('标题'),
-                        dataIndex: 'title',
-                        width: 260,
-                        ellipsis: true,
-                        render: (value: string, session: ISession) => <Text
-                            ellipsis={{ tooltip: value }}
-                            style={{ display: 'block', color: '#1677ff', cursor: 'pointer' }}
-                            onClick={async () => {
-                                try {
-                                    await restore_session(session)
-                                } catch (error) {
-                                    show_error(error, t('恢复会话失败'))
-                                }
-                            }}
-                        >{value}</Text>,
-                    },
-                    {
-                        title: t('更新时间'),
-                        dataIndex: 'updateTime',
-                        width: 190,
-                        render: format_browser_time,
-                    },
-                    ...show_workspace_size ? [{
-                        title: t('工作区'),
-                        width: 120,
-                        render: (_: unknown, session: ISession) => session.workspaceSize === undefined
-                            ? '-'
-                            : <Text title={t('{{count}} 个文件', { count: session.workspaceFileCount ?? 0 })}>
-                                {format_file_size(session.workspaceSize)}
-                            </Text>,
-                    }] : [ ],
-                    {
-                        title: t('操作'),
-                        width: 270,
-                        render: (_: unknown, session: ISession) => <Space size={4}>
-                            <Button size='small' onClick={() => { open_title_modal(session) }}>{t('改标题')}</Button>
-                            <Button size='small' onClick={() => { open_summary_modal(session) }}>{t('生成摘要')}</Button>
-                            <Popconfirm title={t('确定删除此会话？')} okButtonProps={{ danger: true }} onConfirm={() => delete_session(session.sessionId)}>
-                                <Button danger size='small'>{t('删除')}</Button>
-                            </Popconfirm>
-                        </Space>,
-                    },
-                ]}
-            />
-        </Section>
+        <Space wrap>
+            <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
+            <Button loading={loading} onClick={() => { load_sessions() }}>{t('刷新')}</Button>
+        </Space>
+        
+        <Table
+            style={{ marginTop: 12 }}
+            size='small'
+            rowKey='sessionId'
+            loading={loading}
+            dataSource={sessions}
+            pagination={{
+                current: session_page,
+                pageSize: session_page_size,
+                total: session_total,
+                showSizeChanger: true,
+                onChange: load_sessions,
+            }}
+            tableLayout='fixed'
+            scroll={{ x: show_workspace_size ? 840 : 720 }}
+            locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无会话')} /> }}
+            columns={[
+                {
+                    title: t('标题'),
+                    dataIndex: 'title',
+                    width: 260,
+                    ellipsis: true,
+                    render: (value: string, session: ISession) => <Text
+                        ellipsis={{ tooltip: value }}
+                        style={{ display: 'block', color: '#1677ff', cursor: 'pointer' }}
+                        onClick={async () => {
+                            try {
+                                await restore_session(session)
+                            } catch (error) {
+                                show_error(error, t('恢复会话失败'))
+                            }
+                        }}
+                    >{value}</Text>,
+                },
+                {
+                    title: t('更新时间'),
+                    dataIndex: 'updateTime',
+                    width: 190,
+                    render: format_browser_time,
+                },
+                ...show_workspace_size ? [{
+                    title: t('工作区'),
+                    width: 120,
+                    render: (_: unknown, session: ISession) => session.workspaceSize === undefined
+                        ? '-'
+                        : <Text title={t('{{count}} 个文件', { count: session.workspaceFileCount ?? 0 })}>
+                            {format_file_size(session.workspaceSize)}
+                        </Text>,
+                }] : [ ],
+                {
+                    title: t('操作'),
+                    width: 270,
+                    render: (_: unknown, session: ISession) => <Space size={4}>
+                        <Button size='small' onClick={() => { open_title_modal(session) }}>{t('改标题')}</Button>
+                        <Button size='small' onClick={() => { open_summary_modal(session) }}>{t('生成摘要')}</Button>
+                        <Popconfirm title={t('确定删除此会话？')} okButtonProps={{ danger: true }} onConfirm={() => delete_session(session.sessionId)}>
+                            <Button danger size='small'>{t('删除')}</Button>
+                        </Popconfirm>
+                    </Space>,
+                },
+            ]}
+        />
         <Modal
             title={t('修改会话标题')}
             open={title_modal.visible}
@@ -297,27 +295,88 @@ function MemorySection () {
     const { agent_id, options } = use_agent_options()
     
     const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
-    const [scope, set_scope] = useState<'all' | 'user_personal' | 'agent_public'>('user_personal')
-    const [category, set_category] = useState('fact')
+    const [agent_page, set_agent_page] = useState(1)
+    const [category, set_category] = useState('')
     const [query, set_query] = useState('')
     const [sort_by, set_sort_by] = useState<'RECENCY' | 'IMPORTANCE' | 'TEXT_SEARCH' | 'RANKED'>('RANKED')
     const [items, set_items] = useState<IMemoryEntry[]>([ ])
+    const [memory_total, set_memory_total] = useState(0)
+    const [memory_enabled, set_memory_enabled] = useState(false)
     const [detail_memory, set_detail_memory] = useState<IMemoryEntry | null>(null)
     const [editing_memory_id, set_editing_memory_id] = useState('')
-    const [form_scope_type, set_form_scope_type] = useState<'user_personal' | 'agent_public'>('user_personal')
-    const [form_category, set_form_category] = useState('fact')
+    const [form_category, set_form_category] = useState('general')
     const [form_content, set_form_content] = useState('')
     const [form_importance, set_form_importance] = useState(0.5)
-    const [stats, set_stats] = useState<{ totalCount?: number, userPersonalCount?: number, agentPublicCount?: number } | null>(null)
     const [loading, set_loading] = useState(false)
+    const [settings_loading, set_settings_loading] = useState(false)
     const memory_modal = use_modal()
+    const agent_page_size = 10
+    const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
+    const has_memory_query = Boolean(query.trim())
     
     useEffect(() => {
         if (!selected_agent_id && agent_id)
             set_selected_agent_id(agent_id)
-    }, [agent_id])
+        else if (!selected_agent_id && options.length > 0)
+            set_selected_agent_id(options[0].value)
+    }, [agent_id, options.length, selected_agent_id])
     
-    async function search_memory () {
+    useEffect(() => {
+        const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
+        if (agent_page > max_page)
+            set_agent_page(max_page)
+    }, [options.length, agent_page])
+    
+    useEffect(() => {
+        if (selected_agent_id) {
+            load_memory_settings()
+            search_memory()
+        } else {
+            set_items([ ])
+            set_memory_total(0)
+        }
+    }, [selected_agent_id])
+    
+    useEffect(() => {
+        if (!has_memory_query && sort_by === 'TEXT_SEARCH')
+            set_sort_by('RANKED')
+    }, [has_memory_query, sort_by])
+    
+    async function load_memory_settings () {
+        if (!selected_agent_id)
+            return
+        set_settings_loading(true)
+        try {
+            const settings = await chat_model.memory.get_personal_settings(selected_agent_id)
+            set_memory_enabled(settings.personalMemoryEnabled)
+        } catch (error) {
+            show_error(error, t('加载记忆设置失败'))
+        } finally {
+            set_settings_loading(false)
+        }
+    }
+    
+    async function set_personal_memory_enabled (enabled: boolean) {
+        if (!selected_agent_id) {
+            message.warning(t('请先选择 Agent'))
+            return
+        }
+        const previous_enabled = memory_enabled
+        set_memory_enabled(enabled)
+        set_settings_loading(true)
+        try {
+            const settings = await chat_model.memory.set_personal_enabled(selected_agent_id, enabled)
+            set_memory_enabled(settings.personalMemoryEnabled)
+            message.success(t('记忆设置已更新'))
+        } catch (error) {
+            set_memory_enabled(previous_enabled)
+            show_error(error, t('更新记忆设置失败'))
+        } finally {
+            set_settings_loading(false)
+        }
+    }
+    
+    async function search_memory (next_sort_by = sort_by) {
         if (!selected_agent_id) {
             message.warning(t('请先选择 Agent'))
             return
@@ -329,22 +388,12 @@ function MemorySection () {
                 category: category || undefined,
                 textQuery: query || undefined,
                 topK: 50,
-                sortBy: sort_by,
+                sortBy: next_sort_by,
             }
-            const personal_result = scope !== 'agent_public'
-                ? await chat_model.memory.search_memory(params, 'user_personal')
-                : { items: [ ] }
-            const public_result = model.admin && scope !== 'user_personal'
-                ? await chat_model.memory.search_memory(params, 'agent_public')
-                : { items: [ ] }
-            const next_items = [
-                ...personal_result.items.map(item => ({ ...item, scopeType: item.scopeType || 'user_personal' as const })),
-                ...public_result.items.map(item => ({ ...item, scopeType: item.scopeType || 'agent_public' as const })),
-            ]
+            const result = await chat_model.memory.search_memory(params)
+            const next_items = result.items.map(item => ({ ...item, scopeType: item.scopeType || 'user_personal' as const }))
             set_items(next_items)
-            set_stats(model.admin
-                ? await chat_model.memory.load_memory_stats(selected_agent_id)
-                : { totalCount: next_items.length, userPersonalCount: next_items.length, agentPublicCount: 0 })
+            set_memory_total(result.size ?? next_items.length)
         } catch (error) {
             show_error(error, t('加载记忆失败'))
         } finally {
@@ -363,14 +412,14 @@ function MemorySection () {
                     category: form_category.trim(),
                     content: form_content.trim(),
                     importance: form_importance,
-                }, form_scope_type)
+                })
             else
                 await chat_model.memory.store_memory({
                     agentId: selected_agent_id,
                     category: form_category.trim(),
                     content: form_content.trim(),
                     importance: form_importance,
-                }, form_scope_type)
+                })
             message.success(t('保存成功'))
             memory_modal.close()
             set_editing_memory_id('')
@@ -383,8 +432,7 @@ function MemorySection () {
     
     function open_create_memory () {
         set_editing_memory_id('')
-        set_form_scope_type(model.admin && scope === 'agent_public' ? 'agent_public' : 'user_personal')
-        set_form_category(category || 'fact')
+        set_form_category(category || 'general')
         set_form_content('')
         set_form_importance(0.5)
         memory_modal.open()
@@ -393,7 +441,6 @@ function MemorySection () {
     
     function open_edit_memory (item: IMemoryEntry) {
         set_editing_memory_id(item.memoryId)
-        set_form_scope_type(item.scopeType === 'agent_public' ? 'agent_public' : 'user_personal')
         set_form_category(item.category || '')
         set_form_content(item.content || '')
         set_form_importance(item.importance ?? 0.5)
@@ -405,7 +452,7 @@ function MemorySection () {
         if (!item.memoryId)
             return
         try {
-            await chat_model.memory.delete_memory(item.memoryId, item.scopeType === 'agent_public' ? 'agent_public' : 'user_personal')
+            await chat_model.memory.delete_memory(item.memoryId)
             message.success(t('删除成功'))
             await search_memory()
         } catch (error) {
@@ -413,98 +460,140 @@ function MemorySection () {
         }
     }
     
-    return <Section title={t('记忆')}>
-        <Space wrap>
-            <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
-            <Select
-                style={{ width: 110 }}
-                value={scope}
-                onChange={set_scope}
-                options={[
-                    { value: 'user_personal', label: t('个人') },
-                    ...(model.admin ? [
-                        { value: 'all', label: t('全部') },
-                        { value: 'agent_public', label: t('公共') },
-                    ] : [ ]),
-                ]}
-            />
-            <Input style={{ width: 120 }} value={category} onChange={event => { set_category(event.target.value) }} placeholder={t('分类')} />
-            <Input.Search style={{ width: 240 }} value={query} onChange={event => { set_query(event.target.value) }} onSearch={search_memory} placeholder={t('搜索记忆')} enterButton={t('搜索')} loading={loading} />
-            <Select
-                style={{ width: 130 }}
-                value={sort_by}
-                onChange={set_sort_by}
-                options={[
-                    { value: 'RANKED', label: t('综合排序') },
-                    { value: 'RECENCY', label: t('最近更新') },
-                    { value: 'IMPORTANCE', label: t('重要度') },
-                    { value: 'TEXT_SEARCH', label: t('文本匹配') },
-                ]}
-            />
-            <Button loading={loading} onClick={search_memory}>{t('刷新')}</Button>
-            <Button type='primary' onClick={open_create_memory}>{t('新增记忆')}</Button>
-        </Space>
-        {stats && <Space style={{ marginTop: 12 }} size={24}>
-            <Statistic title={t('总记忆')} value={stats.totalCount ?? 0} />
-            <Statistic title={t('我的记忆')} value={stats.userPersonalCount ?? 0} />
-            {model.admin && <Statistic title={t('公共记忆')} value={stats.agentPublicCount ?? 0} />}
-        </Space>}
-        <Table
-            style={{ marginTop: 12 }}
-            size='small'
-            rowKey='memoryId'
-            loading={loading}
-            dataSource={items}
-            pagination={false}
-            locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无记忆')} /> }}
-            columns={[
-                {
-                    title: t('分类'),
-                    dataIndex: 'category',
-                    width: 120,
-                    render: (value: string) => <Tag>{value}</Tag>,
-                },
-                {
-                    title: t('范围'),
-                    dataIndex: 'scopeType',
-                    width: 100,
-                    render: (value: string) => <Tag>{value === 'agent_public' ? t('公共') : t('个人')}</Tag>,
-                },
-                {
-                    title: t('重要度'),
-                    dataIndex: 'importance',
-                    width: 90,
-                },
-                {
-                    title: t('来源'),
-                    dataIndex: 'source',
-                    width: 100,
-                    render: (value: string) => value || '-',
-                },
-                {
-                    title: t('更新时间'),
-                    dataIndex: 'updateTime',
-                    width: 160,
-                    render: (value: string) => value || '-',
-                },
-                {
-                    title: t('内容'),
-                    dataIndex: 'content',
-                    render: (value: string) => <Text ellipsis style={{ maxWidth: 420 }}>{value}</Text>,
-                },
-                {
-                    title: t('操作'),
-                    width: 190,
-                    render: (_: unknown, item: IMemoryEntry) => <Space>
-                        <Button size='small' onClick={() => { set_detail_memory(item) }}>{t('详情')}</Button>
-                        <Button size='small' onClick={() => { open_edit_memory(item) }}>{t('编辑')}</Button>
-                        <Popconfirm title={t('确定删除这条记忆？')} okButtonProps={{ danger: true }} onConfirm={() => delete_memory(item)}>
-                            <Button danger size='small'>{t('删除')}</Button>
-                        </Popconfirm>
-                    </Space>,
-                },
-            ]}
-        />
+    return <>
+        <div style={{ display: 'flex', gap: 12, height: 520, minHeight: 0 }}>
+            <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ fontWeight: 500, marginBottom: 8 }}>{t('Agent')}</div>
+                <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+                    {options.length === 0
+                        ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无 Agent')} />
+                        : paged_agent_options.map(agent =>
+                            <div
+                                key={agent.value}
+                                onClick={() => { set_selected_agent_id(agent.value) }}
+                                title={agent.label}
+                                style={{
+                                    padding: '8px 10px',
+                                    borderRadius: 4,
+                                    cursor: 'pointer',
+                                    marginBottom: 4,
+                                    background: selected_agent_id === agent.value ? '#e6f4ff' : undefined,
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                }}
+                            >
+                                {agent.label}
+                            </div>
+                        )}
+                </div>
+                {options.length > agent_page_size && <Pagination
+                    size='small'
+                    simple
+                    current={agent_page}
+                    pageSize={agent_page_size}
+                    total={options.length}
+                    onChange={set_agent_page}
+                    style={{ marginTop: 8 }}
+                />}
+            </div>
+            <div style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto' }}>
+                {selected_agent_id ? <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                        <Space wrap>
+                            <Switch checked={memory_enabled} loading={settings_loading} disabled={!selected_agent_id} onChange={set_personal_memory_enabled} />
+                            <span>{t('启用记忆')}</span>
+                        </Space>
+                        <Space wrap>
+                            <Text type='secondary'>{t('共 {{count}} 条', { count: memory_total })}</Text>
+                            <Button loading={loading} onClick={() => { search_memory() }}>{t('刷新')}</Button>
+                            <Button type='primary' onClick={open_create_memory}>{t('新增记忆')}</Button>
+                        </Space>
+                    </div>
+                    <div style={{ display: 'flex', gap: 12, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', marginBottom: 12 }}>
+                        <Space wrap>
+                        <Select
+                            style={{ width: 130 }}
+                            value={sort_by}
+                            onChange={value => {
+                                set_sort_by(value)
+                                search_memory(value)
+                            }}
+                            options={[
+                                { value: 'RANKED', label: t('综合排序') },
+                                { value: 'RECENCY', label: t('最近更新') },
+                                { value: 'IMPORTANCE', label: t('重要度') },
+                                ...has_memory_query ? [{ value: 'TEXT_SEARCH', label: t('文本相关度') }] : [ ],
+                            ]}
+                        />
+                            <Input style={{ width: 120 }} value={category} onChange={event => { set_category(event.target.value) }} placeholder={t('分类')} />
+                        </Space>
+                        <Input.Search
+                            style={{ width: 240 }}
+                            value={query}
+                            onChange={event => { set_query(event.target.value) }}
+                            onSearch={() => {
+                                const next_sort_by = query.trim() ? 'TEXT_SEARCH' : sort_by === 'TEXT_SEARCH' ? 'RANKED' : sort_by
+                                set_sort_by(next_sort_by)
+                                search_memory(next_sort_by)
+                            }}
+                            placeholder={t('搜索记忆')}
+                            enterButton={t('搜索')}
+                            loading={loading}
+                        />
+                    </div>
+                    <Table
+                        size='small'
+                        rowKey='memoryId'
+                        loading={loading}
+                        dataSource={items}
+                        pagination={false}
+                        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无记忆')} /> }}
+                        columns={[
+                            {
+                                title: t('分类'),
+                                dataIndex: 'category',
+                                width: 120,
+                                render: (value: string) => <Tag>{value}</Tag>,
+                            },
+                            {
+                                title: t('重要度'),
+                                dataIndex: 'importance',
+                                width: 90,
+                            },
+                            {
+                                title: t('来源'),
+                                dataIndex: 'source',
+                                width: 100,
+                                render: (value: string) => value || '-',
+                            },
+                            {
+                                title: t('更新时间'),
+                                dataIndex: 'updateTime',
+                                width: 160,
+                                render: (value: string) => value || '-',
+                            },
+                            {
+                                title: t('内容'),
+                                dataIndex: 'content',
+                                render: (value: string) => <Text ellipsis style={{ maxWidth: 420 }}>{value}</Text>,
+                            },
+                            {
+                                title: t('操作'),
+                                width: 190,
+                                render: (_: unknown, item: IMemoryEntry) => <Space>
+                                    <Button size='small' onClick={() => { set_detail_memory(item) }}>{t('详情')}</Button>
+                                    <Button size='small' onClick={() => { open_edit_memory(item) }}>{t('编辑')}</Button>
+                                    <Popconfirm title={t('确定删除这条记忆？')} okButtonProps={{ danger: true }} onConfirm={() => delete_memory(item)}>
+                                        <Button danger size='small'>{t('删除')}</Button>
+                                    </Popconfirm>
+                                </Space>,
+                            },
+                        ]}
+                    />
+                </> : <Empty description={t('请选择 Agent')} />}
+            </div>
+        </div>
         <Modal
             title={editing_memory_id ? t('编辑记忆') : t('新增记忆')}
             open={memory_modal.visible}
@@ -517,19 +606,6 @@ function MemorySection () {
                 <div>
                     <div style={{ marginBottom: 4 }}>{t('分类')}</div>
                     <Input value={form_category} onChange={event => { set_form_category(event.target.value) }} placeholder={t('分类')} />
-                </div>
-                <div>
-                    <div style={{ marginBottom: 4 }}>{t('范围')}</div>
-                    <Select
-                        style={{ width: '100%' }}
-                        value={form_scope_type}
-                        disabled={Boolean(editing_memory_id) || !model.admin}
-                        onChange={set_form_scope_type}
-                        options={[
-                            { value: 'user_personal', label: t('个人') },
-                            { value: 'agent_public', label: t('公共') },
-                        ]}
-                    />
                 </div>
                 <div>
                     <div style={{ marginBottom: 4 }}>{t('记忆内容')}</div>
@@ -556,7 +632,6 @@ function MemorySection () {
                     rowKey='key'
                     dataSource={[
                         { key: 'id', label: 'ID', value: detail_memory.memoryId },
-                        { key: 'scope', label: t('范围'), value: detail_memory.scopeType || '-' },
                         { key: 'category', label: t('分类'), value: detail_memory.category || '-' },
                         { key: 'type', label: t('类型'), value: detail_memory.memoryType || '-' },
                         { key: 'importance', label: t('重要度'), value: detail_memory.importance ?? '-' },
@@ -574,7 +649,7 @@ function MemorySection () {
                 {detail_memory.metadata && <Input.TextArea value={JSON.stringify(detail_memory.metadata, null, 2)} rows={4} readOnly />}
             </Space>}
         </Modal>
-    </Section>
+    </>
 }
 
 
@@ -771,7 +846,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
     
     
     if (!admin)
-        return <Section title={t('我的用量')}>
+        return <div style={{ height: 520, minHeight: 0, overflow: 'auto' }}>
             <Space wrap>
                 <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
                 <Button loading={loading_usage} onClick={load_usage}>{t('刷新')}</Button>
@@ -811,7 +886,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                     },
                 ]}
             />
-        </Section>
+        </div>
     
     return <Section title={t('用户用量')}>
         <Space wrap style={{ marginBottom: 12 }}>
