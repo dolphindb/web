@@ -1,8 +1,8 @@
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import {
     normalize_script_args,
-    truncate_tool_content,
     format_ddb_eval_result_info,
+    TOOL_RESULT_SPILL_THRESHOLD_CHARS,
     tool_result_json,
     uint8_to_base64,
 } from './helpers.ts'
@@ -59,17 +59,19 @@ export const execute_config: ScriptConfig = {
                 returnedVoid: result_info.returnedVoid,
                 resultType: result_info.resultType,
                 ...(print_messages.length ? { print: print_messages } : { }),
-                content: truncate_tool_content(result_info.content),
+                content: result_info.content,
                 hint: result_info.returnedVoid
                     ? '脚本执行成功但没有最终返回值；如果需要继续推理，请让最后一行返回表、字典、字符串或标量。'
                     : undefined,
             })
             
             let content_object: string | undefined
-            try {
-                content_object = uint8_to_base64(result.pack())
-            } catch (e) {
-                console.warn('[ai] execute: result.pack() failed:', e)
+            if (result_info.content.length <= TOOL_RESULT_SPILL_THRESHOLD_CHARS) {
+                try {
+                    content_object = uint8_to_base64(result.pack())
+                } catch (e) {
+                    console.warn('[ai] execute: result.pack() failed:', e)
+                }
             }
             
             return {
@@ -77,9 +79,9 @@ export const execute_config: ScriptConfig = {
                 ddb_result: result,
                 save_message: {
                     msgId: `tool_${Date.now()}`,
-                        role: 'tool',
-                        messageType: 'tool_result',
-                        name: type,
+                    role: 'tool',
+                    messageType: 'tool_result',
+                    name: type,
                     content: message_content,
                     content_object,
                 },

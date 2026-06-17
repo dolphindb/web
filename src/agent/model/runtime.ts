@@ -10,6 +10,7 @@ import {
     parse_tool_result_json,
     tool_result_json,
 } from '@/agent/scripts/helpers.ts'
+import { spill_large_tool_result_if_needed } from '@/agent/tool_result_spill.ts'
 import { build_current_todo_prompt } from '@/agent/prompt.ts'
 import {
     legacy_json_tool_call_adapter,
@@ -392,7 +393,7 @@ export class ChatRuntimeModel {
             
             const type = payload.type || parsed_event.event
             const data = payload.data || payload
-            
+
             if (payload.action === 'context.compaction') {
                 const phase = String(data?.phase || '')
                 if (phase === 'start')
@@ -924,12 +925,28 @@ export class ChatRuntimeModel {
             stop_loop = guarded.stop
         }
         this.chat.runtime.update_repeated_tool_call_state(parsed_call, script_result.save_message)
+        if (script_result.save_message) {
+            script_result = {
+                ...script_result,
+                save_message: await spill_large_tool_result_if_needed(script_result.save_message, parsed_call, context),
+            }
+            if (this.chat.runtime.is_request_interrupted(request_seq))
+                return null
+        }
         
+        const tool_result_content = script_result.save_message
+            ? parse_tool_result_json(script_result.save_message.content)
+                ? script_result.save_message.content
+                : `[${script_result.save_message.messageType}:${parsed_call.type}] ${script_result.save_message.content}`
+            : ''
+
         // 显示工具结果消息
         if (script_result.save_message) {
             const result_msg: IMessage = {
                 ...script_result.save_message,
                 msgId: script_result.save_message.msgId || `tr_${Date.now()}`,
+                content: script_result.save_message.content,
+                tool_call_id: parsed_call.id || undefined,
                 _has_ddb_result: !!script_result.ddb_result,
             }
             this.chat.set({ messages: [...this.chat.messages, result_msg] })
@@ -950,13 +967,6 @@ export class ChatRuntimeModel {
         if (stop_loop)
             this.chat.set({ agent_status: { status: 'idle' } })
             
-        // 返回工具结果，由调用方在同一轮多个工具全部结束后合并续传
-        const tool_result_content = script_result.save_message
-            ? parse_tool_result_json(script_result.save_message.content)
-                ? script_result.save_message.content
-                : `[${script_result.save_message.messageType}:${parsed_call.type}] ${script_result.save_message.content}`
-            : ''
-        
         return {
             tool_result_content,
             next_loop: script_result.next_loop,
