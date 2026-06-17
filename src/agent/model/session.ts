@@ -156,13 +156,13 @@ export class ChatSessionModel {
         }
     }
     async update_session_title (session_id: string, title: string) {
-        await this.chat.agent.api_fetch(`/session/${session_id}`, {
+        const result = this.chat.session.map_session(await this.chat.agent.api_fetch(`/session/${session_id}`, {
             method: 'PUT',
             body: JSON.stringify({ title }),
-        })
+        }))
         this.chat.set({
             sessions: this.chat.sessions.map(s =>
-                s.sessionId === session_id ? { ...s, title, updateTime: new Date().toISOString() } : s
+                s.sessionId === session_id ? { ...s, title, updateTime: result.updateTime ?? s.updateTime } : s
             )
         })
         shell.update_ai_tab_title(session_id, title)

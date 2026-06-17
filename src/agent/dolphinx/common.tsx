@@ -24,14 +24,7 @@ export function Section ({ title, children }: { title: string, children: ReactNo
 export function format_browser_time (value?: string) {
     if (!value)
         return '-'
-    const normalized = (value.includes('T') ? value : value.replace(' ', 'T'))
-        .replace(/^(\d{4})\.(\d{2})\.(\d{2})/, '$1-$2-$3')
-    const time = Date.parse(/(?:Z|[+-]\d{2}:?\d{2})$/.test(normalized) ? normalized : `${normalized}Z`)
-    if (!Number.isFinite(time))
-        return value
-    const date = new Date(time)
-    const pad = (n: number) => String(n).padStart(2, '0')
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+    return value
 }
 
 
