@@ -66,13 +66,13 @@ export const show_config: ScriptConfig = {
             })
             
             let content_object: string | undefined
-            if (result_info.content.length <= TOOL_RESULT_SPILL_THRESHOLD_CHARS) {
+            if (result_info.content.length <= TOOL_RESULT_SPILL_THRESHOLD_CHARS) 
                 try {
                     content_object = uint8_to_base64(result.pack())
                 } catch (e) {
                     console.warn('[ai] show: result.pack() failed:', e)
                 }
-            }
+            
             
             return {
                 next_loop: true,

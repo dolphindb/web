@@ -35,7 +35,7 @@ function tool_result_file_name (message: IMessage, parsed_call: ParsedToolCall, 
 
 function decode_json_string_layers (value: string) {
     let current = value.trim()
-    for (let index = 0;  index < 2 && current.startsWith('"');  index += 1) {
+    for (let index = 0;  index < 2 && current.startsWith('"');  index += 1) 
         try {
             const decoded = JSON.parse(current)
             if (typeof decoded !== 'string' || decoded === current)
@@ -44,7 +44,7 @@ function decode_json_string_layers (value: string) {
         } catch {
             break
         }
-    }
+    
     return current
 }
 
@@ -178,12 +178,12 @@ export async function spill_large_tool_result_if_needed (
         message.content.length <= TOOL_RESULT_SPILL_THRESHOLD_CHARS
     )
         return message
-
+        
     const original_content = message.content
     const persisted_content = persisted_content_from_tool_result(original_content)
     const preview = preview_of(persisted_content)
     const file = tool_result_file_name(message, parsed_call, persisted_content)
-
+    
     try {
         await context.workspace_store.write_file(context.session_id, context.api_fetch, file, persisted_content)
         const reference = build_persisted_reference(original_content.length, persisted_content.length, file, preview)

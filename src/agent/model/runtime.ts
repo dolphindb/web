@@ -393,7 +393,7 @@ export class ChatRuntimeModel {
             
             const type = payload.type || parsed_event.event
             const data = payload.data || payload
-
+            
             if (payload.action === 'context.compaction') {
                 const phase = String(data?.phase || '')
                 if (phase === 'start')
@@ -939,7 +939,7 @@ export class ChatRuntimeModel {
                 ? script_result.save_message.content
                 : `[${script_result.save_message.messageType}:${parsed_call.type}] ${script_result.save_message.content}`
             : ''
-
+            
         // 显示工具结果消息
         if (script_result.save_message) {
             const result_msg: IMessage = {
