@@ -144,7 +144,6 @@ demo2.zip
     * [获取技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD)
     * [获取技能指令](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD%E6%8C%87%E4%BB%A4)
     * [按名称获取技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%8C%89%E5%90%8D%E7%A7%B0%E8%8E%B7%E5%8F%96%E6%8A%80%E8%83%BD)
-    * [下载技能包](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E4%B8%8B%E8%BD%BD%E6%8A%80%E8%83%BD%E5%8C%85)
     * [更新技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E6%8A%80%E8%83%BD)
     * [删除技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4%E6%8A%80%E8%83%BD)
     * [列出技能](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E6%8A%80%E8%83%BD)
@@ -203,7 +202,6 @@ demo2.zip
   * [MemoryEntry](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#MemoryEntry)
   * [MemoryJob](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#MemoryJob)
   * [SkillInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SkillInfo)
-  * [SkillPackageExport](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SkillPackageExport)
   * [SkillAccessInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SkillAccessInfo)
   * [BuiltinInitResult](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#BuiltinInitResult)
   * [BuiltinInitSummary](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#BuiltinInitSummary)
@@ -1517,7 +1515,7 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 | `agentName`     | string | 是   | Agent 名称                                                                                                                                                                                                                                                                                                                                                                                    |
 | `description`   | string | 否   | 描述                                                                                                                                                                                                                                                                                                                                                                                          |
 | `systemPrompt`  | string | 否   | 系统提示词                                                                                                                                                                                                                                                                                                                                                                                    |
-| `llmConfigId`   | string | 否   | 默认 LLM 配置 ID，必须是已通过`/llm/config/register`注册的配置 ID。注册时会自动创建 agent 与该 LLM 配置的绑定关系（`isDefault=true`,`priority=0`）                                                                                                                                                                                                                                |
+| `llmConfigId`   | string | 否   | 默认 LLM 配置 ID。注册时会自动创建 agent 与该 LLM 配置的绑定关系（`isDefault=true`,`priority=0`）                                                                                                                                                                                                                                                                                     |
 | `contextConfig` | object | 否   | 上下文组装配置，详见[contextConfig 结构](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#contextconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#contextconfig") |
 | `memoryConfig`  | object | 否   | 记忆管理配置，详见[memoryConfig 结构](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryconfig")      |
 | `config`        | object | 否   | Agent 扩展配置。框架会读取`allowLlmFallback`（bool，默认 false）控制模型调用失败时是否允许自动切换到备用 LLM 配置；其他字段原样存储                                                                                                                                                                                                                                                       |
@@ -1527,13 +1525,6 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* `agent.register` 不接受 `agentId` 和 `ownerUserId`；`agentId` 由框架生成
-* `agentName` 在未删除 Agent 范围内唯一；重复名称返回 `BUS_CONFLICT` / HTTP 409；Agent 删除后名称可复用
 * `memoryConfig` 由记忆策略服务读取，未提供字段按默认策略处理
 * `config.allowLlmFallback=false` 时，运行时只调用解析出的目标模型，失败直接报错；设为 `true` 时，目标模型失败且尚未产生流式内容时可按 agent 绑定 priority 自动尝试后续模型。
 
@@ -1567,7 +1558,7 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 ```
 
 | --------------------- | -------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `agentId`       | string | 路径已提供时否 | Agent ID；若同时出现在路径和 body 中，必须一致                                                                         |
+| `agentId`       | string | 路径已提供时否 | Agent ID                                                                                                               |
 | `agentName`     | string | 否             | Agent 名称                                                                                                             |
 | `description`   | string | 否             | 描述                                                                                                                   |
 | `systemPrompt`  | string | 否             | 系统提示词                                                                                                             |
@@ -1579,13 +1570,6 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 至少提供一个可更新字段；已删除 Agent 返回 `BUS_AGENT_NOT_FOUND` / HTTP 404
-* `agentName` 在未删除 Agent 范围内唯一；更新为其它未删除 Agent 的名称返回 `BUS_CONFLICT` / HTTP 409
 * 更新成功会递增 Agent `version`
 
 **响应:** [AgentInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#agentinfo")
@@ -1676,14 +1660,6 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 **响应:** 当前 agent 的授权列表 `{ items: [AuthInfo, ...], size: N }`
 
-说明：授权级别固定为 Agent 调用权限，请求体不接受 `permission`。
-
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-
 ---
 
 #### 撤销 Agent 权限
@@ -1748,14 +1724,6 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 | `grantedBy` | string | 否   | 执行授权的用户 ID（默认为当前登录用户） |
 
 **响应:** `{ items: [GlobalAccessInfo, ...], size: N }`
-
-说明：授权级别固定为全局 `AGENT_ADMIN`，请求体不接受 `permission`。
-
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 
 ---
 
@@ -1827,15 +1795,9 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * `baseUrl` 由框架规范化保存：末尾 `/` 会被移除
-* `name` 在未删除 Provider 范围内唯一；重复名称返回 `BUS_CONFLICT` / HTTP 409；Provider 删除后名称可复用
+* `name` 在未删除 Provider 范围内唯一；
 * Provider 负责承载共享连接信息；模型级配置保存 `requestPath`、`defaultParams` 等模型参数
-* `enabled=false` 的 provider 可保存配置，但运行时不会通过该 provider 发起 LLM 调用
 
 ---
 
@@ -1844,15 +1806,6 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 `GET /agent-bus/v1/llm/provider/{providerId} `
 
 **响应:** [LlmProviderInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmproviderinfo")
-
-说明：
-
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 已删除的 provider 返回 404
 
 ---
 
@@ -1919,16 +1872,7 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 至少提供一个可更新字段
-* `name` 在未删除 Provider 范围内唯一；更新为其它未删除 Provider 的名称返回 `BUS_CONFLICT` / HTTP 409
-* `enabled=false` 时，引用该 provider 的 LLM 配置保留，运行时不可用
-* `enabled=true` 时，引用该 provider 且自身启用的 LLM 配置可参与运行时解析
-* 已删除的 provider 返回 404
+* `name` 在未删除 Provider 范围内唯一
 
 ---
 
@@ -1940,15 +1884,8 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 删除前要求不存在任何未删除的 LLM 配置引用该 provider
-* 存在引用时返回 `BUS_CONFLICT` / HTTP 409，`error.message` 包含引用的 `llmConfigId`
 * 删除成功后不参与 list、get 和 runtime
-* 删除成功后的 GET 返回 404
 
 ---
 
@@ -1997,11 +1934,6 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 运行时最终请求地址按 `provider.baseUrl + requestPath` 拼接
 * `capability=embedding` 的配置用于通用 embedding 调用能力
 * `enabled=true` 时，系统全局只允许一条启用的 `capability='embedding'` 配置
@@ -2014,15 +1946,6 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 `GET /agent-bus/v1/llm/config/{llmConfigId} `
 
 **响应:** [LlmConfigInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#llmconfiginfo")
-
-说明：
-
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 已删除的配置返回 404
 
 ---
 
@@ -2100,14 +2023,6 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 至少提供一个可更新字段
-* `enabled=false` 时，已有用户授权、agent 绑定、agent 默认模型、summary 配置和 session 引用保留，运行时不会选择该配置
-* `enabled=true` 时，provider 必须启用
 * `enabled=true` 且 `capability=embedding` 时，系统中不能存在其他启用的 embedding 配置
 * 已删除的配置返回 404
 
@@ -2121,15 +2036,7 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 删除前要求不存在任何用户授权（`user_llm_access`）、任何 agent 绑定（`agent_llm_access`）、任何非 `DELETED` agent 的默认模型字段、任何非 `DELETED` agent 的 `contextConfig.summaryConfig.summaryLlmConfigId`，以及任何现存 session 的 `llmConfigId` 引用
-* 存在引用时返回 `BUS_CONFLICT` / HTTP 409，`error.message` 指明引用类型和示例 ID
-* 删除成功后不参与 list、get 和 runtime
-* 删除成功后的 GET 返回 404
 
 ---
 
@@ -2223,7 +2130,7 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 ```
 
 | ------------------- | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `llmConfigId` | string | 是   | 要绑定的 LLM 配置 ID，必须已启用，且其引用的 provider 也必须启用                                                                                                                                         |
+| `llmConfigId` | string | 是   | 要绑定的 LLM 配置 ID                                                                                                                                                                                     |
 | `isDefault`   | bool   | 否   | 是否设为默认 LLM（默认 false）。每个 agent 仅允许一个默认配置，设为 true 时 priority 强制为 0                                                                                                            |
 | `priority`    | int    | 否   | 优先级（默认 0），数值越小优先级越高。用于默认模型解析顺序；仅当`AgentInfo.config.allowLlmFallback=true`时，运行时才会按 priority 升序形成备用 LLM 配置切换链，并在当前 LLM 调用失败时自动尝试下一个 |
 
@@ -2267,6 +2174,10 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 ---
 
 ### 3.7 Skill 管理
+
+Skill 分为普通 Skill 和 common skill。普通 Skill 需要显式绑定到 Agent 后生效；common skill 通过 `isCommon` / `common=true` 标识，启用后默认对所有 Agent 可用，包括后续新建的 Agent。
+
+一个用户在某个 Agent 下是否能使用某个 Skill，由 Skill 自身是否启用、该 Skill 是否对该 Agent 生效、该用户是否被 deny 共同决定。普通 Skill 只有绑定到该 Agent 后才生效；common skill 默认生效，但管理员可以在指定 Agent 下关闭它，也可以重新开启恢复默认可用。用户可用的 Skill 的摘要部分 会自动进入上下文，由框架负责控制。
 
 #### 注册技能
 
@@ -2339,12 +2250,6 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 未显式设置 `enabled` 时默认启用
 * 技能包必须是 ZIP，解压后根目录或唯一顶层目录下必须包含 `SKILL.md`，未压缩总大小不能超过 `30MB`
 * `SKILL.md` 必须以 YAML frontmatter 开头；frontmatter 至少提供合法 `name` 和非空 `description`
 * 启用状态下技能名称必须全局唯一
@@ -2395,24 +2300,6 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 ---
 
-#### 下载技能包
-
-`GET /agent-bus/v1/skill/{skillId}/download `
-
-下载单个 Skill 当前版本的 ZIP 包。该接口用于 Web 管控台导出、备份或迁移 Skill。
-
-**响应:** [SkillPackageExport](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillpackageexport "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillpackageexport")
-
-说明：
-
-* 该接口需要 DolphinDB admin 身份或全局 `AGENT_ADMIN` 权限；普通 Agent 调用用户即使能使用该 Skill，也不能下载 ZIP 包。
-* 返回值仍位于普通 JSON envelope 的 `data` 字段内，ZIP 内容通过 `content` 字段以 base64 编码返回；客户端需要自行 base64 解码并按 `filename` 保存。
-* 下载内容由当前 `contentRevision` 下的 `agent_skill_file` 文件重新打包生成，文件路径为相对 Skill 包根目录的规范化路径。
-* 该接口不保证返回与上传时完全相同的原始 ZIP 字节流，但解压后的文件内容与当前保存的 Skill 文件一致。
-* 已删除或不存在的 Skill 返回 404。
-
----
-
 #### 更新技能
 
 `PUT /agent-bus/v1/skill/{skillId} `
@@ -2446,14 +2333,7 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 至少提供技能包数据或一个覆盖字段。
 * 提供新技能包时，框架会替换已保存的技能包文件并递增 `contentRevision`；随后再应用覆盖字段。
-* `overrides.enabled` 或直接字段 `enabled` 控制技能是否启用。
 
 **响应:** [SkillInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#skillinfo")
 
@@ -2467,16 +2347,7 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 说明：
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 * 删除前要求不存在 agent 绑定或用户 deny/allow 相关引用
-* 删除流程先将 Skill 标记为 deleted 以立即隐藏，再删除包文件行，最后删除 Skill 主表行
-* 系统会在 Skill 管理面操作中清理已标记 deleted 但未完成物理删除的残留行
-* 删除成功后不参与 list、get、byName、catalog 和 context
-* 删除成功后的 GET / byName 返回 404
 
 ---
 
@@ -2539,17 +2410,6 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 **响应:** Agent 当前绑定列表 `{ items: [SkillAccessInfo, ...], size }`
 
-说明：
-
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 普通 skill：重复绑定为幂等 no-op；若存在内部禁用行则恢复为可用。
-* common skill：不写入启用绑定；若存在该 Agent 的 common 禁用覆盖行，则删除覆盖行，恢复继承；否则 no-op。
-* 请求体不支持 `enabled`、`descOverride`、`configOverride`。
-
 ---
 
 #### 解绑技能
@@ -2577,16 +2437,6 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 | `skillId` | string | 是   | 技能 ID  |
 
 **响应:** Agent 当前绑定列表
-
-说明：
-
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 普通 skill：删除 Agent 显式绑定。
-* common skill：写入或更新 Agent 级内部禁用覆盖行；该 Agent 后续不会继承该 common skill。
 
 ---
 
@@ -2622,14 +2472,6 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 | `skillId` | string | 是   | 要禁止使用的技能 ID |
 | `userId`  | string | 是   | 业务用户 ID         |
 
-说明：重复 deny 会更新或保持该用户对该技能的全局禁用记录。该接口需要全局管理员权限。
-
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-
 **响应:** `{ userId, skillIds: [...], size }`
 
 ---
@@ -2658,14 +2500,6 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 | `skillId` | string | 是   | 要恢复使用的技能 ID |
 | `userId`  | string | 是   | 业务用户 ID         |
 
-说明：allow 会删除该用户对该技能的全局禁用记录；不存在禁用记录时为幂等 no-op。该接口需要全局管理员权限。
-
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-
 **响应:** `{ userId, skillIds: [...], size }`
 
 ---
@@ -2680,9 +2514,30 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 ### 3.9 Memory 管控
 
-本节包括当前登录用户的个人记忆管理、管理员公共记忆管理、记忆配置和记忆任务运维接口。
+Memory 是 Agent 运行时的长期上下文，按 Agent 隔离，并分为两个作用域：
 
-个人记忆接口只作用于当前登录用户在目标 Agent 下的个人记忆。公共记忆、记忆配置、统计和任务运维接口要求当前用户拥有目标 Agent 的 `AGENT_ADMIN` 权限。
+| 作用域
+
+```
+| 归属
+
+
+                          | 管控方式
+
+
+                                                     | 运行时可见性
+
+
+                  |
+```
+
+| --------------------- | ----------------------------------- | ------------------------------------------------------------------ | ----------------------------------- |
+| `agent_public`  | Agent 公共记忆，`userId=*`    | 由具备该 Agent`AGENT_ADMIN`权限的管理员创建、更新、删除      | 该 Agent 的会话可召回             |
+| `user_personal` | 当前用户在指定 Agent 下的个人记忆 | 当前用户可读、修改自己的个人记忆；管理员可做管控、重置和任务运维 | 仅该用户在该 Agent 下的会话可召回 |
+
+对话上下文装配时，若 `includeMemory=true`、存在 `memoryQuery` 且预算允许，框架会基于当前 session 的 `agentId/userId` 召回 Memory。公共记忆按 `agent_public` 参与召回；个人记忆只有在 Agent 允许个人记忆且当前用户个人记忆开关启用时参与召回。
+
+Memory 有两类来源：用户或管理员通过本节接口手动创建、更新、删除 canonical memory；框架侧的后台流水线从会话中抽取候选记忆，经整理合并后更新 canonical memory 和 read index。`forgetSession`、`pipeline/trigger`、`jobs`、`reset` 用于管控这条自动记忆流水线。
 
 #### 个人记忆设置
 
@@ -3968,36 +3823,6 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 
 ---
 
-### SkillPackageExport
-
-`/skill/{skillId}/download` 的响应结构。
-
-| 字段
-
-```
-| 类型
-```
-
-| 说明
-
-```
-|
-```
-
-| ----------------------- | -------- | ---------------------------------------------- |
-| `skillId`         | string | 技能唯一 ID                                  |
-| `name`            | string | 技能名称                                     |
-| `contentRevision` | int    | 导出的技能包文件内容版本                     |
-| `contentHash`     | string | 当前 Skill 规范化内容 hash                   |
-| `filename`        | string | 建议保存的 ZIP 文件名                        |
-| `mediaType`       | string | 固定为`application/zip`                  |
-| `encoding`        | string | 固定为`base64`                           |
-| `content`         | string | ZIP 包字节的 base64 编码内容                 |
-| `size`            | long   | ZIP 包原始字节数，即 base64 解码后的字节长度 |
-| `fileCount`       | int    | ZIP 包内文件数量                             |
-
----
-
 ### SkillAccessInfo
 
 | 字段
@@ -4524,7 +4349,6 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 | `skill.register`                | POST /skill/register                          |
 | `skill.get`                     | GET /skill/{id}                               |
 | `skill.getByName`               | GET /skill/byName/{name}                      |
-| `skill.download`                | GET /skill/{id}/download                      |
 | `skill.update`                  | PUT /skill/{id}                               |
 | `skill.delete`                  | DELETE /skill/{id}                            |
 | `skill.list`                    | GET /skill/list                               |
