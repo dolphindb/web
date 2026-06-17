@@ -14,7 +14,7 @@ import { ChatRuntimeModel } from './model/runtime.ts'
 import { ChatLlmModel } from './model/llm.ts'
 import { ChatMemoryModel } from './model/memory.ts'
 import { ChatSkillModel } from './model/skill.ts'
-import type { AgentStatus, IAgentInfo, IAgentStatusEvent, ISelectableLlmInfo, IScriptExecutionApproval, ISession, ISkillInfo, IMessage, IToolLoopControl, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
+import type { AgentStatus, IAgentInfo, IAgentStatusEvent, ISelectableLlmInfo, IScriptExecutionApproval, ISession, IMessage, IToolLoopControl, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
 import type { IToolCall, MessageType } from './model/types.ts'
 
 export type { AgentStatus, IAccessInfo, IAgentInfo, IAgentLlmBinding, IAgentStatusEvent, IBuiltinInitItem, IBuiltinInitResult, IBuiltinInitSummary, IBuiltinStateRecord, ILlmConfig, ILlmProvider, ILlmUsageStats, IMessage, IMemoryEntry, IMemoryStats, ISelectableLlmInfo, IScriptExecutionApproval, ISession, ISkillBinding, ISkillFileContent, ISkillFileInfo, ISkillInfo, IToolCall, IToolLoopControl, IUserLlmAccessInfo, MessageRole, MessageType, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
@@ -66,9 +66,6 @@ export class ChatModel extends Model<ChatModel> {
     agent_status: IAgentStatusEvent = { status: 'idle' }
     
     sse_controller: AbortController | null = null
-    
-    /** 缓存的技能列表，工具续传轮次复用 */
-    _cached_skills: ISkillInfo[] = [ ]
     
     /** 当前 Agent 下用户可选择的 LLM 列表 */
     selectable_llms: ISelectableLlmInfo[] = [ ]

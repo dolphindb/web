@@ -1,4 +1,4 @@
-import type { IMessage, ISkillInfo, IToolCall } from './model.ts'
+import type { IMessage, IToolCall } from './model.ts'
 import { build_system_prompt } from './prompt.ts'
 import { get_all_tool_definitions } from './scripts/index.ts'
 import { parse_tool_calls } from './tool_call_parser.ts'
@@ -28,7 +28,7 @@ export interface ToolCallContinuation {
 
 export interface ToolCallAdapter {
     mode: ToolCallAdapterMode
-    build_system_prompt: (skills: ISkillInfo[]) => string
+    build_system_prompt: () => string
     apply_request_body: (body: Record<string, any>, message: string, options: ChatCompletionOptions) => void
     parse_tool_calls: (tool_calls: CompletionToolCalls | undefined, content: string) => ParsedToolCall[]
     get_natural_text: (content: string) => string
@@ -175,7 +175,7 @@ function build_tool_call_message (parsed_call: ParsedToolCall, msg_id: string, r
 export const legacy_json_tool_call_adapter: ToolCallAdapter = {
     mode: 'legacy_json',
     
-    build_system_prompt: skills => build_system_prompt(skills, false),
+    build_system_prompt: () => build_system_prompt(false),
     
     apply_request_body (body, message) {
         body.message = message
@@ -200,7 +200,7 @@ export const legacy_json_tool_call_adapter: ToolCallAdapter = {
 export const native_tool_call_adapter: ToolCallAdapter = {
     mode: 'native',
     
-    build_system_prompt: skills => build_system_prompt(skills, true),
+    build_system_prompt: () => build_system_prompt(true),
     
     apply_request_body (body, message, options) {
         body.assemblyConfig.tools = normalize_tool_definitions_for_native()

@@ -1,5 +1,4 @@
 import { get_all_scripts } from './scripts/index.ts'
-import type { ISkillInfo } from './model.ts'
 import type { IChatWorkspace, IWorkspaceStep } from './workspace.ts'
 
 
@@ -172,36 +171,6 @@ const NATIVE_TOOL_SYSTEM_PROMPT = [
 ].join('\n')
 
 
-const SHORT_DESCRIPTION_MAX_LENGTH = 60
-
-
-function to_short_description (description: string): string {
-    const normalized = description.replace(/\s+/g, ' ').trim()
-    if (!normalized)
-        return '无简短描述'
-    if (normalized.length <= SHORT_DESCRIPTION_MAX_LENGTH)
-        return normalized
-    return `${normalized.slice(0, SHORT_DESCRIPTION_MAX_LENGTH)}...`
-}
-
-
-function build_skills_section (skills: ISkillInfo[]): string {
-    if (skills.length === 0)
-        return '可用技能列表（skillId + 名称 + 简短描述）：\n- 暂无启用技能。'
-        
-    const lines = skills.map(
-        (item, index) =>
-            `${index + 1}. [${item.skillId}] ${item.displayName || item.name}: ${to_short_description(item.description || '')}`
-    )
-    return [
-        '可用技能列表（skillId + 名称 + 简短描述）：',
-        ...lines,
-        '',
-        '当需要查看技能完整详情时，请使用 skill_read 工具并传入 skillId。',
-    ].join('\n')
-}
-
-
 function build_tools_section (): string {
     const script_functions = Array.from(
         new Set(get_all_scripts().map(config => String(config.function).trim()))
@@ -252,13 +221,12 @@ function build_tools_section (): string {
 }
 
 
-export function build_system_prompt (skills: ISkillInfo[], native_tool_calling = false): string {
+export function build_system_prompt (native_tool_calling = false): string {
     try {
-        const skills_section = build_skills_section(skills)
         if (native_tool_calling)
-            return [NATIVE_TOOL_SYSTEM_PROMPT, '', skills_section].join('\n')
+            return NATIVE_TOOL_SYSTEM_PROMPT
         const tools_section = build_tools_section()
-        return [BASE_SYSTEM_PROMPT, '', skills_section, '', tools_section].join('\n')
+        return [BASE_SYSTEM_PROMPT, '', tools_section].join('\n')
     } catch (error) {
         console.error('Failed to build system prompt:', error)
         return native_tool_calling ? NATIVE_TOOL_SYSTEM_PROMPT : BASE_SYSTEM_PROMPT

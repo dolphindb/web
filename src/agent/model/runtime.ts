@@ -542,16 +542,13 @@ export class ChatRuntimeModel {
             const url = `${this.chat.base_url}/chat/completions`
             const token = localStorage.getItem(storage_keys.agent_bus_token) || ''
             
-            // 加载当前 Agent 绑定的技能列表用于系统提示词
-            const skills = _tool_turn === 0 ? await this.chat.skill.load_bound_skills() : this.chat._cached_skills
-            this.chat._cached_skills = skills
             const tool_call_adapter = this.chat.runtime.get_tool_call_adapter()
             const is_tool_result_turn = Boolean(options.tool_results?.length)
             const current_todo_prompt = is_tool_result_turn ? '' : build_current_todo_prompt(this.chat.current_workspace, this.chat.steps)
             const context_blocks = [
                 {
                     name: 'web_tool_call_rules',
-                    content: tool_call_adapter.build_system_prompt(skills),
+                    content: tool_call_adapter.build_system_prompt(),
                     position: 'after_system',
                 },
                 ...current_todo_prompt
