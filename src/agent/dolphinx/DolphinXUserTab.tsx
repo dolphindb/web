@@ -8,7 +8,7 @@ import { model } from '@model'
 import { shell } from '@/shell/model.ts'
 
 import { chat_model, get_chat_model } from '@/agent/model.ts'
-import type { ILlmUsageStats, IMemoryEntry, IMemoryJob, ISession } from '@/agent/model.ts'
+import type { ILlmConfig, ILlmUsageStats, IMemoryEntry, IMemoryJob, ISession } from '@/agent/model.ts'
 import { format_browser_time, Section, show_error, use_agent_options, use_user_options } from './common.tsx'
 
 
@@ -28,6 +28,14 @@ function format_file_size (size?: number) {
         value /= 1024
     }
     return `${value.toFixed(1)} TB`
+}
+
+
+function optional_nonnegative_number (value: unknown) {
+    if (value === null || value === undefined || value === '')
+        return undefined
+    const num = Number(value)
+    return Number.isFinite(num) && num >= 0 ? num : undefined
 }
 
 
@@ -301,14 +309,19 @@ export function MemoryManagementTab ({ can_manage_public_memory = false, admin =
             {
                 key: 'personal',
                 label: t('个人'),
-                children: <MemorySection scope_type='user_personal' admin={admin} />,
+                children: <MemorySection scope_type='user_personal' />,
             },
             ...can_manage_public_memory ? [{
                 key: 'public',
                 label: t('公共'),
-                children: <MemorySection scope_type='agent_public' admin={admin} />,
+                children: <MemorySection scope_type='agent_public' />,
             }] : [ ],
             ...admin ? [{
+                key: 'config',
+                label: t('配置'),
+                children: <MemoryConfigManagementSection />,
+            },
+            {
                 key: 'jobs',
                 label: t('任务'),
                 children: <MemoryJobsSection />,
@@ -318,7 +331,7 @@ export function MemoryManagementTab ({ can_manage_public_memory = false, admin =
 }
 
 
-function MemorySection ({ scope_type, admin }: { scope_type: MemoryScopeType, admin: boolean }) {
+function MemorySection ({ scope_type }: { scope_type: MemoryScopeType }) {
     const { agent_id, options } = use_agent_options()
     const personal_memory = scope_type === 'user_personal'
     
@@ -669,11 +682,6 @@ function MemorySection ({ scope_type, admin }: { scope_type: MemoryScopeType, ad
                     />
                             </>,
                         },
-                        ...admin ? [{
-                            key: 'config',
-                            label: t('配置'),
-                            children: <MemoryConfigSection agent_id={selected_agent_id} />,
-                        }] : [ ],
                     ]}
                 /> : <Empty description={t('请选择 Agent')} />}
             </div>
@@ -756,14 +764,47 @@ function MemorySection ({ scope_type, admin }: { scope_type: MemoryScopeType, ad
 
 
 function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
-    const [config_text, set_config_text] = useState('')
+    const [form, set_form] = useState<{
+        allowPersonalMemory: boolean
+        memoryLlmConfigId: string
+        memoryTopK?: number
+        memoryRegistryTopK?: number
+        personalMemoryBudget?: number
+        agentPublicMemoryBudget?: number
+        minSessionIdleMinutes?: number
+        maxSessionAgeDays?: number
+        phase2CooldownMinutes?: number
+        maxRawMemoriesForConsolidation?: number
+        maxUnusedDays?: number
+    }>({
+        allowPersonalMemory: true,
+        memoryLlmConfigId: '',
+    })
+    const [llm_configs, set_llm_configs] = useState<ILlmConfig[]>([ ])
     const [loading, set_loading] = useState(false)
     
     async function load_config () {
         set_loading(true)
         try {
-            const result = await chat_model.memory.get_memory_config(agent_id)
-            set_config_text(JSON.stringify(result.memoryConfig || { }, null, 2))
+            const [result, configs] = await Promise.all([
+                chat_model.memory.get_memory_config(agent_id),
+                chat_model.llm.load_llm_configs(),
+            ])
+            const config = result.memoryConfig || { }
+            set_llm_configs(configs.filter(item => item.statusName !== 'DELETED'))
+            set_form({
+                allowPersonalMemory: config.allowPersonalMemory !== false,
+                memoryLlmConfigId: String(config.memoryLlmConfigId || ''),
+                memoryTopK: optional_nonnegative_number(config.memoryTopK),
+                memoryRegistryTopK: optional_nonnegative_number(config.memoryRegistryTopK),
+                personalMemoryBudget: optional_nonnegative_number(config.personalMemoryBudget),
+                agentPublicMemoryBudget: optional_nonnegative_number(config.agentPublicMemoryBudget),
+                minSessionIdleMinutes: optional_nonnegative_number(config.minSessionIdleMinutes),
+                maxSessionAgeDays: optional_nonnegative_number(config.maxSessionAgeDays),
+                phase2CooldownMinutes: optional_nonnegative_number(config.phase2CooldownMinutes),
+                maxRawMemoriesForConsolidation: optional_nonnegative_number(config.maxRawMemoriesForConsolidation),
+                maxUnusedDays: optional_nonnegative_number(config.maxUnusedDays),
+            })
         } catch (error) {
             show_error(error, t('加载记忆配置失败'))
         } finally {
@@ -772,17 +813,36 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
     }
     
     async function save_config () {
-        let memory_config: Record<string, unknown>
-        try {
-            memory_config = config_text.trim() ? JSON.parse(config_text) : { }
-        } catch {
-            message.warning(t('请输入合法 JSON'))
-            return
+        const memory_config = {
+            allowPersonalMemory: form.allowPersonalMemory,
+            memoryLlmConfigId: form.memoryLlmConfigId || null,
+            memoryTopK: form.memoryTopK ?? null,
+            memoryRegistryTopK: form.memoryRegistryTopK ?? null,
+            personalMemoryBudget: form.personalMemoryBudget ?? null,
+            agentPublicMemoryBudget: form.agentPublicMemoryBudget ?? null,
+            minSessionIdleMinutes: form.minSessionIdleMinutes ?? null,
+            maxSessionAgeDays: form.maxSessionAgeDays ?? null,
+            phase2CooldownMinutes: form.phase2CooldownMinutes ?? null,
+            maxRawMemoriesForConsolidation: form.maxRawMemoriesForConsolidation ?? null,
+            maxUnusedDays: form.maxUnusedDays ?? null,
         }
         set_loading(true)
         try {
             const result = await chat_model.memory.update_memory_config(agent_id, memory_config)
-            set_config_text(JSON.stringify(result.memoryConfig || { }, null, 2))
+            const config = result.memoryConfig || { }
+            set_form({
+                allowPersonalMemory: config.allowPersonalMemory !== false,
+                memoryLlmConfigId: String(config.memoryLlmConfigId || ''),
+                memoryTopK: optional_nonnegative_number(config.memoryTopK),
+                memoryRegistryTopK: optional_nonnegative_number(config.memoryRegistryTopK),
+                personalMemoryBudget: optional_nonnegative_number(config.personalMemoryBudget),
+                agentPublicMemoryBudget: optional_nonnegative_number(config.agentPublicMemoryBudget),
+                minSessionIdleMinutes: optional_nonnegative_number(config.minSessionIdleMinutes),
+                maxSessionAgeDays: optional_nonnegative_number(config.maxSessionAgeDays),
+                phase2CooldownMinutes: optional_nonnegative_number(config.phase2CooldownMinutes),
+                maxRawMemoriesForConsolidation: optional_nonnegative_number(config.maxRawMemoriesForConsolidation),
+                maxUnusedDays: optional_nonnegative_number(config.maxUnusedDays),
+            })
             message.success(t('保存成功'))
         } catch (error) {
             show_error(error, t('保存记忆配置失败'))
@@ -793,19 +853,121 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
     
     useEffect(() => { load_config() }, [agent_id])
     
-    return <Space direction='vertical' style={{ width: '100%' }}>
-        <Space wrap>
-            <Button loading={loading} onClick={load_config}>{t('刷新')}</Button>
+    function number_field (key: keyof typeof form, label: string, placeholder: string) {
+        return <div>
+            <div style={{ marginBottom: 4, fontSize: 13 }}>{label}</div>
+            <InputNumber
+                style={{ width: '100%' }}
+                min={0}
+                value={form[key] as number | undefined}
+                onChange={value => { set_form({ ...form, [key]: optional_nonnegative_number(value) }) }}
+                placeholder={placeholder}
+            />
+        </div>
+    }
+    
+    return <div style={{ height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(240px, 1fr))', gap: '12px 16px' }}>
+                <div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('允许个人记忆')}</div>
+                    <Switch checked={form.allowPersonalMemory} onChange={value => { set_form({ ...form, allowPersonalMemory: value }) }} />
+                </div>
+                <div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('记忆模型配置')}</div>
+                    <Select
+                        allowClear
+                        showSearch
+                        style={{ width: '100%' }}
+                        value={form.memoryLlmConfigId || undefined}
+                        onChange={value => { set_form({ ...form, memoryLlmConfigId: value || '' }) }}
+                        placeholder={t('使用 Agent 默认模型')}
+                        options={llm_configs.map(config => ({
+                            value: config.llmConfigId,
+                            label: config.name || config.llmConfigId,
+                        }))}
+                    />
+                </div>
+                {number_field('memoryTopK', t('记忆注入上限'), '5')}
+                {number_field('memoryRegistryTopK', t('候选主题召回上限'), '20')}
+                {number_field('personalMemoryBudget', t('个人记忆预算'), '2000')}
+                {number_field('agentPublicMemoryBudget', t('公共记忆预算'), '1000')}
+                {number_field('minSessionIdleMinutes', t('会话空闲分钟'), '360')}
+                {number_field('maxSessionAgeDays', t('最大会话天数'), '10')}
+                {number_field('phase2CooldownMinutes', t('自动整理冷却分钟'), '10')}
+                {number_field('maxRawMemoriesForConsolidation', t('单次整理候选上限'), '256')}
+                {number_field('maxUnusedDays', t('低频维护未使用天数'), '30')}
+            </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
             <Button type='primary' loading={loading} onClick={save_config}>{t('保存')}</Button>
-        </Space>
-        <Input.TextArea
-            value={config_text}
-            onChange={event => { set_config_text(event.target.value) }}
-            rows={18}
-            style={{ fontFamily: 'monospace' }}
-            placeholder={t('记忆配置 JSON')}
-        />
-    </Space>
+        </div>
+    </div>
+}
+
+
+function MemoryConfigManagementSection () {
+    const { agent_id, options } = use_agent_options()
+    const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
+    const [agent_page, set_agent_page] = useState(1)
+    const agent_page_size = 10
+    const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
+    
+    useEffect(() => {
+        if (!selected_agent_id && agent_id)
+            set_selected_agent_id(agent_id)
+        else if (!selected_agent_id && options.length > 0)
+            set_selected_agent_id(options[0].value)
+    }, [agent_id, options.length, selected_agent_id])
+    
+    useEffect(() => {
+        const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
+        if (agent_page > max_page)
+            set_agent_page(max_page)
+    }, [options.length, agent_page])
+    
+    return <div style={{ display: 'flex', gap: 12, height: 520, minHeight: 0 }}>
+        <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ fontWeight: 500, marginBottom: 8 }}>{t('Agent')}</div>
+            <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+                {options.length === 0
+                    ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无 Agent')} />
+                    : paged_agent_options.map(agent =>
+                        <div
+                            key={agent.value}
+                            onClick={() => { set_selected_agent_id(agent.value) }}
+                            title={agent.label}
+                            style={{
+                                padding: '8px 10px',
+                                borderRadius: 4,
+                                cursor: 'pointer',
+                                marginBottom: 4,
+                                background: selected_agent_id === agent.value ? '#e6f4ff' : undefined,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            {agent.label}
+                        </div>
+                    )}
+            </div>
+            {options.length > agent_page_size && <Pagination
+                size='small'
+                simple
+                current={agent_page}
+                pageSize={agent_page_size}
+                total={options.length}
+                onChange={set_agent_page}
+                style={{ marginTop: 8 }}
+            />}
+        </div>
+        <div style={{ flex: 1, minWidth: 0, minHeight: 0 }}>
+            {selected_agent_id
+                ? <MemoryConfigSection agent_id={selected_agent_id} />
+                : <Empty description={t('请选择 Agent')} />}
+        </div>
+    </div>
 }
 
 

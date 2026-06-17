@@ -7394,6 +7394,42 @@
     "记忆配置 JSON": {
         "en": "Memory config JSON"
     },
+    "允许个人记忆": {
+        "en": "Allow personal memory"
+    },
+    "记忆模型配置": {
+        "en": "Memory model config"
+    },
+    "使用 Agent 默认模型": {
+        "en": "Use Agent default model"
+    },
+    "记忆注入上限": {
+        "en": "Memory injection limit"
+    },
+    "候选主题召回上限": {
+        "en": "Registry recall limit"
+    },
+    "个人记忆预算": {
+        "en": "Personal memory budget"
+    },
+    "公共记忆预算": {
+        "en": "Public memory budget"
+    },
+    "会话空闲分钟": {
+        "en": "Session idle minutes"
+    },
+    "最大会话天数": {
+        "en": "Max session age days"
+    },
+    "自动整理冷却分钟": {
+        "en": "Consolidation cooldown minutes"
+    },
+    "单次整理候选上限": {
+        "en": "Raw memory consolidation limit"
+    },
+    "低频维护未使用天数": {
+        "en": "Unused days threshold"
+    },
     "请输入合法 JSON": {
         "en": "Please enter valid JSON"
     },

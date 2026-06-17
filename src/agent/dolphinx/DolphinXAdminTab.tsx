@@ -460,11 +460,11 @@ function UserPermissionTab () {
                     <div style={{ fontWeight: 500, marginBottom: 12 }}>
                         {t('正在编辑用户：{{user}}', { user: selected_user_id })}
                     </div>
+                    <ResetUserMemorySection user_id={selected_user_id} />
                     <GlobalAgentAdminSection user_id={selected_user_id} />
                     <AdminAccessSection user_id={selected_user_id} />
                     <UserLlmSection user_id={selected_user_id} />
                     <SkillAccessSection user_id={selected_user_id} />
-                    <ResetUserMemorySection user_id={selected_user_id} />
                 </>
                 : <Empty description={t('请选择用户')} />}
         </div>
