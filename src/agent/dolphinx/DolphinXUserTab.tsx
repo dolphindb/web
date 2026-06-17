@@ -46,7 +46,6 @@ function SessionSection () {
     const [force_summary, set_force_summary] = useState(false)
     const [summary, set_summary] = useState('')
     const [generating_summary, set_generating_summary] = useState(false)
-    const [summary_generated, set_summary_generated] = useState(false)
     const [loading, set_loading] = useState(false)
     const summary_modal = use_modal()
     const title_modal = use_modal()
@@ -127,14 +126,13 @@ function SessionSection () {
         if (!summary_session)
             return
         set_generating_summary(true)
-        set_summary_generated(false)
         try {
             const result = await chat_model.session.generate_session_summary(summary_session.sessionId, {
                 instructions: summary_instructions || undefined,
                 force: force_summary,
             })
             set_summary(result.content || '')
-            set_summary_generated(true)
+            message.success(t('摘要已生成'))
         } catch (error) {
             show_error(error, t('摘要生成失败'))
         } finally {
@@ -146,7 +144,6 @@ function SessionSection () {
     function open_summary_modal (session: ISession) {
         set_summary_session(session)
         set_summary('')
-        set_summary_generated(false)
         set_summary_instructions('')
         set_force_summary(false)
         summary_modal.open()
@@ -287,7 +284,6 @@ function SessionSection () {
                 <Switch checked={force_summary} onChange={set_force_summary} />
                 <span>{t('重新生成完整摘要')}</span>
                 <Button type='primary' loading={generating_summary} disabled={!summary_session} onClick={generate_summary}>{t('生成摘要')}</Button>
-                {summary_generated && <Text type='success'>{t('摘要已生成')}</Text>}
             </Space>
             {summary && <div style={{ marginTop: 12, padding: 12, background: '#fafafa', border: '1px solid #f0f0f0', borderRadius: 4, whiteSpace: 'pre-wrap' }}>
                 {summary}
