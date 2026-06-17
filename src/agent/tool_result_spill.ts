@@ -117,13 +117,13 @@ function preview_of (content: string) {
 function build_persisted_reference (original_chars: number, persisted_chars: number, file: string, preview: string) {
     return [
         '<persisted-output>',
-        `Tool result too large: ${original_chars} chars. Full output saved to current workspace file: ${file}`,
-        `Persisted content size: ${persisted_chars} chars.`,
+        `工具结果过大：${original_chars} 字符。完整输出已保存到当前工作区文件：${file}`,
+        `已落盘内容大小：${persisted_chars} 字符。`,
         '',
-        'Do not read the entire file in one call. Use vfs_search to find relevant text, or use vfs_read with startLine/endLine to read selected line ranges.',
-        'When reading sequentially, read at most 200 lines per call. vfs_read returns lineCount/startLine/endLine/hash; use those fields to decide the next range.',
+        '不要一次性读取整个文件。请优先使用 vfs_search 查找相关文本，或使用带 startLine/endLine 的 vfs_read 读取指定行范围。',
+        '如果需要顺序读取，每次最多读取 200 行。vfs_read 会返回 lineCount/startLine/endLine/hash，请用这些字段判断下一段读取范围。',
         '',
-        'Preview:',
+        '预览：',
         preview,
         '</persisted-output>',
     ].join('\n')
@@ -133,10 +133,10 @@ function build_persisted_reference (original_chars: number, persisted_chars: num
 function build_persist_failed_reference (original_chars: number, error: unknown, preview: string) {
     return [
         '<persisted-output>',
-        `Tool result too large: ${original_chars} chars, but saving it to the workspace failed: ${error instanceof Error ? error.message : String(error)}`,
-        'Only the preview below is available.',
+        `工具结果过大：${original_chars} 字符，但保存到工作区失败：${error instanceof Error ? error.message : String(error)}`,
+        '当前只保留下方预览内容。',
         '',
-        'Preview:',
+        '预览：',
         preview,
         '</persisted-output>',
     ].join('\n')
