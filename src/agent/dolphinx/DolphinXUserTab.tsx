@@ -291,8 +291,31 @@ function SessionSection () {
 }
 
 
-function MemorySection () {
+type MemoryScopeType = 'user_personal' | 'agent_public'
+
+
+export function MemoryManagementTab ({ can_manage_public_memory = false }: { can_manage_public_memory?: boolean }) {
+    return <Tabs
+        destroyInactiveTabPane
+        items={[
+            {
+                key: 'personal',
+                label: t('个人'),
+                children: <MemorySection scope_type='user_personal' />,
+            },
+            ...can_manage_public_memory ? [{
+                key: 'public',
+                label: t('公共'),
+                children: <MemorySection scope_type='agent_public' />,
+            }] : [ ],
+        ]}
+    />
+}
+
+
+function MemorySection ({ scope_type }: { scope_type: MemoryScopeType }) {
     const { agent_id, options } = use_agent_options()
+    const personal_memory = scope_type === 'user_personal'
     
     const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
     const [agent_page, set_agent_page] = useState(1)
@@ -329,13 +352,14 @@ function MemorySection () {
     
     useEffect(() => {
         if (selected_agent_id) {
-            load_memory_settings()
+            if (personal_memory)
+                load_memory_settings()
             search_memory()
         } else {
             set_items([ ])
             set_memory_total(0)
         }
-    }, [selected_agent_id])
+    }, [selected_agent_id, personal_memory])
     
     useEffect(() => {
         if (!has_memory_query && sort_by === 'TEXT_SEARCH')
@@ -390,8 +414,8 @@ function MemorySection () {
                 topK: 50,
                 sortBy: next_sort_by,
             }
-            const result = await chat_model.memory.search_memory(params)
-            const next_items = result.items.map(item => ({ ...item, scopeType: item.scopeType || 'user_personal' as const }))
+            const result = await chat_model.memory.search_memory(params, scope_type)
+            const next_items = result.items.map(item => ({ ...item, scopeType: item.scopeType || scope_type }))
             set_items(next_items)
             set_memory_total(result.size ?? next_items.length)
         } catch (error) {
@@ -412,14 +436,14 @@ function MemorySection () {
                     category: form_category.trim(),
                     content: form_content.trim(),
                     importance: form_importance,
-                })
+                }, scope_type)
             else
                 await chat_model.memory.store_memory({
                     agentId: selected_agent_id,
                     category: form_category.trim(),
                     content: form_content.trim(),
                     importance: form_importance,
-                })
+                }, scope_type)
             message.success(t('保存成功'))
             memory_modal.close()
             set_editing_memory_id('')
@@ -452,7 +476,7 @@ function MemorySection () {
         if (!item.memoryId)
             return
         try {
-            await chat_model.memory.delete_memory(item.memoryId)
+            await chat_model.memory.delete_memory(item.memoryId, scope_type)
             message.success(t('删除成功'))
             await search_memory()
         } catch (error) {
@@ -501,8 +525,10 @@ function MemorySection () {
                 {selected_agent_id ? <>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                         <Space wrap>
-                            <Switch checked={memory_enabled} loading={settings_loading} disabled={!selected_agent_id} onChange={set_personal_memory_enabled} />
-                            <span>{t('启用记忆')}</span>
+                            {personal_memory && <>
+                                <Switch checked={memory_enabled} loading={settings_loading} disabled={!selected_agent_id} onChange={set_personal_memory_enabled} />
+                                <span>{t('启用记忆')}</span>
+                            </>}
                         </Space>
                         <Space wrap>
                             <Text type='secondary'>{t('共 {{count}} 条', { count: memory_total })}</Text>
@@ -646,7 +672,6 @@ function MemorySection () {
                     ]}
                 />
                 <Input.TextArea value={detail_memory.content} rows={6} readOnly />
-                {detail_memory.metadata && <Input.TextArea value={JSON.stringify(detail_memory.metadata, null, 2)} rows={4} readOnly />}
             </Space>}
         </Modal>
     </>
@@ -939,11 +964,6 @@ export function DolphinXUserTab () {
                 key: 'sessions',
                 label: t('会话'),
                 children: <SessionSection />,
-            },
-            {
-                key: 'memory',
-                label: t('记忆'),
-                children: <MemorySection />,
             },
             {
                 key: 'usage',

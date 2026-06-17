@@ -7376,6 +7376,15 @@
     "记忆": {
         "en": "Memory"
     },
+    "加载记忆设置失败": {
+        "en": "Failed to load memory settings"
+    },
+    "记忆设置已更新": {
+        "en": "Memory settings updated"
+    },
+    "更新记忆设置失败": {
+        "en": "Failed to update memory settings"
+    },
     "Agent": {
         "en": "Agent"
     },
@@ -7400,11 +7409,20 @@
     "相关度": {
         "en": "Relevance"
     },
+    "文本相关度": {
+        "en": "Text relevance"
+    },
     "文本匹配": {
         "en": "Text match"
     },
+    "启用记忆": {
+        "en": "Enable memory"
+    },
     "新增记忆": {
         "en": "Add memory"
+    },
+    "共 {{count}} 条": {
+        "en": "{{count}} total"
     },
     "总记忆": {
         "en": "Total memories"
@@ -7975,6 +7993,9 @@
     },
     "Agent 管理": {
         "en": "Agent Management"
+    },
+    "记忆管理": {
+        "en": "Memory Management"
     },
     "个人中心": {
         "en": "Personal Center"

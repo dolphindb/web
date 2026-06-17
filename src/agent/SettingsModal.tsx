@@ -7,7 +7,7 @@ import { model } from '@model'
 
 import { chat_model } from './model.ts'
 import type { IBuiltinInitResult } from './model.ts'
-import { DolphinXAdminTab, DolphinXUserTab } from './DolphinXUserSettings.tsx'
+import { DolphinXAdminTab, DolphinXUserTab, MemoryManagementTab } from './DolphinXUserSettings.tsx'
 import { AgentTab } from './settings/AgentTab.tsx'
 import { LlmConfigTab } from './settings/LlmConfigTab.tsx'
 import { SkillsTab } from './settings/SkillsTab.tsx'
@@ -98,6 +98,11 @@ export function SettingsModal () {
                         label: t('技能管理'),
                         children: <SkillsTab />,
                     }] : [ ],
+                    {
+                        key: 'memory',
+                        label: t('记忆管理'),
+                        children: <MemoryManagementTab can_manage_public_memory={can_manage_agent} />,
+                    },
                     {
                         key: 'user',
                         label: t('个人中心'),
