@@ -7,7 +7,7 @@ import { model } from '@model'
 
 import { chat_model } from '@/agent/model.ts'
 import type { IAccessInfo, ILlmConfig, ISkillInfo, IUserLlmAccessInfo } from '@/agent/model.ts'
-import { Section, show_error, use_agent_options, use_user_options } from './common.tsx'
+import { AgentListLayout, Section, show_error, use_agent_options, use_user_options } from './common.tsx'
 import { UsageSection } from './DolphinXUserTab.tsx'
 
 
@@ -363,11 +363,14 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
     const [include_memories, set_include_memories] = useState(true)
     const [include_stage1, set_include_stage1] = useState(true)
     const [loading, set_loading] = useState(false)
+    const [trigger_loading, set_trigger_loading] = useState(false)
     
     useEffect(() => {
         if (!selected_agent_id && agent_id)
             set_selected_agent_id(agent_id)
-    }, [agent_id])
+        else if (!selected_agent_id && options.length > 0)
+            set_selected_agent_id(options[0].value)
+    }, [agent_id, options.length, selected_agent_id])
     
     async function reset_memory () {
         if (!selected_agent_id || !user_id) {
@@ -385,9 +388,31 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
         }
     }
     
-    return <Section title={t('重置用户个人记忆')}>
+    async function trigger_user_memory () {
+        if (!selected_agent_id || !user_id) {
+            message.warning(t('请先选择 Agent 和用户'))
+            return
+        }
+        set_trigger_loading(true)
+        try {
+            await chat_model.memory.trigger_memory_pipeline(selected_agent_id, { targetUserId: user_id })
+            message.success(t('记忆任务已触发'))
+        } catch (error) {
+            show_error(error, t('触发记忆任务失败'))
+        } finally {
+            set_trigger_loading(false)
+        }
+    }
+    
+    return <Section title={t('用户记忆维护')}>
+        <AgentListLayout
+            options={options}
+            selected_agent_id={selected_agent_id}
+            set_selected_agent_id={set_selected_agent_id}
+            height={180}
+        >
         <Space wrap>
-            <Select style={{ width: 240 }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
+            <Button loading={trigger_loading} onClick={trigger_user_memory}>{t('触发记忆整理')}</Button>
             <Switch checked={include_memories} onChange={set_include_memories} />
             <span>{t('移除个人记忆')}</span>
             <Switch checked={include_stage1} onChange={set_include_stage1} />
@@ -396,6 +421,7 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
                 <Button danger loading={loading}>{t('重置')}</Button>
             </Popconfirm>
         </Space>
+        </AgentListLayout>
     </Section>
 }
 

@@ -298,6 +298,13 @@ export interface IMemoryResetResult {
     reset: boolean
 }
 
+export interface IMemoryTriggerResult {
+    agentId: string
+    sessionId?: string
+    targetUserId?: string
+    scheduled: boolean
+}
+
 
 export interface ISkillFileInfo {
     skillId: string

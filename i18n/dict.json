@@ -7376,6 +7376,30 @@
     "记忆": {
         "en": "Memory"
     },
+    "加载记忆统计失败": {
+        "en": "Failed to load memory stats"
+    },
+    "加载记忆详情失败": {
+        "en": "Failed to load memory details"
+    },
+    "记忆任务已触发": {
+        "en": "Memory job triggered"
+    },
+    "触发记忆任务失败": {
+        "en": "Failed to trigger memory job"
+    },
+    "触发记忆提取": {
+        "en": "Trigger memory extraction"
+    },
+    "总数": {
+        "en": "Total"
+    },
+    "个人记忆": {
+        "en": "Personal memories"
+    },
+    "平均重要度": {
+        "en": "Average importance"
+    },
     "加载记忆设置失败": {
         "en": "Failed to load memory settings"
     },
@@ -7513,6 +7537,30 @@
     },
     "重试记忆任务失败": {
         "en": "Failed to retry memory job"
+    },
+    "加载记忆任务详情失败": {
+        "en": "Failed to load memory job details"
+    },
+    "记忆任务详情": {
+        "en": "Memory job details"
+    },
+    "Worker": {
+        "en": "Worker"
+    },
+    "重试时间": {
+        "en": "Retry time"
+    },
+    "输入水位": {
+        "en": "Input watermark"
+    },
+    "成功水位": {
+        "en": "Success watermark"
+    },
+    "用户记忆维护": {
+        "en": "User memory maintenance"
+    },
+    "触发记忆整理": {
+        "en": "Trigger memory consolidation"
     },
     "重置用户个人记忆": {
         "en": "Reset user personal memory"

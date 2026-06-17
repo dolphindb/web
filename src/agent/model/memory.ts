@@ -1,5 +1,5 @@
 import type { ChatModel } from '@/agent/model.ts'
-import type { IMemoryConfigResult, IMemoryEntry, IMemoryJob, IMemoryPersonalSettings, IMemoryResetResult, IMemoryStats } from './types.ts'
+import type { IMemoryConfigResult, IMemoryEntry, IMemoryJob, IMemoryPersonalSettings, IMemoryResetResult, IMemoryStats, IMemoryTriggerResult } from './types.ts'
 
 export class ChatMemoryModel {
     constructor (private chat: ChatModel) { }
@@ -110,6 +110,15 @@ export class ChatMemoryModel {
         return this.chat.agent.api_fetch(`/admin/memory/jobs/${encodeURIComponent(kind)}/${encodeURIComponent(job_key)}/retry`, {
             method: 'POST',
             body: JSON.stringify({ agentId: agent_id }),
+        })
+    }
+    async get_memory_job (agent_id: string, kind: string, job_key: string): Promise<IMemoryJob> {
+        return this.chat.agent.api_fetch(`/admin/memory/jobs/${encodeURIComponent(kind)}/${encodeURIComponent(job_key)}?agentId=${encodeURIComponent(agent_id)}`)
+    }
+    async trigger_memory_pipeline (agent_id: string, params: { sessionId?: string, targetUserId?: string }): Promise<IMemoryTriggerResult> {
+        return this.chat.agent.api_fetch('/admin/memory/pipeline/trigger', {
+            method: 'POST',
+            body: JSON.stringify({ agentId: agent_id, ...params }),
         })
     }
     async reset_user_personal_memory (agent_id: string, target_user_id: string, include_memories = true, include_stage1 = true): Promise<IMemoryResetResult> {
