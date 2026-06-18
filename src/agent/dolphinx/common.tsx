@@ -27,14 +27,14 @@ export function AgentListLayout ({
     set_selected_agent_id,
     actions,
     children,
-    height = 520,
+    height = '100%',
 }: {
     options: { value: string, label: string }[]
     selected_agent_id: string
     set_selected_agent_id: (agent_id: string) => void
     actions?: ReactNode
     children: ReactNode
-    height?: number
+    height?: number | string
 }) {
     const [agent_page, set_agent_page] = useState(1)
     const agent_page_size = 10

@@ -98,9 +98,9 @@ export function AgentTab () {
             agent_create_time(b) - agent_create_time(a)
         )
     
-    return <div style={{ display: 'flex', height: 520 }}>
+    return <div style={{ display: 'flex', height: '100%', minHeight: 0 }}>
         {/* 左侧 Agent 列表 */}
-        <div style={{ width: 260, borderRight: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+        <div style={{ width: 260, borderRight: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column', flexShrink: 0, minHeight: 0 }}>
             <div style={{ padding: '0 12px 12px', borderBottom: '1px solid #f0f0f0' }}>
                 <Button type='dashed' block icon={<PlusOutlined />} onClick={() => {
                     set_creating(!creating)
@@ -143,7 +143,7 @@ export function AgentTab () {
         </div>
         
         {/* 右侧详情 */}
-        <div style={{ flex: 1, minWidth: 0, overflow: 'auto', padding: '0 16px' }}>
+        <div style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto', padding: '0 16px' }}>
             {creating
                 ? <div style={{ padding: '16px 0' }}>
                     {form_error_alert(form_error)}

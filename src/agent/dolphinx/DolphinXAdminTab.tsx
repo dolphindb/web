@@ -455,7 +455,7 @@ function UserPermissionTab () {
             set_user_page(max_page)
     }, [user_options.length, user_page])
     
-    return <div style={{ display: 'flex', gap: 12, height: 520, minHeight: 0 }}>
+    return <div style={{ display: 'flex', gap: 12, height: '100%', minHeight: 0 }}>
         <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontWeight: 500, marginBottom: 8 }}>{t('用户')}</div>
             <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
@@ -514,6 +514,7 @@ export function DolphinXAdminTab () {
         return <Empty description={t('仅管理员可访问')} />
     
     return <Tabs
+        className='ai-settings-tabs'
         destroyInactiveTabPane
         items={[
             {

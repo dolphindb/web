@@ -389,11 +389,11 @@ export function LlmConfigTab () {
     
     const is_embedding_form = config_form.capability === 'embedding'
     
-    return <div style={{ display: 'flex', height: 520 }}>
+    return <div style={{ display: 'flex', height: '100%', minHeight: 0 }}>
         {/* 左侧 Provider 列表 */}
         <div style={{
             width: 260, borderRight: '1px solid #f0f0f0', display: 'flex',
-            flexDirection: 'column', flexShrink: 0, minWidth: 0,
+            flexDirection: 'column', flexShrink: 0, minWidth: 0, minHeight: 0,
         }}>
             <div style={{ padding: '0 12px 12px', borderBottom: '1px solid #f0f0f0' }}>
                 <Button type='dashed' block icon={<PlusOutlined />} onClick={open_create_provider}>
@@ -440,7 +440,7 @@ export function LlmConfigTab () {
         </div>
         
         {/* 右侧 Provider 编辑器 + 内嵌模型列表 */}
-        <div style={{ flex: 1, minWidth: 0, overflow: 'auto', padding: '0 20px' }}>
+        <div style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto', padding: '0 20px' }}>
             {provider_mode === 'idle'
                 ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                     <Empty description={t('请从左侧选择一个 Provider，或点击上方新建')} image={Empty.PRESENTED_IMAGE_SIMPLE} />

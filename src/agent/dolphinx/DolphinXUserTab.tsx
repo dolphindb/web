@@ -329,6 +329,7 @@ type MemoryScopeType = 'user_personal' | 'agent_public'
 
 export function MemoryManagementTab ({ can_manage_public_memory = false, admin = false }: { can_manage_public_memory?: boolean, admin?: boolean }) {
     return <Tabs
+        className='ai-settings-tabs'
         destroyInactiveTabPane
         items={[
             {
@@ -725,7 +726,7 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
     }
     
     return <>
-        <div style={{ display: 'flex', gap: 12, height: 520, minHeight: 0 }}>
+        <div style={{ display: 'flex', gap: 12, height: '100%', minHeight: 0 }}>
             <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ fontWeight: 500, marginBottom: 8 }}>{t('Agent')}</div>
                 <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
@@ -1028,7 +1029,7 @@ function MemoryConfigManagementSection () {
             set_agent_page(max_page)
     }, [options.length, agent_page])
     
-    return <div style={{ display: 'flex', gap: 12, height: 520, minHeight: 0 }}>
+    return <div style={{ display: 'flex', gap: 12, height: '100%', minHeight: 0 }}>
         <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontWeight: 500, marginBottom: 8 }}>{t('Agent')}</div>
             <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
@@ -1523,6 +1524,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
 
 export function DolphinXUserTab ({ admin = false }: { admin?: boolean }) {
     return <Tabs
+        className='ai-settings-tabs'
         destroyInactiveTabPane
         items={[
             {

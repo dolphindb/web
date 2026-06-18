@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import './SettingsModal.sass'
 
+import { useEffect, useState } from 'react'
 import { Button, Modal, Spin, Tabs, Typography, message } from 'antd'
 
 import { t } from '@i18n'
@@ -77,10 +78,12 @@ export function SettingsModal () {
         onCancel={() => { chat_model.set({ settings_visible: false }) }}
         footer={null}
         width='min(1440px, calc(100vw - 48px))'
+        className='ai-settings-modal'
         destroyOnClose
     >
-        <div style={{ position: 'relative', minHeight: 680 }}>
+        <div className='ai-settings-modal-content'>
             <Tabs
+                className='ai-settings-tabs'
                 destroyInactiveTabPane
                 items={[
                     ...can_manage_agent ? [{

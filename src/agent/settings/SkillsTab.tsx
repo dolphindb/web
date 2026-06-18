@@ -202,7 +202,7 @@ export function SkillsTab () {
     if (loading && !creating)
         return <div style={{ textAlign: 'center', padding: 60 }}><Spin /></div>
         
-    return <div style={{ maxHeight: 520, overflow: 'auto' }}>
+    return <div style={{ height: '100%', minHeight: 0, overflow: 'auto' }}>
         <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
             <Button
                 type='dashed'
