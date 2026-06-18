@@ -67,34 +67,12 @@ export class ChatAgentModel {
         } else
             localStorage.removeItem(AGENT_ID_KEY)
     }
-    should_attach_agent_header (path: string, options: RequestInit) {
-        if (!this.chat.agent_id)
-            return false
-            
-        const url = new URL(path, this.chat.base_url)
-        const pathname = url.pathname.replace(/^\/agent-bus\/v1/, '')
-        if (pathname.startsWith('/agent/') || url.searchParams.has('agentId'))
-            return false
-            
-        if (/^\/skill\/(?:[^/]+\/(catalog|context|bindings)|user\/(deny|allow|[^/]+\/denied))$/.test(pathname))
-            return false
-            
-        if (typeof options.body === 'string')
-            try {
-                const body = JSON.parse(options.body)
-                if (body && typeof body === 'object' && 'agentId' in body)
-                    return false
-            } catch { }
-            
-        return true
-    }
     async api_fetch (path: string, options: RequestInit = { }): Promise<any> {
         const url = /^https?:\/\//.test(path) ? path : `${this.chat.base_url}${path}`
         const token = (localStorage.getItem(storage_keys.agent_bus_token) || '').replace(/[\r\n]/g, '')
         const headers: Record<string, string> = {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : { }),
-            ...(this.chat.agent.should_attach_agent_header(path, options) ? { 'x-agent-id': this.chat.agent_id } : { }),
         }
         
         // 合并调用方传入的额外 headers

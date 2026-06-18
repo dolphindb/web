@@ -21,6 +21,7 @@ export interface ToolContext {
     eval: (script: string, options?: DdbEvalOptions) => Promise<any>
     /** 调用 agent-bus API */
     api_fetch: (path: string, options?: RequestInit) => Promise<any>
+    agent_id: string
     session_id: string
     workspace_id: string
     workspace_store: typeof chat_workspace_store

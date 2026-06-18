@@ -1282,7 +1282,7 @@ function ContextPreviewSection () {
             set_preview(await chat_model.session.preview_context({
                 sessionId: selected_session_id,
                 message: message_text.trim(),
-            }, selected_agent_id))
+            }))
         } catch (error) {
             show_error(error, t('加载上下文预览失败'))
         } finally {

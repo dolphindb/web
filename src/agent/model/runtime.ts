@@ -577,7 +577,6 @@ export class ChatRuntimeModel {
                 headers: {
                     'Content-Type': 'application/json',
                     ...(token ? { Authorization: `Bearer ${token}` } : { }),
-                    ...(this.chat.agent_id ? { 'x-agent-id': this.chat.agent_id } : { }),
                 },
                 body: JSON.stringify(body),
                 signal: controller.signal,
@@ -838,6 +837,7 @@ export class ChatRuntimeModel {
         const context: ToolContext = {
             eval: (script, options) => model.ddb.eval(script, options),
             api_fetch: (path, options) => this.chat.agent.api_fetch(path, options),
+            agent_id: this.chat.agent_id,
             session_id: this.chat.current_session_id,
             workspace_id: this.chat.current_session_id,
             workspace_store: chat_workspace_store,
