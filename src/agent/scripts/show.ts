@@ -2,7 +2,6 @@ import type { ScriptConfig, ScriptResult } from './types.ts'
 import {
     normalize_script_args,
     format_ddb_eval_result_info,
-    TOOL_RESULT_SPILL_THRESHOLD_CHARS,
     tool_result_json,
     uint8_to_base64,
 } from './helpers.ts'
@@ -66,12 +65,11 @@ export const show_config: ScriptConfig = {
             })
             
             let content_object: string | undefined
-            if (result_info.content.length <= TOOL_RESULT_SPILL_THRESHOLD_CHARS) 
-                try {
-                    content_object = uint8_to_base64(result.pack())
-                } catch (e) {
-                    console.warn('[ai] show: result.pack() failed:', e)
-                }
+            try {
+                content_object = uint8_to_base64(result.pack())
+            } catch (e) {
+                console.warn('[ai] show: result.pack() failed:', e)
+            }
             
             
             return {

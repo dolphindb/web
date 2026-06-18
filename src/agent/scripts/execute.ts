@@ -1,10 +1,9 @@
-import { spill_large_tool_result_if_needed } from '@/agent/tool_result_spill.ts'
+import { spill_large_tool_result_content_if_needed } from '@/agent/tool_result_spill.ts'
 
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import {
     normalize_script_args,
     format_ddb_eval_result_info,
-    TOOL_RESULT_SPILL_THRESHOLD_CHARS,
     tool_result_json,
     uint8_to_base64,
 } from './helpers.ts'
@@ -55,40 +54,36 @@ export const execute_config: ScriptConfig = {
                 },
             })
             const result_info = format_ddb_eval_result_info(result, print_messages)
+            const result_content = await spill_large_tool_result_content_if_needed(result_info.content, type, context)
             const message_content = tool_result_json({
                 ok: true,
                 tool: type,
                 returnedVoid: result_info.returnedVoid,
                 resultType: result_info.resultType,
                 ...(print_messages.length ? { print: print_messages } : { }),
-                content: result_info.content,
+                content: result_content,
                 hint: result_info.returnedVoid
                     ? '脚本执行成功但没有最终返回值；如果需要继续推理，请让最后一行返回表、字典、字符串或标量。'
                     : undefined,
             })
             
             let content_object: string | undefined
-            if (result_info.content.length <= TOOL_RESULT_SPILL_THRESHOLD_CHARS) 
-                try {
-                    content_object = uint8_to_base64(result.pack())
-                } catch (e) {
-                    console.warn('[ai] execute: result.pack() failed:', e)
-                }
-            
-            
-            const save_message = {
-                msgId: `tool_${Date.now()}`,
-                role: 'tool' as const,
-                messageType: 'tool_result' as const,
-                name: type,
-                content: message_content,
-                content_object,
+            try {
+                content_object = uint8_to_base64(result.pack())
+            } catch (e) {
+                console.warn('[ai] execute: result.pack() failed:', e)
             }
-            
             return {
                 next_loop: true,
                 ddb_result: result,
-                save_message: await spill_large_tool_result_if_needed(save_message, type, context),
+                save_message: {
+                    msgId: `tool_${Date.now()}`,
+                    role: 'tool',
+                    messageType: 'tool_result',
+                    name: type,
+                    content: message_content,
+                    content_object,
+                },
             }
         } catch (error) {
             return {
