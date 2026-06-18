@@ -106,7 +106,7 @@ export function SettingsModal () {
                     {
                         key: 'user',
                         label: t('个人中心'),
-                        children: <DolphinXUserTab />,
+                        children: <DolphinXUserTab admin={admin} />,
                     },
                     ...admin
                         ? [{

@@ -1521,7 +1521,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
 }
 
 
-export function DolphinXUserTab () {
+export function DolphinXUserTab ({ admin = false }: { admin?: boolean }) {
     return <Tabs
         destroyInactiveTabPane
         items={[
@@ -1535,6 +1535,11 @@ export function DolphinXUserTab () {
                 label: t('用量'),
                 children: <UsageSection />,
             },
+            ...admin ? [{
+                key: 'context_preview',
+                label: t('上下文预览'),
+                children: <ContextPreviewSection />,
+            }] : [ ],
         ]}
     />
 }

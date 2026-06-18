@@ -173,8 +173,6 @@ export class ChatRuntimeModel {
     }
     get_tool_call_signature (parsed_call: ParsedToolCall) {
         const tool_name = parsed_call.type.trim()
-        if (DDB_RESULT_TOOLS.has(tool_name))
-            return `${tool_name}\u001f${(normalize_script_args(parsed_call.payload)[0] || '').trim()}`
         return `${tool_name}\u001f${stable_json_stringify(parsed_call.payload)}`
     }
     build_repeated_tool_call_result (parsed_call: ParsedToolCall, count: number, stop_loop: boolean): ToolExecutionResult {
@@ -958,7 +956,6 @@ export class ChatRuntimeModel {
         if (
             parsed_call.type.startsWith('step_') ||
             parsed_call.type.startsWith('vfs_') ||
-            parsed_call.type === 'skill_file_copy' ||
             parsed_call.type.startsWith('workspace_state_')
         )
             await this.chat.workspace.refresh_workspace_context().catch(error => {

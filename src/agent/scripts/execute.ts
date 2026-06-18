@@ -6,6 +6,7 @@ import {
     tool_result_json,
     uint8_to_base64,
 } from './helpers.ts'
+import { virtual_copy_hint } from './vfs_paths.ts'
 
 
 export const execute_config: ScriptConfig = {
@@ -41,6 +42,23 @@ export const execute_config: ScriptConfig = {
                             tool: type,
                             error: 'execute requires args[0] as SQL/script content.',
                             hint: '请传入要执行的 DolphinDB 脚本，并确保最后一行返回可用于回答用户的问题。',
+                        }),
+                    },
+                }
+            const copy_hint = virtual_copy_hint(script)
+            if (copy_hint)
+                return {
+                    next_loop: true,
+                    save_message: {
+                        msgId: `tool_${Date.now()}`,
+                        role: 'tool',
+                        messageType: 'tool_error',
+                        name: type,
+                        content: tool_result_json({
+                            ok: false,
+                            tool: type,
+                            error: 'virtual file copy is not a DolphinDB script operation.',
+                            hint: copy_hint,
                         }),
                     },
                 }

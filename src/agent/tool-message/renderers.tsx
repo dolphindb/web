@@ -364,78 +364,6 @@ function SkillReadRenderer (props: ToolRendererProps) {
 }
 
 
-function SkillFileReadRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
-        const skill_id = get_arg_text(args, 0, ['skill_id', 'skillId'])
-        const first = normalize_args(args)[0]
-        const file_paths = is_object_record(first)
-            ? [first.file_path, first.filePath, first.file_paths, first.filePaths, first.paths]
-                .flatMap(item => Array.isArray(item) ? item : item ? [item] : [ ])
-                .map(item => to_message_text(item).trim())
-                .filter(Boolean)
-            : normalize_args(args).slice(1).map(item => to_message_text(item)).filter(Boolean)
-        const parsed = is_object_record(structured_payload) ? structured_payload : null
-        const files = Array.isArray(parsed?.files) ? parsed.files.filter(is_object_record) : [ ]
-        const single_content = to_message_text(parsed?.content ?? message.content).trim()
-        const size = to_message_text(parsed?.size).trim()
-        const file_path = to_message_text(parsed?.filePath).trim() || file_paths[0] || ''
-        
-        if (files.length > 0)
-            return {
-                param_rows: [
-                    { label: 'skillId', value: skill_id || to_message_text(parsed?.skillId).trim() || '-' },
-                    { label: t('文件'), value: `${files.length} ${t('个')}` },
-                ],
-                result_rows: [
-                    { label: t('已读取'), value: files.map(file => to_message_text(file.filePath).trim()).filter(Boolean).join(', ') },
-                ],
-                result_details: compact_sections(files.map((file, index) =>
-                    create_text_detail(
-                        `content-${index}`,
-                        to_message_text(file.filePath).trim() || t('文件 {{index}}', { index: index + 1 }),
-                        file.content
-                    )
-                )),
-            }
-        
-        return {
-            param_rows: [
-                { label: 'skillId', value: skill_id || '-' },
-                { label: t('文件'), value: file_path || '-' },
-            ],
-            result_rows: size ? [{ label: t('大小'), value: `${size} bytes` }] : [ ],
-            result_details: compact_sections([
-                create_text_detail('content', t('查看内容'), single_content),
-            ]),
-        }
-    }} />
-}
-
-
-function SkillFileCopyRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
-        const skill_id = get_arg_text(args, 0, ['skill_id', 'skillId'])
-        const source_path = get_arg_text(args, 1, ['file_path', 'filePath'])
-        const target_path = get_arg_text(args, 2, ['target_path', 'targetPath'])
-        const parsed = is_object_record(structured_payload) ? structured_payload : null
-        const result_target = to_message_text(parsed?.targetPath ?? parsed?.target_path).trim()
-        const hash = to_message_text(parsed?.hash).trim()
-        return {
-            param_rows: [
-                { label: 'skillId', value: skill_id || '-' },
-                { label: t('源文件'), value: source_path || '-' },
-                { label: t('目标文件'), value: target_path || result_target || '-' },
-            ],
-            result_rows: [
-                ...(result_target ? [{ label: t('已复制'), value: result_target }] : [ ]),
-                ...(hash ? [{ label: 'hash', value: hash }] : [ ]),
-                ...(!result_target && !hash ? [{ label: t('结果'), value: to_preview_text(message.content, 120) }] : [ ]),
-            ],
-        }
-    }} />
-}
-
-
 export function FallbackRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload, is_outcome }) => {
         const arg_list = normalize_args(args)
@@ -487,9 +415,6 @@ export const TOOL_RENDERERS: Record<string, (props: ToolRendererProps) => React.
     execute: props => <ExecuteLikeRenderer {...props} />,
     execute_file: props => <ExecuteFileRenderer {...props} />,
     skill_read: props => <SkillReadRenderer {...props} />,
-    skill_file_search: props => <VfsSearchRenderer {...props} />,
-    skill_file_read: props => <SkillFileReadRenderer {...props} />,
-    skill_file_copy: props => <SkillFileCopyRenderer {...props} />,
     doc_search: props => <DocSearchRenderer {...props} />,
     doc_read: props => <DocReadRenderer {...props} />,
     vfs_list: props => <VfsListRenderer {...props} />,

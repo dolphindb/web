@@ -6,14 +6,12 @@ import { show_config } from './show.ts'
 import { doc_search_config } from './doc_search.ts'
 import { doc_read_config } from './doc_read.ts'
 import { skill_read_config } from './skill_read.ts'
-import { skill_file_read_config } from './skill_file_read.ts'
-import { skill_file_search_config } from './skill_file_search.ts'
 import {
     execute_file_config,
-    skill_file_copy_config,
     step_clear_config,
     step_create_config,
     step_update_config,
+    vfs_copy_config,
     vfs_create_config,
     vfs_delete_config,
     vfs_list_config,
@@ -33,16 +31,14 @@ export function init_scripts () {
     register_script(doc_search_config)
     register_script(doc_read_config)
     register_script(skill_read_config)
-    register_script(skill_file_search_config)
-    register_script(skill_file_read_config)
     register_script(vfs_list_config)
     register_script(vfs_create_config)
     register_script(vfs_read_config)
     register_script(vfs_search_config)
     register_script(vfs_update_config)
     register_script(vfs_delete_config)
+    register_script(vfs_copy_config)
     register_script(execute_file_config)
-    register_script(skill_file_copy_config)
     register_script(step_create_config)
     register_script(step_update_config)
     register_script(step_clear_config)

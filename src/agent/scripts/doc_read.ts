@@ -198,7 +198,7 @@ export const doc_read_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'doc_read',
-            description: '读取 DolphinDB 官方文档页面内容，支持 URL 或文档路径；不能读取 Skill 包内文件或 references，Skill 包文件请用 skill_file_read',
+            description: '读取 DolphinDB 官方文档页面内容，支持 URL 或文档路径；不能读取 Skill 包内文件或 references，Skill 包文件请用 vfs_read 的 /home/skills/<skill_id>/<file> 路径',
             parameters: {
                 type: 'object',
                 properties: {

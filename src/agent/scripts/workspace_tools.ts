@@ -8,6 +8,17 @@ import {
     tool_result_json,
     uint8_to_base64,
 } from './helpers.ts'
+import {
+    is_skill_path,
+    normalize_workspace_result_paths,
+    normalize_workspace_tool_path,
+    normalize_skill_result_paths,
+    normalize_vfs_path,
+    parse_skill_file_path,
+    parse_skill_scope_path,
+    to_skill_display_path,
+    to_workspace_display_path,
+} from './vfs_paths.ts'
 
 
 function result_message (type: string, content: string, content_object?: unknown): IMessage {
@@ -79,22 +90,29 @@ function file_name (path: string) {
 }
 
 
-function get_copy_args (content: unknown) {
-    const parsed = parse_payload(content)
-    const args = normalize_script_args(content)
-    if (is_record(parsed))
-        return {
-            skill_id: String(parsed.skill_id ?? parsed.skillId ?? args[0] ?? '').trim(),
-            file_path: String(parsed.file_path ?? parsed.filePath ?? args[1] ?? '').trim(),
-            target_path: String(parsed.target_path ?? parsed.targetPath ?? args[2] ?? file_name(String(parsed.file_path ?? parsed.filePath ?? args[1] ?? ''))).trim(),
-            overwrite: parsed.overwrite === true || String(parsed.overwrite ?? args[3] ?? '').toLowerCase() === 'true',
-        }
-    return {
-        skill_id: (args[0] || '').trim(),
-        file_path: (args[1] || '').trim(),
-        target_path: (args[2] || file_name(args[1] || '')).trim(),
-        overwrite: String(args[3] || '').toLowerCase() === 'true',
-    }
+function get_workspace_arg (value: string, allow_empty = false) {
+    return normalize_workspace_tool_path(value, allow_empty)
+}
+
+
+function get_vfs_arg (value: string, allow_empty = false) {
+    return normalize_vfs_path(value, allow_empty)
+}
+
+
+function get_workspace_names (value: unknown): string[] | undefined {
+    const names = to_string_array(value)
+    return names?.map(name => get_workspace_arg(name))
+}
+
+
+function get_display_workspace_result (result: unknown) {
+    return JSON.stringify(normalize_workspace_result_paths(result))
+}
+
+
+function get_display_workspace_path (path: string) {
+    return to_workspace_display_path(path)
 }
 
 
@@ -102,8 +120,17 @@ function get_named_arg (content: unknown) {
     const parsed = parse_payload(content)
     const args = normalize_script_args(content)
     if (is_record(parsed))
-        return String(parsed.name ?? parsed.path ?? args[0] ?? '').trim()
-    return (args[0] || '').trim()
+        return get_workspace_arg(String(parsed.name ?? parsed.path ?? args[0] ?? '').trim(), true)
+    return get_workspace_arg(args[0] || '', true)
+}
+
+
+function get_vfs_named_arg (content: unknown) {
+    const parsed = parse_payload(content)
+    const args = normalize_script_args(content)
+    if (is_record(parsed))
+        return get_vfs_arg(String(parsed.name ?? parsed.path ?? args[0] ?? '').trim(), true)
+    return get_vfs_arg(args[0] || '', true)
 }
 
 
@@ -112,10 +139,34 @@ function get_create_args (content: unknown) {
     const args = normalize_script_args(content)
     if (is_record(parsed))
         return {
-            name: String(parsed.name ?? parsed.path ?? args[0] ?? '').trim(),
+            name: get_workspace_arg(String(parsed.name ?? parsed.path ?? args[0] ?? '').trim()),
             content: String(parsed.content ?? args[1] ?? ''),
         }
-    return { name: (args[0] || '').trim(), content: args[1] || '' }
+    return { name: get_workspace_arg(args[0] || ''), content: args[1] || '' }
+}
+
+
+function get_copy_args (content: unknown) {
+    const parsed = parse_payload(content)
+    const args = normalize_script_args(content)
+    if (is_record(parsed)) {
+        const source_path = String(parsed.source ?? parsed.source_path ?? parsed.sourcePath ?? parsed.src ?? args[0] ?? '').trim()
+        const source = parse_skill_file_path(source_path)
+        const target_source = String(parsed.target ?? parsed.target_path ?? parsed.targetPath ?? parsed.dest ?? parsed.destination ?? parsed.name ?? parsed.path ?? args[1] ?? file_name(source.file_path)).trim()
+        return {
+            skill_id: source.skill_id,
+            file_path: source.file_path,
+            target_path: get_workspace_arg(target_source),
+            overwrite: parsed.overwrite === true || String(parsed.overwrite ?? args[2] ?? '').toLowerCase() === 'true',
+        }
+    }
+    const source = parse_skill_file_path(args[0] || '')
+    return {
+        skill_id: source.skill_id,
+        file_path: source.file_path,
+        target_path: get_workspace_arg(args[1] || file_name(source.file_path)),
+        overwrite: String(args[2] || '').toLowerCase() === 'true',
+    }
 }
 
 
@@ -150,12 +201,12 @@ function get_read_args (content: unknown) {
     const args = normalize_script_args(content)
     if (is_record(parsed))
         return {
-            name: String(parsed.name ?? parsed.path ?? args[0] ?? '').trim(),
+            name: get_vfs_arg(String(parsed.name ?? parsed.path ?? args[0] ?? '').trim()),
             start_line: to_optional_int(parsed.startLine ?? parsed.start_line ?? args[1]),
             end_line: to_optional_int(parsed.endLine ?? parsed.end_line ?? args[2]),
         }
     return {
-        name: (args[0] || '').trim(),
+        name: get_vfs_arg(args[0] || ''),
         start_line: to_optional_int(args[1]),
         end_line: to_optional_int(args[2]),
     }
@@ -181,7 +232,7 @@ function get_update_args (content: unknown) {
     if (is_record(parsed)) {
         const replacements = to_replacements(parsed.replacements)
         return {
-            name: String(parsed.name ?? parsed.path ?? args[0] ?? '').trim(),
+            name: get_workspace_arg(String(parsed.name ?? parsed.path ?? args[0] ?? '').trim()),
             hash: String(parsed.hash ?? args[1] ?? '').trim(),
             replacements: replacements.length ? replacements : [{
                 old: String(parsed.old ?? parsed.old_string ?? args[2] ?? ''),
@@ -191,7 +242,7 @@ function get_update_args (content: unknown) {
         }
     }
     return {
-        name: (args[0] || '').trim(),
+        name: get_workspace_arg(args[0] || ''),
         hash: (args[1] || '').trim(),
         replacements: [{ old: args[2] || '', new: args[3] || '' }],
     }
@@ -215,6 +266,8 @@ function get_search_args (content: unknown) {
             result.scope = String(parsed.scope)
         if (parsed.caseSensitive !== undefined)
             result.caseSensitive = parsed.caseSensitive === true || String(parsed.caseSensitive).toLowerCase() === 'true'
+        if (parsed.path)
+            result.path = String(parsed.path)
         const names = to_string_array(parsed.names)
         if (names?.length)
             result.names = names
@@ -233,6 +286,78 @@ function get_search_args (content: unknown) {
         return result
     }
     return { query: args[0] || '' }
+}
+
+
+async function read_skill_file (context: ToolContext, skill_id: string, file_path: string, start_line?: number, end_line?: number) {
+    const search = new URLSearchParams({ filePath: file_path })
+    if (start_line !== undefined)
+        search.set('lineStart', String(start_line))
+    if (start_line !== undefined && end_line !== undefined)
+        search.set('lineLimit', String(Math.max(1, end_line - start_line + 1)))
+    const result = await context.api_fetch(`/skill/${encodeURIComponent(skill_id)}/files/get?${search}`)
+    const source_content = is_record(result) && typeof result.content === 'string' ? result.content : ''
+    const source_encoding = is_record(result) && typeof result.encoding === 'string' ? result.encoding : ''
+    const text = source_encoding.toLowerCase() === 'base64'
+        ? decode_base64_utf8(source_content)
+        : source_content
+    return normalize_skill_result_paths({
+        ...(is_record(result) ? result : { }),
+        filePath: is_record(result) && typeof result.filePath === 'string' ? result.filePath : file_path,
+        encoding: 'text',
+        sourceEncoding: source_encoding || undefined,
+        content: text,
+    }, skill_id)
+}
+
+
+function skill_file_paths_from_list (result: unknown): string[] {
+    if (!is_record(result) || !Array.isArray(result.items))
+        return [ ]
+    return result.items
+        .map(item => is_record(item) ? String(item.filePath ?? item.file_path ?? item.path ?? '').trim() : '')
+        .filter(Boolean)
+}
+
+
+function skill_ids_from_list (result: unknown): string[] {
+    if (!is_record(result) || !Array.isArray(result.items))
+        return [ ]
+    return result.items
+        .map(item => is_record(item) ? String(item.skillId ?? item.skill_id ?? item.id ?? '').trim() : '')
+        .filter(Boolean)
+}
+
+
+function normalize_search_scope (args: Record<string, unknown>) {
+    const raw_path = typeof args.path === 'string' && args.path.trim() ? args.path.trim() : ''
+    const raw_names = to_string_array(args.names)
+    
+    if (raw_path && is_skill_path(raw_path)) {
+        const scope = parse_skill_scope_path(raw_path)
+        const names = raw_names?.length
+            ? raw_names.map(name => parse_skill_file_path(name, scope.skill_id).file_path)
+            : scope.file_path ? [scope.file_path] : undefined
+        const { path: _path, names: _names, ...body } = args
+        return { skill_id: scope.skill_id, body: { ...body, ...(names?.length ? { filePaths: names } : { }) } }
+    }
+    
+    const skill_names = raw_names?.filter(name => is_skill_path(name)) || [ ]
+    if (skill_names.length) {
+        if (raw_names && skill_names.length !== raw_names.length)
+            throw new Error('vfs_search cannot mix /home/skills and /home/workspace paths in one call.')
+        const parsed = skill_names.map(name => parse_skill_file_path(name))
+        const skill_id = parsed[0]?.skill_id || ''
+        if (!skill_id || parsed.some(item => item.skill_id !== skill_id))
+            throw new Error('vfs_search can search only one Skill package per call.')
+        const { path: _path, names: _names, ...body } = args
+        return { skill_id, body: { ...body, filePaths: parsed.map(item => item.file_path) } }
+    }
+    
+    const { path: _path, ...body } = args
+    const path_name = raw_path ? get_workspace_arg(raw_path, true) : ''
+    const names = raw_names?.length ? get_workspace_names(raw_names) : path_name ? [path_name] : undefined
+    return { body: { ...body, ...(names?.length ? { names } : { }) } }
 }
 
 
@@ -262,7 +387,8 @@ function get_step_create_tasks (content: unknown) {
 }
 
 
-const WORKSPACE_FILE_NAME_RULE = '文件名必须是普通文件名，不能包含 /、\\、..，不能以 . 开头'
+const WORKSPACE_FILE_NAME_RULE = '可传 /home/workspace/<file>；后端只支持单层普通文件名，不能包含 /、\\、..，不能以 . 开头'
+const VFS_PATH_RULE = '文件路径使用 /home/workspace/<file> 或 /home/skills/<skill_id>/<file_path>；/home/workspace 只支持单层文件'
 
 
 export const vfs_list_config: ScriptConfig = {
@@ -271,11 +397,11 @@ export const vfs_list_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'vfs_list',
-            description: '列出当前会话工作区中的文件',
+            description: '列出虚拟文件。/home/workspace 返回工作区文件；/home/skills/<skill_id> 返回 Skill 包文件',
             parameters: {
                 type: 'object',
                 properties: {
-                    name: { type: 'string', description: `可选，${WORKSPACE_FILE_NAME_RULE}` },
+                    name: { type: 'string', description: `可选，${VFS_PATH_RULE}` },
                 },
                 required: [ ],
             },
@@ -283,10 +409,30 @@ export const vfs_list_config: ScriptConfig = {
     },
     handler: async (type, content, context): Promise<ScriptResult> => {
         try {
-            const files = await context.workspace_store.list_files(require_workspace(context), context.api_fetch, get_named_arg(content))
+            const path = get_vfs_named_arg(content)
+            if (path && is_skill_path(path)) {
+                const { skill_id, file_path } = parse_skill_scope_path(path)
+                if (!skill_id) {
+                    const result = await context.api_fetch('/skill/list?offset=0&limit=1000')
+                    const skills = skill_ids_from_list(result).map(skill_id => `/home/skills/${skill_id}`)
+                    return {
+                        next_loop: true,
+                        save_message: result_message(type, skills.join('\n') || 'No skills found.'),
+                    }
+                }
+                const result = await context.api_fetch(`/skill/${encodeURIComponent(skill_id)}/files/list`)
+                const files = skill_file_paths_from_list(result)
+                    .filter(item => !file_path || item === file_path || item.startsWith(`${file_path}/`))
+                    .map(item => to_skill_display_path(skill_id, item))
+                return {
+                    next_loop: true,
+                    save_message: result_message(type, files.join('\n') || 'No files found.'),
+                }
+            }
+            const files = await context.workspace_store.list_files(require_workspace(context), context.api_fetch, get_workspace_arg(path, true))
             return {
                 next_loop: true,
-                save_message: result_message(type, files.map(file => file.path).join('\n') || 'No files found.'),
+                save_message: result_message(type, files.map(file => get_display_workspace_path(file.path)).join('\n') || 'No files found.'),
             }
         } catch (error) {
             return error_result(type, `vfs_list failed: ${error instanceof Error ? error.message : String(error)}`)
@@ -301,7 +447,7 @@ export const vfs_create_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'vfs_create',
-            description: '在当前会话工作区写入代码文件；文件存在时会完整覆盖',
+            description: '在当前会话工作区 /home/workspace 写入代码文件；文件存在时会完整覆盖',
             parameters: {
                 type: 'object',
                 properties: {
@@ -318,7 +464,7 @@ export const vfs_create_config: ScriptConfig = {
             const result = await context.workspace_store.write_file(require_workspace(context), context.api_fetch, name, file_content)
             return {
                 next_loop: true,
-                save_message: result_message(type, JSON.stringify(result)),
+                save_message: result_message(type, get_display_workspace_result(result)),
             }
         } catch (error) {
             return error_result(type, `vfs_create failed: ${error instanceof Error ? error.message : String(error)}`)
@@ -333,11 +479,11 @@ export const vfs_read_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'vfs_read',
-            description: '读取当前会话工作区中的代码文件；只读工作区，不能读取 Skill 包文件，Skill 包请用 skill_file_read。返回结果包含 content、lineCount、startLine、endLine、hash。',
+            description: '读取虚拟文本文件。/home/workspace/<file> 返回 content、lineCount、startLine、endLine、hash；/home/skills/<skill_id>/<file_path> 返回 Skill 文件文本内容。',
             parameters: {
                 type: 'object',
                 properties: {
-                    name: { type: 'string', description: `工作区文件名，不是 Skill 包路径；${WORKSPACE_FILE_NAME_RULE}` },
+                    name: { type: 'string', description: VFS_PATH_RULE },
                     startLine: { type: 'number', description: '可选，起始行，1-based' },
                     endLine: { type: 'number', description: '可选，结束行，闭区间' },
                 },
@@ -348,7 +494,15 @@ export const vfs_read_config: ScriptConfig = {
     handler: async (type, content, context): Promise<ScriptResult> => {
         try {
             const { name, start_line, end_line } = get_read_args(content)
-            const file = await context.workspace_store.get_file(require_workspace(context), context.api_fetch, name, {
+            if (is_skill_path(name)) {
+                const { skill_id, file_path } = parse_skill_file_path(name)
+                const file = await read_skill_file(context, skill_id, file_path, start_line, end_line)
+                return {
+                    next_loop: true,
+                    save_message: result_message(type, JSON.stringify(file)),
+                }
+            }
+            const file = await context.workspace_store.get_file(require_workspace(context), context.api_fetch, get_workspace_arg(name), {
                 start_line,
                 end_line,
             })
@@ -356,7 +510,7 @@ export const vfs_read_config: ScriptConfig = {
                 throw new Error(`File not found: ${name.replace(/^\/+/, '')}`)
             return {
                 next_loop: true,
-                save_message: result_message(type, JSON.stringify(file)),
+                save_message: result_message(type, get_display_workspace_result(file)),
             }
         } catch (error) {
             return error_result(type, `vfs_read failed: ${error instanceof Error ? error.message : String(error)}`)
@@ -371,7 +525,7 @@ export const vfs_update_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'vfs_update',
-            description: '用精确字符串替换局部修改当前会话工作区中的已有文件',
+            description: '用精确字符串替换局部修改当前会话工作区 /home/workspace 中的已有文件',
             parameters: {
                 type: 'object',
                 properties: {
@@ -406,7 +560,7 @@ export const vfs_update_config: ScriptConfig = {
             const result = await context.workspace_store.replace_file(require_workspace(context), context.api_fetch, name, hash, replacements)
             return {
                 next_loop: true,
-                save_message: result_message(type, JSON.stringify(result)),
+                save_message: result_message(type, get_display_workspace_result(result)),
             }
         } catch (error) {
             return error_result(type, `vfs_update failed: ${error instanceof Error ? error.message : String(error)}`)
@@ -421,7 +575,7 @@ export const vfs_delete_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'vfs_delete',
-            description: '删除当前会话工作区中的代码文件',
+            description: '删除当前会话工作区 /home/workspace 中的代码文件',
             parameters: {
                 type: 'object',
                 properties: {
@@ -437,10 +591,57 @@ export const vfs_delete_config: ScriptConfig = {
             await context.workspace_store.delete_file(require_workspace(context), context.api_fetch, path)
             return {
                 next_loop: true,
-                save_message: result_message(type, `File deleted successfully: ${path.replace(/^\/+/, '')}`),
+                save_message: result_message(type, `File deleted successfully: ${get_display_workspace_path(path)}`),
             }
         } catch (error) {
             return error_result(type, `vfs_delete failed: ${error instanceof Error ? error.message : String(error)}`)
+        }
+    },
+}
+
+
+export const vfs_copy_config: ScriptConfig = {
+    function: 'vfs_copy',
+    definition: {
+        type: 'function',
+        function: {
+            name: 'vfs_copy',
+            description: '复制只读 Skill 文件到当前会话工作区。source 必须是 /home/skills/<skill_id>/<file_path>，target 必须是 /home/workspace/<file>',
+            parameters: {
+                type: 'object',
+                properties: {
+                    source: { type: 'string', description: '源文件路径，必须是 /home/skills/<skill_id>/<file_path>' },
+                    target: { type: 'string', description: `目标工作区文件路径，可省略，默认同源文件名；${WORKSPACE_FILE_NAME_RULE}` },
+                    overwrite: { type: 'boolean', description: '可选，目标存在时是否覆盖，默认 false' },
+                },
+                required: ['source'],
+            },
+        },
+    },
+    handler: async (type, content, context): Promise<ScriptResult> => {
+        try {
+            const { skill_id, file_path, target_path, overwrite } = get_copy_args(content)
+            if (!skill_id || !file_path)
+                throw new Error('vfs_copy source must be /home/skills/<skill_id>/<file_path>.')
+            if (!target_path)
+                throw new Error('vfs_copy target must be /home/workspace/<file> or omitted to use the source file name.')
+            const source_file = await read_skill_file(context, skill_id, file_path)
+            const source_content = is_record(source_file) ? String(source_file.content ?? '') : ''
+            const file = overwrite && await context.workspace_store.get_file(require_workspace(context), context.api_fetch, target_path)
+                ? await context.workspace_store.update_file_content(require_workspace(context), context.api_fetch, target_path, source_content)
+                : await context.workspace_store.create_file(require_workspace(context), context.api_fetch, target_path, source_content)
+            return {
+                next_loop: true,
+                save_message: result_message(type, JSON.stringify({
+                    source: to_skill_display_path(skill_id, file_path),
+                    target: get_display_workspace_path(target_path),
+                    overwrite,
+                    size: source_content.length,
+                    hash: file.hash,
+                })),
+            }
+        } catch (error) {
+            return error_result(type, `vfs_copy failed: ${error instanceof Error ? error.message : String(error)}`)
         }
     },
 }
@@ -452,7 +653,7 @@ export const vfs_search_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'vfs_search',
-            description: '搜索当前会话工作区中的文本文件，按字面量子串匹配，不支持 regex；只搜索工作区，不能搜索 Skill 包，Skill 包请用 skill_file_search',
+            description: '搜索虚拟文本文件，按字面量子串匹配，不支持 regex。默认搜索 /home/workspace；传 path=/home/skills/<skill_id> 或 names=/home/skills/<skill_id>/<file> 搜索 Skill 包。',
             parameters: {
                 type: 'object',
                 properties: {
@@ -461,7 +662,8 @@ export const vfs_search_config: ScriptConfig = {
                     any: { type: 'array', items: { type: 'string' }, description: '多个搜索词任意匹配即命中；query、all、any 必须且只能提供一个' },
                     scope: { type: 'string', description: '可选，file 或 line，默认 file' },
                     caseSensitive: { type: 'boolean', description: '可选，是否大小写敏感，默认 false' },
-                    names: { type: 'array', items: { type: 'string' }, description: `可选，限定工作区文件名列表，不是 Skill 包路径；每项${WORKSPACE_FILE_NAME_RULE}` },
+                    path: { type: 'string', description: '可选，搜索根路径，如 /home/workspace 或 /home/skills/<skill_id>' },
+                    names: { type: 'array', items: { type: 'string' }, description: `可选，限定文件路径列表；${VFS_PATH_RULE}` },
                     extensions: { type: 'array', items: { type: 'string' }, description: '可选，限定文件后缀，如 .dos、.md' },
                     contextLines: { type: 'number', description: '可选，命中行前后的上下文行数' },
                     maxResults: { type: 'number', description: '可选，返回命中总数上限' },
@@ -480,10 +682,18 @@ export const vfs_search_config: ScriptConfig = {
             })
             if (modes.length !== 1)
                 throw new Error('vfs_search requires exactly one of query, all, or any.')
-            const result = await context.workspace_store.search_files(require_workspace(context), context.api_fetch, args)
+            const search_scope = normalize_search_scope(args)
+            const result = search_scope.skill_id
+                ? await context.api_fetch(`/skill/${encodeURIComponent(search_scope.skill_id)}/files/search`, {
+                    method: 'POST',
+                    body: JSON.stringify(search_scope.body),
+                })
+                : await context.workspace_store.search_files(require_workspace(context), context.api_fetch, search_scope.body as any)
             return {
                 next_loop: true,
-                save_message: result_message(type, JSON.stringify(result)),
+                save_message: result_message(type, JSON.stringify(search_scope.skill_id
+                    ? normalize_skill_result_paths(result, search_scope.skill_id)
+                    : normalize_workspace_result_paths(result))),
             }
         } catch (error) {
             return error_result(type, `vfs_search failed: ${error instanceof Error ? error.message : String(error)}`)
@@ -498,7 +708,7 @@ export const execute_file_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'execute_file',
-            description: '执行当前会话工作区中的 DolphinDB 脚本文件',
+            description: '执行当前会话工作区 /home/workspace 中的 DolphinDB 脚本文件',
             parameters: {
                 type: 'object',
                 properties: {
@@ -545,62 +755,6 @@ export const execute_file_config: ScriptConfig = {
             }
         } catch (error) {
             return error_result(type, `execute_file failed: ${error instanceof Error ? error.message : String(error)}`)
-        }
-    },
-}
-
-
-export const skill_file_copy_config: ScriptConfig = {
-    function: 'skill_file_copy',
-    definition: {
-        type: 'function',
-        function: {
-            name: 'skill_file_copy',
-            description: '复制指定 Skill 包内的一个文本文件到当前会话工作区',
-            parameters: {
-                type: 'object',
-                properties: {
-                    skill_id: { type: 'string', description: '技能 ID' },
-                    file_path: { type: 'string', description: '相对 Skill 包根目录的源文件路径' },
-                    target_path: { type: 'string', description: `可选，工作区目标文件名，默认与源文件名相同；${WORKSPACE_FILE_NAME_RULE}` },
-                    overwrite: { type: 'boolean', description: '可选，目标存在时是否覆盖，默认 false' },
-                },
-                required: ['skill_id', 'file_path'],
-            },
-        },
-    },
-    handler: async (type, content, context): Promise<ScriptResult> => {
-        try {
-            const { skill_id, file_path, target_path, overwrite } = get_copy_args(content)
-            if (!skill_id || !file_path)
-                return error_result(type, 'skill_file_copy requires skill_id and file_path.')
-            if (!target_path)
-                return error_result(type, 'skill_file_copy requires target_path or file_path.')
-            
-            const result = await context.api_fetch(
-                `/skill/${encodeURIComponent(skill_id)}/files/get?filePath=${encodeURIComponent(file_path)}`
-            )
-            const source_content = is_record(result) && typeof result.content === 'string' ? result.content : ''
-            const source_encoding = is_record(result) && typeof result.encoding === 'string' ? result.encoding : ''
-            const text = source_encoding.toLowerCase() === 'base64' ? decode_base64_utf8(source_content) : source_content
-            
-            const file = overwrite && await context.workspace_store.get_file(require_workspace(context), context.api_fetch, target_path)
-                ? await context.workspace_store.update_file_content(require_workspace(context), context.api_fetch, target_path, text)
-                : await context.workspace_store.create_file(require_workspace(context), context.api_fetch, target_path, text)
-                
-            return {
-                next_loop: true,
-                save_message: result_message(type, JSON.stringify({
-                    skillId: skill_id,
-                    sourcePath: file_path,
-                    targetPath: target_path.replace(/^\/+/, ''),
-                    overwrite,
-                    size: text.length,
-                    hash: file.hash,
-                })),
-            }
-        } catch (error) {
-            return error_result(type, `skill_file_copy failed: ${error instanceof Error ? error.message : String(error)}`)
         }
     },
 }

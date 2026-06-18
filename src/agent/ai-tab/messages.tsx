@@ -29,7 +29,7 @@ import { render_markdown } from './markdown.ts'
 
 const { Text } = Typography
 
-const WORKSPACE_FILE_MUTATION_TOOLS = new Set(['vfs_create', 'vfs_update', 'vfs_delete', 'skill_file_copy'])
+const WORKSPACE_FILE_MUTATION_TOOLS = new Set(['vfs_create', 'vfs_update', 'vfs_delete', 'vfs_copy'])
 
 export type MessageGroup =
     | { type: 'message', msg: IMessage, index: number }
@@ -286,8 +286,8 @@ function get_workspace_file_name_from_args (tool_name: string, args: unknown) {
     const normalized = tool_name.trim()
     if (first && typeof first === 'object' && !Array.isArray(first)) {
         const obj = first as Record<string, unknown>
-        const keys = normalized === 'skill_file_copy'
-            ? ['target_path', 'targetPath', 'name', 'path']
+        const keys = normalized === 'vfs_copy'
+            ? ['target', 'target_path', 'targetPath', 'name', 'path']
             : ['name', 'path', 'target_path', 'targetPath']
         for (const key of keys) {
             const value = to_message_text(obj[key]).trim()
@@ -296,8 +296,8 @@ function get_workspace_file_name_from_args (tool_name: string, args: unknown) {
         }
     }
     
-    if (normalized === 'skill_file_copy')
-        return to_message_text(list[2]).trim() || file_basename(to_message_text(list[1]).trim())
+    if (normalized === 'vfs_copy')
+        return to_message_text(list[1]).trim() || file_basename(to_message_text(list[0]).trim())
     return get_tool_file_name(args)
 }
 
@@ -307,10 +307,7 @@ function get_workspace_file_name_from_result (tool_name: string, content: string
     const payload = result.payload
     if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
         const obj = payload as Record<string, unknown>
-        const keys = tool_name === 'skill_file_copy'
-            ? ['targetPath', 'target_path', 'name', 'path']
-            : ['name', 'path', 'targetPath', 'target_path']
-        for (const key of keys) {
+        for (const key of ['target', 'targetPath', 'target_path', 'name', 'path']) {
             const value = to_message_text(obj[key]).trim()
             if (value)
                 return value
@@ -387,7 +384,7 @@ function get_tool_preview_arg (tool_name: string, args: unknown) {
 
 
 function is_edit_tool (name: string) {
-    return ['vfs_create', 'vfs_update', 'vfs_delete', 'skill_file_copy'].includes(name)
+    return ['vfs_create', 'vfs_update', 'vfs_delete', 'vfs_copy'].includes(name)
 }
 
 
