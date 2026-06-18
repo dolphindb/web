@@ -215,6 +215,7 @@ export function Computing () {
                         cols={render_col_title(set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), 'persistWorkers')}
                         rows={add_key(streaming_stat.persistWorkers.to_rows())}
                         separated
+                        refresher={() => computing.get_streaming_stat()}
                     />}
                 </div>
             },
@@ -656,7 +657,7 @@ function StateTable ({
     min_width?: number
     separated?: boolean
     default_page_size?: number
-    refresher?: () => Promise<void>
+    refresher?: () => Promise<any>
 }) {
     const [selected, set_selected] = useState<string[]>([ ])
     
