@@ -75,6 +75,8 @@ export class ChatAgentModel {
         const pathname = url.pathname.replace(/^\/agent-bus\/v1/, '')
         if (pathname.startsWith('/agent/') || url.searchParams.has('agentId'))
             return false
+        if (/^\/session\/[^/]+\/summary$/.test(pathname))
+            return false
             
         if (/^\/skill\/(?:[^/]+\/(catalog|context|bindings)|user\/(deny|allow|[^/]+\/denied))$/.test(pathname))
             return false
