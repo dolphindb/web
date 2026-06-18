@@ -30,6 +30,6 @@ export interface NetworkFetchRequest {
 export async function network_fetch (context: ToolContext, request: NetworkFetchRequest): Promise<NetworkFetchResponse> {
     return context.api_fetch('/network/fetch', {
         method: 'POST',
-        body: JSON.stringify(request),
+        body: JSON.stringify({ agentId: context.agent_id, ...request }),
     })
 }

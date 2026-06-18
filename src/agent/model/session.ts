@@ -183,10 +183,9 @@ export class ChatSessionModel {
             body: JSON.stringify(params),
         })
     }
-    async preview_context (params: Record<string, unknown>, agent_id?: string): Promise<any> {
+    async preview_context (params: Record<string, unknown>): Promise<any> {
         return this.chat.agent.api_fetch('/context/preview', {
             method: 'POST',
-            ...(agent_id ? { headers: { 'x-agent-id': agent_id } } : { }),
             body: JSON.stringify(params),
         })
     }
