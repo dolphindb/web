@@ -43,7 +43,10 @@ export function UploadFilesAction () {
                 onClick={async () => {
                     rfpd.current = `${await shell.get_home_dir()}uploads/`
                     
-                    rform.current?.setFieldValue('fpd', rfpd.current)
+                    rform.current?.setFieldsValue({
+                        fpd: rfpd.current,
+                        files: [ ]
+                    })
                     
                     modal.open()
                 }}
