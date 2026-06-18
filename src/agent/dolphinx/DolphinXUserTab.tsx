@@ -14,6 +14,11 @@ import { AgentListLayout, format_browser_time, Section, show_error, use_agent_op
 
 const { Text } = Typography
 
+function ellipsis_text (value: unknown) {
+    const text = String(value ?? '-')
+    return <Text title={text} style={{ display: 'block', maxWidth: '100%' }} ellipsis>{text}</Text>
+}
+
 
 function format_file_size (size?: number) {
     if (size === undefined)
@@ -650,13 +655,15 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
                 loading={loading}
                 dataSource={items}
                 pagination={false}
+                tableLayout='fixed'
+                scroll={{ x: 880 }}
                 locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无记忆')} /> }}
                 columns={[
                     {
                         title: t('分类'),
                         dataIndex: 'category',
                         width: 120,
-                        render: (value: string) => <Tag>{value}</Tag>,
+                        render: (value: string) => <Tag title={value} style={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</Tag>,
                     },
                     {
                         title: t('重要度'),
@@ -667,7 +674,7 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
                         title: t('来源'),
                         dataIndex: 'source',
                         width: 100,
-                        render: (value: string) => value || '-',
+                        render: ellipsis_text,
                     },
                     {
                         title: t('更新时间'),
@@ -678,7 +685,7 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
                     {
                         title: t('内容'),
                         dataIndex: 'content',
-                        render: (value: string) => <Text ellipsis style={{ maxWidth: 420 }}>{value}</Text>,
+                        render: ellipsis_text,
                     },
                     {
                         title: t('操作'),
@@ -835,6 +842,7 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
                     pagination={false}
                     showHeader={false}
                     rowKey='key'
+                    tableLayout='fixed'
                     dataSource={[
                         { key: 'id', label: 'ID', value: detail_memory.memoryId },
                         { key: 'category', label: t('分类'), value: detail_memory.category || '-' },
@@ -847,7 +855,7 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
                     ]}
                     columns={[
                         { dataIndex: 'label', width: 120 },
-                        { dataIndex: 'value', render: (value: unknown) => String(value) },
+                        { dataIndex: 'value', render: ellipsis_text },
                     ]}
                 />
                 <Input.TextArea value={detail_memory.content} rows={6} readOnly />
@@ -1163,6 +1171,8 @@ function MemoryJobsSection () {
             rowKey={job => `${job.kind}:${job.jobKey}`}
             loading={loading}
             dataSource={jobs}
+            tableLayout='fixed'
+            scroll={{ x: 1040 }}
             pagination={{
                 current: job_page,
                 pageSize: job_page_size,
@@ -1173,11 +1183,11 @@ function MemoryJobsSection () {
             columns={[
                 { title: t('任务类型'), dataIndex: 'kind', width: 130 },
                 { title: t('任务状态'), dataIndex: 'status', width: 120 },
-                { title: t('任务 Key'), dataIndex: 'jobKey', ellipsis: true },
+                { title: t('任务 Key'), dataIndex: 'jobKey', ellipsis: true, render: ellipsis_text },
                 { title: t('开始时间'), dataIndex: 'startedTime', width: 170, render: format_browser_time },
                 { title: t('完成时间'), dataIndex: 'finishedTime', width: 170, render: format_browser_time },
                 { title: t('剩余重试'), dataIndex: 'retryRemaining', width: 90 },
-                { title: t('最近错误'), dataIndex: 'lastError', ellipsis: true },
+                { title: t('最近错误'), dataIndex: 'lastError', ellipsis: true, render: ellipsis_text },
                 {
                     title: t('操作'),
                     width: 140,
@@ -1201,6 +1211,7 @@ function MemoryJobsSection () {
                     pagination={false}
                     showHeader={false}
                     rowKey='key'
+                    tableLayout='fixed'
                     dataSource={[
                         { key: 'kind', label: t('任务类型'), value: job_detail.kind },
                         { key: 'status', label: t('任务状态'), value: job_detail.status || '-' },
@@ -1215,7 +1226,7 @@ function MemoryJobsSection () {
                     ]}
                     columns={[
                         { dataIndex: 'label', width: 140 },
-                        { dataIndex: 'value', render: (value: unknown) => String(value) },
+                        { dataIndex: 'value', render: ellipsis_text },
                     ]}
                 />
                 {job_detail.lastError && <Input.TextArea value={job_detail.lastError} rows={4} readOnly />}
