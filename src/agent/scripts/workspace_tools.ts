@@ -4,7 +4,7 @@ import type { ScriptConfig, ScriptResult, ToolContext } from './types.ts'
 import {
     normalize_script_args,
     format_ddb_eval_result_info,
-    truncate_tool_content,
+    TOOL_RESULT_SPILL_THRESHOLD_CHARS,
     tool_result_json,
     uint8_to_base64,
 } from './helpers.ts'
@@ -333,7 +333,7 @@ export const vfs_read_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'vfs_read',
-            description: '读取当前会话工作区中的代码文件；只读工作区，不能读取 Skill 包文件，Skill 包请用 skill_file_read',
+            description: '读取当前会话工作区中的代码文件；只读工作区，不能读取 Skill 包文件，Skill 包请用 skill_file_read。返回结果包含 content、lineCount、startLine、endLine、hash。',
             parameters: {
                 type: 'object',
                 properties: {
@@ -529,7 +529,8 @@ export const execute_file_config: ScriptConfig = {
             })
             const result_info = format_ddb_eval_result_info(result, print_messages)
             let content_object: string | undefined
-            try { content_object = uint8_to_base64(result.pack()) } catch { }
+            if (result_info.content.length <= TOOL_RESULT_SPILL_THRESHOLD_CHARS)
+                try { content_object = uint8_to_base64(result.pack()) } catch { }
             return {
                 next_loop: true,
                 ddb_result: result,
@@ -539,7 +540,7 @@ export const execute_file_config: ScriptConfig = {
                     returnedVoid: result_info.returnedVoid,
                     resultType: result_info.resultType,
                     ...(print_messages.length ? { print: print_messages } : { }),
-                    content: truncate_tool_content(result_info.content),
+                    content: result_info.content,
                 }), content_object),
             }
         } catch (error) {

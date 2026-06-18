@@ -97,20 +97,7 @@ export function normalize_script_args (payload: unknown): string[] {
 
 
 const DEFAULT_TOOL_CONTENT_MAX_CHARS = 5000
-const CONTENT_TRUNCATION_MARKER = '\n\n[内容过长，已截断]'
-
-/** 截断工具输出内容，防止过长 */
-export function truncate_tool_content (text: string, max_chars = DEFAULT_TOOL_CONTENT_MAX_CHARS): string {
-    const safe_max = Number.isFinite(max_chars) && max_chars > 0 ? Math.trunc(max_chars) : DEFAULT_TOOL_CONTENT_MAX_CHARS
-    if (text.length <= safe_max)
-        return text
-    
-    if (safe_max <= CONTENT_TRUNCATION_MARKER.length)
-        return text.slice(0, safe_max)
-    
-    const cutoff = safe_max - CONTENT_TRUNCATION_MARKER.length
-    return `${text.slice(0, cutoff).trimEnd()}${CONTENT_TRUNCATION_MARKER}`
-}
+export const TOOL_RESULT_SPILL_THRESHOLD_CHARS = DEFAULT_TOOL_CONTENT_MAX_CHARS
 
 
 const DDB_ERROR_GUIDANCE = '建议查询文档获取准确的函数参考'
@@ -147,6 +134,11 @@ export type ToolResultEnvelope = {
     print?: string[]
     preview?: unknown
     results?: unknown
+    toolResultPersisted?: boolean
+    toolResultFile?: string
+    toolResultOriginalLength?: number
+    toolResultPersistedLength?: number
+    toolResultPersistError?: string
 }
 
 
