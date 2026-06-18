@@ -53,6 +53,12 @@ const DEFAULT_CONFIG_FORM = {
 }
 
 
+function refresh_current_agent_llms () {
+    if (chat_model.agent_id)
+        chat_model.llm.load_selectable_llms(chat_model.agent_id).catch(() => { })
+}
+
+
 function parse_json_field (value: string, field_label: string): Record<string, unknown> | undefined {
     if (!value.trim())
         return undefined
@@ -335,7 +341,7 @@ export function LlmConfigTab () {
             }
             set_config_modal_mode('closed')
             await load()
-            chat_model.llm.load_selectable_llms().catch(() => { })
+            refresh_current_agent_llms()
         } catch (e: any) {
             message.error(e.message || t('保存失败'))
         } finally {
@@ -348,6 +354,7 @@ export function LlmConfigTab () {
             await chat_model.llm.delete_llm_config(cfg.llmConfigId)
             message.success(t('删除成功'))
             await load()
+            refresh_current_agent_llms()
         } catch (e: any) {
             message.error(e.message || t('删除失败'))
             await load()
@@ -360,6 +367,7 @@ export function LlmConfigTab () {
             await chat_model.llm.disable_llm_config(cfg.llmConfigId)
             message.success(t('禁用成功'))
             await load()
+            refresh_current_agent_llms()
         } catch (e: any) {
             message.error(e.message || t('禁用失败'))
             await load()
@@ -372,6 +380,7 @@ export function LlmConfigTab () {
             await chat_model.llm.enable_llm_config(cfg.llmConfigId)
             message.success(t('启用成功'))
             await load()
+            refresh_current_agent_llms()
         } catch (e: any) {
             message.error(e.message || t('启用失败'))
             await load()

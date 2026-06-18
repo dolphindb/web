@@ -6,7 +6,7 @@ import { type DdbObj, type DdbValue } from 'dolphindb/browser.js'
 import { t } from '@i18n'
 import { model, NodeType } from '@model'
 import { copy } from '@utils'
-import { bind_chat_model_session, get_chat_model } from '@/agent/model.ts'
+import { bind_chat_model_session, chat_shared_model, get_chat_model } from '@/agent/model.ts'
 import { no_active_agent_message } from '@/agent/model/agent.ts'
 import { parse_ddb_obj_from_content_object } from '@/agent/utils/ddb-object.ts'
 import { get_agent_status_text } from '@/agent/utils/message.ts'
@@ -70,7 +70,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 }
                 
                 // 确保可选 LLM 已加载
-                if (chat.agent_id && chat.selectable_llms.length === 0)
+                if (chat.agent_id && !chat_shared_model.selectable_llms_by_agent_id[chat.agent_id]?.length)
                     await chat.llm.load_selectable_llms()
                     
                 if (cancelled)

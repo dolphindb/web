@@ -231,7 +231,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
             set_all_skills(global_skills)
             // 同步刷新工具栏的可选 LLM 下拉列表
             if (is_current)
-                chat_model.llm.load_selectable_llms(agent.agentId)
+                chat_model.llm.load_selectable_llms(agent.agentId).catch(() => { })
         } catch {
             message.error(t('加载绑定信息失败'))
         } finally {

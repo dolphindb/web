@@ -1,6 +1,7 @@
 import type { ChatModel } from '@/agent/model.ts'
 import type { IAgentLlmBinding, IBuiltinInitResult, ILlmConfig, ILlmProvider, ILlmUsageStats, ISelectableLlmInfo, IUserLlmAccessInfo } from './types.ts'
 import { get_enabled, get_status, get_status_name, normalize_json_object, normalize_json_object_string, optional_positive_number } from './helpers.ts'
+import { chat_shared_model } from './shared.ts'
 
 export class ChatLlmModel {
     constructor (private chat: ChatModel) { }
@@ -228,14 +229,26 @@ export class ChatLlmModel {
                 participatesInFallback: item.participatesInFallback ?? false,
                 fallbackPriority: item.fallbackPriority ?? null,
             }))
+            chat_shared_model.set({
+                selectable_llms_by_agent_id: {
+                    ...chat_shared_model.selectable_llms_by_agent_id,
+                    [aid]: items,
+                },
+            })
             this.chat.set({
-                selectable_llms: items,
-                use_native_tool_calling: this.chat.agent.should_use_native_tool_calling(this.chat.selected_llm_config_id, items),
+                use_native_tool_calling: this.chat.agent.should_use_native_tool_calling(this.chat.agent.get_effective_llm_config_id(), items),
             })
             return items
         } catch {
-            if (aid === this.chat.agent_id)
-                this.chat.set({ selectable_llms: [ ], use_native_tool_calling: true })
+            if (aid === this.chat.agent_id) {
+                chat_shared_model.set({
+                    selectable_llms_by_agent_id: {
+                        ...chat_shared_model.selectable_llms_by_agent_id,
+                        [aid]: [ ],
+                    },
+                })
+                this.chat.set({ use_native_tool_calling: true })
+            }
             return [ ]
         }
     }

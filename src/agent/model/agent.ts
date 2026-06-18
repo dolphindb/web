@@ -3,8 +3,9 @@ import { model, storage_keys } from '@model'
 import type { ChatModel } from '@/agent/model.ts'
 import type { ChatCompletionOptions } from '@/agent/tool_call_adapters.ts'
 
-import type { IAccessInfo, IAgentInfo, ISelectableLlmInfo } from './types.ts'
+import type { IAccessInfo, IAgentInfo } from './types.ts'
 import { AGENT_ID_KEY } from './constants.ts'
+import { chat_shared_model } from './shared.ts'
 
 export function agent_access_denied_message () {
     return t('没有权限访问 AI 助手，请联系管理员授权。')
@@ -57,7 +58,6 @@ export class ChatAgentModel {
             buffered_messages: [ ],
             selected_llm_config_id: '',
             use_native_tool_calling: true,
-            selectable_llms: [ ],
             latest_ddb_result: null,
             agent_status: { status: 'idle' },
         })
@@ -334,19 +334,28 @@ export class ChatAgentModel {
     select_agent (agent_id: string) {
         this.chat.agent.set_active_agent(agent_id)
     }
-    get_llm_for_tool_call_mode (llm_config_id = this.chat.selected_llm_config_id, llms = this.chat.selectable_llms) {
+    get_selectable_llms (agent_id = this.chat.agent_id) {
+        return chat_shared_model.selectable_llms_by_agent_id[agent_id] || [ ]
+    }
+    get_effective_llm_config_id (llm_config_id = this.chat.selected_llm_config_id) {
+        return llm_config_id && this.chat.agent.get_selectable_llms().some(llm => llm.llmConfigId === llm_config_id)
+            ? llm_config_id
+            : ''
+    }
+    get_llm_for_tool_call_mode (llm_config_id = this.chat.agent.get_effective_llm_config_id(), llms = this.chat.agent.get_selectable_llms()) {
         if (llm_config_id)
             return llms.find(llm => llm.llmConfigId === llm_config_id)
         return llms.find(llm => llm.isAgentDefault) || llms[0]
     }
-    should_use_native_tool_calling (llm_config_id = this.chat.selected_llm_config_id, llms = this.chat.selectable_llms) {
+    should_use_native_tool_calling (llm_config_id = this.chat.agent.get_effective_llm_config_id(), llms = this.chat.agent.get_selectable_llms()) {
         const llm = this.chat.agent.get_llm_for_tool_call_mode(llm_config_id, llms)
         return llm?.custom?.tool_call !== false
     }
     select_llm_config (llm_config_id: string) {
+        const selected_llm_config_id = this.chat.agent.get_effective_llm_config_id(llm_config_id)
         this.chat.set({
-            selected_llm_config_id: llm_config_id,
-            use_native_tool_calling: this.chat.agent.should_use_native_tool_calling(llm_config_id),
+            selected_llm_config_id,
+            use_native_tool_calling: this.chat.agent.should_use_native_tool_calling(selected_llm_config_id),
         })
     }
 }

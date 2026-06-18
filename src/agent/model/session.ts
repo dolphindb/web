@@ -26,8 +26,9 @@ export class ChatSessionModel {
             agentId: this.chat.agent_id,
             title,
         }
-        if (this.chat.selected_llm_config_id)
-            body.llmConfigId = this.chat.selected_llm_config_id
+        const llm_config_id = this.chat.agent.get_effective_llm_config_id()
+        if (llm_config_id)
+            body.llmConfigId = llm_config_id
             
         const result = await this.chat.agent.api_fetch('/session/create', {
             method: 'POST',
@@ -224,7 +225,7 @@ export class ChatSessionModel {
                     sessionId: session_id,
                     stream: false,
                     includeReasoning: false,
-                    llmConfigId: this.chat.selected_llm_config_id || undefined,
+                    llmConfigId: this.chat.agent.get_effective_llm_config_id() || undefined,
                     messages: [
                         {
                             role: 'system',

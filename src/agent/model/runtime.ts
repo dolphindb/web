@@ -568,8 +568,9 @@ export class ChatRuntimeModel {
                 },
             }
             tool_call_adapter.apply_request_body(body, message, options)
-            if (this.chat.selected_llm_config_id)
-                body.llmConfigId = this.chat.selected_llm_config_id
+            const llm_config_id = this.chat.agent.get_effective_llm_config_id()
+            if (llm_config_id)
+                body.llmConfigId = llm_config_id
                 
             const response = await fetch(url, {
                 method: 'POST',

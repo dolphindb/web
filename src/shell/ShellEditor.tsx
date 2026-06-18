@@ -11,7 +11,7 @@ import { model, NodeType, storage_keys } from '@model'
 
 import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 
-import { chat_model, get_chat_model } from '@/agent/model.ts'
+import { chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
 import type { ScriptExecuteApprovalMode } from '@/agent/model.ts'
 import { AiTab } from '@/agent/ai-tab/AiTab.tsx'
 
@@ -495,8 +495,9 @@ function AiToolbar ({
 }) {
     const chat = get_chat_model(session_id)
     const {
-        sessions, agents, agent_id, selectable_llms, selected_llm_config_id, script_execute_approval_mode,
-    } = chat.use(['sessions', 'agents', 'agent_id', 'selectable_llms', 'selected_llm_config_id', 'script_execute_approval_mode'])
+        sessions, agents, agent_id, selected_llm_config_id, script_execute_approval_mode,
+    } = chat.use(['sessions', 'agents', 'agent_id', 'selected_llm_config_id', 'script_execute_approval_mode'])
+    const { selectable_llms_by_agent_id } = chat_shared_model.use(['selectable_llms_by_agent_id'])
     const session = sessions.find(s => s.sessionId === session_id)
     const title = session?.title || shell.tabs.find(item => item.chat_id === session_id)?.name || t('新会话')
     const [editing_title, set_editing_title] = useState(false)
@@ -557,6 +558,8 @@ function AiToolbar ({
     const active_agents = agents.filter(a => a.statusName === 'ACTIVE')
     
     // 构建 LLM 选项，默认模型标注
+    const selectable_llms = selectable_llms_by_agent_id[agent_id] || [ ]
+    const effective_llm_config_id = chat.agent.get_effective_llm_config_id(selected_llm_config_id)
     const llm_options = selectable_llms.map(llm => ({
         value: llm.llmConfigId,
         label: llm.isAgentDefault ? `${llm.name} (${t('默认')})` : llm.name,
@@ -581,7 +584,7 @@ function AiToolbar ({
         
         {llm_options.length > 0 && <Select
             size='small'
-            value={selected_llm_config_id || undefined}
+            value={effective_llm_config_id || undefined}
             placeholder={t('自动选择模型')}
             allowClear
             style={{ minWidth: 120, maxWidth: 200, marginRight: 8 }}
