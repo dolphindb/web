@@ -5,11 +5,9 @@ import {
     TOOL_RESULT_SPILL_THRESHOLD_CHARS,
 } from '@/agent/scripts/helpers.ts'
 import type { ToolContext } from '@/agent/scripts/types.ts'
-import type { ParsedToolCall } from '@/agent/tool_call_parser.ts'
 
 
 const TOOL_RESULT_PREVIEW_CHARS = 2000
-const SPILLABLE_TOOL_RESULT_TOOLS = new Set(['execute', 'execute_file'])
 
 
 function hash_string (value: string) {
@@ -28,8 +26,8 @@ function sanitize_id (value: string) {
 }
 
 
-function tool_result_file_name (message: IMessage, parsed_call: ParsedToolCall, persisted_content: string) {
-    const id = parsed_call.id || message.tool_call_id || message.msgId || parsed_call.type
+function tool_result_file_name (message: IMessage, tool_type: string, persisted_content: string) {
+    const id = message.tool_call_id || message.msgId || tool_type
     return `tool_result_${sanitize_id(id)}_${hash_string(`${id}:${persisted_content}`)}.txt`
 }
 
@@ -170,11 +168,10 @@ function replace_tool_result_content (
 
 export async function spill_large_tool_result_if_needed (
     message: IMessage,
-    parsed_call: ParsedToolCall,
+    tool_type: string,
     context: ToolContext,
 ): Promise<IMessage> {
     if (
-        !SPILLABLE_TOOL_RESULT_TOOLS.has(parsed_call.type) ||
         message.role !== 'tool' ||
         message.messageType !== 'tool_result' ||
         message.content.length <= TOOL_RESULT_SPILL_THRESHOLD_CHARS
@@ -184,7 +181,7 @@ export async function spill_large_tool_result_if_needed (
     const original_content = message.content
     const persisted_content = persisted_content_from_tool_result(original_content)
     const preview = preview_of(persisted_content)
-    const file = tool_result_file_name(message, parsed_call, persisted_content)
+    const file = tool_result_file_name(message, tool_type, persisted_content)
     
     try {
         await context.workspace_store.write_file(context.session_id, context.api_fetch, file, persisted_content)

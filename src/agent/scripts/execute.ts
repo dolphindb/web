@@ -1,3 +1,5 @@
+import { spill_large_tool_result_if_needed } from '@/agent/tool_result_spill.ts'
+
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import {
     normalize_script_args,
@@ -74,17 +76,19 @@ export const execute_config: ScriptConfig = {
                 }
             
             
+            const save_message = {
+                msgId: `tool_${Date.now()}`,
+                role: 'tool' as const,
+                messageType: 'tool_result' as const,
+                name: type,
+                content: message_content,
+                content_object,
+            }
+            
             return {
                 next_loop: true,
                 ddb_result: result,
-                save_message: {
-                    msgId: `tool_${Date.now()}`,
-                    role: 'tool',
-                    messageType: 'tool_result',
-                    name: type,
-                    content: message_content,
-                    content_object,
-                },
+                save_message: await spill_large_tool_result_if_needed(save_message, type, context),
             }
         } catch (error) {
             return {

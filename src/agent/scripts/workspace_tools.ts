@@ -1,4 +1,5 @@
 import type { IMessage } from '@/agent/model.ts'
+import { spill_large_tool_result_if_needed } from '@/agent/tool_result_spill.ts'
 
 import type { ScriptConfig, ScriptResult, ToolContext } from './types.ts'
 import {
@@ -531,17 +532,18 @@ export const execute_file_config: ScriptConfig = {
             let content_object: string | undefined
             if (result_info.content.length <= TOOL_RESULT_SPILL_THRESHOLD_CHARS)
                 try { content_object = uint8_to_base64(result.pack()) } catch { }
+            const save_message = result_message(type, tool_result_json({
+                ok: true,
+                tool: type,
+                returnedVoid: result_info.returnedVoid,
+                resultType: result_info.resultType,
+                ...(print_messages.length ? { print: print_messages } : { }),
+                content: result_info.content,
+            }), content_object)
             return {
                 next_loop: true,
                 ddb_result: result,
-                save_message: result_message(type, tool_result_json({
-                    ok: true,
-                    tool: type,
-                    returnedVoid: result_info.returnedVoid,
-                    resultType: result_info.resultType,
-                    ...(print_messages.length ? { print: print_messages } : { }),
-                    content: result_info.content,
-                }), content_object),
+                save_message: await spill_large_tool_result_if_needed(save_message, type, context),
             }
         } catch (error) {
             return error_result(type, `execute_file failed: ${error instanceof Error ? error.message : String(error)}`)

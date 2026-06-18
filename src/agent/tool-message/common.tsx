@@ -502,11 +502,16 @@ export function get_outcome_toggle_label (message: IMessage, tool_name: string) 
 
 export function render_outcome_detail (message: IMessage, structured_payload: Record<string, unknown> | unknown[] | null) {
     const use_structured = should_use_structured_render(message, structured_payload)
+    const content = is_object_record(structured_payload) && typeof structured_payload.content === 'string'
+        ? structured_payload.content.trim()
+        : message.content.trim()
+    
+    if (content && is_object_record(structured_payload) && typeof structured_payload.content === 'string')
+        return create_code_view(content)
     
     if (use_structured)
         return create_code_view(structured_payload ? format_pretty_json(structured_payload) : message.content)
         
-    const content = message.content.trim()
     if (!content)
         return null
         

@@ -259,12 +259,13 @@ function VfsDeleteRenderer (props: ToolRendererProps) {
 
 
 function ExecuteFileRenderer (props: ToolRendererProps) {
-    return <ParamResultSection props={props} build_data={({ args, message }) => {
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload, tool_name, is_outcome }) => {
         const path = get_named_arg_text(args)
+        const outcome = is_outcome ? render_outcome_detail(message, structured_payload) : null
         return {
             param_rows: [{ label: t('脚本'), value: path || '-' }],
             result_details: compact_sections([
-                create_compact_text_detail('result', t('查看结果'), message.content, 120),
+                outcome ? { key: 'result', label: get_outcome_toggle_label(message, tool_name), children: outcome } : null,
             ]),
         }
     }} />

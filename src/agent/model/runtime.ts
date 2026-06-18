@@ -10,7 +10,6 @@ import {
     parse_tool_result_json,
     tool_result_json,
 } from '@/agent/scripts/helpers.ts'
-import { spill_large_tool_result_if_needed } from '@/agent/tool_result_spill.ts'
 import { build_current_todo_prompt } from '@/agent/prompt.ts'
 import {
     legacy_json_tool_call_adapter,
@@ -925,14 +924,6 @@ export class ChatRuntimeModel {
             stop_loop = guarded.stop
         }
         this.chat.runtime.update_repeated_tool_call_state(parsed_call, script_result.save_message)
-        if (script_result.save_message) {
-            script_result = {
-                ...script_result,
-                save_message: await spill_large_tool_result_if_needed(script_result.save_message, parsed_call, context),
-            }
-            if (this.chat.runtime.is_request_interrupted(request_seq))
-                return null
-        }
         
         const tool_result_content = script_result.save_message
             ? parse_tool_result_json(script_result.save_message.content)
