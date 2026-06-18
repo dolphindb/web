@@ -9,6 +9,7 @@ import type { ParsedToolCall } from '@/agent/tool_call_parser.ts'
 
 
 const TOOL_RESULT_PREVIEW_CHARS = 2000
+const SPILLABLE_TOOL_RESULT_TOOLS = new Set(['execute', 'execute_file'])
 
 
 function hash_string (value: string) {
@@ -173,6 +174,7 @@ export async function spill_large_tool_result_if_needed (
     context: ToolContext,
 ): Promise<IMessage> {
     if (
+        !SPILLABLE_TOOL_RESULT_TOOLS.has(parsed_call.type) ||
         message.role !== 'tool' ||
         message.messageType !== 'tool_result' ||
         message.content.length <= TOOL_RESULT_SPILL_THRESHOLD_CHARS
