@@ -104,7 +104,7 @@ export function SettingsModal () {
                     {
                         key: 'memory',
                         label: t('记忆管理'),
-                        children: <MemoryManagementTab can_manage_public_memory={can_manage_agent} admin={admin} />,
+                        children: <MemoryManagementTab can_manage_memory={can_manage_agent} />,
                     },
                     {
                         key: 'user',
