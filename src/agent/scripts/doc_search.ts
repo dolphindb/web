@@ -1,35 +1,17 @@
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import { normalize_script_args } from './helpers.ts'
-import { resolve_dolphindb_doc_url } from './doc_url.ts'
-import { network_fetch } from './network_fetch.ts'
+import {
+    candidate_for_rerank,
+    doc_search_tool_result,
+    normalize_doc_search_response,
+    order_by_rerank_response,
+    store_doc_references,
+} from './doc_context.ts'
 
 
-const DDB_DOC_SEARCH_URL = 'https://dolphindb.cn/api/search'
-const MAX_ITEMS_PER_PAGE = 30
-const DEFAULT_PAGE = 1
-const REQUEST_TIMEOUT_MS = 30_000
+const DEFAULT_MAX_RESULTS = 20
+const MAX_RESULTS = 30
 
-type DocSearchApiItem = {
-    content?: unknown
-    score?: unknown
-    title?: unknown
-    url?: unknown
-}
-
-type DocSearchApiResponse = {
-    items?: unknown
-    totalPage?: unknown
-    totalSearchItems?: unknown
-}
-
-
-function to_text (value: unknown) {
-    if (typeof value === 'string')
-        return value
-    if (value === null || value === undefined)
-        return ''
-    return String(value)
-}
 
 function to_positive_int (value: unknown, fallback: number) {
     if (typeof value === 'number' && Number.isFinite(value)) {
@@ -46,25 +28,8 @@ function to_positive_int (value: unknown, fallback: number) {
     return fallback
 }
 
-function parse_search_response (payload: unknown, query: string, page: number) {
-    const response = payload && typeof payload === 'object' ? payload as DocSearchApiResponse : { }
-    const raw_items = Array.isArray(response.items) ? response.items as DocSearchApiItem[] : [ ]
-    
-    const items = raw_items.slice(0, MAX_ITEMS_PER_PAGE).map(item => ({
-        title: to_text(item.title),
-        content: to_text(item.content),
-        url: resolve_dolphindb_doc_url(to_text(item.url)),
-        score: typeof item.score === 'number' ? item.score : null,
-    }))
-    
-    return {
-        query,
-        pageToShow: page,
-        maxItemsPerPage: MAX_ITEMS_PER_PAGE,
-        totalPage: typeof response.totalPage === 'number' ? response.totalPage : null,
-        totalSearchItems: typeof response.totalSearchItems === 'number' ? response.totalSearchItems : null,
-        items,
-    }
+function clamp_max_results (value: unknown) {
+    return Math.min(to_positive_int(value, DEFAULT_MAX_RESULTS), MAX_RESULTS)
 }
 
 
@@ -74,12 +39,12 @@ export const doc_search_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'doc_search',
-            description: '搜索 DolphinDB 官方文档，返回匹配的文档列表',
+            description: '搜索 DolphinDB 官方文档、函数说明、示例和错误说明，返回可读取的文档候选 id',
             parameters: {
                 type: 'object',
                 properties: {
                     query: { type: 'string', description: '搜索关键词' },
-                    page: { type: 'number', description: '页码，默认为 1' },
+                    max_results: { type: 'number', description: '最大返回结果数，默认 20，上限 30' },
                 },
                 required: ['query'],
             },
@@ -89,7 +54,7 @@ export const doc_search_config: ScriptConfig = {
         try {
             const args = normalize_script_args(content)
             const query = (args[0] || '').trim()
-            const page = to_positive_int(args[1], DEFAULT_PAGE)
+            const max_results = clamp_max_results(args[1])
             
             if (!query)
                 return {
@@ -99,50 +64,36 @@ export const doc_search_config: ScriptConfig = {
                         role: 'tool',
                         messageType: 'tool_error',
                         name: type,
-                        content: 'doc_search requires args[0] as search query.',
+                        content: 'doc_search requires query.',
                     },
                 }
             
-            const response = await network_fetch(context, {
+            const result = await context.api_fetch('/doc/search', {
                 method: 'POST',
-                url: DDB_DOC_SEARCH_URL,
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    agentId: context.agent_id,
+                    sessionId: context.session_id,
                     query,
-                    pageToShow: page,
-                    maxItemsPerPage: MAX_ITEMS_PER_PAGE,
-                    language: 'zh',
-                    version: '',
+                    maxResults: max_results,
                 }),
-                timeoutMs: REQUEST_TIMEOUT_MS,
             })
+            const candidates = normalize_doc_search_response(result)
+            store_doc_references(context.session_id, candidates)
             
-            const raw = response.body || ''
-            if (response.statusCode < 200 || response.statusCode >= 300)
-                return {
-                    next_loop: true,
-                    save_message: {
-                        msgId: `tool_${Date.now()}`,
-                        role: 'tool',
-                        messageType: 'tool_error',
-                        name: type,
-                        content: `doc_search failed (${response.statusCode}): ${raw || response.statusText}`,
-                    },
-                }
-            
-            let payload: unknown = null
-            try { payload = raw ? JSON.parse(raw) : { } } catch {
-                return {
-                    next_loop: true,
-                    save_message: {
-                        msgId: `tool_${Date.now()}`,
-                        role: 'tool',
-                        messageType: 'tool_error',
-                        name: type,
-                        content: `doc_search failed: response is not valid JSON: ${raw.slice(0, 200)}`,
-                    },
-                }
-            }
+            let ordered = candidates
+            try {
+                const reranked = await context.api_fetch('/doc/rerank', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        agentId: context.agent_id,
+                        sessionId: context.session_id,
+                        query,
+                        maxResults: max_results,
+                        candidates: candidates.map(candidate_for_rerank),
+                    }),
+                })
+                ordered = order_by_rerank_response(reranked, candidates)
+            } catch { }
             
             return {
                 next_loop: true,
@@ -151,7 +102,7 @@ export const doc_search_config: ScriptConfig = {
                     role: 'tool',
                     messageType: 'tool_result',
                     name: type,
-                    content: JSON.stringify(parse_search_response(payload, query, page)),
+                    content: JSON.stringify(doc_search_tool_result(query, ordered, max_results)),
                 },
             }
         } catch (error) {

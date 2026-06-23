@@ -22,7 +22,6 @@ import {
     get_table_like_summary,
     ParamResultSection,
     PRINT_STYLE,
-    render_external_link,
     render_outcome_detail,
     ScriptApprovalActions,
     STACK_STYLE,
@@ -113,6 +112,32 @@ function TestsqlRenderer (props: ToolRendererProps) {
 }
 
 
+function clean_doc_search_summary (value: unknown): string {
+    const text = to_message_text(value)
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/(^|\s)#{1,6}\s*/g, ' ')
+        .replace(/[`*_]+/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+    return to_preview_text(text, 220)
+}
+
+
+function render_doc_search_results (results: unknown[]): string {
+    return results.map((item, index) => {
+        const record = is_object_record(item) ? item : null
+        const id = to_message_text(record?.id).trim()
+        const title = to_message_text(record?.title).trim()
+        const summary = clean_doc_search_summary(record?.summary)
+        return [
+            `${index + 1}. ${title || id || '-'}`,
+            summary ? `摘要: ${summary}` : '',
+            id ? `id: ${id}` : '',
+        ].filter(Boolean).join('\n')
+    }).filter(Boolean).join('\n\n')
+}
+
+
 function DocSearchRenderer (props: ToolRendererProps) {
     if (!props.is_outcome)
         return null
@@ -120,11 +145,13 @@ function DocSearchRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
         const query = get_arg_text(args, 0, ['query'])
         const parsed = is_object_record(structured_payload) ? structured_payload : null
-        const total = to_message_text(parsed?.totalSearchItems).trim()
-        const items = Array.isArray(parsed?.items) ? parsed.items : [ ]
-        const count = total || String(items.length)
+        const results = Array.isArray(parsed?.results) ? parsed.results : [ ]
         return {
-            result_rows: [{ label: t('文档搜索'), value: `${query || '-'}，${t('匹配')} ${count} ${t('条文档')}` }],
+            result_rows: [{ label: t('文档搜索'), value: `${query || '-'}，${t('匹配')} ${results.length} ${t('条文档')}` }],
+            result_details: compact_sections([
+                create_text_detail('doc-search-candidates', t('查看候选文档'), render_doc_search_results(results)),
+                create_json_detail('doc-search-results', t('查看结果'), structured_payload || message.content),
+            ]),
         }
     }} />
 }
@@ -132,18 +159,17 @@ function DocSearchRenderer (props: ToolRendererProps) {
 
 function DocReadRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload, is_outcome }) => {
-        const url = get_arg_text(args, 0, ['url'])
+        const id = get_arg_text(args, 0, ['id'])
         const parsed = is_object_record(structured_payload) ? structured_payload : null
         const title = to_message_text(parsed?.title).trim()
-        const page_url = to_message_text(parsed?.url).trim()
         const content = to_message_text(parsed?.content ?? message.content).trim()
         
         return {
             param_rows: !is_outcome
-                ? [{ label: t('读取文档'), value: to_preview_text(url || '-', 120) }]
+                ? [{ label: t('读取文档'), value: to_preview_text(id || '-', 120) }]
                 : [ ],
             result_rows: !props.has_paired_tool_call && is_outcome
-                ? [{ label: t('读取文档'), value: title || render_external_link(page_url || url) }]
+                ? [{ label: t('读取文档'), value: title || id || '-' }]
                 : [ ],
             result_details: compact_sections([
                 create_markdown_detail('doc-content', t('查看文档内容'), content),
