@@ -376,6 +376,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
     const [form_importance, set_form_importance] = useState(0.5)
     const [public_memory, set_public_memory] = useState<IPublicMemory | null>(null)
     const [public_content, set_public_content] = useState('')
+    const [public_editing, set_public_editing] = useState(false)
     const [loading, set_loading] = useState(false)
     const [public_loading, set_public_loading] = useState(false)
     const [public_saving, set_public_saving] = useState(false)
@@ -390,6 +391,8 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
     const agent_page_size = 10
     const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
     const has_memory_query = Boolean(query.trim())
+    const saved_public_content = public_memory?.content || ''
+    const public_dirty = public_content !== saved_public_content
     
     useEffect(() => {
         if (!selected_agent_id && agent_id)
@@ -419,6 +422,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
             set_memory_stats(null)
             set_public_memory(null)
             set_public_content('')
+            set_public_editing(false)
         }
     }, [selected_agent_id, personal_memory, can_manage_memory])
     
@@ -426,7 +430,10 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
         if (!can_view_public_memory && view_type === 'public_memory')
             set_view_type('user_personal')
     }, [can_view_public_memory, view_type])
-    
+    useEffect(() => {
+        if (!can_manage_memory && public_editing)
+            set_public_editing(false)
+    }, [can_manage_memory, public_editing])
     useEffect(() => {
         if (!has_memory_query && sort_by === 'TEXT_SEARCH')
             set_sort_by('RANKED')
@@ -499,13 +506,14 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
             const memory = await chat_model.memory.get_public_memory(selected_agent_id)
             set_public_memory(memory)
             set_public_content(memory.content || '')
+            set_public_editing(false)
         } catch (error) {
             show_error(error, t('加载公共记忆失败'))
         } finally {
             set_public_loading(false)
         }
     }
-    async function save_public_memory () {
+    async function do_save_public_memory () {
         if (!can_manage_memory)
             return
         if (!selected_agent_id) {
@@ -517,14 +525,26 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
             const memory = await chat_model.memory.update_public_memory(selected_agent_id, public_content)
             set_public_memory(memory)
             set_public_content(memory.content || '')
-            message.success(t('保存成功'))
+            set_public_editing(false)
+            message.success(t('公共记忆已保存'))
         } catch (error) {
             show_error(error, t('保存公共记忆失败'))
         } finally {
             set_public_saving(false)
         }
     }
-    async function clear_public_memory () {
+    function confirm_save_public_memory () {
+        if (!can_manage_memory || !selected_agent_id || !public_dirty)
+            return
+        Modal.confirm({
+            title: t('确认保存公共记忆？'),
+            content: t('公共记忆会注入该 Agent 下所有用户的后续对话上下文，修改后可能影响所有用户的回答结果。确定保存？'),
+            okText: t('确认保存'),
+            cancelText: t('取消'),
+            onOk: do_save_public_memory,
+        })
+    }
+    async function do_clear_public_memory () {
         if (!can_manage_memory)
             return
         if (!selected_agent_id)
@@ -534,12 +554,49 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
             const memory = await chat_model.memory.clear_public_memory(selected_agent_id)
             set_public_memory(memory)
             set_public_content(memory.content || '')
+            set_public_editing(false)
             message.success(t('已清空'))
         } catch (error) {
             show_error(error, t('清空公共记忆失败'))
         } finally {
             set_public_saving(false)
         }
+    }
+    function confirm_clear_public_memory () {
+        if (!can_manage_memory || !selected_agent_id)
+            return
+        Modal.confirm({
+            title: t('确认清空公共记忆？'),
+            content: t('清空公共记忆会影响该 Agent 下所有用户的后续对话上下文。该操作会移除当前公共记忆内容，确定清空？'),
+            okText: t('确认清空'),
+            cancelText: t('取消'),
+            okButtonProps: { danger: true },
+            onOk: do_clear_public_memory,
+        })
+    }
+    function open_public_editing () {
+        if (!can_manage_memory)
+            return
+        set_public_content(saved_public_content)
+        set_public_editing(true)
+    }
+    function cancel_public_editing () {
+        if (!public_dirty) {
+            set_public_content(saved_public_content)
+            set_public_editing(false)
+            return
+        }
+        Modal.confirm({
+            title: t('放弃未保存修改？'),
+            content: t('当前公共记忆修改尚未保存，放弃后将恢复为上次保存的内容。'),
+            okText: t('放弃修改'),
+            cancelText: t('继续编辑'),
+            okButtonProps: { danger: true },
+            onOk: () => {
+                set_public_content(saved_public_content)
+                set_public_editing(false)
+            },
+        })
     }
     async function save_memory () {
         if (!selected_agent_id || !form_content.trim()) {
@@ -788,24 +845,30 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
                     {public_memory?.updateTime && <Text type='secondary'>{format_browser_time(public_memory.updateTime)}</Text>}
                 </Space>
                 <Space wrap>
-                    <Button loading={public_loading} onClick={load_public_memory}>{t('刷新')}</Button>
-                    {can_manage_memory && <>
-                        <Popconfirm title={t('确定清空公共记忆？')} okButtonProps={{ danger: true }} onConfirm={clear_public_memory}>
-                            <Button danger loading={public_saving}>{t('清空')}</Button>
-                        </Popconfirm>
-                        <Button type='primary' loading={public_saving} onClick={save_public_memory}>{t('保存')}</Button>
-                    </>}
+                    {can_manage_memory && public_editing
+                        ? <>
+                            <Button disabled={public_saving} onClick={cancel_public_editing}>{t('取消')}</Button>
+                            <Button danger loading={public_saving} onClick={confirm_clear_public_memory}>{t('清空')}</Button>
+                            <Button type='primary' loading={public_saving} disabled={!public_dirty} onClick={confirm_save_public_memory}>{t('保存')}</Button>
+                        </>
+                        : <>
+                            <Button loading={public_loading} onClick={load_public_memory}>{t('刷新')}</Button>
+                            {can_manage_memory && <>
+                                <Button disabled={public_loading} onClick={open_public_editing}>{t('编辑')}</Button>
+                                <Button danger loading={public_saving} onClick={confirm_clear_public_memory}>{t('清空')}</Button>
+                            </>}
+                        </>}
                 </Space>
             </div>
             <Input.TextArea
                 value={public_content}
                 onChange={event => {
-                    if (can_manage_memory)
+                    if (public_editing)
                         set_public_content(event.target.value)
                 }}
                 rows={14}
-                disabled={public_loading}
-                readOnly={!can_manage_memory}
+                disabled={public_loading || public_saving}
+                readOnly={!public_editing}
                 placeholder={t('公共记忆内容')}
             />
         </div>
