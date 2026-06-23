@@ -7232,6 +7232,15 @@
     "暂无 Agent": {
         "en": "No Agents"
     },
+    "暂无可用 Agent": {
+        "en": "No available Agents"
+    },
+    "当前账号没有可用的 Agent，请创建或激活一个 Agent 后使用。": {
+        "en": "No available Agents for the current account. Please create or activate an Agent first."
+    },
+    "前往 Agent 管理": {
+        "en": "Go to Agent Management"
+    },
     "未授权": {
         "en": "Unauthorized"
     },

@@ -1,12 +1,12 @@
 import { type MouseEvent, useEffect, useRef, useState } from 'react'
 import { Alert, Button, Input, Spin, Typography, Space } from 'antd'
-import { SendOutlined, StopOutlined } from '@ant-design/icons'
+import { PlusCircleOutlined, SendOutlined, SettingOutlined, StopOutlined } from '@ant-design/icons'
 import { type DdbObj, type DdbValue } from 'dolphindb/browser.js'
 
 import { t } from '@i18n'
 import { model, NodeType } from '@model'
 import { copy } from '@utils'
-import { bind_chat_model_session, chat_shared_model, get_chat_model } from '@/agent/model.ts'
+import { bind_chat_model_session, chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
 import { no_active_agent_message } from '@/agent/model/agent.ts'
 import { parse_ddb_obj_from_content_object } from '@/agent/utils/ddb-object.ts'
 import { get_agent_status_text } from '@/agent/utils/message.ts'
@@ -27,14 +27,15 @@ const AUTO_SCROLL_INTERVAL = 1000
 
 export function AiTab ({ session_id }: { session_id: string }) {
     const chat = get_chat_model(session_id)
-    const { node_type } = model.use(['node_type'])
+    const { node_type, admin } = model.use(['node_type', 'admin'])
     const {
         messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, pending_tool_loop_control, pending_script_approval, steps,
-        tool_call_limit_enabled,
+        tool_call_limit_enabled, can_manage_agents,
     } = chat.use([
         'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'pending_tool_loop_control', 'pending_script_approval', 'steps',
-        'tool_call_limit_enabled',
+        'tool_call_limit_enabled', 'can_manage_agents',
     ])
+    const is_agent_admin = admin || can_manage_agents
     
     const [input_value, set_input_value] = useState('')
     const [inited, set_inited] = useState(false)
@@ -64,6 +65,11 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     await chat.agent.load_agents()
                     
                 if (!chat.agent_id) {
+                    if (is_agent_admin) {
+                        // 管理员无可用 agent 时仍允许进入，由空态引导创建
+                        set_inited(true)
+                        return
+                    }
                     set_init_error(chat.last_agent_load_error || no_active_agent_message())
                     set_inited(true)
                     return
@@ -88,7 +94,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         })()
         
         return () => { cancelled = true }
-    }, [chat, session_id, pending_session, unsupported_node])
+    }, [chat, session_id, pending_session, unsupported_node, is_agent_admin])
     
     // When tab switches back, re-select the correct session
     useEffect(() => {
@@ -225,7 +231,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
         if (creating_session)
             return
         if (!await chat.agent.ensure_active_agent()) {
-            model.message?.warning(chat.last_agent_load_error || no_active_agent_message())
+            if (is_agent_admin)
+                chat_model.set({ settings_visible: true })
+            else
+                model.message?.warning(chat.last_agent_load_error || no_active_agent_message())
             return
         }
         if (!chat.runtime.is_ddb_connected()) {
@@ -306,6 +315,27 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 message={t('AI 会话加载失败')}
                 description={init_error === 'Not Found' ? t('会话不存在或已被删除，请新建 AI 会话。') : init_error}
             />
+        </div>
+    
+    if (!chat.agent_id && is_agent_admin)
+        return <div className='ai-tab' style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 24,
+        }}>
+            <div style={{ textAlign: 'center', maxWidth: 420 }}>
+                <div style={{ fontSize: 48, color: '#d9d9d9', marginBottom: 16 }}>
+                    <SettingOutlined />
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 500, marginBottom: 8 }}>{t('暂无可用 Agent')}</div>
+                <Text type='secondary' style={{ display: 'block', marginBottom: 20 }}>
+                    {t('当前账号没有可用的 Agent，请创建或激活一个 Agent 后使用。')}
+                </Text>
+                <Button type='primary' icon={<PlusCircleOutlined />} onClick={() => { chat_model.set({ settings_visible: true }) }}>
+                    {t('前往 Agent 管理')}
+                </Button>
+            </div>
         </div>
         
     return <div className='ai-tab'>
