@@ -325,21 +325,39 @@
 
                         background-color: #ffffff
                         border-bottom: 1px solid rgba(0, 0, 0, 0.1)
-
-                        padding: 4px 10px
-
+                        
+                        padding: 0px 10px
+                        
+                        height: 35px
+                        
                         color: #444444
-
+                        
+                        overflow-x: auto
+                        overflow-y: hidden
+                        
+                        &::-webkit-scrollbar
+                            height: 2px !important
+                        
+                        &::-webkit-scrollbar-track
+                            background: transparent
+                        
+                        &::-webkit-scrollbar-thumb
+                            background: rgba(0, 0, 0, 0.2)
+                            
+                            &:hover
+                                background: rgba(0, 0, 0, 0.3)
+                        
                         .actions
                             display: flex
-
-                            flex-shrink: 1
-
+                            
+                            flex-shrink: 0
+                            
                             gap: 8px
-
-                            overflow-x: auto
-                            overflow-y: hidden
-
+                            
+                            align-items: center
+                            
+                            height: 100%
+                            
                             .action
                                 cursor: pointer
 
@@ -368,19 +386,7 @@
 
                                 &.en
                                     width: 130px
-
-                            &::-webkit-scrollbar
-                                height: 2px !important
-
-                            &::-webkit-scrollbar-track
-                                background: transparent
-
-                            &::-webkit-scrollbar-thumb
-                                background: rgba(0, 0, 0, 0.2)
-
-                                &:hover
-                                    background: rgba(0, 0, 0, 0.3)
-
+                            
                             .ant-checkbox-wrapper
                                 white-space: nowrap
 
@@ -413,10 +419,11 @@
 
                         .padding
                             flex: 1
-
+                            
+                            min-width: 40px
+                        
                         .collapse-btn
                             flex-shrink: 0
-                            align-self: flex-end
                             cursor: pointer
 
                         .toolbar-divider
@@ -970,8 +977,8 @@
             display: flex
 
             gap: 12px
-
-            .upload-button
+            
+            .cancel-button
                 margin-left: auto
 
 .db-modal

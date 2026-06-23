@@ -43,7 +43,10 @@ export function UploadFilesAction () {
                 onClick={async () => {
                     rfpd.current = `${await shell.get_home_dir()}uploads/`
                     
-                    rform.current?.setFieldValue('fpd', rfpd.current)
+                    rform.current?.setFieldsValue({
+                        fpd: rfpd.current,
+                        files: [ ]
+                    })
                     
                     modal.open()
                 }}
@@ -207,14 +210,14 @@ export function UploadFilesAction () {
                 </Form.Item>
                 
                 <div className='submit-line'>
+                    <Button className='cancel-button' disabled={loading} onClick={modal.close}>{t('取消')}</Button>
+                    
                     <Button
                         className='upload-button'
                         type='primary'
                         htmlType='submit'
                         loading={loading}
                     >{t('上传')}</Button>
-                    
-                    <Button disabled={loading} onClick={modal.close}>{t('取消')}</Button>
                 </div>
             </Form>
         </Modal>
