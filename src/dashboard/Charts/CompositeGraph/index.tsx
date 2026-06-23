@@ -93,8 +93,10 @@ export function CompositeChart ({ widget, data_source: { data } }: GraphComponen
                                 return match_value?.includes(type_map[col])
                             // 名称正则匹配
                             case MatchRuleType.REGEXP:
-                                try { return eval(match_value)?.test(col) }
-                                catch (e) { return false }
+                                try {
+                                    const match = match_value?.match(/^\/(.+)\/([gimsuy]*)$/)
+                                    return match ? new RegExp(match[1], match[2]).test(col) : false
+                                } catch (e) { return false }
                             // 数据源匹配
                             case MatchRuleType.DATA_SOURCE:
                                 return data_source_id === match_value

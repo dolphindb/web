@@ -3,13 +3,12 @@
 import type { Context } from 'koa'
 
 import {
-    ramdisk, fwrite, noprint, fcopy, fdclear, Remote, set_inspect_options, fdelete, fread, crc32, 
-    fexists
+    ramdisk, noprint, fdclear, Remote, set_inspect_options, fdelete, fread, crc32, fexists, fwrite
 } from 'xshell'
-import { Git } from 'xshell/git.js'
-import { Bundler, type BundlerOptions } from 'xshell/builder.js'
+import { Git, type GitVersionInfo } from 'xshell/git.js'
 import { Server } from 'xshell/server.js'
 import { setup_vscode_settings, process_stdin } from 'xshell/development.js'
+import { build_htmls, copy_assets, rolldown, type HtmlConfig, type HtmlsConfig } from 'xshell/builder.js'
 
 
 set_inspect_options()
@@ -17,13 +16,15 @@ set_inspect_options()
 /** LOCAL: 启用后在项目中使用本地 javascript-api 中的 browser.ts，修改后刷新 web 自动生效，调试非常方便
     (仅这个文件，不包括 browser.ts 中用相对路径导入的间接依赖，间接依赖需要手动编译为 .js 才生效)   
     修改 fp_api 的值后需要重启 devserver */
-const fp_api = ''
+// const fp_api = ''
 // const fp_api = 'D:/2/ddb/api/js/browser.ts'
 
 
 const fpd_root = import.meta.dirname.fpd
 
 const fpd_out = `${fpd_root}out/`
+
+const fpdt_cache = `${fpd_root}node_modules/.cache/`
 
 const prefix_version = '--version='
 
@@ -33,14 +34,15 @@ async function main () {
     
     switch (process.argv[2]) {
         case 'build':
-            await builder.build_and_close(
-                true, 
+            await build_web(
+                true,
+                true,
                 process.argv
                     .find(arg => arg.startsWith(prefix_version))
                     ?.strip_start(prefix_version))
             
             break
-            
+        
         case 'dev':
             await dev()
             
@@ -64,7 +66,6 @@ async function dev (preview = false) {
         if (preview)
             return
         
-        await builder.close()
         remote?.disconnect()
     }
     
@@ -75,7 +76,7 @@ async function dev (preview = false) {
             return
         }
         
-        await builder.run()
+        await build_web(false, false)
         console.log(info)
     }
     
@@ -116,7 +117,7 @@ async function dev (preview = false) {
     
     await Promise.all([
         server.start(),
-        !preview && builder.build(false)
+        !preview && build_web(false, true)
     ])
     
     
@@ -189,170 +190,176 @@ async function dev (preview = false) {
 }
 
 
-let builder = {
-    deps_bundler: null as Bundler,
-    
-    bundler: null as Bundler,
-    
-    
-    async build (production: boolean, version_name?: string) {
+let git: Git
+
+let info: GitVersionInfo
+
+
+async function build_web (production: boolean, full: boolean, version_name?: string) {
+    if (full) {
         console.log(`开始构建${production ? '生产' : '开发'}模式的 web`)
-        
         await fdclear(fpd_out)
         
-        let git = new Git(fpd_root)
+        git = new Git(fpd_root)
         
-        let info = await git.get_version_info(version_name)
-        
-        const source_map = !production || version_name === 'dev'
-        
-        const fpdt_cache = `${fpd_root}node_modules/.cache/webpack/`
-        
-        const dependencies: BundlerOptions['dependencies'] =
-            ['antd-icons', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco', 'plotly']
-        
-        
-        // --- 根据 {production}, package.json, deps.ts 缓存 deps.{hash[8]}.js
-        const hash = crc32(
-            (production ? 'production' : 'dev') + '\n' +
-            (await Promise.all(
-                ['package.json', 'src/deps.ts'].map(fp =>
-                    fread(fpd_root + fp, noprint)))
-            ).join(''))
-        
-        const cache = `deps.${hash}.js`
-        const fpt_cache = fpdt_cache + cache
-        
-        if (fexists(fpt_cache, noprint))
-            console.log(`deps.js 使用已有缓存 ${cache}`)
-        else {
-            this.deps_bundler = new Bundler(
-                'deps', 
-                'web',
-                fpd_root,
-                fpdt_cache,
-                fpdt_cache,
-                { 'deps.js': './src/deps.ts' },
-                {
-                    source_map,
-                    external_dayjs: true,
-                    production,
-                    dependencies,
-                    expose: true
-                })
-            
-            await this.deps_bundler.build()
-            
-            await Promise.all([
-                fcopy(fpdt_cache + 'deps.js', fpt_cache, noprint),
-                source_map && fcopy(fpdt_cache + 'deps.js.map', fpt_cache + '.map', noprint),
-            ])
-        }
-        
-        
-        // this.bundler 依赖 deps_bundler 生成的文件
-        this.bundler = new Bundler(
-            'web',
+        info = await git.get_version_info(version_name)
+    }
+    
+    const dependencies: HtmlConfig['dependencies'] =
+        ['antd', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco', 'plotly']
+    
+    
+    // --- 根据 {production}, package.json, deps.ts 缓存 deps.{hash[8]}.js
+    const hash = crc32(
+        (production ? 'production' : 'dev') + '\n' +
+        (await Promise.all(
+            ['package.json', 'src/deps.ts'].map(fp =>
+                fread(fpd_root + fp, noprint)))
+        ).join(''))
+    
+    const deps = `deps.${hash}.js`
+    const fpt_deps = fpdt_cache + deps
+    
+    if (fexists(fpt_deps, noprint))
+        console.log(`deps.js 使用已有缓存 ${deps}`)
+    else
+        await rolldown(
             'web',
             fpd_root,
-            fpd_out,
             fpdt_cache,
+            { [deps]: 'src/deps.ts' },
             {
-                'index.js': './src/index.tsx',
-                'window.js': './src/window.tsx'
-            },
-            {
-                source_map,
-                external_dayjs: true,
                 production,
-                externals: {
-                    // 使用官方的 node_modules/@ant-design/pro-components/dist/pro-components.min.js 会有样式问题
-                    '@ant-design/pro-components': 'AntdProComponents',
-                    
-                    // import { GridStack } from 'gridstack'
-                    // 实际上 GridStack 直接暴露在了 window 上，而不是 window.GridStack.GridStack
-                    gridstack: 'window',
-                    
-                    // 在 .js 中手动加载脚本
-                    // 取 window.ReactQuill 作为 import 的返回值
-                    'react-quill': 'ReactQuill',
-                },
-                resolve_alias: fp_api ? { 'dolphindb/browser.js': fp_api } : undefined,
+                analyze: true,
                 globals: {
-                    WEB_VERSION: `${info.version} (${info.time} ${info.hash})`.quote(),
-                    PRODUCTION: production ? 'true' : 'false'
-                },
-                cache_version: fp_api ? 'web.api' : 'web',
-                license: production,
-                dependencies,
-                htmls: {
-                    'index.html': {
-                        title: 'DolphinDB',
-                        scripts: {
-                            before: [{
-                                // deps_bundler 构建出来的 deps.js 缓存
-                                src: fpt_cache,
-                                out: 'deps.js'
-                            }]
-                        },
-                        dependencies: ['antd-icons', 'xterm', 'lodash', 'echarts', 'gridstack'],
-                    },
+                    react: 'React',
+                    'react/jsx-runtime': 'ReactJSX',
+                    'react-dom': 'ReactDOM',
+                    'react-dom/client': 'ReactDOMClient',
                     
-                    'window.html': {
-                        title: 'DdbObj',
-                        entry: 'window.js',
-                        dependencies: ['antd-icons', 'lodash', 'echarts']
-                    }
-                },
-                
-                template: production,
-                
-                assets: {
-                    productions: [
-                        ... [
-                            'overview/online.png', 'overview/offline.png',
-                            'overview/icons/controller-background.svg',
-                            'overview/icons/data-background.svg',
-                            'overview/icons/computing-background.svg',
-                        ].map(fp => 
-                            ({ src: `src/${fp}`, out: fp })),
-                        
-                        'README.md', 'README.zh.md', 'LICENSE.txt',
-                        
-                        ... ['zh', 'en'].map(language => 
-                            ({ src: `node_modules/dolphindb/docs.${language}.json`, out: `docs.${language}.json` })),
-                        
-                        ... source_map ? [{
-                            src: `${fpt_cache}.map`,
-                            out: 'deps.js.map'
-                        }] : [ ]
-                    ]
+                    antd: 'antd',
+                    lodash: '_'
                 }
             })
+    
+    const htmls: HtmlsConfig = {
+        'index.html': {
+            title: 'DolphinDB',
+            scripts: {
+                before: [{
+                    // 前面构建出来的 deps.js 缓存
+                    src: fpt_deps,
+                    out: 'deps.js'
+                }]
+            },
+            dependencies: ['antd', 'xterm', 'lodash', 'echarts', 'gridstack'],
+        },
         
-        
-        await Promise.all([
-            this.deps_bundler?.close(),
-            this.bundler.build_all(),
-            fwrite(`${fpd_out}version.json`, info, noprint)
-        ])
-    },
-    
-    
-    async build_and_close (production: boolean, version_name?: string) {
-        await this.build(production, version_name)
-        await this.close()
-    },
-    
-    
-    async run () {
-        await this.bundler.build()
-    },
-    
-    
-    async close () {
-        await this.bundler.close()
+        'window.html': {
+            title: 'DdbObj',
+            entry: 'window.js',
+            dependencies: ['antd', 'lodash', 'echarts']
+        }
     }
+    
+    
+    await Promise.all([
+        ... Object.entries({
+            'index.js': 'src/index.tsx',
+            'window.js': 'src/window.tsx'
+        }).map(async ([out, src]) => {
+            const index = out === 'index.js'
+            
+            await rolldown(
+                'web',
+                fpd_root,
+                fpd_out,
+                { [out]: src },
+                {
+                    analyze: index,
+                    assets: true,
+                    styles: true,
+                    defines: index ? {
+                        WEB_VERSION: `${info.version} (${info.time} ${info.hash})`.quote(),
+                        PRODUCTION: production ? 'true' : 'false'
+                    } : undefined,
+                    globals: {
+                        react: 'React',
+                        'react/jsx-runtime': 'ReactJSX',
+                        'react-dom': 'ReactDOM',
+                        'react-dom/client': 'ReactDOMClient',
+                        
+                        antd: 'antd',
+                        
+                        lodash: '_',
+                        
+                        echarts: 'echarts',
+                        
+                        // import { GridStack } from 'gridstack'
+                        // 实际上 GridStack 直接暴露在了 window 上，而不是 window.GridStack.GridStack
+                        gridstack: 'window',
+                        
+                        '@xterm/xterm': 'window',
+                        
+                        // 在 .js 中手动加载脚本
+                        // 取 window.ReactQuill 作为 import 的返回值
+                        'react-quill': 'ReactQuill',
+                        'react-quill-new': 'ReactQuill',
+                        
+                        'plotly.js-dist-min': 'Plotly',
+                        
+                        // deps.ts 已经预打包了
+                        '@ant-design/pro-components': 'AntdPro',
+                        'react-router': 'ReactRouter',
+                        '@xyflow/react': 'xyflow',
+                        '@xterm/addon-webgl': 'XtermWebgl'
+                    },
+                    plugins: index ? [{
+                        name: 'fix-error',
+                        
+                        generateBundle (options, bundle) {
+                            let index_js = bundle['index.js'] as { code: string }
+                            let index_css = bundle['index.css'] as { source: string }
+                            index_js.code = index_js.code.replace('	IconProvider = Context.Provider;\n', '')
+                            index_css.source = index_css.source
+                                .replace('/*# sourceMappingURL=quill.snow.css.map*/\n', '')
+                                .replace('/*# sourceMappingURL=quill.core.css.map*/\n', '')
+                        }
+                    }] : undefined
+                })
+        }),
+        
+        full && copy_assets(
+            fpd_root,
+            fpd_out,
+            production,
+            dependencies,
+            htmls,
+            {
+                productions: [
+                    ... [
+                        'overview/online.png', 'overview/offline.png',
+                        'overview/icons/controller-background.svg',
+                        'overview/icons/data-background.svg',
+                        'overview/icons/computing-background.svg'
+                    ].map(fp =>
+                        ({ src: `src/${fp}`, out: fp })),
+                    
+                    'README.md', 'README.zh.md', 'LICENSE.txt',
+                    
+                    ... ['zh', 'en'].map(language =>
+                        ({
+                            src: `node_modules/dolphindb/docs.${language}.json`,
+                            out: `docs.${language}.json`
+                        }))
+                ]
+            }),
+        
+        full && build_htmls(fpd_out, production, htmls, { template: true }),
+        
+        full && production && fwrite(`${fpd_out}version.json`, info, noprint)
+    ])
 }
+
 
 await main()

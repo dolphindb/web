@@ -1,3 +1,6 @@
+overrides:
+    '@ant-design/icons': '6'
+
 peerDependencyRules:
     allowAny:
         - antd
