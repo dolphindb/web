@@ -137,7 +137,26 @@ export function upper (str: string) {
 }
 
 
+function copy_with_textarea (text: string) {
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.readOnly = true
+    textarea.style.position = 'fixed'
+    textarea.style.top = '0'
+    textarea.style.left = '-9999px'
+    document.body.appendChild(textarea)
+    try {
+        textarea.select()
+        return document.execCommand('copy')
+    } finally {
+        document.body.removeChild(textarea)
+    }
+}
+
+
 export async function copy (text: string, options?: Parameters<typeof _copy>[1]) {
-    const result = await _copy(text, options)
+    const result = options
+        ? await _copy(text, { fallbackToPrompt: true, ...options })
+        : copy_with_textarea(text) || await _copy(text, { fallbackToPrompt: true })
     check(result, t('复制文本操作应该成功'))
 }

@@ -2,13 +2,15 @@ import { useRef } from 'react'
 
 import { Popover, Card, Button, InputNumber, type FormInstance, Form, Checkbox } from 'antd'
 
-import { CaretUpOutlined, CaretDownOutlined, SettingOutlined } from '@ant-design/icons'
+import { CaretUpOutlined, CaretDownOutlined, SettingOutlined, RobotOutlined } from '@ant-design/icons'
 
 import { storage } from 'xshell/storage.js'
 
 import { t } from '@i18n'
 
 import { model, storage_keys } from '@model'
+
+import { chat_model } from '@/agent/model.ts'
 
 
 export function Settings () {
@@ -73,6 +75,16 @@ export function Settings () {
                         <Button htmlType='submit' size='small' type='primary'>{t('应用')}</Button>
                     </div>
                 </Form>
+                
+                <div style={{ borderTop: '1px solid #f0f0f0', marginTop: 12, paddingTop: 12 }}>
+                    <Button
+                        block
+                        icon={<RobotOutlined />}
+                        onClick={() => { chat_model.set({ settings_visible: true }) }}
+                    >
+                        {t('AI 设置')}
+                    </Button>
+                </div>
             </Card>
         }
     >

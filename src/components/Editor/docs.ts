@@ -1,5 +1,6 @@
-import type { Monaco, monacoapi } from './MonacoEditor.tsx'
 import type { DocsProvider } from 'dolphindb/docs.js'
+
+import type { Monaco, monacoapi } from './MonacoEditor.tsx'
 
 
 /** 最大搜索行数 */

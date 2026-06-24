@@ -1,0 +1,29 @@
+.ai-settings-modal
+    .ant-modal-body
+        height: min(680px, calc(100vh - 150px))
+        overflow: hidden
+
+.ai-settings-modal-content
+    position: relative
+    height: 100%
+    min-height: 0
+
+.ai-settings-tabs
+    height: 100%
+    display: flex
+    flex-direction: column
+
+    > .ant-tabs-nav
+        flex: none
+
+    > .ant-tabs-content-holder
+        flex: 1
+        min-height: 0
+        overflow: hidden
+
+        > .ant-tabs-content
+            height: 100%
+
+            > .ant-tabs-tabpane
+                height: 100%
+                min-height: 0

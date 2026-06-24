@@ -434,6 +434,9 @@ export class DdbModel extends Model<DdbModel> {
         
         await this.update_user()
         
+        // 同时登录 agent-bus
+        await this.login_agent_bus(username, password)
+        
         console.log(t('{{username}} 使用账号密码登陆成功', { username: this.username }))
     }
     
@@ -460,6 +463,7 @@ export class DdbModel extends Model<DdbModel> {
         } catch (error) {
             localStorage.removeItem(storage_keys.ticket)
             localStorage.removeItem(storage_keys.username)
+            localStorage.removeItem(storage_keys.agent_bus_token)
             throw error
         }
     }
@@ -501,6 +505,39 @@ export class DdbModel extends Model<DdbModel> {
             return result
         }
     }
+    
+    
+    /** 使用 DolphinDB 用户名密码登录 agent-bus，获取独立 token */
+    async login_agent_bus (username: string, password: string) {
+        const protocol = location.protocol
+        const hostname = this.hostname || location.hostname
+        const port = this.port || location.port
+        const base = `${protocol}//${hostname}${port ? ':' + port : ''}`
+        
+        try {
+            const response = await fetch(`${base}/api/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+            })
+            
+            const result = await response.json()
+            
+            if (response.status !== 200 || result.code !== 0)
+                throw new Error(`Login failed: ${JSON.stringify(result)}`)
+            
+            // result.result 是数组，result[0] 是 token
+            const tokens = result.result
+            if (Array.isArray(tokens) && tokens[0]) {
+                localStorage.setItem(storage_keys.agent_bus_token, tokens[0])
+                console.log('Agent-bus login succeeded')
+            } else
+                throw new Error('No token in login response')
+        } catch (e) {
+            console.warn('Agent-bus login failed:', e)
+        }
+    }
+    
     
     /** redirect_uri 只能跳转到其中某个固定节点，需要带参数跳回到原发起登录的节点，或者自定义 url，  
         发起跳转后会抛出错误中断后续流程 */
@@ -838,9 +875,9 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 去登录页，或者跳转到 oauth 登录 */
     async goto_login () {
-        const { pathname } = location
+        const { pathname, search, hash } = location
         if (pathname !== `${this.assets_root}login/`)
-            this.pathname_before_login = pathname
+            this.pathname_before_login = `${pathname}${search}${hash}`
         
         if (this.oauth && !this.oauth_allow_password_login)
             await this.goto_oauth()
@@ -1335,7 +1372,8 @@ export const storage_keys = {
     git_root_url: 'ddb.git.root_url',
     git_api_root: 'ddb.git.api_root',
     shf: 'ddb.shf',
-    grouping: 'ddb.grouping'
+    grouping: 'ddb.grouping',
+    agent_bus_token: 'ddb.agent_bus_token',
 } as const
 
 

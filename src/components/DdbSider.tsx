@@ -4,7 +4,7 @@ import { Layout, Menu, Typography } from 'antd'
 
 import {
     default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined,
-    ApartmentOutlined, AppstoreOutlined
+    ApartmentOutlined, AppstoreOutlined, RobotOutlined
 } from '@ant-design/icons'
 
 import { noop } from 'xshell/prototype.browser.js'

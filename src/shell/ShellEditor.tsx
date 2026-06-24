@@ -1,41 +1,48 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { Checkbox, Input, InputNumber, Select, Tooltip } from 'antd'
-import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined } from '@ant-design/icons'
+import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { storage } from 'xshell/storage.js'
 
 import { t } from '@i18n'
 
-import { model, storage_keys } from '@model'
+import { model, NodeType, storage_keys } from '@model'
 
 import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 
-import { shell } from './model.ts'
+import { chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
+import type { ScriptExecuteApprovalMode } from '@/agent/model.ts'
+import { AiTab } from '@/agent/ai-tab/AiTab.tsx'
+
+import { is_pending_ai_chat_id, shell } from './model.ts'
 
 import { SelectSqlModal } from './SelectSqlModal.tsx'
 import { ExecuteAction } from './ExecuteAction.tsx'
 import { UploadTabAction } from './UploadTabAction.tsx'
 import { UploadFilesAction } from './UploadFilesAction.tsx'
 
+import SvgAi from './icons/ai.icon.svg'
+
 
 export function ShellEditor ({ collapser }) {
-    const { logined } = model.use(['logined'])
+    const { logined, node_type } = model.use(['logined', 'node_type'])
     
-    const [minimap, set_minimap] = useState(() => 
+    const [minimap, set_minimap] = useState(() =>
         storage.get_bool(storage_keys.minimap))
-    
-    const [enter_completion, set_enter_completion] = useState(() => 
+        
+    const [enter_completion, set_enter_completion] = useState(() =>
         storage.get_bool(storage_keys.enter_completion))
-    
-    const [font_size, set_font_size] = useState(() => 
+        
+    const [font_size, set_font_size] = useState(() =>
         storage.get(storage_keys.font_size, 16))
-    
+        
     const [collapsed, set_collapsed] = useState(false)
     
     const { itab, tabs, monaco_inited } = shell.use(['itab', 'tabs', 'monaco_inited'])
     const current_tab = tabs.find(t => t.index === itab)
     const readonly = current_tab?.read_only
+    const is_ai_tab = Boolean(current_tab?.chat_id)
     
     const toolbar_ref = useRef<HTMLDivElement>(undefined)
     
@@ -85,12 +92,12 @@ export function ShellEditor ({ collapser }) {
             fontSize: font_size,
         }),
         [minimap, enter_completion, font_size])
-    
-    
+        
+        
     function handle_tab_close (tabId) {
         if (!shell.monaco_inited)
             return
-        
+            
         const tab = shell.tabs.find(t => t.index === tabId)
         const { tabs, itab } = shell
         
@@ -129,19 +136,22 @@ export function ShellEditor ({ collapser }) {
             tab.name = newName
             shell.set({ tabs: [...shell.tabs] })
             shell.save()
+            if (tab.chat_id && !is_pending_ai_chat_id(tab.chat_id))
+                get_chat_model(tab.chat_id).session.update_session_title(tab.chat_id, newName)
+                    .catch(error => { model.message?.error(error instanceof Error ? error.message : t('保存失败')) })
         }
     }
     
     return <div className='shell-editor'>
-        { monaco_inited && <Tabs 
+        { monaco_inited && <Tabs
             tabs={[
-                { key: -1, name: t('默认标签页'), closeable: false, renameable: false, icon: <FileTextOutlined /> }, 
+                { key: -1, name: t('默认标签页'), closeable: false, renameable: false, icon: <FileTextOutlined /> },
                 ...tabs.map(tab => ({
                     key: tab.index,
                     name: tab.name,
                     closeable: true,
                     renameable: true,
-                    icon: <FileTextOutlined />
+                    icon: tab.chat_id ? <SvgAi /> : <FileTextOutlined />
                 }))
             ]}
             active_key={itab}
@@ -152,6 +162,36 @@ export function ShellEditor ({ collapser }) {
             on_tab_rename={handle_tab_rename}
             show_add_button
             on_add_tab={() => { shell.add_tab() }}
+            right_extra={
+                <div
+                    className='ai-mode-btn'
+                    onClick={async () => {
+                        if (node_type === NodeType.controller || node_type === NodeType.data) {
+                            model.message?.warning(t('集群模式下 AI 模式需要在计算节点使用。'))
+                            return
+                        }
+                        
+                        try {
+                            const builtin_status = await chat_model.llm.load_builtin_init_status(false).catch(error => {
+                                console.error('Load built-in Agent/Skill init status failed:', error)
+                                return null
+                            })
+                            if (builtin_status && builtin_status.initialized !== true && builtin_status.state !== 'READY') {
+                                chat_model.set({ settings_visible: true })
+                                return
+                            }
+                            
+                            await shell.add_ai_tab()
+                        } catch (e) {
+                            console.error('Failed to create AI tab:', e)
+                            model.message?.error(e instanceof Error ? e.message : t('创建 AI 标签页失败'))
+                        }
+                    }}
+                >
+                    <SvgAi />
+                    <span>{t('AI 模式')}</span>
+                </div>
+            }
         /> }
         
         { monaco_inited && <div className='toolbar' ref={toolbar_ref}>
@@ -226,7 +266,19 @@ export function ShellEditor ({ collapser }) {
             </div>
         </div> }
         
-        <Editor
+        { monaco_inited && is_ai_tab && <AiToolbar
+            key={`ai-toolbar-${current_tab.chat_id}`}
+            session_id={current_tab.chat_id}
+            collapsed={collapsed}
+            on_toggle_collapsed={() => {
+                set_collapsed(!collapsed)
+                collapser(collapsed)
+            }}
+        /> }
+        
+        {is_ai_tab && <AiTab key={current_tab.chat_id} session_id={current_tab.chat_id} />}
+        <div style={is_ai_tab ? { display: 'none' } : { flex: 1, minHeight: 0 }}>
+            <Editor
             readonly={readonly}
             
             observe_resize
@@ -235,9 +287,9 @@ export function ShellEditor ({ collapser }) {
             
             on_loaded={(monaco, editor) => {
                 editor.setValue(shell.itab > -1
-                    ? shell.tabs.find(t => t.index === shell.itab).code
+                    ? shell.tabs.find(t => t.index === shell.itab && !t.chat_id)?.code || ''
                     : localStorage.getItem(storage_keys.code) || '')
-                
+                    
                 async function execute (selection: 'line' | 'all') {
                     if (shell.executing)
                         model.message.warning(t('当前连接正在执行作业，请等待'))
@@ -287,13 +339,15 @@ export function ShellEditor ({ collapser }) {
             }}
             
             on_change={value => {
-                shell.save_debounced(value)
+                if (value !== undefined)
+                    shell.save_debounced(value)
             }}
             
             on_save={value => {
                 shell.save(value)
             }}
         />
+        </div>
     </div>
 }
 
@@ -314,6 +368,7 @@ interface TabsProps {
     on_tab_rename?: (tabId: string | number, newName: string) => void
     show_add_button?: boolean
     on_add_tab?: () => void
+    right_extra?: React.ReactNode
 }
 
 export function Tabs ({
@@ -323,7 +378,8 @@ export function Tabs ({
     on_tab_close,
     on_tab_rename,
     show_add_button = false,
-    on_add_tab
+    on_add_tab,
+    right_extra
 }: TabsProps) {
     let tabs_container_ref = useRef<HTMLDivElement>(undefined)
     
@@ -339,8 +395,8 @@ export function Tabs ({
         return () => { tabs_container_ref.current?.removeEventListener('wheel', on_wheel) }
     }, [ ])
     
-    return <div className='tabs' ref={tabs_container_ref}>
-        {tabs.map(tab => 
+    const tabs_content = <>
+        {tabs.map(tab =>
             <Tab
                 key={tab.key}
                 name={tab.name}
@@ -353,11 +409,25 @@ export function Tabs ({
                 icon={tab.icon}
             />
         )}
-        {show_add_button && 
+        {show_add_button &&
             <div className='add-tab' onClick={on_add_tab}>
                 <PlusOutlined style={{ fontSize: 12 }} />
             </div>
         }
+    </>
+    
+    if (right_extra)
+        return <div className='tabs-bar'>
+            <div className='tabs' ref={tabs_container_ref}>
+                {tabs_content}
+            </div>
+            <div className='tabs-right-extra'>
+                {right_extra}
+            </div>
+        </div>
+        
+    return <div className='tabs' ref={tabs_container_ref}>
+        {tabs_content}
     </div>
 }
 
@@ -384,6 +454,11 @@ function Tab ({
     let [name, set_name] = useState(initial_name)
     let [renaming, set_renaming] = useState(false)
     
+    useEffect(() => {
+        if (!renaming)
+            set_name(initial_name)
+    }, [initial_name, renaming])
+    
     function commit_rename () {
         onRename?.(name)
         set_renaming(false)
@@ -394,7 +469,7 @@ function Tab ({
         onClick={onClick}
     >
         {icon && <div className='tab-icon'>{icon}</div>}
-        {renaming ? 
+        {renaming ?
             <Input
                 placeholder={t('标签页名称')}
                 value={name}
@@ -422,6 +497,174 @@ function Tab ({
         >
             <CloseOutlined style={{ fontSize: 12 }} />
         </div>}
+    </div>
+}
+
+
+function AiToolbar ({
+    session_id,
+    collapsed,
+    on_toggle_collapsed,
+}: {
+    session_id: string
+    collapsed: boolean
+    on_toggle_collapsed: () => void
+}) {
+    const chat = get_chat_model(session_id)
+    const {
+        sessions, agents, agent_id, selected_llm_config_id, script_execute_approval_mode,
+    } = chat.use(['sessions', 'agents', 'agent_id', 'selected_llm_config_id', 'script_execute_approval_mode'])
+    const { selectable_llms_by_agent_id } = chat_shared_model.use(['selectable_llms_by_agent_id'])
+    const session = sessions.find(s => s.sessionId === session_id)
+    const title = session?.title || shell.tabs.find(item => item.chat_id === session_id)?.name || t('新会话')
+    const [editing_title, set_editing_title] = useState(false)
+    const [title_value, set_title_value] = useState(title)
+    
+    useEffect(() => {
+        if (!editing_title)
+            set_title_value(title)
+    }, [title, editing_title])
+    
+    useEffect(() => {
+        if (!session?.title)
+            return
+        const tab = shell.tabs.find(item => item.chat_id === session_id)
+        if (tab && tab.name !== session.title) {
+            tab.name = session.title
+            shell.set({ tabs: [...shell.tabs] })
+            shell.save()
+        }
+    }, [session?.title, session_id])
+    
+    async function commit_title () {
+        const next_title = title_value.trim()
+        if (!next_title) {
+            set_title_value(title)
+            set_editing_title(false)
+            return
+        }
+        if (next_title === title) {
+            set_editing_title(false)
+            return
+        }
+        try {
+            if (is_pending_ai_chat_id(session_id)) {
+                const tab = shell.tabs.find(item => item.chat_id === session_id)
+                if (tab) {
+                    tab.name = next_title
+                    shell.set({ tabs: [...shell.tabs] })
+                    shell.save()
+                }
+                return
+            }
+            await chat.session.update_session_title(session_id, next_title)
+            const tab = shell.tabs.find(item => item.chat_id === session_id)
+            if (tab) {
+                tab.name = next_title
+                shell.set({ tabs: [...shell.tabs] })
+                shell.save()
+            }
+        } catch (error) {
+            model.message?.error(error instanceof Error ? error.message : t('保存失败'))
+            set_title_value(title)
+        } finally {
+            set_editing_title(false)
+        }
+    }
+    
+    const active_agents = agents.filter(a => a.statusName === 'ACTIVE')
+    
+    // 构建 LLM 选项，默认模型标注
+    const selectable_llms = selectable_llms_by_agent_id[agent_id] || [ ]
+    const effective_llm_config_id = chat.agent.get_effective_llm_config_id(selected_llm_config_id)
+    const llm_options = selectable_llms.map(llm => ({
+        value: llm.llmConfigId,
+        label: llm.isAgentDefault ? `${llm.name} (${t('默认')})` : llm.name,
+    }))
+    
+    return <div className='toolbar ai-toolbar'>
+        {editing_title
+            ? <Input
+                className='ai-toolbar-title'
+                value={title_value}
+                size='small'
+                autoFocus
+                onChange={event => { set_title_value(event.target.value) }}
+                onBlur={commit_title}
+                onPressEnter={commit_title}
+            />
+            : <div className='ai-toolbar-title' title={title} onDoubleClick={() => { set_editing_title(true) }}>
+                {title}
+            </div>}
+            
+        <div className='padding' />
+        
+        {llm_options.length > 0 && <Select
+            size='small'
+            value={effective_llm_config_id || undefined}
+            placeholder={t('自动选择模型')}
+            allowClear
+            style={{ minWidth: 120, maxWidth: 200, marginRight: 8 }}
+            onChange={(value: string | undefined) => {
+                chat.agent.select_llm_config(value || '')
+            }}
+            options={llm_options}
+        />}
+        
+        <Tooltip title={t('DolphinDB 脚本执行审批')}>
+            <Select
+                size='small'
+                value={script_execute_approval_mode}
+                style={{ minWidth: 110, marginRight: 8 }}
+                onChange={(value: ScriptExecuteApprovalMode) => { chat.runtime.set_script_execute_approval_mode(value) }}
+                options={[
+                    { value: 'approval', label: t('需要审批') },
+                    { value: 'auto', label: t('自动执行') },
+                ]}
+            />
+        </Tooltip>
+        
+        <Select
+            size='small'
+            value={agent_id || undefined}
+            placeholder={t('选择 Agent')}
+            style={{ minWidth: 120, maxWidth: 200, marginRight: 8 }}
+            disabled={active_agents.length <= 1}
+            onChange={async (value: string) => {
+                chat.agent.select_agent(value)
+                await chat.session.load_sessions()
+            }}
+            options={active_agents.map(a => ({
+                value: a.agentId,
+                label: a.agentName,
+            }))}
+        />
+        
+        <Tooltip title={t('AI 设置')}>
+            <div
+                className='collapse-btn'
+                onClick={() => { chat_model.set({ settings_visible: true }) }}
+            >
+                <SettingOutlined />
+                <span style={{ marginLeft: 4 }}>{t('AI 设置')}</span>
+            </div>
+        </Tooltip>
+        
+        <div className='toolbar-divider' />
+        
+        <div
+            className='collapse-btn'
+            onClick={on_toggle_collapsed}
+        >
+            {
+                collapsed
+                    ? <DoubleLeftOutlined />
+                    : <span>
+                        {t('隐藏终端') + ' '}
+                        <DoubleRightOutlined />
+                    </span>
+            }
+        </div>
     </div>
 }
 

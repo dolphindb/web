@@ -7,8 +7,8 @@ import cn from 'classnames'
 
 import { t } from '@i18n'
 import { model } from '@model'
-import { Editor } from '@components/Editor/index.tsx'
 import { copy } from '@utils'
+import { Editor } from '@components/Editor/index.tsx'
 
 
 export function ReadonlyEditor ({

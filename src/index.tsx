@@ -40,6 +40,7 @@ import { DdbHeader } from './components/DDBHeader/index.tsx'
 import { DdbSider } from './components/DdbSider.tsx'
 import { HostSelect } from './components/DDBHeader/HostSelect.tsx'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx'
+import { SettingsModal } from './agent/SettingsModal.tsx'
 
 import { Login } from './login/index.tsx'
 import { Overview } from './overview/index.tsx'
@@ -135,6 +136,7 @@ function MainLayout () {
         <Layout className='root-layout'>
             <RouteListener />
             { header && <DdbHeader />}
+            <SettingsModal />
             <Layout className='body' hasSider>
                 { sider && <DdbSider /> }
                 <Layout.Content className='view'>

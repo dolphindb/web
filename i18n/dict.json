@@ -6848,6 +6848,252 @@
     "设置初始字体大小（临时修改可将鼠标移到编辑器区域，通过 ctrl + 滚轮上下 调整）": {
         "en": "Set initial font size (temporarily adjust by hovering over the editor area and using Ctrl + scroll wheel up/down)"
     },
+    "智能助手": {
+        "en": "AI Assistant"
+    },
+    "新建对话": {
+        "en": "New Chat"
+    },
+    "发送": {
+        "en": "Send"
+    },
+    "请输入消息...": {
+        "en": "Type a message..."
+    },
+    "后端服务地址": {
+        "en": "Backend Server URL"
+    },
+    "正在思考...": {
+        "en": "Thinking..."
+    },
+    "正在执行工具": {
+        "en": "Running tool"
+    },
+    "空闲": {
+        "en": "Idle"
+    },
+    "暂无对话": {
+        "en": "No conversations"
+    },
+    "请先新建对话": {
+        "en": "Create a new chat to begin"
+    },
+    "智能助手初始化失败，请检查后端服务地址": {
+        "en": "AI Assistant initialization failed, please check backend server URL"
+    },
+    "工具调用": {
+        "en": "Tool Call"
+    },
+    "工具调用已达到 {{count}} 轮，等待选择停止、继续或以后忽略。": {
+        "en": "Tool calls reached {{count}} turns. Choose stop, continue, or ignore in the future."
+    },
+    "工具调用限制已关闭": {
+        "en": "Tool call limit is disabled"
+    },
+    "继续且不再询问": {
+        "en": "Continue and do not ask again"
+    },
+    "支持原生 tool call": {
+        "en": "Native tool call support"
+    },
+    "工具": {
+        "en": "Tool"
+    },
+    "推理过程": {
+        "en": "Reasoning"
+    },
+    "结果": {
+        "en": "Result"
+    },
+    "确定删除此对话？": {
+        "en": "Are you sure you want to delete this conversation?"
+    },
+    "服务设置": {
+        "en": "Server Settings"
+    },
+    "模型配置": {
+        "en": "Provider Settings"
+    },
+    "技能管理": {
+        "en": "Skills Management"
+    },
+    "保存成功": {
+        "en": "Saved successfully"
+    },
+    "连接失败，请检查地址": {
+        "en": "Connection failed, please check the URL"
+    },
+    "加载提供商列表失败": {
+        "en": "Failed to load provider list"
+    },
+    "新建提供商": {
+        "en": "New Provider"
+    },
+    "暂无提供商": {
+        "en": "No providers"
+    },
+    "确定删除此提供商？": {
+        "en": "Are you sure you want to delete this provider?"
+    },
+    "已禁用": {
+        "en": "Disabled"
+    },
+    "请选择一个提供商或新建": {
+        "en": "Select a provider or create a new one"
+    },
+    "编辑提供商": {
+        "en": "Edit Provider"
+    },
+    "提供商名称": {
+        "en": "Provider Name"
+    },
+    "自定义请求头": {
+        "en": "Custom Headers"
+    },
+    "启用": {
+        "en": "Enabled"
+    },
+    "模型列表": {
+        "en": "Models"
+    },
+    "新增模型": {
+        "en": "New Model"
+    },
+    "暂无模型": {
+        "en": "No models"
+    },
+    "默认": {
+        "en": "Default"
+    },
+    "设为默认": {
+        "en": "Set as Default"
+    },
+    "编辑": {
+        "en": "Edit"
+    },
+    "确定删除此模型？": {
+        "en": "Are you sure you want to delete this model?"
+    },
+    "编辑模型": {
+        "en": "Edit Model"
+    },
+    "模型名称": {
+        "en": "Model Name"
+    },
+    "模型代码": {
+        "en": "Model Code"
+    },
+    "上下文窗口": {
+        "en": "Context Window"
+    },
+    "最大输出 Token": {
+        "en": "Max Output Tokens"
+    },
+    "支持工具调用": {
+        "en": "Tool Calling Support"
+    },
+    "额外配置": {
+        "en": "Extra Config"
+    },
+    "已设为默认模型": {
+        "en": "Set as default model"
+    },
+    "设置默认模型失败": {
+        "en": "Failed to set default model"
+    },
+    "创建成功": {
+        "en": "Created successfully"
+    },
+    "保存失败": {
+        "en": "Save failed"
+    },
+    "删除成功": {
+        "en": "Deleted successfully"
+    },
+    "删除失败": {
+        "en": "Delete failed"
+    },
+    "加载技能列表失败": {
+        "en": "Failed to load skill list"
+    },
+    "新建技能": {
+        "en": "New Skill"
+    },
+    "暂无技能": {
+        "en": "No skills"
+    },
+    "确定删除此技能？": {
+        "en": "Are you sure you want to delete this skill?"
+    },
+    "请选择一个技能或新建": {
+        "en": "Select a skill or create a new one"
+    },
+    "编辑技能": {
+        "en": "Edit Skill"
+    },
+    "技能名称": {
+        "en": "Skill Name"
+    },
+    "脚本": {
+        "en": "Script"
+    },
+    "输入技能脚本内容": {
+        "en": "Enter skill script content"
+    },
+    "无描述": {
+        "en": "No description"
+    },
+    "新会话": {
+        "en": "New Chat"
+    },
+    "对话界面": {
+        "en": "Chat"
+    },
+    "工作区状态": {
+        "en": "Workspace State"
+    },
+    "文件列表": {
+        "en": "Files"
+    },
+    "选择模型": {
+        "en": "Select Model"
+    },
+    "暂无状态": {
+        "en": "No state available"
+    },
+    "空工作区": {
+        "en": "Empty workspace"
+    },
+    "在左侧树状图中选择文件以查看": {
+        "en": "Select a file from the tree to view"
+    },
+    "输入消息发送给助手...": {
+        "en": "Type a message to the assistant..."
+    },
+    "请先创建会话": {
+        "en": "Please create a session first"
+    },
+    "工作区": {
+        "en": "Workspace"
+    },
+    "AI 标签页": {
+        "en": "AI Tab"
+    },
+    "AI 助手": {
+        "en": "AI Assistant"
+    },
+    "新建 AI 标签页": {
+        "en": "New AI Tab"
+    },
+    "正在连接 AI 助手...": {
+        "en": "Connecting to AI assistant..."
+    },
+    "输出结果已显示在下方面板": {
+        "en": "Output displayed in the panel below"
+    },
+    "创建 AI 标签页失败": {
+        "en": "Failed to create AI tab"
+    },
     "上传本地文本文件到服务器（目前版本暂不支持上传二进制文件，二进制文件会被自动忽略）": {
         "en": "Upload local text files to server (binary files are not supported in this version and will be automatically ignored)"
     },
@@ -6895,5 +7141,1298 @@
     },
     "语言:": {
         "en": "Language:"
+    },
+    "已复制": {
+        "en": "Copied"
+    },
+    "DolphinDB 连接已断开，无法发送消息": {
+        "en": "DolphinDB connection is disconnected. Unable to send message."
+    },
+    "创建 AI 会话失败": {
+        "en": "Failed to create AI session"
+    },
+    "AI 会话加载失败": {
+        "en": "Failed to load AI session"
+    },
+    "会话不存在或已被删除，请新建 AI 会话。": {
+        "en": "The session does not exist or has been deleted. Please create a new AI session."
+    },
+    "继续": {
+        "en": "Continue"
+    },
+    "中断": {
+        "en": "Interrupt"
+    },
+    "已运行 {{count}} 条命令": {
+        "en": "Ran {{count}} command"
+    },
+    "已运行 {{count}} 条命令_plural": {
+        "en": "Ran {{count}} commands"
+    },
+    "已编辑 {{count}} 个文件": {
+        "en": "Edited {{count}} file"
+    },
+    "已编辑 {{count}} 个文件_plural": {
+        "en": "Edited {{count}} files"
+    },
+    "未知工具": {
+        "en": "Unknown tool"
+    },
+    "执行失败": {
+        "en": "Execution failed"
+    },
+    "已运行": {
+        "en": "Ran"
+    },
+    "思考中": {
+        "en": "Thinking"
+    },
+    "思考过程": {
+        "en": "Reasoning"
+    },
+    "步骤": {
+        "en": "Steps"
+    },
+    "文件不存在或已被删除": {
+        "en": "The file does not exist or has been deleted"
+    },
+    "加载文件失败": {
+        "en": "Failed to load file"
+    },
+    "关闭工作区": {
+        "en": "Close workspace"
+    },
+    "打开工作区": {
+        "en": "Open workspace"
+    },
+    "工作区文件": {
+        "en": "Workspace files"
+    },
+    "加载工作区失败": {
+        "en": "Failed to load workspace"
+    },
+    "加载 Agent 失败": {
+        "en": "Failed to load Agent"
+    },
+    "加载 Agent 授权失败": {
+        "en": "Failed to load Agent authorization"
+    },
+    "已授权": {
+        "en": "Authorized"
+    },
+    "已撤销": {
+        "en": "Revoked"
+    },
+    "Agent 权限": {
+        "en": "Agent Permissions"
+    },
+    "选择用户": {
+        "en": "Select user"
+    },
+    "暂无 Agent": {
+        "en": "No Agents"
+    },
+    "暂无可用 Agent": {
+        "en": "No available Agents"
+    },
+    "当前账号没有可用的 Agent，请创建或激活一个 Agent 后使用。": {
+        "en": "No available Agents for the current account. Please create or activate an Agent first."
+    },
+    "前往 Agent 管理": {
+        "en": "Go to Agent Management"
+    },
+    "未授权": {
+        "en": "Unauthorized"
+    },
+    "授权访问": {
+        "en": "Grant access"
+    },
+    "加载模型配置失败": {
+        "en": "Failed to load model configs"
+    },
+    "加载用户 LLM 授权失败": {
+        "en": "Failed to load user LLM authorization"
+    },
+    "用户模型权限": {
+        "en": "User Model Permissions"
+    },
+    "模型": {
+        "en": "Model"
+    },
+    "Provider": {
+        "en": "Provider"
+    },
+    "授权": {
+        "en": "Authorize"
+    },
+    "加载技能失败": {
+        "en": "Failed to load skills"
+    },
+    "加载禁用技能失败": {
+        "en": "Failed to load disabled skills"
+    },
+    "已允许": {
+        "en": "Allowed"
+    },
+    "用户技能权限": {
+        "en": "User Skill Permissions"
+    },
+    "技能": {
+        "en": "Skill"
+    },
+    "允许使用": {
+        "en": "Allow use"
+    },
+    "允许": {
+        "en": "Allow"
+    },
+    "禁用": {
+        "en": "Disabled"
+    },
+    "暂无用户": {
+        "en": "No users"
+    },
+    "正在编辑用户：{{user}}": {
+        "en": "Editing user: {{user}}"
+    },
+    "请选择用户": {
+        "en": "Please select a user"
+    },
+    "仅管理员可访问": {
+        "en": "Administrators only"
+    },
+    "用户权限": {
+        "en": "User Permissions"
+    },
+    "请先选择 Agent": {
+        "en": "Please select an Agent first"
+    },
+    "加载会话失败": {
+        "en": "Failed to load sessions"
+    },
+    "已归档": {
+        "en": "Archived"
+    },
+    "归档失败": {
+        "en": "Failed to archive"
+    },
+    "删除会话失败": {
+        "en": "Failed to delete session"
+    },
+    "请输入标题": {
+        "en": "Please enter a title"
+    },
+    "摘要生成失败": {
+        "en": "Failed to generate summary"
+    },
+    "会话": {
+        "en": "Sessions"
+    },
+    "选择 Agent": {
+        "en": "Select Agent"
+    },
+    "暂无会话": {
+        "en": "No sessions"
+    },
+    "恢复会话失败": {
+        "en": "Failed to restore session"
+    },
+    "改标题": {
+        "en": "Rename"
+    },
+    "生成摘要": {
+        "en": "Generate summary"
+    },
+    "归档后不可继续在该会话中发送消息，确定归档？": {
+        "en": "You cannot send messages in this session after archiving it. Archive now?"
+    },
+    "归档": {
+        "en": "Archive"
+    },
+    "确定删除此会话？": {
+        "en": "Delete this session?"
+    },
+    "修改会话标题": {
+        "en": "Edit session title"
+    },
+    "会话摘要：{{title}}": {
+        "en": "Session Summary: {{title}}"
+    },
+    "会话摘要": {
+        "en": "Session Summary"
+    },
+    "摘要要求（可选，例如：重点保留结论和关键 SQL）": {
+        "en": "Summary requirements (optional, for example: keep key conclusions and SQL)"
+    },
+    "重新生成完整摘要": {
+        "en": "Regenerate full summary"
+    },
+    "摘要已生成": {
+        "en": "Summary generated"
+    },
+    "加载记忆失败": {
+        "en": "Failed to load memory"
+    },
+    "请填写分类和内容": {
+        "en": "Please enter category and content"
+    },
+    "保存记忆失败": {
+        "en": "Failed to save memory"
+    },
+    "删除记忆失败": {
+        "en": "Failed to delete memory"
+    },
+    "记忆": {
+        "en": "Memory"
+    },
+    "加载记忆统计失败": {
+        "en": "Failed to load memory stats"
+    },
+    "加载记忆详情失败": {
+        "en": "Failed to load memory details"
+    },
+    "记忆任务已触发": {
+        "en": "Memory job triggered"
+    },
+    "触发记忆任务失败": {
+        "en": "Failed to trigger memory job"
+    },
+    "触发记忆提取": {
+        "en": "Trigger memory extraction"
+    },
+    "总数": {
+        "en": "Total"
+    },
+    "个人记忆": {
+        "en": "Personal memories"
+    },
+    "平均重要度": {
+        "en": "Average importance"
+    },
+    "加载记忆设置失败": {
+        "en": "Failed to load memory settings"
+    },
+    "记忆设置已更新": {
+        "en": "Memory settings updated"
+    },
+    "更新记忆设置失败": {
+        "en": "Failed to update memory settings"
+    },
+    "加载记忆配置失败": {
+        "en": "Failed to load memory config"
+    },
+    "保存记忆配置失败": {
+        "en": "Failed to save memory config"
+    },
+    "记忆配置 JSON": {
+        "en": "Memory config JSON"
+    },
+    "允许个人记忆": {
+        "en": "Allow personal memory"
+    },
+    "记忆模型配置": {
+        "en": "Memory model config"
+    },
+    "使用 Agent 默认模型": {
+        "en": "Use Agent default model"
+    },
+    "记忆注入上限": {
+        "en": "Memory injection limit"
+    },
+    "候选主题召回上限": {
+        "en": "Registry recall limit"
+    },
+    "个人记忆预算": {
+        "en": "Personal memory budget"
+    },
+    "公共记忆预算": {
+        "en": "Public memory budget"
+    },
+    "会话空闲分钟": {
+        "en": "Session idle minutes"
+    },
+    "最大会话天数": {
+        "en": "Max session age days"
+    },
+    "自动整理冷却分钟": {
+        "en": "Consolidation cooldown minutes"
+    },
+    "单次整理候选上限": {
+        "en": "Raw memory consolidation limit"
+    },
+    "低频维护未使用天数": {
+        "en": "Unused days threshold"
+    },
+    "请输入合法 JSON": {
+        "en": "Please enter valid JSON"
+    },
+    "忘记": {
+        "en": "Forget"
+    },
+    "忘记会话记忆": {
+        "en": "Forget session memory"
+    },
+    "请选择会话": {
+        "en": "Please select a session"
+    },
+    "忘记请求已提交": {
+        "en": "Forget request submitted"
+    },
+    "忘记会话记忆失败": {
+        "en": "Failed to forget session memory"
+    },
+    "Agent": {
+        "en": "Agent"
+    },
+    "个人": {
+        "en": "Personal"
+    },
+    "分类": {
+        "en": "Category"
+    },
+    "搜索记忆": {
+        "en": "Search memory"
+    },
+    "综合排序": {
+        "en": "Hybrid ranking"
+    },
+    "最近更新": {
+        "en": "Recently updated"
+    },
+    "重要度": {
+        "en": "Importance"
+    },
+    "相关度": {
+        "en": "Relevance"
+    },
+    "文本相关度": {
+        "en": "Text relevance"
+    },
+    "文本匹配": {
+        "en": "Text match"
+    },
+    "启用记忆": {
+        "en": "Enable memory"
+    },
+    "新增记忆": {
+        "en": "Add memory"
+    },
+    "共 {{count}} 条": {
+        "en": "{{count}} total"
+    },
+    "任务类型": {
+        "en": "Job type"
+    },
+    "任务状态": {
+        "en": "Job status"
+    },
+    "任务 Key": {
+        "en": "Job Key"
+    },
+    "完成时间": {
+        "en": "Finish Time"
+    },
+    "剩余重试": {
+        "en": "Retries left"
+    },
+    "最近错误": {
+        "en": "Last error"
+    },
+    "重试请求已提交": {
+        "en": "Retry request submitted"
+    },
+    "加载记忆任务失败": {
+        "en": "Failed to load memory jobs"
+    },
+    "重试记忆任务失败": {
+        "en": "Failed to retry memory job"
+    },
+    "加载记忆任务详情失败": {
+        "en": "Failed to load memory job details"
+    },
+    "记忆任务详情": {
+        "en": "Memory job details"
+    },
+    "Worker": {
+        "en": "Worker"
+    },
+    "重试时间": {
+        "en": "Retry time"
+    },
+    "输入水位": {
+        "en": "Input watermark"
+    },
+    "成功水位": {
+        "en": "Success watermark"
+    },
+    "用户记忆维护": {
+        "en": "User memory maintenance"
+    },
+    "触发记忆整理": {
+        "en": "Trigger memory consolidation"
+    },
+    "重置记忆": {
+        "en": "Reset memory"
+    },
+    "请先选择用户": {
+        "en": "Please select a user first"
+    },
+    "重置用户个人记忆": {
+        "en": "Reset user personal memory"
+    },
+    "移除个人记忆": {
+        "en": "Remove personal memory"
+    },
+    "清除中间记忆结果": {
+        "en": "Clear intermediate memory results"
+    },
+    "确定重置该用户的个人记忆？": {
+        "en": "Reset this user's personal memory?"
+    },
+    "已重置用户个人记忆，移除 {{count}} 条记忆": {
+        "en": "User personal memory reset. Removed {{count}} memories"
+    },
+    "重置用户个人记忆失败": {
+        "en": "Failed to reset user personal memory"
+    },
+    "总记忆": {
+        "en": "Total memories"
+    },
+    "我的记忆": {
+        "en": "My memories"
+    },
+    "Agent 记忆": {
+        "en": "Agent memory"
+    },
+    "暂无记忆": {
+        "en": "No memory"
+    },
+    "来源": {
+        "en": "Source"
+    },
+    "内容": {
+        "en": "Content"
+    },
+    "确定删除这条记忆？": {
+        "en": "Delete this memory?"
+    },
+    "编辑记忆": {
+        "en": "Edit memory"
+    },
+    "更新": {
+        "en": "Update"
+    },
+    "记忆内容": {
+        "en": "Memory content"
+    },
+    "记忆详情": {
+        "en": "Memory details"
+    },
+    "来源引用": {
+        "en": "Source reference"
+    },
+    "请选择 Agent、会话并输入消息": {
+        "en": "Please select an Agent and session, then enter a message"
+    },
+    "加载上下文预览失败": {
+        "en": "Failed to load context preview"
+    },
+    "上下文预览": {
+        "en": "Context Preview"
+    },
+    "选择会话": {
+        "en": "Select session"
+    },
+    "输入待预览的用户消息": {
+        "en": "Enter the user message to preview"
+    },
+    "预估 Token": {
+        "en": "Estimated Tokens"
+    },
+    "组装模式": {
+        "en": "Assembly Mode"
+    },
+    "记忆数量": {
+        "en": "Memory Count"
+    },
+    "历史消息数": {
+        "en": "History Messages"
+    },
+    "技能数量": {
+        "en": "Skill Count"
+    },
+    "包含摘要": {
+        "en": "Includes Summary"
+    },
+    "项目": {
+        "en": "Item"
+    },
+    "Token 项": {
+        "en": "Token Item"
+    },
+    "数量": {
+        "en": "Count"
+    },
+    "角色": {
+        "en": "Role"
+    },
+    "加载用量失败": {
+        "en": "Failed to load usage"
+    },
+    "我的用量": {
+        "en": "My Usage"
+    },
+    "暂无用量": {
+        "en": "No usage"
+    },
+    "Agent 名称": {
+        "en": "Agent Name"
+    },
+    "请求次数": {
+        "en": "Requests"
+    },
+    "输入 Token": {
+        "en": "Input Tokens"
+    },
+    "输出 Token": {
+        "en": "Output Tokens"
+    },
+    "总 Token": {
+        "en": "Total Tokens"
+    },
+    "用户用量": {
+        "en": "User Usage"
+    },
+    "AI 助手初始化失败": {
+        "en": "Failed to initialize AI assistant"
+    },
+    "等待 DolphinDB 脚本执行审批...": {
+        "en": "Waiting for DolphinDB script execution approval..."
+    },
+    "重复工具调用已跳过": {
+        "en": "Skipped repeated tool call"
+    },
+    "模型仍在重复同一个工具调用，流程已停止。请基于已有工具结果回答，或换一个明确不同的策略。": {
+        "en": "The model is still repeating the same tool call, so the flow has stopped. Answer based on existing tool results, or use a clearly different strategy."
+    },
+    "这个完全相同的工具调用已经尝试过 {{count}} 次，不要继续重复；请改用不同参数、查询文档，或基于已有结果回答。": {
+        "en": "This exact same tool call has already been tried {{count}} time. Do not repeat it; use different parameters, search the documentation, or answer based on existing results."
+    },
+    "这个完全相同的工具调用已经尝试过 {{count}} 次，不要继续重复；请改用不同参数、查询文档，或基于已有结果回答。_plural": {
+        "en": "This exact same tool call has already been tried {{count}} times. Do not repeat it; use different parameters, search the documentation, or answer based on existing results."
+    },
+    "{{count}} 次连续 DolphinDB 工具结果都没有提供有效信息。不要继续猜测 API；请查询官方文档、运行更小的验证脚本，或基于已知结果说明不确定性。": {
+        "en": "{{count}} consecutive DolphinDB tool result did not provide useful information. Do not keep guessing the API; search the official documentation, run a smaller validation script, or explain the uncertainty based on known results."
+    },
+    "{{count}} 次连续 DolphinDB 工具结果都没有提供有效信息。不要继续猜测 API；请查询官方文档、运行更小的验证脚本，或基于已知结果说明不确定性。_plural": {
+        "en": "{{count}} consecutive DolphinDB tool results did not provide useful information. Do not keep guessing the API; search the official documentation, run a smaller validation script, or explain the uncertainty based on known results."
+    },
+    "工具调用已达到 {{count}} 轮，等待选择停止或继续。": {
+        "en": "Tool calls have reached {{count}} round. Waiting for a choice to stop or continue."
+    },
+    "工具调用已达到 {{count}} 轮，等待选择停止或继续。_plural": {
+        "en": "Tool calls have reached {{count}} rounds. Waiting for a choice to stop or continue."
+    },
+    "归档会话不可继续发送消息": {
+        "en": "Archived sessions cannot continue sending messages"
+    },
+    "Agent 已连续运行较长时间，是否继续": {
+        "en": "Agent has been running for a long time. Continue?"
+    },
+    "流式响应不可读取": {
+        "en": "Streaming response is not readable"
+    },
+    "流式响应 JSON 解析失败: {{error}}": {
+        "en": "Failed to parse streaming response JSON: {{error}}"
+    },
+    "正在压缩上下文...": {
+        "en": "Compacting context..."
+    },
+    "流式响应返回错误": {
+        "en": "Streaming response returned an error"
+    },
+    "模型返回了空响应": {
+        "en": "The model returned an empty response"
+    },
+    "工具调用 JSON 格式错误": {
+        "en": "Tool call JSON format error"
+    },
+    "检测到以 tool 开头的 JSON 字段，但格式不符合要求。请使用 {\"tool_call\":\"工具名\",\"args\":[...]}，例如 {\"tool_call\":\"step_update\",\"args\":[\"0\",\"true\"]}。不要使用 tool_update、tool_calls_update 等自定义字段。": {
+        "en": "Detected a JSON field starting with tool, but its format is invalid. Use {\"tool_call\":\"tool name\",\"args\":[...]}, for example {\"tool_call\":\"step_update\",\"args\":[\"0\",\"true\"]}. Do not use custom fields such as tool_update or tool_calls_update."
+    },
+    "用户未允许执行 DolphinDB 脚本，流程已中断。": {
+        "en": "The user did not allow DolphinDB script execution. The flow has been interrupted."
+    },
+    "加载 Agent 列表失败": {
+        "en": "Failed to load Agent list"
+    },
+    "请输入 Agent 名称": {
+        "en": "Please enter an Agent name"
+    },
+    "Agent 创建成功": {
+        "en": "Agent created"
+    },
+    "新建 Agent": {
+        "en": "New Agent"
+    },
+    "活跃": {
+        "en": "Active"
+    },
+    "当前": {
+        "en": "Current"
+    },
+    "例如: DolphinDB 助手": {
+        "en": "Example: DolphinDB Assistant"
+    },
+    "Agent 描述": {
+        "en": "Agent Description"
+    },
+    "系统提示词": {
+        "en": "System Prompt"
+    },
+    "系统提示词，会作为对话的首条 system message": {
+        "en": "System prompt, used as the first system message in the conversation"
+    },
+    "创建并激活": {
+        "en": "Create and Activate"
+    },
+    "请选择一个 Agent": {
+        "en": "Please select an Agent"
+    },
+    "加载绑定信息失败": {
+        "en": "Failed to load binding information"
+    },
+    "设为当前": {
+        "en": "Set as Current"
+    },
+    "已激活": {
+        "en": "Activated"
+    },
+    "激活失败": {
+        "en": "Failed to activate"
+    },
+    "激活": {
+        "en": "Activate"
+    },
+    "确定挂起此 Agent？": {
+        "en": "Suspend this Agent?"
+    },
+    "已挂起": {
+        "en": "Suspended"
+    },
+    "挂起失败": {
+        "en": "Failed to suspend"
+    },
+    "挂起": {
+        "en": "Suspend"
+    },
+    "确定删除此 Agent？": {
+        "en": "Delete this Agent?"
+    },
+    "已删除": {
+        "en": "Deleted"
+    },
+    "Agent 配置": {
+        "en": "Agent Config"
+    },
+    "保存 Agent": {
+        "en": "Save Agent"
+    },
+    "模型绑定": {
+        "en": "Model Binding"
+    },
+    "优先级（数值越小优先级越高）": {
+        "en": "Priority (smaller values have higher priority)"
+    },
+    "设置失败": {
+        "en": "Failed to set"
+    },
+    "已设为默认": {
+        "en": "Set as default"
+    },
+    "解绑": {
+        "en": "Unbind"
+    },
+    "已解绑": {
+        "en": "Unbound"
+    },
+    "解绑失败": {
+        "en": "Failed to unbind"
+    },
+    "可用模型配置": {
+        "en": "Available Model Configs"
+    },
+    "绑定": {
+        "en": "Bind"
+    },
+    "已绑定": {
+        "en": "Bound"
+    },
+    "绑定失败": {
+        "en": "Failed to bind"
+    },
+    "暂无可用模型配置，请先在「模型配置」中创建": {
+        "en": "No available model configs. Please create one in Model Config first."
+    },
+    "技能绑定": {
+        "en": "Skill Binding"
+    },
+    "已启用": {
+        "en": "Enabled"
+    },
+    "操作失败": {
+        "en": "Operation failed"
+    },
+    "可用技能": {
+        "en": "Available Skills"
+    },
+    "暂无可用技能，请先在「技能管理」中上传": {
+        "en": "No available skills. Please upload one in Skill Management first."
+    },
+    "{{field}} JSON 格式错误": {
+        "en": "{{field}} JSON format error"
+    },
+    "请输入 Provider 名称": {
+        "en": "Please enter a Provider name"
+    },
+    "请输入 Base URL": {
+        "en": "Please enter Base URL"
+    },
+    "删除失败，请先删除该 Provider 下的所有模型配置": {
+        "en": "Delete failed. Please delete all model configs under this Provider first."
+    },
+    "禁用失败": {
+        "en": "Failed to disable"
+    },
+    "启用失败": {
+        "en": "Failed to enable"
+    },
+    "请先选择一个 Provider": {
+        "en": "Please select a Provider first"
+    },
+    "只有活跃 Provider 可以新增模型配置": {
+        "en": "Only active Providers can add model configs"
+    },
+    "请输入配置名称": {
+        "en": "Please enter a config name"
+    },
+    "请输入模型名称": {
+        "en": "Please enter a model name"
+    },
+    "请求路径必须以 / 开头": {
+        "en": "Request path must start with /"
+    },
+    "自定义参数": {
+        "en": "Custom Parameters"
+    },
+    "重试配置": {
+        "en": "Retry Config"
+    },
+    "embeddingMetric=cosine 时必须勾选归一化": {
+        "en": "Normalization must be enabled when embeddingMetric=cosine"
+    },
+    "新建 Provider": {
+        "en": "New Provider"
+    },
+    "暂无 Provider": {
+        "en": "No Providers"
+    },
+    "未配置 Base URL": {
+        "en": "Base URL not configured"
+    },
+    "模型数: {{count}}": {
+        "en": "Models: {{count}}"
+    },
+    "模型数: {{count}}_plural": {
+        "en": "Models: {{count}}"
+    },
+    "请从左侧选择一个 Provider，或点击上方新建": {
+        "en": "Select a Provider on the left, or click New above"
+    },
+    "编辑 Provider": {
+        "en": "Edit Provider"
+    },
+    "Provider 名称": {
+        "en": "Provider Name"
+    },
+    "适配器类型": {
+        "en": "Adapter Type"
+    },
+    "确定禁用此 Provider？": {
+        "en": "Disable this Provider?"
+    },
+    "禁用前需要确保没有未删除的模型配置继续引用该 Provider": {
+        "en": "Before disabling, make sure no undeleted model configs still reference this Provider"
+    },
+    "禁用 Provider": {
+        "en": "Disable Provider"
+    },
+    "确定启用此 Provider？": {
+        "en": "Enable this Provider?"
+    },
+    "启用 Provider 不会自动启用引用它的模型配置": {
+        "en": "Enabling a Provider will not automatically enable model configs that reference it"
+    },
+    "启用 Provider": {
+        "en": "Enable Provider"
+    },
+    "确定删除此 Provider？": {
+        "en": "Delete this Provider?"
+    },
+    "删除 Provider": {
+        "en": "Delete Provider"
+    },
+    "关联模型配置": {
+        "en": "Related Model Configs"
+    },
+    "暂无模型，点击上方新增": {
+        "en": "No models. Click New above."
+    },
+    "已删除的模型配置不可编辑": {
+        "en": "Deleted model configs cannot be edited"
+    },
+    "确定禁用此模型配置？": {
+        "en": "Disable this model config?"
+    },
+    "确定启用此模型配置？": {
+        "en": "Enable this model config?"
+    },
+    "启用前要求所属 Provider 为 ACTIVE": {
+        "en": "The Provider must be ACTIVE before enabling"
+    },
+    "确定删除此模型配置？": {
+        "en": "Delete this model config?"
+    },
+    "新增模型配置": {
+        "en": "Add Model Config"
+    },
+    "编辑模型配置": {
+        "en": "Edit Model Config"
+    },
+    "配置名称": {
+        "en": "Config Name"
+    },
+    "能力": {
+        "en": "Capabilities"
+    },
+    "请求路径": {
+        "en": "Request Path"
+    },
+    "最大并发（可选）": {
+        "en": "Max Concurrency (optional)"
+    },
+    "速率限制 RPM（可选）": {
+        "en": "Rate Limit RPM (optional)"
+    },
+    "超时毫秒（可选）": {
+        "en": "Timeout Milliseconds (optional)"
+    },
+    "嵌入维度": {
+        "en": "Embedding Dimension"
+    },
+    "嵌入度量": {
+        "en": "Embedding Metric"
+    },
+    "对向量做归一化（metric=cosine 时必须开启）": {
+        "en": "Normalize vectors (required when metric=cosine)"
+    },
+    "自定义参数 (JSON，传给模型的其他参数)": {
+        "en": "Custom Parameters (JSON, additional parameters passed to the model)"
+    },
+    "重试配置 (JSON，可选)": {
+        "en": "Retry Config (JSON, optional)"
+    },
+    "技能文件列表格式异常，已忽略无效文件": {
+        "en": "Skill file list format is invalid. Invalid files have been ignored."
+    },
+    "加载技能指令失败": {
+        "en": "Failed to load skill instructions"
+    },
+    "加载技能文件失败": {
+        "en": "Failed to load skill files"
+    },
+    "注册技能": {
+        "en": "Register Skill"
+    },
+    "技能包": {
+        "en": "Skill Package"
+    },
+    "选择 ZIP 文件": {
+        "en": "Select ZIP File"
+    },
+    "ZIP 包须包含 SKILL.md 入口文件（含 YAML frontmatter 元数据和 Markdown 指令体）": {
+        "en": "The ZIP package must include the SKILL.md entry file, with YAML frontmatter metadata and Markdown instructions"
+    },
+    "覆盖元数据（可选，覆盖 SKILL.md 中的同名字段）": {
+        "en": "Override metadata (optional, overrides fields with the same names in SKILL.md)"
+    },
+    "例如: search-database": {
+        "en": "Example: search-database"
+    },
+    "显示名称": {
+        "en": "Display Name"
+    },
+    "例如: 数据库搜索": {
+        "en": "Example: Database Search"
+    },
+    "例如: database": {
+        "en": "Example: database"
+    },
+    "例如: 1.0.0": {
+        "en": "Example: 1.0.0"
+    },
+    "技能描述，会作为 Agent 调用技能时的参考信息": {
+        "en": "Skill description, used as reference when the Agent calls the skill"
+    },
+    "请选择技能包 ZIP 文件": {
+        "en": "Please select a skill package ZIP file"
+    },
+    "技能注册成功": {
+        "en": "Skill registered"
+    },
+    "注册失败": {
+        "en": "Registration failed"
+    },
+    "注册": {
+        "en": "Register"
+    },
+    "暂无可用技能，请先创建": {
+        "en": "No available skills. Please create one first."
+    },
+    "激活技能": {
+        "en": "Activate Skill"
+    },
+    "确定禁用此技能？": {
+        "en": "Disable this skill?"
+    },
+    "技能详情：{{name}}": {
+        "en": "Skill Details: {{name}}"
+    },
+    "技能详情": {
+        "en": "Skill Details"
+    },
+    "公共技能": {
+        "en": "Common Skill"
+    },
+    "所有者": {
+        "en": "Owner"
+    },
+    "兼容性": {
+        "en": "Compatibility"
+    },
+    "参数提示": {
+        "en": "Argument Hint"
+    },
+    "内容版本": {
+        "en": "Content Revision"
+    },
+    "内容 Hash": {
+        "en": "Content Hash"
+    },
+    "技能指令": {
+        "en": "Skill Instructions"
+    },
+    "暂无指令": {
+        "en": "No instructions"
+    },
+    "技能文件": {
+        "en": "Skill Files"
+    },
+    "暂无技能文件": {
+        "en": "No skill files"
+    },
+    "文件预览": {
+        "en": "File Preview"
+    },
+    "请选择左侧文件": {
+        "en": "Please select a file on the left"
+    },
+    "文件内容为空": {
+        "en": "File content is empty"
+    },
+    "初始化完成": {
+        "en": "Initialization complete"
+    },
+    "初始化未完成，详情请查看控制台": {
+        "en": "Initialization was not completed. See the console for details."
+    },
+    "初始化失败，详情请查看控制台": {
+        "en": "Initialization failed. See the console for details."
+    },
+    "AI 设置": {
+        "en": "AI Settings"
+    },
+    "Agent 管理": {
+        "en": "Agent Management"
+    },
+    "记忆管理": {
+        "en": "Memory Management"
+    },
+    "个人中心": {
+        "en": "Personal Center"
+    },
+    "需要初始化 AI 内置资源": {
+        "en": "AI built-in resources need to be initialized"
+    },
+    "首次使用 AI 前，需要初始化内置 Agent 和 Skill。": {
+        "en": "Before using AI for the first time, initialize the built-in Agent and Skill."
+    },
+    "一键初始化": {
+        "en": "Initialize"
+    },
+    "请联系管理员完成初始化": {
+        "en": "Please contact an administrator to complete initialization"
+    },
+    "再次执行": {
+        "en": "Run again"
+    },
+    "等待允许执行此 DolphinDB 脚本": {
+        "en": "Waiting for permission to execute this DolphinDB script"
+    },
+    "不允许": {
+        "en": "Deny"
+    },
+    "允许且此会话默认允许": {
+        "en": "Allow and default to allow for this session"
+    },
+    "查看错误": {
+        "en": "View Error"
+    },
+    "查看文档内容": {
+        "en": "View Document Content"
+    },
+    "查看结果": {
+        "en": "View Result"
+    },
+    "表": {
+        "en": "Table"
+    },
+    "字段": {
+        "en": "Fields"
+    },
+    "样例": {
+        "en": "Sample"
+    },
+    "文档搜索": {
+        "en": "Document Search"
+    },
+    "匹配": {
+        "en": "Matched"
+    },
+    "条文档": {
+        "en": "documents"
+    },
+    "读取文档": {
+        "en": "Read Document"
+    },
+    "路径": {
+        "en": "Path"
+    },
+    "查看列表": {
+        "en": "View List"
+    },
+    "文件": {
+        "en": "File"
+    },
+    "查看内容": {
+        "en": "View Content"
+    },
+    "查看替换": {
+        "en": "View Replacements"
+    },
+    "查看搜索结果": {
+        "en": "View Search Results"
+    },
+    "任务": {
+        "en": "Task"
+    },
+    "查看任务": {
+        "en": "View Tasks"
+    },
+    "索引": {
+        "en": "Index"
+    },
+    "查看原内容": {
+        "en": "View Original Content"
+    },
+    "查看新内容": {
+        "en": "View New Content"
+    },
+    "查看描述": {
+        "en": "View Description"
+    },
+    "查看技能指令": {
+        "en": "View Skill Instructions"
+    },
+    "查看文件目录": {
+        "en": "View File Tree"
+    },
+    "已读取": {
+        "en": "Read"
+    },
+    "文件 {{index}}": {
+        "en": "File {{index}}"
+    },
+    "源文件": {
+        "en": "Source File"
+    },
+    "目标文件": {
+        "en": "Target File"
+    },
+    "查看参数": {
+        "en": "View Parameters"
+    },
+    "助手执行出现错误": {
+        "en": "Assistant execution error"
+    },
+    "重试": {
+        "en": "Retry"
+    },
+    "助手": {
+        "en": "Assistant"
+    },
+    "文本消息": {
+        "en": "Text Message"
+    },
+    "系统消息": {
+        "en": "System Message"
+    },
+    "工具结果": {
+        "en": "Tool Result"
+    },
+    "技能结果": {
+        "en": "Skill Result"
+    },
+    "工具错误": {
+        "en": "Tool Error"
+    },
+    "代理错误": {
+        "en": "Agent Error"
+    },
+    "列定义": {
+        "en": "Column Definitions"
+    },
+    "试查表": {
+        "en": "Preview Table"
+    },
+    "展示数据": {
+        "en": "Show Data"
+    },
+    "执行脚本": {
+        "en": "Execute Script"
+    },
+    "执行文件": {
+        "en": "Execute File"
+    },
+    "列出文件": {
+        "en": "List Files"
+    },
+    "创建文件": {
+        "en": "Create File"
+    },
+    "读取文件": {
+        "en": "Read File"
+    },
+    "搜索文件": {
+        "en": "Search Files"
+    },
+    "删除文件": {
+        "en": "Delete File"
+    },
+    "创建待办": {
+        "en": "Create Step"
+    },
+    "更新待办": {
+        "en": "Update Step"
+    },
+    "清除待办": {
+        "en": "Clear Steps"
+    },
+    "技能读取": {
+        "en": "Read Skill"
+    },
+    "技能文件搜索": {
+        "en": "Search Skill Files"
+    },
+    "技能文件读取": {
+        "en": "Read Skill File"
+    },
+    "复制技能文件": {
+        "en": "Copy Skill File"
+    },
+    "文档读取": {
+        "en": "Read Document"
+    },
+    "读取工作区状态": {
+        "en": "Read Workspace State"
+    },
+    "更新工作区状态": {
+        "en": "Update Workspace State"
+    },
+    "助手正在调用工具...": {
+        "en": "Assistant is calling a tool..."
+    },
+    "助手正在思考...": {
+        "en": "Assistant is thinking..."
+    },
+    "请先在 AI 设置中创建并配置 Agent": {
+        "en": "Please create and configure an Agent in AI Settings first"
+    },
+    "AI 模式": {
+        "en": "AI Mode"
+    },
+    "自动选择模型": {
+        "en": "Auto-select model"
+    },
+    "DolphinDB 脚本执行审批": {
+        "en": "DolphinDB Script Execution Approval"
+    },
+    "需要审批": {
+        "en": "Approval required"
+    },
+    "自动执行": {
+        "en": "Auto execute"
+    },
+    "当前会话工作区": {
+        "en": "Current Session Workspace"
+    },
+    "公共": {
+        "en": "Public"
+    },
+    "公共记忆": {
+        "en": "Public Memories"
+    },
+    "置信度": {
+        "en": "Confidence"
+    },
+    "允许模型失败时自动切换": {
+        "en": "Allow automatic model fallback"
+    },
+    "开启后，当前模型调用失败且尚未输出内容时，会按模型绑定优先级尝试下一个模型。": {
+        "en": "When enabled, if the current model call fails before producing output, the next model will be tried by binding priority."
+    },
+    "模型调用失败，已自动切换到备用模型。": {
+        "en": "The model call failed and was automatically switched to a fallback model."
+    },
+    "模型：{{from}} → {{to}}": {
+        "en": "Model: {{from}} → {{to}}"
+    },
+    "状态码：{{status}}": {
+        "en": "Status code: {{status}}"
+    },
+    "原因：{{reason}}": {
+        "en": "Reason: {{reason}}"
+    },
+    "请在计算节点使用 AI 模式": {
+        "en": "Use AI Mode on a compute node"
+    },
+    "集群模式下，控制节点和数据节点暂不支持 AI 模式，请切换到计算节点后使用。": {
+        "en": "In cluster mode, AI Mode is not supported on controller or data nodes. Please switch to a compute node."
+    },
+    "集群模式下 AI 模式需要在计算节点使用。": {
+        "en": "In cluster mode, AI Mode must be used on a compute node."
+    },
+    "下载": {
+        "en": "Download"
     }
 }

@@ -14,7 +14,7 @@ import { t, language } from '@i18n'
 
 import { model } from '@model'
 
-import { MonacoEditor, monacoapi, Monaco, type CodeEditor } from './MonacoEditor.tsx'
+import { MonacoEditor, type monacoapi, type Monaco, type CodeEditor } from './MonacoEditor.tsx'
 import { register_monaco_language_providers, set_docs_provider } from './docs.ts'
 import { register_tokenizer, set_color_map } from './tokenizer.ts'
 

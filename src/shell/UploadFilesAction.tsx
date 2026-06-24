@@ -134,7 +134,7 @@ export function UploadFilesAction () {
                     className='files-item'
                     name='files'
                     label={t('选择文件')}
-                    getValueProps={files => ({ fileList: files || [] })}
+                    getValueProps={files => ({ fileList: files || [ ] })}
                     getValueFromEvent={({ fileList }) => fileList}
                     required
                     rules={[
@@ -144,7 +144,7 @@ export function UploadFilesAction () {
                                 return Promise.reject(t('不支持上传文件夹'))
                             
                             return Promise.resolve()
-                        }}
+                        } }
                     ]}
                 >
                     <Upload.Dragger
@@ -169,7 +169,7 @@ export function UploadFilesAction () {
                             size='small'
                             sticky
                             pagination={false}
-                            dataSource={(form.getFieldValue('files') || []) as UploadFile[]}
+                            dataSource={(form.getFieldValue('files') || [ ]) as UploadFile[]}
                             rowKey='uid'
                             columns={[
                                 {
