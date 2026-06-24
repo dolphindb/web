@@ -5,6 +5,9 @@ type ScriptPayloadObject = {
     table?: unknown
     query?: unknown
     page?: unknown
+    max_results?: unknown
+    maxResults?: unknown
+    id?: unknown
     url?: unknown
     max_chars?: unknown
     maxChars?: unknown
@@ -71,9 +74,16 @@ export function normalize_script_args (payload: unknown): string[] {
         if (typeof obj.query === 'string')
             return [
                 obj.query,
-                ...(obj.page !== undefined ? [to_string_arg(obj.page)] : [ ]),
+                ...(obj.max_results !== undefined
+                    ? [to_string_arg(obj.max_results)]
+                    : obj.maxResults !== undefined
+                        ? [to_string_arg(obj.maxResults)]
+                        : obj.page !== undefined
+                            ? [to_string_arg(obj.page)]
+                            : [ ]),
             ].filter(item => item.trim())
-        
+        if (typeof obj.id === 'string')
+            return obj.id.trim() ? [obj.id] : [ ]
         if (typeof obj.url === 'string')
             return [
                 obj.url,
