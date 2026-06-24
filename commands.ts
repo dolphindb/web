@@ -103,6 +103,18 @@ async function dev (preview = false) {
                 return true
             }
             
+            if (path === '/api/exit') {
+                response.status = 200
+                
+                setTimeout(async () => {
+                    await stop()
+                    
+                    process.exit()
+                }, 200)
+                
+                return true
+            }
+            
             return this.try_send(
                 ctx, 
                 path.fext ? path.slice(1) : 'index.html', 
