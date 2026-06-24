@@ -194,7 +194,7 @@ export function ShellEditor ({ collapser }) {
             }
         /> }
         
-        { monaco_inited && <div className='toolbar' ref={toolbar_ref}>
+        { monaco_inited && !is_ai_tab && <div className='toolbar' ref={toolbar_ref}>
             <div className='actions'>
                 <ExecuteAction />
                 { logined && <UploadTabAction /> }
