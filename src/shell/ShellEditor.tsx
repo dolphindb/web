@@ -189,7 +189,7 @@ export function ShellEditor ({ collapser }) {
                     }}
                 >
                     <SvgAi />
-                    <span>{t('AI 模式')}</span>
+                    <span>{t('创建 AI 会话')}</span>
                 </div>
             }
         /> }
