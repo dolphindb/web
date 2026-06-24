@@ -533,8 +533,12 @@ class ShellModel extends Model<ShellModel> {
         const { chat_model } = await import('@/agent/model.ts')
         const has_active_agent = await chat_model.agent.ensure_active_agent()
         if (!has_active_agent) {
-            model.message?.warning(chat_model.last_agent_load_error || no_active_agent_message())
-            return false
+            const is_admin = model.admin || chat_model.can_manage_agents
+            if (!is_admin) {
+                model.message?.warning(chat_model.last_agent_load_error || no_active_agent_message())
+                return false
+            }
+            // 管理员没有可用 agent 时仍然允许进入，由 AiTab 引导创建
         }
         
         // 检查是否已有该 chatId 的 AI 标签页

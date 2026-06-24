@@ -160,14 +160,12 @@ demo2.zip
     * [获取个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
     * [更新个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
     * [删除个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
-    * [列出个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
-    * [搜索个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%90%9C%E7%B4%A2%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
+    * 查询个人记忆
     * [忘记会话个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%BF%98%E8%AE%B0%E4%BC%9A%E8%AF%9D%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
-    * [创建公共记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%9B%E5%BB%BA%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86)
-    * [列出公共记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86)
-    * [搜索公共记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%90%9C%E7%B4%A2%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86)
-    * [更新公共记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86)
-    * [删除公共记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86)
+    * 触发当前用户会话记忆流水线
+    * 查看公共记忆
+    * 更新公共记忆
+    * 清空公共记忆
     * [记忆统计](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%AE%B0%E5%BF%86%E7%BB%9F%E8%AE%A1)
     * [读取记忆配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%AF%BB%E5%8F%96%E8%AE%B0%E5%BF%86%E9%85%8D%E7%BD%AE)
     * [更新记忆配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BF%86%E9%85%8D%E7%BD%AE)
@@ -2514,340 +2512,322 @@ Skill 分为普通 Skill 和 common skill。普通 Skill 需要显式绑定到 A
 
 ### 3.9 Memory 管控
 
-Memory 是 Agent 运行时的长期上下文，按 Agent 隔离，并分为两个作用域：
+Memory 是 Agent 运行时的长期上下文，按 Agent 隔离：
 
-| 作用域
+| 类型 | 归属 | 管控方式 | 运行时可见性 |
+|------|------|----------|--------------|
+| Agent 公共记忆 `publicMemory` | Agent 级全局常驻上下文 | 由具备该 Agent 管理权限的管理员更新或清空；普通用户可查看 | 该 Agent 的会话上下文常驻注入 |
+| 用户个人记忆 `user_personal` | 当前用户在指定 Agent 下的个人记忆 | 当前用户可读、创建、修改、删除自己的个人记忆；管理员可做管控、重置和任务运维 | 仅该用户在该 Agent 下的会话可召回 |
 
-```
-| 归属
+对话上下文装配时，Agent 公共记忆从 Agent 运行时信息中读取，并按 `memoryConfig.publicMemoryTokenLimit` 限制注入预算。个人记忆在 `includeMemory=true`、存在检索查询且预算允许时，基于当前 session 的 `agentId/userId` 召回；只有在 Agent 允许个人记忆且当前用户个人记忆开关启用时参与召回。
 
-
-                          | 管控方式
-
-
-                                                     | 运行时可见性
-
-
-                  |
-```
-
-| --------------------- | ----------------------------------- | ------------------------------------------------------------------ | ----------------------------------- |
-| `agent_public`  | Agent 公共记忆，`userId=*`    | 由具备该 Agent`AGENT_ADMIN`权限的管理员创建、更新、删除      | 该 Agent 的会话可召回             |
-| `user_personal` | 当前用户在指定 Agent 下的个人记忆 | 当前用户可读、修改自己的个人记忆；管理员可做管控、重置和任务运维 | 仅该用户在该 Agent 下的会话可召回 |
-
-对话上下文装配时，若 `includeMemory=true`、存在 `memoryQuery` 且预算允许，框架会基于当前 session 的 `agentId/userId` 召回 Memory。公共记忆按 `agent_public` 参与召回；个人记忆只有在 Agent 允许个人记忆且当前用户个人记忆开关启用时参与召回。
-
-Memory 有两类来源：用户或管理员通过本节接口手动创建、更新、删除 canonical memory；框架侧的后台流水线从会话中抽取候选记忆，经整理合并后更新 canonical memory 和 read index。`forgetSession`、`pipeline/trigger`、`jobs`、`reset` 用于管控这条自动记忆流水线。
+Memory 有两类来源：用户通过本节接口手动创建、更新、删除个人记忆；框架侧的后台流水线从会话中抽取候选记忆，经整理合并后更新个人记忆。`forgetSession`、`pipeline/trigger`、`jobs`、`reset` 用于管控自动记忆流水线。Agent 公共记忆由管理员通过公共记忆接口维护。
 
 #### 个人记忆设置
 
-`GET /agent-bus/v1/memory/personal/settings?agentId=xxx POST /agent-bus/v1/memory/personal/settings `
+```
+GET /agent-bus/v1/memory/personal/settings?agentId=xxx
+POST /agent-bus/v1/memory/personal/settings
+```
 
 GET 使用查询参数 `agentId`。POST 请求体：
 
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-```
-| 说明
-
-
-                     |
-```
-
-| --------------- | -------- | ----------- | ------------------------------ |
-| `agentId` | string | 是        | Agent ID                     |
-| `enabled` | bool   | POST 必填 | 当前登录用户是否启用个人记忆 |
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentId` | string | 是 | Agent ID |
+| `enabled` | bool | POST 必填 | 当前登录用户是否启用个人记忆 |
 
 **响应:**
 
-`{ "agentId": "agent_xxx", "userId": "alice", "personalMemoryEnabled": true } `
+```json
+{
+  "agentId": "agent_xxx",
+  "userId": "alice",
+  "personalMemoryEnabled": true
+}
+```
 
 ---
 
 #### 创建个人记忆
 
-`POST /agent-bus/v1/memory/personal `
+```
+POST /agent-bus/v1/memory/personal
+```
 
 创建当前登录用户的个人记忆。
 
 **请求体:**
 
-| 字段
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentId` | string | 是 | Agent ID |
+| `memoryKind` | string | 否 | 记忆主分类，默认 `default`；服务端会 trim 并转小写后校验 |
+| `title` | string | 否 | 可选显示标题，也参与检索文本 |
+| `content` | string | 是 | 记忆文本内容 |
+| `importance` | double | 否 | 重要度，取值范围 `[0, 1]`，默认 `0.7` |
+| `metadata` | object | 否 | 自定义元数据；不能包含派生字段或旧身份字段 |
+| `sourceRefs` | string | 否 | JSON 字符串或业务引用字符串，便于审计来源 |
+| `expireTime` | long | 否 | 过期时间，毫秒时间戳；为空表示永不过期 |
 
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ------------------ | -------- | ------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| `agentId`    | string | 是   | Agent ID                                                                                                                    |
-| `category`   | string | 否   | 分类标签，默认`general`                                                                                                 |
-| `content`    | string | 是   | 记忆文本内容                                                                                                                |
-| `importance` | double | 否   | 重要度，取值范围`[0, 1]`，默认`0.7`                                                                                 |
-| `metadata`   | object | 否   | 自定义元数据；可包含`memoryType`、`canonicalKey`、`title`、`shortSummary`、`keywords`作为结构化检索字段 |
-| `sourceRefs` | string | 否   | JSON 字符串或业务引用字符串，便于审计来源                                                                                   |
-| `expireTime` | long   | 否   | 过期时间，毫秒时间戳；为空表示永不过期                                                                                      |
-
-**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
+**响应:** [MemoryEntry](#memoryentry)
 
 说明：
-
-* 记忆归属固定为当前登录用户。
-* `source` 固定为 `manual`。
-* 请求体不接收 `userId`、`targetUserId`、`scope`、`scopeType`、`status`。
-* 请求校验拒绝 `embedding`、`embeddingModel`。
+- 记忆归属固定为当前登录用户。
+- `source` 固定为 `manual`。
+- `memoryKind` 可选值见 [MemoryEntry](#memoryentry)。
 
 ---
 
 #### 获取个人记忆
 
-`GET /agent-bus/v1/memory/personal/{memoryId} `
+```
+GET /agent-bus/v1/memory/personal/{memoryId}
+```
 
 仅允许读取当前登录用户所属的个人记忆。
 
-**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
+**响应:** [MemoryEntry](#memoryentry)
 
 ---
 
 #### 更新个人记忆
 
-`PUT /agent-bus/v1/memory/personal/{memoryId} `
+```
+PUT /agent-bus/v1/memory/personal/{memoryId}
+```
 
 **请求体:**
 
-| 字段
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `memoryId` | string | 路径已提供时否 | 记忆 ID；若同时出现在路径和 body 中，必须一致 |
+| `memoryKind` | string | 否 | 记忆主分类；服务端会 trim 并转小写后校验 |
+| `title` | string | 否 | 标题 |
+| `content` | string | 否 | 记忆文本内容；非空字符串 |
+| `importance` | double | 否 | 重要度，取值范围 `[0, 1]` |
+| `confidence` | double | 否 | 置信度，会裁剪到 `[0, 1]` |
+| `source` | string | 否 | 来源标识 |
+| `sourceRefs` | string | 否 | 来源引用信息 |
+| `expireTime` | long / null | 否 | 过期时间，毫秒时间戳；传 `null` 清除过期时间 |
+| `metadata` | object / null | 否 | 自定义元数据，整体替换；传 `null` 清空为 `{}` |
 
-```
-| 类型
-
-
-      | 必填
-
-
-       | 说明
-
-
-                                           |
-```
-
-| -------------------- | --------------- | ---------------- | ---------------------------------------------------- |
-| `memoryId`     | string        | 路径已提供时否 | 记忆 ID；若同时出现在路径和 body 中，必须一致      |
-| `category`     | string        | 否             | 分类标签                                           |
-| `memoryType`   | string        | 否             | 记忆类型                                           |
-| `canonicalKey` | string        | 否             | 归一化 key                                         |
-| `title`        | string        | 否             | 标题                                               |
-| `content`      | string        | 否             | 记忆文本内容；非空字符串                           |
-| `shortSummary` | string        | 否             | 短摘要                                             |
-| `keywords`     | string        | 否             | 检索关键词                                         |
-| `importance`   | double        | 否             | 重要度，取值范围`[0, 1]`                       |
-| `confidence`   | double        | 否             | 置信度，会裁剪到`[0, 1]`                       |
-| `source`       | string        | 否             | 来源标识                                           |
-| `sourceRefs`   | string        | 否             | 来源引用信息                                       |
-| `expireTime`   | long / null   | 否             | 过期时间，毫秒时间戳；传`null`清除过期时间     |
-| `metadata`     | object / null | 否             | 自定义元数据，整体替换；传`null`清空为`{}` |
-
-**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
+**响应:** [MemoryEntry](#memoryentry)
 
 说明：
-
-* 至少提供一个可更新字段。
-* 未提供 `source` 时，个人记忆更新会写入 `source=user_edited`。
-* `agentId` 不参与字段更新；请求校验拒绝 `scopeType`、`userId`、`embedding`、`embeddingModel` 等身份和向量字段。
+- 至少提供一个可更新字段。
+- 未提供 `source` 时，个人记忆更新会写入 `source=user_edited`。
 
 ---
 
 #### 删除个人记忆
 
-`DELETE /agent-bus/v1/memory/personal/{memoryId} `
+```
+DELETE /agent-bus/v1/memory/personal/{memoryId}
+```
 
 **响应:**
 
-`{ "memoryId": "mem_xxx", "deleted": true } `
+```json
+{
+  "memoryId": "mem_xxx",
+  "deleted": true
+}
+```
 
 ---
 
-#### 列出个人记忆
+#### 查询个人记忆
 
-`GET /agent-bus/v1/memory/personal/list?agentId=xxx&offset=0&limit=100 `
+```
+POST /agent-bus/v1/memory/personal/query
+```
 
-**响应:** `{ items: [MemoryEntry, ...], offset, limit, size }`
-
----
-
-#### 搜索个人记忆
-
-`POST /agent-bus/v1/memory/personal/search `
+列出和搜索当前登录用户的个人记忆。未提供 `textQuery` 时按列表语义查询；提供 `textQuery` 时按搜索语义查询。
 
 **请求体:**
 
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| --------------------- | -------- | ------ | ------------------------------------------------------------------------------------------- |
-| `agentId`       | string | 是   | Agent ID                                                                                  |
-| `category`      | string | 否   | 分类标签过滤                                                                              |
-| `memoryType`    | string | 否   | 记忆类型过滤                                                                              |
-| `textQuery`     | string | 否   | 搜索文本；`TEXT_SEARCH`排序必填                                                       |
-| `textMatchMode` | string | 否   | 文本匹配模式，`any`/`all`，默认`any`                                          |
-| `topK`          | int    | 否   | 最多返回条数（默认 10）                                                                   |
-| `minImportance` | double | 否   | 最小重要度过滤阈值，默认`0`                                                           |
-| `sortBy`        | string | 否   | 排序策略，默认`RANKED`：`RECENCY`/`IMPORTANCE`/`TEXT_SEARCH`/`RANKED` |
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentId` | string | 是 | Agent ID |
+| `memoryKind` | string | 否 | 记忆主分类过滤；服务端会 trim 并转小写后校验 |
+| `textQuery` | string | 否 | 搜索文本；未提供时返回列表；`TEXT_SEARCH` 排序必填 |
+| `textMatchMode` | string | 否 | 文本匹配模式，`any` / `all`，默认 `any` |
+| `offset` | int | 否 | 分页偏移，默认 `0`，必须为非负整数 |
+| `limit` | int | 否 | 分页大小，默认 `100`，必须为非负整数 |
+| `minImportance` | double | 否 | 最小重要度过滤阈值，默认 `0` |
+| `sortBy` | string | 否 | 排序策略：`RECENCY` / `IMPORTANCE` / `TEXT_SEARCH` / `RANKED`。未提供时，无 `textQuery` 默认 `RECENCY`，有 `textQuery` 默认 `RANKED` |
 
 **响应:**
 
-`{ "items": [ MemoryEntry, ... ], "size": 5 } `
+```json
+{
+  "items": [ MemoryEntry, ... ],
+  "offset": 0,
+  "limit": 100,
+  "size": 5
+}
+```
 
 说明：
-
-* 查询范围固定为当前登录用户的 active 个人记忆。
-* 请求校验拒绝 `userId`、`targetUserId`、`scope`、`scopeType`、`status`、`embedding`、`embeddingModel`。
-* 每条命中的 [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry") 包含 `rankScore`。
+- 查询范围固定为当前登录用户的 active 个人记忆。
 
 ---
 
 #### 忘记会话个人记忆
 
-`POST /agent-bus/v1/memory/personal/forgetSession `
+```
+POST /agent-bus/v1/memory/personal/forgetSession
+```
 
 **请求体:**
 
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| ----------------- | -------- | ------ | ----------------- |
-| `agentId`   | string | 是   | Agent ID        |
-| `sessionId` | string | 是   | 要遗忘的会话 ID |
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentId` | string | 是 | Agent ID |
+| `sessionId` | string | 是 | 要遗忘的会话 ID |
 
 **响应:** `{ agentId, sessionId, forgotten }`
 
 说明：
-
-* 该接口用于让系统忘记从指定会话中自动提取出的个人记忆来源，并重新整理当前登录用户在该 Agent 下的个人记忆。
-* 处理完成后，后续对话不再继续使用该会话作为个人记忆来源。
-* 手动创建或手动编辑的个人记忆不会被自动删除；如需删除某条具体记忆，请使用“删除个人记忆”接口。
-* 接口返回表示忘记请求已受理；相关记忆的重新整理可能由后台任务完成。
-
----
-
-#### 创建公共记忆
-
-`POST /agent-bus/v1/admin/memory/public `
-
-创建 Agent 公共记忆，需要当前用户拥有该 Agent 的 `AGENT_ADMIN` 权限。
-
-请求体字段与“创建个人记忆”一致，默认 `importance=0.8`，`source=admin_created`；不接收 `userId`、`targetUserId`、`scope`、`scopeType`、`status`。
-
-**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
+- 该接口用于让系统忘记从指定会话中自动提取出的个人记忆来源，并重新整理当前登录用户在该 Agent 下的个人记忆。
+- 处理完成后，后续对话不再继续使用该会话作为个人记忆来源。
+- 手动创建或手动编辑的个人记忆不会被自动删除；如需删除某条具体记忆，请使用“删除个人记忆”接口。
+- 接口返回表示忘记请求已受理；相关记忆的重新整理可能由后台任务完成。
 
 ---
 
-#### 列出公共记忆
+#### 触发当前用户会话记忆流水线
 
-`GET /agent-bus/v1/admin/memory/public/list?agentId=xxx&offset=0&limit=100 `
+```
+POST /agent-bus/v1/memory/personal/pipeline/trigger
+```
 
-需要当前用户拥有该 Agent 的 `AGENT_ADMIN` 权限。
+按单个会话触发当前登录的普通用户的自动记忆流水线。
 
-**响应:** `{ items: [MemoryEntry, ...], offset, limit, size }`
+**请求体:**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `sessionId` | string | 是 | 要触发记忆流水线的会话 ID |
+
+**响应:**
+
+```json
+{
+  "agentId": "agent_xxx",
+  "sessionId": "sess_xxx",
+  "targetUserId": "",
+  "scheduled": true
+}
+```
+
+说明：
+
+- 管理员如需跨用户或按用户 scope 触发，请使用 [触发记忆流水线](#触发记忆流水线) 管理员接口。
+- 接口返回表示调度请求已受理，实际抽取和整理由后台任务完成。
 
 ---
 
-#### 搜索公共记忆
+#### 查看公共记忆
 
-`POST /agent-bus/v1/admin/memory/public/search `
+```
+GET /agent-bus/v1/memory/public?agentId=xxx
+```
 
-需要当前用户拥有该 Agent 的 `AGENT_ADMIN` 权限。请求体字段与“搜索个人记忆”一致；查询范围固定为 active 公共记忆，请求校验拒绝 `userId`、`targetUserId`、`scope`、`scopeType`、`status`、`embedding`、`embeddingModel`。
+读取 Agent 公共记忆。当前用户需要具备该 Agent 的读权限。
 
-**响应:** `{ items: [MemoryEntry, ...], size }`
+**响应:** [PublicMemory](#publicmemory)
 
 ---
 
 #### 更新公共记忆
 
-`PUT /agent-bus/v1/admin/memory/public/{memoryId} `
+```
+PUT /agent-bus/v1/admin/memory/public
+```
 
-需要当前用户拥有该 Agent 的 `AGENT_ADMIN` 权限。请求体字段与“更新个人记忆”一致，`memoryId` 必须引用公共记忆。
+更新 Agent 公共记忆。当前用户需要具备该 Agent 的管理权限。
 
-**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
+**请求体:**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentId` | string | 是 | Agent ID |
+| `content` | string | 是 | 公共记忆正文。服务端按 `memoryConfig.publicMemoryTokenLimit` 校验长度 |
+
+**响应:** [PublicMemory](#publicmemory)
 
 ---
 
-#### 删除公共记忆
+#### 清空公共记忆
 
-`DELETE /agent-bus/v1/admin/memory/public/{memoryId} `
+```
+DELETE /agent-bus/v1/admin/memory/public?agentId=xxx
+```
 
-需要当前用户拥有该 Agent 的 `AGENT_ADMIN` 权限，`memoryId` 必须引用公共记忆。
+清空 Agent 公共记忆。当前用户需要具备该 Agent 的管理权限。`agentId` 可放在 query string 或请求体中。
 
-**响应:** `{ memoryId, deleted }`
+**响应:** [PublicMemory](#publicmemory)
+
+---
+
+### PublicMemory
+
+```json
+{
+  "agentId": "agent_xxx",
+  "content": "Agent 范围内常驻公共上下文",
+  "estimatedTokens": 20,
+  "tokenLimit": 1000,
+  "schemaVersion": 1,
+  "updateTime": "2026.06.23 11:26:51.933",
+  "updateTimeMs": 1782185211933,
+  "updatedBy": "admin"
+}
+```
 
 ---
 
 #### 记忆统计
 
-`GET /agent-bus/v1/admin/memory/stats `
+```
+GET /agent-bus/v1/admin/memory/stats
+```
 
 **查询参数:**
 
-| 参数
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| --------------- | -------- | ------ | ---------- |
-| `agentId` | string | 是   | Agent ID |
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentId` | string | 是 | Agent ID |
 
 **响应:**
 
-`{ "totalCount": 120, "agentPublicCount": 30, "userPersonalCount": 90, "activeCount": 110, "deletedCount": 10, "avgImportance": 0.65, "scopeDistribution": { "agent_public": 30, "user_personal": 90 }, "statusDistribution": { "active": 110, "deleted": 10 }, "categoryDistribution": { "preference": 20 }, "typeDistribution": { "knowledge": 80 }, "sourceDistribution": { "manual": 40, "auto_extract": 70 }, "jobStatusDistribution": { "pending": 1, "succeeded": 7 } } `
+```json
+{
+  "totalCount": 90,
+  "userPersonalCount": 90,
+  "activeCount": 80,
+  "deletedCount": 10,
+  "avgImportance": 0.65,
+  "scopeDistribution": { "user_personal": 90 },
+  "statusDistribution": { "active": 80, "deleted": 10 },
+  "memoryKindDistribution": { "preference": 20, "fact": 10 },
+  "sourceDistribution": { "manual": 40, "auto_extract": 70 },
+  "jobKindDistribution": { "memory_stage1": 3, "memory_phase2": 5, "memory_derive_fields": 1 },
+  "jobStatusDistribution": { "pending": 1, "succeeded": 7 }
+}
+```
+
+统计接口覆盖个人记忆表和 memory job 分布。Agent 公共记忆由 [查看公共记忆](#查看公共记忆) 返回。
 
 ---
 
 #### 读取记忆配置
 
-`GET /agent-bus/v1/admin/memory/config?agentId=xxx `
+```
+GET /agent-bus/v1/admin/memory/config?agentId=xxx
+```
 
 **响应:** `{ agentId, memoryConfig }`
 
@@ -2855,27 +2835,16 @@ GET 使用查询参数 `agentId`。POST 请求体：
 
 #### 更新记忆配置
 
-`PUT /agent-bus/v1/admin/memory/config `
+```
+PUT /agent-bus/v1/admin/memory/config
+```
 
 **请求体:**
 
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| -------------------------------- | -------- | ------ | ---------------------------------------- |
-| `agentId`                  | string | 是   | Agent ID                               |
-| `patch`/`memoryConfig` | object | 否   | 要合并到 agent memoryConfig 的配置片段 |
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentId` | string | 是 | Agent ID |
+| `patch` / `memoryConfig` | object | 否 | 要合并到 agent memoryConfig 的配置片段 |
 
 也可以将配置字段直接放在请求体顶层，服务端会排除 `agentId` 后作为配置 patch。
 
@@ -2885,93 +2854,73 @@ GET 使用查询参数 `agentId`。POST 请求体：
 
 #### 列出记忆任务
 
-`GET /agent-bus/v1/admin/memory/jobs `
+```
+GET /agent-bus/v1/admin/memory/jobs
+```
 
 **查询参数:**
 
-| 参数
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| -------------------- | -------- | ------ | -------------------------------------------------------------------------- |
-| `agentId`      | string | 是   | Agent ID                                                                 |
-| `kind`         | string | 否   | 任务类型过滤；通常无需指定，可使用列表响应中的`kind`值继续查询或重试 |
-| `status`       | string | 否   | 任务状态过滤                                                             |
-| `targetUserId` | string | 否   | 用户过滤                                                                 |
-| `offset`       | int    | 否   | 默认`0`                                                              |
-| `limit`        | int    | 否   | 默认`100`                                                            |
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentId` | string | 是 | Agent ID |
+| `kind` | string | 否 | 任务类型过滤；可选 `memory_stage1` / `memory_phase2` / `memory_derive_fields` |
+| `status` | string | 否 | 任务状态过滤 |
+| `targetUserId` | string | 否 | 用户过滤 |
+| `offset` | int | 否 | 默认 `0` |
+| `limit` | int | 否 | 默认 `100` |
 
 **响应:** `{ items: [MemoryJob, ...], offset, limit, size }`
+
+说明：
+- `memory_derive_fields` 是派生 `shortSummary/keywords/tags` 的后台任务。它由创建或编辑记忆事实源自动触发，通常很快完成；失败会短间隔重试，管理员可通过本节 jobs 接口查看和手动重试。
 
 ---
 
 #### 获取记忆任务
 
-`GET /agent-bus/v1/admin/memory/jobs/{kind}/{jobKey}?agentId=xxx `
+```
+GET /agent-bus/v1/admin/memory/jobs/{kind}/{jobKey}?agentId=xxx
+```
 
-**响应:** [MemoryJob](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryjob "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryjob")
+**响应:** [MemoryJob](#memoryjob)
 
 ---
 
 #### 重试记忆任务
 
-`POST /agent-bus/v1/admin/memory/jobs/{kind}/{jobKey}/retry `
+```
+POST /agent-bus/v1/admin/memory/jobs/{kind}/{jobKey}/retry
+```
 
 **请求体:**
 
-| 字段
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentId` | string | 是 | - |
 
-```
-| 类型
-```
+**响应:** [MemoryJob](#memoryjob)
 
-| 必填
+说明：
 
-| 说明
-
-|
-| --------------- | -------- | ------ | ------ |
-| `agentId` | string | 是   | -    |
-
-**响应:** [MemoryJob](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryjob "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryjob")
+- 对 `memory_stage1` 任务执行重试时，任务会立即排队，并跳过 `minSessionIdleMinutes` 的自动抽取等待。
 
 ---
 
 #### 触发记忆流水线
 
-`POST /agent-bus/v1/admin/memory/pipeline/trigger `
+```
+POST /agent-bus/v1/admin/memory/pipeline/trigger
+```
+
+管理员接口，支持按单个会话或指定用户 scope 手动触发记忆流水线。按 `sessionId` 触发时，Stage 1 任务会立即排队，并跳过 `minSessionIdleMinutes` 的自动抽取等待。普通用户触发自己拥有的单个会话时，应使用 [触发当前用户会话记忆流水线](#触发当前用户会话记忆流水线)。
 
 **请求体:**
 
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-```
-| 说明
-
-
-                     |
-```
-
-| --------------------------------- | -------- | ---------- | ------------------------------ |
-| `agentId`                   | string | 是       | Agent ID                     |
-| `sessionId`                 | string | 条件必填 | 安排指定会话的自动记忆提取   |
-| `targetUserId`/`userId` | string | 条件必填 | 安排指定用户个人记忆重新整理 |
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentId` | string | 是 | Agent ID |
+| `sessionId` | string | 条件必填 | 安排指定会话的自动记忆提取 |
+| `targetUserId` / `userId` | string | 条件必填 | 安排指定用户个人记忆重新整理 |
 
 `sessionId` 和 `targetUserId` 至少提供一个。
 
@@ -2981,29 +2930,18 @@ GET 使用查询参数 `agentId`。POST 请求体：
 
 #### 重置用户个人记忆
 
-`POST /agent-bus/v1/admin/memory/reset `
+```
+POST /agent-bus/v1/admin/memory/reset
+```
 
 **请求体:**
 
-| 字段
-
-```
-| 类型
-```
-
-| 必填
-
-| 说明
-
-```
-|
-```
-
-| --------------------------------- | -------- | ------ | ---------------------------------------------------------------------- |
-| `agentId`                   | string | 是   | Agent ID                                                             |
-| `targetUserId`/`userId` | string | 是   | 目标业务用户                                                         |
-| `includeMemories`           | bool   | 否   | 是否移除 active`user_personal`记忆，默认`true`               |
-| `includeStage1`             | bool   | 否   | 是否同时清除该用户从历史会话自动提取出的中间记忆结果，默认`true` |
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `agentId` | string | 是 | Agent ID |
+| `targetUserId` / `userId` | string | 是 | 目标业务用户 |
+| `includeMemories` | bool | 否 | 是否移除 active `user_personal` 记忆，默认 `true` |
+| `includeStage1` | bool | 否 | 是否同时清除该用户从历史会话自动提取出的中间记忆结果，默认 `true` |
 
 **响应:** `{ agentId, targetUserId, includeMemories, includeStage1, ignoredStage1Count, removedMemoryCount, reset }`
 
@@ -3268,39 +3206,35 @@ WebSocket 调用时，`includeDetails` 放在 `payload` 中。
 
 Agent 级记忆配置。所有字段可选，未提供时由 `MemoryPolicyService` 使用默认策略。
 
-| 字段
-
-```
-| 类型
-```
-
-| 默认值
-
-```
-| 说明
-
-
-                                                    |
-```
-
-| -------------------------------------- | -------- | ----------------------------- | ------------------------------------------------------------- |
-| `allowPersonalMemory`            | bool   | `true`                  | Agent 是否允许个人记忆。关闭后不读写`user_personal`记忆 |
-| `memoryLlmConfigId`              | string | Agent 默认`llmConfigId` | 自动记忆提取和整理使用的 LLM 配置                           |
-| `memoryTopK`                     | int    | `5`                     | context assembly 相关记忆注入上限                           |
-| `memoryRegistryTopK`             | int    | `20`                    | registry 候选主题召回上限                                   |
-| `personalMemoryBudget`           | int    | `2000`                  | 个人记忆上下文预算                                          |
-| `agentPublicMemoryBudget`        | int    | `1000`                  | 公共记忆上下文预算                                          |
-| `minSessionIdleMinutes`          | int    | `360`                   | 会话结束后等待多久才允许自动提取记忆                        |
-| `maxSessionAgeDays`              | int    | `10`                    | 自动记忆提取可处理的最大会话年龄                            |
-| `phase2CooldownMinutes`          | int    | `10`                    | 同一用户记忆自动整理的冷却时间                              |
-| `maxRawMemoriesForConsolidation` | int    | `256`                   | 单次自动整理处理的候选记忆上限                              |
-| `maxUnusedDays`                  | int    | `30`                    | 记忆低频维护使用的未使用天数阈值                            |
+| 字段 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `allowPersonalMemory` | bool | `true` | Agent 是否允许个人记忆。关闭后不读写 `user_personal` 记忆 |
+| `memoryLlmConfigId` | string | Agent 默认 `llmConfigId` | 自动记忆提取、整理和派生 `shortSummary/keywords/tags` 使用的 LLM 配置 |
+| `memoryEmbeddingConfigId` | string | 空 | 可选 embedding 配置 ID。配置后，memory 召回会使用 embedding sidecar/vectorIndex 参与 `RANKED` 排序；为空时只使用 textIndex 和结构化过滤 |
+| `memoryTopK` | int | `5` | 上下文组装时相关记忆检索返回的最大条数（最小值 1） |
+| `residentPreferenceTopK` | int | `5` | 常驻 preference 注入上限 |
+| `residentPreferenceBudget` | int | `300` | 常驻 preference 上下文预算 |
+| `relevantMemoryBudget` | int | `2000` | 相关记忆上下文预算 |
+| `publicMemoryTokenLimit` | int | `2000` | Agent 公共记忆 token 上限 |
+| `embeddingTopK` | int | `20` | 向量召回候选数 |
+| `embeddingWeight` | double | `0.35` | `RANKED` 排序中的向量分权重，上限裁剪为 `0.35` |
+| `memoryEmbeddingIndexType` | string | `flat` | embedding sidecar 的 vectorIndex 类型，当前支持 `flat` / `hnsw`；距离计算固定使用 `rowEuclidean` |
+| `phase2RelatedVectorTopK` | int | `20` | Phase 2 软匹配相关记忆的向量召回候选数 |
+| `phase2RelatedTextTopK` | int | `20` | Phase 2 软匹配相关记忆的文本召回候选数 |
+| `phase2RelatedRecentTopK` | int | `10` | Phase 2 同类最近记忆候选数 |
+| `phase2RelatedMax` | int | `30` | Phase 2 每批候选传给 LLM 的相关记忆上限 |
+| `minSessionIdleMinutes` | int | `360` | 会话结束后等待多久才允许自动后台提取记忆；显式手动触发 session 或管理员重试 Stage 1 时不使用该等待 |
+| `maxSessionAgeDays` | int | `10` | 自动记忆提取可处理的最大会话年龄 |
+| `phase2CooldownMinutes` | int | `10` | 同一用户记忆自动整理的冷却时间 |
+| `maxRawMemoriesForConsolidation` | int | `256` | 单次自动整理处理的候选记忆上限 |
+| `maxUnusedDays` | int | `30` | 记忆低频维护使用的未使用天数阈值 |
 
 注意：memory 写请求的 lane 并发策略由全局服务端配置 `agentFramework.memory.lanePolicy` 控制，不属于 agent 级 `memoryConfig`。
 
-​**预算分配顺序**​（优先级从高到低）：
+**预算分配顺序**（优先级从高到低）：
 
-`总预算 = maxContextTokens
+```
+总预算 = maxContextTokens
 
 1. System Prompt        固定分配
 2. User Message         固定分配（当前消息）
@@ -3309,23 +3243,36 @@ Agent 级记忆配置。所有字段可选，未提供时由 `MemoryPolicyServic
 5. Active Instructions  配额分配（instructionTokenBudget）
 6. Memory Context       配额分配（memoryTokenBudget）
 7. History Tail         latest summary + raw tail，超出窗口时先触发 rolling summary
-   `
+```
 
 说明：
+- 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+- `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+- `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+- `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+- 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 
-* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
-* 框架内部会按最终输出预算为 chat 预留运行时空间，用于阈值判断和硬性窗口检查
-* 该预留不是 `contextConfig` 的对外字段；请求和 LLM 配置未显式指定输出上限时，默认按 `clamp(contextWindow / 8, 8192, 32768)` 计算
+- 框架内部会按最终输出预算为 chat 预留运行时空间，用于阈值判断和硬性窗口检查
+- 该预留不是 `contextConfig` 的对外字段；请求和 LLM 配置未显式指定输出上限时，默认按 `clamp(contextWindow / 8, 8192, 32768)` 计算
 
 **示例：**
 
-`{ "maxContextTokens": 128000, "includeMemory": true, "memoryTopK": 5, "includeSkills": true, "summaryConfig": { "summaryLlmConfigId": "llm_summary_xxx", "triggerRatio": 0.8, "tailKeepTokens": 0, "onOverflow": "error" } } `
+```json
+{
+  "maxContextTokens": 128000,
+  "includeMemory": true,
+  "includeSkills": true,
+  "summaryConfig": {
+    "summaryLlmConfigId": "llm_summary_xxx",
+    "triggerRatio": 0.8,
+    "tailKeepTokens": 0,
+    "onOverflow": "error"
+  }
+}
+```
 
 ---
+
 
 ### summaryConfig
 
@@ -3705,81 +3652,60 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 
 ### MemoryEntry
 
-| 字段
-
-```
-| 类型
-
-
-         | 说明
-
-
-                                                                                         |
-```
-
-| ---------------------- | ------------------ | -------------------------------------------------------------------------------------------------- |
-| `memoryId`       | string           | 记忆唯一 ID，存储时自动生成                                                                      |
-| `agentId`        | string           | 所属 Agent ID                                                                                    |
-| `userId`         | string           | `user_personal`记忆所属用户；`agent_public`记忆为`*`                                 |
-| `scopeType`      | string           | 作用域：`agent_public`/`user_personal`                                                   |
-| `category`       | string           | 分类标签，用于过滤和统计                                                                         |
-| `memoryType`     | string           | 记忆类型，如`knowledge`/`preference`/`procedure`/`workflow`/`failure_shield` |
-| `canonicalKey`   | string           | 归一化 key，用于同义、冲突和重复合并判断                                                         |
-| `title`          | string           | 标题                                                                                             |
-| `content`        | string           | 记忆文本内容                                                                                     |
-| `shortSummary`   | string           | 短摘要                                                                                           |
-| `keywords`       | string           | 检索关键词                                                                                       |
-| `importance`     | double           | 重要度，取值范围`[0, 1]`                                                                     |
-| `confidence`     | double           | 置信度，取值范围`[0, 1]`                                                                     |
-| `status`         | string           | 状态，如`active`/`deleted`                                                               |
-| `accessCount`    | long             | recall 聚合访问次数                                                                              |
-| `lastAccessTime` | timestamp / null | 最近 recall 时间                                                                                 |
-| `usageCount`     | long             | actual usage 聚合次数                                                                            |
-| `lastUsageTime`  | timestamp / null | 最近 actual usage 时间                                                                           |
-| `expireTime`     | timestamp / null | 过期时间，空表示永不过期                                                                         |
-| `source`         | string           | 记忆来源，如`manual`/`user_edited`/`admin_created`/`auto_extract`                |
-| `sourceRefs`     | string           | 来源引用信息                                                                                     |
-| `metadata`       | object           | 自定义元数据，JSON 格式                                                                          |
-| `schemaVersion`  | int              | 行 Schema 版本号                                                                                 |
-| `createTime`     | timestamp        | 创建时间                                                                                         |
-| `updateTime`     | timestamp        | 最后更新时间                                                                                     |
-| `rankScore`      | double           | `RANKED`搜索的应用层排序分                                                                   |
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `memoryId` | string | 记忆唯一 ID，存储时自动生成 |
+| `agentId` | string | 所属 Agent ID |
+| `userId` | string | 个人记忆所属用户 |
+| `scopeType` | string | 作用域：`user_personal` |
+| `memoryKind` | string | 记忆主分类：`preference` / `fact` / `procedure` / `failure_shield` / `default` |
+| `title` | string | 标题 |
+| `content` | string | 记忆事实源文本 |
+| `shortSummary` | string | 服务端派生短摘要；创建或编辑事实源后可能短暂为空 |
+| `keywords` | string | 服务端派生检索辅助词；创建或编辑事实源后可能短暂为空 |
+| `tags` | string | 服务端派生主题标签，空格分隔；创建或编辑事实源后可能短暂为空 |
+| `importance` | double | 重要度，取值范围 `[0, 1]` |
+| `confidence` | double | 置信度，取值范围 `[0, 1]` |
+| `status` | string | 状态，如 `active` / `deleted` |
+| `accessCount` | long | recall 聚合访问次数 |
+| `lastAccessTime` | timestamp / null | 最近 recall 时间 |
+| `usageCount` | long | actual usage 聚合次数 |
+| `lastUsageTime` | timestamp / null | 最近 actual usage 时间 |
+| `expireTime` | timestamp / null | 过期时间，空表示永不过期 |
+| `source` | string | 记忆来源，如 `manual` / `user_edited` / `phase2` / `auto_extract` |
+| `sourceRefs` | string | 来源引用信息 |
+| `metadata` | object | 自定义元数据，JSON 格式 |
+| `schemaVersion` | int | 行 Schema 版本号 |
+| `createTime` | timestamp | 创建时间 |
+| `updateTime` | timestamp | 最后更新时间 |
+| `rankScore` | double | `RANKED` 搜索的应用层排序分 |
+| `textScore` | double | textIndex 命中分；列表查询或未命中文本时通常为 `0` |
+| `vectorScore` | double | embedding 召回分；未配置 embedding 或未命中向量侧时为 `0` |
 
 ---
 
 ### MemoryJob
 
-| 字段
-
-```
-| 类型
-
-
-         | 说明
-
-
-            |
-```
-
-| ---------------------------- | ------------------ | --------------------- |
-| `jobShardKey`          | string           | 任务分片 key        |
-| `kind`                 | string           | 任务类型            |
-| `jobKey`               | string           | 任务 key            |
-| `scopeShardKey`        | string           | 记忆 scope 分片 key |
-| `scopeKey`             | string           | 业务 scope key      |
-| `status`               | string           | 任务状态            |
-| `workerId`             | string           | 当前 worker ID      |
-| `workerLeaseBootId`    | string           | worker 启动 ID      |
-| `workerLeaseEpoch`     | long             | worker lease epoch  |
-| `startedTime`          | timestamp / null | 开始时间            |
-| `finishedTime`         | timestamp / null | 完成时间            |
-| `retryAt`              | timestamp / null | 下次重试时间        |
-| `retryRemaining`       | int              | 剩余重试次数        |
-| `lastError`            | string           | 最近错误            |
-| `inputWatermark`       | string           | 输入水位            |
-| `lastSuccessWatermark` | string           | 最近成功水位        |
-| `schemaVersion`        | int              | 行 Schema 版本号    |
-| `extra`                | string           | 扩展信息            |
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `jobShardKey` | string | 任务分片 key |
+| `kind` | string | 任务类型：`memory_stage1` / `memory_phase2` / `memory_derive_fields` |
+| `jobKey` | string | 任务 key |
+| `scopeShardKey` | string | 记忆 scope 分片 key |
+| `scopeKey` | string | 业务 scope key |
+| `status` | string | 任务状态 |
+| `workerId` | string | 当前 worker ID |
+| `workerLeaseBootId` | string | worker 启动 ID |
+| `workerLeaseEpoch` | long | worker lease epoch |
+| `startedTime` | timestamp / null | 开始时间 |
+| `finishedTime` | timestamp / null | 完成时间 |
+| `retryAt` | timestamp / null | 下次重试时间 |
+| `retryRemaining` | int | 剩余重试次数 |
+| `lastError` | string | 最近错误 |
+| `inputWatermark` | string | 输入水位 |
+| `lastSuccessWatermark` | string | 最近成功水位 |
+| `schemaVersion` | int | 行 Schema 版本号 |
+| `extra` | string | 扩展信息 |
 
 ---
 
@@ -4253,11 +4179,11 @@ WebSocket：
 
 HTTP：
 
-`PUT /agent-bus/v1/memory/personal/{memoryId} Body: { "importance": 0.8, "category": "note" } `
+`PUT /agent-bus/v1/memory/personal/{memoryId} Body: { "importance": 0.8, "memoryKind": "preference" } `
 
 WebSocket：
 
-`{ "type": "REQUEST", "requestId": "req_44", "action": "memory.personal.update", "payload": { "memoryId": "mem_abc", "importance": 0.8, "category": "note" } } `
+`{ "type": "REQUEST", "requestId": "req_44", "action": "memory.personal.update", "payload": { "memoryId": "mem_abc", "importance": 0.8, "memoryKind": "preference" } } `
 
 ### 支持的 Action
 
@@ -4324,21 +4250,19 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
 | `workspace.delete`              | DELETE /workspace/{sessionId}/file            |
 | `workspace.search`              | POST /workspace/{sessionId}/search            |
 | `workspace.replace`             | POST /workspace/{sessionId}/replace           |
-| `memory.personal.getSettings`   | GET /memory/personal/settings                 |
-| `memory.personal.setEnabled`    | POST /memory/personal/settings                |
-| `memory.personal.list`          | GET /memory/personal/list                     |
-| `memory.personal.search`        | POST /memory/personal/search                  |
-| `memory.personal.create`        | POST /memory/personal                         |
-| `memory.personal.get`           | GET /memory/personal/{id}                     |
-| `memory.personal.update`        | PUT /memory/personal/{id}                     |
-| `memory.personal.delete`        | DELETE /memory/personal/{id}                  |
-| `memory.personal.forgetSession` | POST /memory/personal/forgetSession           |
-| `admin.memory.public.create`    | POST /admin/memory/public                     |
-| `admin.memory.public.list`      | GET /admin/memory/public/list                 |
-| `admin.memory.public.search`    | POST /admin/memory/public/search              |
-| `admin.memory.public.update`    | PUT /admin/memory/public/{id}                 |
-| `admin.memory.public.delete`    | DELETE /admin/memory/public/{id}              |
-| `admin.memory.stats`            | GET /admin/memory/stats                       |
+| `memory.personal.getSettings`       | GET /memory/personal/settings                 |
+| `memory.personal.setEnabled`        | POST /memory/personal/settings                |
+| `memory.personal.query`             | POST /memory/personal/query                   |
+| `memory.personal.create`            | POST /memory/personal                         |
+| `memory.personal.get`               | GET /memory/personal/{id}                     |
+| `memory.personal.update`            | PUT /memory/personal/{id}                     |
+| `memory.personal.delete`            | DELETE /memory/personal/{id}                  |
+| `memory.personal.forgetSession`     | POST /memory/personal/forgetSession           |
+| `memory.personal.pipeline.trigger`  | POST /memory/personal/pipeline/trigger        |
+| `memory.public.get`                 | GET /memory/public                            |
+| `admin.memory.public.update`        | PUT /admin/memory/public                      |
+| `admin.memory.public.clear`         | DELETE /admin/memory/public                   |
+| `admin.memory.stats`                | GET /admin/memory/stats                       |
 | `admin.memory.config.get`       | GET /admin/memory/config                      |
 | `admin.memory.config.update`    | PUT /admin/memory/config                      |
 | `admin.memory.jobs.list`        | GET /admin/memory/jobs                        |

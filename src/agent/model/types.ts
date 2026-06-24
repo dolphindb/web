@@ -218,14 +218,13 @@ export interface IMemoryEntry {
     memoryId: string
     agentId: string
     userId?: string
-    scopeType?: 'agent_public' | 'user_personal'
-    category: string
-    memoryType?: string
-    canonicalKey?: string
+    scopeType?: 'user_personal'
+    memoryKind: 'preference' | 'fact' | 'procedure' | 'failure_shield' | 'default'
     title?: string
     content: string
     shortSummary?: string
     keywords?: string
+    tags?: string
     importance: number
     confidence?: number
     status?: string
@@ -236,11 +235,24 @@ export interface IMemoryEntry {
     metadata?: Record<string, unknown>
     source?: string
     sourceRefs?: string
-    expireTime?: number
+    expireTime?: string | number | null
     createTime?: string
     updateTime?: string
     schemaVersion?: number
     rankScore?: number
+    textScore?: number
+    vectorScore?: number
+}
+
+export interface IPublicMemory {
+    agentId: string
+    content: string
+    estimatedTokens: number
+    tokenLimit: number
+    schemaVersion?: number
+    updateTime?: string
+    updateTimeMs?: number
+    updatedBy?: string
 }
 
 export interface IMemoryPersonalSettings {
@@ -252,16 +264,16 @@ export interface IMemoryPersonalSettings {
 
 export interface IMemoryStats {
     totalCount: number
-    agentPublicCount: number
+    agentPublicCount?: number
     userPersonalCount: number
     activeCount?: number
     deletedCount?: number
     avgImportance: number
     scopeDistribution?: Record<string, number>
     statusDistribution?: Record<string, number>
-    categoryDistribution?: Record<string, number>
-    typeDistribution?: Record<string, number>
+    memoryKindDistribution?: Record<string, number>
     sourceDistribution?: Record<string, number>
+    jobKindDistribution?: Record<string, number>
     jobStatusDistribution?: Record<string, number>
 }
 

@@ -14,11 +14,10 @@ import { ChatRuntimeModel } from './model/runtime.ts'
 import { ChatLlmModel } from './model/llm.ts'
 import { ChatMemoryModel } from './model/memory.ts'
 import { ChatSkillModel } from './model/skill.ts'
-import type { AgentStatus, IAgentInfo, IAgentStatusEvent, IScriptExecutionApproval, ISession, IMessage, IToolLoopControl, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
-import type { IToolCall, MessageType } from './model/types.ts'
+import type { IAgentInfo, IAgentStatusEvent, IScriptExecutionApproval, ISession, IMessage, IToolLoopControl, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
 export { chat_shared_model } from './model/shared.ts'
 
-export type { AgentStatus, IAccessInfo, IAgentInfo, IAgentLlmBinding, IAgentStatusEvent, IBuiltinInitItem, IBuiltinInitResult, IBuiltinInitSummary, IBuiltinStateRecord, ILlmConfig, ILlmProvider, ILlmUsageStats, IMessage, IMemoryConfigResult, IMemoryEntry, IMemoryJob, IMemoryPersonalSettings, IMemoryResetResult, IMemoryStats, ISelectableLlmInfo, IScriptExecutionApproval, ISession, ISkillBinding, ISkillFileContent, ISkillFileInfo, ISkillInfo, IToolCall, IToolLoopControl, IUserLlmAccessInfo, MessageRole, MessageType, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
+export type { AgentStatus, IAccessInfo, IAgentInfo, IAgentLlmBinding, IAgentStatusEvent, IBuiltinInitItem, IBuiltinInitResult, IBuiltinInitSummary, IBuiltinStateRecord, ILlmConfig, ILlmProvider, ILlmUsageStats, IMessage, IMemoryConfigResult, IMemoryEntry, IMemoryJob, IMemoryPersonalSettings, IMemoryResetResult, IMemoryStats, IPublicMemory, ISelectableLlmInfo, IScriptExecutionApproval, ISession, ISkillBinding, ISkillFileContent, ISkillFileInfo, ISkillInfo, IToolCall, IToolLoopControl, IUserLlmAccessInfo, MessageRole, MessageType, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
 
 
 // 初始化工具注册表

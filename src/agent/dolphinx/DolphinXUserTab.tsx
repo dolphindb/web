@@ -8,8 +8,8 @@ import { model } from '@model'
 import { shell } from '@/shell/model.ts'
 
 import { chat_model, get_chat_model } from '@/agent/model.ts'
-import type { ILlmConfig, ILlmUsageStats, IMemoryEntry, IMemoryJob, IMemoryStats, ISession } from '@/agent/model.ts'
-import { AgentListLayout, format_browser_time, Section, show_error, use_agent_options, use_user_options } from './common.tsx'
+import type { ILlmConfig, ILlmUsageStats, IMemoryEntry, IMemoryJob, IMemoryStats, IPublicMemory, ISession } from '@/agent/model.ts'
+import { AgentListLayout, format_browser_time, show_error, use_agent_options, use_user_options } from './common.tsx'
 
 
 const { Text } = Typography
@@ -46,9 +46,6 @@ function optional_nonnegative_number (value: unknown) {
 
 function SessionSection () {
     const { agent_id, options } = use_agent_options()
-    const { can_manage_agents } = chat_model.use(['can_manage_agents'])
-    const can_trigger_memory = model.admin || can_manage_agents
-    
     const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
     const [sessions, set_sessions] = useState<ISession[]>([ ])
     const [session_page, set_session_page] = useState(1)
@@ -162,7 +159,7 @@ function SessionSection () {
     async function trigger_session_memory (session: ISession) {
         set_triggering_session_id(session.sessionId)
         try {
-            await chat_model.memory.trigger_memory_pipeline({ agentId: session.agentId || selected_agent_id, sessionId: session.sessionId })
+            await chat_model.memory.trigger_personal_session_pipeline(session.sessionId)
             message.success(t('记忆任务已触发'))
         } catch (error) {
             show_error(error, t('触发记忆任务失败'))
@@ -227,7 +224,7 @@ function SessionSection () {
                 onChange: load_sessions,
             }}
             tableLayout='fixed'
-            scroll={{ x: show_workspace_size || can_trigger_memory ? 940 : 720 }}
+            scroll={{ x: show_workspace_size ? 960 : 840 }}
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无会话')} /> }}
             columns={[
                 {
@@ -264,11 +261,11 @@ function SessionSection () {
                 }] : [ ],
                 {
                     title: t('操作'),
-                    width: can_trigger_memory ? 380 : 270,
+                    width: 380,
                     render: (_: unknown, session: ISession) => <Space size={4}>
                         <Button size='small' onClick={() => { open_title_modal(session) }}>{t('改标题')}</Button>
                         <Button size='small' onClick={() => { open_summary_modal(session) }}>{t('生成摘要')}</Button>
-                        {can_trigger_memory && <Button size='small' loading={triggering_session_id === session.sessionId} onClick={() => { trigger_session_memory(session) }}>{t('触发记忆提取')}</Button>}
+                        <Button size='small' loading={triggering_session_id === session.sessionId} onClick={() => { trigger_session_memory(session) }}>{t('触发记忆提取')}</Button>
                         <Popconfirm title={t('确定删除此会话？')} okButtonProps={{ danger: true }} onConfirm={() => delete_session(session.sessionId)}>
                             <Button danger size='small'>{t('删除')}</Button>
                         </Popconfirm>
@@ -324,20 +321,28 @@ function SessionSection () {
 }
 
 
-type MemoryScopeType = 'user_personal' | 'agent_public'
+type MemoryViewType = 'user_personal' | 'public_memory'
+
+const memory_kind_options: Array<{ value: IMemoryEntry['memoryKind'], label: string }> = [
+    { value: 'default', label: t('默认') },
+    { value: 'preference', label: t('偏好') },
+    { value: 'fact', label: t('事实') },
+    { value: 'procedure', label: t('流程') },
+    { value: 'failure_shield', label: t('失败防护') },
+]
 
 
-export function MemoryManagementTab ({ can_manage_public_memory = false, admin = false }: { can_manage_public_memory?: boolean, admin?: boolean }) {
+export function MemoryManagementTab ({ can_manage_memory = false }: { can_manage_memory?: boolean }) {
     return <Tabs
         className='ai-settings-tabs'
-        destroyInactiveTabPane
+        destroyOnHidden
         items={[
             {
                 key: 'memories',
                 label: t('记忆'),
-                children: <MemorySection can_manage_public_memory={can_manage_public_memory} admin={admin} />,
+                children: <MemorySection can_manage_memory={can_manage_memory} can_view_public_memory />,
             },
-            ...admin ? [{
+            ...can_manage_memory ? [{
                 key: 'config',
                 label: t('配置'),
                 children: <MemoryConfigManagementSection />,
@@ -352,26 +357,32 @@ export function MemoryManagementTab ({ can_manage_public_memory = false, admin =
 }
 
 
-function MemorySection ({ can_manage_public_memory = false, admin = false }: { can_manage_public_memory?: boolean, admin?: boolean }) {
+function MemorySection ({ can_manage_memory = false, can_view_public_memory = false }: { can_manage_memory?: boolean, can_view_public_memory?: boolean }) {
     const { agent_id, options } = use_agent_options()
-    const [scope_type, set_scope_type] = useState<MemoryScopeType>('user_personal')
-    const personal_memory = scope_type === 'user_personal'
+    const [view_type, set_view_type] = useState<MemoryViewType>('user_personal')
+    const personal_memory = view_type === 'user_personal'
     
     const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
     const [agent_page, set_agent_page] = useState(1)
-    const [category, set_category] = useState('')
+    const [memory_kind, set_memory_kind] = useState<IMemoryEntry['memoryKind'] | ''>('')
     const [query, set_query] = useState('')
-    const [sort_by, set_sort_by] = useState<'RECENCY' | 'IMPORTANCE' | 'TEXT_SEARCH' | 'RANKED'>('RANKED')
+    const [sort_by, set_sort_by] = useState<'RECENCY' | 'IMPORTANCE' | 'TEXT_SEARCH' | 'RANKED'>('RECENCY')
     const [items, set_items] = useState<IMemoryEntry[]>([ ])
     const [memory_total, set_memory_total] = useState(0)
     const [memory_enabled, set_memory_enabled] = useState(false)
     const [detail_memory, set_detail_memory] = useState<IMemoryEntry | null>(null)
     const [detail_loading_id, set_detail_loading_id] = useState('')
     const [editing_memory_id, set_editing_memory_id] = useState('')
-    const [form_category, set_form_category] = useState('general')
+    const [form_memory_kind, set_form_memory_kind] = useState<IMemoryEntry['memoryKind']>('default')
+    const [form_title, set_form_title] = useState('')
     const [form_content, set_form_content] = useState('')
     const [form_importance, set_form_importance] = useState(0.5)
+    const [public_memory, set_public_memory] = useState<IPublicMemory | null>(null)
+    const [public_content, set_public_content] = useState('')
+    const [public_editing, set_public_editing] = useState(false)
     const [loading, set_loading] = useState(false)
+    const [public_loading, set_public_loading] = useState(false)
+    const [public_saving, set_public_saving] = useState(false)
     const [settings_loading, set_settings_loading] = useState(false)
     const [forget_sessions, set_forget_sessions] = useState<ISession[]>([ ])
     const [forget_session_id, set_forget_session_id] = useState('')
@@ -383,6 +394,8 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
     const agent_page_size = 10
     const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
     const has_memory_query = Boolean(query.trim())
+    const saved_public_content = public_memory?.content || ''
+    const public_dirty = public_content !== saved_public_content
     
     useEffect(() => {
         if (!selected_agent_id && agent_id)
@@ -399,22 +412,32 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
     
     useEffect(() => {
         if (selected_agent_id) {
-            if (personal_memory)
+            if (personal_memory) {
                 load_memory_settings()
-            search_memory()
-            if (admin)
+                search_memory()
+            } else
+                load_public_memory()
+            if (can_manage_memory)
                 load_memory_stats()
         } else {
             set_items([ ])
             set_memory_total(0)
             set_memory_stats(null)
+            set_public_memory(null)
+            set_public_content('')
+            set_public_editing(false)
         }
-    }, [selected_agent_id, personal_memory, admin])
+    }, [selected_agent_id, personal_memory, can_manage_memory])
     
     useEffect(() => {
-        if (!can_manage_public_memory && scope_type === 'agent_public')
-            set_scope_type('user_personal')
-    }, [can_manage_public_memory, scope_type])
+        if (!can_view_public_memory && view_type === 'public_memory')
+            set_view_type('user_personal')
+    }, [can_view_public_memory, view_type])
+    
+    useEffect(() => {
+        if (!can_manage_memory && public_editing)
+            set_public_editing(false)
+    }, [can_manage_memory, public_editing])
     
     useEffect(() => {
         if (!has_memory_query && sort_by === 'TEXT_SEARCH')
@@ -464,13 +487,13 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
         try {
             const params = {
                 agentId: selected_agent_id,
-                category: category || undefined,
-                textQuery: query || undefined,
-                topK: 50,
+                memoryKind: memory_kind || undefined,
+                textQuery: query.trim() || undefined,
+                limit: 50,
                 sortBy: next_sort_by,
             }
-            const result = await chat_model.memory.search_memory(params, scope_type)
-            const next_items = result.items.map(item => ({ ...item, scopeType: item.scopeType || scope_type }))
+            const result = await chat_model.memory.search_memory(params)
+            const next_items = result.items.map(item => ({ ...item, scopeType: item.scopeType || 'user_personal' as const }))
             set_items(next_items)
             set_memory_total(result.size ?? next_items.length)
         } catch (error) {
@@ -480,28 +503,136 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
         }
     }
     
-    async function save_memory () {
-        if (!selected_agent_id || !form_category.trim() || !form_content.trim()) {
-            message.warning(t('请填写分类和内容'))
+    async function load_public_memory () {
+        if (!selected_agent_id)
             return
+        set_public_loading(true)
+        try {
+            const memory = await chat_model.memory.get_public_memory(selected_agent_id)
+            set_public_memory(memory)
+            set_public_content(memory.content || '')
+            set_public_editing(false)
+        } catch (error) {
+            show_error(error, t('加载公共记忆失败'))
+        } finally {
+            set_public_loading(false)
+        }
+    }
+    
+    async function do_save_public_memory () {
+        if (!can_manage_memory)
+            return
+        if (!selected_agent_id) {
+            message.warning(t('请先选择 Agent'))
+            return
+        }
+        set_public_saving(true)
+        try {
+            const memory = await chat_model.memory.update_public_memory(selected_agent_id, public_content)
+            set_public_memory(memory)
+            set_public_content(memory.content || '')
+            set_public_editing(false)
+            message.success(t('公共记忆已保存'))
+        } catch (error) {
+            show_error(error, t('保存公共记忆失败'))
+        } finally {
+            set_public_saving(false)
+        }
+    }
+    
+    function confirm_save_public_memory () {
+        if (!can_manage_memory || !selected_agent_id || !public_dirty)
+            return
+        model.modal.confirm({
+            title: t('确认保存公共记忆？'),
+            content: t('公共记忆会注入该 Agent 下所有用户的后续对话上下文，修改后可能影响所有用户的回答结果。确定保存？'),
+            okText: t('确认保存'),
+            cancelText: t('取消'),
+            onOk: do_save_public_memory,
+        })
+    }
+    
+    async function do_clear_public_memory () {
+        if (!can_manage_memory)
+            return
+        if (!selected_agent_id)
+            return
+        set_public_saving(true)
+        try {
+            const memory = await chat_model.memory.clear_public_memory(selected_agent_id)
+            set_public_memory(memory)
+            set_public_content(memory.content || '')
+            set_public_editing(false)
+            message.success(t('已清空'))
+        } catch (error) {
+            show_error(error, t('清空公共记忆失败'))
+        } finally {
+            set_public_saving(false)
+        }
+    }
+    
+    function confirm_clear_public_memory () {
+        if (!can_manage_memory || !selected_agent_id)
+            return
+        model.modal.confirm({
+            title: t('确认清空公共记忆？'),
+            content: t('清空公共记忆会影响该 Agent 下所有用户的后续对话上下文。该操作会移除当前公共记忆内容，确定清空？'),
+            okText: t('确认清空'),
+            cancelText: t('取消'),
+            okButtonProps: { danger: true },
+            onOk: do_clear_public_memory,
+        })
+    }
+    
+    function open_public_editing () {
+        if (!can_manage_memory)
+            return
+        set_public_content(saved_public_content)
+        set_public_editing(true)
+    }
+    
+    function cancel_public_editing () {
+        if (!public_dirty) {
+            set_public_content(saved_public_content)
+            set_public_editing(false)
+            return
+        }
+        model.modal.confirm({
+            title: t('放弃未保存修改？'),
+            content: t('当前公共记忆修改尚未保存，放弃后将恢复为上次保存的内容。'),
+            okText: t('放弃修改'),
+            cancelText: t('继续编辑'),
+            okButtonProps: { danger: true },
+            onOk: () => {
+                set_public_content(saved_public_content)
+                set_public_editing(false)
+            },
+        })
+    }
+    
+    async function save_memory () {
+        if (!selected_agent_id || !form_content.trim()) {
+            message.warning(t('请填写记忆内容'))
+            return
+        }
+        const updates = {
+            memoryKind: form_memory_kind,
+            title: form_title.trim() || undefined,
+            content: form_content.trim(),
+            importance: form_importance,
         }
         try {
             if (editing_memory_id)
-                await chat_model.memory.update_memory(editing_memory_id, {
-                    category: form_category.trim(),
-                    content: form_content.trim(),
-                    importance: form_importance,
-                }, scope_type)
+                await chat_model.memory.update_memory(editing_memory_id, updates)
             else
                 await chat_model.memory.store_memory({
                     agentId: selected_agent_id,
-                    category: form_category.trim(),
-                    content: form_content.trim(),
-                    importance: form_importance,
-                }, scope_type)
+                    ...updates,
+                })
             message.success(t('保存成功'))
             memory_modal.close()
             set_editing_memory_id('')
+            set_form_title('')
             set_form_content('')
             await search_memory()
             await load_memory_stats()
@@ -512,7 +643,8 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
     
     function open_create_memory () {
         set_editing_memory_id('')
-        set_form_category(category || 'general')
+        set_form_memory_kind(memory_kind || 'default')
+        set_form_title('')
         set_form_content('')
         set_form_importance(0.5)
         memory_modal.open()
@@ -521,7 +653,8 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
     
     function open_edit_memory (item: IMemoryEntry) {
         set_editing_memory_id(item.memoryId)
-        set_form_category(item.category || '')
+        set_form_memory_kind(item.memoryKind || 'default')
+        set_form_title(item.title || '')
         set_form_content(item.content || '')
         set_form_importance(item.importance ?? 0.5)
         memory_modal.open()
@@ -533,7 +666,7 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
             return
         set_detail_loading_id(item.memoryId)
         try {
-            set_detail_memory(await chat_model.memory.get_memory(item.memoryId, scope_type))
+            set_detail_memory(await chat_model.memory.get_memory(item.memoryId))
         } catch (error) {
             show_error(error, t('加载记忆详情失败'))
         } finally {
@@ -546,7 +679,7 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
         if (!item.memoryId)
             return
         try {
-            await chat_model.memory.delete_memory(item.memoryId, scope_type)
+            await chat_model.memory.delete_memory(item.memoryId)
             message.success(t('删除成功'))
             await search_memory()
             await load_memory_stats()
@@ -590,7 +723,7 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
     }
     
     async function load_memory_stats () {
-        if (!selected_agent_id || !admin)
+        if (!selected_agent_id || !can_manage_memory)
             return
         set_stats_loading(true)
         try {
@@ -602,18 +735,16 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
         }
     }
     
-    function memory_content () {
+    function PersonalMemoryContent () {
         return <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                 <Space wrap>
-                    {personal_memory && <>
-                        <Switch checked={memory_enabled} loading={settings_loading} disabled={!selected_agent_id} onChange={set_personal_memory_enabled} />
-                        <span>{t('启用记忆')}</span>
-                    </>}
+                    <Switch checked={memory_enabled} loading={settings_loading} disabled={!selected_agent_id} onChange={set_personal_memory_enabled} />
+                    <span>{t('启用记忆')}</span>
                 </Space>
                 <Space wrap>
                     <Text type='secondary'>{t('共 {{count}} 条', { count: memory_total })}</Text>
-                    {personal_memory && <Button loading={forget_loading} onClick={open_forget_modal}>{t('忘记')}</Button>}
+                    <Button loading={forget_loading} onClick={open_forget_modal}>{t('忘记')}</Button>
                     <Button loading={loading} onClick={() => { search_memory() }}>{t('刷新')}</Button>
                     <Button type='primary' onClick={open_create_memory}>{t('新增记忆')}</Button>
                 </Space>
@@ -634,7 +765,14 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
                             ...has_memory_query ? [{ value: 'TEXT_SEARCH', label: t('文本相关度') }] : [ ],
                         ]}
                     />
-                    <Input style={{ width: 120 }} value={category} onChange={event => { set_category(event.target.value) }} placeholder={t('分类')} />
+                    <Select
+                        allowClear
+                        style={{ width: 140 }}
+                        value={memory_kind || undefined}
+                        onChange={value => { set_memory_kind((value || '') as IMemoryEntry['memoryKind'] | '') }}
+                        placeholder={t('主分类')}
+                        options={memory_kind_options}
+                    />
                 </Space>
                 <Input.Search
                     style={{ width: 240 }}
@@ -657,14 +795,20 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
                 dataSource={items}
                 pagination={false}
                 tableLayout='fixed'
-                scroll={{ x: 880 }}
+                scroll={{ x: 980 }}
                 locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无记忆')} /> }}
                 columns={[
                     {
-                        title: t('分类'),
-                        dataIndex: 'category',
+                        title: t('主分类'),
+                        dataIndex: 'memoryKind',
                         width: 120,
-                        render: (value: string) => <Tag title={value} style={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</Tag>,
+                        render: (value: IMemoryEntry['memoryKind']) => <Tag title={value} style={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</Tag>,
+                    },
+                    {
+                        title: t('标题'),
+                        dataIndex: 'title',
+                        width: 160,
+                        render: ellipsis_text,
                     },
                     {
                         title: t('重要度'),
@@ -681,7 +825,7 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
                         title: t('更新时间'),
                         dataIndex: 'updateTime',
                         width: 160,
-                        render: (value: string) => value || '-',
+                        render: format_browser_time,
                     },
                     {
                         title: t('内容'),
@@ -704,13 +848,50 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
         </>
     }
     
+    function PublicMemoryContent () {
+        return <div style={{ maxWidth: 880 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
+                <Space wrap>
+                    <Text type='secondary'>{t('{{count}} / {{limit}} tokens', { count: public_memory?.estimatedTokens ?? 0, limit: public_memory?.tokenLimit ?? '-' })}</Text>
+                    {public_memory?.updatedBy && <Text type='secondary'>{t('更新人：{{user}}', { user: public_memory.updatedBy })}</Text>}
+                    {public_memory?.updateTime && <Text type='secondary'>{format_browser_time(public_memory.updateTime)}</Text>}
+                </Space>
+                <Space wrap>
+                    {can_manage_memory && public_editing
+                        ? <>
+                            <Button disabled={public_saving} onClick={cancel_public_editing}>{t('取消')}</Button>
+                            <Button danger loading={public_saving} onClick={confirm_clear_public_memory}>{t('清空')}</Button>
+                            <Button type='primary' loading={public_saving} disabled={!public_dirty} onClick={confirm_save_public_memory}>{t('保存')}</Button>
+                        </>
+                        : <>
+                            <Button loading={public_loading} onClick={load_public_memory}>{t('刷新')}</Button>
+                            {can_manage_memory && <>
+                                <Button disabled={public_loading} onClick={open_public_editing}>{t('编辑')}</Button>
+                                <Button danger loading={public_saving} onClick={confirm_clear_public_memory}>{t('清空')}</Button>
+                            </>}
+                        </>}
+                </Space>
+            </div>
+            <Input.TextArea
+                value={public_content}
+                onChange={event => {
+                    if (public_editing)
+                        set_public_content(event.target.value)
+                }}
+                rows={14}
+                disabled={public_loading || public_saving}
+                readOnly={!public_editing}
+                placeholder={t('公共记忆内容')}
+            />
+        </div>
+    }
+    
     function stats_content () {
-        if (!admin)
+        if (!can_manage_memory)
             return null
         const stats_items = [
             [t('总数'), memory_stats?.totalCount],
             [t('个人记忆'), memory_stats?.userPersonalCount],
-            [t('公共记忆'), memory_stats?.agentPublicCount],
             [t('活跃'), memory_stats?.activeCount],
             [t('已删除'), memory_stats?.deletedCount],
             [t('平均重要度'), memory_stats?.avgImportance?.toFixed(2)],
@@ -766,9 +947,9 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
                 {selected_agent_id ? <>
                     {stats_content()}
                     <Tabs
-                        activeKey={scope_type}
+                        activeKey={view_type}
                         onChange={key => {
-                            set_scope_type(key as MemoryScopeType)
+                            set_view_type(key as MemoryViewType)
                             set_items([ ])
                             set_memory_total(0)
                         }}
@@ -776,12 +957,12 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
                             {
                                 key: 'user_personal',
                                 label: t('个人'),
-                                children: memory_content(),
+                                children: <PersonalMemoryContent />,
                             },
-                            ...can_manage_public_memory ? [{
-                                key: 'agent_public',
+                            ...can_view_public_memory ? [{
+                                key: 'public_memory',
                                 label: t('公共'),
-                                children: memory_content(),
+                                children: <PublicMemoryContent />,
                             }] : [ ],
                         ]}
                     />
@@ -796,10 +977,14 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
             okText={editing_memory_id ? t('更新') : t('新增')}
             width={640}
         >
-            <Space direction='vertical' style={{ width: '100%' }}>
+            <Space orientation='vertical' style={{ width: '100%' }}>
                 <div>
-                    <div style={{ marginBottom: 4 }}>{t('分类')}</div>
-                    <Input value={form_category} onChange={event => { set_form_category(event.target.value) }} placeholder={t('分类')} />
+                    <div style={{ marginBottom: 4 }}>{t('主分类')}</div>
+                    <Select style={{ width: '100%' }} value={form_memory_kind} onChange={set_form_memory_kind} options={memory_kind_options} />
+                </div>
+                <div>
+                    <div style={{ marginBottom: 4 }}>{t('标题')}</div>
+                    <Input value={form_title} onChange={event => { set_form_title(event.target.value) }} placeholder={t('标题')} />
                 </div>
                 <div>
                     <div style={{ marginBottom: 4 }}>{t('记忆内容')}</div>
@@ -846,13 +1031,19 @@ function MemorySection ({ can_manage_public_memory = false, admin = false }: { c
                     tableLayout='fixed'
                     dataSource={[
                         { key: 'id', label: 'ID', value: detail_memory.memoryId },
-                        { key: 'category', label: t('分类'), value: detail_memory.category || '-' },
-                        { key: 'type', label: t('类型'), value: detail_memory.memoryType || '-' },
+                        { key: 'memoryKind', label: t('主分类'), value: detail_memory.memoryKind || '-' },
+                        { key: 'title', label: t('标题'), value: detail_memory.title || '-' },
                         { key: 'importance', label: t('重要度'), value: detail_memory.importance ?? '-' },
                         { key: 'confidence', label: t('置信度'), value: detail_memory.confidence ?? '-' },
+                        { key: 'summary', label: t('摘要'), value: detail_memory.shortSummary || '-' },
+                        { key: 'keywords', label: t('关键词'), value: detail_memory.keywords || '-' },
+                        { key: 'tags', label: t('标签'), value: detail_memory.tags || '-' },
                         { key: 'source', label: t('来源'), value: detail_memory.source || '-' },
                         { key: 'sourceRefs', label: t('来源引用'), value: detail_memory.sourceRefs || '-' },
-                        { key: 'updateTime', label: t('更新时间'), value: detail_memory.updateTime || '-' },
+                        { key: 'rankScore', label: t('综合分'), value: detail_memory.rankScore ?? '-' },
+                        { key: 'textScore', label: t('文本分'), value: detail_memory.textScore ?? '-' },
+                        { key: 'vectorScore', label: t('向量分'), value: detail_memory.vectorScore ?? '-' },
+                        { key: 'updateTime', label: t('更新时间'), value: format_browser_time(detail_memory.updateTime) },
                     ]}
                     columns={[
                         { dataIndex: 'label', width: 120 },
@@ -870,10 +1061,19 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
     const [form, set_form] = useState<{
         allowPersonalMemory: boolean
         memoryLlmConfigId: string
+        memoryEmbeddingConfigId: string
         memoryTopK?: number
-        memoryRegistryTopK?: number
-        personalMemoryBudget?: number
-        agentPublicMemoryBudget?: number
+        residentPreferenceTopK?: number
+        residentPreferenceBudget?: number
+        relevantMemoryBudget?: number
+        publicMemoryTokenLimit?: number
+        embeddingTopK?: number
+        embeddingWeight?: number
+        memoryEmbeddingIndexType: string
+        phase2RelatedVectorTopK?: number
+        phase2RelatedTextTopK?: number
+        phase2RelatedRecentTopK?: number
+        phase2RelatedMax?: number
         minSessionIdleMinutes?: number
         maxSessionAgeDays?: number
         phase2CooldownMinutes?: number
@@ -882,9 +1082,13 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
     }>({
         allowPersonalMemory: true,
         memoryLlmConfigId: '',
+        memoryEmbeddingConfigId: '',
+        memoryEmbeddingIndexType: 'flat',
     })
     const [llm_configs, set_llm_configs] = useState<ILlmConfig[]>([ ])
     const [loading, set_loading] = useState(false)
+    const chat_llm_configs = llm_configs.filter(config => config.capability !== 'embedding')
+    const embedding_llm_configs = llm_configs.filter(config => config.capability === 'embedding')
     
     async function load_config () {
         set_loading(true)
@@ -898,10 +1102,19 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
             set_form({
                 allowPersonalMemory: config.allowPersonalMemory !== false,
                 memoryLlmConfigId: String(config.memoryLlmConfigId || ''),
+                memoryEmbeddingConfigId: String(config.memoryEmbeddingConfigId || ''),
                 memoryTopK: optional_nonnegative_number(config.memoryTopK),
-                memoryRegistryTopK: optional_nonnegative_number(config.memoryRegistryTopK),
-                personalMemoryBudget: optional_nonnegative_number(config.personalMemoryBudget),
-                agentPublicMemoryBudget: optional_nonnegative_number(config.agentPublicMemoryBudget),
+                residentPreferenceTopK: optional_nonnegative_number(config.residentPreferenceTopK),
+                residentPreferenceBudget: optional_nonnegative_number(config.residentPreferenceBudget),
+                relevantMemoryBudget: optional_nonnegative_number(config.relevantMemoryBudget),
+                publicMemoryTokenLimit: optional_nonnegative_number(config.publicMemoryTokenLimit),
+                embeddingTopK: optional_nonnegative_number(config.embeddingTopK),
+                embeddingWeight: optional_nonnegative_number(config.embeddingWeight),
+                memoryEmbeddingIndexType: String(config.memoryEmbeddingIndexType || 'flat'),
+                phase2RelatedVectorTopK: optional_nonnegative_number(config.phase2RelatedVectorTopK),
+                phase2RelatedTextTopK: optional_nonnegative_number(config.phase2RelatedTextTopK),
+                phase2RelatedRecentTopK: optional_nonnegative_number(config.phase2RelatedRecentTopK),
+                phase2RelatedMax: optional_nonnegative_number(config.phase2RelatedMax),
                 minSessionIdleMinutes: optional_nonnegative_number(config.minSessionIdleMinutes),
                 maxSessionAgeDays: optional_nonnegative_number(config.maxSessionAgeDays),
                 phase2CooldownMinutes: optional_nonnegative_number(config.phase2CooldownMinutes),
@@ -919,10 +1132,19 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
         const memory_config = {
             allowPersonalMemory: form.allowPersonalMemory,
             memoryLlmConfigId: form.memoryLlmConfigId || null,
+            memoryEmbeddingConfigId: form.memoryEmbeddingConfigId || null,
             memoryTopK: form.memoryTopK ?? null,
-            memoryRegistryTopK: form.memoryRegistryTopK ?? null,
-            personalMemoryBudget: form.personalMemoryBudget ?? null,
-            agentPublicMemoryBudget: form.agentPublicMemoryBudget ?? null,
+            residentPreferenceTopK: form.residentPreferenceTopK ?? null,
+            residentPreferenceBudget: form.residentPreferenceBudget ?? null,
+            relevantMemoryBudget: form.relevantMemoryBudget ?? null,
+            publicMemoryTokenLimit: form.publicMemoryTokenLimit ?? null,
+            embeddingTopK: form.embeddingTopK ?? null,
+            embeddingWeight: form.embeddingWeight ?? null,
+            memoryEmbeddingIndexType: form.memoryEmbeddingIndexType || null,
+            phase2RelatedVectorTopK: form.phase2RelatedVectorTopK ?? null,
+            phase2RelatedTextTopK: form.phase2RelatedTextTopK ?? null,
+            phase2RelatedRecentTopK: form.phase2RelatedRecentTopK ?? null,
+            phase2RelatedMax: form.phase2RelatedMax ?? null,
             minSessionIdleMinutes: form.minSessionIdleMinutes ?? null,
             maxSessionAgeDays: form.maxSessionAgeDays ?? null,
             phase2CooldownMinutes: form.phase2CooldownMinutes ?? null,
@@ -936,10 +1158,19 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
             set_form({
                 allowPersonalMemory: config.allowPersonalMemory !== false,
                 memoryLlmConfigId: String(config.memoryLlmConfigId || ''),
+                memoryEmbeddingConfigId: String(config.memoryEmbeddingConfigId || ''),
                 memoryTopK: optional_nonnegative_number(config.memoryTopK),
-                memoryRegistryTopK: optional_nonnegative_number(config.memoryRegistryTopK),
-                personalMemoryBudget: optional_nonnegative_number(config.personalMemoryBudget),
-                agentPublicMemoryBudget: optional_nonnegative_number(config.agentPublicMemoryBudget),
+                residentPreferenceTopK: optional_nonnegative_number(config.residentPreferenceTopK),
+                residentPreferenceBudget: optional_nonnegative_number(config.residentPreferenceBudget),
+                relevantMemoryBudget: optional_nonnegative_number(config.relevantMemoryBudget),
+                publicMemoryTokenLimit: optional_nonnegative_number(config.publicMemoryTokenLimit),
+                embeddingTopK: optional_nonnegative_number(config.embeddingTopK),
+                embeddingWeight: optional_nonnegative_number(config.embeddingWeight),
+                memoryEmbeddingIndexType: String(config.memoryEmbeddingIndexType || 'flat'),
+                phase2RelatedVectorTopK: optional_nonnegative_number(config.phase2RelatedVectorTopK),
+                phase2RelatedTextTopK: optional_nonnegative_number(config.phase2RelatedTextTopK),
+                phase2RelatedRecentTopK: optional_nonnegative_number(config.phase2RelatedRecentTopK),
+                phase2RelatedMax: optional_nonnegative_number(config.phase2RelatedMax),
                 minSessionIdleMinutes: optional_nonnegative_number(config.minSessionIdleMinutes),
                 maxSessionAgeDays: optional_nonnegative_number(config.maxSessionAgeDays),
                 phase2CooldownMinutes: optional_nonnegative_number(config.phase2CooldownMinutes),
@@ -985,16 +1216,50 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
                         value={form.memoryLlmConfigId || undefined}
                         onChange={value => { set_form({ ...form, memoryLlmConfigId: value || '' }) }}
                         placeholder={t('使用 Agent 默认模型')}
-                        options={llm_configs.map(config => ({
+                        options={chat_llm_configs.map(config => ({
                             value: config.llmConfigId,
                             label: config.name || config.llmConfigId,
                         }))}
                     />
                 </div>
+                <div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('记忆向量配置')}</div>
+                    <Select
+                        allowClear
+                        showSearch
+                        style={{ width: '100%' }}
+                        value={form.memoryEmbeddingConfigId || undefined}
+                        onChange={value => { set_form({ ...form, memoryEmbeddingConfigId: value || '' }) }}
+                        placeholder={t('不使用向量召回')}
+                        options={embedding_llm_configs.map(config => ({
+                            value: config.llmConfigId,
+                            label: config.name || config.llmConfigId,
+                        }))}
+                    />
+                </div>
+                <div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('向量索引类型')}</div>
+                    <Select
+                        style={{ width: '100%' }}
+                        value={form.memoryEmbeddingIndexType}
+                        onChange={value => { set_form({ ...form, memoryEmbeddingIndexType: value }) }}
+                        options={[
+                            { value: 'flat', label: 'flat' },
+                            { value: 'hnsw', label: 'hnsw' },
+                        ]}
+                    />
+                </div>
                 {number_field('memoryTopK', t('记忆注入上限'), '5')}
-                {number_field('memoryRegistryTopK', t('候选主题召回上限'), '20')}
-                {number_field('personalMemoryBudget', t('个人记忆预算'), '2000')}
-                {number_field('agentPublicMemoryBudget', t('公共记忆预算'), '1000')}
+                {number_field('residentPreferenceTopK', t('常驻偏好上限'), '5')}
+                {number_field('residentPreferenceBudget', t('常驻偏好预算'), '300')}
+                {number_field('relevantMemoryBudget', t('相关记忆预算'), '2000')}
+                {number_field('publicMemoryTokenLimit', t('公共记忆上限'), '2000')}
+                {number_field('embeddingTopK', t('向量候选数'), '20')}
+                {number_field('embeddingWeight', t('向量权重'), '0.35')}
+                {number_field('phase2RelatedVectorTopK', t('整理向量候选数'), '20')}
+                {number_field('phase2RelatedTextTopK', t('整理文本候选数'), '20')}
+                {number_field('phase2RelatedRecentTopK', t('整理近期候选数'), '10')}
+                {number_field('phase2RelatedMax', t('整理候选上限'), '30')}
                 {number_field('minSessionIdleMinutes', t('会话空闲分钟'), '360')}
                 {number_field('maxSessionAgeDays', t('最大会话天数'), '10')}
                 {number_field('phase2CooldownMinutes', t('自动整理冷却分钟'), '10')}

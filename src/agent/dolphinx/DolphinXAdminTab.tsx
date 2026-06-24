@@ -392,13 +392,13 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
     }
     
     async function trigger_user_memory () {
-        if (!user_id) {
-            message.warning(t('请先选择用户'))
+        if (!selected_agent_id || !user_id) {
+            message.warning(t('请先选择 Agent 和用户'))
             return
         }
         set_trigger_loading(true)
         try {
-            await chat_model.memory.trigger_memory_pipeline({ targetUserId: user_id })
+            await chat_model.memory.trigger_memory_pipeline({ agentId: selected_agent_id, targetUserId: user_id })
             message.success(t('记忆任务已触发'))
         } catch (error) {
             show_error(error, t('触发记忆任务失败'))
