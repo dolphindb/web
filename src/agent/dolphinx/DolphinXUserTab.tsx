@@ -62,12 +62,14 @@ function SessionSection () {
     const [loading, set_loading] = useState(false)
     const summary_modal = use_modal()
     const title_modal = use_modal()
+    
     useEffect(() => {
         if (!selected_agent_id && agent_id)
             set_selected_agent_id(agent_id)
         else if (!selected_agent_id && options.length > 0)
             set_selected_agent_id(options[0].value)
     }, [agent_id, options.length, selected_agent_id])
+    
     async function load_sessions (page = session_page, page_size = session_page_size) {
         if (!selected_agent_id) {
             message.warning(t('请先选择 Agent'))
@@ -95,6 +97,7 @@ function SessionSection () {
             set_loading(false)
         }
     }
+    
     useEffect(() => {
         if (selected_agent_id)
             load_sessions(1, session_page_size)
@@ -332,7 +335,7 @@ const memory_kind_options: Array<{ value: IMemoryEntry['memoryKind'], label: str
 export function MemoryManagementTab ({ can_manage_memory = false }: { can_manage_memory?: boolean }) {
     return <Tabs
         className='ai-settings-tabs'
-        destroyInactiveTabPane
+        destroyOnHidden
         items={[
             {
                 key: 'memories',
@@ -430,10 +433,12 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
         if (!can_view_public_memory && view_type === 'public_memory')
             set_view_type('user_personal')
     }, [can_view_public_memory, view_type])
+    
     useEffect(() => {
         if (!can_manage_memory && public_editing)
             set_public_editing(false)
     }, [can_manage_memory, public_editing])
+    
     useEffect(() => {
         if (!has_memory_query && sort_by === 'TEXT_SEARCH')
             set_sort_by('RANKED')
@@ -513,6 +518,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
             set_public_loading(false)
         }
     }
+    
     async function do_save_public_memory () {
         if (!can_manage_memory)
             return
@@ -533,10 +539,11 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
             set_public_saving(false)
         }
     }
+    
     function confirm_save_public_memory () {
         if (!can_manage_memory || !selected_agent_id || !public_dirty)
             return
-        Modal.confirm({
+        model.modal.confirm({
             title: t('确认保存公共记忆？'),
             content: t('公共记忆会注入该 Agent 下所有用户的后续对话上下文，修改后可能影响所有用户的回答结果。确定保存？'),
             okText: t('确认保存'),
@@ -544,6 +551,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
             onOk: do_save_public_memory,
         })
     }
+    
     async function do_clear_public_memory () {
         if (!can_manage_memory)
             return
@@ -562,10 +570,11 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
             set_public_saving(false)
         }
     }
+    
     function confirm_clear_public_memory () {
         if (!can_manage_memory || !selected_agent_id)
             return
-        Modal.confirm({
+        model.modal.confirm({
             title: t('确认清空公共记忆？'),
             content: t('清空公共记忆会影响该 Agent 下所有用户的后续对话上下文。该操作会移除当前公共记忆内容，确定清空？'),
             okText: t('确认清空'),
@@ -574,19 +583,21 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
             onOk: do_clear_public_memory,
         })
     }
+    
     function open_public_editing () {
         if (!can_manage_memory)
             return
         set_public_content(saved_public_content)
         set_public_editing(true)
     }
+    
     function cancel_public_editing () {
         if (!public_dirty) {
             set_public_content(saved_public_content)
             set_public_editing(false)
             return
         }
-        Modal.confirm({
+        model.modal.confirm({
             title: t('放弃未保存修改？'),
             content: t('当前公共记忆修改尚未保存，放弃后将恢复为上次保存的内容。'),
             okText: t('放弃修改'),
@@ -598,6 +609,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
             },
         })
     }
+    
     async function save_memory () {
         if (!selected_agent_id || !form_content.trim()) {
             message.warning(t('请填写记忆内容'))
@@ -723,7 +735,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
         }
     }
     
-    function personal_memory_content () {
+    function PersonalMemoryContent () {
         return <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                 <Space wrap>
@@ -836,7 +848,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
         </>
     }
     
-    function public_memory_content () {
+    function PublicMemoryContent () {
         return <div style={{ maxWidth: 880 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
                 <Space wrap>
@@ -873,6 +885,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
             />
         </div>
     }
+    
     function stats_content () {
         if (!can_manage_memory)
             return null
@@ -944,12 +957,12 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
                             {
                                 key: 'user_personal',
                                 label: t('个人'),
-                                children: personal_memory_content(),
+                                children: <PersonalMemoryContent />,
                             },
                             ...can_view_public_memory ? [{
                                 key: 'public_memory',
                                 label: t('公共'),
-                                children: public_memory_content(),
+                                children: <PublicMemoryContent />,
                             }] : [ ],
                         ]}
                     />
@@ -964,7 +977,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
             okText={editing_memory_id ? t('更新') : t('新增')}
             width={640}
         >
-            <Space direction='vertical' style={{ width: '100%' }}>
+            <Space orientation='vertical' style={{ width: '100%' }}>
                 <div>
                     <div style={{ marginBottom: 4 }}>{t('主分类')}</div>
                     <Select style={{ width: '100%' }} value={form_memory_kind} onChange={set_form_memory_kind} options={memory_kind_options} />
