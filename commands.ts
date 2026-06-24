@@ -28,6 +28,8 @@ const fpdt_cache = `${fpd_root}node_modules/.cache/`
 
 const prefix_version = '--version='
 
+const analyze = process.argv.includes('--analyze')
+
 
 async function main () {
     await fdelete(`${fpd_root}web/`, noprint)
@@ -230,7 +232,7 @@ async function build_web (production: boolean, full: boolean, version_name?: str
             { [deps]: 'src/deps.ts' },
             {
                 production,
-                analyze: true,
+                analyze,
                 globals: {
                     react: 'React',
                     'react/jsx-runtime': 'ReactJSX',
@@ -276,7 +278,7 @@ async function build_web (production: boolean, full: boolean, version_name?: str
                 fpd_out,
                 { [out]: src },
                 {
-                    analyze: index,
+                    analyze: analyze && index,
                     assets: true,
                     styles: true,
                     defines: index ? {
