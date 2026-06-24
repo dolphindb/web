@@ -133,12 +133,15 @@ export function SkillsTab () {
         set_skill_file_content('')
         set_loading_detail(true)
         try {
+            const should_load_instruction = skill.enabled !== false && skill.hasInstruction !== false
             const [instruction, files] = await Promise.all([
-                chat_model.skill.load_skill_instruction(skill.skillId).catch(error => {
-                    console.error('Load skill instruction failed:', error)
-                    message.error(t('加载技能指令失败'))
-                    return null
-                }),
+                should_load_instruction
+                    ? chat_model.skill.load_skill_instruction(skill.skillId).catch(error => {
+                        console.error('Load skill instruction failed:', error)
+                        message.error(t('加载技能指令失败'))
+                        return null
+                    })
+                    : Promise.resolve(null),
                 chat_model.skill.load_skill_files(skill.skillId).catch(error => {
                     console.error('Load skill files failed:', error)
                     message.error(t('加载技能文件失败'))
