@@ -29,6 +29,7 @@ const fpdt_cache = `${fpd_root}node_modules/.cache/`
 const prefix_version = '--version='
 
 const analyze = process.argv.includes('--analyze')
+// const analyze = true
 
 
 async function main () {
