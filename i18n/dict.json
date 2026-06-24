@@ -8378,8 +8378,8 @@
     "请先在 AI 设置中创建并配置 Agent": {
         "en": "Please create and configure an Agent in AI Settings first"
     },
-    "AI 模式": {
-        "en": "AI Mode"
+    "创建 AI 会话": {
+        "en": "Create AI Session"
     },
     "自动选择模型": {
         "en": "Auto-select model"
