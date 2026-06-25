@@ -10,7 +10,7 @@ export const MAX_CONSECUTIVE_DDB_FAILURES_BEFORE_HINT = 2
 
 export const DDB_RESULT_TOOLS = new Set<string>(['execute', 'show', 'coldefs', 'testsql'])
 
-export const SCRIPT_APPROVAL_TOOLS = new Set<string>(['execute', 'show'])
+export const SCRIPT_APPROVAL_TOOLS = new Set<string>(['execute', 'execute_file', 'show'])
 
 export const REPEAT_GUARD_EXEMPT_TOOLS = new Set<string>(['execute_file'])
 
