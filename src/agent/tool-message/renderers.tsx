@@ -391,6 +391,59 @@ function SkillReadRenderer (props: ToolRendererProps) {
 }
 
 
+function extract_mcp_text (value: unknown): string {
+    if (typeof value === 'string')
+        return value
+    if (Array.isArray(value)) {
+        const texts = value.map(item => {
+            if (typeof item === 'string')
+                return item
+            if (is_object_record(item))
+                return to_message_text(item.text ?? item.content).trim()
+            return ''
+        }).filter(Boolean)
+        return texts.join('\n')
+    }
+    if (is_object_record(value))
+        return to_message_text(value.text ?? value.message ?? value.content).trim()
+    return ''
+}
+
+
+export function McpToolResultRenderer (props: ToolRendererProps) {
+    return <ParamResultSection props={props} build_data={({ message, structured_payload, tool_name }) => {
+        const parsed = is_object_record(structured_payload) ? structured_payload : null
+        const preview = is_object_record(parsed?.preview) ? parsed.preview : null
+        const content_value = preview?.content ?? parsed?.content ?? message.content
+        const normalized_content = typeof content_value === 'string' ? parse_json_or_text(content_value) : content_value
+        const raw_value = preview?.raw ?? preview ?? structured_payload
+        const is_error = message.messageType === 'tool_error' || parsed?.ok === false || preview?.ok === false || preview?.isError === true
+        const server_id = to_message_text(preview?.mcpServerId ?? preview?.serverId).trim()
+        const original_name = to_message_text(preview?.originalName ?? preview?.toolName ?? parsed?.tool ?? tool_name).trim()
+        const error = to_message_text(parsed?.error ?? preview?.error ?? preview?.message).trim()
+        const content_text = extract_mcp_text(normalized_content).trim()
+        
+        return {
+            result_rows: [
+                { label: 'MCP', value: <Text type={is_error ? 'danger' : 'success'}>{is_error ? t('调用失败') : t('调用成功')}</Text> },
+                server_id && { label: 'Server', value: server_id },
+                original_name && { label: 'Tool', value: original_name },
+                error && { label: t('错误'), value: to_preview_text(error, 160) },
+                content_text && { label: t('结果'), value: to_preview_text(content_text, 180) },
+            ].filter(Boolean),
+            
+            result_details: compact_sections([
+                error ? create_text_detail('mcp-error', t('查看错误'), error) : null,
+                content_text
+                    ? create_markdown_detail('mcp-content-text', t('查看内容'), content_text)
+                    : create_json_detail('mcp-content', t('查看内容'), normalized_content),
+                create_json_detail('mcp-raw', t('查看原始响应'), raw_value),
+            ])
+        }
+    }} />
+}
+
+
 export function FallbackRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload, is_outcome }) => {
         const arg_list = normalize_args(args)

@@ -11,6 +11,7 @@ import type { IBuiltinInitResult } from './model.ts'
 import { DolphinXAdminTab, DolphinXUserTab, MemoryManagementTab } from './DolphinXUserSettings.tsx'
 import { AgentTab } from './settings/AgentTab.tsx'
 import { LlmConfigTab } from './settings/LlmConfigTab.tsx'
+import { McpTab } from './settings/McpTab.tsx'
 import { SkillsTab } from './settings/SkillsTab.tsx'
 
 
@@ -79,12 +80,12 @@ export function SettingsModal () {
         footer={null}
         width='min(1440px, calc(100vw - 48px))'
         className='ai-settings-modal'
-        destroyOnClose
+        destroyOnHidden
     >
         <div className='ai-settings-modal-content'>
             <Tabs
                 className='ai-settings-tabs'
-                destroyInactiveTabPane
+                destroyOnHidden
                 items={[
                     ...can_manage_agent ? [{
                         key: 'agent',
@@ -106,6 +107,11 @@ export function SettingsModal () {
                         label: t('记忆管理'),
                         children: <MemoryManagementTab can_manage_memory={can_manage_agent} />,
                     },
+                    ...can_manage_agent ? [{
+                        key: 'mcp',
+                        label: t('MCP 管理'),
+                        children: <McpTab can_manage_mcp={can_manage_agent} />,
+                    }] : [ ],
                     {
                         key: 'user',
                         label: t('个人中心'),
