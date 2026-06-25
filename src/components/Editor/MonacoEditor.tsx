@@ -57,6 +57,9 @@ export function MonacoEditor ({
             if (before_create_editor)
                 await before_create_editor(monaco)
             
+            if (!rdiv.current)
+                return
+            
             let editor = reditor.current = monaco.editor.create(
                 rdiv.current,
                 {
@@ -163,7 +166,7 @@ export function MonacoEditor ({
 let monaco: Monaco
 let pmonaco: Promise<Monaco>
 
-async function load_monaco () {
+function load_monaco () {
     if (monaco)
         return monaco
     
