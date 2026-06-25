@@ -1297,6 +1297,10 @@ export class DdbModel extends Model<DdbModel> {
 
 export const envs = [
     {
+        label: 'ai.孙薇',
+        value: '192.168.0.69:8888'
+    },
+    {
         label: '测试单机.剑波',
         value: '192.168.0.54:8848'
     },
