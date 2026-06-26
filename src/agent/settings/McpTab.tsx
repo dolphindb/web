@@ -286,7 +286,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
         try {
             const result = await chat_model.mcp.test_mcp_server({ mcpServerId: server.mcpServerId })
             if (result.ok)
-                model.message.success(test_result_text(result), 5000)
+                model.message.success(test_result_text(result), 5)
             else
                 model.message.error(test_result_text(result))
         } finally {
