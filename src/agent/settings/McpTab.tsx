@@ -506,15 +506,20 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                             ]}
                         />
                     </Form.Item>
-                    {server_form.getFieldValue('serverType') !== 'dolphindb' && server_form.getFieldValue('credentialMode') === 'shared_token' && <Form.Item
-                        name='token'
-                        label={t('Token')}
-                        required={editing_server?.credentialMode !== 'shared_token'}
-                        rules={editing_server?.credentialMode === 'shared_token' ? [] : [{ required: true, message: t('固定 Token 认证方式需要填写 Token') }]}
-                        style={{ marginBottom: 0, gridColumn: '1 / -1' }}
-                    >
-                        <Input.Password placeholder={editing_server?.credentialMode === 'shared_token' ? t('留空表示不修改') : ''} />
-                    </Form.Item>}
+                    
+                    <Form.Item dependencies={['serverType', 'credentialMode']}>{
+                        () => 
+                            server_form.getFieldValue('serverType') !== 'dolphindb' && server_form.getFieldValue('credentialMode') === 'shared_token' && <Form.Item
+                                name='token'
+                                label={t('Token')}
+                                required={editing_server?.credentialMode !== 'shared_token'}
+                                rules={editing_server?.credentialMode === 'shared_token' ? [] : [{ required: true, message: t('固定 Token 认证方式需要填写 Token') }]}
+                                style={{ marginBottom: 0, gridColumn: '1 / -1' }}
+                            >
+                                <Input.Password placeholder={editing_server?.credentialMode === 'shared_token' ? t('留空表示不修改') : ''} />
+                            </Form.Item>
+                    }</Form.Item>
+                    
                     {test_result && <div style={{ gridColumn: '1 / -1' }}>
                         <Alert
                             showIcon
