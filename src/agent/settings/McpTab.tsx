@@ -192,7 +192,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
     }
     function test_result_text (result: IMcpServerTestResult): string {
         if (result.ok)
-            return t('连接成功，发现 {{count}} 个工具', { count: result.toolCount })
+            return t('连接成功，发现 {{count}} 个工具: {{names}}', { count: result.toolCount, names: result.toolNames.join(', ') })
         return result.message || result.error || t('连接失败')
     }
     function test_result_description (result: IMcpServerTestResult): string | undefined {
@@ -280,7 +280,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
         try {
             const result = await chat_model.mcp.test_mcp_server({ mcpServerId: server.mcpServerId })
             if (result.ok)
-                model.message.success(test_result_text(result))
+                model.message.success(test_result_text(result), 5000)
             else
                 model.message.error(test_result_text(result))
         } finally {
