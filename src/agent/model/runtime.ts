@@ -1,6 +1,6 @@
 import { t } from '@i18n'
 import { model, storage_keys } from '@model'
-import type { ChatModel } from '@/agent/model.ts'
+import { chat_model, type ChatModel } from '@/agent/model.ts'
 import { get_script_handler } from '@/agent/scripts/index.ts'
 import type { ToolContext, ScriptResult } from '@/agent/scripts/types.ts'
 import {
@@ -36,6 +36,9 @@ function get_agent_bus_error_message (payload: any, fallback: string) {
 
 export class ChatRuntimeModel {
     constructor (private chat: ChatModel) { }
+    
+    last_doc_search_enabled = true
+    
     abort_sse () {
         if (this.chat.sse_controller) {
             this.chat.sse_controller.abort()
@@ -542,12 +545,25 @@ export class ChatRuntimeModel {
             const token = localStorage.getItem(storage_keys.agent_bus_token) || ''
             
             const tool_call_adapter = this.chat.runtime.get_tool_call_adapter()
+            
+            // 这个实际上是不成立的，太坑了
+            // check(chat_model.agents === this.chat.agnets)
+            
+            const doc_search_enabled = chat_model.agents.find(a => a.agentId === this.chat.agent_id)
+                ?.config?.docSearchEnabled !== false
+            
+            const doc_search_enabled_changed = doc_search_enabled === this.last_doc_search_enabled
+            
+            this.last_doc_search_enabled = doc_search_enabled
+            
             const is_tool_result_turn = Boolean(options.tool_results?.length)
             const current_todo_prompt = is_tool_result_turn ? '' : build_current_todo_prompt(this.chat.current_workspace, this.chat.steps)
             const context_blocks = [
                 {
                     name: 'web_tool_call_rules',
-                    content: tool_call_adapter.build_system_prompt(),
+                    content: tool_call_adapter.build_system_prompt(
+                        doc_search_enabled,
+                        doc_search_enabled_changed),
                     position: 'after_system',
                 },
                 ...current_todo_prompt
@@ -568,7 +584,7 @@ export class ChatRuntimeModel {
                     contextBlocks: context_blocks,
                 },
             }
-            tool_call_adapter.apply_request_body(body, message, options)
+            tool_call_adapter.apply_request_body(body, message, options, doc_search_enabled)
             const llm_config_id = this.chat.agent.get_effective_llm_config_id()
             if (llm_config_id)
                 body.llmConfigId = llm_config_id
