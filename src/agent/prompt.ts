@@ -165,34 +165,32 @@ const NATIVE_TOOL_SYSTEM_PROMPT = [
 ].join('\n')
 
 
-function build_tools_section (): string {
+function build_tools_section (doc_search_enabled = true): string {
+    const doc_tools = ['doc_search', 'doc_read']
+    
     const script_functions = Array.from(
         new Set(get_all_scripts().map(config => String(config.function).trim()))
-    ).filter(Boolean)
+    ).filter(name => name && (doc_search_enabled || !doc_tools.includes(name)))
+    
+    const build_tool_block = (name: string) => {
+        const doc = TOOL_PROMPT_DOCS[name]
+        const summary = doc?.summary ?? '已注册工具，具体语义按函数名理解。'
+        const args_hint = doc?.args_hint ? `- 调用示例：\`${doc.args_hint}\`` : ''
+        const args_desc = doc?.args_desc ? `- 参数要求：${doc.args_desc}` : ''
+        return [
+            `### 工具：\`${name}\``,
+            `- 用途：${summary}`,
+            args_hint,
+            args_desc,
+        ].filter(Boolean).join('\n')
+    }
     
     const tool_blocks =
         script_functions.length > 0
-            ? script_functions.map(name => {
-                const doc = TOOL_PROMPT_DOCS[name]
-                const summary = doc?.summary ?? '已注册工具，具体语义按函数名理解。'
-                const args_hint = doc?.args_hint ? `- 调用示例：\`${doc.args_hint}\`` : ''
-                const args_desc = doc?.args_desc ? `- 参数要求：${doc.args_desc}` : ''
-                return [
-                    `### 工具：\`${name}\``,
-                    `- 用途：${summary}`,
-                    args_hint,
-                    args_desc,
-                ].filter(Boolean).join('\n')
-            })
+            ? script_functions.map(build_tool_block)
             : ['- 当前未注册可调用工具。']
-            
-    return [
-        '# 可用工具列表',
-        ...tool_blocks,
-        '',
-        '# 工具选择建议',
-        '- 不确定 DolphinDB API、参数、错误或示例时，先调用 doc_search。',
-        '- doc_search 返回后，必须选择最相关的 id 调用 doc_read；doc_read 只传 id，不要猜 URL 或 source。',
+    
+    const base_suggestions = [
         '- 复杂任务第一步就是 step_create 拆成 TODO，不要等执行到一半才补；执行过程中每完成一项立即 step_update。',
         '- 1-3 行临时验证可用 execute；较长代码、需要反复修改的代码、或用户要求保存代码时，优先使用工作区文件和 execute_file。',
         '- 修改已有工作区文件前，先用 vfs_read 或 vfs_search 定位上下文并获取 hash，再用 vfs_update 提交 replacements。',
@@ -200,27 +198,61 @@ function build_tools_section (): string {
         '- 中间验证用 execute/execute_file，最终展示真实结果才用 show；show 的结果视图负责展示数据，工具结果只需说明是否展示成功。',
         '- 能自然语言回答时不要用 show 或 print。',
         '- 需要技能细节时先用 skill_read；需要定位技能文件内容时用 vfs_search，再用 vfs_read 分段读取；需要基于技能文件继续改代码时，用 vfs_copy 复制到 /home/workspace。',
+    ]
+    
+    const doc_suggestions = doc_search_enabled
+        ? [
+            '- 不确定 DolphinDB API、参数、错误或示例时，先调用 doc_search。',
+            '- doc_search 返回后，必须选择最相关的 id 调用 doc_read；doc_read 只传 id，不要猜 URL 或 source。',
+        ]
+        : [
+            '- 不确定 DolphinDB API、参数、错误或示例时，直接根据已有知识回答。',
+        ]
+    
+    const examples: string[] = []
+    if (doc_search_enabled) {
+        examples.push(
+            '',
+            '## 调用示例',
+            '{',
+            '  "tool_call": "doc_search",',
+            '  "args": ["loadTable", "20"]',
+            '}',
+        )
+    }
+    examples.push(
         '',
-        '## 调用示例',
-        '{',
-        '  "tool_call": "doc_search",',
-        '  "args": ["loadTable", "20"]',
-        '}',
-        '',
-        '## 另一个示例：',
+        '## 调用示例：',
         '{',
         '  "tool_call": "execute",',
         '  "args": ["data = select * from loadTable(\\"dfs://db\\", \\"tb\\");\\ndata"]',
         '}',
+    )
+    
+    return [
+        '# 可用工具列表',
+        ...tool_blocks,
+        '',
+        '# 工具选择建议',
+        ...doc_suggestions,
+        ...base_suggestions,
+        ...examples,
     ].join('\n')
 }
 
 
-export function build_system_prompt (native_tool_calling = false): string {
+export function build_system_prompt (native_tool_calling = false, doc_search_enabled = true, doc_search_enabled_changed = false): string {
     try {
-        if (native_tool_calling)
-            return NATIVE_TOOL_SYSTEM_PROMPT
-        const tools_section = build_tools_section()
+        if (native_tool_calling) {
+            if (!doc_search_enabled_changed)
+                return NATIVE_TOOL_SYSTEM_PROMPT
+            
+            return NATIVE_TOOL_SYSTEM_PROMPT +
+                `重要: 当前 doc_search, doc_read tool_call 调用变为 ${doc_search_enabled ? '可用' : '不可用'}`  +
+                build_tools_section(doc_search_enabled)
+        }
+        
+        const tools_section = build_tools_section(doc_search_enabled)
         return [BASE_SYSTEM_PROMPT, '', tools_section].join('\n')
     } catch (error) {
         console.error('Failed to build system prompt:', error)

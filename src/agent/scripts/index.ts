@@ -19,6 +19,9 @@ export function get_all_scripts (): ScriptConfig[] {
 }
 
 
-export function get_all_tool_definitions (): ToolDefinition[] {
-    return Array.from(script_registry.values()).map(s => s.definition)
+export function get_all_tool_definitions (doc_search_enabled = true): ToolDefinition[] {
+    const doc_tools = new Set(['doc_search', 'doc_read'])
+    return Array.from(script_registry.values())
+        .filter(s => doc_search_enabled || !doc_tools.has(String(s.function)))
+        .map(s => s.definition)
 }

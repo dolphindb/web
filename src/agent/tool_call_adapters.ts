@@ -28,8 +28,8 @@ export interface ToolCallContinuation {
 
 export interface ToolCallAdapter {
     mode: ToolCallAdapterMode
-    build_system_prompt: () => string
-    apply_request_body: (body: Record<string, any>, message: string, options: ChatCompletionOptions) => void
+    build_system_prompt: (doc_search_enabled: boolean, doc_search_enabled_changed?: boolean) => string
+    apply_request_body: (body: Record<string, any>, message: string, options: ChatCompletionOptions, doc_search_enabled: boolean) => void
     parse_tool_calls: (tool_calls: CompletionToolCalls | undefined, content: string) => ParsedToolCall[]
     get_natural_text: (content: string) => string
     build_tool_call_message: (parsed_call: ParsedToolCall, msg_id: string, reasoning_content?: string, natural_text?: string) => IMessage
@@ -134,11 +134,6 @@ function get_native_natural_text (content: string): string {
 }
 
 
-function normalize_tool_definitions_for_native () {
-    return get_all_tool_definitions()
-}
-
-
 function tool_calls_from_parsed_call (parsed_call: ParsedToolCall): IToolCall[] | undefined {
     if (!parsed_call.id)
         return undefined
@@ -177,7 +172,8 @@ function build_tool_call_message (parsed_call: ParsedToolCall, msg_id: string, r
 export const legacy_json_tool_call_adapter: ToolCallAdapter = {
     mode: 'legacy_json',
     
-    build_system_prompt: () => build_system_prompt(false),
+    build_system_prompt: (doc_search_enabled) => 
+        build_system_prompt(false, doc_search_enabled),
     
     apply_request_body (body, message) {
         body.message = message
@@ -202,10 +198,11 @@ export const legacy_json_tool_call_adapter: ToolCallAdapter = {
 export const native_tool_call_adapter: ToolCallAdapter = {
     mode: 'native',
     
-    build_system_prompt: () => build_system_prompt(true),
+    build_system_prompt: (doc_search_enabled, doc_search_enabled_changed) => 
+        build_system_prompt(true, doc_search_enabled, doc_search_enabled_changed),
     
-    apply_request_body (body, message, options) {
-        body.assemblyConfig.tools = normalize_tool_definitions_for_native()
+    apply_request_body (body, message, options, doc_search_enabled) {
+        body.assemblyConfig.tools = get_all_tool_definitions(doc_search_enabled)
         if (options.tool_results?.length)
             body.toolResults = options.tool_results
         else

@@ -41,6 +41,7 @@ export function AgentTab () {
         description: '',
         systemPrompt: '',
         allowLlmFallback: false,
+        docSearchEnabled: true,
     })
     
     async function refresh () {
@@ -82,12 +83,12 @@ export function AgentTab () {
                 agentName: form.agentName.trim(),
                 description: form.description || undefined,
                 systemPrompt: form.systemPrompt || undefined,
-                config: { allowLlmFallback: form.allowLlmFallback },
+                config: { allowLlmFallback: form.allowLlmFallback, docSearchEnabled: form.docSearchEnabled },
             })
             model.message.success(t('Agent 创建成功'))
             set_selected_agent(agent)
             set_creating(false)
-            set_form({ agentName: '', description: '', systemPrompt: '', allowLlmFallback: false })
+            set_form({ agentName: '', description: '', systemPrompt: '', allowLlmFallback: false, docSearchEnabled: true })
         } catch (e: any) {
             model.message.error(e.message || t('创建失败'))
         } finally {
@@ -188,6 +189,15 @@ export function AgentTab () {
                                 {t('开启后，当前模型调用失败且尚未输出内容时，会按模型绑定优先级尝试下一个模型。')}
                             </div>
                         </div>
+                        <div style={{ gridColumn: '1 / -1' }}>
+                            <Space>
+                                <Switch checked={form.docSearchEnabled} onChange={checked => { set_form({ ...form, docSearchEnabled: checked }) }} />
+                                <span>{t('启用文档搜索')}</span>
+                            </Space>
+                            <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
+                                {t('关闭后，AI 助手将不会联网搜索 DolphinDB 官方文档。')}
+                            </div>
+                        </div>
                     </div>
                     <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
                         <Button onClick={() => {
@@ -221,6 +231,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
         description: agent.description || '',
         systemPrompt: agent.systemPrompt || '',
         allowLlmFallback: agent.config?.allowLlmFallback === true,
+        docSearchEnabled: agent.config?.docSearchEnabled !== false,
     })
     
     async function load () {
@@ -258,8 +269,9 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
             description: agent.description || '',
             systemPrompt: agent.systemPrompt || '',
             allowLlmFallback: agent.config?.allowLlmFallback === true,
+            docSearchEnabled: agent.config?.docSearchEnabled !== false,
         })
-    }, [agent.agentId, agent.description, agent.systemPrompt, agent.config?.allowLlmFallback])
+    }, [agent.agentId, agent.description, agent.systemPrompt, agent.config?.allowLlmFallback, agent.config?.docSearchEnabled])
     
     async function save_agent () {
         set_saving_agent(true)
@@ -270,6 +282,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                 config: {
                     ...(agent.config || { }),
                     allowLlmFallback: agent_form.allowLlmFallback,
+                    docSearchEnabled: agent_form.docSearchEnabled,
                 },
             })
             model.message.success(t('保存成功'))
@@ -426,6 +439,15 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                     </Space>
                     <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
                         {t('开启后，当前模型调用失败且尚未输出内容时，会按模型绑定优先级尝试下一个模型。')}
+                    </div>
+                </div>
+                <div>
+                    <Space>
+                        <Switch checked={agent_form.docSearchEnabled} onChange={checked => { set_agent_form({ ...agent_form, docSearchEnabled: checked }) }} />
+                        <span>{t('启用文档搜索')}</span>
+                    </Space>
+                    <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
+                        {t('关闭后，AI 助手将不会联网搜索 DolphinDB 官方文档。')}
                     </div>
                 </div>
             </div>
