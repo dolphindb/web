@@ -204,7 +204,13 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
         return `${prefix}: ${result.toolNames.join(', ')}`
     }
     async function test_form_server () {
-        const form_values = await server_form.validateFields()
+        let form_values: ServerFormState
+        try {
+            form_values = await server_form.validateFields()
+        } catch {
+            return
+        }
+        
         const error = validate_server_form(form_values)
         if (error) {
             model.message.error(error)
