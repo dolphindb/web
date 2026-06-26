@@ -9,5 +9,5 @@ export function required_label (label: ReactNode) {
 
 
 export function form_error_alert (error: string) {
-    return error ? <Alert type='error' showIcon message={error} style={{ marginBottom: 12 }} /> : null
+    return error ? <Alert type='error' showIcon title={error} style={{ marginBottom: 12 }} /> : null
 }

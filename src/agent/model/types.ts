@@ -402,6 +402,75 @@ export interface IBuiltinInitResult {
 }
 
 
+export type McpServerType = 'dolphindb' | 'third_party'
+
+export type McpCredentialMode = 'dolphindb_current_user' | 'shared_token' | 'none'
+
+export interface IMcpEndpoint {
+    url: string
+}
+
+export interface IMcpSharedAuthConfig {
+    type?: string
+    token?: string
+}
+
+export interface IMcpServerInfo {
+    mcpServerId: string
+    name: string
+    serverType: McpServerType
+    endpoint: IMcpEndpoint
+    credentialMode: McpCredentialMode
+    sharedAuthConfig?: IMcpSharedAuthConfig
+    enabled: boolean
+    ownerUserId?: string
+    schemaVersion?: number
+    createTime?: string
+    updateTime?: string
+}
+
+export interface IMcpBindingInfo {
+    agentId: string
+    mcpServerId: string
+    enabled: boolean
+    toolNamePrefix?: string
+    createTime?: string
+    updateTime?: string
+    server?: IMcpServerInfo
+}
+
+export interface IMcpServerListResult {
+    items: IMcpServerInfo[]
+    offset: number
+    limit: number
+    size: number
+}
+
+export interface IMcpServerUpsertPayload {
+    name?: string
+    serverType?: McpServerType
+    endpoint?: IMcpEndpoint
+    credentialMode?: McpCredentialMode
+    sharedAuthConfig?: IMcpSharedAuthConfig
+    enabled?: boolean
+}
+
+export interface IMcpServerTestPayload extends IMcpServerUpsertPayload {
+    mcpServerId?: string
+}
+
+export interface IMcpServerTestResult {
+    ok: boolean
+    mcpServerId?: string
+    message?: string
+    error?: string
+    toolCount: number
+    toolNames: string[]
+    toolNamesTruncated?: boolean
+    truncated?: boolean
+}
+
+
 export interface ChatCompletionStreamResult {
     content: string
     reasoning_content: string

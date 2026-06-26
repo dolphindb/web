@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import {
-    Button, Empty, Input, InputNumber, message, Popconfirm, Space, Spin, Switch, Tabs, Tag, Tooltip, Typography,
+    Button, Empty, Input, InputNumber, Popconfirm, Space, Spin, Switch, Tabs, Tag, Tooltip, Typography,
 } from 'antd'
 import {
     CheckCircleOutlined, DeleteOutlined, DisconnectOutlined, LinkOutlined, PlusOutlined, SaveOutlined, StopOutlined,
@@ -9,8 +9,9 @@ import {
 
 import { t } from '@i18n'
 
+import { model } from '@model'
 import { chat_model } from '@/agent/model.ts'
-import type { IAgentInfo, IAgentLlmBinding, ILlmConfig, ISkillBinding, ISkillInfo } from '@/agent/model.ts'
+import type { IAgentInfo, IAgentLlmBinding, ILlmConfig, IMcpBindingInfo, IMcpServerInfo, ISkillBinding, ISkillInfo } from '@/agent/model.ts'
 import { form_error_alert, required_label } from './common.tsx'
 
 
@@ -20,6 +21,11 @@ const { Paragraph, Text } = Typography
 function get_llm_config_display_name (llm: ILlmConfig) {
     const provider_name = llm.providerName || llm.providerId || llm.adapterType || '-'
     return `${provider_name} / ${llm.name}`
+}
+
+
+function get_mcp_server_display_name (server: IMcpServerInfo | undefined, fallback_id: string) {
+    return server?.name || fallback_id || '-'
 }
 
 
@@ -42,7 +48,7 @@ export function AgentTab () {
         try {
             await chat_model.agent.load_agents()
         } catch {
-            message.error(t('加载 Agent 列表失败'))
+            model.message.error(t('加载 Agent 列表失败'))
         } finally {
             set_loading(false)
         }
@@ -78,12 +84,12 @@ export function AgentTab () {
                 systemPrompt: form.systemPrompt || undefined,
                 config: { allowLlmFallback: form.allowLlmFallback },
             })
-            message.success(t('Agent 创建成功'))
+            model.message.success(t('Agent 创建成功'))
             set_selected_agent(agent)
             set_creating(false)
             set_form({ agentName: '', description: '', systemPrompt: '', allowLlmFallback: false })
         } catch (e: any) {
-            message.error(e.message || t('创建失败'))
+            model.message.error(e.message || t('创建失败'))
         } finally {
             set_loading(false)
         }
@@ -205,8 +211,11 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
     const [all_llms, set_all_llms] = useState<ILlmConfig[]>([ ])
     const [bound_skills, set_bound_skills] = useState<ISkillBinding[]>([ ])
     const [all_skills, set_all_skills] = useState<ISkillInfo[]>([ ])
+    const [bound_mcp_servers, set_bound_mcp_servers] = useState<IMcpBindingInfo[]>([ ])
+    const [all_mcp_servers, set_all_mcp_servers] = useState<IMcpServerInfo[]>([ ])
     const [loading, set_loading] = useState(true)
     const [saving_agent, set_saving_agent] = useState(false)
+    const [binding_mcp_server_id, set_binding_mcp_server_id] = useState('')
     const [binding_tab_key, set_binding_tab_key] = useState('llm')
     const [agent_form, set_agent_form] = useState({
         description: agent.description || '',
@@ -219,21 +228,25 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
         try {
             const providers = await chat_model.llm.load_llm_providers()
             const provider_lookup = new Map(providers.map(provider => [provider.providerId, provider]))
-            const [llms, global_llms, skills, global_skills] = await Promise.all([
+            const [llms, global_llms, skills, global_skills, mcp_bindings, mcp_servers] = await Promise.all([
                 chat_model.llm.load_agent_llm_bindings(agent.agentId, provider_lookup),
                 chat_model.llm.load_llm_configs(provider_lookup),
                 chat_model.skill.load_skill_bindings(agent.agentId),
                 chat_model.skill.load_skills(),
+                chat_model.mcp.load_agent_mcp_bindings(agent.agentId),
+                chat_model.mcp.load_mcp_servers(),
             ])
             set_bound_llms(llms)
             set_all_llms(global_llms)
             set_bound_skills(skills)
             set_all_skills(global_skills)
+            set_bound_mcp_servers(mcp_bindings)
+            set_all_mcp_servers(mcp_servers)
             // 同步刷新工具栏的可选 LLM 下拉列表
             if (is_current)
                 chat_model.llm.load_selectable_llms(agent.agentId).catch(() => { })
         } catch {
-            message.error(t('加载绑定信息失败'))
+            model.message.error(t('加载绑定信息失败'))
         } finally {
             set_loading(false)
         }
@@ -259,10 +272,10 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                     allowLlmFallback: agent_form.allowLlmFallback,
                 },
             })
-            message.success(t('保存成功'))
+            model.message.success(t('保存成功'))
             on_refresh()
         } catch (err: any) {
-            message.error(err.message || t('保存失败'))
+            model.message.error(err.message || t('保存失败'))
         } finally {
             set_saving_agent(false)
         }
@@ -278,6 +291,53 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
         ...bound_skills.map(binding => ({ binding, skill: binding.skill || all_skills.find(s => s.skillId === binding.skillId) })),
         ...unbound_skills.map(skill => ({ binding: undefined, skill })),
     ]
+    
+    // --- mcp
+    const mcp_server_lookup = new Map(all_mcp_servers.map(server => [server.mcpServerId, server]))
+    
+    const bound_mcp_server_ids = new Set(bound_mcp_servers.map(binding => binding.mcpServerId))
+    
+    const unbound_mcp_servers = all_mcp_servers.filter(server => 
+        server.enabled !== false &&
+        !bound_mcp_server_ids.has(server.mcpServerId))
+    
+    const mcp_items = [
+        ...bound_mcp_servers.map(binding => ({
+            binding,
+            server: binding.server || mcp_server_lookup.get(binding.mcpServerId)
+        })),
+        ...unbound_mcp_servers.map(server => ({ binding: undefined, server })),
+    ]
+    
+    async function bind_mcp_server (server: IMcpServerInfo) {
+        set_binding_mcp_server_id(server.mcpServerId)
+        try {
+            await chat_model.mcp.bind_mcp_server(agent.agentId, {
+                mcpServerId: server.mcpServerId,
+                enabled: true,
+            })
+            model.message.success(t('已绑定'))
+            await load()
+        } catch (error) {
+            model.message.error(error.message || t('绑定失败'))
+        } finally {
+            set_binding_mcp_server_id('')
+        }
+    }
+    
+    async function unbind_mcp_server (binding: IMcpBindingInfo) {
+        set_binding_mcp_server_id(binding.mcpServerId)
+        try {
+            await chat_model.mcp.unbind_mcp_server(agent.agentId, binding.mcpServerId)
+            model.message.success(t('已解绑'))
+            await load()
+        } catch (error) {
+            model.message.error(error.message || t('解绑失败'))
+        } finally {
+            set_binding_mcp_server_id('')
+        }
+    }
+    // --- end mcp
     
     return <div style={{ padding: '12px 0' }}>
         {/* Agent 基本信息 */}
@@ -303,10 +363,10 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                     onClick={async () => {
                         try {
                             await chat_model.agent.activate_agent(agent.agentId)
-                            message.success(t('已激活'))
+                            model.message.success(t('已激活'))
                             on_refresh()
                         } catch (err: any) {
-                            message.error(err.message || t('激活失败'))
+                            model.message.error(err.message || t('激活失败'))
                         }
                     }}
                 >{t('激活')}</Button>}
@@ -315,10 +375,10 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                     onConfirm={async () => {
                         try {
                             await chat_model.agent.suspend_agent(agent.agentId)
-                            message.success(t('已挂起'))
+                            model.message.success(t('已挂起'))
                             on_refresh()
                         } catch (err: any) {
-                            message.error(err.message || t('挂起失败'))
+                            model.message.error(err.message || t('挂起失败'))
                         }
                     }}
                 >
@@ -330,10 +390,10 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                     onConfirm={async () => {
                         try {
                             await chat_model.agent.delete_agent(agent.agentId)
-                            message.success(t('已删除'))
+                            model.message.success(t('已删除'))
                             on_refresh()
                         } catch (err: any) {
-                            message.error(err.message || t('删除失败'))
+                            model.message.error(err.message || t('删除失败'))
                         }
                     }}
                 >
@@ -409,7 +469,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                                         await chat_model.llm.bind_llm_to_agent(agent.agentId, llm.llmConfigId, llm.isDefault, value)
                                                         await load()
                                                     } catch (err: any) {
-                                                        message.error(err.message || t('设置失败'))
+                                                        model.message.error(err.message || t('设置失败'))
                                                     }
                                                 }}
                                             />
@@ -421,10 +481,10 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                                 onClick={async () => {
                                                     try {
                                                         await chat_model.llm.bind_llm_to_agent(agent.agentId, llm.llmConfigId, true)
-                                                        message.success(t('已设为默认'))
+                                                        model.message.success(t('已设为默认'))
                                                         await load()
                                                     } catch (err: any) {
-                                                        message.error(err.message || t('设置失败'))
+                                                        model.message.error(err.message || t('设置失败'))
                                                     }
                                                 }}
                                             />
@@ -436,10 +496,10 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                                 onClick={async () => {
                                                     try {
                                                         await chat_model.llm.unbind_llm_from_agent(agent.agentId, llm.llmConfigId)
-                                                        message.success(t('已解绑'))
+                                                        model.message.success(t('已解绑'))
                                                         await load()
                                                     } catch (err: any) {
-                                                        message.error(err.message || t('解绑失败'))
+                                                        model.message.error(err.message || t('解绑失败'))
                                                     }
                                                 }}
                                             />
@@ -466,13 +526,9 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                                 type='text' size='small'
                                                 icon={<LinkOutlined />}
                                                 onClick={async () => {
-                                                    try {
-                                                        await chat_model.llm.bind_llm_to_agent(agent.agentId, llm.llmConfigId, bound_llms.length === 0)
-                                                        message.success(t('已绑定'))
-                                                        await load()
-                                                    } catch (err: any) {
-                                                        message.error(err.message || t('绑定失败'))
-                                                    }
+                                                    await chat_model.llm.bind_llm_to_agent(agent.agentId, llm.llmConfigId, bound_llms.length === 0)
+                                                    model.message.success(t('已绑定'))
+                                                    await load()
                                                 }}
                                             />
                                         </Tooltip>
@@ -510,19 +566,80 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                         size='small'
                                         checked={!!binding?.enabled}
                                         onChange={async checked => {
-                                            try {
-                                                await chat_model.skill.toggle_skill_binding(skill_id, checked, agent.agentId)
-                                                message.success(checked ? t('已启用') : t('已禁用'))
-                                                await load()
-                                            } catch (err: any) {
-                                                message.error(err.message || t('操作失败'))
-                                            }
+                                            await chat_model.skill.toggle_skill_binding(skill_id, checked, agent.agentId)
+                                            model.message.success(checked ? t('已启用') : t('已禁用'))
+                                            await load()
                                         }}
                                     />
                                 </div>
                             })}
                             </div>
                             : <Empty description={t('暂无可用技能，请先在「技能管理」中上传')} image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+                    </div>,
+                },
+                {
+                    key: 'mcp',
+                    label: t('MCP 绑定') + ` (${bound_mcp_servers.length})`,
+                    children: <div>
+                        {mcp_items.length > 0
+                            ? <div style={{ marginBottom: 12 }}>
+                                {mcp_items.map(({ binding, server }) => {
+                                    const server_id = binding?.mcpServerId ?? server!.mcpServerId
+                                    const bound = Boolean(binding)
+                                    const server_available = server ? server.enabled !== false : undefined
+                                    return <div key={server_id} style={{
+                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                        padding: '6px 10px', border: bound ? '1px solid #f0f0f0' : '1px dashed #d9d9d9', borderRadius: 4, marginBottom: 4,
+                                    }}>
+                                        <div style={{ minWidth: 0, flex: 1 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                                                <span style={{ fontWeight: 500, fontSize: 13 }}>
+                                                    {get_mcp_server_display_name(server, server_id)}
+                                                </span>
+                                                <Tag color={server_available ? 'green' : 'default'} style={{ fontSize: 11 }}>
+                                                    {server_available === undefined
+                                                        ? t('Server 未知')
+                                                        : server_available
+                                                            ? t('Server 可用')
+                                                            : t('Server 禁用')}
+                                                </Tag>
+                                                {binding && <Tag color='blue' style={{ fontSize: 11 }}>{t('已绑定')}</Tag>}
+                                            </div>
+                                            <Text type='secondary' style={{ display: 'block', fontSize: 12, marginTop: 2, wordBreak: 'break-all' }}>
+                                                {server_id}
+                                            </Text>
+                                        </div>
+                                        {binding
+                                            ? <Popconfirm
+                                                title={t('确定解绑此 MCP Server？')}
+                                                okButtonProps={{ danger: true }}
+                                                onConfirm={() => { unbind_mcp_server(binding) }}
+                                            >
+                                                <Button
+                                                    size='small'
+                                                    danger
+                                                    icon={<DisconnectOutlined />}
+                                                    loading={binding_mcp_server_id === server_id}
+                                                >
+                                                    {t('解绑')}
+                                                </Button>
+                                            </Popconfirm>
+                                            : <Tooltip title={t('绑定')}>
+                                                <Button
+                                                    type='primary'
+                                                    size='small'
+                                                    icon={<LinkOutlined />}
+                                                    loading={binding_mcp_server_id === server_id}
+                                                    onClick={() => { server && bind_mcp_server(server) }}
+                                                >
+                                                    {t('绑定')}
+                                                </Button>
+                                            </Tooltip>
+                                        }
+                                    </div>
+                                })}
+                            </div>
+                            : <Empty description={t('暂无可用 MCP Server，请先在「MCP 管理」中添加配置')} image={Empty.PRESENTED_IMAGE_SIMPLE} />}
                     </div>,
                 },
             ]} />

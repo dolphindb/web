@@ -306,6 +306,7 @@ export class ChatRuntimeModel {
             this.chat.set({ agent_status: { status: 'error', message: error instanceof Error ? error.message : String(error) } })
         })
     }
+    
     send_message (content: string) {
         if (!content.trim() || !this.chat.current_session_id)
             return
@@ -895,16 +896,7 @@ export class ChatRuntimeModel {
                 }
             }
         } else
-            script_result = {
-                next_loop: true,
-                save_message: {
-                    msgId: `tool_${Date.now()}`,
-                    role: 'tool',
-                    messageType: 'tool_error',
-                    name: parsed_call.type,
-                    content: `Tool '${parsed_call.type}' is not supported.`,
-                },
-            }
+            script_result = await this.chat.runtime.try_execute_mcp_tool_call(parsed_call, context)
         
         if (this.chat.runtime.is_request_interrupted(request_seq))
             return null
@@ -960,6 +952,75 @@ export class ChatRuntimeModel {
             tool_result_content,
             next_loop: script_result.next_loop,
             stopped: stop_loop,
+        }
+    }
+    
+    
+    normalize_mcp_tool_arguments (payload: unknown): Record<string, unknown> {
+        if (payload === null || payload === undefined)
+            return { }
+        if (typeof payload === 'string') {
+            const trimmed = payload.trim()
+            if (!trimmed)
+                return { }
+            try {
+                return this.chat.runtime.normalize_mcp_tool_arguments(JSON.parse(trimmed))
+            } catch {
+                return { value: payload }
+            }
+        }
+        if (typeof payload === 'object' && !Array.isArray(payload))
+            return payload as Record<string, unknown>
+        return { value: payload }
+    }
+    
+    
+    async try_execute_mcp_tool_call (parsed_call: ParsedToolCall, context: ToolContext): Promise<ScriptResult> {
+        try {
+            const result = await context.api_fetch('/mcp/tools/call', {
+                method: 'POST',
+                body: JSON.stringify({
+                    agentId: context.agent_id,
+                    sessionId: context.session_id,
+                    toolName: parsed_call.type,
+                    arguments: this.chat.runtime.normalize_mcp_tool_arguments(parsed_call.payload),
+                }),
+            })
+            const ok = result?.ok !== false && result?.isError !== true
+            return {
+                next_loop: true,
+                save_message: {
+                    msgId: `tool_${Date.now()}`,
+                    role: 'tool',
+                    messageType: ok ? 'tool_result' : 'tool_error',
+                    name: parsed_call.type,
+                    content: tool_result_json({
+                        ok,
+                        tool: parsed_call.type,
+                        resultType: 'mcp',
+                        content: JSON.stringify(result?.content ?? result?.raw ?? result ?? { }),
+                        error: result?.error,
+                        preview: result,
+                    }),
+                },
+            }
+        } catch (e) {
+            return {
+                next_loop: true,
+                save_message: {
+                    msgId: `tool_${Date.now()}`,
+                    role: 'tool',
+                    messageType: 'tool_error',
+                    name: parsed_call.type,
+                    content: tool_result_json({
+                        ok: false,
+                        tool: parsed_call.type,
+                        resultType: 'mcp',
+                        content: '',
+                        error: e instanceof Error ? e.message : String(e),
+                    }),
+                },
+            }
         }
     }
 }

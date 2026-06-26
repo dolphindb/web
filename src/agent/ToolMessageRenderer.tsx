@@ -4,7 +4,7 @@ import {
     get_tool_natural_text as get_tool_message_natural_text,
 } from './utils/message.ts'
 import { NaturalTextBlock, is_outcome_message, resolve_args, type ToolRendererProps } from './tool-message/common.tsx'
-import { AgentErrorRenderer, FallbackRenderer, TOOL_RENDERERS } from './tool-message/renderers.tsx'
+import { AgentErrorRenderer, FallbackRenderer, McpToolResultRenderer, TOOL_RENDERERS } from './tool-message/renderers.tsx'
 
 
 export interface ToolMessageRendererProps {
@@ -49,7 +49,13 @@ export function ToolMessageRenderer ({
     
     if (message.messageType === 'agent_error')
         return <AgentErrorRenderer {...renderer_props} />
-        
+    
+    if (is_outcome && (structured_payload as Record<string, unknown>)?.resultType === 'mcp')
+        return <>
+            <NaturalTextBlock text={natural_text} />
+            <McpToolResultRenderer {...renderer_props} />
+        </>
+    
     if (!renderer)
         return <>
             <NaturalTextBlock text={natural_text} />
