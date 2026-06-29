@@ -65,24 +65,6 @@ const empty_server_form: ServerFormState = {
 }
 
 
-function is_http_url (value: string): boolean {
-    const url = new URL(value)
-    return (url.protocol === 'http:' || url.protocol === 'https:') && !url.username && !url.password
-}
-
-
-function validate_url (value: string, label: string): string {
-    if (!value)
-        return ''
-    const trimmed = value.trim()
-    if (!trimmed)
-        return t('请输入{{label}}', { label })
-    if (!is_http_url(trimmed))
-        return t('{{label}} 必须是 http/https URL，且不能包含用户名或密码', { label })
-    return ''
-}
-
-
 export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
     const [servers, set_servers] = useState<IMcpServerInfo[]>([ ])
     const [loading_servers, set_loading_servers] = useState(false)
@@ -149,9 +131,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
     function validate_server_form (form_values: ServerFormState): string {
         if (!form_values.name.trim())
             return t('请输入 MCP Server 名称')
-        const endpoint_error = validate_url(form_values.url, t('Server 地址'))
-        if (endpoint_error)
-            return endpoint_error
+        
         const credential_mode = form_values.serverType === 'dolphindb'
             ? 'dolphindb_current_user'
             : form_values.credentialMode
@@ -474,13 +454,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                         name='url'
                         label={t('Server 地址')}
                         required
-                        rules={[
-                            { required: true, message: t('请输入 Server 地址') },
-                            { validator: (_, value) => {
-                                const error = validate_url(value, t('Server 地址'))
-                                return error ? Promise.reject(error) : Promise.resolve()
-                            }}
-                        ]}
+                        rules={[{ required: true, message: t('请输入 Server 地址'), type: 'url' }]}
                         style={{ marginBottom: 0, gridColumn: '1 / -1' }}
                     >
                         <Input placeholder='https://example.com/mcp' />
