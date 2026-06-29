@@ -524,17 +524,17 @@ export class DdbModel extends Model<DdbModel> {
             const result = await response.json()
             
             if (response.status !== 200 || result.code !== 0)
-                throw new Error(`Login failed: ${JSON.stringify(result)}`)
+                throw new Error(JSON.stringify(result))
             
             // result.result 是数组，result[0] 是 token
             const tokens = result.result
             if (Array.isArray(tokens) && tokens[0]) {
                 localStorage.setItem(storage_keys.agent_bus_token, tokens[0])
-                console.log('Agent-bus login succeeded')
+                console.log('agent bus 登陆成功')
             } else
-                throw new Error('No token in login response')
+                throw new Error('agent bus: login 响应中无 token')
         } catch (e) {
-            console.warn('Agent-bus login failed:', e)
+            console.warn('agent bus 登录失败:', e)
         }
     }
     
@@ -877,7 +877,7 @@ export class DdbModel extends Model<DdbModel> {
     async goto_login () {
         const { pathname, search, hash } = location
         if (pathname !== `${this.assets_root}login/`)
-            this.pathname_before_login = `${pathname}${search}${hash}`
+            this.pathname_before_login = pathname + search + hash
         
         if (this.oauth && !this.oauth_allow_password_login)
             await this.goto_oauth()
