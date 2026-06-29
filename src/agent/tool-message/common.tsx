@@ -51,6 +51,8 @@ export const VALUE_STYLE: React.CSSProperties = {
 
 export const CODE_VIEWER_STYLE: React.CSSProperties = {
     position: 'relative',
+    width: 'min(100%, 520px)',
+    minWidth: 320,
     overflow: 'hidden',
     background: '#fff',
     border: '1px solid #f0f0f0',

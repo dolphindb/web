@@ -7316,6 +7316,9 @@
     "选择 Agent": {
         "en": "Select Agent"
     },
+    "会话开始后不能切换 Agent，如需切换请新建会话": {
+        "en": "Agent cannot be changed after a session starts. To switch Agents, create a new session."
+    },
     "暂无会话": {
         "en": "No sessions"
     },
@@ -7420,6 +7423,15 @@
     },
     "使用 Agent 默认模型": {
         "en": "Use Agent default model"
+    },
+    "记忆向量配置": {
+        "en": "Memory embedding config"
+    },
+    "不使用向量召回": {
+        "en": "Do not use vector recall"
+    },
+    "公共记忆上限": {
+        "en": "Public memory limit"
     },
     "记忆注入上限": {
         "en": "Memory injection limit"
@@ -8146,6 +8158,12 @@
     },
     "初始化完成": {
         "en": "Initialization complete"
+    },
+    "AI 内置资源初始化未完成": {
+        "en": "AI built-in resource initialization was not completed"
+    },
+    "AI 内置资源初始化失败": {
+        "en": "AI built-in resource initialization failed"
     },
     "初始化未完成，详情请查看控制台": {
         "en": "Initialization was not completed. See the console for details."

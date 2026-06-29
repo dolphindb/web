@@ -17,6 +17,29 @@ import { SkillsTab } from './settings/SkillsTab.tsx'
 
 const { Text } = Typography
 
+function stringify_error_detail (value: unknown) {
+    if (value instanceof Error)
+        return [
+            value.message,
+            value.stack,
+            value.cause instanceof Error ? value.cause.stack : value.cause ? String(value.cause) : '',
+        ].filter(Boolean).join('\n\n')
+    if (typeof value === 'string')
+        return value
+    try {
+        return JSON.stringify(value, null, 2)
+    } catch {
+        return String(value)
+    }
+}
+
+function show_builtin_init_error (title: string, detail: unknown) {
+    model.show_error({
+        title,
+        body: stringify_error_detail(detail),
+    })
+}
+
 
 export function SettingsModal () {
     const { settings_visible, can_manage_agents } = chat_model.use(['settings_visible', 'can_manage_agents'])
@@ -63,11 +86,11 @@ export function SettingsModal () {
                 await chat_model.agent.load_agents()
             } else {
                 console.warn('Built-in Agent/Skill init finished but is not ready:', result)
-                message.error(t('初始化未完成，详情请查看控制台'))
+                show_builtin_init_error(t('AI 内置资源初始化未完成'), result)
             }
         } catch (error) {
             console.error('Built-in Agent/Skill init failed:', error)
-            message.error(t('初始化失败，详情请查看控制台'))
+            show_builtin_init_error(t('AI 内置资源初始化失败'), error)
         } finally {
             set_initializing_builtin(false)
         }
