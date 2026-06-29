@@ -3,6 +3,7 @@ import './index.sass'
 import { useState } from 'react'
 
 import { Tabs } from 'antd'
+import Icon from '@ant-design/icons'
 
 import { t } from '@i18n'
 
@@ -32,7 +33,7 @@ export function Config () {
                 key: 'controller_config',
                 label: (
                     <div className='tab-header'>
-                        <SvgControllerConfig style={{ fill: 'currentcolor' }} />
+                        <Icon component={SvgControllerConfig} />
                         {t('控制节点配置')}
                     </div>
                 ),
@@ -42,7 +43,7 @@ export function Config () {
                 key: 'nodes_management',
                 label: (
                     <div className='tab-header'>
-                        <SvgNodesManagement style={{ fill: 'currentcolor' }}/>
+                        <Icon component={SvgNodesManagement} />
                         {t('集群节点管理')}
                     </div>
                 ),
@@ -52,7 +53,7 @@ export function Config () {
                 key: 'nodes_config',
                 label: (
                     <div className='tab-header'>
-                        <SvgNodesConfig style={{ fill: 'currentcolor' }}/>
+                        <Icon component={SvgNodesConfig} />
                         {t('集群节点配置')}
                     </div>
                 ),
@@ -62,7 +63,7 @@ export function Config () {
                 key: 'compute_group_config',
                 label: (
                     <div className='tab-header'>
-                        <SvgGroup style={{ fill: 'currentcolor' }}/>
+                        <Icon component={SvgGroup} />
                         {t('计算组配置')}
                     </div>
                 ),
