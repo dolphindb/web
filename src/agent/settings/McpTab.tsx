@@ -190,19 +190,13 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
             ...build_server_payload(form_values),
         }
     }
+    
     function test_result_text (result: IMcpServerTestResult): string {
         if (result.ok)
             return t('连接成功，发现 {{count}} 个工具: {{names}}', { count: result.toolCount, names: result.toolNames.join(', ') })
         return result.message || result.error || t('连接失败')
     }
-    function test_result_description (result: IMcpServerTestResult): string | undefined {
-        if (!result.ok)
-            return result.error && result.error !== result.message ? result.error : undefined
-        if (!result.toolNames.length)
-            return undefined
-        const prefix = result.toolNamesTruncated ? t('部分工具') : t('工具')
-        return `${prefix}: ${result.toolNames.join(', ')}`
-    }
+    
     async function test_form_server () {
         let form_values: ServerFormState
         try {
@@ -525,7 +519,6 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                             showIcon
                             type={test_result.ok ? 'success' : 'error'}
                             title={test_result_text(test_result)}
-                            description={test_result_description(test_result)}
                         />
                     </div>}
                 </div>
