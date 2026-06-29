@@ -737,7 +737,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
         }
     }
     
-    function PersonalMemoryContent () {
+    function render_personal_memory_content () {
         return <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                 <Space wrap>
@@ -850,7 +850,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
         </>
     }
     
-    function PublicMemoryContent () {
+    function render_public_memory_content () {
         return <div style={{ maxWidth: 880 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
                 <Space wrap>
@@ -959,12 +959,12 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
                             {
                                 key: 'user_personal',
                                 label: t('个人'),
-                                children: <PersonalMemoryContent />,
+                                children: render_personal_memory_content(),
                             },
                             ...can_view_public_memory ? [{
                                 key: 'public_memory',
                                 label: t('公共'),
-                                children: <PublicMemoryContent />,
+                                children: render_public_memory_content(),
                             }] : [ ],
                         ]}
                     />
