@@ -7,7 +7,7 @@ import { t } from '@i18n'
 import { model, NodeType } from '@model'
 import { copy } from '@utils'
 import { bind_chat_model_session, chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
-import { no_active_agent_message } from '@/agent/model/agent.ts'
+import { no_active_agent_message, no_available_llm_config_message } from '@/agent/model/agent.ts'
 import { parse_ddb_obj_from_content_object } from '@/agent/utils/ddb-object.ts'
 import { get_agent_status_text } from '@/agent/utils/message.ts'
 import { route_ddb_obj_to_dataview } from '@/agent/ai-tab/ddb-result.ts'
@@ -30,11 +30,12 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const { node_type, admin } = model.use(['node_type', 'admin'])
     const {
         messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, pending_tool_loop_control, pending_script_approval, steps,
-        tool_call_limit_enabled, can_manage_agents,
+        tool_call_limit_enabled, can_manage_agents, agent_id,
     } = chat.use([
         'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'pending_tool_loop_control', 'pending_script_approval', 'steps',
-        'tool_call_limit_enabled', 'can_manage_agents',
+        'tool_call_limit_enabled', 'can_manage_agents', 'agent_id',
     ])
+    const { selectable_llms_by_agent_id } = chat_shared_model.use(['selectable_llms_by_agent_id'])
     const is_agent_admin = admin || can_manage_agents
     
     const [input_value, set_input_value] = useState('')
@@ -241,6 +242,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
             model.message?.warning(t('DolphinDB 连接已断开，无法发送消息'))
             return
         }
+        if (!await chat.agent.ensure_available_llm_config()) {
+            model.message?.warning(no_available_llm_config_message())
+            return
+        }
         const message = input_value.trim()
         try {
             if (pending_session) {
@@ -271,6 +276,11 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const status_text = get_agent_status_text(visible_status)
     const has_virtual = visible_status.status !== 'idle' || visible_buffered.length > 0 || Boolean(visible_loop_control)
     const can_interrupt = current_session_id === session_id && !['idle', 'error'].includes(visible_status.status)
+    const selectable_llms = agent_id ? selectable_llms_by_agent_id[agent_id] || [ ] : [ ]
+    const llm_config_unavailable = Boolean(agent_id && !selectable_llms.some(llm =>
+        llm.capability !== 'embedding' && llm.enabled !== false && llm.statusName !== 'DELETED'
+    ))
+    const disable_input = creating_session || llm_config_unavailable
     
     if (!inited)
         return <div className='ai-tab-loading'>
@@ -408,6 +418,15 @@ export function AiTab ({ session_id }: { session_id: string }) {
         
         {/* Input */}
         <div className='ai-tab-input'>
+            {llm_config_unavailable && <Alert
+                className='ai-tab-config-alert'
+                type='warning'
+                showIcon
+                message={no_available_llm_config_message()}
+                action={<Button size='small' type='link' onClick={() => { chat_model.set({ settings_visible: true }) }}>
+                    {t('前往配置')}
+                </Button>}
+            />}
             <Space.Compact style={{ width: '100%' }}>
                 <Input.TextArea
                     className='ai-tab-message-input'
@@ -421,9 +440,9 @@ export function AiTab ({ session_id }: { session_id: string }) {
                             handle_send()
                     }}
                     autoSize={{ minRows: 1, maxRows: 3 }}
-                    placeholder={t('输入消息发送给助手...')}
+                    placeholder={llm_config_unavailable ? '' : t('输入消息发送给助手...')}
                     size='large'
-                    disabled={creating_session}
+                    disabled={disable_input}
                 />
                 {can_interrupt && <Button
                     danger
@@ -438,7 +457,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     size='large'
                     icon={<SendOutlined />}
                     loading={creating_session}
-                    disabled={!input_value.trim() || creating_session}
+                    disabled={!input_value.trim() || disable_input}
                     onClick={handle_send}
                 >
                     {t('发送')}

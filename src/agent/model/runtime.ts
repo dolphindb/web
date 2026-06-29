@@ -23,14 +23,16 @@ import { chat_workspace_store } from '@/agent/workspace.ts'
 import type { ChatCompletionStreamResult, IMessage, IScriptExecutionApproval, IToolCall, MessageType, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode, ToolExecutionResult } from './types.ts'
 import { MAX_CONSECUTIVE_DDB_FAILURES_BEFORE_HINT, MAX_REPEATED_TOOL_CALLS, MAX_TOOL_TURNS, REPEAT_GUARD_EXEMPT_TOOLS, DDB_RESULT_TOOLS, SCRIPT_APPROVAL_TOOLS, TOOL_CALL_LIMIT_ENABLED_KEY } from './constants.ts'
 import { get_reasoning_text, parse_sse_event, stable_json_stringify, to_stream_text } from './helpers.ts'
+import { is_no_available_llm_config_error, no_available_llm_config_message } from './agent.ts'
 
 
 function get_agent_bus_error_message (payload: any, fallback: string) {
-    return payload?.error?.message ||
+    const message = payload?.error?.message ||
         payload?.message ||
         payload?.data?.error?.message ||
         payload?.data?.message ||
         fallback
+    return is_no_available_llm_config_error(message) ? no_available_llm_config_message() : message
 }
 
 
@@ -315,6 +317,10 @@ export class ChatRuntimeModel {
             return
         if (!this.chat.runtime.is_ddb_connected()) {
             model.message?.warning(t('DolphinDB 连接已断开，无法发送消息'))
+            return
+        }
+        if (!this.chat.agent.has_available_llm_config()) {
+            model.message?.warning(no_available_llm_config_message())
             return
         }
         
@@ -698,6 +704,10 @@ export class ChatRuntimeModel {
     retry_last_message () {
         if (!this.chat.current_session_id)
             return
+        if (!this.chat.agent.has_available_llm_config()) {
+            model.message?.warning(no_available_llm_config_message())
+            return
+        }
         if (this.chat.sse_controller)
             this.chat.runtime.abort_sse()
             

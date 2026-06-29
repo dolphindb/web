@@ -15,6 +15,14 @@ export function no_active_agent_message () {
     return t('当前账号没有可用的 Agent，请联系管理员授权。')
 }
 
+export function no_available_llm_config_message () {
+    return t('未配置 AI 模型服务，请先在系统设置中完成模型绑定。')
+}
+
+export function is_no_available_llm_config_error (message: string) {
+    return /no active [il]lm config is available/i.test(message)
+}
+
 function parse_agent_config (value: any) {
     if (!value)
         return { }
@@ -95,7 +103,8 @@ export class ChatAgentModel {
             if (response.status === 403)
                 throw new Error(agent_access_denied_message())
                 
-            throw new Error(parsed?.error?.message || parsed?.message || response.statusText)
+            const message = parsed?.error?.message || parsed?.message || response.statusText
+            throw new Error(is_no_available_llm_config_error(message) ? no_available_llm_config_message() : message)
         }
         
         const result = await response.json()
@@ -103,7 +112,8 @@ export class ChatAgentModel {
         if (result.type === 'ERROR') {
             if (Number(result.headers?.httpStatus) === 403)
                 throw new Error(agent_access_denied_message())
-            throw new Error(result.error?.message || 'Unknown error')
+            const message = result.error?.message || 'Unknown error'
+            throw new Error(is_no_available_llm_config_error(message) ? no_available_llm_config_message() : message)
         }
             
             
@@ -335,7 +345,18 @@ export class ChatAgentModel {
         this.chat.agent.set_active_agent(agent_id)
     }
     get_selectable_llms (agent_id = this.chat.agent_id) {
-        return chat_shared_model.selectable_llms_by_agent_id[agent_id] || [ ]
+        return (chat_shared_model.selectable_llms_by_agent_id[agent_id] || [ ])
+            .filter(llm => llm.capability !== 'embedding' && llm.enabled !== false && llm.statusName !== 'DELETED')
+    }
+    has_available_llm_config (agent_id = this.chat.agent_id) {
+        return this.chat.agent.get_selectable_llms(agent_id).length > 0
+    }
+    async ensure_available_llm_config () {
+        if (!this.chat.agent_id)
+            return false
+        if (!this.chat.agent.has_available_llm_config())
+            await this.chat.llm.load_selectable_llms()
+        return this.chat.agent.has_available_llm_config()
     }
     get_effective_llm_config_id (llm_config_id = this.chat.selected_llm_config_id) {
         return llm_config_id && this.chat.agent.get_selectable_llms().some(llm => llm.llmConfigId === llm_config_id)
