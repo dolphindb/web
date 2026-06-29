@@ -1064,28 +1064,11 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
         allowPersonalMemory: boolean
         memoryLlmConfigId: string
         memoryEmbeddingConfigId: string
-        memoryTopK?: number
-        residentPreferenceTopK?: number
-        residentPreferenceBudget?: number
-        relevantMemoryBudget?: number
         publicMemoryTokenLimit?: number
-        embeddingTopK?: number
-        embeddingWeight?: number
-        memoryEmbeddingIndexType: string
-        phase2RelatedVectorTopK?: number
-        phase2RelatedTextTopK?: number
-        phase2RelatedRecentTopK?: number
-        phase2RelatedMax?: number
-        minSessionIdleMinutes?: number
-        maxSessionAgeDays?: number
-        phase2CooldownMinutes?: number
-        maxRawMemoriesForConsolidation?: number
-        maxUnusedDays?: number
     }>({
         allowPersonalMemory: true,
         memoryLlmConfigId: '',
         memoryEmbeddingConfigId: '',
-        memoryEmbeddingIndexType: 'flat',
     })
     const [llm_configs, set_llm_configs] = useState<ILlmConfig[]>([ ])
     const [loading, set_loading] = useState(false)
@@ -1105,23 +1088,7 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
                 allowPersonalMemory: config.allowPersonalMemory !== false,
                 memoryLlmConfigId: String(config.memoryLlmConfigId || ''),
                 memoryEmbeddingConfigId: String(config.memoryEmbeddingConfigId || ''),
-                memoryTopK: optional_nonnegative_number(config.memoryTopK),
-                residentPreferenceTopK: optional_nonnegative_number(config.residentPreferenceTopK),
-                residentPreferenceBudget: optional_nonnegative_number(config.residentPreferenceBudget),
-                relevantMemoryBudget: optional_nonnegative_number(config.relevantMemoryBudget),
                 publicMemoryTokenLimit: optional_nonnegative_number(config.publicMemoryTokenLimit),
-                embeddingTopK: optional_nonnegative_number(config.embeddingTopK),
-                embeddingWeight: optional_nonnegative_number(config.embeddingWeight),
-                memoryEmbeddingIndexType: String(config.memoryEmbeddingIndexType || 'flat'),
-                phase2RelatedVectorTopK: optional_nonnegative_number(config.phase2RelatedVectorTopK),
-                phase2RelatedTextTopK: optional_nonnegative_number(config.phase2RelatedTextTopK),
-                phase2RelatedRecentTopK: optional_nonnegative_number(config.phase2RelatedRecentTopK),
-                phase2RelatedMax: optional_nonnegative_number(config.phase2RelatedMax),
-                minSessionIdleMinutes: optional_nonnegative_number(config.minSessionIdleMinutes),
-                maxSessionAgeDays: optional_nonnegative_number(config.maxSessionAgeDays),
-                phase2CooldownMinutes: optional_nonnegative_number(config.phase2CooldownMinutes),
-                maxRawMemoriesForConsolidation: optional_nonnegative_number(config.maxRawMemoriesForConsolidation),
-                maxUnusedDays: optional_nonnegative_number(config.maxUnusedDays),
             })
         } catch (error) {
             show_error(error, t('加载记忆配置失败'))
@@ -1135,23 +1102,7 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
             allowPersonalMemory: form.allowPersonalMemory,
             memoryLlmConfigId: form.memoryLlmConfigId || null,
             memoryEmbeddingConfigId: form.memoryEmbeddingConfigId || null,
-            memoryTopK: form.memoryTopK ?? null,
-            residentPreferenceTopK: form.residentPreferenceTopK ?? null,
-            residentPreferenceBudget: form.residentPreferenceBudget ?? null,
-            relevantMemoryBudget: form.relevantMemoryBudget ?? null,
             publicMemoryTokenLimit: form.publicMemoryTokenLimit ?? null,
-            embeddingTopK: form.embeddingTopK ?? null,
-            embeddingWeight: form.embeddingWeight ?? null,
-            memoryEmbeddingIndexType: form.memoryEmbeddingIndexType || null,
-            phase2RelatedVectorTopK: form.phase2RelatedVectorTopK ?? null,
-            phase2RelatedTextTopK: form.phase2RelatedTextTopK ?? null,
-            phase2RelatedRecentTopK: form.phase2RelatedRecentTopK ?? null,
-            phase2RelatedMax: form.phase2RelatedMax ?? null,
-            minSessionIdleMinutes: form.minSessionIdleMinutes ?? null,
-            maxSessionAgeDays: form.maxSessionAgeDays ?? null,
-            phase2CooldownMinutes: form.phase2CooldownMinutes ?? null,
-            maxRawMemoriesForConsolidation: form.maxRawMemoriesForConsolidation ?? null,
-            maxUnusedDays: form.maxUnusedDays ?? null,
         }
         set_loading(true)
         try {
@@ -1161,23 +1112,7 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
                 allowPersonalMemory: config.allowPersonalMemory !== false,
                 memoryLlmConfigId: String(config.memoryLlmConfigId || ''),
                 memoryEmbeddingConfigId: String(config.memoryEmbeddingConfigId || ''),
-                memoryTopK: optional_nonnegative_number(config.memoryTopK),
-                residentPreferenceTopK: optional_nonnegative_number(config.residentPreferenceTopK),
-                residentPreferenceBudget: optional_nonnegative_number(config.residentPreferenceBudget),
-                relevantMemoryBudget: optional_nonnegative_number(config.relevantMemoryBudget),
                 publicMemoryTokenLimit: optional_nonnegative_number(config.publicMemoryTokenLimit),
-                embeddingTopK: optional_nonnegative_number(config.embeddingTopK),
-                embeddingWeight: optional_nonnegative_number(config.embeddingWeight),
-                memoryEmbeddingIndexType: String(config.memoryEmbeddingIndexType || 'flat'),
-                phase2RelatedVectorTopK: optional_nonnegative_number(config.phase2RelatedVectorTopK),
-                phase2RelatedTextTopK: optional_nonnegative_number(config.phase2RelatedTextTopK),
-                phase2RelatedRecentTopK: optional_nonnegative_number(config.phase2RelatedRecentTopK),
-                phase2RelatedMax: optional_nonnegative_number(config.phase2RelatedMax),
-                minSessionIdleMinutes: optional_nonnegative_number(config.minSessionIdleMinutes),
-                maxSessionAgeDays: optional_nonnegative_number(config.maxSessionAgeDays),
-                phase2CooldownMinutes: optional_nonnegative_number(config.phase2CooldownMinutes),
-                maxRawMemoriesForConsolidation: optional_nonnegative_number(config.maxRawMemoriesForConsolidation),
-                maxUnusedDays: optional_nonnegative_number(config.maxUnusedDays),
             })
             message.success(t('保存成功'))
         } catch (error) {
@@ -1239,34 +1174,7 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
                         }))}
                     />
                 </div>
-                <div>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('向量索引类型')}</div>
-                    <Select
-                        style={{ width: '100%' }}
-                        value={form.memoryEmbeddingIndexType}
-                        onChange={value => { set_form({ ...form, memoryEmbeddingIndexType: value }) }}
-                        options={[
-                            { value: 'flat', label: 'flat' },
-                            { value: 'hnsw', label: 'hnsw' },
-                        ]}
-                    />
-                </div>
-                {number_field('memoryTopK', t('记忆注入上限'), '5')}
-                {number_field('residentPreferenceTopK', t('常驻偏好上限'), '5')}
-                {number_field('residentPreferenceBudget', t('常驻偏好预算'), '300')}
-                {number_field('relevantMemoryBudget', t('相关记忆预算'), '2000')}
                 {number_field('publicMemoryTokenLimit', t('公共记忆上限'), '2000')}
-                {number_field('embeddingTopK', t('向量候选数'), '20')}
-                {number_field('embeddingWeight', t('向量权重'), '0.35')}
-                {number_field('phase2RelatedVectorTopK', t('整理向量候选数'), '20')}
-                {number_field('phase2RelatedTextTopK', t('整理文本候选数'), '20')}
-                {number_field('phase2RelatedRecentTopK', t('整理近期候选数'), '10')}
-                {number_field('phase2RelatedMax', t('整理候选上限'), '30')}
-                {number_field('minSessionIdleMinutes', t('会话空闲分钟'), '360')}
-                {number_field('maxSessionAgeDays', t('最大会话天数'), '10')}
-                {number_field('phase2CooldownMinutes', t('自动整理冷却分钟'), '10')}
-                {number_field('maxRawMemoriesForConsolidation', t('单次整理候选上限'), '256')}
-                {number_field('maxUnusedDays', t('低频维护未使用天数'), '30')}
             </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
