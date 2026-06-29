@@ -6,7 +6,7 @@
 
 收听
 
-66
+68
 
 添加反应
 
@@ -95,11 +95,13 @@ demo2.zip
   * [2.6 记忆运行时能力](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.6-%E8%AE%B0%E5%BF%86%E8%BF%90%E8%A1%8C%E6%97%B6%E8%83%BD%E5%8A%9B)
   * [2.7 网络访问能力](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.7-%E7%BD%91%E7%BB%9C%E8%AE%BF%E9%97%AE%E8%83%BD%E5%8A%9B)
     * [发起外部网络请求](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%8F%91%E8%B5%B7%E5%A4%96%E9%83%A8%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82)
-  * [2.8 会话摘要](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.8-%E4%BC%9A%E8%AF%9D%E6%91%98%E8%A6%81)
+  * [2.8 MCP 工具执行](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.8-MCP-%E5%B7%A5%E5%85%B7%E6%89%A7%E8%A1%8C)
+    * [调用 MCP 工具](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%B0%83%E7%94%A8-MCP-%E5%B7%A5%E5%85%B7)
+  * [2.9 会话摘要](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.9-%E4%BC%9A%E8%AF%9D%E6%91%98%E8%A6%81)
     * [生成摘要](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E7%94%9F%E6%88%90%E6%91%98%E8%A6%81)
-  * [2.9 调试接口](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.9-%E8%B0%83%E8%AF%95%E6%8E%A5%E5%8F%A3)
+  * [2.10 调试接口](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.10-%E8%B0%83%E8%AF%95%E6%8E%A5%E5%8F%A3)
     * [Context Preview (上下文预览)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#Context-Preview-(%E4%B8%8A%E4%B8%8B%E6%96%87%E9%A2%84%E8%A7%88))
-  * [2.10 底层接口](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.10-%E5%BA%95%E5%B1%82%E6%8E%A5%E5%8F%A3)
+  * [2.11 底层接口](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#2.11-%E5%BA%95%E5%B1%82%E6%8E%A5%E5%8F%A3)
     * [AIScript（受限 DolphinDB 脚本执行）](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#AIScript%EF%BC%88%E5%8F%97%E9%99%90-DolphinDB-%E8%84%9A%E6%9C%AC%E6%89%A7%E8%A1%8C%EF%BC%89)
     * [LLM Complete (直接调用 LLM)](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#LLM-Complete-(%E7%9B%B4%E6%8E%A5%E8%B0%83%E7%94%A8-LLM))
     * [获取消息列表](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E6%B6%88%E6%81%AF%E5%88%97%E8%A1%A8)
@@ -160,12 +162,13 @@ demo2.zip
     * [获取个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
     * [更新个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
     * [删除个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
-    * 查询个人记忆
+    * [查询个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9F%A5%E8%AF%A2%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
     * [忘记会话个人记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%BF%98%E8%AE%B0%E4%BC%9A%E8%AF%9D%E4%B8%AA%E4%BA%BA%E8%AE%B0%E5%BF%86)
-    * 触发当前用户会话记忆流水线
-    * 查看公共记忆
-    * 更新公共记忆
-    * 清空公共记忆
+    * [触发当前用户会话记忆流水线](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%A7%A6%E5%8F%91%E5%BD%93%E5%89%8D%E7%94%A8%E6%88%B7%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BF%86%E6%B5%81%E6%B0%B4%E7%BA%BF)
+    * [查看公共记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9F%A5%E7%9C%8B%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86)
+    * [更新公共记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86)
+    * [清空公共记忆](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B8%85%E7%A9%BA%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86)
+  * [PublicMemory](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#PublicMemory)
     * [记忆统计](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%AE%B0%E5%BF%86%E7%BB%9F%E8%AE%A1)
     * [读取记忆配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%AF%BB%E5%8F%96%E8%AE%B0%E5%BF%86%E9%85%8D%E7%BD%AE)
     * [更新记忆配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BF%86%E9%85%8D%E7%BD%AE)
@@ -181,6 +184,16 @@ demo2.zip
     * [查询初始化状态](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9F%A5%E8%AF%A2%E5%88%9D%E5%A7%8B%E5%8C%96%E7%8A%B6%E6%80%81)
     * [状态与资源动作](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E7%8A%B6%E6%80%81%E4%B8%8E%E8%B5%84%E6%BA%90%E5%8A%A8%E4%BD%9C)
     * [升级语义](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%8D%87%E7%BA%A7%E8%AF%AD%E4%B9%89)
+  * [3.12 MCP 管控](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#3.12-MCP-%E7%AE%A1%E6%8E%A7)
+    * [配置 MCP Server](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E9%85%8D%E7%BD%AE-MCP-Server)
+    * [获取 MCP Server 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%8E%B7%E5%8F%96-MCP-Server-%E9%85%8D%E7%BD%AE)
+    * [列出 MCP Server 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA-MCP-Server-%E9%85%8D%E7%BD%AE)
+    * [测试 MCP Server 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%B5%8B%E8%AF%95-MCP-Server-%E9%85%8D%E7%BD%AE)
+    * [更新 MCP Server 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E6%9B%B4%E6%96%B0-MCP-Server-%E9%85%8D%E7%BD%AE)
+    * [删除 MCP Server 配置](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%A0%E9%99%A4-MCP-Server-%E9%85%8D%E7%BD%AE)
+    * [绑定 MCP Server 到 Agent](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E7%BB%91%E5%AE%9A-MCP-Server-%E5%88%B0-Agent)
+    * [解绑 MCP Server](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E8%A7%A3%E7%BB%91-MCP-Server)
+    * [列出 Agent 绑定的 MCP Server](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#%E5%88%97%E5%87%BA-Agent-%E7%BB%91%E5%AE%9A%E7%9A%84-MCP-Server)
 * [数据结构参考](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#4.-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%82%E8%80%83)
   * [AgentInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#AgentInfo)
   * [contextConfig](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#contextConfig)
@@ -201,6 +214,11 @@ demo2.zip
   * [MemoryJob](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#MemoryJob)
   * [SkillInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SkillInfo)
   * [SkillAccessInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#SkillAccessInfo)
+  * [McpServerInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#McpServerInfo)
+  * [McpBindingInfo](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#McpBindingInfo)
+  * [McpServerTestResult](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#McpServerTestResult)
+  * [McpToolCallResult](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#McpToolCallResult)
+  * [McpDiagnostics](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#McpDiagnostics)
   * [BuiltinInitResult](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#BuiltinInitResult)
   * [BuiltinInitSummary](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#BuiltinInitSummary)
   * [BuiltinInitItem](https://dolphindb1.atlassian.net/wiki/spaces/~7120203118b1f811714d34ab7d02d9ffc4b74b/pages/2584772659/DolphinDB+Agent+Runtime+API+Reference#BuiltinInitItem)
@@ -1240,7 +1258,51 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 ---
 
-### 2.8 会话摘要
+### 2.8 MCP 工具执行
+
+#### 调用 MCP 工具
+
+WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#6-websocket-%E5%8D%8F%E8%AE%AE "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#6-websocket-%E5%8D%8F%E8%AE%AE")。
+
+该接口用于执行 `/chat/completions` 返回的 MCP tool call。
+
+`POST /agent-bus/v1/mcp/tools/call `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------------------- | -------- | ------ | ------------------------------------------------------------------------ |
+| `sessionId`           | string | 是   | 会话 ID，必须属于当前登录用户；框架从会话解析所属 Agent                |
+| `toolName`/`name` | string | 是   | 要执行的 MCP 合成工具名，通常来自上一轮`toolCalls[].function.name` |
+| `arguments`           | object | 否   | 工具参数 JSON object；未传时使用空对象                                 |
+
+**响应:** [McpToolCallResult](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#mcptoolcallresult "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#mcptoolcallresult")
+
+`{ "ok": true, "tool": "mcp__dolphinMcp_1a2b3c4d__listTables", "mcpServerId": "mcp_srv_xxx", "originalName": "listTables", "isError": false, "truncated": false, "content": [ { "type": "text", "text": "..." } ], "raw": { "content": [ { "type": "text", "text": "..." } ] } } `
+
+说明：
+
+* 本接口只负责执行已绑定 MCP Server 中的 tools，不用于配置 MCP Server 或绑定关系；配置类接口见 [3.12 MCP 管控](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#312-mcp-%E7%AE%A1%E6%8E%A7 "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#312-mcp-%E7%AE%A1%E6%8E%A7")。
+* `toolName` 是框架生成的合成工具名，用于避免不同 MCP Server 的工具名冲突。应用侧通常直接使用 LLM 返回的 `toolCalls[].function.name`，不需要解析该名称。
+* 当 MCP Server 返回工具级错误时，接口仍可能返回 `ok=false` 或 `isError=true` 的业务结果；调用方应将响应内容作为 tool result 回填给模型，由模型继续处理。
+* `context.preview` 会返回 `mcpDiagnostics` 字段，便于调试 MCP discovery 状态和工具注入数量。
+
+---
+
+### 2.9 会话摘要
 
 #### 生成摘要
 
@@ -1276,7 +1338,7 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 ---
 
-### 2.9 调试接口
+### 2.10 调试接口
 
 #### Context Preview (上下文预览)
 
@@ -1315,11 +1377,12 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 **响应:**
 
-`{ "agentId": "agent_001", "sessionId": "sess_001", "userId": "admin", "assemblyMode": "auto", "messages": [ { "role": "system", "content": "..." }, { "role": "user", "content": "当前问题" } ], "tools": [ ... ], "estimatedTokens": 4200, "detail": { "assemblyMode": "auto", "historyMode": "summary-first", "summaryConfigured": true, "summaryIncluded": true, "summaryUpToSeqNum": 40 }, "tokenBreakdown": { "systemPrompt": 200, "summaryMessage": 120, "historyMessages": 2200, "userMessage": 50 } } `
+`{ "agentId": "agent_001", "sessionId": "sess_001", "userId": "admin", "assemblyMode": "auto", "messages": [ { "role": "system", "content": "..." }, { "role": "user", "content": "当前问题" } ], "tools": [ ... ], "estimatedTokens": 4200, "detail": { "assemblyMode": "auto", "historyMode": "summary-first", "summaryConfigured": true, "summaryIncluded": true, "summaryUpToSeqNum": 40 }, "tokenBreakdown": { "systemPrompt": 200, "summaryMessage": 120, "historyMessages": 2200, "userMessage": 50 }, "mcpDiagnostics": { "capability": "tools", "toolsCount": 2, "servers": [ { "mcpServerId": "mcp_srv_xxx", "capability": "tools", "operation": "list", "status": "ok", "toolCount": 2, "fromCache": false } ] } } `
 
 说明：
 
 * 本接口复用 `chat.completions` 的自动/手动组装规则，只返回候选上下文；不调用 LLM，不写入 session，不主动生成新的 summary。
+* `mcpDiagnostics` 用于调试 Agent 已绑定 MCP Server 的 tools discovery 与注入结果；无 MCP 绑定时 `servers` 为空。
 
 **detail 字段说明：**
 
@@ -1349,6 +1412,31 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 | `historyFromSeq`     | long   | raw tail 起始序列号                                       |
 | `historyToSeq`       | long   | raw tail 结束序列号                                       |
 
+**mcpDiagnostics 字段说明：**
+
+| 字段
+
+```
+| 类型
+
+
+ | 说明
+
+
+                                            |
+```
+
+| ----------------------------- | ---------- | ----------------------------------------------------- |
+| `capability`            | string   | 当前固定为`tools`                               |
+| `toolsCount`            | int      | 本次注入到 LLM tools 列表的 MCP 工具数量            |
+| `servers`               | object[] | 每个已绑定且启用的 MCP Server 的 discovery 结果     |
+| `servers[].mcpServerId` | string   | MCP Server ID                                       |
+| `servers[].operation`   | string   | 当前固定为`list`，表示执行 tools/list discovery |
+| `servers[].status`      | string   | `ok`或`error`                               |
+| `servers[].toolCount`   | int      | 该 MCP Server 本次可注入的工具数量                  |
+| `servers[].fromCache`   | bool     | 是否来自 discovery 缓存                             |
+| `servers[].error`       | string   | discovery 失败原因，仅失败时返回                    |
+
 **tokenBreakdown 字段说明：**
 
 | 字段
@@ -1376,7 +1464,7 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 ---
 
-### 2.10 底层接口
+### 2.11 底层接口
 
 #### AIScript（受限 DolphinDB 脚本执行）
 
@@ -1483,7 +1571,7 @@ WebSocket 调用方式见 [6. WebSocket 协议](https://vscode-remote+ssh-002dre
 
 ## 3. 面向 Web 管控的 API
 
-本章面向管控 Web、配置中心和运维后台，覆盖 Agent/LLM/Skill/Memory 的配置、生命周期和授权管理。会话和消息不在本章重复展开；需要时参见开发者 API 中的会话接口。
+本章面向管控 Web、配置中心和运维后台，覆盖 Agent/LLM/Skill/Memory/MCP 的配置、生命周期和授权管理。会话和消息不在本章重复展开；需要时参见开发者 API 中的会话接口。
 
 ---
 
@@ -2514,10 +2602,24 @@ Skill 分为普通 Skill 和 common skill。普通 Skill 需要显式绑定到 A
 
 Memory 是 Agent 运行时的长期上下文，按 Agent 隔离：
 
-| 类型 | 归属 | 管控方式 | 运行时可见性 |
-|------|------|----------|--------------|
-| Agent 公共记忆 `publicMemory` | Agent 级全局常驻上下文 | 由具备该 Agent 管理权限的管理员更新或清空；普通用户可查看 | 该 Agent 的会话上下文常驻注入 |
-| 用户个人记忆 `user_personal` | 当前用户在指定 Agent 下的个人记忆 | 当前用户可读、创建、修改、删除自己的个人记忆；管理员可做管控、重置和任务运维 | 仅该用户在该 Agent 下的会话可召回 |
+| 类型
+
+```
+| 归属
+
+
+                          | 管控方式
+
+
+                                                                 | 运行时可见性
+
+
+                  |
+```
+
+| ---------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------- |
+| Agent 公共记忆`publicMemory` | Agent 级全局常驻上下文            | 由具备该 Agent 管理权限的管理员更新或清空；普通用户可查看                    | 该 Agent 的会话上下文常驻注入     |
+| 用户个人记忆`user_personal`  | 当前用户在指定 Agent 下的个人记忆 | 当前用户可读、创建、修改、删除自己的个人记忆；管理员可做管控、重置和任务运维 | 仅该用户在该 Agent 下的会话可召回 |
 
 对话上下文装配时，Agent 公共记忆从 Agent 运行时信息中读取，并按 `memoryConfig.publicMemoryTokenLimit` 限制注入预算。个人记忆在 `includeMemory=true`、存在检索查询且预算允许时，基于当前 session 的 `agentId/userId` 召回；只有在 Agent 允许个人记忆且当前用户个人记忆开关启用时参与召回。
 
@@ -2525,309 +2627,342 @@ Memory 有两类来源：用户通过本节接口手动创建、更新、删除�
 
 #### 个人记忆设置
 
-```
-GET /agent-bus/v1/memory/personal/settings?agentId=xxx
-POST /agent-bus/v1/memory/personal/settings
-```
+`GET /agent-bus/v1/memory/personal/settings?agentId=xxx POST /agent-bus/v1/memory/personal/settings `
 
 GET 使用查询参数 `agentId`。POST 请求体：
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `agentId` | string | 是 | Agent ID |
-| `enabled` | bool | POST 必填 | 当前登录用户是否启用个人记忆 |
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+```
+| 说明
+
+
+                     |
+```
+
+| --------------- | -------- | ----------- | ------------------------------ |
+| `agentId` | string | 是        | Agent ID                     |
+| `enabled` | bool   | POST 必填 | 当前登录用户是否启用个人记忆 |
 
 **响应:**
 
-```json
-{
-  "agentId": "agent_xxx",
-  "userId": "alice",
-  "personalMemoryEnabled": true
-}
-```
+`{ "agentId": "agent_xxx", "userId": "alice", "personalMemoryEnabled": true } `
 
 ---
 
 #### 创建个人记忆
 
-```
-POST /agent-bus/v1/memory/personal
-```
+`POST /agent-bus/v1/memory/personal `
 
 创建当前登录用户的个人记忆。
 
 **请求体:**
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `agentId` | string | 是 | Agent ID |
-| `memoryKind` | string | 否 | 记忆主分类，默认 `default`；服务端会 trim 并转小写后校验 |
-| `title` | string | 否 | 可选显示标题，也参与检索文本 |
-| `content` | string | 是 | 记忆文本内容 |
-| `importance` | double | 否 | 重要度，取值范围 `[0, 1]`，默认 `0.7` |
-| `metadata` | object | 否 | 自定义元数据；不能包含派生字段或旧身份字段 |
-| `sourceRefs` | string | 否 | JSON 字符串或业务引用字符串，便于审计来源 |
-| `expireTime` | long | 否 | 过期时间，毫秒时间戳；为空表示永不过期 |
+| 字段
 
-**响应:** [MemoryEntry](#memoryentry)
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ------------------ | -------- | ------ | ------------------------------------------------------------- |
+| `agentId`    | string | 是   | Agent ID                                                    |
+| `memoryKind` | string | 否   | 记忆主分类，默认`default`；服务端会 trim 并转小写后校验 |
+| `title`      | string | 否   | 可选显示标题，也参与检索文本                                |
+| `content`    | string | 是   | 记忆文本内容                                                |
+| `importance` | double | 否   | 重要度，取值范围`[0, 1]`，默认`0.7`                 |
+| `metadata`   | object | 否   | 自定义元数据；不能包含派生字段或旧身份字段                  |
+| `sourceRefs` | string | 否   | JSON 字符串或业务引用字符串，便于审计来源                   |
+| `expireTime` | long   | 否   | 过期时间，毫秒时间戳；为空表示永不过期                      |
+
+**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
 
 说明：
-- 记忆归属固定为当前登录用户。
-- `source` 固定为 `manual`。
-- `memoryKind` 可选值见 [MemoryEntry](#memoryentry)。
+
+* 记忆归属固定为当前登录用户。
+* `source` 固定为 `manual`。
+* `memoryKind` 可选值见 [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")。
 
 ---
 
 #### 获取个人记忆
 
-```
-GET /agent-bus/v1/memory/personal/{memoryId}
-```
+`GET /agent-bus/v1/memory/personal/{memoryId} `
 
 仅允许读取当前登录用户所属的个人记忆。
 
-**响应:** [MemoryEntry](#memoryentry)
+**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
 
 ---
 
 #### 更新个人记忆
 
-```
-PUT /agent-bus/v1/memory/personal/{memoryId}
-```
+`PUT /agent-bus/v1/memory/personal/{memoryId} `
 
 **请求体:**
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `memoryId` | string | 路径已提供时否 | 记忆 ID；若同时出现在路径和 body 中，必须一致 |
-| `memoryKind` | string | 否 | 记忆主分类；服务端会 trim 并转小写后校验 |
-| `title` | string | 否 | 标题 |
-| `content` | string | 否 | 记忆文本内容；非空字符串 |
-| `importance` | double | 否 | 重要度，取值范围 `[0, 1]` |
-| `confidence` | double | 否 | 置信度，会裁剪到 `[0, 1]` |
-| `source` | string | 否 | 来源标识 |
-| `sourceRefs` | string | 否 | 来源引用信息 |
-| `expireTime` | long / null | 否 | 过期时间，毫秒时间戳；传 `null` 清除过期时间 |
-| `metadata` | object / null | 否 | 自定义元数据，整体替换；传 `null` 清空为 `{}` |
+| 字段
 
-**响应:** [MemoryEntry](#memoryentry)
+```
+| 类型
+
+
+      | 必填
+
+
+       | 说明
+
+
+                                           |
+```
+
+| ------------------ | --------------- | ---------------- | ---------------------------------------------------- |
+| `memoryId`   | string        | 路径已提供时否 | 记忆 ID；若同时出现在路径和 body 中，必须一致      |
+| `memoryKind` | string        | 否             | 记忆主分类；服务端会 trim 并转小写后校验           |
+| `title`      | string        | 否             | 标题                                               |
+| `content`    | string        | 否             | 记忆文本内容；非空字符串                           |
+| `importance` | double        | 否             | 重要度，取值范围`[0, 1]`                       |
+| `confidence` | double        | 否             | 置信度，会裁剪到`[0, 1]`                       |
+| `source`     | string        | 否             | 来源标识                                           |
+| `sourceRefs` | string        | 否             | 来源引用信息                                       |
+| `expireTime` | long / null   | 否             | 过期时间，毫秒时间戳；传`null`清除过期时间     |
+| `metadata`   | object / null | 否             | 自定义元数据，整体替换；传`null`清空为`{}` |
+
+**响应:** [MemoryEntry](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryentry")
 
 说明：
-- 至少提供一个可更新字段。
-- 未提供 `source` 时，个人记忆更新会写入 `source=user_edited`。
+
+* 至少提供一个可更新字段。
+* 未提供 `source` 时，个人记忆更新会写入 `source=user_edited`。
 
 ---
 
 #### 删除个人记忆
 
-```
-DELETE /agent-bus/v1/memory/personal/{memoryId}
-```
+`DELETE /agent-bus/v1/memory/personal/{memoryId} `
 
 **响应:**
 
-```json
-{
-  "memoryId": "mem_xxx",
-  "deleted": true
-}
-```
+`{ "memoryId": "mem_xxx", "deleted": true } `
 
 ---
 
 #### 查询个人记忆
 
-```
-POST /agent-bus/v1/memory/personal/query
-```
+`POST /agent-bus/v1/memory/personal/query `
 
 列出和搜索当前登录用户的个人记忆。未提供 `textQuery` 时按列表语义查询；提供 `textQuery` 时按搜索语义查询。
 
 **请求体:**
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `agentId` | string | 是 | Agent ID |
-| `memoryKind` | string | 否 | 记忆主分类过滤；服务端会 trim 并转小写后校验 |
-| `textQuery` | string | 否 | 搜索文本；未提供时返回列表；`TEXT_SEARCH` 排序必填 |
-| `textMatchMode` | string | 否 | 文本匹配模式，`any` / `all`，默认 `any` |
-| `offset` | int | 否 | 分页偏移，默认 `0`，必须为非负整数 |
-| `limit` | int | 否 | 分页大小，默认 `100`，必须为非负整数 |
-| `minImportance` | double | 否 | 最小重要度过滤阈值，默认 `0` |
-| `sortBy` | string | 否 | 排序策略：`RECENCY` / `IMPORTANCE` / `TEXT_SEARCH` / `RANKED`。未提供时，无 `textQuery` 默认 `RECENCY`，有 `textQuery` 默认 `RANKED` |
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------------- | -------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `agentId`       | string | 是   | Agent ID                                                                                                                                                 |
+| `memoryKind`    | string | 否   | 记忆主分类过滤；服务端会 trim 并转小写后校验                                                                                                             |
+| `textQuery`     | string | 否   | 搜索文本；未提供时返回列表；`TEXT_SEARCH`排序必填                                                                                                    |
+| `textMatchMode` | string | 否   | 文本匹配模式，`any`/`all`，默认`any`                                                                                                         |
+| `offset`        | int    | 否   | 分页偏移，默认`0`，必须为非负整数                                                                                                                    |
+| `limit`         | int    | 否   | 分页大小，默认`100`，必须为非负整数                                                                                                                  |
+| `minImportance` | double | 否   | 最小重要度过滤阈值，默认`0`                                                                                                                          |
+| `sortBy`        | string | 否   | 排序策略：`RECENCY`/`IMPORTANCE`/`TEXT_SEARCH`/`RANKED`。未提供时，无`textQuery`默认`RECENCY`，有`textQuery`默认`RANKED` |
 
 **响应:**
 
-```json
-{
-  "items": [ MemoryEntry, ... ],
-  "offset": 0,
-  "limit": 100,
-  "size": 5
-}
-```
+`{ "items": [ MemoryEntry, ... ], "offset": 0, "limit": 100, "size": 5 } `
 
 说明：
-- 查询范围固定为当前登录用户的 active 个人记忆。
+
+* 查询范围固定为当前登录用户的 active 个人记忆。
 
 ---
 
 #### 忘记会话个人记忆
 
-```
-POST /agent-bus/v1/memory/personal/forgetSession
-```
+`POST /agent-bus/v1/memory/personal/forgetSession `
 
 **请求体:**
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `agentId` | string | 是 | Agent ID |
-| `sessionId` | string | 是 | 要遗忘的会话 ID |
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ----------------- | -------- | ------ | ----------------- |
+| `agentId`   | string | 是   | Agent ID        |
+| `sessionId` | string | 是   | 要遗忘的会话 ID |
 
 **响应:** `{ agentId, sessionId, forgotten }`
 
 说明：
-- 该接口用于让系统忘记从指定会话中自动提取出的个人记忆来源，并重新整理当前登录用户在该 Agent 下的个人记忆。
-- 处理完成后，后续对话不再继续使用该会话作为个人记忆来源。
-- 手动创建或手动编辑的个人记忆不会被自动删除；如需删除某条具体记忆，请使用“删除个人记忆”接口。
-- 接口返回表示忘记请求已受理；相关记忆的重新整理可能由后台任务完成。
+
+* 该接口用于让系统忘记从指定会话中自动提取出的个人记忆来源，并重新整理当前登录用户在该 Agent 下的个人记忆。
+* 处理完成后，后续对话不再继续使用该会话作为个人记忆来源。
+* 手动创建或手动编辑的个人记忆不会被自动删除；如需删除某条具体记忆，请使用“删除个人记忆”接口。
+* 接口返回表示忘记请求已受理；相关记忆的重新整理可能由后台任务完成。
 
 ---
 
 #### 触发当前用户会话记忆流水线
 
-```
-POST /agent-bus/v1/memory/personal/pipeline/trigger
-```
+`POST /agent-bus/v1/memory/personal/pipeline/trigger `
 
 按单个会话触发当前登录的普通用户的自动记忆流水线。
 
 **请求体:**
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `sessionId` | string | 是 | 要触发记忆流水线的会话 ID |
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ----------------- | -------- | ------ | --------------------------- |
+| `sessionId` | string | 是   | 要触发记忆流水线的会话 ID |
 
 **响应:**
 
-```json
-{
-  "agentId": "agent_xxx",
-  "sessionId": "sess_xxx",
-  "targetUserId": "",
-  "scheduled": true
-}
-```
+`{ "agentId": "agent_xxx", "sessionId": "sess_xxx", "targetUserId": "", "scheduled": true } `
 
 说明：
 
-- 管理员如需跨用户或按用户 scope 触发，请使用 [触发记忆流水线](#触发记忆流水线) 管理员接口。
-- 接口返回表示调度请求已受理，实际抽取和整理由后台任务完成。
+* 管理员如需跨用户或按用户 scope 触发，请使用 [触发记忆流水线](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#%E8%A7%A6%E5%8F%91%E8%AE%B0%E5%BF%86%E6%B5%81%E6%B0%B4%E7%BA%BF "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#%E8%A7%A6%E5%8F%91%E8%AE%B0%E5%BF%86%E6%B5%81%E6%B0%B4%E7%BA%BF") 管理员接口。
+* 接口返回表示调度请求已受理，实际抽取和整理由后台任务完成。
 
 ---
 
 #### 查看公共记忆
 
-```
-GET /agent-bus/v1/memory/public?agentId=xxx
-```
+`GET /agent-bus/v1/memory/public?agentId=xxx `
 
 读取 Agent 公共记忆。当前用户需要具备该 Agent 的读权限。
 
-**响应:** [PublicMemory](#publicmemory)
+**响应:** [PublicMemory](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#publicmemory "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#publicmemory")
 
 ---
 
 #### 更新公共记忆
 
-```
-PUT /agent-bus/v1/admin/memory/public
-```
+`PUT /agent-bus/v1/admin/memory/public `
 
 更新 Agent 公共记忆。当前用户需要具备该 Agent 的管理权限。
 
 **请求体:**
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `agentId` | string | 是 | Agent ID |
-| `content` | string | 是 | 公共记忆正文。服务端按 `memoryConfig.publicMemoryTokenLimit` 校验长度 |
+| 字段
 
-**响应:** [PublicMemory](#publicmemory)
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------- | -------- | ------ | ------------------------------------------------------------------------- |
+| `agentId` | string | 是   | Agent ID                                                                |
+| `content` | string | 是   | 公共记忆正文。服务端按`memoryConfig.publicMemoryTokenLimit`校验长度 |
+
+**响应:** [PublicMemory](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#publicmemory "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#publicmemory")
 
 ---
 
 #### 清空公共记忆
 
-```
-DELETE /agent-bus/v1/admin/memory/public?agentId=xxx
-```
+`DELETE /agent-bus/v1/admin/memory/public?agentId=xxx `
 
 清空 Agent 公共记忆。当前用户需要具备该 Agent 的管理权限。`agentId` 可放在 query string 或请求体中。
 
-**响应:** [PublicMemory](#publicmemory)
+**响应:** [PublicMemory](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#publicmemory "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#publicmemory")
 
 ---
 
 ### PublicMemory
 
-```json
-{
-  "agentId": "agent_xxx",
-  "content": "Agent 范围内常驻公共上下文",
-  "estimatedTokens": 20,
-  "tokenLimit": 1000,
-  "schemaVersion": 1,
-  "updateTime": "2026.06.23 11:26:51.933",
-  "updateTimeMs": 1782185211933,
-  "updatedBy": "admin"
-}
-```
+`{ "agentId": "agent_xxx", "content": "Agent 范围内常驻公共上下文", "estimatedTokens": 20, "tokenLimit": 1000, "schemaVersion": 1, "updateTime": "2026.06.23 11:26:51.933", "updateTimeMs": 1782185211933, "updatedBy": "admin" } `
 
 ---
 
 #### 记忆统计
 
-```
-GET /agent-bus/v1/admin/memory/stats
-```
+`GET /agent-bus/v1/admin/memory/stats `
 
 **查询参数:**
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `agentId` | string | 是 | Agent ID |
+| 参数
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------- | -------- | ------ | ---------- |
+| `agentId` | string | 是   | Agent ID |
 
 **响应:**
 
-```json
-{
-  "totalCount": 90,
-  "userPersonalCount": 90,
-  "activeCount": 80,
-  "deletedCount": 10,
-  "avgImportance": 0.65,
-  "scopeDistribution": { "user_personal": 90 },
-  "statusDistribution": { "active": 80, "deleted": 10 },
-  "memoryKindDistribution": { "preference": 20, "fact": 10 },
-  "sourceDistribution": { "manual": 40, "auto_extract": 70 },
-  "jobKindDistribution": { "memory_stage1": 3, "memory_phase2": 5, "memory_derive_fields": 1 },
-  "jobStatusDistribution": { "pending": 1, "succeeded": 7 }
-}
-```
+`{ "totalCount": 90, "userPersonalCount": 90, "activeCount": 80, "deletedCount": 10, "avgImportance": 0.65, "scopeDistribution": { "user_personal": 90 }, "statusDistribution": { "active": 80, "deleted": 10 }, "memoryKindDistribution": { "preference": 20, "fact": 10 }, "sourceDistribution": { "manual": 40, "auto_extract": 70 }, "jobKindDistribution": { "memory_stage1": 3, "memory_phase2": 5, "memory_derive_fields": 1 }, "jobStatusDistribution": { "pending": 1, "succeeded": 7 } } `
 
-统计接口覆盖个人记忆表和 memory job 分布。Agent 公共记忆由 [查看公共记忆](#查看公共记忆) 返回。
+统计接口覆盖个人记忆表和 memory job 分布。Agent 公共记忆由 [查看公共记忆](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#%E6%9F%A5%E7%9C%8B%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86 "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#%E6%9F%A5%E7%9C%8B%E5%85%AC%E5%85%B1%E8%AE%B0%E5%BF%86") 返回。
 
 ---
 
 #### 读取记忆配置
 
-```
-GET /agent-bus/v1/admin/memory/config?agentId=xxx
-```
+`GET /agent-bus/v1/admin/memory/config?agentId=xxx `
 
 **响应:** `{ agentId, memoryConfig }`
 
@@ -2835,16 +2970,27 @@ GET /agent-bus/v1/admin/memory/config?agentId=xxx
 
 #### 更新记忆配置
 
-```
-PUT /agent-bus/v1/admin/memory/config
-```
+`PUT /agent-bus/v1/admin/memory/config `
 
 **请求体:**
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `agentId` | string | 是 | Agent ID |
-| `patch` / `memoryConfig` | object | 否 | 要合并到 agent memoryConfig 的配置片段 |
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| -------------------------------- | -------- | ------ | ---------------------------------------- |
+| `agentId`                  | string | 是   | Agent ID                               |
+| `patch`/`memoryConfig` | object | 否   | 要合并到 agent memoryConfig 的配置片段 |
 
 也可以将配置字段直接放在请求体顶层，服务端会排除 `agentId` 后作为配置 patch。
 
@@ -2854,73 +3000,103 @@ PUT /agent-bus/v1/admin/memory/config
 
 #### 列出记忆任务
 
-```
-GET /agent-bus/v1/admin/memory/jobs
-```
+`GET /agent-bus/v1/admin/memory/jobs `
 
 **查询参数:**
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `agentId` | string | 是 | Agent ID |
-| `kind` | string | 否 | 任务类型过滤；可选 `memory_stage1` / `memory_phase2` / `memory_derive_fields` |
-| `status` | string | 否 | 任务状态过滤 |
-| `targetUserId` | string | 否 | 用户过滤 |
-| `offset` | int | 否 | 默认 `0` |
-| `limit` | int | 否 | 默认 `100` |
+| 参数
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| -------------------- | -------- | ------ | -------------------------------------------------------------------------------------- |
+| `agentId`      | string | 是   | Agent ID                                                                             |
+| `kind`         | string | 否   | 任务类型过滤；可选`memory_stage1`/`memory_phase2`/`memory_derive_fields` |
+| `status`       | string | 否   | 任务状态过滤                                                                         |
+| `targetUserId` | string | 否   | 用户过滤                                                                             |
+| `offset`       | int    | 否   | 默认`0`                                                                          |
+| `limit`        | int    | 否   | 默认`100`                                                                        |
 
 **响应:** `{ items: [MemoryJob, ...], offset, limit, size }`
 
 说明：
-- `memory_derive_fields` 是派生 `shortSummary/keywords/tags` 的后台任务。它由创建或编辑记忆事实源自动触发，通常很快完成；失败会短间隔重试，管理员可通过本节 jobs 接口查看和手动重试。
+
+* `memory_derive_fields` 是派生 `shortSummary/keywords/tags` 的后台任务。它由创建或编辑记忆事实源自动触发，通常很快完成；失败会短间隔重试，管理员可通过本节 jobs 接口查看和手动重试。
 
 ---
 
 #### 获取记忆任务
 
-```
-GET /agent-bus/v1/admin/memory/jobs/{kind}/{jobKey}?agentId=xxx
-```
+`GET /agent-bus/v1/admin/memory/jobs/{kind}/{jobKey}?agentId=xxx `
 
-**响应:** [MemoryJob](#memoryjob)
+**响应:** [MemoryJob](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryjob "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryjob")
 
 ---
 
 #### 重试记忆任务
 
-```
-POST /agent-bus/v1/admin/memory/jobs/{kind}/{jobKey}/retry
-```
+`POST /agent-bus/v1/admin/memory/jobs/{kind}/{jobKey}/retry `
 
 **请求体:**
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `agentId` | string | 是 | - |
+| 字段
 
-**响应:** [MemoryJob](#memoryjob)
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+|
+| --------------- | -------- | ------ | ------ |
+| `agentId` | string | 是   | -    |
+
+**响应:** [MemoryJob](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryjob "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#memoryjob")
 
 说明：
 
-- 对 `memory_stage1` 任务执行重试时，任务会立即排队，并跳过 `minSessionIdleMinutes` 的自动抽取等待。
+* 对 `memory_stage1` 任务执行重试时，任务会立即排队，并跳过 `minSessionIdleMinutes` 的自动抽取等待。
 
 ---
 
 #### 触发记忆流水线
 
-```
-POST /agent-bus/v1/admin/memory/pipeline/trigger
-```
+`POST /agent-bus/v1/admin/memory/pipeline/trigger `
 
-管理员接口，支持按单个会话或指定用户 scope 手动触发记忆流水线。按 `sessionId` 触发时，Stage 1 任务会立即排队，并跳过 `minSessionIdleMinutes` 的自动抽取等待。普通用户触发自己拥有的单个会话时，应使用 [触发当前用户会话记忆流水线](#触发当前用户会话记忆流水线)。
+管理员接口，支持按单个会话或指定用户 scope 手动触发记忆流水线。按 `sessionId` 触发时，Stage 1 任务会立即排队，并跳过 `minSessionIdleMinutes` 的自动抽取等待。普通用户触发自己拥有的单个会话时，应使用 [触发当前用户会话记忆流水线](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#%E8%A7%A6%E5%8F%91%E5%BD%93%E5%89%8D%E7%94%A8%E6%88%B7%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BF%86%E6%B5%81%E6%B0%B4%E7%BA%BF "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#%E8%A7%A6%E5%8F%91%E5%BD%93%E5%89%8D%E7%94%A8%E6%88%B7%E4%BC%9A%E8%AF%9D%E8%AE%B0%E5%BF%86%E6%B5%81%E6%B0%B4%E7%BA%BF")。
 
 **请求体:**
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `agentId` | string | 是 | Agent ID |
-| `sessionId` | string | 条件必填 | 安排指定会话的自动记忆提取 |
-| `targetUserId` / `userId` | string | 条件必填 | 安排指定用户个人记忆重新整理 |
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+```
+| 说明
+
+
+                     |
+```
+
+| --------------------------------- | -------- | ---------- | ------------------------------ |
+| `agentId`                   | string | 是       | Agent ID                     |
+| `sessionId`                 | string | 条件必填 | 安排指定会话的自动记忆提取   |
+| `targetUserId`/`userId` | string | 条件必填 | 安排指定用户个人记忆重新整理 |
 
 `sessionId` 和 `targetUserId` 至少提供一个。
 
@@ -2930,18 +3106,29 @@ POST /agent-bus/v1/admin/memory/pipeline/trigger
 
 #### 重置用户个人记忆
 
-```
-POST /agent-bus/v1/admin/memory/reset
-```
+`POST /agent-bus/v1/admin/memory/reset `
 
 **请求体:**
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `agentId` | string | 是 | Agent ID |
-| `targetUserId` / `userId` | string | 是 | 目标业务用户 |
-| `includeMemories` | bool | 否 | 是否移除 active `user_personal` 记忆，默认 `true` |
-| `includeStage1` | bool | 否 | 是否同时清除该用户从历史会话自动提取出的中间记忆结果，默认 `true` |
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| --------------------------------- | -------- | ------ | ---------------------------------------------------------------------- |
+| `agentId`                   | string | 是   | Agent ID                                                             |
+| `targetUserId`/`userId` | string | 是   | 目标业务用户                                                         |
+| `includeMemories`           | bool   | 否   | 是否移除 active`user_personal`记忆，默认`true`               |
+| `includeStage1`             | bool   | 否   | 是否同时清除该用户从历史会话自动提取出的中间记忆结果，默认`true` |
 
 **响应:** `{ agentId, targetUserId, includeMemories, includeStage1, ignoredStage1Count, removedMemoryCount, reset }`
 
@@ -3028,11 +3215,8 @@ POST /agent-bus/v1/admin/memory/reset
 
 说明：
 
-* 初始化按 manifest 顺序逐个处理 Skill zip，不一次性加载、解压或缓存所有 Skill 包。
-* 普通公开接口 `agent.register` 仍不允许传 `agentId`；固定 `agent_builtin_<uuid>` 只允许内置初始化内部流程使用。
 * 内置 Agent 初始化时不自动授权给任何用户、用户组或 PUBLIC，也不绑定默认 LLM。管理员后续通过现有授权和 LLM 绑定接口配置。
 * 内置 Skill 使用 `ownerUserId="__agent_builtin__"`，该字段仅用于标识、展示和审计，不参与鉴权。
-* `dryRun=true` 时不会写入初始化状态，因此不会改变后续 `status` 查询结果。
 
 #### 查询初始化状态
 
@@ -3139,6 +3323,255 @@ WebSocket 调用时，`includeDetails` 放在 `payload` 中。
 
 ---
 
+### 3.12 MCP 管控
+
+本节接口用于管控侧配置 MCP Server，以及管理 Agent 与 MCP Server 的绑定关系。MCP 工具执行不是管控接口，见 [2.8 MCP 工具执行](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#28-mcp-%E5%B7%A5%E5%85%B7%E6%89%A7%E8%A1%8C "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#28-mcp-%E5%B7%A5%E5%85%B7%E6%89%A7%E8%A1%8C")。
+
+MCP Server 类型：
+
+| 类型
+
+```
+| `serverType`
+```
+
+| 说明
+
+```
+|
+```
+
+| -------------------- | ------------------- | ---------------------------------------------------------------------------------------------------- |
+| DolphinDB 内置 MCP | `dolphindb`   | 使用当前 DolphinDB 登录用户访问 MCP Server；`credentialMode`固定为`dolphindb_current_user` |
+| 第三方 MCP         | `third_party` | 可选择无认证或共享 token 认证；`credentialMode`为`none`或`shared_token`                |
+
+MCP Server 地址统一放在 `endpoint.url` 中。
+
+#### 配置 MCP Server
+
+`POST /agent-bus/v1/mcp/server/register `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ------------------------ | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`             | string | 是   | MCP Server 名称，用于展示和生成默认工具名前缀                                                                                                                     |
+| `serverType`       | string | 是   | `dolphindb`或`third_party`                                                                                                                                |
+| `endpoint.url`     | string | 是   | MCP Server 地址，例如`http://127.0.0.1:8848/mcp`                                                                                                              |
+| `credentialMode`   | string | 否   | `dolphindb`固定为`dolphindb_current_user`；`third_party`支持`none`/`shared_token`，未传且提供`sharedAuthConfig`时默认为`shared_token` |
+| `sharedAuthConfig` | object | 否   | 第三方共享认证配置；`shared_token`时当前支持`{ "type": "bearer", "token": "..." }`                                                                        |
+| `enabled`          | bool   | 否   | 是否可用，默认`true`                                                                                                                                          |
+| `extra`            | string | 否   | 后端预留扩展字段，管控前端通常不展示                                                                                                                              |
+
+**响应:** [McpServerInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#mcpserverinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#mcpserverinfo")
+
+**请求示例:**
+
+`{ "name": "dolphinMcp", "serverType": "dolphindb", "endpoint": { "url": "http://127.0.0.1:8848/mcp" }, "enabled": true } `
+
+---
+
+#### 获取 MCP Server 配置
+
+`GET /agent-bus/v1/mcp/server/{mcpServerId} `
+
+**响应:** [McpServerInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#mcpserverinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#mcpserverinfo")
+
+---
+
+#### 列出 MCP Server 配置
+
+`GET /agent-bus/v1/mcp/server/list `
+
+**查询参数:**
+
+| 参数
+
+```
+| 类型
+```
+
+| 默认值
+
+| 说明
+
+```
+|
+```
+
+| --------------- | ------ | -------- | --------------------------------------------------------------------------------- |
+| `enabled` | bool | -      | 不传返回全部；`true`只返回可用 MCP Server；`false`只返回停用 MCP Server |
+| `offset`  | int  | 0      | 起始偏移                                                                        |
+| `limit`   | int  | 100    | 返回数量                                                                        |
+
+**响应:**
+
+`{ "items": [ McpServerInfo, ... ], "offset": 0, "limit": 100, "size": 1 } `
+
+---
+
+#### 测试 MCP Server 配置
+
+`POST /agent-bus/v1/mcp/server/test `
+
+该接口可以测试连接。
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+```
+| 说明
+
+
+                                            |
+```
+
+| ------------------------ | -------- | ---------- | ----------------------------------------------------- |
+| `mcpServerId`      | string | 否       | 已有 MCP Server ID；不传时测试请求体中的临时配置    |
+| `name`             | string | 否       | 临时名称；未传时使用已有配置或默认测试名称          |
+| `serverType`       | string | 条件必填 | 测试新配置时必填；测试已有配置时可省略              |
+| `endpoint.url`     | string | 条件必填 | 测试新配置时必填；测试已有配置时可省略              |
+| `credentialMode`   | string | 否       | 规则同配置接口                                      |
+| `sharedAuthConfig` | object | 否       | 规则同配置接口；已有配置返回的脱敏 token 可原样传回 |
+| `enabled`          | bool   | 否       | 仅作为测试配置的一部分，不改变已保存状态            |
+
+**响应:** [McpServerTestResult](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#mcpservertestresult "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#mcpservertestresult")
+
+**响应示例:**
+
+`{ "ok": true, "mcpServerId": "mcp_test_xxx", "message": "MCP Server test succeeded.", "toolCount": 2, "toolNames": ["listTables", "runScript"], "toolNamesTruncated": false, "truncated": false } `
+
+---
+
+#### 更新 MCP Server 配置
+
+`PUT /agent-bus/v1/mcp/server/{mcpServerId} `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+```
+| 说明
+
+
+                                                     |
+```
+
+| ------------------------ | -------- | ---------------- | -------------------------------------------------------------- |
+| `mcpServerId`      | string | 路径已提供时否 | MCP Server ID；若同时出现在路径和 body 中，必须一致          |
+| `name`             | string | 否             | MCP Server 名称                                              |
+| `endpoint.url`     | string | 否             | MCP Server 地址                                              |
+| `enabled`          | bool   | 否             | 是否可用                                                     |
+| `credentialMode`   | string | 否             | 仅`third_party`可更新，支持`none`/`shared_token` |
+| `sharedAuthConfig` | object | 否             | 仅`third_party`可更新；脱敏 token 可原样传回表示保留原值 |
+| `extra`            | string | 否             | 后端预留扩展字段                                             |
+
+说明：
+
+* 不支持更新 `serverType`。如需改变 MCP Server 类型，应删除旧配置后重新配置。
+* 更新成功后会清理该 MCP Server 的 tools discovery 缓存。
+
+**响应:** [McpServerInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#mcpserverinfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#mcpserverinfo")
+
+---
+
+#### 删除 MCP Server 配置
+
+`POST /agent-bus/v1/mcp/server/{mcpServerId}/delete `
+
+**响应:**
+
+`{ "mcpServerId": "mcp_srv_xxx", "deleted": true } `
+
+说明：
+
+* 删除前要求该 MCP Server 未被任何 Agent 绑定；仍有绑定时会返回冲突错误，需先解绑。
+
+---
+
+#### 绑定 MCP Server 到 Agent
+
+`POST /agent-bus/v1/agent/{agentId}/mcp/bind `
+
+**请求体:**
+
+| 字段
+
+```
+| 类型
+```
+
+| 必填
+
+| 说明
+
+```
+|
+```
+
+| ---------------------- | -------- | ------ | -------------------------------------------------------------------------------- |
+| `mcpServerId`    | string | 是   | 要绑定的 MCP Server ID                                                         |
+| `enabled`        | bool   | 否   | 绑定是否可用，默认`true`                                                   |
+| `toolNamePrefix` | string | 否   | 合成工具名前缀；通常不传，由后端生成，格式类似`mcp__dolphinMcp_1a2b3c4d__` |
+| `extra`          | string | 否   | 后端预留扩展字段                                                               |
+
+**响应:** [McpBindingInfo](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#mcpbindinginfo "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#mcpbindinginfo")
+
+说明：
+
+* 同一个 Agent 对同一个 MCP Server 重复绑定时按 upsert 处理。
+
+---
+
+#### 解绑 MCP Server
+
+`DELETE /agent-bus/v1/agent/{agentId}/mcp/bind?mcpServerId=mcp_srv_xxx `
+
+`mcpServerId` 也可放在请求体中；如果路径、查询串、请求体同时提供且取值不同，请求会被拒绝。
+
+**响应:**
+
+`{ "mcpServerId": "mcp_srv_xxx", "deleted": true } `
+
+---
+
+#### 列出 Agent 绑定的 MCP Server
+
+`GET /agent-bus/v1/agent/{agentId}/mcp/list `
+
+**响应:**
+
+`{ "items": [ McpBindingInfo, ... ], "size": 1 } `
+
+---
+
 ## 4. 数据结构参考
 
 ### AgentInfo
@@ -3195,7 +3628,6 @@ WebSocket 调用时，`includeDetails` 放在 `payload` 中。
 | ------------------------------ | -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `maxContextTokens`       | int    | 128000 | 上下文总 token 上限（通常对齐模型的上下文窗口大小）                                                                                                                                                                                                                                                                                                                                         |
 | `includeMemory`          | bool   | true   | 是否在上下文中包含记忆检索结果                                                                                                                                                                                                                                                                                                                                                              |
-| `memoryTopK`             | int    | 5      | 记忆检索返回的最大条数（最小值 1）                                                                                                                                                                                                                                                                                                                                                          |
 | `memoryTokenBudget`      | int    | 2000   | 记忆部分的 token 预算上限                                                                                                                                                                                                                                                                                                                                                                   |
 | `includeSkills`          | bool   | true   | 是否包含已激活的技能详细指令                                                                                                                                                                                                                                                                                                                                                                |
 | `includeSkillCatalog`    | bool   | true   | 是否注入技能目录                                                                                                                                                                                                                                                                                                                                                                            |
@@ -3206,35 +3638,48 @@ WebSocket 调用时，`includeDetails` 放在 `payload` 中。
 
 Agent 级记忆配置。所有字段可选，未提供时由 `MemoryPolicyService` 使用默认策略。
 
-| 字段 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `allowPersonalMemory` | bool | `true` | Agent 是否允许个人记忆。关闭后不读写 `user_personal` 记忆 |
-| `memoryLlmConfigId` | string | Agent 默认 `llmConfigId` | 自动记忆提取、整理和派生 `shortSummary/keywords/tags` 使用的 LLM 配置 |
-| `memoryEmbeddingConfigId` | string | 空 | 可选 embedding 配置 ID。配置后，memory 召回会使用 embedding sidecar/vectorIndex 参与 `RANKED` 排序；为空时只使用 textIndex 和结构化过滤 |
-| `memoryTopK` | int | `5` | 上下文组装时相关记忆检索返回的最大条数（最小值 1） |
-| `residentPreferenceTopK` | int | `5` | 常驻 preference 注入上限 |
-| `residentPreferenceBudget` | int | `300` | 常驻 preference 上下文预算 |
-| `relevantMemoryBudget` | int | `2000` | 相关记忆上下文预算 |
-| `publicMemoryTokenLimit` | int | `2000` | Agent 公共记忆 token 上限 |
-| `embeddingTopK` | int | `20` | 向量召回候选数 |
-| `embeddingWeight` | double | `0.35` | `RANKED` 排序中的向量分权重，上限裁剪为 `0.35` |
-| `memoryEmbeddingIndexType` | string | `flat` | embedding sidecar 的 vectorIndex 类型，当前支持 `flat` / `hnsw`；距离计算固定使用 `rowEuclidean` |
-| `phase2RelatedVectorTopK` | int | `20` | Phase 2 软匹配相关记忆的向量召回候选数 |
-| `phase2RelatedTextTopK` | int | `20` | Phase 2 软匹配相关记忆的文本召回候选数 |
-| `phase2RelatedRecentTopK` | int | `10` | Phase 2 同类最近记忆候选数 |
-| `phase2RelatedMax` | int | `30` | Phase 2 每批候选传给 LLM 的相关记忆上限 |
-| `minSessionIdleMinutes` | int | `360` | 会话结束后等待多久才允许自动后台提取记忆；显式手动触发 session 或管理员重试 Stage 1 时不使用该等待 |
-| `maxSessionAgeDays` | int | `10` | 自动记忆提取可处理的最大会话年龄 |
-| `phase2CooldownMinutes` | int | `10` | 同一用户记忆自动整理的冷却时间 |
-| `maxRawMemoriesForConsolidation` | int | `256` | 单次自动整理处理的候选记忆上限 |
-| `maxUnusedDays` | int | `30` | 记忆低频维护使用的未使用天数阈值 |
+| 字段
+
+```
+| 类型
+```
+
+| 默认值
+
+```
+| 说明
+
+
+                                                                                                                                  |
+```
+
+| -------------------------------------- | -------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `allowPersonalMemory`            | bool   | `true`                  | Agent 是否允许个人记忆。关闭后不读写`user_personal`记忆                                                                               |
+| `memoryLlmConfigId`              | string | Agent 默认`llmConfigId` | 自动记忆提取、整理和派生`shortSummary/keywords/tags`使用的 LLM 配置                                                                   |
+| `memoryEmbeddingConfigId`        | string | 空                          | 可选 embedding 配置 ID。配置后，memory 召回会使用 embedding sidecar/vectorIndex 参与`RANKED`排序；为空时只使用 textIndex 和结构化过滤 |
+| `memoryTopK`                     | int    | `5`                     | 上下文组装时相关记忆检索返回的最大条数（最小值 1）                                                                                        |
+| `residentPreferenceTopK`         | int    | `5`                     | 常驻 preference 注入上限                                                                                                                  |
+| `residentPreferenceBudget`       | int    | `300`                   | 常驻 preference 上下文预算                                                                                                                |
+| `relevantMemoryBudget`           | int    | `2000`                  | 相关记忆上下文预算                                                                                                                        |
+| `publicMemoryTokenLimit`         | int    | `2000`                  | Agent 公共记忆 token 上限                                                                                                                 |
+| `embeddingTopK`                  | int    | `20`                    | 向量召回候选数                                                                                                                            |
+| `embeddingWeight`                | double | `0.35`                  | `RANKED`排序中的向量分权重，上限裁剪为`0.35`                                                                                      |
+| `memoryEmbeddingIndexType`       | string | `flat`                  | embedding sidecar 的 vectorIndex 类型，当前支持`flat`/`hnsw`；距离计算固定使用`rowEuclidean`                                  |
+| `phase2RelatedVectorTopK`        | int    | `20`                    | Phase 2 软匹配相关记忆的向量召回候选数                                                                                                    |
+| `phase2RelatedTextTopK`          | int    | `20`                    | Phase 2 软匹配相关记忆的文本召回候选数                                                                                                    |
+| `phase2RelatedRecentTopK`        | int    | `10`                    | Phase 2 同类最近记忆候选数                                                                                                                |
+| `phase2RelatedMax`               | int    | `30`                    | Phase 2 每批候选传给 LLM 的相关记忆上限                                                                                                   |
+| `minSessionIdleMinutes`          | int    | `360`                   | 会话结束后等待多久才允许自动后台提取记忆；显式手动触发 session 或管理员重试 Stage 1 时不使用该等待                                        |
+| `maxSessionAgeDays`              | int    | `10`                    | 自动记忆提取可处理的最大会话年龄                                                                                                          |
+| `phase2CooldownMinutes`          | int    | `10`                    | 同一用户记忆自动整理的冷却时间                                                                                                            |
+| `maxRawMemoriesForConsolidation` | int    | `256`                   | 单次自动整理处理的候选记忆上限                                                                                                            |
+| `maxUnusedDays`                  | int    | `30`                    | 记忆低频维护使用的未使用天数阈值                                                                                                          |
 
 注意：memory 写请求的 lane 并发策略由全局服务端配置 `agentFramework.memory.lanePolicy` 控制，不属于 agent 级 `memoryConfig`。
 
-**预算分配顺序**（优先级从高到低）：
+​**预算分配顺序**​（优先级从高到低）：
 
-```
-总预算 = maxContextTokens
+`总预算 = maxContextTokens
 
 1. System Prompt        固定分配
 2. User Message         固定分配（当前消息）
@@ -3243,36 +3688,23 @@ Agent 级记忆配置。所有字段可选，未提供时由 `MemoryPolicyServic
 5. Active Instructions  配额分配（instructionTokenBudget）
 6. Memory Context       配额分配（memoryTokenBudget）
 7. History Tail         latest summary + raw tail，超出窗口时先触发 rolling summary
-```
+   `
 
 说明：
-- 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
-- `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
-- `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
-- `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
-- 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
 
-- 框架内部会按最终输出预算为 chat 预留运行时空间，用于阈值判断和硬性窗口检查
-- 该预留不是 `contextConfig` 的对外字段；请求和 LLM 配置未显式指定输出上限时，默认按 `clamp(contextWindow / 8, 8192, 32768)` 计算
+* 框架会边接收 provider 的流式 chunk，边转发为 SSE 事件；不会等 LLM 完全返回后才开始向客户端发送。
+* `STREAM_REASONING.data.reasoning` 是思考过程增量，仅在请求 `includeReasoning=true` 且 provider 返回可展示 reasoning 时出现。
+* `STREAM_CHUNK.data.content` 是正文增量；`STREAM_CHUNK.data.toolCallDeltas` 是工具调用增量，可能只包含部分 `arguments`，不保证可直接解析或执行。
+* `STREAM_END.data` 是本次补全的完整终态响应，会再次包含累计后的 `content`、`reasoning`、合并后的完整 `toolCalls`、`finishReason`、`usage`、`latencyMs` 和 `metadata`。
+* 客户端实时展示可消费 `STREAM_REASONING` / `STREAM_CHUNK`；执行工具、入库或业务判断应优先使用 `STREAM_END.data.toolCalls`，无需自行拼接 `toolCallDeltas`。
+* 框架内部会按最终输出预算为 chat 预留运行时空间，用于阈值判断和硬性窗口检查
+* 该预留不是 `contextConfig` 的对外字段；请求和 LLM 配置未显式指定输出上限时，默认按 `clamp(contextWindow / 8, 8192, 32768)` 计算
 
 **示例：**
 
-```json
-{
-  "maxContextTokens": 128000,
-  "includeMemory": true,
-  "includeSkills": true,
-  "summaryConfig": {
-    "summaryLlmConfigId": "llm_summary_xxx",
-    "triggerRatio": 0.8,
-    "tailKeepTokens": 0,
-    "onOverflow": "error"
-  }
-}
-```
+`{ "maxContextTokens": 128000, "includeMemory": true, "includeSkills": true, "summaryConfig": { "summaryLlmConfigId": "llm_summary_xxx", "triggerRatio": 0.8, "tailKeepTokens": 0, "onOverflow": "error" } } `
 
 ---
-
 
 ### summaryConfig
 
@@ -3492,7 +3924,7 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 | `name`          | string    | Provider 名称，用于标识和展示                                                                   |
 | `adapterType`   | string    | 运行时 provider 适配器类型：`openai`/`openai-compatible`/`anthropic`/`deepseek` |
 | `baseUrl`       | string    | Provider 级基础 URL，如`https://api.openai.com`                                             |
-| `apiKey`        | string    | Provider API Key。对外返回时始终脱敏为`***`；未配置时返回空字符串                           |
+| `apiKey`        | string    | Provider API Key。对外返回时脱敏为与原 key 等长的`*`字符串；未配置时返回空字符串            |
 | `enabled`       | bool      | 是否启用                                                                                        |
 | `schemaVersion` | int       | 行 Schema 版本号                                                                                |
 | `extra`         | string    | 预留扩展字段                                                                                    |
@@ -3627,85 +4059,107 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
   | 说明
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 ```
 
-| ------------------------ | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `messageId`        | string    | 消息唯一 ID，追加时自动生成                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `sessionId`        | string    | 所属会话 ID                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `agentId`          | string    | 所属 Agent ID                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| `sequenceNum`      | long      | 会话内单调递增序列号，从 1 开始，用于消息排序和范围查询                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `role`             | string    | 消息角色：`system`（系统指令）/`user`（用户输入）/`assistant`（LLM 回复）/`tool`（工具执行结果）                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `contentType`      | string    | 内容类型，决定上下文组装时的解析方式：`text`（纯文本，直接作为 message.content）/`tool_call`（工具调用，content 为 JSON 格式的 toolCalls 数组，组装时解析为 OpenAI tool\_calls 结构）/`tool_result`（工具结果，组装时使用 role=`tool`并附带 toolCallId）/`multimodal`（多模态，content 为 JSON 数组，每项含 type/text/imageUrl）/`summary`（会话摘要，由框架内部写入，在`summary-first`模式下作为 latest summary 注入；其`metadata`中记录`summaryUpToSeqNum`、`trigger`、`summaryLlmConfigId`） |
-| `content`          | string    | 消息内容。格式取决于 contentType：text 和 tool\_result 为纯文本，tool\_call 为 JSON（`{"toolCalls":[...]}`或`[{...}]`），multimodal 为 JSON 数组（`[{"type":"text","text":"..."},{"type":"image_url","imageUrl":"..."}]`）                                                                                                                                                                                                                                                                                                      |
-| `toolCallId`       | string    | 工具调用关联 ID。contentType 为`tool_result`时必填，用于将工具执行结果关联到 assistant 发起的对应 tool\_call（同一个 toolCallId）                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `llmModel`         | string    | 产生该消息的 LLM 模型名称（如`gpt-4`），通常仅 assistant 消息和 summary 消息有此值                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `promptTokens`     | int       | 产生该消息时的输入 token 数（LLM 返回的 usage 统计）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| `completionTokens` | int       | 产生该消息时的输出 token 数（LLM 返回的 usage 统计）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| `totalTokens`      | int       | 总 token 数（通常等于 promptTokens + completionTokens），用于摘要、上下文估算和 usage 账本写入                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `metadata`         | object    | 自定义元数据，JSON 格式                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `schemaVersion`    | int       | 行 Schema 版本号                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `extra`            | string    | 预留扩展字段                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `createTime`       | timestamp | 消息创建时间                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `messageId`        | string    | 消息唯一 ID，追加时自动生成                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `sessionId`        | string    | 所属会话 ID                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `agentId`          | string    | 所属 Agent ID                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `sequenceNum`      | long      | 会话内单调递增序列号，从 1 开始，用于消息排序和范围查询                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `role`             | string    | 消息角色：`system`（系统指令）/`user`（用户输入）/`assistant`（LLM 回复）/`tool`（工具执行结果）                                                                                                                                                                                                                                                                                                                                                |
+| `contentType`      | string    | 内容类型，决定上下文组装时的解析方式：`text`（纯文本，直接作为 message.content）/`tool_call`（工具调用，content 为 JSON 格式的 toolCalls 数组，组装时解析为 OpenAI tool\_calls 结构）/`tool_result`（工具结果，组装时使用 role=`tool`并附带 toolCallId）/`summary`（会话摘要，由框架内部写入，在`summary-first`模式下作为 latest summary 注入；其`metadata`中记录`summaryUpToSeqNum`、`trigger`、`summaryLlmConfigId`） |
+| `content`          | string    | 消息内容。格式取决于 contentType：text 和 tool\_result 为纯文本，tool\_call 为 JSON（`{"toolCalls":[...]}`或`[{...}]`）                                                                                                                                                                                                                                                                                                                                 |
+| `toolCallId`       | string    | 工具调用关联 ID。contentType 为`tool_result`时必填，用于将工具执行结果关联到 assistant 发起的对应 tool\_call（同一个 toolCallId）                                                                                                                                                                                                                                                                                                                           |
+| `llmModel`         | string    | 产生该消息的 LLM 模型名称（如`gpt-4`），通常仅 assistant 消息和 summary 消息有此值                                                                                                                                                                                                                                                                                                                                                                          |
+| `promptTokens`     | int       | 产生该消息时的输入 token 数（LLM 返回的 usage 统计）                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `completionTokens` | int       | 产生该消息时的输出 token 数（LLM 返回的 usage 统计）                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `totalTokens`      | int       | 总 token 数（通常等于 promptTokens + completionTokens），用于摘要、上下文估算和 usage 账本写入                                                                                                                                                                                                                                                                                                                                                                  |
+| `metadata`         | object    | 自定义元数据，JSON 格式                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `schemaVersion`    | int       | 行 Schema 版本号                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `extra`            | string    | 预留扩展字段                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `createTime`       | timestamp | 消息创建时间                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ---
 
 ### MemoryEntry
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `memoryId` | string | 记忆唯一 ID，存储时自动生成 |
-| `agentId` | string | 所属 Agent ID |
-| `userId` | string | 个人记忆所属用户 |
-| `scopeType` | string | 作用域：`user_personal` |
-| `memoryKind` | string | 记忆主分类：`preference` / `fact` / `procedure` / `failure_shield` / `default` |
-| `title` | string | 标题 |
-| `content` | string | 记忆事实源文本 |
-| `shortSummary` | string | 服务端派生短摘要；创建或编辑事实源后可能短暂为空 |
-| `keywords` | string | 服务端派生检索辅助词；创建或编辑事实源后可能短暂为空 |
-| `tags` | string | 服务端派生主题标签，空格分隔；创建或编辑事实源后可能短暂为空 |
-| `importance` | double | 重要度，取值范围 `[0, 1]` |
-| `confidence` | double | 置信度，取值范围 `[0, 1]` |
-| `status` | string | 状态，如 `active` / `deleted` |
-| `accessCount` | long | recall 聚合访问次数 |
-| `lastAccessTime` | timestamp / null | 最近 recall 时间 |
-| `usageCount` | long | actual usage 聚合次数 |
-| `lastUsageTime` | timestamp / null | 最近 actual usage 时间 |
-| `expireTime` | timestamp / null | 过期时间，空表示永不过期 |
-| `source` | string | 记忆来源，如 `manual` / `user_edited` / `phase2` / `auto_extract` |
-| `sourceRefs` | string | 来源引用信息 |
-| `metadata` | object | 自定义元数据，JSON 格式 |
-| `schemaVersion` | int | 行 Schema 版本号 |
-| `createTime` | timestamp | 创建时间 |
-| `updateTime` | timestamp | 最后更新时间 |
-| `rankScore` | double | `RANKED` 搜索的应用层排序分 |
-| `textScore` | double | textIndex 命中分；列表查询或未命中文本时通常为 `0` |
-| `vectorScore` | double | embedding 召回分；未配置 embedding 或未命中向量侧时为 `0` |
+| 字段
+
+```
+| 类型
+
+
+         | 说明
+
+
+                                                                                   |
+```
+
+| ---------------------- | ------------------ | -------------------------------------------------------------------------------------------- |
+| `memoryId`       | string           | 记忆唯一 ID，存储时自动生成                                                                |
+| `agentId`        | string           | 所属 Agent ID                                                                              |
+| `userId`         | string           | 个人记忆所属用户                                                                           |
+| `scopeType`      | string           | 作用域：`user_personal`                                                                |
+| `memoryKind`     | string           | 记忆主分类：`preference`/`fact`/`procedure`/`failure_shield`/`default` |
+| `title`          | string           | 标题                                                                                       |
+| `content`        | string           | 记忆事实源文本                                                                             |
+| `shortSummary`   | string           | 服务端派生短摘要；创建或编辑事实源后可能短暂为空                                           |
+| `keywords`       | string           | 服务端派生检索辅助词；创建或编辑事实源后可能短暂为空                                       |
+| `tags`           | string           | 服务端派生主题标签，空格分隔；创建或编辑事实源后可能短暂为空                               |
+| `importance`     | double           | 重要度，取值范围`[0, 1]`                                                               |
+| `confidence`     | double           | 置信度，取值范围`[0, 1]`                                                               |
+| `status`         | string           | 状态，如`active`/`deleted`                                                         |
+| `accessCount`    | long             | recall 聚合访问次数                                                                        |
+| `lastAccessTime` | timestamp / null | 最近 recall 时间                                                                           |
+| `usageCount`     | long             | actual usage 聚合次数                                                                      |
+| `lastUsageTime`  | timestamp / null | 最近 actual usage 时间                                                                     |
+| `expireTime`     | timestamp / null | 过期时间，空表示永不过期                                                                   |
+| `source`         | string           | 记忆来源，如`manual`/`user_edited`/`phase2`/`auto_extract`                 |
+| `sourceRefs`     | string           | 来源引用信息                                                                               |
+| `metadata`       | object           | 自定义元数据，JSON 格式                                                                    |
+| `schemaVersion`  | int              | 行 Schema 版本号                                                                           |
+| `createTime`     | timestamp        | 创建时间                                                                                   |
+| `updateTime`     | timestamp        | 最后更新时间                                                                               |
+| `rankScore`      | double           | `RANKED`搜索的应用层排序分                                                             |
+| `textScore`      | double           | textIndex 命中分；列表查询或未命中文本时通常为`0`                                      |
+| `vectorScore`    | double           | embedding 召回分；未配置 embedding 或未命中向量侧时为`0`                               |
 
 ---
 
 ### MemoryJob
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `jobShardKey` | string | 任务分片 key |
-| `kind` | string | 任务类型：`memory_stage1` / `memory_phase2` / `memory_derive_fields` |
-| `jobKey` | string | 任务 key |
-| `scopeShardKey` | string | 记忆 scope 分片 key |
-| `scopeKey` | string | 业务 scope key |
-| `status` | string | 任务状态 |
-| `workerId` | string | 当前 worker ID |
-| `workerLeaseBootId` | string | worker 启动 ID |
-| `workerLeaseEpoch` | long | worker lease epoch |
-| `startedTime` | timestamp / null | 开始时间 |
-| `finishedTime` | timestamp / null | 完成时间 |
-| `retryAt` | timestamp / null | 下次重试时间 |
-| `retryRemaining` | int | 剩余重试次数 |
-| `lastError` | string | 最近错误 |
-| `inputWatermark` | string | 输入水位 |
-| `lastSuccessWatermark` | string | 最近成功水位 |
-| `schemaVersion` | int | 行 Schema 版本号 |
-| `extra` | string | 扩展信息 |
+| 字段
+
+```
+| 类型
+
+
+         | 说明
+
+
+                                                                     |
+```
+
+| ---------------------------- | ------------------ | ------------------------------------------------------------------------------ |
+| `jobShardKey`          | string           | 任务分片 key                                                                 |
+| `kind`                 | string           | 任务类型：`memory_stage1`/`memory_phase2`/`memory_derive_fields` |
+| `jobKey`               | string           | 任务 key                                                                     |
+| `scopeShardKey`        | string           | 记忆 scope 分片 key                                                          |
+| `scopeKey`             | string           | 业务 scope key                                                               |
+| `status`               | string           | 任务状态                                                                     |
+| `workerId`             | string           | 当前 worker ID                                                               |
+| `workerLeaseBootId`    | string           | worker 启动 ID                                                               |
+| `workerLeaseEpoch`     | long             | worker lease epoch                                                           |
+| `startedTime`          | timestamp / null | 开始时间                                                                     |
+| `finishedTime`         | timestamp / null | 完成时间                                                                     |
+| `retryAt`              | timestamp / null | 下次重试时间                                                                 |
+| `retryRemaining`       | int              | 剩余重试次数                                                                 |
+| `lastError`            | string           | 最近错误                                                                     |
+| `inputWatermark`       | string           | 输入水位                                                                     |
+| `lastSuccessWatermark` | string           | 最近成功水位                                                                 |
+| `schemaVersion`        | int              | 行 Schema 版本号                                                             |
+| `extra`                | string           | 扩展信息                                                                     |
 
 ---
 
@@ -3779,9 +4233,148 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
 
 ---
 
+### McpServerInfo
+
+| 字段
+
+```
+| 类型
+
+
+  | 说明
+
+
+                                                               |
+```
+
+| ------------------------ | ----------- | ------------------------------------------------------------------------ |
+| `mcpServerId`      | string    | MCP Server 全局唯一 ID，注册时自动生成，格式通常为`mcp_srv_xxx`    |
+| `name`             | string    | MCP Server 名称                                                        |
+| `serverType`       | string    | MCP Server 类型：`dolphindb`/`third_party`                     |
+| `endpoint`         | object    | 地址配置；当前只包含`url`                                          |
+| `endpoint.url`     | string    | MCP Server 地址                                                        |
+| `credentialMode`   | string    | 认证方式：`dolphindb_current_user`/`none`/`shared_token`   |
+| `sharedAuthConfig` | object    | 第三方共享认证配置；对外返回时`token`会脱敏为`******`          |
+| `enabled`          | bool      | 是否可用。停用后保留配置和绑定，但不会注入或执行该 MCP Server 的 tools |
+| `ownerUserId`      | string    | 创建该配置的 DolphinDB 用户 ID                                         |
+| `schemaVersion`    | int       | 行 Schema 版本号                                                       |
+| `extra`            | string    | 后端预留扩展字段                                                       |
+| `createTime`       | timestamp | 创建时间                                                               |
+| `updateTime`       | timestamp | 最后更新时间                                                           |
+
+---
+
+### McpBindingInfo
+
+| 字段
+
+```
+| 类型
+
+
+  | 说明
+
+
+                                                                                           |
+```
+
+| ---------------------- | ----------- | ---------------------------------------------------------------------------------------------------- |
+| `agentId`        | string    | 绑定到的 Agent ID                                                                                  |
+| `mcpServerId`    | string    | 被绑定的 MCP Server ID                                                                             |
+| `enabled`        | bool      | 绑定是否可用。为`false`时不注入该绑定下的 tools                                                |
+| `toolNamePrefix` | string    | 合成工具名前缀，用于避免不同 MCP Server 的工具名冲突。默认格式类似`mcp__dolphinMcp_1a2b3c4d__` |
+| `extra`          | string    | 后端预留扩展字段                                                                                   |
+| `createTime`     | timestamp | 绑定时间                                                                                           |
+| `updateTime`     | timestamp | 最后更新时间                                                                                       |
+
+---
+
+### McpServerTestResult
+
+| 字段
+
+```
+| 类型
+
+
+ | 说明
+
+
+                                            |
+```
+
+| -------------------------- | ---------- | ----------------------------------------------------- |
+| `ok`                 | bool     | 测试是否成功                                        |
+| `mcpServerId`        | string   | 测试目标 ID；未落库配置会返回临时`mcp_test_xxx` |
+| `message`            | string   | 测试结果摘要                                        |
+| `toolCount`          | int      | tools/list 返回的可识别工具数量                     |
+| `toolNames`          | string[] | 工具名样例列表                                      |
+| `toolNamesTruncated` | bool     | `toolNames`是否因数量上限被截断                 |
+| `truncated`          | bool     | MCP Server 原始响应是否被读取上限截断               |
+| `error`              | string   | 失败原因，仅失败时返回                              |
+
+---
+
+### McpToolCallResult
+
+| 字段
+
+```
+| 类型
+```
+
+| 说明
+
+```
+|
+```
+
+| -------------------- | -------- | -------------------------------------------------------------- |
+| `ok`           | bool   | 工具执行是否成功。MCP Server 返回工具级错误时为`false`   |
+| `tool`         | string | 调用的合成工具名                                             |
+| `mcpServerId`  | string | 实际执行工具的 MCP Server ID                                 |
+| `originalName` | string | MCP Server 原始工具名                                        |
+| `isError`      | bool   | MCP tools/call 结果中的工具级错误标记                        |
+| `truncated`    | bool   | MCP Server 原始响应是否被读取上限截断                        |
+| `content`      | any    | MCP tools/call 返回的`content`，通常为 MCP content array |
+| `raw`          | object | MCP Server 原始 result 对象                                  |
+| `error`        | string | 框架侧或 MCP 调用失败原因，仅失败时返回                      |
+
+---
+
+### McpDiagnostics
+
+`context.preview` 中的 MCP discovery 诊断结构，用于管控和调试工具注入结果。
+
+| 字段
+
+```
+| 类型
+
+
+ | 说明
+
+
+                                        |
+```
+
+| ----------------------------- | ---------- | ------------------------------------------------- |
+| `capability`            | string   | 当前固定为`tools`                           |
+| `toolsCount`            | int      | 本次实际注入的 MCP 工具数量                     |
+| `servers`               | object[] | 每个已绑定且启用的 MCP Server 的 discovery 结果 |
+| `servers[].mcpServerId` | string   | MCP Server ID                                   |
+| `servers[].capability`  | string   | 当前固定为`tools`                           |
+| `servers[].operation`   | string   | 当前固定为`list`                            |
+| `servers[].status`      | string   | `ok`/`error`                            |
+| `servers[].toolCount`   | int      | 该 MCP Server 可注入的工具数量                  |
+| `servers[].fromCache`   | bool     | 是否来自 discovery 缓存                         |
+| `servers[].error`       | string   | discovery 失败原因，仅失败时返回                |
+
+---
+
 ### BuiltinInitResult
 
-`/builtin/init` 与 `/builtin/init/status` 的响应结构。初始化接口返回当前执行结果；管理员状态接口返回最近一次非 dryRun 初始化状态。未登录用户和普通用户查询状态时只返回 `initialized`、`state`、`manifestId`、`manifestVersion` 字段。
+`/builtin/init` 与 `/builtin/init/status` 的响应结构。初始化接口返回当前执行结果；状态查询接口返回最近一次非 dryRun 初始化状态。两者共享部分顶层字段，但不是完全同形：`/builtin/init` 可返回 `runId`、`dryRun` 和 `items`；`/builtin/init/status` 可返回 `lastRunId`、`lastRunTime` 和 `states`。未登录用户和普通用户查询状态时只返回 `initialized`、`state`、`manifestId`、`manifestVersion` 字段。
 
 | 字段
 
@@ -3792,25 +4385,25 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
                                                                                                                                                                                                                                                                                                                                                                             | 说明
 
 
-                                                                      |
+                                                                       |
 ```
 
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `initialized`     | bool                                                                                                                                                                                                                                                                                                                                                                                | `state == "READY"`时为 true                                               |
-| `state`           | string                                                                                                                                                                                                                                                                                                                                                                              | 初始化状态：`NOT_RUN`/`READY`/`PARTIAL`/`STALE`/`INVALID` |
-| `runId`           | string                                                                                                                                                                                                                                                                                                                                                                              | 本次初始化运行 ID；状态查询中可能为空                                         |
-| `manifestId`      | string                                                                                                                                                                                                                                                                                                                                                                              | manifest 中声明的内置资源包标识                                               |
-| `manifestVersion` | string                                                                                                                                                                                                                                                                                                                                                                              | manifest 中声明的发布版本，用于展示和状态记录                                 |
-| `manifestHash`    | string                                                                                                                                                                                                                                                                                                                                                                              | 当前磁盘 manifest 内容 hash                                                   |
-| `lastRunId`       | string                                                                                                                                                                                                                                                                                                                                                                              | 最近一次非 dryRun 初始化运行 ID；状态查询返回                                 |
-| `lastRunTime`     | timestamp / string                                                                                                                                                                                                                                                                                                                                                                  | 最近一次非 dryRun 初始化时间；未初始化时为空                                  |
-| `dryRun`          | bool                                                                                                                                                                                                                                                                                                                                                                                | 是否为 dryRun 结果；状态查询通常不返回该字段或为 false                        |
-| `summary`         | [BuiltinInitSummary](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#builtininitsummary "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#builtininitsummary") | 资源处理汇总                                                                  |
-| `items`           | BuiltinInitItem[]                                                                                                                                                                                                                                                                                                                                                                   | 初始化接口的资源处理明细，仅`includeDetails=true`返回                     |
-| `lastFailures`    | BuiltinInitItem[]                                                                                                                                                                                                                                                                                                                                                                   | 最近失败或冲突项                                                              |
-| `states`          | BuiltinStateRecord[]                                                                                                                                                                                                                                                                                                                                                                | 状态查询明细，仅`/builtin/init/status?includeDetails=true`返回            |
-| `errorCode`       | string                                                                                                                                                                                                                                                                                                                                                                              | 全局失败错误码，通常仅`state=INVALID`时返回                               |
-| `message`         | string                                                                                                                                                                                                                                                                                                                                                                              | 全局失败说明                                                                  |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `initialized`     | bool                                                                                                                                                                                                                                                                                                                                                                                | `state == "READY"`时为 true                                                |
+| `state`           | string                                                                                                                                                                                                                                                                                                                                                                              | 初始化状态：`NOT_RUN`/`READY`/`PARTIAL`/`STALE`/`INVALID`  |
+| `runId`           | string                                                                                                                                                                                                                                                                                                                                                                              | 本次初始化运行 ID；仅`/builtin/init`返回                                   |
+| `manifestId`      | string                                                                                                                                                                                                                                                                                                                                                                              | manifest 中声明的内置资源包标识                                                |
+| `manifestVersion` | string                                                                                                                                                                                                                                                                                                                                                                              | manifest 中声明的发布版本，用于展示和状态记录                                  |
+| `manifestHash`    | string                                                                                                                                                                                                                                                                                                                                                                              | 当前磁盘 manifest 内容 hash                                                    |
+| `lastRunId`       | string                                                                                                                                                                                                                                                                                                                                                                              | 最近一次非 dryRun 初始化运行 ID；仅`/builtin/init/status`返回              |
+| `lastRunTime`     | timestamp / string                                                                                                                                                                                                                                                                                                                                                                  | 最近一次非 dryRun 初始化时间；仅`/builtin/init/status`返回，未初始化时为空 |
+| `dryRun`          | bool                                                                                                                                                                                                                                                                                                                                                                                | 是否为 dryRun 结果；仅`/builtin/init`返回                                  |
+| `summary`         | [BuiltinInitSummary](https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#builtininitsummary "https://vscode-remote+ssh-002dremote-002b192-002e168-002e0-002e182.vscode-resource.vscode-cdn.net/home/qwzhu/vscode/DolphinDB5_refactor/.doc/api_reference.md#builtininitsummary") | 资源处理汇总                                                                   |
+| `items`           | BuiltinInitItem[]                                                                                                                                                                                                                                                                                                                                                                   | 初始化接口的资源处理明细，仅`/builtin/init`且`includeDetails=true`返回 |
+| `lastFailures`    | BuiltinInitItem[]                                                                                                                                                                                                                                                                                                                                                                   | 最近失败或冲突项                                                               |
+| `states`          | BuiltinStateRecord[]                                                                                                                                                                                                                                                                                                                                                                | 状态查询明细，仅`/builtin/init/status?includeDetails=true`返回             |
+| `errorCode`       | string                                                                                                                                                                                                                                                                                                                                                                              | 全局失败错误码，通常仅`state=INVALID`时返回                                |
+| `message`         | string                                                                                                                                                                                                                                                                                                                                                                              | 全局失败说明                                                                   |
 
 ---
 
@@ -3933,23 +4526,24 @@ LLM 调用失败时的重试配置。所有字段均为可选，未提供时使�
    | 说明
 
 
-                                                                                                                                                                                                                                                                                                                                                                                 |
+                                                                                                                                                                                                                                                                                                                                                                                        |
 ```
 
-| ------------------------------ | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `requestId`              | string     | 请求唯一 ID，用于追踪和日志关联                                                                                                                                                                                                                                                                                                                                                          |
-| `sessionId`              | string     | 所属会话 ID（如果有）                                                                                                                                                                                                                                                                                                                                                                    |
-| `model`                  | string     | 实际使用的 LLM 模型名称（由 LLM 提供商返回）                                                                                                                                                                                                                                                                                                                                             |
-| `llmConfigId`            | string     | 实际使用的 LLM 配置 ID                                                                                                                                                                                                                                                                                                                                                                   |
-| `content`                | string     | LLM 回复的文本内容                                                                                                                                                                                                                                                                                                                                                                       |
-| `toolCalls`              | ToolCall[] | LLM 发起的工具调用列表。非空时`finishReason`通常为`tool_calls`/`tool_use`，应用层应执行工具并将结果追加为`tool_result`消息                                                                                                                                                                                                                                               |
-| `finishReason`           | string     | 结束原因，值取决于 LLM 提供商。OpenAI 系：`stop`（正常结束）/`tool_calls`（需要调用工具）/`length`（达到 max\_tokens 限制）/`content_filter`（内容过滤）。Anthropic 系：`end_turn`/`tool_use`/`max_tokens`/`stop_sequence`                                                                                                                               |
-| `usage`                  | object     | 本次请求的 token 用量统计                                                                                                                                                                                                                                                                                                                                                                |
-| `usage.promptTokens`     | int        | 输入 token 数（发送给 LLM 的完整上下文消耗的 token）                                                                                                                                                                                                                                                                                                                                     |
-| `usage.completionTokens` | int        | 输出 token 数（LLM 生成的回复消耗的 token）                                                                                                                                                                                                                                                                                                                                              |
-| `usage.totalTokens`      | int        | 总 token 数                                                                                                                                                                                                                                                                                                                                                                              |
-| `latencyMs`              | long       | 本次 LLM 请求的端到端延迟（毫秒）                                                                                                                                                                                                                                                                                                                                                        |
-| `metadata`               | object     | 额外元数据。chat/complete 响应中会包含模型选择字段：`llmConfigId`（实际使用的 LLM 配置 ID）、`requestedLlmConfigId`（原始目标 LLM 配置 ID）、`fallbackApplied`（是否从首选配置切换到备用配置）；当`fallbackApplied=true`时还包含`fallbackFromLlmConfigId`（原配置 ID）、`fallbackReason`（原配置调用失败原因）、`fallbackStatusCode`（原配置调用失败状态码） |
+| ------------------------------ | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `requestId`              | string     | 请求唯一 ID，用于追踪和日志关联                                                                                                                                                                                                                                                                                                                                                                 |
+| `sessionId`              | string     | 所属会话 ID（如果有）                                                                                                                                                                                                                                                                                                                                                                           |
+| `model`                  | string     | 实际使用的 LLM 模型名称（由 LLM 提供商返回）                                                                                                                                                                                                                                                                                                                                                    |
+| `llmConfigId`            | string     | 实际使用的 LLM 配置 ID                                                                                                                                                                                                                                                                                                                                                                          |
+| `content`                | string     | LLM 回复的文本内容                                                                                                                                                                                                                                                                                                                                                                              |
+| `reasoning`              | string     | LLM 提供商返回的可展示 reasoning 文本；仅请求`includeReasoning=true`且 provider 返回可展示 reasoning 时非空，否则为空字符串                                                                                                                                                                                                                                                                 |
+| `toolCalls`              | ToolCall[] | LLM 发起的工具调用列表。非空时`finishReason`通常为`tool_calls`/`tool_use`，应用层应执行工具并将结果追加为`tool_result`消息                                                                                                                                                                                                                                                      |
+| `finishReason`           | string     | 结束原因，值取决于 LLM 提供商。OpenAI 系：`stop`（正常结束）/`tool_calls`（需要调用工具）/`length`（达到 max\_tokens 限制）/`content_filter`（内容过滤）。Anthropic 系：`end_turn`/`tool_use`/`max_tokens`/`stop_sequence`                                                                                                                                      |
+| `usage`                  | object     | 本次请求的 token 用量统计                                                                                                                                                                                                                                                                                                                                                                       |
+| `usage.promptTokens`     | int        | 输入 token 数（发送给 LLM 的完整上下文消耗的 token）                                                                                                                                                                                                                                                                                                                                            |
+| `usage.completionTokens` | int        | 输出 token 数（LLM 生成的回复消耗的 token）                                                                                                                                                                                                                                                                                                                                                     |
+| `usage.totalTokens`      | int        | 总 token 数                                                                                                                                                                                                                                                                                                                                                                                     |
+| `latencyMs`              | long       | 本次 LLM 请求的端到端延迟（毫秒）                                                                                                                                                                                                                                                                                                                                                               |
+| `metadata`               | object     | 额外元数据。chat/complete 响应中会包含模型选择辅助字段：`requestedLlmConfigId`（原始目标 LLM 配置 ID）、`fallbackApplied`（是否从首选配置切换到备用配置）；实际使用的 LLM 配置 ID 见顶层`llmConfigId`。当`fallbackApplied=true`时还包含`fallbackFromLlmConfigId`（原配置 ID）、`fallbackReason`（原配置调用失败原因）、`fallbackStatusCode`（原配置调用失败状态码） |
 
 ---
 
@@ -4198,96 +4792,107 @@ WebSocket 支持所有与 HTTP 相同的 action（无需 HTTP 方法区分），
                             |
 ```
 
-| ------------------------------------- | ----------------------------------------------- |
-| `agent.register`                | POST /agent/register                          |
-| `agent.get`                     | GET /agent/{id}                               |
-| `agent.update`                  | PUT /agent/{id}                               |
-| `agent.activate`                | POST /agent/{id}/activate                     |
-| `agent.suspend`                 | POST /agent/{id}/suspend                      |
-| `agent.delete`                  | POST /agent/{id}/delete                       |
-| `agent.list`                    | GET /agent/list                               |
-| `agent.auth.grant`              | POST /agent/{id}/auth                         |
-| `agent.auth.revoke`             | DELETE /agent/{id}/auth                       |
-| `agent.auth.list`               | GET /agent/{id}/auth/list                     |
-| `agent.accessible`              | GET /agent/accessible                         |
-| `agent.llm.grant`               | POST /agent/{id}/llm/access                   |
-| `agent.llm.revoke`              | DELETE /agent/{id}/llm/access                 |
-| `agent.llm.list`                | GET /agent/{id}/llm/list                      |
-| `agent.llm.selectable`          | GET /agent/{id}/llm/selectable                |
-| `admin.access.grant`            | POST /admin/access                            |
-| `admin.access.revoke`           | DELETE /admin/access                          |
-| `admin.access.list`             | GET /admin/access                             |
-| `user.llm.access.grant`         | POST /user/{id}/llm/access                    |
-| `user.llm.access.revoke`        | DELETE /user/{id}/llm/access                  |
-| `user.llm.access.list`          | GET /user/{id}/llm/access                     |
-| `llm.provider.register`         | POST /llm/provider/register                   |
-| `llm.provider.get`              | GET /llm/provider/{id}                        |
-| `llm.provider.list`             | GET /llm/provider/list                        |
-| `llm.provider.update`           | PUT /llm/provider/{id}                        |
-| `llm.provider.delete`           | DELETE /llm/provider/{id}                     |
-| `llm.config.register`           | POST /llm/config/register                     |
-| `llm.config.get`                | GET /llm/config/{id}                          |
-| `llm.config.list`               | GET /llm/config/list                          |
-| `llm.config.update`             | PUT /llm/config/{id}                          |
-| `llm.config.delete`             | DELETE /llm/config/{id}                       |
-| `llm.complete`                  | POST /llm/complete                            |
-| `llm.usage`                     | GET /llm/usage                                |
-| `network.fetch`                 | POST /network/fetch                           |
-| `builtin.init`                  | POST /builtin/init                            |
-| `builtin.init.status`           | GET /builtin/init/status                      |
-| `chat.completions`              | POST /chat/completions                        |
-| `context.preview`               | POST /context/preview                         |
-| `session.create`                | POST /session/create                          |
-| `session.get`                   | GET /session/{id}                             |
-| `session.update`                | PUT /session/{id}                             |
-| `session.delete`                | DELETE /session/{id}                          |
-| `session.list`                  | GET /session/list                             |
-| `session.getMessages`           | GET /session/{id}/messages                    |
-| `session.generateSummary`       | POST /session/{id}/summary                    |
-| `workspace.list`                | GET /workspace/{sessionId}/files              |
-| `workspace.read`                | GET /workspace/{sessionId}/file               |
-| `workspace.write`               | POST /workspace/{sessionId}/file              |
-| `workspace.delete`              | DELETE /workspace/{sessionId}/file            |
-| `workspace.search`              | POST /workspace/{sessionId}/search            |
-| `workspace.replace`             | POST /workspace/{sessionId}/replace           |
-| `memory.personal.getSettings`       | GET /memory/personal/settings                 |
-| `memory.personal.setEnabled`        | POST /memory/personal/settings                |
-| `memory.personal.query`             | POST /memory/personal/query                   |
-| `memory.personal.create`            | POST /memory/personal                         |
-| `memory.personal.get`               | GET /memory/personal/{id}                     |
-| `memory.personal.update`            | PUT /memory/personal/{id}                     |
-| `memory.personal.delete`            | DELETE /memory/personal/{id}                  |
-| `memory.personal.forgetSession`     | POST /memory/personal/forgetSession           |
-| `memory.personal.pipeline.trigger`  | POST /memory/personal/pipeline/trigger        |
-| `memory.public.get`                 | GET /memory/public                            |
-| `admin.memory.public.update`        | PUT /admin/memory/public                      |
-| `admin.memory.public.clear`         | DELETE /admin/memory/public                   |
-| `admin.memory.stats`                | GET /admin/memory/stats                       |
-| `admin.memory.config.get`       | GET /admin/memory/config                      |
-| `admin.memory.config.update`    | PUT /admin/memory/config                      |
-| `admin.memory.jobs.list`        | GET /admin/memory/jobs                        |
-| `admin.memory.jobs.get`         | GET /admin/memory/jobs/{kind}/{jobKey}        |
-| `admin.memory.jobs.retry`       | POST /admin/memory/jobs/{kind}/{jobKey}/retry |
-| `admin.memory.pipeline.trigger` | POST /admin/memory/pipeline/trigger           |
-| `admin.memory.reset`            | POST /admin/memory/reset                      |
-| `skill.register`                | POST /skill/register                          |
-| `skill.get`                     | GET /skill/{id}                               |
-| `skill.getByName`               | GET /skill/byName/{name}                      |
-| `skill.update`                  | PUT /skill/{id}                               |
-| `skill.delete`                  | DELETE /skill/{id}                            |
-| `skill.list`                    | GET /skill/list                               |
-| `skill.getInstruction`          | GET /skill/{id}/instruction                   |
-| `skill.files.list`              | GET /skill/{id}/files/list                    |
-| `skill.files.get`               | GET /skill/{id}/files/get                     |
-| `skill.files.search`            | POST /skill/{id}/files/search                 |
-| `skill.files.batchGet`          | POST /skill/{id}/files/batchGet               |
-| `skill.bind`                    | POST /skill/bind                              |
-| `skill.unbind`                  | POST /skill/unbind                            |
-| `skill.bindings`                | GET /skill/{agentId}/bindings                 |
-| `skill.catalog`                 | GET /skill/{agentId}/catalog                  |
-| `skill.user.deny`               | POST /skill/user/deny                         |
-| `skill.user.allow`              | POST /skill/user/allow                        |
-| `skill.user.denied`             | GET /skill/user/{userId}/denied               |
+| ---------------------------------------- | ----------------------------------------------- |
+| `agent.register`                   | POST /agent/register                          |
+| `agent.get`                        | GET /agent/{id}                               |
+| `agent.update`                     | PUT /agent/{id}                               |
+| `agent.activate`                   | POST /agent/{id}/activate                     |
+| `agent.suspend`                    | POST /agent/{id}/suspend                      |
+| `agent.delete`                     | POST /agent/{id}/delete                       |
+| `agent.list`                       | GET /agent/list                               |
+| `agent.auth.grant`                 | POST /agent/{id}/auth                         |
+| `agent.auth.revoke`                | DELETE /agent/{id}/auth                       |
+| `agent.auth.list`                  | GET /agent/{id}/auth/list                     |
+| `agent.accessible`                 | GET /agent/accessible                         |
+| `agent.llm.grant`                  | POST /agent/{id}/llm/access                   |
+| `agent.llm.revoke`                 | DELETE /agent/{id}/llm/access                 |
+| `agent.llm.list`                   | GET /agent/{id}/llm/list                      |
+| `agent.llm.selectable`             | GET /agent/{id}/llm/selectable                |
+| `admin.access.grant`               | POST /admin/access                            |
+| `admin.access.revoke`              | DELETE /admin/access                          |
+| `admin.access.list`                | GET /admin/access                             |
+| `user.llm.access.grant`            | POST /user/{id}/llm/access                    |
+| `user.llm.access.revoke`           | DELETE /user/{id}/llm/access                  |
+| `user.llm.access.list`             | GET /user/{id}/llm/access                     |
+| `llm.provider.register`            | POST /llm/provider/register                   |
+| `llm.provider.get`                 | GET /llm/provider/{id}                        |
+| `llm.provider.list`                | GET /llm/provider/list                        |
+| `llm.provider.update`              | PUT /llm/provider/{id}                        |
+| `llm.provider.delete`              | DELETE /llm/provider/{id}                     |
+| `llm.config.register`              | POST /llm/config/register                     |
+| `llm.config.get`                   | GET /llm/config/{id}                          |
+| `llm.config.list`                  | GET /llm/config/list                          |
+| `llm.config.update`                | PUT /llm/config/{id}                          |
+| `llm.config.delete`                | DELETE /llm/config/{id}                       |
+| `llm.complete`                     | POST /llm/complete                            |
+| `llm.usage`                        | GET /llm/usage                                |
+| `mcp.server.register`              | POST /mcp/server/register                     |
+| `mcp.server.get`                   | GET /mcp/server/{id}                          |
+| `mcp.server.list`                  | GET /mcp/server/list                          |
+| `mcp.server.test`                  | POST /mcp/server/test                         |
+| `mcp.server.update`                | PUT /mcp/server/{id}                          |
+| `mcp.server.delete`                | POST /mcp/server/{id}/delete                  |
+| `agent.mcp.bind`                   | POST /agent/{id}/mcp/bind                     |
+| `agent.mcp.unbind`                 | DELETE /agent/{id}/mcp/bind                   |
+| `agent.mcp.list`                   | GET /agent/{id}/mcp/list                      |
+| `mcp.tools.call`                   | POST /mcp/tools/call                          |
+| `mcp.capability.unsupported`       | /mcp/resources/... 或 /mcp/prompts/...        |
+| `network.fetch`                    | POST /network/fetch                           |
+| `builtin.init`                     | POST /builtin/init                            |
+| `builtin.init.status`              | GET /builtin/init/status                      |
+| `chat.completions`                 | POST /chat/completions                        |
+| `context.preview`                  | POST /context/preview                         |
+| `session.create`                   | POST /session/create                          |
+| `session.get`                      | GET /session/{id}                             |
+| `session.update`                   | PUT /session/{id}                             |
+| `session.delete`                   | DELETE /session/{id}                          |
+| `session.list`                     | GET /session/list                             |
+| `session.getMessages`              | GET /session/{id}/messages                    |
+| `session.generateSummary`          | POST /session/{id}/summary                    |
+| `workspace.list`                   | GET /workspace/{sessionId}/files              |
+| `workspace.read`                   | GET /workspace/{sessionId}/file               |
+| `workspace.write`                  | POST /workspace/{sessionId}/file              |
+| `workspace.delete`                 | DELETE /workspace/{sessionId}/file            |
+| `workspace.search`                 | POST /workspace/{sessionId}/search            |
+| `workspace.replace`                | POST /workspace/{sessionId}/replace           |
+| `memory.personal.getSettings`      | GET /memory/personal/settings                 |
+| `memory.personal.setEnabled`       | POST /memory/personal/settings                |
+| `memory.personal.query`            | POST /memory/personal/query                   |
+| `memory.personal.create`           | POST /memory/personal                         |
+| `memory.personal.get`              | GET /memory/personal/{id}                     |
+| `memory.personal.update`           | PUT /memory/personal/{id}                     |
+| `memory.personal.delete`           | DELETE /memory/personal/{id}                  |
+| `memory.personal.forgetSession`    | POST /memory/personal/forgetSession           |
+| `memory.personal.pipeline.trigger` | POST /memory/personal/pipeline/trigger        |
+| `memory.public.get`                | GET /memory/public                            |
+| `admin.memory.public.update`       | PUT /admin/memory/public                      |
+| `admin.memory.public.clear`        | DELETE /admin/memory/public                   |
+| `admin.memory.stats`               | GET /admin/memory/stats                       |
+| `admin.memory.config.get`          | GET /admin/memory/config                      |
+| `admin.memory.config.update`       | PUT /admin/memory/config                      |
+| `admin.memory.jobs.list`           | GET /admin/memory/jobs                        |
+| `admin.memory.jobs.get`            | GET /admin/memory/jobs/{kind}/{jobKey}        |
+| `admin.memory.jobs.retry`          | POST /admin/memory/jobs/{kind}/{jobKey}/retry |
+| `admin.memory.pipeline.trigger`    | POST /admin/memory/pipeline/trigger           |
+| `admin.memory.reset`               | POST /admin/memory/reset                      |
+| `skill.register`                   | POST /skill/register                          |
+| `skill.get`                        | GET /skill/{id}                               |
+| `skill.getByName`                  | GET /skill/byName/{name}                      |
+| `skill.update`                     | PUT /skill/{id}                               |
+| `skill.delete`                     | DELETE /skill/{id}                            |
+| `skill.list`                       | GET /skill/list                               |
+| `skill.getInstruction`             | GET /skill/{id}/instruction                   |
+| `skill.files.list`                 | GET /skill/{id}/files/list                    |
+| `skill.files.get`                  | GET /skill/{id}/files/get                     |
+| `skill.files.search`               | POST /skill/{id}/files/search                 |
+| `skill.files.batchGet`             | POST /skill/{id}/files/batchGet               |
+| `skill.bind`                       | POST /skill/bind                              |
+| `skill.unbind`                     | POST /skill/unbind                            |
+| `skill.bindings`                   | GET /skill/{agentId}/bindings                 |
+| `skill.catalog`                    | GET /skill/{agentId}/catalog                  |
+| `skill.user.deny`                  | POST /skill/user/deny                         |
+| `skill.user.allow`                 | POST /skill/user/allow                        |
+| `skill.user.denied`                | GET /skill/user/{userId}/denied               |
 
 ---
 
