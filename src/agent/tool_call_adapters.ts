@@ -172,7 +172,7 @@ function build_tool_call_message (parsed_call: ParsedToolCall, msg_id: string, r
 export const legacy_json_tool_call_adapter: ToolCallAdapter = {
     mode: 'legacy_json',
     
-    build_system_prompt: (doc_search_enabled) => 
+    build_system_prompt: doc_search_enabled => 
         build_system_prompt(false, doc_search_enabled),
     
     apply_request_body (body, message) {

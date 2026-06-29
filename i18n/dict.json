@@ -7070,6 +7070,12 @@
     "输入消息发送给助手...": {
         "en": "Type a message to the assistant..."
     },
+    "未配置 AI 模型服务，请先在系统设置中完成模型绑定。": {
+        "en": "AI model service is not configured. Please bind a model in system settings first."
+    },
+    "前往配置": {
+        "en": "Go to Configuration"
+    },
     "请先创建会话": {
         "en": "Please create a session first"
     },
@@ -7541,11 +7547,17 @@
     "重试请求已提交": {
         "en": "Retry request submitted"
     },
+    "记忆任务重试次数已重置": {
+        "en": "Memory job retry count reset"
+    },
     "加载记忆任务失败": {
         "en": "Failed to load memory jobs"
     },
     "重试记忆任务失败": {
         "en": "Failed to retry memory job"
+    },
+    "重置记忆任务重试次数失败": {
+        "en": "Failed to reset memory job retry count"
     },
     "加载记忆任务详情失败": {
         "en": "Failed to load memory job details"
@@ -7573,6 +7585,9 @@
     },
     "重置记忆": {
         "en": "Reset memory"
+    },
+    "重置次数": {
+        "en": "Reset retries"
     },
     "请先选择用户": {
         "en": "Please select a user first"

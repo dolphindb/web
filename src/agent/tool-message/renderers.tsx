@@ -2,6 +2,8 @@ import { Button, Collapse, Typography } from 'antd'
 import { RedoOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
+import { chat_model } from '@/agent/model.ts'
+import { no_available_llm_config_message } from '@/agent/model/agent.ts'
 import {
     normalize_args,
     get_arg_text,
@@ -470,6 +472,7 @@ export function FallbackRenderer (props: ToolRendererProps) {
 
 export function AgentErrorRenderer ({ chat, message }: ToolRendererProps) {
     const content = message.content.trim() || t('助手执行出现错误')
+    const llm_config_unavailable = Boolean(chat.agent_id && !chat.agent.has_available_llm_config())
     return <div
         style={{
             marginLeft: 12,
@@ -480,10 +483,14 @@ export function AgentErrorRenderer ({ chat, message }: ToolRendererProps) {
             wordBreak: 'break-word',
         }}
     >
-        <Text type='danger'>{content}</Text>
-        <Button size='small' icon={<RedoOutlined />} onClick={() => { chat.runtime.retry_last_message() }}>
-            {t('重试')}
-        </Button>
+        <Text type='danger'>{llm_config_unavailable ? no_available_llm_config_message() : content}</Text>
+        {llm_config_unavailable
+            ? <Button size='small' type='link' onClick={() => { chat_model.set({ settings_visible: true }) }}>
+                {t('前往配置')}
+            </Button>
+            : <Button size='small' icon={<RedoOutlined />} onClick={() => { chat.runtime.retry_last_message() }}>
+                {t('重试')}
+            </Button>}
     </div>
 }
 

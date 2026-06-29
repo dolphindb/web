@@ -18,6 +18,7 @@ interface ISkillListResult {
     offset: number
     limit: number
     size: number
+    total?: number
 }
 
 function get_base64_blob (payload: { content?: string, mediaType?: string }) {
@@ -71,6 +72,7 @@ export class ChatSkillModel {
             offset: result.offset ?? params.offset ?? 0,
             limit: result.limit ?? params.limit ?? 50,
             size: result.size ?? 0,
+            total: result.total,
         }
     }
     
@@ -81,7 +83,7 @@ export class ChatSkillModel {
             for (let offset = 0;  ;  offset += limit) {
                 const result = await this.chat.skill.load_skill_page({ offset, limit })
                 items.push(...result.items)
-                if (result.items.length < limit || items.length >= result.size)
+                if (result.items.length < limit || result.total !== undefined && items.length >= result.total)
                     break
             }
             return items

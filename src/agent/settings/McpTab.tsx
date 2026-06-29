@@ -404,15 +404,13 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
             confirmLoading={saving}
             width={720}
             destroyOnHidden
-            footer={(_, { CancelBtn, OkBtn }) => (
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            footer={(_, { CancelBtn, OkBtn }) => <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
                     <CancelBtn />
                     <Button icon={<ApiOutlined />} loading={testing_form} onClick={test_form_server}>
                         {t('测试')}
                     </Button>
                     <OkBtn />
-                </div>
-            )}
+                </div>}
         >
             <Form
                 form={server_form}
@@ -483,7 +481,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                                 name='token'
                                 label={t('Token')}
                                 required={editing_server?.credentialMode !== 'shared_token'}
-                                rules={editing_server?.credentialMode === 'shared_token' ? [] : [{ required: true, message: t('固定 Token 认证方式需要填写 Token') }]}
+                                rules={editing_server?.credentialMode === 'shared_token' ? [ ] : [{ required: true, message: t('固定 Token 认证方式需要填写 Token') }]}
                                 style={{ marginBottom: 0, gridColumn: '1 / -1' }}
                             >
                                 <Input.Password placeholder={editing_server?.credentialMode === 'shared_token' ? t('留空表示不修改') : ''} />

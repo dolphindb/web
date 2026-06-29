@@ -172,7 +172,7 @@ function build_tools_section (doc_search_enabled = true): string {
         new Set(get_all_scripts().map(config => String(config.function).trim()))
     ).filter(name => name && (doc_search_enabled || !doc_tools.includes(name)))
     
-    const build_tool_block = (name: string) => {
+    function build_tool_block (name: string) {
         const doc = TOOL_PROMPT_DOCS[name]
         const summary = doc?.summary ?? '已注册工具，具体语义按函数名理解。'
         const args_hint = doc?.args_hint ? `- 调用示例：\`${doc.args_hint}\`` : ''
@@ -209,8 +209,8 @@ function build_tools_section (doc_search_enabled = true): string {
             '- 不确定 DolphinDB API、参数、错误或示例时，直接根据已有知识回答。',
         ]
     
-    const examples: string[] = []
-    if (doc_search_enabled) {
+    const examples: string[] = [ ]
+    if (doc_search_enabled) 
         examples.push(
             '',
             '## 调用示例',
@@ -219,7 +219,7 @@ function build_tools_section (doc_search_enabled = true): string {
             '  "args": ["loadTable", "20"]',
             '}',
         )
-    }
+    
     examples.push(
         '',
         '## 调用示例：',

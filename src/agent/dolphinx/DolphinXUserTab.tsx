@@ -43,6 +43,10 @@ function optional_nonnegative_number (value: unknown) {
     return Number.isFinite(num) && num >= 0 ? num : undefined
 }
 
+function page_total (offset: number, limit: number, count: number, total?: number) {
+    return total ?? offset + count + (count >= limit ? 1 : 0)
+}
+
 
 function SessionSection () {
     const { agent_id, options } = use_agent_options()
@@ -70,7 +74,7 @@ function SessionSection () {
             set_selected_agent_id(options[0].value)
     }, [agent_id, options.length, selected_agent_id])
     
-    async function load_sessions (page = session_page, page_size = session_page_size) {
+    async function load_sessions (page = session_page, page_size = session_page_size, known_total?: number) {
         if (!selected_agent_id) {
             message.warning(t('请先选择 Agent'))
             return
@@ -82,15 +86,15 @@ function SessionSection () {
                 offset: (page - 1) * page_size,
                 limit: page_size,
             })
-            if (result.items.length === 0 && result.size > 0 && page > 1) {
-                await load_sessions(page - 1, page_size)
+            if (result.items.length === 0 && page > 1) {
+                await load_sessions(page - 1, page_size, (page - 1) * page_size)
                 return
             }
             const stats = await Promise.all(result.items.map(session => chat_model.session.load_session_workspace_stats(session.sessionId)))
             set_sessions(result.items.map((session, index) => stats[index] ? { ...session, ...stats[index] } : session))
             set_session_page(page)
             set_session_page_size(page_size)
-            set_session_total(result.size ?? result.items.length)
+            set_session_total(known_total ?? page_total(result.offset ?? (page - 1) * page_size, result.limit ?? page_size, result.items.length, result.total))
         } catch (error) {
             show_error(error, t('加载会话失败'))
         } finally {
@@ -358,11 +362,11 @@ export function MemoryManagementTab ({ can_manage_memory = false }: { can_manage
 
 
 function MemorySection ({ can_manage_memory = false, can_view_public_memory = false }: { can_manage_memory?: boolean, can_view_public_memory?: boolean }) {
-    const { agent_id, options } = use_agent_options()
+    const { options } = use_agent_options()
     const [view_type, set_view_type] = useState<MemoryViewType>('user_personal')
     const personal_memory = view_type === 'user_personal'
     
-    const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
+    const [selected_agent_id, set_selected_agent_id] = useState('')
     const [agent_page, set_agent_page] = useState(1)
     const [memory_kind, set_memory_kind] = useState<IMemoryEntry['memoryKind'] | ''>('')
     const [query, set_query] = useState('')
@@ -398,11 +402,9 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
     const public_dirty = public_content !== saved_public_content
     
     useEffect(() => {
-        if (!selected_agent_id && agent_id)
-            set_selected_agent_id(agent_id)
-        else if (!selected_agent_id && options.length > 0)
+        if (!selected_agent_id && options.length > 0)
             set_selected_agent_id(options[0].value)
-    }, [agent_id, options.length, selected_agent_id])
+    }, [options.length, selected_agent_id])
     
     useEffect(() => {
         const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
@@ -1275,18 +1277,16 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
 
 
 function MemoryConfigManagementSection () {
-    const { agent_id, options } = use_agent_options()
-    const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
+    const { options } = use_agent_options()
+    const [selected_agent_id, set_selected_agent_id] = useState('')
     const [agent_page, set_agent_page] = useState(1)
     const agent_page_size = 10
     const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
     
     useEffect(() => {
-        if (!selected_agent_id && agent_id)
-            set_selected_agent_id(agent_id)
-        else if (!selected_agent_id && options.length > 0)
+        if (!selected_agent_id && options.length > 0)
             set_selected_agent_id(options[0].value)
-    }, [agent_id, options.length, selected_agent_id])
+    }, [options.length, selected_agent_id])
     
     useEffect(() => {
         const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
@@ -1340,10 +1340,10 @@ function MemoryConfigManagementSection () {
 
 
 function MemoryJobsSection () {
-    const { agent_id, options } = use_agent_options()
+    const { options } = use_agent_options()
     const user_options = use_user_options()
     
-    const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
+    const [selected_agent_id, set_selected_agent_id] = useState('')
     const [kind, set_kind] = useState('')
     const [status, set_status] = useState('')
     const [target_user_id, set_target_user_id] = useState('')
@@ -1356,11 +1356,9 @@ function MemoryJobsSection () {
     const job_page_size = 20
     
     useEffect(() => {
-        if (!selected_agent_id && agent_id)
-            set_selected_agent_id(agent_id)
-        else if (!selected_agent_id && options.length > 0)
+        if (!selected_agent_id && options.length > 0)
             set_selected_agent_id(options[0].value)
-    }, [agent_id, options.length, selected_agent_id])
+    }, [options.length, selected_agent_id])
     
     useEffect(() => {
         if (selected_agent_id)
@@ -1398,10 +1396,10 @@ function MemoryJobsSection () {
         set_loading(true)
         try {
             await chat_model.memory.retry_memory_job(selected_agent_id, job.kind, job.jobKey)
-            message.success(t('重试请求已提交'))
+            message.success(t('记忆任务重试次数已重置'))
             await load_jobs(job_page)
         } catch (error) {
-            show_error(error, t('重试记忆任务失败'))
+            show_error(error, t('重置记忆任务重试次数失败'))
         } finally {
             set_loading(false)
         }
@@ -1459,7 +1457,7 @@ function MemoryJobsSection () {
                     width: 140,
                     render: (_: unknown, job: IMemoryJob) => <Space size={4}>
                         <Button size='small' loading={job_detail_loading_key === `${job.kind}:${job.jobKey}`} onClick={() => { open_job_detail(job) }}>{t('详情')}</Button>
-                        <Button size='small' onClick={() => { retry_job(job) }}>{t('重试')}</Button>
+                        <Button size='small' onClick={() => { retry_job(job) }}>{t('重置次数')}</Button>
                     </Space>,
                 },
             ]}
