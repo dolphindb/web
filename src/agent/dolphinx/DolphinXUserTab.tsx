@@ -358,11 +358,11 @@ export function MemoryManagementTab ({ can_manage_memory = false }: { can_manage
 
 
 function MemorySection ({ can_manage_memory = false, can_view_public_memory = false }: { can_manage_memory?: boolean, can_view_public_memory?: boolean }) {
-    const { agent_id, options } = use_agent_options()
+    const { options } = use_agent_options()
     const [view_type, set_view_type] = useState<MemoryViewType>('user_personal')
     const personal_memory = view_type === 'user_personal'
     
-    const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
+    const [selected_agent_id, set_selected_agent_id] = useState('')
     const [agent_page, set_agent_page] = useState(1)
     const [memory_kind, set_memory_kind] = useState<IMemoryEntry['memoryKind'] | ''>('')
     const [query, set_query] = useState('')
@@ -398,11 +398,9 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
     const public_dirty = public_content !== saved_public_content
     
     useEffect(() => {
-        if (!selected_agent_id && agent_id)
-            set_selected_agent_id(agent_id)
-        else if (!selected_agent_id && options.length > 0)
+        if (!selected_agent_id && options.length > 0)
             set_selected_agent_id(options[0].value)
-    }, [agent_id, options.length, selected_agent_id])
+    }, [options.length, selected_agent_id])
     
     useEffect(() => {
         const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
@@ -1275,18 +1273,16 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
 
 
 function MemoryConfigManagementSection () {
-    const { agent_id, options } = use_agent_options()
-    const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
+    const { options } = use_agent_options()
+    const [selected_agent_id, set_selected_agent_id] = useState('')
     const [agent_page, set_agent_page] = useState(1)
     const agent_page_size = 10
     const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
     
     useEffect(() => {
-        if (!selected_agent_id && agent_id)
-            set_selected_agent_id(agent_id)
-        else if (!selected_agent_id && options.length > 0)
+        if (!selected_agent_id && options.length > 0)
             set_selected_agent_id(options[0].value)
-    }, [agent_id, options.length, selected_agent_id])
+    }, [options.length, selected_agent_id])
     
     useEffect(() => {
         const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
@@ -1340,10 +1336,10 @@ function MemoryConfigManagementSection () {
 
 
 function MemoryJobsSection () {
-    const { agent_id, options } = use_agent_options()
+    const { options } = use_agent_options()
     const user_options = use_user_options()
     
-    const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
+    const [selected_agent_id, set_selected_agent_id] = useState('')
     const [kind, set_kind] = useState('')
     const [status, set_status] = useState('')
     const [target_user_id, set_target_user_id] = useState('')
@@ -1356,11 +1352,9 @@ function MemoryJobsSection () {
     const job_page_size = 20
     
     useEffect(() => {
-        if (!selected_agent_id && agent_id)
-            set_selected_agent_id(agent_id)
-        else if (!selected_agent_id && options.length > 0)
+        if (!selected_agent_id && options.length > 0)
             set_selected_agent_id(options[0].value)
-    }, [agent_id, options.length, selected_agent_id])
+    }, [options.length, selected_agent_id])
     
     useEffect(() => {
         if (selected_agent_id)
