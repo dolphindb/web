@@ -17,13 +17,17 @@ export function Login () {
     
     // 已登录就不显示登录页，回到之前的页面或者主页 (直接打开登录页的情况)
     useEffect(() => {
-        if (logined && location.pathname === `${model.assets_root}login/`) {
-            let path = model.pathname_before_login || '/'
-            if (model.assets_root !== '/' && path.startsWith(model.assets_root))
-                path = '/' + path.slice(model.assets_root.length)
-            model.navigate(path !== '/login/' ? path : '/', { replace: true })
-            model.pathname_before_login = undefined
-        }
+        const { assets_root } = model
+        
+        if (!logined || location.pathname !== `${assets_root}login/`)
+            return
+        
+        let path = model.pathname_before_login || '/'
+        if (assets_root !== '/' && path.startsWith(assets_root))
+            path = '/' + path.strip_start(assets_root)
+        
+        model.navigate(path === '/login/' ? '/' : path, { replace: true })
+        model.pathname_before_login = undefined
     }, [logined])
     
     return <>

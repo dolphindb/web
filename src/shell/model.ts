@@ -43,14 +43,6 @@ import { DdbVar } from './Variables.tsx'
 type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef } | { type: 'lineage' }
 
 
-export const PENDING_AI_CHAT_ID_PREFIX = 'pending-ai-'
-
-
-export function is_pending_ai_chat_id (chat_id?: string) {
-    return Boolean(chat_id?.startsWith(PENDING_AI_CHAT_ID_PREFIX))
-}
-
-
 class ShellModel extends Model<ShellModel> {
     language: DdbLanguage
     
@@ -525,91 +517,6 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
-    /** 将当前标签页转为 AI 标签页，或新建一个 AI 标签页 */
-    async add_ai_tab (chat_id = `${PENDING_AI_CHAT_ID_PREFIX}${Date.now()}`, name?: string): Promise<boolean> {
-        if (!this.monaco_inited && this.tabs.length === 0)
-            this.init_tabs()
-            
-        const { chat_model } = await import('@/agent/model.ts')
-        const has_active_agent = await chat_model.agent.ensure_active_agent()
-        if (!has_active_agent) {
-            const is_admin = model.admin || chat_model.can_manage_agents
-            if (!is_admin) {
-                model.message?.warning(chat_model.last_agent_load_error || no_active_agent_message())
-                return false
-            }
-            // 管理员没有可用 agent 时仍然允许进入，由 AiTab 引导创建
-        }
-        
-        // 检查是否已有该 chatId 的 AI 标签页
-        const existing = this.tabs.find(t => t.chat_id === chat_id)
-        if (existing) {
-            if (name && existing.name !== name) {
-                existing.name = name
-                this.set({ tabs: [...this.tabs] })
-                localStorage.setItem(`${storage_keys.code}.${existing.index}`, JSON.stringify(existing))
-            }
-            if (this.monaco_inited)
-                this.switch_tab(existing.index)
-            else {
-                this.set({ itab: existing.index })
-                localStorage.setItem(storage_keys.current_tab, existing.index.toString())
-            }
-            return true
-        }
-        
-        if (this.monaco_inited)
-            this.save()
-        const index_set = new Set(this.tabs.map(t => t.index))
-        let new_tab_index = 1
-        while (index_set.has(new_tab_index))
-            new_tab_index++
-        
-        const tab_name = name || (t('新会话 ') + new_tab_index)
-        const new_tab = {
-            name: tab_name,
-            code: '',
-            index: new_tab_index,
-            chat_id,
-        }
-        this.set({
-            itab: new_tab_index,
-            tabs: [...this.tabs, new_tab],
-        })
-        localStorage.setItem(`${storage_keys.code}.${new_tab_index}`, JSON.stringify(new_tab))
-        localStorage.setItem(storage_keys.current_tab, new_tab_index.toString())
-        this.editor?.setValue('')
-        return true
-    }
-    
-    
-    bind_ai_tab_session (old_chat_id: string, session_id: string, name?: string) {
-        const tab = this.tabs.find(t => t.chat_id === old_chat_id)
-        if (!tab)
-            return
-        tab.chat_id = session_id
-        this.ai_session_tab_indices.set(session_id, tab.index)
-        if (name)
-            tab.name = name
-        this.set({ tabs: [...this.tabs] })
-        localStorage.setItem(`${storage_keys.code}.${tab.index}`, JSON.stringify(tab))
-    }
-    
-    
-    update_ai_tab_title (session_id: string, title: string) {
-        let tab = this.tabs.find(t => t.chat_id === session_id)
-        if (!tab) {
-            const tab_index = this.ai_session_tab_indices.get(session_id)
-            tab = this.tabs.find(t => t.index === tab_index)
-        }
-        if (!tab || tab.name === title)
-            return
-        tab.name = title
-        this.set({ tabs: [...this.tabs] })
-        localStorage.setItem(`${storage_keys.code}.${tab.index}`, JSON.stringify(tab))
-    }
-    
-    
     switch_tab (tab_index: number) {
         if (!this.monaco_inited)
             return
@@ -630,10 +537,10 @@ class ShellModel extends Model<ShellModel> {
                 .filter(key => key.startsWith(prefix))
                 .map(key => JSON.parse(localStorage.getItem(key) || '') as Tab)
                 .sort((a, b) => a.index - b.index)
-                
+            
             if (this.itab > -1 && !tabs.some(tab => tab.index === this.itab))
                 throw new Error('invalid current tab')
-                
+            
             this.set({ tabs })
         } catch (error) {
             console.warn(error)
@@ -644,7 +551,7 @@ class ShellModel extends Model<ShellModel> {
             for (const key of Object.keys(localStorage))
                 if (key.startsWith(prefix))
                     localStorage.removeItem(key)
-                    
+              
             this.set({ tabs: [ ], itab: -1 })
         }
     }
@@ -1076,10 +983,103 @@ class ShellModel extends Model<ShellModel> {
         return this.fpd_home ??= (await model.ddb.invoke<string>('getHomeDir'))
             .fpd
     }
+    
+    
+    // --- ai tabs
+    /** 将当前标签页转为 AI 标签页，或新建一个 AI 标签页 */
+    async add_ai_tab (chat_id = `${PENDING_AI_CHAT_ID_PREFIX}${Date.now()}`, name?: string): Promise<boolean> {
+        if (!this.monaco_inited && this.tabs.length === 0)
+            this.init_tabs()
+            
+        const { chat_model } = await import('@/agent/model.ts')
+        const has_active_agent = await chat_model.agent.ensure_active_agent()
+        if (!has_active_agent) {
+            const is_admin = model.admin || chat_model.can_manage_agents
+            if (!is_admin) {
+                model.message?.warning(chat_model.last_agent_load_error || no_active_agent_message())
+                return false
+            }
+            // 管理员没有可用 agent 时仍然允许进入，由 AiTab 引导创建
+        }
+        
+        // 检查是否已有该 chatId 的 AI 标签页
+        const existing = this.tabs.find(t => t.chat_id === chat_id)
+        if (existing) {
+            if (name && existing.name !== name) {
+                existing.name = name
+                this.set({ tabs: [...this.tabs] })
+                localStorage.setItem(`${storage_keys.code}.${existing.index}`, JSON.stringify(existing))
+            }
+            if (this.monaco_inited)
+                this.switch_tab(existing.index)
+            else {
+                this.set({ itab: existing.index })
+                localStorage.setItem(storage_keys.current_tab, existing.index.toString())
+            }
+            return true
+        }
+        
+        if (this.monaco_inited)
+            this.save()
+        const index_set = new Set(this.tabs.map(t => t.index))
+        let new_tab_index = 1
+        while (index_set.has(new_tab_index))
+            new_tab_index++
+        
+        const tab_name = name || (t('新会话 ') + new_tab_index)
+        const new_tab = {
+            name: tab_name,
+            code: '',
+            index: new_tab_index,
+            chat_id,
+        }
+        this.set({
+            itab: new_tab_index,
+            tabs: [...this.tabs, new_tab],
+        })
+        localStorage.setItem(`${storage_keys.code}.${new_tab_index}`, JSON.stringify(new_tab))
+        localStorage.setItem(storage_keys.current_tab, new_tab_index.toString())
+        this.editor?.setValue('')
+        return true
+    }
+    
+    
+    bind_ai_tab_session (old_chat_id: string, session_id: string, name?: string) {
+        const tab = this.tabs.find(t => t.chat_id === old_chat_id)
+        if (!tab)
+            return
+        tab.chat_id = session_id
+        this.ai_session_tab_indices.set(session_id, tab.index)
+        if (name)
+            tab.name = name
+        this.set({ tabs: [...this.tabs] })
+        localStorage.setItem(`${storage_keys.code}.${tab.index}`, JSON.stringify(tab))
+    }
+    
+    
+    update_ai_tab_title (session_id: string, title: string) {
+        let tab = this.tabs.find(t => t.chat_id === session_id)
+        if (!tab) {
+            const tab_index = this.ai_session_tab_indices.get(session_id)
+            tab = this.tabs.find(t => t.index === tab_index)
+        }
+        if (!tab || tab.name === title)
+            return
+        tab.name = title
+        this.set({ tabs: [...this.tabs] })
+        localStorage.setItem(`${storage_keys.code}.${tab.index}`, JSON.stringify(tab))
+    }
 }
 
 
 const pyobjs = new Set(['list', 'tuple', 'dict', 'set', '_ddb', 'Exception', 'AssertRaise', 'PyBox'])
+
+
+export const PENDING_AI_CHAT_ID_PREFIX = 'pending-ai-'
+
+export function is_pending_ai_chat_id (chat_id?: string) {
+    return Boolean(chat_id?.startsWith(PENDING_AI_CHAT_ID_PREFIX))
+}
 
 
 export interface Tab {
@@ -1087,6 +1087,10 @@ export interface Tab {
     name: string
     code: string
     read_only?: boolean
+    
+    /** AI 标签页关联的 chat id */
+    chat_id?: string
+    
     git?: {
         repo_id: string
         repo_path: string
@@ -1098,8 +1102,6 @@ export interface Tab {
         sha: string
         commit_id: string
     }
-    /** AI 标签页关联的 chatId */
-    chat_id?: string
 }
 
 

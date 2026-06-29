@@ -3,8 +3,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { Layout, Menu, Typography } from 'antd'
 
 import {
-    default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined,
-    ApartmentOutlined, AppstoreOutlined, RobotOutlined
+    default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, 
+    SettingOutlined, ApartmentOutlined, AppstoreOutlined
 } from '@ant-design/icons'
 
 import { noop } from 'xshell/prototype.browser.js'

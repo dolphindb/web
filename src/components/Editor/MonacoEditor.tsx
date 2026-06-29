@@ -10,8 +10,7 @@ export type { monacoapi }
 export type Monaco = typeof monacoapi
 export type CodeEditor = monacoapi.editor.IStandaloneCodeEditor
 
-import { isEqual as deep_equals } from 'lodash'
-import { delay, load_script } from 'xshell/utils.browser.js'
+import { delay, load_script, deep_equals } from 'xshell/utils.browser.js'
 
 import { language, t } from '@i18n'
 import { model } from '@model'

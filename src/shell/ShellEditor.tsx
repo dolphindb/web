@@ -30,13 +30,13 @@ export function ShellEditor ({ collapser }) {
     
     const [minimap, set_minimap] = useState(() =>
         storage.get_bool(storage_keys.minimap))
-        
+    
     const [enter_completion, set_enter_completion] = useState(() =>
         storage.get_bool(storage_keys.enter_completion))
-        
+    
     const [font_size, set_font_size] = useState(() =>
         storage.get(storage_keys.font_size, 16))
-        
+    
     const [collapsed, set_collapsed] = useState(false)
     
     const { itab, tabs, monaco_inited } = shell.use(['itab', 'tabs', 'monaco_inited'])
@@ -92,12 +92,12 @@ export function ShellEditor ({ collapser }) {
             fontSize: font_size,
         }),
         [minimap, enter_completion, font_size])
-        
-        
+    
+    
     function handle_tab_close (tabId) {
         if (!shell.monaco_inited)
             return
-            
+        
         const tab = shell.tabs.find(t => t.index === tabId)
         const { tabs, itab } = shell
         
@@ -277,76 +277,76 @@ export function ShellEditor ({ collapser }) {
         /> }
         
         {is_ai_tab && <AiTab key={current_tab.chat_id} session_id={current_tab.chat_id} />}
+        
         <div style={is_ai_tab ? { display: 'none' } : { flex: 1, minHeight: 0 }}>
             <Editor
-            readonly={readonly}
-            
-            observe_resize
-            
-            options={monaco_options}
-            
-            on_loaded={(monaco, editor) => {
-                editor.setValue(shell.itab > -1
-                    ? shell.tabs.find(t => t.index === shell.itab && !t.chat_id)?.code || ''
-                    : localStorage.getItem(storage_keys.code) || '')
+                readonly={readonly}
+                
+                observe_resize
+                
+                options={monaco_options}
+                
+                on_loaded={(monaco, editor) => {
+                    editor.setValue(shell.itab > -1
+                        ? shell.tabs.find(t => t.index === shell.itab && !t.chat_id)?.code || ''
+                        : storage.getstr(storage_keys.code) || '')
                     
-                async function execute (selection: 'line' | 'all') {
-                    if (shell.executing)
-                        model.message.warning(t('当前连接正在执行作业，请等待'))
-                    else
-                        try {
-                            await shell.execute(selection)
-                        } catch (error) {
-                            // 忽略用户执行脚本的错误
+                    async function execute (selection: 'line' | 'all') {
+                        if (shell.executing)
+                            model.message.warning(t('当前连接正在执行作业，请等待'))
+                        else
+                            try {
+                                await shell.execute(selection)
+                            } catch (error) {
+                                // 忽略用户执行脚本的错误
+                            }
+                    }
+                    
+                    
+                    editor.addAction({
+                        id: 'dolphindb.execute',
+                        
+                        keybindings: [
+                            monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE,
+                            monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter
+                        ],
+                        
+                        label: t('DolphinDB: 执行当前行代码'),
+                        
+                        async run () {
+                            await execute('line')
                         }
-                }
+                    })
+                    
+                    editor.addAction({
+                        id: 'dolphindb.execute_all',
+                        
+                        keybindings: [
+                            monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyE
+                        ],
+                        
+                        label: t('DolphinDB: 执行代码'),
+                        
+                        async run () {
+                            await execute('all')
+                        }
+                    })
+                    
+                    shell.set({
+                        editor,
+                        monaco,
+                        monaco_inited: true
+                    })
+                }}
                 
-                
-                editor.addAction({
-                    id: 'dolphindb.execute',
-                    
-                    keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE,
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter
-                    ],
-                    
-                    label: t('DolphinDB: 执行当前行代码'),
-                    
-                    async run () {
-                        await execute('line')
-                    }
-                })
-                
-                editor.addAction({
-                    id: 'dolphindb.execute_all',
-                    
-                    keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyE
-                    ],
-                    
-                    label: t('DolphinDB: 执行代码'),
-                    
-                    async run () {
-                        await execute('all')
-                    }
-                })
-                
-                shell.set({
-                    editor,
-                    monaco,
-                    monaco_inited: true
-                })
-            }}
-            
-            on_change={value => {
-                if (value !== undefined)
+                on_change={value => {
                     shell.save_debounced(value)
-            }}
-            
-            on_save={value => {
-                shell.save(value)
-            }}
-        />
+                }}
+                
+                on_save={value => {
+                    shell.save(value)
+                }}
+            />
         </div>
     </div>
 }

@@ -683,9 +683,6 @@
     "设置成功，目前小数位数为：": {
         "en": "Set up successfully, the current decimals is "
     },
-    "默认": {
-        "en": "Default"
-    },
     "设置": {
         "en": "Set"
     },
@@ -1474,9 +1471,6 @@
     },
     "创建失败": {
         "en": "Creation has failed"
-    },
-    "创建成功": {
-        "en": "Successfully created"
     },
     "数据库路径 (directory)": {
         "en": "directory"
@@ -3077,9 +3071,6 @@
     "停用": {
         "en": "Disable"
     },
-    "启用": {
-        "en": "Enable"
-    },
     "{{label}}{{active_label}}提示": {
         "en": "{{label}} {{active_label}} tips"
     },
@@ -3929,9 +3920,6 @@
     "重命名": {
         "en": "Rename"
     },
-    "保存成功": {
-        "en": "Saved successfully"
-    },
     "当前数据源已被图表绑定无法删除": {
         "en": "This data source has been bound to a chart and cannot be deleted."
     },
@@ -4013,9 +4001,6 @@
     "撤销成功": {
         "en": "Revoked successfully"
     },
-    "删除成功": {
-        "en": "Deleted successfully"
-    },
     "选择 dashboard": {
         "en": "Select dashboard"
     },
@@ -4066,9 +4051,6 @@
     },
     "撤销": {
         "en": "Revoke"
-    },
-    "编辑": {
-        "en": "Edit"
     },
     "批量导入": {
         "en": "Batch import"
@@ -5689,9 +5671,6 @@
     },
     "ID": {
         "en": "ID"
-    },
-    "结果": {
-        "en": "Result"
     },
     "正常": {
         "en": "Normal"

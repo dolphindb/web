@@ -69,22 +69,22 @@ export function Settings () {
                         <Checkbox />
                     </Form.Item> }
                     
+                    <div style={{ paddingTop: 6 }}>
+                        <Button
+                            block
+                            icon={<RobotOutlined />}
+                            onClick={() => { chat_model.set({ settings_visible: true }) }}
+                        >
+                            {t('AI 设置')}
+                        </Button>
+                    </div>
+                    
                     <div className='submit-line'>
                         <div className='padding' />
                         <Button htmlType='reset' size='small'>{t('重置')}</Button>
                         <Button htmlType='submit' size='small' type='primary'>{t('应用')}</Button>
                     </div>
                 </Form>
-                
-                <div style={{ borderTop: '1px solid #f0f0f0', marginTop: 12, paddingTop: 12 }}>
-                    <Button
-                        block
-                        icon={<RobotOutlined />}
-                        onClick={() => { chat_model.set({ settings_visible: true }) }}
-                    >
-                        {t('AI 设置')}
-                    </Button>
-                </div>
             </Card>
         }
     >
