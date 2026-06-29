@@ -484,22 +484,25 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                     >
                         <Input placeholder='https://example.com/mcp' />
                     </Form.Item>
-                    <Form.Item
-                        name='credentialMode'
-                        label={t('认证方式')}
-                        required
-                        rules={[{ required: true, message: t('请选择认证方式') }]}
-                        style={{ marginBottom: 0 }}
-                    >
-                        <Select
-                            disabled={server_form.getFieldValue('serverType') === 'dolphindb'}
-                            options={[
-                                { value: 'dolphindb_current_user', label: t('使用当前 DolphinDB 用户'), disabled: true },
-                                { value: 'none', label: t('无需认证') },
-                                { value: 'shared_token', label: t('固定 Token') },
-                            ]}
-                        />
-                    </Form.Item>
+                    
+                    <Form.Item dependencies={['serverType']} noStyle>{
+                        () => <Form.Item
+                            name='credentialMode'
+                            label={t('认证方式')}
+                            required
+                            rules={[{ required: true, message: t('请选择认证方式') }]}
+                            style={{ marginBottom: 0 }}
+                        >
+                            <Select
+                                disabled={server_form.getFieldValue('serverType') === 'dolphindb'}
+                                options={[
+                                    { value: 'dolphindb_current_user', label: t('使用当前 DolphinDB 用户'), disabled: true },
+                                    { value: 'none', label: t('无需认证') },
+                                    { value: 'shared_token', label: t('固定 Token') },
+                                ]}
+                            />
+                        </Form.Item>
+                    }</Form.Item>
                     
                     <Form.Item dependencies={['serverType', 'credentialMode']}>{
                         () => 
