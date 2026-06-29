@@ -65,24 +65,6 @@ const empty_server_form: ServerFormState = {
 }
 
 
-function is_http_url (value: string): boolean {
-    const url = new URL(value)
-    return (url.protocol === 'http:' || url.protocol === 'https:') && !url.username && !url.password
-}
-
-
-function validate_url (value: string, label: string): string {
-    if (!value)
-        return ''
-    const trimmed = value.trim()
-    if (!trimmed)
-        return t('请输入{{label}}', { label })
-    if (!is_http_url(trimmed))
-        return t('{{label}} 必须是 http/https URL，且不能包含用户名或密码', { label })
-    return ''
-}
-
-
 export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
     const [servers, set_servers] = useState<IMcpServerInfo[]>([ ])
     const [loading_servers, set_loading_servers] = useState(false)
@@ -94,6 +76,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
     const server_modal = use_modal()
     const [editing_server, set_editing_server] = useState<IMcpServerInfo | null>(null)
     const [server_form] = Form.useForm<ServerFormState>()
+    const server_type = Form.useWatch('serverType', server_form)
     const [test_result, set_test_result] = useState<IMcpServerTestResult | null>(null)
     
     async function load_servers () {
@@ -148,9 +131,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
     function validate_server_form (form_values: ServerFormState): string {
         if (!form_values.name.trim())
             return t('请输入 MCP Server 名称')
-        const endpoint_error = validate_url(form_values.url, t('Server 地址'))
-        if (endpoint_error)
-            return endpoint_error
+        
         const credential_mode = form_values.serverType === 'dolphindb'
             ? 'dolphindb_current_user'
             : form_values.credentialMode
@@ -190,19 +171,13 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
             ...build_server_payload(form_values),
         }
     }
+    
     function test_result_text (result: IMcpServerTestResult): string {
         if (result.ok)
             return t('连接成功，发现 {{count}} 个工具: {{names}}', { count: result.toolCount, names: result.toolNames.join(', ') })
         return result.message || result.error || t('连接失败')
     }
-    function test_result_description (result: IMcpServerTestResult): string | undefined {
-        if (!result.ok)
-            return result.error && result.error !== result.message ? result.error : undefined
-        if (!result.toolNames.length)
-            return undefined
-        const prefix = result.toolNamesTruncated ? t('部分工具') : t('工具')
-        return `${prefix}: ${result.toolNames.join(', ')}`
-    }
+    
     async function test_form_server () {
         let form_values: ServerFormState
         try {
@@ -317,7 +292,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                     size='small'
                     rowKey='mcpServerId'
                     dataSource={servers}
-                    pagination={{ pageSize: 8, showSizeChanger: true }}
+                    pagination={{ showSizeChanger: true, showQuickJumper: true }}
                     tableLayout='fixed'
                     scroll={{ x: 980 }}
                     columns={[
@@ -463,8 +438,8 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                         style={{ marginBottom: 0 }}
                     >
                         {editing_server
-                            ? <Tag color={server_form.getFieldValue('serverType') === 'dolphindb' ? 'blue' : 'purple'} style={{ marginTop: 4 }}>
-                                {server_form.getFieldValue('serverType') === 'dolphindb' ? t('DolphinDB 内置 MCP') : t('第三方 MCP')}
+                            ? <Tag color={server_type === 'dolphindb' ? 'blue' : 'purple'} style={{ marginTop: 4 }}>
+                                {server_type === 'dolphindb' ? t('DolphinDB 内置 MCP') : t('第三方 MCP')}
                             </Tag>
                             : <Select
                                 options={[
@@ -479,17 +454,12 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                         name='url'
                         label={t('Server 地址')}
                         required
-                        rules={[
-                            { required: true, message: t('请输入 Server 地址') },
-                            { validator: (_, value) => {
-                                const error = validate_url(value, t('Server 地址'))
-                                return error ? Promise.reject(error) : Promise.resolve()
-                            }}
-                        ]}
+                        rules={[{ required: true, message: t('请输入 Server 地址'), type: 'url' }]}
                         style={{ marginBottom: 0, gridColumn: '1 / -1' }}
                     >
                         <Input placeholder='https://example.com/mcp' />
                     </Form.Item>
+                    
                     <Form.Item
                         name='credentialMode'
                         label={t('认证方式')}
@@ -498,7 +468,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                         style={{ marginBottom: 0 }}
                     >
                         <Select
-                            disabled={server_form.getFieldValue('serverType') === 'dolphindb'}
+                            disabled={server_type === 'dolphindb'}
                             options={[
                                 { value: 'dolphindb_current_user', label: t('使用当前 DolphinDB 用户'), disabled: true },
                                 { value: 'none', label: t('无需认证') },
@@ -525,7 +495,6 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                             showIcon
                             type={test_result.ok ? 'success' : 'error'}
                             title={test_result_text(test_result)}
-                            description={test_result_description(test_result)}
                         />
                     </div>}
                 </div>
