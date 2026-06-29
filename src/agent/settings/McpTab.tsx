@@ -292,7 +292,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                     size='small'
                     rowKey='mcpServerId'
                     dataSource={servers}
-                    pagination={{ pageSize: 8, showSizeChanger: true }}
+                    pagination={{ showSizeChanger: true, showQuickJumper: true }}
                     tableLayout='fixed'
                     scroll={{ x: 980 }}
                     columns={[
