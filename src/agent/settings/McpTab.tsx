@@ -94,6 +94,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
     const server_modal = use_modal()
     const [editing_server, set_editing_server] = useState<IMcpServerInfo | null>(null)
     const [server_form] = Form.useForm<ServerFormState>()
+    const server_type = Form.useWatch('serverType', server_form)
     const [test_result, set_test_result] = useState<IMcpServerTestResult | null>(null)
     
     async function load_servers () {
@@ -457,8 +458,8 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                         style={{ marginBottom: 0 }}
                     >
                         {editing_server
-                            ? <Tag color={server_form.getFieldValue('serverType') === 'dolphindb' ? 'blue' : 'purple'} style={{ marginTop: 4 }}>
-                                {server_form.getFieldValue('serverType') === 'dolphindb' ? t('DolphinDB 内置 MCP') : t('第三方 MCP')}
+                            ? <Tag color={server_type === 'dolphindb' ? 'blue' : 'purple'} style={{ marginTop: 4 }}>
+                                {server_type === 'dolphindb' ? t('DolphinDB 内置 MCP') : t('第三方 MCP')}
                             </Tag>
                             : <Select
                                 options={[
@@ -485,24 +486,22 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                         <Input placeholder='https://example.com/mcp' />
                     </Form.Item>
                     
-                    <Form.Item dependencies={['serverType']} noStyle>{
-                        () => <Form.Item
-                            name='credentialMode'
-                            label={t('认证方式')}
-                            required
-                            rules={[{ required: true, message: t('请选择认证方式') }]}
-                            style={{ marginBottom: 0 }}
-                        >
-                            <Select
-                                disabled={server_form.getFieldValue('serverType') === 'dolphindb'}
-                                options={[
-                                    { value: 'dolphindb_current_user', label: t('使用当前 DolphinDB 用户'), disabled: true },
-                                    { value: 'none', label: t('无需认证') },
-                                    { value: 'shared_token', label: t('固定 Token') },
-                                ]}
-                            />
-                        </Form.Item>
-                    }</Form.Item>
+                    <Form.Item
+                        name='credentialMode'
+                        label={t('认证方式')}
+                        required
+                        rules={[{ required: true, message: t('请选择认证方式') }]}
+                        style={{ marginBottom: 0 }}
+                    >
+                        <Select
+                            disabled={server_type === 'dolphindb'}
+                            options={[
+                                { value: 'dolphindb_current_user', label: t('使用当前 DolphinDB 用户'), disabled: true },
+                                { value: 'none', label: t('无需认证') },
+                                { value: 'shared_token', label: t('固定 Token') },
+                            ]}
+                        />
+                    </Form.Item>
                     
                     <Form.Item dependencies={['serverType', 'credentialMode']}>{
                         () => 
