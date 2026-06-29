@@ -8177,6 +8177,12 @@
     "初始化完成": {
         "en": "Initialization complete"
     },
+    "AI 内置资源初始化未完成": {
+        "en": "AI built-in resource initialization was not completed"
+    },
+    "AI 内置资源初始化失败": {
+        "en": "AI built-in resource initialization failed"
+    },
     "初始化未完成，详情请查看控制台": {
         "en": "Initialization was not completed. See the console for details."
     },
