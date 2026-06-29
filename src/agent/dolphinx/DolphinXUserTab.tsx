@@ -43,6 +43,10 @@ function optional_nonnegative_number (value: unknown) {
     return Number.isFinite(num) && num >= 0 ? num : undefined
 }
 
+function page_total (offset: number, limit: number, count: number, total?: number) {
+    return total ?? offset + count + (count >= limit ? 1 : 0)
+}
+
 
 function SessionSection () {
     const { agent_id, options } = use_agent_options()
@@ -70,7 +74,7 @@ function SessionSection () {
             set_selected_agent_id(options[0].value)
     }, [agent_id, options.length, selected_agent_id])
     
-    async function load_sessions (page = session_page, page_size = session_page_size) {
+    async function load_sessions (page = session_page, page_size = session_page_size, known_total?: number) {
         if (!selected_agent_id) {
             message.warning(t('请先选择 Agent'))
             return
@@ -82,15 +86,15 @@ function SessionSection () {
                 offset: (page - 1) * page_size,
                 limit: page_size,
             })
-            if (result.items.length === 0 && result.size > 0 && page > 1) {
-                await load_sessions(page - 1, page_size)
+            if (result.items.length === 0 && page > 1) {
+                await load_sessions(page - 1, page_size, (page - 1) * page_size)
                 return
             }
             const stats = await Promise.all(result.items.map(session => chat_model.session.load_session_workspace_stats(session.sessionId)))
             set_sessions(result.items.map((session, index) => stats[index] ? { ...session, ...stats[index] } : session))
             set_session_page(page)
             set_session_page_size(page_size)
-            set_session_total(result.size ?? result.items.length)
+            set_session_total(known_total ?? page_total(result.offset ?? (page - 1) * page_size, result.limit ?? page_size, result.items.length, result.total))
         } catch (error) {
             show_error(error, t('加载会话失败'))
         } finally {

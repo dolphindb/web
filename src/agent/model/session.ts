@@ -22,6 +22,7 @@ export class ChatSessionModel {
         this.chat.set({ sessions })
     }
     async create_session (title = t('新会话')): Promise<ISession> {
+        const script_execute_approval_mode = this.chat.script_execute_approval_mode
         const body: Record<string, any> = {
             agentId: this.chat.agent_id,
             title,
@@ -42,6 +43,7 @@ export class ChatSessionModel {
             createTime: result.createTime,
             updateTime: result.updateTime,
         }
+        this.chat._session_script_approval_modes.set(session.sessionId, script_execute_approval_mode)
         const workspace = await chat_workspace_store.ensure_default_workspace(session.sessionId, (path, options) => this.chat.agent.api_fetch(path, options))
         const workspaces = await chat_workspace_store.list_workspaces(session.sessionId, (path, options) => this.chat.agent.api_fetch(path, options))
         this.chat.set({
@@ -54,7 +56,7 @@ export class ChatSessionModel {
             messages: [ ],
             buffered_messages: [ ],
             agent_status: { status: 'idle' },
-            script_execute_approval_mode: 'approval',
+            script_execute_approval_mode,
             // 新会话同步 LLM 选择（后端可能返回实际绑定的 llmConfigId）
             selected_llm_config_id: session.llmConfigId || '',
             use_native_tool_calling: this.chat.agent.should_use_native_tool_calling(session.llmConfigId || ''),
@@ -123,7 +125,7 @@ export class ChatSessionModel {
     async get_session (session_id: string): Promise<ISession> {
         return this.chat.session.map_session(await this.chat.agent.api_fetch(`/session/${session_id}`))
     }
-    async list_sessions (params: { agentId?: string, targetUserId?: string, offset?: number, limit?: number } = { }): Promise<{ items: ISession[], size: number, offset?: number, limit?: number }> {
+    async list_sessions (params: { agentId?: string, targetUserId?: string, offset?: number, limit?: number } = { }): Promise<{ items: ISession[], size: number, offset?: number, limit?: number, total?: number }> {
         const search = new URLSearchParams()
         if (params.agentId)
             search.set('agentId', params.agentId)
