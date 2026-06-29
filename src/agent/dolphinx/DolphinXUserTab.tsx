@@ -1398,10 +1398,10 @@ function MemoryJobsSection () {
         set_loading(true)
         try {
             await chat_model.memory.retry_memory_job(selected_agent_id, job.kind, job.jobKey)
-            message.success(t('重试请求已提交'))
+            message.success(t('记忆任务重试次数已重置'))
             await load_jobs(job_page)
         } catch (error) {
-            show_error(error, t('重试记忆任务失败'))
+            show_error(error, t('重置记忆任务重试次数失败'))
         } finally {
             set_loading(false)
         }
@@ -1459,7 +1459,7 @@ function MemoryJobsSection () {
                     width: 140,
                     render: (_: unknown, job: IMemoryJob) => <Space size={4}>
                         <Button size='small' loading={job_detail_loading_key === `${job.kind}:${job.jobKey}`} onClick={() => { open_job_detail(job) }}>{t('详情')}</Button>
-                        <Button size='small' onClick={() => { retry_job(job) }}>{t('重试')}</Button>
+                        <Button size='small' onClick={() => { retry_job(job) }}>{t('重置次数')}</Button>
                     </Space>,
                 },
             ]}
