@@ -573,6 +573,8 @@ function AiToolbar ({
     }
     
     const active_agents = agents.filter(a => a.statusName === 'ACTIVE')
+    const agent_select_disabled = !is_pending_ai_chat_id(session_id) || active_agents.length <= 1
+    const agent_select_tooltip = !is_pending_ai_chat_id(session_id) ? t('会话开始后不能切换 Agent，如需切换请新建会话') : ''
     
     // 构建 LLM 选项，默认模型标注
     const selectable_llms = selectable_llms_by_agent_id[agent_id] || [ ]
@@ -624,21 +626,25 @@ function AiToolbar ({
             />
         </Tooltip>
         
-        <Select
-            size='small'
-            value={agent_id || undefined}
-            placeholder={t('选择 Agent')}
-            style={{ minWidth: 120, maxWidth: 200, marginRight: 8 }}
-            disabled={active_agents.length <= 1}
-            onChange={async (value: string) => {
-                chat.agent.select_agent(value)
-                await chat.session.load_sessions()
-            }}
-            options={active_agents.map(a => ({
-                value: a.agentId,
-                label: a.agentName,
-            }))}
-        />
+        <Tooltip title={agent_select_tooltip}>
+            <span style={{ display: 'inline-block', marginRight: 8 }}>
+                <Select
+                    size='small'
+                    value={agent_id || undefined}
+                    placeholder={t('选择 Agent')}
+                    style={{ minWidth: 120, maxWidth: 200 }}
+                    disabled={agent_select_disabled}
+                    onChange={async (value: string) => {
+                        chat.agent.select_agent(value)
+                        await chat.session.load_sessions()
+                    }}
+                    options={active_agents.map(a => ({
+                        value: a.agentId,
+                        label: a.agentName,
+                    }))}
+                />
+            </span>
+        </Tooltip>
         
         <Tooltip title={t('AI 设置')}>
             <div

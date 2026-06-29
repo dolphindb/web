@@ -7337,6 +7337,9 @@
     "选择 Agent": {
         "en": "Select Agent"
     },
+    "会话开始后不能切换 Agent，如需切换请新建会话": {
+        "en": "Agent cannot be changed after a session starts. To switch Agents, create a new session."
+    },
     "暂无会话": {
         "en": "No sessions"
     },
