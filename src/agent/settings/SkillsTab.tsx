@@ -14,8 +14,8 @@ import { form_error_alert, required_label } from './common.tsx'
 
 const { Paragraph, Text } = Typography
 
-function page_total (offset: number, limit: number, count: number, total?: number) {
-    return total ?? offset + count + (count >= limit ? 1 : 0)
+function page_total (offset: number, page_size: number, count: number, has_more: boolean, total?: number) {
+    return total ?? offset + count + (has_more ? 1 : 0)
 }
 
 
@@ -48,15 +48,17 @@ export function SkillsTab () {
     async function load (page = skill_page, page_size = skill_page_size, known_total?: number) {
         set_loading(true)
         try {
-            const result = await chat_model.skill.load_skill_page({ offset: (page - 1) * page_size, limit: page_size })
-            if (result.items.length === 0 && page > 1) {
+            const offset = (page - 1) * page_size
+            const result = await chat_model.skill.load_skill_page({ offset, limit: page_size + 1 })
+            const items = result.items.slice(0, page_size)
+            if (items.length === 0 && page > 1) {
                 await load(page - 1, page_size, (page - 1) * page_size)
                 return
             }
-            set_all_skills(result.items)
-            set_skill_total(known_total ?? page_total(result.offset, result.limit, result.items.length, result.total))
-            set_skill_page(Math.floor(result.offset / result.limit) + 1)
-            set_skill_page_size(result.limit || page_size)
+            set_all_skills(items)
+            set_skill_total(known_total ?? page_total(result.offset, page_size, items.length, result.items.length > page_size, result.total))
+            set_skill_page(Math.floor(result.offset / page_size) + 1)
+            set_skill_page_size(page_size)
         } catch {
             message.error(t('加载技能列表失败'))
         } finally {
