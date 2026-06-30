@@ -27,7 +27,7 @@ const AUTO_SCROLL_INTERVAL = 1000
 
 export function AiTab ({ session_id }: { session_id: string }) {
     const chat = get_chat_model(session_id)
-    const { node_type, admin } = model.use(['node_type', 'admin'])
+    const { node_type, admin, logined } = model.use(['node_type', 'admin', 'logined'])
     const {
         messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, pending_tool_loop_control, pending_script_approval, steps,
         tool_call_limit_enabled, can_manage_agents, agent_id,
@@ -56,6 +56,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
         ;(async () => {
             try {
                 set_init_error('')
+                if (!logined) {
+                    set_inited(true)
+                    return
+                }
                 if (unsupported_node) {
                     set_inited(true)
                     return
@@ -95,18 +99,18 @@ export function AiTab ({ session_id }: { session_id: string }) {
         })()
         
         return () => { cancelled = true }
-    }, [chat, session_id, pending_session, unsupported_node, is_agent_admin])
+    }, [chat, session_id, pending_session, unsupported_node, is_agent_admin, logined])
     
     // When tab switches back, re-select the correct session
     useEffect(() => {
-        if (inited && !unsupported_node && !pending_session && current_session_id !== session_id)
+        if (inited && logined && !unsupported_node && !pending_session && current_session_id !== session_id)
             chat.session.select_session(session_id)
                 .then(() => { set_init_error('') })
                 .catch(error => {
                     console.error(error)
                     set_init_error(error instanceof Error ? error.message : String(error))
                 })
-    }, [chat, inited, pending_session, session_id, unsupported_node])
+    }, [chat, inited, pending_session, session_id, unsupported_node, logined])
     
     // Auto-scroll periodic check
     useEffect(() => {
@@ -225,6 +229,11 @@ export function AiTab ({ session_id }: { session_id: string }) {
     async function handle_send () {
         if (!input_value.trim())
             return
+        if (!logined) {
+            model.message?.warning(t('请先登录'))
+            await model.goto_login()
+            return
+        }
         if (unsupported_node) {
             model.message?.warning(t('集群模式下 AI 模式需要在计算节点使用。'))
             return
@@ -286,6 +295,16 @@ export function AiTab ({ session_id }: { session_id: string }) {
         return <div className='ai-tab-loading'>
             <Spin />
             <Text type='secondary' style={{ marginTop: 12 }}>{t('正在连接 AI 助手...')}</Text>
+        </div>
+        
+    if (!logined)
+        return <div className='ai-tab' style={{ padding: 16 }}>
+            <Alert
+                type='warning'
+                showIcon
+                message={t('请先登录')}
+                action={<Button size='small' type='primary' onClick={async () => { await model.goto_login() }}>{t('去登录')}</Button>}
+            />
         </div>
         
     if (unsupported_node)

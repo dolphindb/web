@@ -64,15 +64,25 @@ export class ChatSessionModel {
         return session
     }
     async select_session (session_id: string) {
-        if (session_id === this.chat.current_session_id)
+        if (session_id === this.chat.current_session_id && this.chat.agent_id)
             return
             
         this.chat.runtime.abort_sse()
         const session = this.chat.sessions.find(s => s.sessionId === session_id) || await this.chat.session.get_session(session_id)
         if (!this.chat.sessions.some(s => s.sessionId === session_id))
             this.chat.set({ sessions: [session, ...this.chat.sessions] })
+        let agents = this.chat.agents
+        if (session.agentId && !agents.some(agent => agent.agentId === session.agentId))
+            try {
+                const agent = await this.chat.agent.get_agent(session.agentId)
+                agents = [...agents, agent]
+            } catch (error) {
+                console.warn('Load session agent failed:', error)
+            }
         
         this.chat.set({
+            agents,
+            agent_id: session.agentId || this.chat.agent_id,
             current_session_id: session_id,
             messages: [ ],
             buffered_messages: [ ],
@@ -83,6 +93,8 @@ export class ChatSessionModel {
             selected_llm_config_id: session.llmConfigId || '',
             use_native_tool_calling: this.chat.agent.should_use_native_tool_calling(session.llmConfigId || ''),
         })
+        if (session.agentId)
+            this.chat.llm.load_selectable_llms(session.agentId)
         
         await this.chat.workspace.refresh_workspace_context(session_id)
         

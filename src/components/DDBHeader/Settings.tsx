@@ -14,7 +14,7 @@ import { chat_model } from '@/agent/model.ts'
 
 
 export function Settings () {
-    let { shf } = model.use(['shf'])
+    let { shf, v3 } = model.use(['shf', 'v3'])
     
     let rform = useRef<FormInstance<Fields>>(undefined)
     
@@ -69,7 +69,7 @@ export function Settings () {
                         <Checkbox />
                     </Form.Item> }
                     
-                    <div style={{ paddingTop: 6 }}>
+                    {v3 && <div style={{ paddingTop: 6 }}>
                         <Button
                             block
                             icon={<RobotOutlined />}
@@ -77,7 +77,7 @@ export function Settings () {
                         >
                             {t('AI 设置')}
                         </Button>
-                    </div>
+                    </div>}
                     
                     <div className='submit-line'>
                         <div className='padding' />

@@ -9,7 +9,7 @@ import { shell } from '@/shell/model.ts'
 
 import { chat_model, get_chat_model } from '@/agent/model.ts'
 import type { ILlmConfig, ILlmUsageStats, IMemoryEntry, IMemoryJob, IMemoryStats, IPublicMemory, ISession } from '@/agent/model.ts'
-import { AgentListLayout, format_browser_time, show_error, use_agent_options, use_user_options } from './common.tsx'
+import { AgentListLayout, format_browser_time, show_error, use_agent_options, use_user_options, use_valid_agent_selection } from './common.tsx'
 
 
 const { Text } = Typography
@@ -66,13 +66,7 @@ function SessionSection () {
     const [loading, set_loading] = useState(false)
     const summary_modal = use_modal()
     const title_modal = use_modal()
-    
-    useEffect(() => {
-        if (!selected_agent_id && agent_id)
-            set_selected_agent_id(agent_id)
-        else if (!selected_agent_id && options.length > 0)
-            set_selected_agent_id(options[0].value)
-    }, [agent_id, options.length, selected_agent_id])
+    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id, agent_id)
     
     async function load_sessions (page = session_page, page_size = session_page_size, known_total?: number) {
         if (!selected_agent_id) {
@@ -335,6 +329,9 @@ const memory_kind_options: Array<{ value: IMemoryEntry['memoryKind'], label: str
     { value: 'failure_shield', label: t('失败防护') },
 ]
 
+const memory_job_kind_options = ['memory_stage1', 'memory_phase2', 'memory_derive_fields'].map(value => ({ value, label: value }))
+const memory_job_status_options = ['pending', 'running', 'done', 'succeeded', 'failed'].map(value => ({ value, label: value }))
+
 
 export function MemoryManagementTab ({ can_manage_memory = false }: { can_manage_memory?: boolean }) {
     return <Tabs
@@ -400,11 +397,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
     const has_memory_query = Boolean(query.trim())
     const saved_public_content = public_memory?.content || ''
     const public_dirty = public_content !== saved_public_content
-    
-    useEffect(() => {
-        if (!selected_agent_id && options.length > 0)
-            set_selected_agent_id(options[0].value)
-    }, [options.length, selected_agent_id])
+    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id)
     
     useEffect(() => {
         const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
@@ -1190,11 +1183,7 @@ function MemoryConfigManagementSection () {
     const [agent_page, set_agent_page] = useState(1)
     const agent_page_size = 10
     const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
-    
-    useEffect(() => {
-        if (!selected_agent_id && options.length > 0)
-            set_selected_agent_id(options[0].value)
-    }, [options.length, selected_agent_id])
+    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id)
     
     useEffect(() => {
         const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
@@ -1257,23 +1246,19 @@ function MemoryJobsSection () {
     const [target_user_id, set_target_user_id] = useState('')
     const [jobs, set_jobs] = useState<IMemoryJob[]>([ ])
     const [job_page, set_job_page] = useState(1)
+    const [job_page_size, set_job_page_size] = useState(20)
     const [job_total, set_job_total] = useState(0)
     const [job_detail, set_job_detail] = useState<IMemoryJob | null>(null)
     const [job_detail_loading_key, set_job_detail_loading_key] = useState('')
     const [loading, set_loading] = useState(false)
-    const job_page_size = 20
-    
-    useEffect(() => {
-        if (!selected_agent_id && options.length > 0)
-            set_selected_agent_id(options[0].value)
-    }, [options.length, selected_agent_id])
+    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id)
     
     useEffect(() => {
         if (selected_agent_id)
-            load_jobs(1)
-    }, [selected_agent_id])
+            load_jobs(1, job_page_size)
+    }, [selected_agent_id, kind, status, target_user_id])
     
-    async function load_jobs (page = job_page) {
+    async function load_jobs (page = job_page, page_size = job_page_size, known_total?: number) {
         if (!selected_agent_id) {
             message.warning(t('请先选择 Agent'))
             return
@@ -1285,12 +1270,17 @@ function MemoryJobsSection () {
                 kind: kind || undefined,
                 status: status || undefined,
                 targetUserId: target_user_id || undefined,
-                offset: (page - 1) * job_page_size,
-                limit: job_page_size,
+                offset: (page - 1) * page_size,
+                limit: page_size,
             })
+            if (result.items.length === 0 && page > 1) {
+                await load_jobs(page - 1, page_size, (page - 1) * page_size)
+                return
+            }
             set_jobs(result.items)
             set_job_page(page)
-            set_job_total(result.size ?? result.items.length)
+            set_job_page_size(page_size)
+            set_job_total(known_total ?? page_total(result.offset ?? (page - 1) * page_size, result.limit ?? page_size, result.items.length, result.size))
         } catch (error) {
             show_error(error, t('加载记忆任务失败'))
         } finally {
@@ -1334,8 +1324,8 @@ function MemoryJobsSection () {
         actions={<Button loading={loading} onClick={() => { load_jobs(1) }}>{t('刷新')}</Button>}
     >
         <Space wrap style={{ marginBottom: 12 }}>
-            <Input style={{ width: 140 }} value={kind} onChange={event => { set_kind(event.target.value) }} placeholder={t('任务类型')} />
-            <Input style={{ width: 140 }} value={status} onChange={event => { set_status(event.target.value) }} placeholder={t('任务状态')} />
+            <Select allowClear showSearch style={{ width: 180 }} placeholder={t('任务类型')} value={kind || undefined} onChange={value => { set_kind(value || '') }} options={memory_job_kind_options} />
+            <Select allowClear showSearch style={{ width: 140 }} placeholder={t('任务状态')} value={status || undefined} onChange={value => { set_status(value || '') }} options={memory_job_status_options} />
             <Select allowClear showSearch style={{ width: 180 }} placeholder={t('用户')} value={target_user_id || undefined} onChange={value => { set_target_user_id(value || '') }} options={user_options} />
         </Space>
         <Table
@@ -1349,7 +1339,7 @@ function MemoryJobsSection () {
                 current: job_page,
                 pageSize: job_page_size,
                 total: job_total,
-                showSizeChanger: false,
+                showSizeChanger: true,
                 onChange: load_jobs,
             }}
             columns={[
@@ -1417,13 +1407,7 @@ function ContextPreviewSection () {
     const [message_text, set_message_text] = useState('')
     const [preview, set_preview] = useState<any>(null)
     const [loading, set_loading] = useState(false)
-    
-    useEffect(() => {
-        if (!selected_agent_id && agent_id)
-            set_selected_agent_id(agent_id)
-        else if (!selected_agent_id && options.length > 0)
-            set_selected_agent_id(options[0].value)
-    }, [agent_id, options.length, selected_agent_id])
+    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id, agent_id)
     
     async function load_sessions () {
         if (!selected_agent_id) {
@@ -1549,11 +1533,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
     const [loading_usage, set_loading_usage] = useState(false)
     const user_ids_key = user_options.map(user => user.value).join('\n')
     const selected_agent_name = options.find(option => option.value === selected_agent_id)?.label || selected_agent_id || '-'
-    
-    useEffect(() => {
-        if (!selected_agent_id && agent_id)
-            set_selected_agent_id(agent_id)
-    }, [agent_id])
+    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id, agent_id)
     
     useEffect(() => {
         if (!selected_agent_id)

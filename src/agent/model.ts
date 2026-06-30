@@ -5,7 +5,7 @@ import { model } from '@model'
 import { init_scripts } from './scripts/init.ts'
 import type { ChatCompletionOptions } from './tool_call_adapters.ts'
 import type { IChatWorkspace, IWorkspaceStep } from './workspace.ts'
-import { AGENT_ID_KEY, MAX_TOOL_TURNS, TOOL_CALL_LIMIT_ENABLED_KEY } from './model/constants.ts'
+import { MAX_TOOL_TURNS, TOOL_CALL_LIMIT_ENABLED_KEY } from './model/constants.ts'
 import { get_stored_boolean } from './model/helpers.ts'
 import { ChatAgentModel } from './model/agent.ts'
 import { ChatWorkspaceModel } from './model/workspace.ts'
@@ -43,7 +43,7 @@ export class ChatModel extends Model<ChatModel> {
     readonly mcp = new ChatMcpModel(this)
     
     
-    agent_id = localStorage.getItem(AGENT_ID_KEY) || ''
+    agent_id = ''
     
     agents: IAgentInfo[] = [ ]
     
@@ -152,3 +152,11 @@ export function bind_chat_model_session (old_session_id: string, session_id: str
 
 
 export let chat_model = new ChatModel()
+
+
+export function clear_chat_agent_state () {
+    for (const chat of new Set([chat_model, ...chat_model_instances.values()])) {
+        chat.agent.set_active_agent('', [ ])
+        chat.set({ can_manage_agents: false, last_agent_load_error: '' })
+    }
+}

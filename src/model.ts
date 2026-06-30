@@ -461,9 +461,7 @@ export class DdbModel extends Model<DdbModel> {
             
             console.log(t('{{username}} 使用 ticket 登陆成功', { username: last_username }))
         } catch (error) {
-            localStorage.removeItem(storage_keys.ticket)
-            localStorage.removeItem(storage_keys.username)
-            localStorage.removeItem(storage_keys.agent_bus_token)
+            this.clear_login_auth()
             throw error
         }
     }
@@ -513,6 +511,7 @@ export class DdbModel extends Model<DdbModel> {
         const hostname = this.hostname || location.hostname
         const port = this.port || location.port
         const base = `${protocol}//${hostname}${port ? ':' + port : ''}`
+        this.clear_agent_bus_session()
         
         try {
             const response = await fetch(`${base}/api/login`, {
@@ -536,6 +535,24 @@ export class DdbModel extends Model<DdbModel> {
         } catch (e) {
             console.warn('agent bus 登录失败:', e)
         }
+    }
+    
+    
+    clear_agent_bus_session () {
+        localStorage.removeItem(storage_keys.agent_bus_token)
+        import('@/agent/model.ts')
+            .then(({ clear_chat_agent_state }) => { clear_chat_agent_state() })
+            .catch(error => { console.warn('clear agent state failed', error) })
+    }
+    
+    
+    clear_login_auth () {
+        localStorage.removeItem(storage_keys.ticket)
+        localStorage.removeItem(storage_keys.username)
+        this.clear_agent_bus_session()
+        import('@/shell/model.ts')
+            .then(({ shell }) => { shell.remove_ai_tabs() })
+            .catch(error => { console.warn('remove ai tabs failed', error) })
     }
     
     
@@ -724,7 +741,8 @@ export class DdbModel extends Model<DdbModel> {
             
             localStorage.setItem(storage_keys.username, username)
             localStorage.setItem(storage_keys.ticket, ticket)
-        }
+        } else
+            this.clear_login_auth()
         
         // 同步 ddb 用户状态变更到 shell.ddb
         if (user_changed)
@@ -743,8 +761,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async logout () {
-        localStorage.removeItem(storage_keys.ticket)
-        localStorage.removeItem(storage_keys.username)
+        this.clear_login_auth()
         
         await this.ddb.invoke('logout', undefined, urgent)
         

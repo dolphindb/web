@@ -3,7 +3,6 @@ import { model, storage_keys } from '@model'
 import type { ChatModel } from '@/agent/model.ts'
 
 import type { IAccessInfo, IAgentInfo } from './types.ts'
-import { AGENT_ID_KEY } from './constants.ts'
 import { chat_shared_model } from './shared.ts'
 
 export function agent_access_denied_message () {
@@ -68,11 +67,8 @@ export class ChatAgentModel {
             latest_ddb_result: null,
             agent_status: { status: 'idle' },
         })
-        if (agent_id) {
-            localStorage.setItem(AGENT_ID_KEY, agent_id)
+        if (agent_id)
             this.chat.llm.load_selectable_llms(agent_id)
-        } else
-            localStorage.removeItem(AGENT_ID_KEY)
     }
     async api_fetch (path: string, options: RequestInit = { }): Promise<any> {
         const url = /^https?:\/\//.test(path) ? path : `${this.chat.base_url}${path}`
@@ -123,9 +119,8 @@ export class ChatAgentModel {
     }
     handle_auth_failed () {
         console.warn('Agent-bus auth failed, redirecting to login')
-        localStorage.removeItem(storage_keys.agent_bus_token)
-        localStorage.removeItem(storage_keys.ticket)
-        localStorage.removeItem(storage_keys.username)
+        model.clear_login_auth()
+        this.chat.agent.set_active_agent('', [ ])
         this.chat.set({ can_manage_agents: false })
         model.set({ logined: false, username: 'guest', admin: false })
         model.goto_login()
@@ -181,7 +176,7 @@ export class ChatAgentModel {
             const items: IAgentInfo[] = (result.items || [ ]).map((a: any) => this.chat.agent.map_agent(a))
             this.chat.set({ last_agent_load_error: '', can_manage_agents })
             
-            // 如果缓存的 agent_id 仍然有效，继续使用
+            // 如果当前运行时 agent_id 仍然有效，继续使用
             if (this.chat.agent_id) {
                 const cached = items.find(a => a.agentId === this.chat.agent_id && a.statusName === 'ACTIVE')
                 if (cached) {
@@ -196,7 +191,6 @@ export class ChatAgentModel {
         } catch (e) {
             console.warn('Failed to list agents:', e)
             this.chat.set({ agents: [ ], agent_id: '', can_manage_agents: false, last_agent_load_error: e instanceof Error ? e.message : '' })
-            localStorage.removeItem(AGENT_ID_KEY)
         }
     }
     async ensure_active_agent () {
