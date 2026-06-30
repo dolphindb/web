@@ -171,6 +171,7 @@ export function ShellEditor ({ collapser }) {
                             await model.goto_login()
                             return
                         }
+                        
                         if (node_type === NodeType.controller || node_type === NodeType.data) {
                             model.message?.warning(t('集群模式下 AI 模式需要在计算节点使用。'))
                             return

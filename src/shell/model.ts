@@ -426,35 +426,6 @@ class ShellModel extends Model<ShellModel> {
             localStorage.removeItem(`${storage_keys.code}.${key}`)
     }
     
-    remove_ai_tabs () {
-        const prefix = `${storage_keys.code}.`
-        const ai_tab_indices = new Set(this.tabs.filter(t => t.chat_id).map(t => t.index))
-        for (const key of Object.keys(localStorage))
-            if (key.startsWith(prefix))
-                try {
-                    const tab = JSON.parse(localStorage.getItem(key) || '') as Tab
-                    if (tab.chat_id) {
-                        ai_tab_indices.add(tab.index)
-                        localStorage.removeItem(key)
-                    }
-                } catch { }
-        if (ai_tab_indices.size === 0)
-            return
-        const tabs = this.tabs.filter(t => !ai_tab_indices.has(t.index))
-        const current_ai_tab_removed = ai_tab_indices.has(this.itab)
-        const itab = ai_tab_indices.has(this.itab) ? -1 : this.itab
-        this.ai_session_tab_indices.clear()
-        this.set({ tabs, itab })
-        for (const index of ai_tab_indices)
-            localStorage.removeItem(`${storage_keys.code}.${index}`)
-        if (itab > -1)
-            localStorage.setItem(storage_keys.current_tab, itab.toString())
-        else
-            localStorage.removeItem(storage_keys.current_tab)
-        if (this.monaco_inited && current_ai_tab_removed)
-            this.editor?.setValue(localStorage.getItem(storage_keys.code) || '')
-    }
-    
     
     add_tab () {
         if (!this.monaco_inited)
@@ -1110,6 +1081,36 @@ class ShellModel extends Model<ShellModel> {
         tab.name = title
         this.set({ tabs: [...this.tabs] })
         localStorage.setItem(`${storage_keys.code}.${tab.index}`, JSON.stringify(tab))
+    }
+    
+    
+    remove_ai_tabs () {
+        const prefix = `${storage_keys.code}.`
+        const ai_tab_indices = new Set(this.tabs.filter(t => t.chat_id).map(t => t.index))
+        for (const key of Object.keys(localStorage))
+            if (key.startsWith(prefix))
+                try {
+                    const tab = JSON.parse(localStorage.getItem(key) || '') as Tab
+                    if (tab.chat_id) {
+                        ai_tab_indices.add(tab.index)
+                        localStorage.removeItem(key)
+                    }
+                } catch { }
+        if (ai_tab_indices.size === 0)
+            return
+        const tabs = this.tabs.filter(t => !ai_tab_indices.has(t.index))
+        const current_ai_tab_removed = ai_tab_indices.has(this.itab)
+        const itab = ai_tab_indices.has(this.itab) ? -1 : this.itab
+        this.ai_session_tab_indices.clear()
+        this.set({ tabs, itab })
+        for (const index of ai_tab_indices)
+            localStorage.removeItem(`${storage_keys.code}.${index}`)
+        if (itab > -1)
+            localStorage.setItem(storage_keys.current_tab, itab.toString())
+        else
+            localStorage.removeItem(storage_keys.current_tab)
+        if (this.monaco_inited && current_ai_tab_removed)
+            this.editor?.setValue(localStorage.getItem(storage_keys.code) || '')
     }
 }
 
