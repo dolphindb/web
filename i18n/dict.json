@@ -8704,5 +8704,26 @@
     },
     "下载": {
         "en": "Download"
+    },
+    "已重置用户个人记忆，移除 {{count}} 条记忆_plural": {
+        "en": "The user’s personal memories have been reset; {{count}} memories removed."
+    },
+    "{{count}} 个文件_plural": {
+        "en": "{{count}} files"
+    },
+    "共 {{count}} 条_plural": {
+        "en": "Total: {{count}} items"
+    },
+    "{{count}} / {{limit}} tokens": {
+        "en": "{{count}} / {{limit}} tokens"
+    },
+    "{{count}} / {{limit}} tokens_plural": {
+        "en": "{{count}} / {{limit}} tokens"
+    },
+    "连接成功，发现 {{count}} 个工具: {{names}}_plural": {
+        "en": "Connection successful. Found {{count}} tools: {{names}}"
+    },
+    "(编辑模式下无法编辑代码内容，请切换到预览模式编辑)": {
+        "en": "(In edit mode, code content cannot be edited; please switch to preview mode to make edits.)"
     }
 }

@@ -479,7 +479,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                         () => 
                             server_form.getFieldValue('serverType') !== 'dolphindb' && server_form.getFieldValue('credentialMode') === 'shared_token' && <Form.Item
                                 name='token'
-                                label={t('Token')}
+                                label='Token'
                                 required={editing_server?.credentialMode !== 'shared_token'}
                                 rules={editing_server?.credentialMode === 'shared_token' ? [ ] : [{ required: true, message: t('固定 Token 认证方式需要填写 Token') }]}
                                 style={{ marginBottom: 0, gridColumn: '1 / -1' }}
