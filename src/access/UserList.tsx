@@ -2,7 +2,7 @@ import './index.sass'
 
 import { useCallback, useMemo, useState } from 'react'
 
-import { DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { CheckCircleFilled, DeleteOutlined, MinusCircleFilled, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import { Button, Flex, Input, Popconfirm, Typography, type TableColumnType } from 'antd'
 
 import NiceModal from '@ebay/nice-modal-react'
@@ -51,6 +51,25 @@ export function UserList () {
                 dataIndex: 'user_name',
                 key: 'user_name',
                 width: 200
+            },
+            {
+                title: t('是否管理员'),
+                align: 'center',
+                dataIndex: 'is_admin',
+                key: 'is_admin',
+                width: 150,
+                filters: [
+                    {
+                        text: t('管理员'),
+                        value: true
+                    },
+                    {
+                        text: t('非管理员'),
+                        value: false
+                    }
+                ],
+                filterMultiple: false,
+                onFilter: (is_admin: boolean, record) => users_access.find(({ userId }) => userId === record.user_name).isAdmin === is_admin
             },
             {
                 title: t('所属组'),
@@ -121,10 +140,11 @@ export function UserList () {
         pagination={{ hideOnSinglePage: true, size: 'small' }}
         columns={cols}
         dataSource={users_access
-            ?.filter(({ userId, isAdmin }) => !isAdmin && userId.toLowerCase().includes(search_key.toLowerCase()))
+            ?.filter(({ userId }) => userId.toLowerCase().includes(search_key.toLowerCase()))
             .map(current_user => ({
                 key: current_user.userId,
                 user_name: current_user.userId,
+                is_admin: current_user.isAdmin ? <CheckCircleFilled className='green' /> : <MinusCircleFilled className='gray' />,
                 
                 groups: Boolean(current_user.groups) && <Flex gap='small' align='center'>{
                     current_user.groups.split(',').map((group: string) => 

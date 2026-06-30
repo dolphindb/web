@@ -26,7 +26,7 @@ import SvgAi from './icons/ai.icon.svg'
 
 
 export function ShellEditor ({ collapser }) {
-    const { logined, node_type } = model.use(['logined', 'node_type'])
+    const { logined, node_type, v3 } = model.use(['logined', 'node_type', 'v3'])
     
     const [minimap, set_minimap] = useState(() =>
         storage.get_bool(storage_keys.minimap))
@@ -162,10 +162,16 @@ export function ShellEditor ({ collapser }) {
             on_tab_rename={handle_tab_rename}
             show_add_button
             on_add_tab={() => { shell.add_tab() }}
-            right_extra={
+            right_extra={v3 &&
                 <div
                     className='ai-mode-btn'
                     onClick={async () => {
+                        if (!logined) {
+                            model.message?.warning(t('请先登录'))
+                            await model.goto_login()
+                            return
+                        }
+                        
                         if (node_type === NodeType.controller || node_type === NodeType.data) {
                             model.message?.warning(t('集群模式下 AI 模式需要在计算节点使用。'))
                             return

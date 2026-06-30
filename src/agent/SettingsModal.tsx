@@ -43,13 +43,18 @@ function show_builtin_init_error (title: string, detail: unknown) {
 
 export function SettingsModal () {
     const { settings_visible, can_manage_agents } = chat_model.use(['settings_visible', 'can_manage_agents'])
-    const { admin } = model.use(['admin'])
+    const { admin, v3 } = model.use(['admin', 'v3'])
     const [builtin_status, set_builtin_status] = useState<IBuiltinInitResult | null>(null)
     const [checking_builtin, set_checking_builtin] = useState(false)
     const [initializing_builtin, set_initializing_builtin] = useState(false)
     
     useEffect(() => {
-        if (!settings_visible)
+        if (settings_visible && !v3) 
+            chat_model.set({ settings_visible: false })
+    }, [settings_visible, v3])
+    
+    useEffect(() => {
+        if (!settings_visible || !v3)
             return
         let disposed = false
         chat_model.agent.load_agents()
@@ -75,6 +80,8 @@ export function SettingsModal () {
     const builtin_ready = builtin_status?.initialized === true || builtin_status?.state === 'READY'
     const show_builtin_init = checking_builtin || Boolean(builtin_status && !builtin_ready)
     const can_manage_agent = admin || can_manage_agents
+    if (!v3)
+        return null
     
     async function initialize_builtins () {
         set_initializing_builtin(true)

@@ -8,7 +8,7 @@ import { model } from '@model'
 
 import { chat_model } from '@/agent/model.ts'
 import type { IAccessInfo, ILlmConfig, ISkillInfo, IUserLlmAccessInfo } from '@/agent/model.ts'
-import { Section, show_error, use_agent_options, use_user_options } from './common.tsx'
+import { Section, show_error, use_agent_options, use_user_options, use_valid_agent_selection } from './common.tsx'
 import { UsageSection } from './DolphinXUserTab.tsx'
 
 
@@ -366,13 +366,7 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
     const [loading, set_loading] = useState(false)
     const [trigger_loading, set_trigger_loading] = useState(false)
     const reset_modal = use_modal()
-    
-    useEffect(() => {
-        if (!selected_agent_id && agent_id)
-            set_selected_agent_id(agent_id)
-        else if (!selected_agent_id && options.length > 0)
-            set_selected_agent_id(options[0].value)
-    }, [agent_id, options.length, selected_agent_id])
+    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id, agent_id)
     
     async function reset_memory () {
         if (!selected_agent_id || !user_id) {
@@ -438,7 +432,8 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
 
 
 function UserPermissionTab () {
-    const user_options = use_user_options()
+    const all_user_options = use_user_options()
+    const user_options = all_user_options.filter(user => user.value !== 'admin')
     const [selected_user_id, set_selected_user_id] = useState('')
     const [user_page, set_user_page] = useState(1)
     const user_page_size = 10

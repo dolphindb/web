@@ -536,10 +536,16 @@ class ShellModel extends Model<ShellModel> {
             const tabs = Object.keys(localStorage)
                 .filter(key => key.startsWith(prefix))
                 .map(key => JSON.parse(localStorage.getItem(key) || '') as Tab)
+                .filter(tab => model.v3 || !tab.chat_id)
                 .sort((a, b) => a.index - b.index)
             
             if (this.itab > -1 && !tabs.some(tab => tab.index === this.itab))
-                throw new Error('invalid current tab')
+                if (model.v3)
+                    throw new Error('invalid current tab')
+                else {
+                    this.set({ tabs, itab: -1 })
+                    return
+                }
             
             this.set({ tabs })
         } catch (error) {
@@ -988,6 +994,13 @@ class ShellModel extends Model<ShellModel> {
     // --- ai tabs
     /** 将当前标签页转为 AI 标签页，或新建一个 AI 标签页 */
     async add_ai_tab (chat_id = `${PENDING_AI_CHAT_ID_PREFIX}${Date.now()}`, name?: string): Promise<boolean> {
+        if (!model.v3)
+            return false
+        if (!model.logined) {
+            model.message?.warning(t('请先登录'))
+            await model.goto_login()
+            return false
+        }
         if (!this.monaco_inited && this.tabs.length === 0)
             this.init_tabs()
             
@@ -1068,6 +1081,36 @@ class ShellModel extends Model<ShellModel> {
         tab.name = title
         this.set({ tabs: [...this.tabs] })
         localStorage.setItem(`${storage_keys.code}.${tab.index}`, JSON.stringify(tab))
+    }
+    
+    
+    remove_ai_tabs () {
+        const prefix = `${storage_keys.code}.`
+        const ai_tab_indices = new Set(this.tabs.filter(t => t.chat_id).map(t => t.index))
+        for (const key of Object.keys(localStorage))
+            if (key.startsWith(prefix))
+                try {
+                    const tab = JSON.parse(localStorage.getItem(key) || '') as Tab
+                    if (tab.chat_id) {
+                        ai_tab_indices.add(tab.index)
+                        localStorage.removeItem(key)
+                    }
+                } catch { }
+        if (ai_tab_indices.size === 0)
+            return
+        const tabs = this.tabs.filter(t => !ai_tab_indices.has(t.index))
+        const current_ai_tab_removed = ai_tab_indices.has(this.itab)
+        const itab = ai_tab_indices.has(this.itab) ? -1 : this.itab
+        this.ai_session_tab_indices.clear()
+        this.set({ tabs, itab })
+        for (const index of ai_tab_indices)
+            localStorage.removeItem(`${storage_keys.code}.${index}`)
+        if (itab > -1)
+            localStorage.setItem(storage_keys.current_tab, itab.toString())
+        else
+            localStorage.removeItem(storage_keys.current_tab)
+        if (this.monaco_inited && current_ai_tab_removed)
+            this.editor?.setValue(localStorage.getItem(storage_keys.code) || '')
     }
 }
 
