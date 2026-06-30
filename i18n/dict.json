@@ -7361,6 +7361,69 @@
     "加载记忆失败": {
         "en": "Failed to load memory"
     },
+    "{{count}} 个文件": {
+        "en": "{{count}} files"
+    },
+    "偏好": {
+        "en": "Preference"
+    },
+    "事实": {
+        "en": "Fact"
+    },
+    "流程": {
+        "en": "Procedure"
+    },
+    "失败防护": {
+        "en": "Failure shield"
+    },
+    "加载公共记忆失败": {
+        "en": "Failed to load public memory"
+    },
+    "公共记忆已保存": {
+        "en": "Public memory saved"
+    },
+    "保存公共记忆失败": {
+        "en": "Failed to save public memory"
+    },
+    "确认保存公共记忆？": {
+        "en": "Save public memory?"
+    },
+    "公共记忆会注入该 Agent 下所有用户的后续对话上下文，修改后可能影响所有用户的回答结果。确定保存？": {
+        "en": "Public memory is injected into future conversation context for all users under this Agent. Changes may affect all users' responses. Save it?"
+    },
+    "确认保存": {
+        "en": "Save"
+    },
+    "已清空": {
+        "en": "Cleared"
+    },
+    "清空公共记忆失败": {
+        "en": "Failed to clear public memory"
+    },
+    "确认清空公共记忆？": {
+        "en": "Clear public memory?"
+    },
+    "清空公共记忆会影响该 Agent 下所有用户的后续对话上下文。该操作会移除当前公共记忆内容，确定清空？": {
+        "en": "Clearing public memory affects future conversation context for all users under this Agent. This will remove the current public memory content. Clear it?"
+    },
+    "确认清空": {
+        "en": "Clear"
+    },
+    "放弃未保存修改？": {
+        "en": "Discard unsaved changes?"
+    },
+    "当前公共记忆修改尚未保存，放弃后将恢复为上次保存的内容。": {
+        "en": "The current public memory changes have not been saved. Discarding them will restore the last saved content."
+    },
+    "放弃修改": {
+        "en": "Discard changes"
+    },
+    "继续编辑": {
+        "en": "Keep editing"
+    },
+    "请填写记忆内容": {
+        "en": "Please enter memory content"
+    },
     "请填写分类和内容": {
         "en": "Please enter category and content"
     },
@@ -7373,11 +7436,203 @@
     "记忆": {
         "en": "Memory"
     },
+    "主分类": {
+        "en": "Category"
+    },
+    "更新人：{{user}}": {
+        "en": "Updated by: {{user}}"
+    },
+    "公共记忆内容": {
+        "en": "Public memory content"
+    },
+    "请选择 Agent": {
+        "en": "Please select an Agent"
+    },
     "加载记忆统计失败": {
         "en": "Failed to load memory stats"
     },
     "加载记忆详情失败": {
         "en": "Failed to load memory details"
+    },
+    "摘要": {
+        "en": "Summary"
+    },
+    "关键词": {
+        "en": "Keywords"
+    },
+    "综合分": {
+        "en": "Rank score"
+    },
+    "文本分": {
+        "en": "Text score"
+    },
+    "向量分": {
+        "en": "Vector score"
+    },
+    "保存配置": {
+        "en": "Save configuration"
+    },
+    "编辑 MCP Server 配置": {
+        "en": "Edit MCP Server configuration"
+    },
+    "测试": {
+        "en": "Test"
+    },
+    "查看候选文档": {
+        "en": "View candidate documents"
+    },
+    "查看原始响应": {
+        "en": "View raw response"
+    },
+    "撤销管理权限": {
+        "en": "Revoke management permission"
+    },
+    "当前账号没有可用的 Agent，请联系管理员授权。": {
+        "en": "No Agent is available for the current account. Contact an administrator for access."
+    },
+    "第三方 MCP": {
+        "en": "Third-party MCP"
+    },
+    "调用成功": {
+        "en": "Call succeeded"
+    },
+    "调用失败": {
+        "en": "Call failed"
+    },
+    "该 MCP Server 仍被 Agent 绑定，请先解绑后再删除": {
+        "en": "This MCP Server is still bound to an Agent. Unbind it before deleting."
+    },
+    "固定 Token": {
+        "en": "Fixed Token"
+    },
+    "固定 Token 认证方式需要填写 Token": {
+        "en": "Token is required for fixed Token authentication"
+    },
+    "关闭后，AI 助手将不会联网搜索 DolphinDB 官方文档。": {
+        "en": "When disabled, the AI assistant will not search official DolphinDB documentation online."
+    },
+    "加载 Agent 管理权限失败": {
+        "en": "Failed to load Agent management permissions"
+    },
+    "连接成功，发现 {{count}} 个工具: {{names}}": {
+        "en": "Connection succeeded. Found {{count}} tools: {{names}}"
+    },
+    "连接失败": {
+        "en": "Connection failed"
+    },
+    "留空表示不修改": {
+        "en": "Leave blank to keep unchanged"
+    },
+    "没有权限访问 AI 助手，请联系管理员授权。": {
+        "en": "You do not have permission to access the AI assistant. Contact an administrator for access."
+    },
+    "配置可供 Agent 绑定和调用的 MCP Server。": {
+        "en": "Configure MCP Servers that Agents can bind and call."
+    },
+    "配置已保存": {
+        "en": "Configuration saved"
+    },
+    "配置已删除": {
+        "en": "Configuration deleted"
+    },
+    "启用文档搜索": {
+        "en": "Enable document search"
+    },
+    "请输入 MCP Server 名称": {
+        "en": "Please enter an MCP Server name"
+    },
+    "请输入 Server 地址": {
+        "en": "Please enter a Server address"
+    },
+    "请先选择 Agent 和用户": {
+        "en": "Please select an Agent and user first"
+    },
+    "请选择 MCP 类型": {
+        "en": "Please select an MCP type"
+    },
+    "请选择认证方式": {
+        "en": "Please select an authentication method"
+    },
+    "确定解绑此 MCP Server？": {
+        "en": "Unbind this MCP Server?"
+    },
+    "确定禁用此 MCP Server？": {
+        "en": "Disable this MCP Server?"
+    },
+    "确定删除此 MCP Server 配置？": {
+        "en": "Delete this MCP Server configuration?"
+    },
+    "认证方式": {
+        "en": "Authentication"
+    },
+    "使用当前 DolphinDB 用户": {
+        "en": "Use current DolphinDB user"
+    },
+    "授权管理 Agent": {
+        "en": "Grant Agent management permission"
+    },
+    "添加 MCP Server": {
+        "en": "Add MCP Server"
+    },
+    "添加 MCP Server 配置": {
+        "en": "Add MCP Server configuration"
+    },
+    "未授权管理 Agent": {
+        "en": "Agent management not granted"
+    },
+    "无需认证": {
+        "en": "No authentication"
+    },
+    "下载失败": {
+        "en": "Download failed"
+    },
+    "新会话 ": {
+        "en": "New session "
+    },
+    "已撤销 Agent 管理权限": {
+        "en": "Agent management permission revoked"
+    },
+    "已授权管理 Agent": {
+        "en": "Authorized to manage Agent"
+    },
+    "已授予 Agent 管理权限": {
+        "en": "Agent management permission granted"
+    },
+    "暂无 MCP Server 配置": {
+        "en": "No MCP Server configurations"
+    },
+    "暂无可用 MCP Server，请先在「MCP 管理」中添加配置": {
+        "en": "No available MCP Server. Add one in MCP Management first."
+    },
+    "Agent 管理权限": {
+        "en": "Agent management permissions"
+    },
+    "DolphinDB 内置 MCP": {
+        "en": "Built-in DolphinDB MCP"
+    },
+    "MCP 绑定": {
+        "en": "MCP bindings"
+    },
+    "MCP 管理": {
+        "en": "MCP Management"
+    },
+    "MCP 类型": {
+        "en": "MCP type"
+    },
+    "MCP Server 配置": {
+        "en": "MCP Server configuration"
+    },
+    "Server 地址": {
+        "en": "Server address"
+    },
+    "Server 禁用": {
+        "en": "Server disabled"
+    },
+    "Server 可用": {
+        "en": "Server available"
+    },
+    "Server 未知": {
+        "en": "Server unknown"
     },
     "记忆任务已触发": {
         "en": "Memory job triggered"
