@@ -8,6 +8,9 @@
     "登录": {
         "en": "Log in"
     },
+    "请先登录": {
+        "en": "Please log in first"
+    },
     "集群总览": {
         "en": "Cluster"
     },

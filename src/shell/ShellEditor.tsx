@@ -166,6 +166,11 @@ export function ShellEditor ({ collapser }) {
                 <div
                     className='ai-mode-btn'
                     onClick={async () => {
+                        if (!logined) {
+                            model.message?.warning(t('请先登录'))
+                            await model.goto_login()
+                            return
+                        }
                         if (node_type === NodeType.controller || node_type === NodeType.data) {
                             model.message?.warning(t('集群模式下 AI 模式需要在计算节点使用。'))
                             return
