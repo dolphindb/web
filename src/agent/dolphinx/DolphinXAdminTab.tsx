@@ -438,7 +438,8 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
 
 
 function UserPermissionTab () {
-    const user_options = use_user_options()
+    const all_user_options = use_user_options()
+    const user_options = all_user_options.filter(user => user.value !== 'admin')
     const [selected_user_id, set_selected_user_id] = useState('')
     const [user_page, set_user_page] = useState(1)
     const user_page_size = 10
