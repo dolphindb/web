@@ -9,7 +9,7 @@ import { shell } from '@/shell/model.ts'
 
 import { chat_model, get_chat_model } from '@/agent/model.ts'
 import type { ILlmConfig, ILlmUsageStats, IMemoryEntry, IMemoryJob, IMemoryStats, IPublicMemory, ISession } from '@/agent/model.ts'
-import { AgentListLayout, format_browser_time, show_error, use_agent_options, use_user_options } from './common.tsx'
+import { AgentListLayout, format_browser_time, show_error, use_agent_options, use_user_options, use_valid_agent_selection } from './common.tsx'
 
 
 const { Text } = Typography
@@ -66,13 +66,7 @@ function SessionSection () {
     const [loading, set_loading] = useState(false)
     const summary_modal = use_modal()
     const title_modal = use_modal()
-    
-    useEffect(() => {
-        if (!selected_agent_id && agent_id)
-            set_selected_agent_id(agent_id)
-        else if (!selected_agent_id && options.length > 0)
-            set_selected_agent_id(options[0].value)
-    }, [agent_id, options.length, selected_agent_id])
+    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id, agent_id)
     
     async function load_sessions (page = session_page, page_size = session_page_size, known_total?: number) {
         if (!selected_agent_id) {
@@ -403,11 +397,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
     const has_memory_query = Boolean(query.trim())
     const saved_public_content = public_memory?.content || ''
     const public_dirty = public_content !== saved_public_content
-    
-    useEffect(() => {
-        if (!selected_agent_id && options.length > 0)
-            set_selected_agent_id(options[0].value)
-    }, [options.length, selected_agent_id])
+    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id)
     
     useEffect(() => {
         const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
@@ -1193,11 +1183,7 @@ function MemoryConfigManagementSection () {
     const [agent_page, set_agent_page] = useState(1)
     const agent_page_size = 10
     const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
-    
-    useEffect(() => {
-        if (!selected_agent_id && options.length > 0)
-            set_selected_agent_id(options[0].value)
-    }, [options.length, selected_agent_id])
+    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id)
     
     useEffect(() => {
         const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
@@ -1265,11 +1251,7 @@ function MemoryJobsSection () {
     const [job_detail, set_job_detail] = useState<IMemoryJob | null>(null)
     const [job_detail_loading_key, set_job_detail_loading_key] = useState('')
     const [loading, set_loading] = useState(false)
-    
-    useEffect(() => {
-        if (!selected_agent_id && options.length > 0)
-            set_selected_agent_id(options[0].value)
-    }, [options.length, selected_agent_id])
+    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id)
     
     useEffect(() => {
         if (selected_agent_id)
@@ -1425,13 +1407,7 @@ function ContextPreviewSection () {
     const [message_text, set_message_text] = useState('')
     const [preview, set_preview] = useState<any>(null)
     const [loading, set_loading] = useState(false)
-    
-    useEffect(() => {
-        if (!selected_agent_id && agent_id)
-            set_selected_agent_id(agent_id)
-        else if (!selected_agent_id && options.length > 0)
-            set_selected_agent_id(options[0].value)
-    }, [agent_id, options.length, selected_agent_id])
+    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id, agent_id)
     
     async function load_sessions () {
         if (!selected_agent_id) {
@@ -1557,11 +1533,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
     const [loading_usage, set_loading_usage] = useState(false)
     const user_ids_key = user_options.map(user => user.value).join('\n')
     const selected_agent_name = options.find(option => option.value === selected_agent_id)?.label || selected_agent_id || '-'
-    
-    useEffect(() => {
-        if (!selected_agent_id && agent_id)
-            set_selected_agent_id(agent_id)
-    }, [agent_id])
+    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id, agent_id)
     
     useEffect(() => {
         if (!selected_agent_id)

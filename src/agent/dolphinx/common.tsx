@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react'
 
 import { Card, Empty, Pagination } from 'antd'
 
@@ -39,6 +39,7 @@ export function AgentListLayout ({
     const [agent_page, set_agent_page] = useState(1)
     const agent_page_size = 10
     const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
+    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id)
     
     useEffect(() => {
         const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
@@ -99,6 +100,10 @@ export function format_browser_time (value?: string) {
 
 export function use_agent_options () {
     const { agents, agent_id } = chat_model.use(['agents', 'agent_id'])
+    const options = agents
+        .filter(agent => agent.statusName === 'ACTIVE')
+        .map(agent => ({ value: agent.agentId, label: agent.agentName || agent.agentId }))
+    const active_agent_id = options.some(agent => agent.value === agent_id) ? agent_id : options[0]?.value || ''
     
     useEffect(() => {
         if (agents.length === 0)
@@ -106,11 +111,27 @@ export function use_agent_options () {
     }, [ ])
     
     return {
-        agent_id,
-        options: agents
-            .filter(agent => agent.statusName !== 'DELETED')
-            .map(agent => ({ value: agent.agentId, label: agent.agentName || agent.agentId })),
+        agent_id: active_agent_id,
+        options,
     }
+}
+
+
+export function use_valid_agent_selection (
+    options: { value: string, label: string }[],
+    selected_agent_id: string,
+    set_selected_agent_id: (agent_id: string) => void,
+    preferred_agent_id = ''
+) {
+    const options_key = options.map(option => option.value).join('\n')
+    useLayoutEffect(() => {
+        const preferred = preferred_agent_id && options.some(option => option.value === preferred_agent_id) ? preferred_agent_id : ''
+        const fallback = preferred || options[0]?.value || ''
+        if (selected_agent_id && options.some(option => option.value === selected_agent_id))
+            return
+        if (selected_agent_id !== fallback)
+            set_selected_agent_id(fallback)
+    }, [options_key, selected_agent_id, preferred_agent_id])
 }
 
 
