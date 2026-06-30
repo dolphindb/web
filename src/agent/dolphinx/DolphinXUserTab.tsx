@@ -1241,6 +1241,9 @@ function MemoryConfigManagementSection () {
 function MemoryJobsSection () {
     const { options } = use_agent_options()
     const user_options = use_user_options()
+    const memory_job_user_options = user_options.some(user => user.value === 'admin')
+        ? user_options
+        : [{ value: 'admin', label: 'admin' }, ...user_options]
     
     const [selected_agent_id, set_selected_agent_id] = useState('')
     const [kind, set_kind] = useState('')
@@ -1330,7 +1333,7 @@ function MemoryJobsSection () {
         <Space wrap style={{ marginBottom: 12 }}>
             <Select allowClear showSearch style={{ width: 180 }} placeholder={t('任务类型')} value={kind || undefined} onChange={value => { set_kind(value || '') }} options={memory_job_kind_options} />
             <Select allowClear showSearch style={{ width: 140 }} placeholder={t('任务状态')} value={status || undefined} onChange={value => { set_status(value || '') }} options={memory_job_status_options} />
-            <Select allowClear showSearch style={{ width: 180 }} placeholder={t('用户')} value={target_user_id || undefined} onChange={value => { set_target_user_id(value || '') }} options={user_options} />
+            <Select allowClear showSearch style={{ width: 180 }} placeholder={t('用户')} value={target_user_id || undefined} onChange={value => { set_target_user_id(value || '') }} options={memory_job_user_options} />
         </Space>
         <Table
             size='small'
@@ -1530,12 +1533,15 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
     const { agent_id, options } = use_agent_options()
     const { username } = model.use(['username'])
     const user_options = use_user_options()
+    const usage_user_options = user_options.some(user => user.value === 'admin')
+        ? user_options
+        : [{ value: 'admin', label: 'admin' }, ...user_options]
     
     const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
     const [usage, set_usage] = useState<ILlmUsageStats | null>(null)
     const [usage_by_user, set_usage_by_user] = useState<Record<string, ILlmUsageStats>>({ })
     const [loading_usage, set_loading_usage] = useState(false)
-    const user_ids_key = user_options.map(user => user.value).join('\n')
+    const user_ids_key = usage_user_options.map(user => user.value).join('\n')
     const selected_agent_name = options.find(option => option.value === selected_agent_id)?.label || selected_agent_id || '-'
     use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id, agent_id)
     
@@ -1567,14 +1573,14 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
     
     
     async function load_admin_usage () {
-        if (!selected_agent_id || user_options.length === 0) {
+        if (!selected_agent_id || usage_user_options.length === 0) {
             set_usage_by_user({ })
             return
         }
         
         set_loading_usage(true)
         try {
-            const entries = await Promise.all(user_options.map(async user => [
+            const entries = await Promise.all(usage_user_options.map(async user => [
                 user.value,
                 await chat_model.llm.load_llm_usage({
                     agentId: selected_agent_id,
@@ -1643,7 +1649,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
             size='small'
             rowKey='value'
             loading={loading_usage}
-            dataSource={user_options.map(user => ({ ...user, agentName: selected_agent_name, usage: usage_by_user[user.value] }))}
+            dataSource={usage_user_options.map(user => ({ ...user, agentName: selected_agent_name, usage: usage_by_user[user.value] }))}
             pagination={false}
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用户')} /> }}
             columns={[
