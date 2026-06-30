@@ -1002,7 +1002,7 @@ export class Database implements DataNode {
                             onClick={async event => { 
                                 event.stopPropagation()
                                 await NiceModal.show(AccessModal, { database: this }) 
-                            }} 
+                            }}
                         />
                     </Tooltip> 
                 }
@@ -1011,7 +1011,7 @@ export class Database implements DataNode {
                         disabled={!enable_create_table}
                         className={enable_create_table ? '' : 'disabled'}
                         component={SvgCreateTable}
-                        onClick={onclick_create_table} 
+                        onClick={onclick_create_table}
                     />
                 </Tooltip>
             </div>
