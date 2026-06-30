@@ -4,6 +4,8 @@ import { Button } from 'antd'
 import { useMemo, useRef } from 'react'
 import { debounce } from 'lodash'
 
+import { t } from '@i18n'
+
 import { Editor } from '@components/Editor/index.tsx'
 import { get_editor_value, type CodeEditor } from '@components/Editor/MonacoEditor.tsx'
 import { type Widget, dashboard } from '@/dashboard/model.ts'
@@ -12,7 +14,7 @@ import { type IEditorConfig } from '@/dashboard/type.ts'
 
 
 export function DashboardEditor ({ widget }: { widget: Widget }) {
-    const { config, widgets } = dashboard.use(['config', 'widgets'])
+    const { config, widgets, editing } = dashboard.use(['config', 'widgets', 'editing'])
     
     let reditor = useRef<CodeEditor>(undefined)
     
@@ -32,18 +34,19 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
     
     return <div className='editor-container'>
         <h2>{(widget?.config as IEditorConfig)?.title || 'editor'}</h2>
-        <div className='editor'>
-            <Editor
-                theme='dark'
-                default_value={(widget?.config as IEditorConfig)?.code}
-                on_change={code => {
-                    save_debounced(code)
-                }}
-                on_loaded={(monaco, editor) => {
-                    reditor.current = editor
-                }}
-            />
-        </div>
+        
+        <Editor
+            theme='dark'
+            default_value={(widget?.config as IEditorConfig)?.code}
+            observe_resize
+            on_change={code => {
+                save_debounced(code)
+            }}
+            on_loaded={(monaco, editor) => {
+                reditor.current = editor
+            }}
+        />
+        
         <Button
             onClick={async () => {
                 const { type, result } = await dashboard.execute_code(
@@ -56,6 +59,8 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
         >
             {(widget?.config as IEditorConfig)?.button_text || 'run'}
         </Button>
+        
+        { editing && <div>{t('(编辑模式下无法编辑代码内容，请切换到预览模式编辑)')}</div> }
     </div>
 }
 

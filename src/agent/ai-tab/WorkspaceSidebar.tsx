@@ -250,7 +250,7 @@ export function WorkspaceSidebar ({
                 </Button>
             </>}
             width={960}
-            destroyOnClose
+            destroyOnHidden
         >
             <Spin spinning={file_loading}>
                 <div className='ai-workspace-editor'>
