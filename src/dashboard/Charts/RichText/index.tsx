@@ -78,9 +78,10 @@ export function RichText ({ widget }: GraphComponentProps) {
                     // @ts-ignore
                     window.define.amd = false
                 
-                await import(/* webpackIgnore: true */ `${model.assets_root}vendors/react-quill-new/dist/react-quill.js`)
+                // 并无 export
+                await import(`${model.assets_root}vendors/react-quill-new/dist/react-quill.js`)
                 
-                ;({ default: ReactQuill } = await import('react-quill-new'))
+                ReactQuill = globalThis.ReactQuill.default
                 
                 set_quill_loaded(true)
             }
