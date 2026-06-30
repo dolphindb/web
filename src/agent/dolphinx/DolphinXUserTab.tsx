@@ -335,6 +335,9 @@ const memory_kind_options: Array<{ value: IMemoryEntry['memoryKind'], label: str
     { value: 'failure_shield', label: t('失败防护') },
 ]
 
+const memory_job_kind_options = ['memory_stage1', 'memory_phase2', 'memory_derive_fields'].map(value => ({ value, label: value }))
+const memory_job_status_options = ['pending', 'running', 'done', 'succeeded', 'failed'].map(value => ({ value, label: value }))
+
 
 export function MemoryManagementTab ({ can_manage_memory = false }: { can_manage_memory?: boolean }) {
     return <Tabs
@@ -1271,7 +1274,7 @@ function MemoryJobsSection () {
     useEffect(() => {
         if (selected_agent_id)
             load_jobs(1)
-    }, [selected_agent_id])
+    }, [selected_agent_id, kind, status, target_user_id])
     
     async function load_jobs (page = job_page) {
         if (!selected_agent_id) {
@@ -1334,8 +1337,8 @@ function MemoryJobsSection () {
         actions={<Button loading={loading} onClick={() => { load_jobs(1) }}>{t('刷新')}</Button>}
     >
         <Space wrap style={{ marginBottom: 12 }}>
-            <Input style={{ width: 140 }} value={kind} onChange={event => { set_kind(event.target.value) }} placeholder={t('任务类型')} />
-            <Input style={{ width: 140 }} value={status} onChange={event => { set_status(event.target.value) }} placeholder={t('任务状态')} />
+            <Select allowClear showSearch style={{ width: 180 }} placeholder={t('任务类型')} value={kind || undefined} onChange={value => { set_kind(value || '') }} options={memory_job_kind_options} />
+            <Select allowClear showSearch style={{ width: 140 }} placeholder={t('任务状态')} value={status || undefined} onChange={value => { set_status(value || '') }} options={memory_job_status_options} />
             <Select allowClear showSearch style={{ width: 180 }} placeholder={t('用户')} value={target_user_id || undefined} onChange={value => { set_target_user_id(value || '') }} options={user_options} />
         </Space>
         <Table
