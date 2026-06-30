@@ -536,10 +536,16 @@ class ShellModel extends Model<ShellModel> {
             const tabs = Object.keys(localStorage)
                 .filter(key => key.startsWith(prefix))
                 .map(key => JSON.parse(localStorage.getItem(key) || '') as Tab)
+                .filter(tab => model.v3 || !tab.chat_id)
                 .sort((a, b) => a.index - b.index)
             
             if (this.itab > -1 && !tabs.some(tab => tab.index === this.itab))
-                throw new Error('invalid current tab')
+                if (model.v3)
+                    throw new Error('invalid current tab')
+                else {
+                    this.set({ tabs, itab: -1 })
+                    return
+                }
             
             this.set({ tabs })
         } catch (error) {
@@ -988,6 +994,8 @@ class ShellModel extends Model<ShellModel> {
     // --- ai tabs
     /** 将当前标签页转为 AI 标签页，或新建一个 AI 标签页 */
     async add_ai_tab (chat_id = `${PENDING_AI_CHAT_ID_PREFIX}${Date.now()}`, name?: string): Promise<boolean> {
+        if (!model.v3)
+            return false
         if (!this.monaco_inited && this.tabs.length === 0)
             this.init_tabs()
             
