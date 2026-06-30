@@ -1260,11 +1260,11 @@ function MemoryJobsSection () {
     const [target_user_id, set_target_user_id] = useState('')
     const [jobs, set_jobs] = useState<IMemoryJob[]>([ ])
     const [job_page, set_job_page] = useState(1)
+    const [job_page_size, set_job_page_size] = useState(20)
     const [job_total, set_job_total] = useState(0)
     const [job_detail, set_job_detail] = useState<IMemoryJob | null>(null)
     const [job_detail_loading_key, set_job_detail_loading_key] = useState('')
     const [loading, set_loading] = useState(false)
-    const job_page_size = 20
     
     useEffect(() => {
         if (!selected_agent_id && options.length > 0)
@@ -1273,10 +1273,10 @@ function MemoryJobsSection () {
     
     useEffect(() => {
         if (selected_agent_id)
-            load_jobs(1)
+            load_jobs(1, job_page_size)
     }, [selected_agent_id, kind, status, target_user_id])
     
-    async function load_jobs (page = job_page) {
+    async function load_jobs (page = job_page, page_size = job_page_size, known_total?: number) {
         if (!selected_agent_id) {
             message.warning(t('请先选择 Agent'))
             return
@@ -1288,12 +1288,17 @@ function MemoryJobsSection () {
                 kind: kind || undefined,
                 status: status || undefined,
                 targetUserId: target_user_id || undefined,
-                offset: (page - 1) * job_page_size,
-                limit: job_page_size,
+                offset: (page - 1) * page_size,
+                limit: page_size,
             })
+            if (result.items.length === 0 && page > 1) {
+                await load_jobs(page - 1, page_size, (page - 1) * page_size)
+                return
+            }
             set_jobs(result.items)
             set_job_page(page)
-            set_job_total(result.size ?? result.items.length)
+            set_job_page_size(page_size)
+            set_job_total(known_total ?? page_total(result.offset ?? (page - 1) * page_size, result.limit ?? page_size, result.items.length, result.size))
         } catch (error) {
             show_error(error, t('加载记忆任务失败'))
         } finally {
@@ -1352,7 +1357,7 @@ function MemoryJobsSection () {
                 current: job_page,
                 pageSize: job_page_size,
                 total: job_total,
-                showSizeChanger: false,
+                showSizeChanger: true,
                 onChange: load_jobs,
             }}
             columns={[
