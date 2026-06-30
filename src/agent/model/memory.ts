@@ -105,7 +105,7 @@ export class ChatMemoryModel {
         targetUserId?: string
         offset?: number
         limit?: number
-    }): Promise<{ items: IMemoryJob[], size: number, offset?: number, limit?: number }> {
+    }): Promise<{ items: IMemoryJob[], size: number, offset?: number, limit?: number, total?: number }> {
         const search = new URLSearchParams({ agentId: params.agentId })
         if (params.kind)
             search.set('kind', params.kind)

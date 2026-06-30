@@ -43,8 +43,8 @@ function optional_nonnegative_number (value: unknown) {
     return Number.isFinite(num) && num >= 0 ? num : undefined
 }
 
-function page_total (offset: number, limit: number, count: number, total?: number) {
-    return total ?? offset + count + (count >= limit ? 1 : 0)
+function page_total (offset: number, count: number, has_more: boolean, total?: number) {
+    return total ?? offset + count + (has_more ? 1 : 0)
 }
 
 
@@ -75,20 +75,22 @@ function SessionSection () {
         }
         set_loading(true)
         try {
+            const offset = (page - 1) * page_size
             const result = await chat_model.session.list_sessions({
                 agentId: selected_agent_id,
-                offset: (page - 1) * page_size,
-                limit: page_size,
+                offset,
+                limit: page_size + 1,
             })
-            if (result.items.length === 0 && page > 1) {
+            const items = result.items.slice(0, page_size)
+            if (items.length === 0 && page > 1) {
                 await load_sessions(page - 1, page_size, (page - 1) * page_size)
                 return
             }
-            const stats = await Promise.all(result.items.map(session => chat_model.session.load_session_workspace_stats(session.sessionId)))
-            set_sessions(result.items.map((session, index) => stats[index] ? { ...session, ...stats[index] } : session))
+            const stats = await Promise.all(items.map(session => chat_model.session.load_session_workspace_stats(session.sessionId)))
+            set_sessions(items.map((session, index) => stats[index] ? { ...session, ...stats[index] } : session))
             set_session_page(page)
             set_session_page_size(page_size)
-            set_session_total(known_total ?? page_total(result.offset ?? (page - 1) * page_size, result.limit ?? page_size, result.items.length, result.total))
+            set_session_total(known_total ?? page_total(result.offset ?? offset, items.length, result.items.length > page_size, result.total))
         } catch (error) {
             show_error(error, t('加载会话失败'))
         } finally {
@@ -1265,22 +1267,24 @@ function MemoryJobsSection () {
         }
         set_loading(true)
         try {
+            const offset = (page - 1) * page_size
             const result = await chat_model.memory.list_memory_jobs({
                 agentId: selected_agent_id,
                 kind: kind || undefined,
                 status: status || undefined,
                 targetUserId: target_user_id || undefined,
-                offset: (page - 1) * page_size,
-                limit: page_size,
+                offset,
+                limit: page_size + 1,
             })
-            if (result.items.length === 0 && page > 1) {
+            const items = result.items.slice(0, page_size)
+            if (items.length === 0 && page > 1) {
                 await load_jobs(page - 1, page_size, (page - 1) * page_size)
                 return
             }
-            set_jobs(result.items)
+            set_jobs(items)
             set_job_page(page)
             set_job_page_size(page_size)
-            set_job_total(known_total ?? page_total(result.offset ?? (page - 1) * page_size, result.limit ?? page_size, result.items.length, result.size))
+            set_job_total(known_total ?? page_total(result.offset ?? offset, items.length, result.items.length > page_size, result.total))
         } catch (error) {
             show_error(error, t('加载记忆任务失败'))
         } finally {
