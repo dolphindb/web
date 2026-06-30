@@ -288,8 +288,6 @@ export interface IMemoryJob {
     jobKey: string
     scopeShardKey?: string
     scopeKey?: string
-    targetUserId?: string
-    userId?: string
     status?: string
     workerId?: string
     startedTime?: string

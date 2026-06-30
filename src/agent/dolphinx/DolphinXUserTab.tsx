@@ -334,10 +334,6 @@ const memory_kind_options: Array<{ value: IMemoryEntry['memoryKind'], label: str
 const memory_job_kind_options = ['memory_stage1', 'memory_phase2', 'memory_derive_fields'].map(value => ({ value, label: value }))
 const memory_job_status_options = ['running', 'done', 'pending', 'error', 'failed'].map(value => ({ value, label: value }))
 
-function memory_job_user_id (job: IMemoryJob) {
-    return job.targetUserId || job.userId || job.scopeKey || '-'
-}
-
 
 export function MemoryManagementTab ({ can_manage_memory = false }: { can_manage_memory?: boolean }) {
     return <Tabs
@@ -1345,7 +1341,7 @@ function MemoryJobsSection () {
             loading={loading}
             dataSource={jobs}
             tableLayout='fixed'
-            scroll={{ x: 1140 }}
+            scroll={{ x: 1040 }}
             pagination={{
                 current: job_page,
                 pageSize: job_page_size,
@@ -1356,7 +1352,6 @@ function MemoryJobsSection () {
             columns={[
                 { title: t('任务类型'), dataIndex: 'kind', width: 130 },
                 { title: t('任务状态'), dataIndex: 'status', width: 120 },
-                { title: t('用户'), width: 120, render: (_: unknown, job: IMemoryJob) => memory_job_user_id(job) },
                 { title: t('任务 Key'), dataIndex: 'jobKey', ellipsis: true, render: ellipsis_text },
                 { title: t('开始时间'), dataIndex: 'startedTime', width: 170, render: format_browser_time },
                 { title: t('完成时间'), dataIndex: 'finishedTime', width: 170, render: format_browser_time },
@@ -1389,7 +1384,6 @@ function MemoryJobsSection () {
                     dataSource={[
                         { key: 'kind', label: t('任务类型'), value: job_detail.kind },
                         { key: 'status', label: t('任务状态'), value: job_detail.status || '-' },
-                        { key: 'user', label: t('用户'), value: memory_job_user_id(job_detail) },
                         { key: 'jobKey', label: t('任务 Key'), value: job_detail.jobKey },
                         { key: 'workerId', label: t('Worker'), value: job_detail.workerId || '-' },
                         { key: 'startedTime', label: t('开始时间'), value: format_browser_time(job_detail.startedTime) },
