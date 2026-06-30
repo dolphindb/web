@@ -332,7 +332,7 @@ const memory_kind_options: Array<{ value: IMemoryEntry['memoryKind'], label: str
 ]
 
 const memory_job_kind_options = ['memory_stage1', 'memory_phase2', 'memory_derive_fields'].map(value => ({ value, label: value }))
-const memory_job_status_options = ['pending', 'running', 'done', 'succeeded', 'failed'].map(value => ({ value, label: value }))
+const memory_job_status_options = ['running', 'done', 'pending', 'error', 'failed'].map(value => ({ value, label: value }))
 
 
 export function MemoryManagementTab ({ can_manage_memory = false }: { can_manage_memory?: boolean }) {
