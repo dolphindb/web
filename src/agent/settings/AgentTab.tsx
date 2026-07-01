@@ -615,9 +615,12 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                     }}>
                                         <div style={{ minWidth: 0, flex: 1 }}>
                                             <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
-                                                <span style={{ fontWeight: 500, fontSize: 13 }}>
+                                                <Text
+                                                    style={{ fontWeight: 500, fontSize: 13, minWidth: 0, maxWidth: '100%' }}
+                                                    ellipsis={{ tooltip: get_mcp_server_display_name(server, server_id) }}
+                                                >
                                                     {get_mcp_server_display_name(server, server_id)}
-                                                </span>
+                                                </Text>
                                                 <Tag color={server_available ? 'green' : 'default'} style={{ fontSize: 11 }}>
                                                     {server_available === undefined
                                                         ? t('Server 未知')
