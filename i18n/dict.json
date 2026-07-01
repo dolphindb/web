@@ -7520,6 +7520,9 @@
     "连接成功，发现 {{count}} 个工具: {{names}}": {
         "en": "Connection succeeded. Found {{count}} tools: {{names}}"
     },
+    "连接成功，但缺少 MCP_EXEC 权限查看工具列表": {
+        "en": "Connection succeeded, but MCP_EXEC permission is required to view the tool list"
+    },
     "连接失败": {
         "en": "Connection failed"
     },
