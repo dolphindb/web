@@ -277,8 +277,8 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
         set_saving_agent(true)
         try {
             await chat_model.agent.update_agent(agent.agentId, {
-                description: agent_form.description || undefined,
-                systemPrompt: agent_form.systemPrompt || undefined,
+                description: agent_form.description,
+                systemPrompt: agent_form.systemPrompt,
                 config: {
                     ...(agent.config || { }),
                     allowLlmFallback: agent_form.allowLlmFallback,
