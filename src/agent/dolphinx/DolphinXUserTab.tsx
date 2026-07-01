@@ -1341,7 +1341,7 @@ function MemoryJobsSection () {
             loading={loading}
             dataSource={jobs}
             tableLayout='fixed'
-            scroll={{ x: 1130 }}
+            scroll={{ x: 1250 }}
             pagination={{
                 current: job_page,
                 pageSize: job_page_size,
@@ -1352,6 +1352,7 @@ function MemoryJobsSection () {
             columns={[
                 { title: t('任务类型'), dataIndex: 'kind', width: 130 },
                 { title: t('任务状态'), dataIndex: 'status', width: 120 },
+                { title: t('用户'), dataIndex: 'targetUserId', width: 120, render: ellipsis_text },
                 { title: t('任务 Key'), dataIndex: 'jobKey', ellipsis: true, render: ellipsis_text },
                 { title: t('开始时间'), dataIndex: 'startedTime', width: 170, render: format_browser_time },
                 { title: t('完成时间'), dataIndex: 'finishedTime', width: 170, render: format_browser_time },
@@ -1384,6 +1385,7 @@ function MemoryJobsSection () {
                     dataSource={[
                         { key: 'kind', label: t('任务类型'), value: job_detail.kind },
                         { key: 'status', label: t('任务状态'), value: job_detail.status || '-' },
+                        { key: 'targetUserId', label: t('用户'), value: job_detail.targetUserId || '-' },
                         { key: 'jobKey', label: t('任务 Key'), value: job_detail.jobKey },
                         { key: 'workerId', label: t('Worker'), value: job_detail.workerId || '-' },
                         { key: 'startedTime', label: t('开始时间'), value: format_browser_time(job_detail.startedTime) },
