@@ -1,4 +1,4 @@
-import { t } from '@i18n'
+import { language, t } from '@i18n'
 import type { ChatModel } from '@/agent/model.ts'
 import { shell } from '@/shell/model.ts'
 import { chat_workspace_store } from '@/agent/workspace.ts'
@@ -223,7 +223,7 @@ export class ChatSessionModel {
         const normalized = title
             .replace(/\s+/g, ' ')
             .replace(/^["'“”‘’`]+|["'“”‘’`]+$/g, '')
-            .replace(/^标题[:：]\s*/, '')
+            .replace(/^(?:标题|title)[:：]\s*/i, '')
             .trim()
         if (!normalized)
             return fallback
@@ -243,7 +243,9 @@ export class ChatSessionModel {
                     messages: [
                         {
                             role: 'system',
-                            content: '你是会话标题生成器。请根据用户第一条消息生成一个简短、具体的中文标题。只输出标题本身，不要解释，不要加引号，不要超过 12 个汉字或 24 个英文字符。',
+                            content: language === 'en'
+                                ? 'You are a conversation title generator. The English UI language means the conversation is in an English context by default. Generate a short, specific English title from the user\'s first message. Output only the title itself, with no explanation and no quotation marks. Keep it within 24 English characters when possible.'
+                                : '你是会话标题生成器。请根据用户第一条消息生成一个简短、具体的中文标题。只输出标题本身，不要解释，不要加引号，不要超过 12 个汉字或 24 个英文字符。',
                         },
                         {
                             role: 'user',
