@@ -434,6 +434,7 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
 
 function UserPermissionTab () {
     const [user_options, set_user_options] = useState<{ value: string, label: string }[]>([ ])
+    const [user_admin_map, set_user_admin_map] = useState<Record<string, boolean>>({ })
     const [selected_user_id, set_selected_user_id] = useState('')
     const [user_page, set_user_page] = useState(1)
     const user_page_size = 10
@@ -441,14 +442,17 @@ function UserPermissionTab () {
     
     useEffect(() => {
         access.get_user_list()
-            .then(users => access.get_user_access(users))
-            .then(users => {
-                set_user_options(users
-                    .filter(user => !user.isAdmin)
-                    .map(user => ({ value: user.userId, label: user.userId })))
+            .then(async users => {
+                const user_ids = users.includes('admin') ? users : ['admin', ...users]
+                const accesses = await access.get_user_access(users)
+                set_user_admin_map({
+                    ...Object.fromEntries(accesses.map(user => [user.userId, Boolean(user.isAdmin)])),
+                    admin: true,
+                })
+                set_user_options(user_ids.map(user => ({ value: user, label: user })))
             })
             .catch(error => { show_error(error, t('加载用户失败')) })
-    }, [ ]) 
+    }, [ ])
     
     useEffect(() => {
         if (!user_options.some(user => user.value === selected_user_id))
@@ -504,10 +508,12 @@ function UserPermissionTab () {
                         {t('正在编辑用户：{{user}}', { user: selected_user_id })}
                     </div>
                     <ResetUserMemorySection user_id={selected_user_id} />
-                    <GlobalAgentAdminSection user_id={selected_user_id} />
-                    <AdminAccessSection user_id={selected_user_id} />
-                    <UserLlmSection user_id={selected_user_id} />
-                    <SkillAccessSection user_id={selected_user_id} />
+                    {!user_admin_map[selected_user_id] && <>
+                        <GlobalAgentAdminSection user_id={selected_user_id} />
+                        <AdminAccessSection user_id={selected_user_id} />
+                        <UserLlmSection user_id={selected_user_id} />
+                        <SkillAccessSection user_id={selected_user_id} />
+                    </>}
                 </>
                 : <Empty description={t('请选择用户')} />}
         </div>
