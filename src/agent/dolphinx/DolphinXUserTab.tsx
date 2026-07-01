@@ -792,7 +792,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
                 dataSource={items}
                 pagination={false}
                 tableLayout='fixed'
-                scroll={{ x: 980 }}
+                scroll={{ x: 1020 }}
                 locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无记忆')} /> }}
                 columns={[
                     {
@@ -831,8 +831,8 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
                     },
                     {
                         title: t('操作'),
-                        width: 190,
-                        render: (_: unknown, item: IMemoryEntry) => <Space>
+                        width: 230,
+                        render: (_: unknown, item: IMemoryEntry) => <Space size={4} style={{ whiteSpace: 'nowrap' }}>
                             <Button size='small' loading={detail_loading_id === item.memoryId} onClick={() => { open_memory_detail(item) }}>{t('详情')}</Button>
                             <Button size='small' onClick={() => { open_edit_memory(item) }}>{t('编辑')}</Button>
                             <Popconfirm title={t('确定删除这条记忆？')} okButtonProps={{ danger: true }} onConfirm={() => delete_memory(item)}>
@@ -1341,7 +1341,7 @@ function MemoryJobsSection () {
             loading={loading}
             dataSource={jobs}
             tableLayout='fixed'
-            scroll={{ x: 1040 }}
+            scroll={{ x: 1130 }}
             pagination={{
                 current: job_page,
                 pageSize: job_page_size,
@@ -1359,8 +1359,8 @@ function MemoryJobsSection () {
                 { title: t('最近错误'), dataIndex: 'lastError', ellipsis: true, render: ellipsis_text },
                 {
                     title: t('操作'),
-                    width: 140,
-                    render: (_: unknown, job: IMemoryJob) => <Space size={4}>
+                    width: 230,
+                    render: (_: unknown, job: IMemoryJob) => <Space size={4} style={{ whiteSpace: 'nowrap' }}>
                         <Button size='small' loading={job_detail_loading_key === `${job.kind}:${job.jobKey}`} onClick={() => { open_job_detail(job) }}>{t('详情')}</Button>
                         <Button size='small' onClick={() => { retry_job(job) }}>{t('重置次数')}</Button>
                     </Space>,
