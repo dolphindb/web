@@ -1,3 +1,5 @@
+import { language } from '@i18n'
+
 import type { IMessage, IToolCall } from './model.ts'
 import { build_system_prompt } from './prompt.ts'
 import { get_all_tool_definitions } from './scripts/index.ts'
@@ -37,7 +39,9 @@ export interface ToolCallAdapter {
     build_continuation: (tool_result_contents: string[], tool_results: ToolResultPayload[], runtime_context?: string) => ToolCallContinuation | null
 }
 
-const CONTINUATION_LANGUAGE_HINT = '继续使用用户问题的语言；如果用户使用中文或处于中文语境，思考过程和最终回答都必须用中文。'
+const CONTINUATION_LANGUAGE_HINT = language === 'en'
+    ? 'Continue using the user question language. The English UI language means the conversation is in an English context by default; use English for reasoning and final answers.'
+    : '继续使用用户问题的语言；如果用户使用中文或处于中文语境，思考过程和最终回答都必须用中文。'
 
 
 function strip_json_segments (text: string): string {
