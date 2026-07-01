@@ -5,6 +5,7 @@ import { Button, Empty, Modal, Pagination, Popconfirm, Select, Space, Switch, Ta
 
 import { t } from '@i18n'
 import { model } from '@model'
+import { access } from '@/access/model.ts'
 
 import { chat_model } from '@/agent/model.ts'
 import type { IAccessInfo, ILlmConfig, ISkillInfo, IUserLlmAccessInfo } from '@/agent/model.ts'
@@ -432,16 +433,26 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
 
 
 function UserPermissionTab () {
-    const all_user_options = use_user_options()
-    const user_options = all_user_options.filter(user => user.value !== 'admin')
+    const [user_options, set_user_options] = useState<{ value: string, label: string }[]>([ ])
     const [selected_user_id, set_selected_user_id] = useState('')
     const [user_page, set_user_page] = useState(1)
     const user_page_size = 10
     const paged_user_options = user_options.slice((user_page - 1) * user_page_size, user_page * user_page_size)
     
     useEffect(() => {
-        if (!selected_user_id && user_options.length > 0)
-            set_selected_user_id(user_options[0].value)
+        access.get_user_list()
+            .then(users => access.get_user_access(users))
+            .then(users => {
+                set_user_options(users
+                    .filter(user => !user.isAdmin)
+                    .map(user => ({ value: user.userId, label: user.userId })))
+            })
+            .catch(error => { show_error(error, t('加载用户失败')) })
+    }, [ ]) 
+    
+    useEffect(() => {
+        if (!user_options.some(user => user.value === selected_user_id))
+            set_selected_user_id(user_options[0]?.value || '')
     }, [user_options, selected_user_id])
     
     useEffect(() => {

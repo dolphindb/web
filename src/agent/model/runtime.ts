@@ -648,16 +648,20 @@ export class ChatRuntimeModel {
             
             this.chat._last_failed_completion = null
             
-            console.log('Chat completions response:', raw_result)
-            
+            if (model.verbose)
+                console.log('Chat completions response:', raw_result)
+                
             // 从文本内容或 function calling 格式中解析工具调用
-            console.log('[debug] content length:', content.length, 'toolCalls:', tool_calls)
+            if (model.verbose)
+                console.log('[debug] content length:', content.length, 'toolCalls:', tool_calls)
             const parsed_calls = tool_call_adapter.parse_tool_calls(tool_calls, content)
-            console.log('[debug] parsed_calls:', parsed_calls)
+            if (model.verbose)
+                console.log('[debug] parsed_calls:', parsed_calls)
             
             if (parsed_calls.length > 0) {
                 this.chat.set({ agent_status: { status: 'tool_running' } })
-                console.log('[debug] Calling handle_tool_calls...')
+                if (model.verbose)
+                    console.log('[debug] Calling handle_tool_calls...')
                 await this.chat.runtime.handle_tool_calls(
                     parsed_calls,
                     reasoning_content,
@@ -667,7 +671,8 @@ export class ChatRuntimeModel {
                     content,
                     tool_call_adapter
                 )
-                console.log('[debug] handle_tool_calls completed')
+                if (model.verbose)
+                    console.log('[debug] handle_tool_calls completed')
             } else {
                 // 没有工具调用 → 普通文本回复
                 if (!content.trim() && !reasoning_content.trim())
@@ -872,14 +877,16 @@ export class ChatRuntimeModel {
         
         // 执行工具
         const handler = get_script_handler(parsed_call.type)
-        console.log('[debug] handler found:', !!handler, 'for type:', parsed_call.type)
+        if (model.verbose)
+            console.log('[debug] handler found:', !!handler, 'for type:', parsed_call.type)
         let script_result: ScriptResult
         
         if (handler) {
             const payload_str = typeof parsed_call.payload === 'string'
                 ? parsed_call.payload
                 : JSON.stringify(parsed_call.payload)
-            console.log('[debug] calling handler with payload_str:', payload_str.slice(0, 200))
+            if (model.verbose)
+                console.log('[debug] calling handler with payload_str:', payload_str.slice(0, 200))
             
             const script = SCRIPT_APPROVAL_TOOLS.has(parsed_call.type)
                 ? normalize_script_args(parsed_call.payload)[0] || ''
@@ -907,7 +914,8 @@ export class ChatRuntimeModel {
             
             try {
                 script_result = await handler(parsed_call.type, payload_str, context)
-                console.log('[debug] handler result:', { next_loop: script_result.next_loop, has_message: !!script_result.save_message, messageType: script_result.save_message?.messageType })
+                if (model.verbose)
+                    console.log('[debug] handler result:', { next_loop: script_result.next_loop, has_message: !!script_result.save_message, messageType: script_result.save_message?.messageType })
             } catch (e) {
                 console.error('[debug] handler threw:', e)
                 script_result = {
