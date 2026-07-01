@@ -6,6 +6,8 @@ import { select } from 'xshell/prototype.browser.js'
 
 import { model, NodeType } from '@model'
 
+import { shell } from '@/shell/model.ts'
+
 import { DATABASES_WITHOUT_CATALOG } from './constants.tsx'
 
 
@@ -227,12 +229,16 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_databases (): Promise<string[]> {
-        return model.ddb.invoke<string[]>('getClusterDFSDatabases')
+        return model.ddb.invoke<string[]>(
+            'getClusterDFSDatabases',
+            await shell.can_hide_sysdb() ? [false] : undefined)
     }
     
     
     async get_tables () {
-        return model.ddb.invoke<string[]>('getClusterDFSTables')
+        return model.ddb.invoke<string[]>(
+            'getClusterDFSTables',
+            await shell.can_hide_sysdb() ? [false] : undefined)
     }
     
     
