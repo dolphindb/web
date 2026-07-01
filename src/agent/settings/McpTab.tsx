@@ -72,6 +72,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
     const [testing_form, set_testing_form] = useState(false)
     const [testing_server_id, set_testing_server_id] = useState('')
     const [updating_server_id, set_updating_server_id] = useState('')
+    const [has_mcp_exec, set_has_mcp_exec] = useState<boolean>(false)
     
     const server_modal = use_modal()
     const [editing_server, set_editing_server] = useState<IMcpServerInfo | null>(null)
@@ -94,6 +95,12 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
     
     useEffect(() => {
         load_servers()
+        
+        ;(async () => {
+            set_has_mcp_exec(
+                (await model.ddb.invoke<{ MCP_EXEC: string }[]>('getUserAccess', [[model.username], true]))
+                    [0].MCP_EXEC  === 'allow')
+        })()
     }, [ ])
     
     function open_create_server () {
@@ -173,8 +180,13 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
     }
     
     function test_result_text (result: IMcpServerTestResult): string {
-        if (result.ok)
+        if (result.ok) {
+            if (result.toolCount === 0 && !has_mcp_exec)
+                return t('连接成功，但缺少 MCP_EXEC 权限查看工具列表')
+            
             return t('连接成功，发现 {{count}} 个工具: {{names}}', { count: result.toolCount, names: result.toolNames.join(', ') })
+        }
+        
         return result.message || result.error || t('连接失败')
     }
     
@@ -261,7 +273,10 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
         try {
             const result = await chat_model.mcp.test_mcp_server({ mcpServerId: server.mcpServerId })
             if (result.ok)
-                model.message.success(test_result_text(result), 5)
+                if (result.toolCount === 0 && !has_mcp_exec)
+                    model.message.warning(test_result_text(result), 5)
+                else
+                    model.message.success(test_result_text(result), 5)
             else
                 model.message.error(test_result_text(result))
         } finally {
@@ -452,7 +467,17 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                         name='url'
                         label={t('Server 地址')}
                         required
-                        rules={[{ required: true, message: t('请输入 Server 地址'), type: 'url' }]}
+                        rules={[
+                            { required: true },
+                            { type: 'url', message: t('Server 地址格式不正确，请输入合法的 URL') },
+                            {
+                                validator (_, value) {
+                                    if (value && !/^https?:\/\//.test(value))
+                                        return Promise.reject(new Error(t('Server 地址必须以 http:// 或 https:// 开头')))
+                                    return Promise.resolve()
+                                }
+                            }
+                        ]}
                         style={{ marginBottom: 0, gridColumn: '1 / -1' }}
                     >
                         <Input placeholder='https://example.com/mcp' />
@@ -491,7 +516,14 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                     {test_result && <div style={{ gridColumn: '1 / -1' }}>
                         <Alert
                             showIcon
-                            type={test_result.ok ? 'success' : 'error'}
+                            type={
+                                test_result.ok ?
+                                    (test_result.toolCount === 0 && !has_mcp_exec ? 
+                                        'warning'
+                                    :
+                                        'success')
+                                : 'error'
+                            }
                             title={test_result_text(test_result)}
                         />
                     </div>}

@@ -7520,6 +7520,9 @@
     "连接成功，发现 {{count}} 个工具: {{names}}": {
         "en": "Connection succeeded. Found {{count}} tools: {{names}}"
     },
+    "连接成功，但缺少 MCP_EXEC 权限查看工具列表": {
+        "en": "Connection succeeded, but MCP_EXEC permission is required to view the tool list"
+    },
     "连接失败": {
         "en": "Connection failed"
     },
@@ -8704,5 +8707,35 @@
     },
     "下载": {
         "en": "Download"
+    },
+    "已重置用户个人记忆，移除 {{count}} 条记忆_plural": {
+        "en": "The user’s personal memories have been reset; {{count}} memories removed."
+    },
+    "{{count}} 个文件_plural": {
+        "en": "{{count}} files"
+    },
+    "共 {{count}} 条_plural": {
+        "en": "Total: {{count}} items"
+    },
+    "{{count}} / {{limit}} tokens": {
+        "en": "{{count}} / {{limit}} tokens"
+    },
+    "{{count}} / {{limit}} tokens_plural": {
+        "en": "{{count}} / {{limit}} tokens"
+    },
+    "连接成功，发现 {{count}} 个工具: {{names}}_plural": {
+        "en": "Connection successful. Found {{count}} tools: {{names}}"
+    },
+    "(编辑模式下无法编辑代码内容，请切换到预览模式编辑)": {
+        "en": "(In edit mode, code content cannot be edited; please switch to preview mode to make edits.)"
+    },
+    "加载用户失败": {
+        "en": "Failed to load user information."
+    },
+    "Server 地址格式不正确，请输入合法的 URL": {
+        "en": "The server address format is incorrect. Please enter a valid URL."
+    },
+    "Server 地址必须以 http:// 或 https:// 开头": {
+        "en": "The server address must start with http:// or https://."
     }
 }
