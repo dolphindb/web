@@ -27,6 +27,8 @@ export const DETAIL_MAX_HEIGHT = 320
 export const STACK_STYLE: React.CSSProperties = {
     marginLeft: 12,
     marginTop: 2,
+    width: 'calc(100% - 12px)',
+    minWidth: 0,
     display: 'flex',
     flexDirection: 'column',
     gap: 6,
@@ -51,8 +53,7 @@ export const VALUE_STYLE: React.CSSProperties = {
 
 export const CODE_VIEWER_STYLE: React.CSSProperties = {
     position: 'relative',
-    width: 'min(100%, 520px)',
-    minWidth: 320,
+    width: '100%',
     overflow: 'hidden',
     background: '#fff',
     border: '1px solid #f0f0f0',
