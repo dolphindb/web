@@ -8728,5 +8728,14 @@
     },
     "(编辑模式下无法编辑代码内容，请切换到预览模式编辑)": {
         "en": "(In edit mode, code content cannot be edited; please switch to preview mode to make edits.)"
+    },
+    "加载用户失败": {
+        "en": "Failed to load user information."
+    },
+    "Server 地址格式不正确，请输入合法的 URL": {
+        "en": "The server address format is incorrect. Please enter a valid URL."
+    },
+    "Server 地址必须以 http:// 或 https:// 开头": {
+        "en": "The server address must start with http:// or https://."
     }
 }

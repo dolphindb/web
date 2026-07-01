@@ -467,7 +467,17 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                         name='url'
                         label={t('Server 地址')}
                         required
-                        rules={[{ required: true, message: t('请输入 Server 地址'), type: 'url' }]}
+                        rules={[
+                            { required: true },
+                            { type: 'url', message: t('Server 地址格式不正确，请输入合法的 URL') },
+                            {
+                                validator (_, value) {
+                                    if (value && !/^https?:\/\//.test(value))
+                                        return Promise.reject(new Error(t('Server 地址必须以 http:// 或 https:// 开头')))
+                                    return Promise.resolve()
+                                }
+                            }
+                        ]}
                         style={{ marginBottom: 0, gridColumn: '1 / -1' }}
                     >
                         <Input placeholder='https://example.com/mcp' />
