@@ -65,8 +65,6 @@ export function get_status (item: any): number {
 
 
 export function stable_json_value (value: unknown): unknown {
-    if (typeof value === 'string')
-        return stable_json_value(parse_json_string(value))
     if (Array.isArray(value))
         return value.map(stable_json_value)
     if (value && typeof value === 'object') {
@@ -124,4 +122,3 @@ export function parse_sse_event (raw_event: string): { event: string, data: stri
     
     return { event, data: data_lines.join('\n') }
 }
-
