@@ -234,8 +234,9 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
         docSearchEnabled: agent.config?.docSearchEnabled !== false,
     })
     
-    async function load () {
-        set_loading(true)
+    async function load (show_loading = true) {
+        if (show_loading)
+            set_loading(true)
         try {
             const providers = await chat_model.llm.load_llm_providers()
             const provider_lookup = new Map(providers.map(provider => [provider.providerId, provider]))
@@ -259,7 +260,8 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
         } catch {
             model.message.error(t('加载绑定信息失败'))
         } finally {
-            set_loading(false)
+            if (show_loading)
+                set_loading(false)
         }
     }
     
@@ -298,12 +300,10 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
     const unbound_llms = all_llms.filter(l => !bound_llm_ids.has(l.llmConfigId) && l.enabled !== false)
     const sorted_bound_llms = [...bound_llms].sort((a, b) => a.priority - b.priority)
     
-    const bound_skill_ids = new Set(bound_skills.map(s => s.skillId))
-    const unbound_skills = all_skills.filter(s => !bound_skill_ids.has(s.skillId) && s.enabled !== false)
-    const skill_items = [
-        ...bound_skills.map(binding => ({ binding, skill: binding.skill || all_skills.find(s => s.skillId === binding.skillId) })),
-        ...unbound_skills.map(skill => ({ binding: undefined, skill })),
-    ]
+    const bound_skill_lookup = new Map(bound_skills.map(binding => [binding.skillId, binding]))
+    const skill_items = all_skills
+        .filter(skill => skill.enabled !== false || bound_skill_lookup.has(skill.skillId))
+        .map(skill => ({ binding: bound_skill_lookup.get(skill.skillId), skill }))
     
     // --- mcp
     const mcp_server_lookup = new Map(all_mcp_servers.map(server => [server.mcpServerId, server]))
@@ -590,7 +590,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                         onChange={async checked => {
                                             await chat_model.skill.toggle_skill_binding(skill_id, checked, agent.agentId)
                                             model.message.success(checked ? t('已启用') : t('已禁用'))
-                                            await load()
+                                            await load(false)
                                         }}
                                     />
                                 </div>
