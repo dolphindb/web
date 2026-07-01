@@ -13,10 +13,10 @@ import { form_error_alert, required_label } from './common.tsx'
 
 
 const ADAPTER_TYPE_OPTIONS = [
+    { value: 'deepseek', label: 'DeepSeek' },
     { value: 'openai', label: 'OpenAI' },
     { value: 'openai-compatible', label: 'OpenAI Compatible' },
     { value: 'anthropic', label: 'Anthropic' },
-    { value: 'deepseek', label: 'DeepSeek' },
 ]
 
 
@@ -28,7 +28,7 @@ const EMBEDDING_METRIC_OPTIONS = [
 
 const DEFAULT_PROVIDER_FORM = {
     name: '',
-    adapterType: 'openai',
+    adapterType: 'deepseek',
     baseUrl: '',
     apiKey: '',
 }
