@@ -510,7 +510,7 @@ export function DolphinXAdminTab () {
     
     return <Tabs
         className='ai-settings-tabs'
-        destroyInactiveTabPane
+        destroyOnHidden
         items={[
             {
                 key: 'users',

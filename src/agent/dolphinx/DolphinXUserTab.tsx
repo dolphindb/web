@@ -1686,7 +1686,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
 export function DolphinXUserTab ({ admin = false }: { admin?: boolean }) {
     return <Tabs
         className='ai-settings-tabs'
-        destroyInactiveTabPane
+        destroyOnHidden
         items={[
             {
                 key: 'sessions',

@@ -593,7 +593,7 @@ export function LlmConfigTab () {
             okText={t('保存')}
             cancelText={t('取消')}
             width={720}
-            destroyOnClose
+            destroyOnHidden
         >
             {form_error_alert(config_error)}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px', marginTop: 12 }}>
