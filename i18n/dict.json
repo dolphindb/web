@@ -7649,6 +7649,9 @@
     "触发记忆提取": {
         "en": "Trigger memory extraction"
     },
+    "请先启用记忆后再触发记忆提取": {
+        "en": "Enable memory before triggering memory extraction"
+    },
     "总数": {
         "en": "Total"
     },

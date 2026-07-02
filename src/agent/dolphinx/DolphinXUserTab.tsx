@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { Button, Empty, Input, InputNumber, Modal, Pagination, Popconfirm, Select, Space, Switch, Table, Tabs, Tag, Typography, message } from 'antd'
+import { Button, Empty, Input, InputNumber, Modal, Pagination, Popconfirm, Select, Space, Switch, Table, Tabs, Tag, Tooltip, Typography, message } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
@@ -63,6 +63,8 @@ function SessionSection () {
     const [summary, set_summary] = useState('')
     const [generating_summary, set_generating_summary] = useState(false)
     const [triggering_session_id, set_triggering_session_id] = useState('')
+    const [memory_enabled, set_memory_enabled] = useState(false)
+    const [memory_settings_loading, set_memory_settings_loading] = useState(false)
     const [loading, set_loading] = useState(false)
     const summary_modal = use_modal()
     const title_modal = use_modal()
@@ -99,10 +101,27 @@ function SessionSection () {
     }
     
     useEffect(() => {
-        if (selected_agent_id)
+        if (selected_agent_id) {
             load_sessions(1, session_page_size)
+            load_memory_settings()
+        } else
+            set_memory_enabled(false)
     }, [selected_agent_id])
     
+    async function load_memory_settings () {
+        if (!selected_agent_id)
+            return
+        set_memory_settings_loading(true)
+        try {
+            const settings = await chat_model.memory.get_personal_settings(selected_agent_id)
+            set_memory_enabled(settings.personalMemoryEnabled)
+        } catch (error) {
+            set_memory_enabled(false)
+            show_error(error, t('加载记忆设置失败'))
+        } finally {
+            set_memory_settings_loading(false)
+        }
+    }
     
     async function delete_session (session_id: string) {
         if (!session_id)
@@ -157,6 +176,8 @@ function SessionSection () {
     
     
     async function trigger_session_memory (session: ISession) {
+        if (!memory_enabled)
+            return
         set_triggering_session_id(session.sessionId)
         try {
             await chat_model.memory.trigger_personal_session_pipeline(session.sessionId)
@@ -203,6 +224,7 @@ function SessionSection () {
     }
     
     const show_workspace_size = sessions.some(session => session.workspaceSize !== undefined)
+    const memory_trigger_disabled = memory_settings_loading || !memory_enabled
     
     return <>
         <AgentListLayout
@@ -265,7 +287,18 @@ function SessionSection () {
                     render: (_: unknown, session: ISession) => <Space size={4}>
                         <Button size='small' onClick={() => { open_title_modal(session) }}>{t('改标题')}</Button>
                         <Button size='small' onClick={() => { open_summary_modal(session) }}>{t('生成摘要')}</Button>
-                        <Button size='small' loading={triggering_session_id === session.sessionId} onClick={() => { trigger_session_memory(session) }}>{t('触发记忆提取')}</Button>
+                        <Tooltip title={!memory_settings_loading && !memory_enabled ? t('请先启用记忆后再触发记忆提取') : ''}>
+                            <span>
+                                <Button
+                                    size='small'
+                                    loading={triggering_session_id === session.sessionId}
+                                    disabled={memory_trigger_disabled}
+                                    onClick={() => { trigger_session_memory(session) }}
+                                >
+                                    {t('触发记忆提取')}
+                                </Button>
+                            </span>
+                        </Tooltip>
                         <Popconfirm title={t('确定删除此会话？')} okButtonProps={{ danger: true }} onConfirm={() => delete_session(session.sessionId)}>
                             <Button danger size='small'>{t('删除')}</Button>
                         </Popconfirm>
