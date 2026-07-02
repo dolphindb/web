@@ -32,7 +32,7 @@
         "@ant-design/icons": "^6.3.2",
         "@ant-design/pro-components": "^2.8.10",
         "@ant-design/pro-layout": "^7.22.7",
-        "@dagrejs/dagre": "1.1.8",
+        "@dagrejs/dagre": "^3.0.0",
         "@ebay/nice-modal-react": "^1.2.13",
         "@svgdotjs/svg.js": "^3.2.5",
         "@xterm/addon-fit": "0.10.0",

@@ -15,7 +15,7 @@ import {
     Handle, Position, type FitViewOptions,
 } from '@xyflow/react'
 
-import { log, map_keys, strcmp } from 'xshell/utils.browser.js'
+import { map_keys, strcmp } from 'xshell/utils.browser.js'
 
 import dagre from '@dagrejs/dagre'
 

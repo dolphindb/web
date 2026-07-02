@@ -499,7 +499,7 @@ function StreamingGraphVisualization ({
                 title={t('详情')}
                 placement='right'
                 getContainer={false}
-                width='50%'
+                size='50%'
                 onClose={() => {
                     set_drawer_visible(false)
                 }}
