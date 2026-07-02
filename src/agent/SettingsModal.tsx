@@ -144,6 +144,7 @@ export function SettingsModal () {
     const [builtin_status, set_builtin_status] = useState<IBuiltinInitResult | null>(null)
     const [checking_builtin, set_checking_builtin] = useState(false)
     const [initializing_builtin, set_initializing_builtin] = useState(false)
+    const [builtin_upgrade_visible, set_builtin_upgrade_visible] = useState(false)
     const can_manage_agent = admin || can_manage_agents
     
     useEffect(() => {
@@ -176,10 +177,11 @@ export function SettingsModal () {
     }, [settings_visible, admin])
     
     const builtin_action = get_builtin_init_action(builtin_status)
-    const show_builtin_init = checking_builtin || builtin_action !== 'none'
+    const show_builtin_init = checking_builtin || builtin_action === 'initialize'
+    const show_builtin_upgrade = builtin_action === 'upgrade' && builtin_upgrade_visible
     if (!v3)
         return null
-
+    
     async function initialize_builtins () {
         set_initializing_builtin(true)
         const action = get_builtin_init_action(builtin_status)
@@ -187,6 +189,7 @@ export function SettingsModal () {
             const result = await chat_model.llm.init_builtins({ dryRun: false, includeDetails: true })
             set_builtin_status(result)
             if (get_builtin_init_action(result) === 'none') {
+                set_builtin_upgrade_visible(false)
                 message.success(action === 'upgrade' ? t('升级完成') : t('初始化完成'))
                 await chat_model.agent.load_agents()
             } else {
@@ -202,9 +205,22 @@ export function SettingsModal () {
     }
     
     return <Modal
-        title={t('AI 设置')}
+        title={<div className='ai-settings-modal-title'>
+            <span>{t('AI 设置')}</span>
+            {!checking_builtin && builtin_action === 'upgrade' && <Button
+                type='link'
+                size='small'
+                className='ai-builtin-upgrade-entry'
+                onClick={() => { set_builtin_upgrade_visible(true) }}
+            >
+                {t('内置资源可升级')}
+            </Button>}
+        </div>}
         open={settings_visible}
-        onCancel={() => { chat_model.set({ settings_visible: false }) }}
+        onCancel={() => {
+            set_builtin_upgrade_visible(false)
+            chat_model.set({ settings_visible: false })
+        }}
         footer={null}
         width='min(1440px, calc(100vw - 48px))'
         className='ai-settings-modal'
@@ -254,8 +270,17 @@ export function SettingsModal () {
                         : [ ],
                 ]}
             />
-            {show_builtin_init && <div className='ai-builtin-mask'>
-                <div className={`ai-builtin-card${builtin_action === 'upgrade' ? ' ai-builtin-card-detail' : ''}`}>
+            {(show_builtin_init || show_builtin_upgrade) && <div
+                className='ai-builtin-mask'
+                onClick={() => {
+                    if (show_builtin_upgrade)
+                        set_builtin_upgrade_visible(false)
+                }}
+            >
+                <div
+                    className={`ai-builtin-card${builtin_action === 'upgrade' ? ' ai-builtin-card-detail' : ''}`}
+                    onClick={event => { event.stopPropagation() }}
+                >
                     {checking_builtin
                         ? <Spin />
                         : <>
