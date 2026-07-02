@@ -27,3 +27,59 @@
             > .ant-tabs-tabpane
                 height: 100%
                 min-height: 0
+
+.ai-builtin-mask
+    position: absolute
+    inset: 0
+    z-index: 10
+    display: flex
+    align-items: center
+    justify-content: center
+    padding: 24px
+    background: rgba(255, 255, 255, 0.92)
+    backdrop-filter: blur(1px)
+
+.ai-builtin-card
+    display: flex
+    flex-direction: column
+    width: min(520px, 100%)
+    max-height: calc(100vh - 120px)
+    padding: 28px
+    border-radius: 8px
+    background: #fff
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12)
+    text-align: center
+
+.ai-builtin-title
+    margin-bottom: 8px
+    font-size: 18px
+    font-weight: 500
+
+.ai-builtin-status-detail
+    display: grid
+    gap: 10px
+    margin-top: 18px
+    overflow: auto
+    text-align: left
+
+.ai-builtin-status-row
+    display: grid
+    grid-template-columns: 92px minmax(0, 1fr)
+    gap: 12px
+    align-items: flex-start
+
+.ai-builtin-summary
+    display: flex
+    flex-wrap: wrap
+    gap: 8px
+
+.ai-builtin-summary-item
+    min-width: 116px
+    padding: 3px 8px
+    border-radius: 4px
+    background: #f5f5f5
+    line-height: 22px
+    white-space: nowrap
+
+.ai-builtin-actions
+    margin-top: 20px

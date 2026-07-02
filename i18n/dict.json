@@ -8423,11 +8423,20 @@
     "初始化完成": {
         "en": "Initialization complete"
     },
+    "升级完成": {
+        "en": "Upgrade complete"
+    },
     "AI 内置资源初始化未完成": {
         "en": "AI built-in resource initialization was not completed"
     },
+    "AI 内置资源升级未完成": {
+        "en": "AI built-in resource upgrade was not completed"
+    },
     "AI 内置资源初始化失败": {
         "en": "AI built-in resource initialization failed"
+    },
+    "AI 内置资源升级失败": {
+        "en": "AI built-in resource upgrade failed"
     },
     "初始化未完成，详情请查看控制台": {
         "en": "Initialization was not completed. See the console for details."
@@ -8450,14 +8459,59 @@
     "需要初始化 AI 内置资源": {
         "en": "AI built-in resources need to be initialized"
     },
+    "需要升级 AI 内置资源": {
+        "en": "AI built-in resources need to be upgraded"
+    },
     "首次使用 AI 前，需要初始化内置 Agent 和 Skill。": {
         "en": "Before using AI for the first time, initialize the built-in Agent and Skill."
+    },
+    "检测到内置 Agent 或 Skill 可升级，请执行升级。": {
+        "en": "Built-in Agent or Skill updates are available. Please run the upgrade."
+    },
+    "当前版本": {
+        "en": "Current version"
+    },
+    "可升级版本": {
+        "en": "Available version"
+    },
+    "暂无版本信息": {
+        "en": "No version information"
+    },
+    "错误码": {
+        "en": "Error code"
+    },
+    "最近失败项": {
+        "en": "Recent failures"
+    },
+    "失败项过多，仅展示前 5 条": {
+        "en": "Too many failures. Only the first 5 are shown."
+    },
+    "新建 Skill": {
+        "en": "New Skills"
+    },
+    "更新 Skill": {
+        "en": "Updated Skills"
+    },
+    "新建绑定": {
+        "en": "New Bindings"
+    },
+    "跳过已有": {
+        "en": "Skipped Existing"
+    },
+    "跳过未变化": {
+        "en": "Skipped Unchanged"
+    },
+    "跳过用户修改": {
+        "en": "Skipped User Modified"
     },
     "一键初始化": {
         "en": "Initialize"
     },
     "请联系管理员完成初始化": {
         "en": "Please contact an administrator to complete initialization"
+    },
+    "请联系管理员处理 AI 内置资源": {
+        "en": "Please contact an administrator to handle AI built-in resources"
     },
     "再次执行": {
         "en": "Run again"
