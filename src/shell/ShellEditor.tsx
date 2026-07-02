@@ -581,7 +581,6 @@ function AiToolbar ({
     const active_agents = agents.filter(a => a.statusName === 'ACTIVE')
     const agent_select_disabled = !is_pending_ai_chat_id(session_id) || active_agents.length <= 1
     const agent_select_tooltip = !is_pending_ai_chat_id(session_id) ? t('会话开始后不能切换 Agent，如需切换请新建会话') : ''
-    const auto_approval_warning = t('默认允许 Agent 在此会话执行脚本。AI 模型可能会出错。')
     
     // 构建 LLM 选项，默认模型标注
     const selectable_llms = selectable_llms_by_agent_id[agent_id] || [ ]
@@ -628,7 +627,11 @@ function AiToolbar ({
                 onChange={(value: ScriptExecuteApprovalMode) => { chat.runtime.set_script_execute_approval_mode(value) }}
                 options={[
                     { value: 'approval', label: t('需要审批') },
-                    { value: 'auto', label: <Tooltip title={auto_approval_warning}>{t('自动执行')}</Tooltip> },
+                    {
+                        value: 'auto',
+                        label: <Tooltip
+                            title={t('默认允许 Agent 在此会话执行脚本。AI 模型可能会出错。')}
+                        >{t('自动执行')}</Tooltip> },
                 ]}
             />
         </Tooltip>
