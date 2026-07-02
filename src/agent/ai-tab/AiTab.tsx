@@ -240,6 +240,8 @@ export function AiTab ({ session_id }: { session_id: string }) {
         }
         if (creating_session)
             return
+        if (can_interrupt)
+            return
         if (!await chat.agent.ensure_active_agent()) {
             if (is_agent_admin)
                 chat_model.set({ settings_visible: true })
@@ -476,7 +478,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     size='large'
                     icon={<SendOutlined />}
                     loading={creating_session}
-                    disabled={!input_value.trim() || disable_input}
+                    disabled={!input_value.trim() || disable_input || can_interrupt}
                     onClick={handle_send}
                 >
                     {t('发送')}
