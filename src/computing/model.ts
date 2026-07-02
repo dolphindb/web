@@ -132,7 +132,10 @@ export const leading_cols = {
         numMetrics: t('指标数量'),
         metrics: t('指标源码'),
         user: t('用户'),
-        status: t('状态')
+        status: t('状态'),
+        statusColumnName: t('状态列名'),
+        generateUpdateEnabled: t('启用生成更新'),
+        invalidStatusCount: t('无效状态数'),
     }
 }
 

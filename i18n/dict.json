@@ -8746,5 +8746,14 @@
     },
     "Server 地址必须以 http:// 或 https:// 开头": {
         "en": "The server address must start with http:// or https://."
+    },
+    "状态列名": {
+        "en": "Status column name"
+    },
+    "启用生成更新": {
+        "en": "Enable generation of updates"
+    },
+    "无效状态数": {
+        "en": "Number of invalid statuses"
     }
 }
