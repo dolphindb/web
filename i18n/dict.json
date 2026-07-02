@@ -7649,6 +7649,9 @@
     "触发记忆提取": {
         "en": "Trigger memory extraction"
     },
+    "请先启用记忆后再触发记忆提取": {
+        "en": "Enable memory before triggering memory extraction"
+    },
     "总数": {
         "en": "Total"
     },
@@ -8461,6 +8464,12 @@
     },
     "等待允许执行此 DolphinDB 脚本": {
         "en": "Waiting for permission to execute this DolphinDB script"
+    },
+    "AI模型可能会出错，因此请仔细检查输出内容。": {
+        "en": "AI models may make mistakes, so double-check outputs."
+    },
+    "默认允许 Agent 在此会话执行脚本。AI 模型可能会出错。": {
+        "en": "Allow Agent to execute scripts in this session by default. AI models may make mistakes."
     },
     "不允许": {
         "en": "Deny"

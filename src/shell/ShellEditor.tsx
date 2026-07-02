@@ -627,7 +627,11 @@ function AiToolbar ({
                 onChange={(value: ScriptExecuteApprovalMode) => { chat.runtime.set_script_execute_approval_mode(value) }}
                 options={[
                     { value: 'approval', label: t('需要审批') },
-                    { value: 'auto', label: t('自动执行') },
+                    {
+                        value: 'auto',
+                        label: <Tooltip
+                            title={t('默认允许 Agent 在此会话执行脚本。AI 模型可能会出错。')}
+                        >{t('自动执行')}</Tooltip> },
                 ]}
             />
         </Tooltip>
