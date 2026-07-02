@@ -63,7 +63,7 @@ export const CODE_VIEWER_STYLE: React.CSSProperties = {
 export const CODE_VIEWER_ACTION_STYLE: React.CSSProperties = {
     position: 'absolute',
     top: 8,
-    right: 8,
+    right: 24,
     zIndex: 1,
 }
 
