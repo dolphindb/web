@@ -3,7 +3,8 @@
 import type { Context } from 'koa'
 
 import {
-    ramdisk, noprint, fdclear, Remote, set_inspect_options, fdelete, fread, crc32, fexists, fwrite
+    ramdisk, noprint, fdclear, Remote, set_inspect_options, fdelete, fread, crc32, fexists, fwrite,
+    fappend
 } from 'xshell'
 import { Git, type GitVersionInfo } from 'xshell/git.js'
 import { Server } from 'xshell/server.js'
@@ -253,7 +254,8 @@ async function build_web (production: boolean, full: boolean, version_name?: str
                     'react-dom/client': 'ReactDOMClient',
                     
                     antd: 'antd',
-                    lodash: '_'
+                    lodash: '_',
+                    'lodash-es': '_'
                 }
             })
     
@@ -307,6 +309,7 @@ async function build_web (production: boolean, full: boolean, version_name?: str
                         antd: 'antd',
                         
                         lodash: '_',
+                        'lodash-es': '_',
                         
                         echarts: 'echarts',
                         
@@ -318,8 +321,8 @@ async function build_web (production: boolean, full: boolean, version_name?: str
                         
                         // 在 .js 中手动加载脚本
                         // 取 window.ReactQuill 作为 import 的返回值
-                        'react-quill': 'ReactQuill',
-                        'react-quill-new': 'ReactQuill',
+                        'react-quill': 'window',
+                        'react-quill-new': 'window',
                         
                         'plotly.js-dist-min': 'Plotly',
                         
@@ -344,31 +347,39 @@ async function build_web (production: boolean, full: boolean, version_name?: str
                 })
         }),
         
-        full && copy_assets(
-            fpd_root,
-            fpd_out,
-            production,
-            dependencies,
-            htmls,
-            {
-                productions: [
-                    ... [
-                        'overview/online.png', 'overview/offline.png',
-                        'overview/icons/controller-background.svg',
-                        'overview/icons/data-background.svg',
-                        'overview/icons/computing-background.svg'
-                    ].map(fp =>
-                        ({ src: `src/${fp}`, out: fp })),
-                    
-                    'README.md', 'README.zh.md', 'LICENSE.txt',
-                    
-                    ... ['zh', 'en'].map(language =>
-                        ({
-                            src: `node_modules/dolphindb/docs.${language}.json`,
-                            out: `docs.${language}.json`
-                        }))
-                ]
-            }),
+        full && (async () => {
+            await copy_assets(
+                fpd_root,
+                fpd_out,
+                production,
+                dependencies,
+                htmls,
+                {
+                    productions: [
+                        ... [
+                            'overview/online.png', 'overview/offline.png',
+                            'overview/icons/controller-background.svg',
+                            'overview/icons/data-background.svg',
+                            'overview/icons/computing-background.svg'
+                        ].map(fp =>
+                            ({ src: `src/${fp}`, out: fp })),
+                        
+                        'README.md', 'README.zh.md', 'LICENSE.txt',
+                        
+                        ... ['zh', 'en'].map(language =>
+                            ({
+                                src: `node_modules/dolphindb/docs.${language}.json`,
+                                out: `docs.${language}.json`
+                            }))
+                    ]
+                })
+            
+            // fix react-quill.js 缺少 globalThis 导出的问题，也不想自己构建一份
+            await fappend(
+                fpd_out + 'vendors/react-quill-new/dist/react-quill.js',
+                'globalThis.ReactQuill = ReactQuill\n',
+                noprint)
+        })(),
         
         full && build_htmls(fpd_out, production, htmls, { template: true }),
         

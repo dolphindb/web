@@ -3,6 +3,7 @@ import 'react-quill-new/dist/quill.snow.css'
 
 import './index.sass'
 
+import jsx from 'react/jsx-runtime'
 import { Button, Modal } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
@@ -73,10 +74,8 @@ export function RichText ({ widget }: GraphComponentProps) {
     useEffect(() => {
         (async () => {
             if (visible && !quill_loaded) {
-                // @ts-ignore
-                if (window.define?.amd)
-                    // @ts-ignore
-                    window.define.amd = false
+                // react-quill.js 会用到
+                globalThis.jsxRuntime = jsx
                 
                 // 并无 export
                 await import(`${model.assets_root}vendors/react-quill-new/dist/react-quill.js`)
