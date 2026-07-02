@@ -147,7 +147,7 @@ export function SettingsModal () {
     const can_manage_agent = admin || can_manage_agents
     
     useEffect(() => {
-        if (settings_visible && !v3) 
+        if (settings_visible && !v3)
             chat_model.set({ settings_visible: false })
     }, [settings_visible, v3])
     
@@ -179,7 +179,7 @@ export function SettingsModal () {
     const show_builtin_init = checking_builtin || builtin_action !== 'none'
     if (!v3)
         return null
-    
+
     async function initialize_builtins () {
         set_initializing_builtin(true)
         const action = get_builtin_init_action(builtin_status)
@@ -255,13 +255,13 @@ export function SettingsModal () {
                 ]}
             />
             {show_builtin_init && <div className='ai-builtin-mask'>
-                <div className='ai-builtin-card'>
+                <div className={`ai-builtin-card${builtin_action === 'upgrade' ? ' ai-builtin-card-detail' : ''}`}>
                     {checking_builtin
                         ? <Spin />
                         : <>
                             <div className='ai-builtin-title'>{builtin_action === 'upgrade' ? t('需要升级 AI 内置资源') : t('需要初始化 AI 内置资源')}</div>
                             <Text type='secondary'>{builtin_action === 'upgrade' ? t('检测到内置 Agent 或 Skill 可升级，请执行升级。') : t('首次使用 AI 前，需要初始化内置 Agent 和 Skill。')}</Text>
-                            <BuiltinStatusDetail status={builtin_status} />
+                            {builtin_action === 'upgrade' && <BuiltinStatusDetail status={builtin_status} />}
                             <div className='ai-builtin-actions'>
                                 {admin
                                     ? <Button type='primary' size='large' loading={initializing_builtin} onClick={initialize_builtins}>{builtin_action === 'upgrade' ? t('升级') : t('一键初始化')}</Button>
