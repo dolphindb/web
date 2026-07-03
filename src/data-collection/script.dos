@@ -461,7 +461,7 @@ def dcp_updateSubscribe(args){
         }
         //参数更新
         for(col in subArgs.keys()){
-            if(col != "id" and col != "connectId"){
+            if(col != "id" and col != "connectId" and col != "createTime" and col != "updateTime"){
                 if(col !="handlerId"){
                     subscribeInfo[col] = subArgs[col]  
                 }else{
