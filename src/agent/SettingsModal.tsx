@@ -10,6 +10,7 @@ import { model } from '@model'
 import { chat_model } from './model.ts'
 import type { IBuiltinInitResult } from './model.ts'
 import { get_builtin_init_action } from './builtin-init.ts'
+import type { BuiltinInitAction } from './builtin-init.ts'
 import { DolphinXAdminTab, DolphinXUserTab, MemoryManagementTab } from './DolphinXUserSettings.tsx'
 import { AgentTab } from './settings/AgentTab.tsx'
 import { LlmConfigTab } from './settings/LlmConfigTab.tsx'
@@ -77,6 +78,33 @@ function format_builtin_item_action (action?: string) {
 }
 
 
+function show_builtin_notice (action: BuiltinInitAction) {
+    return ['upgrade', 'partial', 'invalid'].includes(action)
+}
+
+
+function get_builtin_notice_label (action: BuiltinInitAction) {
+    if (action === 'upgrade')
+        return t('内置资源升级')
+    if (action === 'partial')
+        return t('初始化部分成功')
+    if (action === 'invalid')
+        return t('初始化资源有问题')
+    return ''
+}
+
+
+function get_builtin_notice_description (action: BuiltinInitAction) {
+    if (action === 'upgrade')
+        return t('检测到内置 Agent 或 Skill 可升级，请执行升级。')
+    if (action === 'partial')
+        return t('存在失败或冲突项，可继续初始化。')
+    if (action === 'invalid')
+        return t('当前内置资源 manifest 缺失、无法解析或校验失败。')
+    return ''
+}
+
+
 function is_builtin_init_result (value: unknown): value is IBuiltinInitResult {
     return Boolean(value && typeof value === 'object' && ('state' in value || 'summary' in value || 'lastFailures' in value))
 }
@@ -126,6 +154,9 @@ function BuiltinStatusDetail ({ status }: { status: IBuiltinInitResult | null })
         : [ ]
     const changed_items = (status.items || [ ])
         .filter(item => item.status === 'SUCCESS' && ['CREATED', 'UPDATED', 'BOUND'].includes(item.action || ''))
+    const error_text = [status.errorCode, status.message].filter(Boolean).join(': ')
+    const failures = status.lastFailures || [ ]
+    const show_errors = Boolean(error_text || failures.length || status.state === 'PARTIAL' || status.state === 'INVALID')
         
     return <div className='ai-builtin-status-detail'>
         <div className='ai-builtin-status-row'>
@@ -161,6 +192,19 @@ function BuiltinStatusDetail ({ status }: { status: IBuiltinInitResult | null })
                 }
             </div>
         </div>}
+        {show_errors && <div className='ai-builtin-status-row'>
+            <Text type='secondary'>{t('错误信息')}</Text>
+            <div className='ai-builtin-errors'>
+                {error_text && <div className='ai-builtin-error-item'>{error_text}</div>}
+                {failures.map((item, index) =>
+                    <div key={`${item.resourceType}-${item.resourceKey}-${index}`} className='ai-builtin-error-item'>
+                        {[format_builtin_failure_resource(item), item.resourceType, item.action, item.status].filter(Boolean).join(' / ')}
+                        {(item.errorCode || item.message) && <div>{[item.errorCode, item.message].filter(Boolean).join(': ')}</div>}
+                    </div>
+                )}
+                {!error_text && !failures.length && <div className='ai-builtin-error-item'>-</div>}
+            </div>
+        </div>}
     </div>
 }
 
@@ -171,8 +215,9 @@ export function SettingsModal () {
     const [builtin_status, set_builtin_status] = useState<IBuiltinInitResult | null>(null)
     const [checking_builtin, set_checking_builtin] = useState(false)
     const [initializing_builtin, set_initializing_builtin] = useState(false)
-    const [builtin_upgrade_visible, set_builtin_upgrade_visible] = useState(false)
-    const [builtin_upgrade_result, set_builtin_upgrade_result] = useState<IBuiltinInitResult | null>(null)
+    const [builtin_notice_visible, set_builtin_notice_visible] = useState(false)
+    const [builtin_action_result, set_builtin_action_result] = useState<IBuiltinInitResult | null>(null)
+    const [builtin_action_result_type, set_builtin_action_result_type] = useState<BuiltinInitAction>('none')
     const can_manage_agent = admin || can_manage_agents
     
     useEffect(() => {
@@ -206,7 +251,7 @@ export function SettingsModal () {
     
     const builtin_action = get_builtin_init_action(builtin_status)
     const show_builtin_init = checking_builtin || builtin_action === 'initialize'
-    const show_builtin_upgrade = builtin_upgrade_visible && (builtin_action === 'upgrade' || Boolean(builtin_upgrade_result))
+    const show_builtin_notice_card = builtin_notice_visible && (show_builtin_notice(builtin_action) || Boolean(builtin_action_result))
     if (!v3)
         return null
     
@@ -216,14 +261,19 @@ export function SettingsModal () {
         try {
             const result = await chat_model.llm.init_builtins({ dryRun: false, includeDetails: true })
             set_builtin_status(result)
-            if (get_builtin_init_action(result) === 'none') {
-                if (action === 'upgrade')
-                    set_builtin_upgrade_result(result)
-                else {
-                    set_builtin_upgrade_visible(false)
+            const result_action = get_builtin_init_action(result)
+            if (result_action === 'none') {
+                if (action === 'upgrade' || action === 'partial') {
+                    set_builtin_action_result(result)
+                    set_builtin_action_result_type(action)
+                } else {
+                    set_builtin_notice_visible(false)
                     message.success(t('初始化完成'))
                 }
                 await chat_model.agent.load_agents()
+            } else if (show_builtin_notice(action)) {
+                set_builtin_action_result(null)
+                set_builtin_notice_visible(true)
             } else {
                 console.warn('Built-in Agent/Skill init finished but is not ready:', result)
                 show_builtin_init_error(action === 'upgrade' ? t('AI 内置资源升级未完成') : t('AI 内置资源初始化未完成'), result)
@@ -239,22 +289,24 @@ export function SettingsModal () {
     return <Modal
         title={<div className='ai-settings-modal-title'>
             <span>{t('AI 设置')}</span>
-            {!checking_builtin && builtin_action === 'upgrade' && <Button
+            {!checking_builtin && show_builtin_notice(builtin_action) && <Button
                 type='link'
                 size='small'
                 className='ai-builtin-upgrade-entry'
                 onClick={() => {
-                    set_builtin_upgrade_result(null)
-                    set_builtin_upgrade_visible(true)
+                    set_builtin_action_result(null)
+                    set_builtin_action_result_type('none')
+                    set_builtin_notice_visible(true)
                 }}
             >
-                {t('内置资源升级')}
+                {get_builtin_notice_label(builtin_action)}
             </Button>}
         </div>}
         open={settings_visible}
         onCancel={() => {
-            set_builtin_upgrade_visible(false)
-            set_builtin_upgrade_result(null)
+            set_builtin_notice_visible(false)
+            set_builtin_action_result(null)
+            set_builtin_action_result_type('none')
             chat_model.set({ settings_visible: false })
         }}
         footer={null}
@@ -306,44 +358,49 @@ export function SettingsModal () {
                         : [ ],
                 ]}
             />
-            {(show_builtin_init || show_builtin_upgrade) && <div
+            {(show_builtin_init || show_builtin_notice_card) && <div
                 className='ai-builtin-mask'
                 onClick={() => {
-                    if (show_builtin_upgrade) {
-                        set_builtin_upgrade_visible(false)
-                        set_builtin_upgrade_result(null)
+                    if (show_builtin_notice_card) {
+                        set_builtin_notice_visible(false)
+                        set_builtin_action_result(null)
+                        set_builtin_action_result_type('none')
                     }
                 }}
             >
                 <div
-                    className={`ai-builtin-card${show_builtin_upgrade ? ' ai-builtin-card-detail' : ''}`}
+                    className={`ai-builtin-card${show_builtin_notice_card ? ' ai-builtin-card-detail' : ''}`}
                     onClick={event => { event.stopPropagation() }}
                 >
                     {checking_builtin
                         ? <Spin />
                         : <>
-                            {show_builtin_upgrade && <Button
+                            {show_builtin_notice_card && <Button
                                 type='text'
                                 size='small'
                                 className='ai-builtin-close'
                                 aria-label={t('关闭')}
                                 icon={<CloseOutlined />}
                                 onClick={() => {
-                                    set_builtin_upgrade_visible(false)
-                                    set_builtin_upgrade_result(null)
+                                    set_builtin_notice_visible(false)
+                                    set_builtin_action_result(null)
+                                    set_builtin_action_result_type('none')
                                 }}
                             />}
-                            <div className='ai-builtin-title'>{builtin_upgrade_result ? t('内置资源升级成功') : builtin_action === 'upgrade' ? t('需要升级 AI 内置资源') : t('需要初始化 AI 内置资源')}</div>
-                            {!builtin_upgrade_result && <Text type='secondary'>{builtin_action === 'upgrade' ? t('检测到内置 Agent 或 Skill 可升级，请执行升级。') : t('首次使用 AI 前，需要初始化内置 Agent 和 Skill。')}</Text>}
-                            {show_builtin_upgrade && <BuiltinStatusDetail status={builtin_upgrade_result || builtin_status} />}
+                            <div className='ai-builtin-title'>{builtin_action_result ? builtin_action_result_type === 'upgrade' ? t('内置资源升级成功') : t('初始化完成') : show_builtin_notice_card ? get_builtin_notice_label(builtin_action) : t('需要初始化 AI 内置资源')}</div>
+                            {!builtin_action_result && <Text type='secondary'>{show_builtin_notice_card ? get_builtin_notice_description(builtin_action) : t('首次使用 AI 前，需要初始化内置 Agent 和 Skill。')}</Text>}
+                            {show_builtin_notice_card && <BuiltinStatusDetail status={builtin_action_result || builtin_status} />}
                             <div className='ai-builtin-actions'>
-                                {builtin_upgrade_result
+                                {builtin_action_result
                                     ? <Button type='primary' size='large' onClick={() => {
-                                        set_builtin_upgrade_visible(false)
-                                        set_builtin_upgrade_result(null)
+                                        set_builtin_notice_visible(false)
+                                        set_builtin_action_result(null)
+                                        set_builtin_action_result_type('none')
                                     }}>{t('确认')}</Button>
+                                    : builtin_action === 'invalid'
+                                        ? null
                                     : admin
-                                        ? <Button type='primary' size='large' loading={initializing_builtin} onClick={initialize_builtins}>{builtin_action === 'upgrade' ? t('升级') : t('一键初始化')}</Button>
+                                        ? <Button type='primary' size='large' loading={initializing_builtin} onClick={initialize_builtins}>{builtin_action === 'upgrade' ? t('升级') : builtin_action === 'partial' ? t('继续初始化') : t('一键初始化')}</Button>
                                     : <Text type='danger'>{builtin_action === 'upgrade' ? t('请联系管理员处理 AI 内置资源') : t('请联系管理员完成初始化')}</Text>
                                 }
                             </div>

@@ -8462,6 +8462,15 @@
     "内置资源升级成功": {
         "en": "Built-in resource upgrade succeeded"
     },
+    "初始化部分成功": {
+        "en": "Initialization partially succeeded"
+    },
+    "继续初始化": {
+        "en": "Continue initialization"
+    },
+    "初始化资源有问题": {
+        "en": "Initialization resources have issues"
+    },
     "需要初始化 AI 内置资源": {
         "en": "AI built-in resources need to be initialized"
     },
@@ -8473,6 +8482,12 @@
     },
     "检测到内置 Agent 或 Skill 可升级，请执行升级。": {
         "en": "Built-in Agent or Skill updates are available. Please run the upgrade."
+    },
+    "存在失败或冲突项，可继续初始化。": {
+        "en": "Failures or conflicts exist. You can continue initialization."
+    },
+    "当前内置资源 manifest 缺失、无法解析或校验失败。": {
+        "en": "The current built-in resource manifest is missing, cannot be parsed, or failed validation."
     },
     "当前版本": {
         "en": "Current version"
