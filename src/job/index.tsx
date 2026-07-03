@@ -78,8 +78,7 @@ export function Job () {
     
     const pagination: TablePaginationConfig = {
         defaultPageSize: 5,
-        pageSizeOptions: ['5', '10', '20', '50', '100'],
-        // size: 'small',
+        pageSizeOptions: [5, 10, 20, 50, 100],
         showSizeChanger: true,
         showQuickJumper: true,
     }
@@ -181,7 +180,7 @@ export function Job () {
                                 cjob_rows.filter(job => 
                                     job.rootJobId === gjob.rootJobId)
                             }
-                            rowKey={(job: DdbJob) => `${job.rootJobId}.${job.node || ''}`}
+                            rowKey={job => `${job.rootJobId}.${job.node || ''}`}
                             pagination={false}
                         />
                 }}
@@ -189,7 +188,6 @@ export function Job () {
         </div>
         
         <div className={`rjobs themed ${ !rjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || rjob_rows.length) ? 'block' : 'none' }}>
-            
             <DDBTable
                 title={<>
                     <Tooltip title='getRecentJobs'>{t('已提交作业')} </Tooltip>
@@ -213,13 +211,12 @@ export function Job () {
                 }
                 scroll={{ x: 'max-content' }}
                 dataSource={rjob_rows}
-                rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
+                rowKey={job => `${job.jobId}.${job.node || ''}`}
                 pagination={rjob_rows.length > pagination.defaultPageSize && pagination }
             />
         </div>
         
         <div className={`sjobs themed ${ !sjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || sjob_rows.length) ? 'block' : 'none' }}>
-        
             <DDBTable
                 title={<>
                      <Tooltip title='getScheduledJobs'>{t('已定时作业')} </Tooltip>
@@ -240,7 +237,7 @@ export function Job () {
                 }
                 scroll={{ x: 'max-content' }}
                 dataSource={sjob_rows}
-                rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
+                rowKey={job => `${job.jobId}.${job.node || ''}`}
                 pagination={ sjob_rows.length > pagination.defaultCurrent && pagination }
             />
         </div>
