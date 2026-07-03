@@ -2,7 +2,7 @@ import './index.scss'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Modal, Form, Input, Select, Segmented, Button } from 'antd'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { t } from '@i18n'
 import { model } from '@model'
@@ -10,6 +10,7 @@ import { Editor } from '@components/Editor/index.tsx'
 import type { IParserTemplate } from '@/data-collection/type.ts'
 import { request } from '@/data-collection/utils.ts'
 import { NAME_RULES, PROTOCOL_MAP, protocols, template_code } from '@/data-collection/constant.ts'
+import type { CodeEditor } from '@components/Editor/MonacoEditor.tsx'
 
 interface IProps {
     editedTemplate?: IParserTemplate
@@ -18,8 +19,19 @@ interface IProps {
 }
 
 
-export function EditorField ({ onChange, disabled = false, ...others }: any) {
+export function EditorField ({ onChange, disabled = false, value, ...others }: any) {
     const [mode, set_mode] = useState(0)
+    
+    let reditor = useRef<CodeEditor>(undefined)
+    let rvalue = useRef('')
+    
+    useEffect(() => {
+        if (mode !== 1)
+            return
+        
+        if (value !== rvalue.current)
+            reditor.current?.setValue(value)
+    }, [mode, value])
     
     return <>
         <Segmented 
@@ -28,11 +40,20 @@ export function EditorField ({ onChange, disabled = false, ...others }: any) {
             options={[
                 { label: t('自定义模板'), value: 0 }, 
                 { label: t('模板参考'), value: 1 }
-            ]} 
+            ]}
         />
-        {mode === 0 && <Editor readonly={disabled} on_change={onChange} {...others}/> }
-        {mode === 1 && <Editor readonly={disabled} default_value={template_code} />}
-    
+        {mode === 0 && <Editor
+            readonly={disabled}
+            on_change={value => {
+                rvalue.current = value
+                onChange(value)
+            }}
+            on_loaded={(monaco, editor) => {
+                reditor.current = editor
+            }}
+            {...others}
+        /> }
+        {mode === 1 && <Editor readonly default_value={template_code} />}
     </>  
 }
 
