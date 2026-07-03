@@ -8510,20 +8510,20 @@
     "更新 Agent": {
         "en": "Updated Agents"
     },
-    "将新建 Agent": {
-        "en": "Agents to create"
+    "待新建 Agent": {
+        "en": "Agents pending creation"
     },
-    "将更新 Agent": {
-        "en": "Agents to update"
+    "待更新 Agent": {
+        "en": "Agents pending update"
     },
-    "将新建 Skill": {
-        "en": "Skills to create"
+    "待新建 Skill": {
+        "en": "Skills pending creation"
     },
-    "将更新 Skill": {
-        "en": "Skills to update"
+    "待更新 Skill": {
+        "en": "Skills pending update"
     },
-    "将新建绑定": {
-        "en": "Bindings to create"
+    "待新建绑定": {
+        "en": "Bindings pending creation"
     },
     "风险项": {
         "en": "Risk items"

@@ -90,18 +90,28 @@
     gap: 12px
     align-items: flex-start
 
-.ai-builtin-summary
-    display: flex
-    flex-wrap: wrap
-    gap: 8px
-
-.ai-builtin-summary-item
-    min-width: 116px
-    padding: 3px 8px
+.ai-builtin-summary-table
+    display: grid
+    width: min(320px, 100%)
+    border: 1px solid #f0f0f0
     border-radius: 4px
-    background: #f5f5f5
-    line-height: 22px
-    white-space: nowrap
+    overflow: hidden
+
+.ai-builtin-summary-row
+    display: grid
+    grid-template-columns: minmax(0, 1fr) 72px
+    min-height: 32px
+
+    &:not(:last-child)
+        border-bottom: 1px solid #f0f0f0
+
+    > span
+        padding: 5px 8px
+        overflow-wrap: anywhere
+
+    > span:last-child
+        border-left: 1px solid #f0f0f0
+        text-align: right
 
 .ai-builtin-errors
     display: grid
