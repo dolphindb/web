@@ -105,6 +105,21 @@ function get_builtin_notice_description (action: BuiltinInitAction) {
 }
 
 
+function merge_builtin_preview_status (status: IBuiltinInitResult | null, preview: IBuiltinInitResult | null) {
+    if (!preview)
+        return status
+    if (!status)
+        return preview
+    return {
+        ...status,
+        ...preview,
+        state: status?.state || preview.state,
+        appliedManifestVersion: status?.appliedManifestVersion || preview.appliedManifestVersion,
+        availableManifestVersion: status?.availableManifestVersion || preview.availableManifestVersion,
+    }
+}
+
+
 function is_builtin_init_result (value: unknown): value is IBuiltinInitResult {
     return Boolean(value && typeof value === 'object' && ('state' in value || 'summary' in value || 'lastFailures' in value))
 }
@@ -215,7 +230,9 @@ export function SettingsModal () {
     const [builtin_status, set_builtin_status] = useState<IBuiltinInitResult | null>(null)
     const [checking_builtin, set_checking_builtin] = useState(false)
     const [initializing_builtin, set_initializing_builtin] = useState(false)
+    const [previewing_builtin, set_previewing_builtin] = useState(false)
     const [builtin_notice_visible, set_builtin_notice_visible] = useState(false)
+    const [builtin_preview_status, set_builtin_preview_status] = useState<IBuiltinInitResult | null>(null)
     const [builtin_action_result, set_builtin_action_result] = useState<IBuiltinInitResult | null>(null)
     const [builtin_action_result_type, set_builtin_action_result_type] = useState<BuiltinInitAction>('none')
     const can_manage_agent = admin || can_manage_agents
@@ -252,9 +269,28 @@ export function SettingsModal () {
     const builtin_action = get_builtin_init_action(builtin_status)
     const show_builtin_init = checking_builtin || builtin_action === 'initialize'
     const show_builtin_notice_card = builtin_notice_visible && (show_builtin_notice(builtin_action) || Boolean(builtin_action_result))
+    const builtin_display_status = builtin_action_result || merge_builtin_preview_status(builtin_status, builtin_preview_status)
     if (!v3)
         return null
     
+    async function open_builtin_notice () {
+        set_builtin_action_result(null)
+        set_builtin_action_result_type('none')
+        set_builtin_notice_visible(true)
+        set_builtin_preview_status(null)
+        if (!admin || !['upgrade', 'partial'].includes(builtin_action))
+            return
+        set_previewing_builtin(true)
+        try {
+            const result = await chat_model.llm.init_builtins({ dryRun: true, includeDetails: true })
+            set_builtin_preview_status(result)
+        } catch (error) {
+            console.error('Preview built-in Agent/Skill init failed:', error)
+            set_builtin_preview_status(null)
+        } finally {
+            set_previewing_builtin(false)
+        }
+    }
     async function initialize_builtins () {
         set_initializing_builtin(true)
         const action = get_builtin_init_action(builtin_status)
@@ -293,11 +329,7 @@ export function SettingsModal () {
                 type='link'
                 size='small'
                 className='ai-builtin-upgrade-entry'
-                onClick={() => {
-                    set_builtin_action_result(null)
-                    set_builtin_action_result_type('none')
-                    set_builtin_notice_visible(true)
-                }}
+                onClick={open_builtin_notice}
             >
                 {get_builtin_notice_label(builtin_action)}
             </Button>}
@@ -305,6 +337,7 @@ export function SettingsModal () {
         open={settings_visible}
         onCancel={() => {
             set_builtin_notice_visible(false)
+            set_builtin_preview_status(null)
             set_builtin_action_result(null)
             set_builtin_action_result_type('none')
             chat_model.set({ settings_visible: false })
@@ -363,6 +396,7 @@ export function SettingsModal () {
                 onClick={() => {
                     if (show_builtin_notice_card) {
                         set_builtin_notice_visible(false)
+                        set_builtin_preview_status(null)
                         set_builtin_action_result(null)
                         set_builtin_action_result_type('none')
                     }
@@ -383,17 +417,21 @@ export function SettingsModal () {
                                 icon={<CloseOutlined />}
                                 onClick={() => {
                                     set_builtin_notice_visible(false)
+                                    set_builtin_preview_status(null)
                                     set_builtin_action_result(null)
                                     set_builtin_action_result_type('none')
                                 }}
                             />}
                             <div className='ai-builtin-title'>{builtin_action_result ? builtin_action_result_type === 'upgrade' ? t('内置资源升级成功') : t('初始化完成') : show_builtin_notice_card ? get_builtin_notice_label(builtin_action) : t('需要初始化 AI 内置资源')}</div>
                             {!builtin_action_result && <Text type='secondary'>{show_builtin_notice_card ? get_builtin_notice_description(builtin_action) : t('首次使用 AI 前，需要初始化内置 Agent 和 Skill。')}</Text>}
-                            {show_builtin_notice_card && <BuiltinStatusDetail status={builtin_action_result || builtin_status} />}
+                            {show_builtin_notice_card && (previewing_builtin
+                                ? <Spin className='ai-builtin-preview-loading' />
+                                : <BuiltinStatusDetail status={builtin_display_status} />)}
                             <div className='ai-builtin-actions'>
                                 {builtin_action_result
                                     ? <Button type='primary' size='large' onClick={() => {
                                         set_builtin_notice_visible(false)
+                                        set_builtin_preview_status(null)
                                         set_builtin_action_result(null)
                                         set_builtin_action_result_type('none')
                                     }}>{t('确认')}</Button>
