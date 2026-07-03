@@ -67,17 +67,6 @@ function format_builtin_failure_resource (item: NonNullable<IBuiltinInitResult['
 }
 
 
-function format_builtin_item_action (action?: string) {
-    if (action === 'CREATED')
-        return t('新建')
-    if (action === 'UPDATED')
-        return t('更新')
-    if (action === 'BOUND')
-        return t('绑定')
-    return action || '-'
-}
-
-
 function show_builtin_notice (action: BuiltinInitAction) {
     return ['upgrade', 'partial', 'invalid'].includes(action)
 }
@@ -168,8 +157,6 @@ function BuiltinStatusDetail ({ status, show_errors = false }: { status: IBuilti
             .map(([key, label]) => ({ label, value: summary[key] }))
             .filter(item => item.value !== undefined && item.value !== null)
         : [ ]
-    const changed_items = (status.items || [ ])
-        .filter(item => item.status === 'SUCCESS' && ['CREATED', 'UPDATED', 'BOUND'].includes(item.action || ''))
     const error_text = [status.errorCode, status.message].filter(Boolean).join(': ')
     const failures = status.lastFailures || [ ]
     const display_failures = error_text ? [ ] : failures
@@ -193,19 +180,6 @@ function BuiltinStatusDetail ({ status, show_errors = false }: { status: IBuilti
                 {summary_items.map(item =>
                     <span key={item.label} className='ai-builtin-summary-item'>{item.label}: {item.value}</span>
                 )}
-            </div>
-        </div>}
-        {status.items && <div className='ai-builtin-status-row'>
-            <Text type='secondary'>{t('升级内容')}</Text>
-            <div className='ai-builtin-summary'>
-                {changed_items.length
-                    ? changed_items.map((item, index) =>
-                        <span key={`${item.resourceType}-${item.resourceKey}-${index}`} className='ai-builtin-summary-item'>
-                            {format_builtin_item_action(item.action)} {item.resourceType || ''} {format_builtin_failure_resource(item)}
-                        </span>
-                    )
-                    : <span className='ai-builtin-summary-item'>{t('无变更')}</span>
-                }
             </div>
         </div>}
         {show_errors && <div className='ai-builtin-status-row'>
