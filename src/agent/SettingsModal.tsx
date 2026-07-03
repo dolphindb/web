@@ -158,7 +158,7 @@ function format_builtin_init_error (result: IBuiltinInitResult) {
 }
 
 
-function BuiltinStatusDetail ({ status }: { status: IBuiltinInitResult | null }) {
+function BuiltinStatusDetail ({ status, show_errors = false }: { status: IBuiltinInitResult | null, show_errors?: boolean }) {
     if (!status)
         return null
     const summary = status.summary
@@ -171,7 +171,6 @@ function BuiltinStatusDetail ({ status }: { status: IBuiltinInitResult | null })
         .filter(item => item.status === 'SUCCESS' && ['CREATED', 'UPDATED', 'BOUND'].includes(item.action || ''))
     const error_text = [status.errorCode, status.message].filter(Boolean).join(': ')
     const failures = status.lastFailures || [ ]
-    const show_errors = Boolean(error_text || failures.length || status.state === 'PARTIAL' || status.state === 'INVALID')
         
     return <div className='ai-builtin-status-detail'>
         <div className='ai-builtin-status-row'>
@@ -233,6 +232,7 @@ export function SettingsModal () {
     const [previewing_builtin, set_previewing_builtin] = useState(false)
     const [builtin_notice_visible, set_builtin_notice_visible] = useState(false)
     const [builtin_preview_status, set_builtin_preview_status] = useState<IBuiltinInitResult | null>(null)
+    const [show_builtin_errors, set_show_builtin_errors] = useState(false)
     const [builtin_action_result, set_builtin_action_result] = useState<IBuiltinInitResult | null>(null)
     const [builtin_action_result_type, set_builtin_action_result_type] = useState<BuiltinInitAction>('none')
     const can_manage_agent = admin || can_manage_agents
@@ -278,6 +278,7 @@ export function SettingsModal () {
         set_builtin_action_result_type('none')
         set_builtin_notice_visible(true)
         set_builtin_preview_status(null)
+        set_show_builtin_errors(builtin_action === 'invalid')
         if (!admin || !['upgrade', 'partial'].includes(builtin_action))
             return
         set_previewing_builtin(true)
@@ -302,6 +303,7 @@ export function SettingsModal () {
                 if (action === 'upgrade' || action === 'partial') {
                     set_builtin_action_result(result)
                     set_builtin_action_result_type(action)
+                    set_show_builtin_errors(false)
                 } else {
                     set_builtin_notice_visible(false)
                     message.success(t('初始化完成'))
@@ -309,6 +311,8 @@ export function SettingsModal () {
                 await chat_model.agent.load_agents()
             } else if (show_builtin_notice(action)) {
                 set_builtin_action_result(null)
+                set_builtin_preview_status(result)
+                set_show_builtin_errors(true)
                 set_builtin_notice_visible(true)
             } else {
                 console.warn('Built-in Agent/Skill init finished but is not ready:', result)
@@ -338,6 +342,7 @@ export function SettingsModal () {
         onCancel={() => {
             set_builtin_notice_visible(false)
             set_builtin_preview_status(null)
+            set_show_builtin_errors(false)
             set_builtin_action_result(null)
             set_builtin_action_result_type('none')
             chat_model.set({ settings_visible: false })
@@ -397,6 +402,7 @@ export function SettingsModal () {
                     if (show_builtin_notice_card) {
                         set_builtin_notice_visible(false)
                         set_builtin_preview_status(null)
+                        set_show_builtin_errors(false)
                         set_builtin_action_result(null)
                         set_builtin_action_result_type('none')
                     }
@@ -418,6 +424,7 @@ export function SettingsModal () {
                                 onClick={() => {
                                     set_builtin_notice_visible(false)
                                     set_builtin_preview_status(null)
+                                    set_show_builtin_errors(false)
                                     set_builtin_action_result(null)
                                     set_builtin_action_result_type('none')
                                 }}
@@ -426,12 +433,13 @@ export function SettingsModal () {
                             {!builtin_action_result && <Text type='secondary'>{show_builtin_notice_card ? get_builtin_notice_description(builtin_action) : t('首次使用 AI 前，需要初始化内置 Agent 和 Skill。')}</Text>}
                             {show_builtin_notice_card && (previewing_builtin
                                 ? <Spin className='ai-builtin-preview-loading' />
-                                : <BuiltinStatusDetail status={builtin_display_status} />)}
+                                : <BuiltinStatusDetail status={builtin_display_status} show_errors={show_builtin_errors || builtin_action === 'invalid'} />)}
                             <div className='ai-builtin-actions'>
                                 {builtin_action_result
                                     ? <Button type='primary' size='large' onClick={() => {
                                         set_builtin_notice_visible(false)
                                         set_builtin_preview_status(null)
+                                        set_show_builtin_errors(false)
                                         set_builtin_action_result(null)
                                         set_builtin_action_result_type('none')
                                     }}>{t('确认')}</Button>
