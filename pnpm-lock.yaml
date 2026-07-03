@@ -132,8 +132,8 @@ importers:
         specifier: ^9.3.2
         version: 9.3.2
       xshell:
-        specifier: ^1.4.15
-        version: 1.4.15(react-dom@19.2.7(react@19.2.7))
+        specifier: ^1.4.16
+        version: 1.4.16(react-dom@19.2.7(react@19.2.7))
     devDependencies:
       '@types/js-cookie':
         specifier: ^3.0.6
@@ -3391,8 +3391,8 @@ packages:
   undici-types@8.3.0:
     resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
 
-  undici@8.5.0:
-    resolution: {integrity: sha512-xamtWoB1EshgjpmlXd7GGm2VfdDtw1+rD8uhry8pSNW3If6S8E0m2T2+orSKeZXEn/aPJMviCpDBA65WJt8zhg==}
+  undici@8.6.0:
+    resolution: {integrity: sha512-l2FlC6I510GawyEd1qgcE/okihKrzy+BRTEBlu6T0fdbM9m5yxtIH5Oa3ysRsH0zC4EhmWUEaSDsy2QngBeRlw==}
     engines: {node: '>=22.19.0'}
 
   unified@11.0.4:
@@ -3514,8 +3514,8 @@ packages:
     resolution: {integrity: sha512-3sFIGLiaDP7rTO4xh3g+b3AzhYDIUGGywE/WsmqzJWDxus5aJXVnPTNC/6L+r2WzrwXqVOdD262OaO+cEyPMSQ==}
     engines: {node: '>=20'}
 
-  xshell@1.4.15:
-    resolution: {integrity: sha512-76br7Q3f1zk1RH3ut3C0DN4lwto5yXBqmBufFIOsBEUC1V6LTeou3PxeM1YBdJqOl8JqQ2zFDXKxSDDX2mxPAg==}
+  xshell@1.4.16:
+    resolution: {integrity: sha512-puF4f92M+jA9KE4eJdI8/vUJRNntTWxzMOdJYNhvYwksL9e+3KfwzWbnW/3yTnvG8Co0oCjS8N3J0fNF/b1Ouw==}
     hasBin: true
 
   xtend@4.0.2:
@@ -5520,7 +5520,7 @@ snapshots:
       dayjs: 1.11.21
       ipaddr.js: 2.4.0
       tslib: 2.8.1
-      xshell: 1.4.15(react-dom@19.2.7(react@19.2.7))
+      xshell: 1.4.16(react-dom@19.2.7(react@19.2.7))
     transitivePeerDependencies:
       - bufferutil
       - jiti
@@ -7441,7 +7441,7 @@ snapshots:
 
   undici-types@8.3.0: {}
 
-  undici@8.5.0: {}
+  undici@8.6.0: {}
 
   unified@11.0.4:
     dependencies:
@@ -7611,7 +7611,7 @@ snapshots:
       is-wsl: 3.1.0
       powershell-utils: 0.1.0
 
-  xshell@1.4.15(react-dom@19.2.7(react@19.2.7)):
+  xshell@1.4.16(react-dom@19.2.7(react@19.2.7)):
     dependencies:
       '@babel/core': 8.0.1
       '@babel/parser': 8.0.0
@@ -7645,7 +7645,7 @@ snapshots:
       socks-proxy-agent: 10.1.0
       strip-ansi: 7.2.0
       typescript: 6.0.3
-      undici: 8.5.0
+      undici: 8.6.0
       ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil
