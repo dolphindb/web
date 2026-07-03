@@ -50,6 +50,7 @@ export function EditorField ({ onChange, disabled = false, value, ...others }: a
             }}
             on_loaded={(monaco, editor) => {
                 reditor.current = editor
+                editor.setValue(rvalue.current = value)
             }}
             {...others}
         /> }
