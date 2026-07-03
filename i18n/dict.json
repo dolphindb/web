@@ -8456,6 +8456,9 @@
     "个人中心": {
         "en": "Personal Center"
     },
+    "内置资源升级": {
+        "en": "Built-in resource upgrade"
+    },
     "需要初始化 AI 内置资源": {
         "en": "AI built-in resources need to be initialized"
     },

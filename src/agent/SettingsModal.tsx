@@ -1,5 +1,6 @@
 import './SettingsModal.sass'
 
+import { CloseOutlined } from '@ant-design/icons'
 import { useEffect, useState } from 'react'
 import { Button, Modal, Spin, Tabs, Typography, message } from 'antd'
 
@@ -213,7 +214,7 @@ export function SettingsModal () {
                 className='ai-builtin-upgrade-entry'
                 onClick={() => { set_builtin_upgrade_visible(true) }}
             >
-                {t('内置资源可升级')}
+                {t('内置资源升级')}
             </Button>}
         </div>}
         open={settings_visible}
@@ -284,6 +285,14 @@ export function SettingsModal () {
                     {checking_builtin
                         ? <Spin />
                         : <>
+                            {builtin_action === 'upgrade' && <Button
+                                type='text'
+                                size='small'
+                                className='ai-builtin-close'
+                                aria-label={t('关闭')}
+                                icon={<CloseOutlined />}
+                                onClick={() => { set_builtin_upgrade_visible(false) }}
+                            />}
                             <div className='ai-builtin-title'>{builtin_action === 'upgrade' ? t('需要升级 AI 内置资源') : t('需要初始化 AI 内置资源')}</div>
                             <Text type='secondary'>{builtin_action === 'upgrade' ? t('检测到内置 Agent 或 Skill 可升级，请执行升级。') : t('首次使用 AI 前，需要初始化内置 Agent 和 Skill。')}</Text>
                             {builtin_action === 'upgrade' && <BuiltinStatusDetail status={builtin_status} />}
