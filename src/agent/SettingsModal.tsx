@@ -31,11 +31,11 @@ const builtin_summary_labels: [keyof NonNullable<IBuiltinInitResult['summary']>,
 
 
 const builtin_dry_run_summary_labels: [keyof NonNullable<IBuiltinInitResult['summary']>, string][] = [
-    ['createdAgents', t('将新建 Agent')],
-    ['updatedAgents', t('将更新 Agent')],
-    ['createdSkills', t('将新建 Skill')],
-    ['updatedSkills', t('将更新 Skill')],
-    ['createdBindings', t('将新建绑定')],
+    ['createdAgents', t('待新建 Agent')],
+    ['updatedAgents', t('待更新 Agent')],
+    ['createdSkills', t('待新建 Skill')],
+    ['updatedSkills', t('待更新 Skill')],
+    ['createdBindings', t('待新建绑定')],
     ['failed', t('风险项')],
 ]
 
@@ -185,9 +185,12 @@ function BuiltinStatusDetail ({ status, show_errors = false }: { status: IBuilti
         </div>
         {summary_items.length > 0 && <div className='ai-builtin-status-row'>
             <Text type='secondary'>{t('摘要')}</Text>
-            <div className='ai-builtin-summary'>
+            <div className='ai-builtin-summary-table'>
                 {summary_items.map(item =>
-                    <span key={item.label} className='ai-builtin-summary-item'>{item.label}: {item.value}</span>
+                    <div key={item.label} className='ai-builtin-summary-row'>
+                        <span>{item.label}</span>
+                        <span>{item.value}</span>
+                    </div>
                 )}
             </div>
         </div>}
