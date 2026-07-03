@@ -1046,13 +1046,11 @@ export class DdbModel extends Model<DdbModel> {
         return this.ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', undefined, {
             urgent: true,
             nodes: this.node_type === NodeType.controller ? 
-                    this.nodes.filter(node => 
+                    this.nodes.filter(node =>
                         node.state === DdbNodeState.online && node.mode !== NodeType.agent
-                    ).map(node => 
-                        node.name
-                    )
+                    ).select('name')
                 :
-                    null
+                    undefined
         })
     }
     
