@@ -126,6 +126,7 @@ function is_builtin_init_result (value: unknown): value is IBuiltinInitResult {
 
 
 function format_builtin_init_error (result: IBuiltinInitResult) {
+    const top_level_error = Boolean(result.errorCode || result.message)
     const lines = [
         result.state ? `${t('状态')}: ${result.state}` : '',
         result.errorCode ? `${t('错误码')}: ${result.errorCode}` : '',
@@ -142,7 +143,7 @@ function format_builtin_init_error (result: IBuiltinInitResult) {
     }
     
     const failures = result.lastFailures || [ ]
-    if (failures.length) {
+    if (!top_level_error && failures.length) {
         lines.push('', t('最近失败项'))
         failures.slice(0, 5).forEach((item, index) => {
             lines.push(`${index + 1}. ${format_builtin_failure_resource(item)}`)
@@ -171,6 +172,7 @@ function BuiltinStatusDetail ({ status, show_errors = false }: { status: IBuilti
         .filter(item => item.status === 'SUCCESS' && ['CREATED', 'UPDATED', 'BOUND'].includes(item.action || ''))
     const error_text = [status.errorCode, status.message].filter(Boolean).join(': ')
     const failures = status.lastFailures || [ ]
+    const display_failures = error_text ? [ ] : failures
         
     return <div className='ai-builtin-status-detail'>
         <div className='ai-builtin-status-row'>
@@ -210,13 +212,13 @@ function BuiltinStatusDetail ({ status, show_errors = false }: { status: IBuilti
             <Text type='secondary'>{t('错误信息')}</Text>
             <div className='ai-builtin-errors'>
                 {error_text && <div className='ai-builtin-error-item'>{error_text}</div>}
-                {failures.map((item, index) =>
+                {display_failures.map((item, index) =>
                     <div key={`${item.resourceType}-${item.resourceKey}-${index}`} className='ai-builtin-error-item'>
                         {[format_builtin_failure_resource(item), item.resourceType, item.action, item.status].filter(Boolean).join(' / ')}
                         {(item.errorCode || item.message) && <div>{[item.errorCode, item.message].filter(Boolean).join(': ')}</div>}
                     </div>
                 )}
-                {!error_text && !failures.length && <div className='ai-builtin-error-item'>-</div>}
+                {!error_text && !display_failures.length && <div className='ai-builtin-error-item'>-</div>}
             </div>
         </div>}
     </div>
