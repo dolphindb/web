@@ -297,26 +297,23 @@ const header_text = {
     }
 }
 
-const button_text = {
+const delete_buttons = {
     subWorkers: {
         title: t('流数据表', { context: 'computing' }),
         action: t('取消订阅'),
         icon: <MinusCircleOutlined />
     },
     engine: {
-        title: t('引擎'),
-        action: t('删除'),
-        icon: <DeleteOutlined />
+        title: t('引擎')
     },
     persistenceMeta: {
-        title: t('持久化共享数据流表'),
-        action: t('删除'),
-        icon: <DeleteOutlined />
+        title: t('持久化共享数据流表')
     },
     sharedStreamingTableStat: {
-        title: t('共享数据流表'),
-        action: t('删除'),
-        icon: <DeleteOutlined />
+        title: t('共享数据流表')
+    },
+    persistWorkers: {
+        title: t('持久化 worker')
     }
 }
 
@@ -581,65 +578,73 @@ function DeleteModal ({
     const { visible, open, close } = use_modal()
     const { ddb, admin: is_admin } = model.use(['ddb', 'admin'])
     const { streaming_stat, persistent_table_stat } = computing.use(['streaming_stat', 'persistent_table_stat'])
-    const action_text = button_text[table_name].action.charAt(0).toUpperCase() + button_text[table_name].action.slice(1)
+    
+    const {
+        action = t('删除'),
+        icon = <DeleteOutlined />,
+        title = table_name
+    } = delete_buttons[table_name] || { }
+    
+    const action_text = action.charAt(0).toUpperCase() + action.slice(1)
+    
     return <>
-            <Modal
-                className='computing-delete-modal'
-                title={
-                    <div className='delete-warning-title'>
-                        <WarningOutlined />
-                        <span>
-                            {t('确认{{action}}选中的 ', { action: button_text[table_name].action.toLowerCase() })}
-                            <Tooltip
-                                title={selected.map(name => <p key={name}>{name}</p>)}
-                            >
-                                <Typography.Link>{selected.length}</Typography.Link>
-                            </Tooltip>
-                            {t(' 个{{item}}吗?', { item: button_text[table_name].title.toLowerCase() })}
-                        </span>
-                    </div>
-                }
-                open={visible}
-                onCancel={() => {
-                    set_input_value('')
-                    close()
+        <Modal
+            className='computing-delete-modal'
+            title={
+                <div className='delete-warning-title'>
+                    <WarningOutlined />
+                    <span>
+                        {t('确认{{action}}选中的 ', { action: action.toLowerCase() })}
+                        <Tooltip
+                            title={selected.map(name => <p key={name}>{name}</p>)}
+                        >
+                            <Typography.Link>{selected.length}</Typography.Link>
+                        </Tooltip>
+                        {t(' 个{{item}}吗?', { item: title.toLowerCase() })}
+                    </span>
+                </div>
+            }
+            open={visible}
+            onCancel={() => {
+                set_input_value('')
+                close()
+            }}
+            cancelButtonProps={{ className: 'hidden' }}
+            okText={action_text}
+            okButtonProps={{ 
+                disabled: input_value !== 'YES', 
+                danger: true 
+            }}
+            onOk={async () => {
+                await handle_delete(
+                    table_name,
+                    selected,
+                    ddb,
+                    refresher,
+                    is_admin,
+                    table_name === 'subWorkers'
+                        ? selected.map(row_name => streaming_stat.subWorkers.to_rows().find(({ topic }) => topic === row_name).raftGroup)
+                        : table_name === 'persistenceMeta' ? selected.map(row_name => persistent_table_stat.to_rows().find(({ tablename }) => tablename === row_name).raftGroup) : [ ]
+                )
+                set_input_value('')
+                set_selected([ ])
+                close()
+            }}
+        >
+            <Input 
+                status='error'
+                variant='filled'
+                placeholder={t("请输入 'YES' 以确认该操作")}
+                value={input_value}
+                onChange={({ target: { value } }) => {
+                    set_input_value(value)
                 }}
-                cancelButtonProps={{ className: 'hidden' }}
-                okText={action_text}
-                okButtonProps={{ 
-                    disabled: input_value !== 'YES', 
-                    danger: true 
-                }}
-                onOk={async () => {
-                    await handle_delete(
-                        table_name,
-                        selected,
-                        ddb,
-                        refresher,
-                        is_admin,
-                        table_name === 'subWorkers'
-                            ? selected.map(row_name => streaming_stat.subWorkers.to_rows().find(({ topic }) => topic === row_name).raftGroup)
-                            : table_name === 'persistenceMeta' ? selected.map(row_name => persistent_table_stat.to_rows().find(({ tablename }) => tablename === row_name).raftGroup) : [ ]
-                    )
-                    set_input_value('')
-                    set_selected([ ])
-                    close()
-                }}
-            >
-                <Input 
-                    status='error'
-                    variant='filled'
-                    placeholder={t("请输入 'YES' 以确认该操作")}
-                    value={input_value}
-                    onChange={({ target: { value } }) => {
-                        set_input_value(value)
-                    }}
-                />
-            </Modal>
-            <Button disabled={!selected.length} onClick={open} danger icon={button_text[table_name].icon}>
-                {t('批量') + action_text}
-            </Button>
-        </>
+            />
+        </Modal>
+        <Button disabled={!selected.length} onClick={open} danger icon={icon}>
+            {t('批量') + action_text}
+        </Button>
+    </>
 }
 
 
