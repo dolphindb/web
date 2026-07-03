@@ -296,6 +296,7 @@ async function build_web (production: boolean, full: boolean, version_name?: str
                     analyze: analyze && index,
                     assets: true,
                     styles: true,
+                    production,
                     defines: index ? {
                         WEB_VERSION: `${info.version} (${info.time} ${info.hash})`.quote(),
                         PRODUCTION: production ? 'true' : 'false'
