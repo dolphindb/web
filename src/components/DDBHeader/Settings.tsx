@@ -8,13 +8,13 @@ import { storage } from 'xshell/storage.js'
 
 import { t } from '@i18n'
 
-import { model, storage_keys } from '@model'
+import { model, NodeType, storage_keys } from '@model'
 
 import { chat_model } from '@/agent/model.ts'
 
 
 export function Settings () {
-    let { shf, v3 } = model.use(['shf', 'v3'])
+    let { shf, v3, node_type } = model.use(['shf', 'v3', 'node_type'])
     
     let rform = useRef<FormInstance<Fields>>(undefined)
     
@@ -69,7 +69,7 @@ export function Settings () {
                         <Checkbox />
                     </Form.Item> }
                     
-                    {v3 && <div style={{ paddingTop: 6 }}>
+                    {v3 && node_type !== NodeType.controller && node_type !== NodeType.data && <div style={{ paddingTop: 6 }}>
                         <Button
                             block
                             icon={<RobotOutlined />}

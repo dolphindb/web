@@ -390,6 +390,9 @@ export interface IBuiltinInitResult {
     runId?: string
     manifestId?: string
     manifestVersion?: string
+    appliedManifestVersion?: string
+    availableManifestVersion?: string
+    upgradeAvailable?: boolean
     manifestHash?: string
     lastRunId?: string
     lastRunTime?: string

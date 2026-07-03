@@ -14,6 +14,7 @@ import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 import { chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
 import type { ScriptExecuteApprovalMode } from '@/agent/model.ts'
 import { AiTab } from '@/agent/ai-tab/AiTab.tsx'
+import { needs_builtin_init_action } from '@/agent/builtin-init.ts'
 
 import { is_pending_ai_chat_id, shell } from './model.ts'
 
@@ -182,7 +183,7 @@ export function ShellEditor ({ collapser }) {
                                 console.error('Load built-in Agent/Skill init status failed:', error)
                                 return null
                             })
-                            if (builtin_status && builtin_status.initialized !== true && builtin_status.state !== 'READY') {
+                            if (needs_builtin_init_action(builtin_status)) {
                                 chat_model.set({ settings_visible: true })
                                 return
                             }
