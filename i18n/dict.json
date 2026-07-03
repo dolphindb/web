@@ -8459,6 +8459,9 @@
     "内置资源升级": {
         "en": "Built-in resource upgrade"
     },
+    "内置资源升级成功": {
+        "en": "Built-in resource upgrade succeeded"
+    },
     "需要初始化 AI 内置资源": {
         "en": "AI built-in resources need to be initialized"
     },
@@ -8476,6 +8479,12 @@
     },
     "可升级版本": {
         "en": "Available version"
+    },
+    "升级内容": {
+        "en": "Upgrade details"
+    },
+    "无变更": {
+        "en": "No changes"
     },
     "暂无版本信息": {
         "en": "No version information"
