@@ -352,6 +352,7 @@ export interface ILlmUsageStats {
 
 export interface IBuiltinInitSummary {
     createdAgents?: number
+    updatedAgents?: number
     createdSkills?: number
     updatedSkills?: number
     createdBindings?: number
