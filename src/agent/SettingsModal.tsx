@@ -22,13 +22,21 @@ const { Text } = Typography
 
 const builtin_summary_labels: [keyof NonNullable<IBuiltinInitResult['summary']>, string][] = [
     ['createdAgents', t('新建 Agent')],
+    ['updatedAgents', t('更新 Agent')],
     ['createdSkills', t('新建 Skill')],
     ['updatedSkills', t('更新 Skill')],
     ['createdBindings', t('新建绑定')],
-    ['skippedExisting', t('跳过已有')],
-    ['skippedUnchanged', t('跳过未变化')],
-    ['skippedUserModified', t('跳过用户修改')],
     ['failed', t('失败')],
+]
+
+
+const builtin_dry_run_summary_labels: [keyof NonNullable<IBuiltinInitResult['summary']>, string][] = [
+    ['createdAgents', t('将新建 Agent')],
+    ['updatedAgents', t('将更新 Agent')],
+    ['createdSkills', t('将新建 Skill')],
+    ['updatedSkills', t('将更新 Skill')],
+    ['createdBindings', t('将新建绑定')],
+    ['failed', t('风险项')],
 ]
 
 
@@ -152,8 +160,9 @@ function BuiltinStatusDetail ({ status, show_errors = false }: { status: IBuilti
     if (!status)
         return null
     const summary = status.summary
+    const summary_labels = status.dryRun ? builtin_dry_run_summary_labels : builtin_summary_labels
     const summary_items = summary
-        ? builtin_summary_labels
+        ? summary_labels
             .map(([key, label]) => ({ label, value: summary[key] }))
             .filter(item => item.value !== undefined && item.value !== null)
         : [ ]

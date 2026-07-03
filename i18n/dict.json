@@ -8507,6 +8507,27 @@
     "失败项过多，仅展示前 5 条": {
         "en": "Too many failures. Only the first 5 are shown."
     },
+    "更新 Agent": {
+        "en": "Updated Agents"
+    },
+    "将新建 Agent": {
+        "en": "Agents to create"
+    },
+    "将更新 Agent": {
+        "en": "Agents to update"
+    },
+    "将新建 Skill": {
+        "en": "Skills to create"
+    },
+    "将更新 Skill": {
+        "en": "Skills to update"
+    },
+    "将新建绑定": {
+        "en": "Bindings to create"
+    },
+    "风险项": {
+        "en": "Risk items"
+    },
     "新建 Skill": {
         "en": "New Skills"
     },
