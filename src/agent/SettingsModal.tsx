@@ -67,17 +67,6 @@ function format_builtin_failure_resource (item: NonNullable<IBuiltinInitResult['
 }
 
 
-function format_builtin_item_action (action?: string) {
-    if (action === 'CREATED')
-        return t('新建')
-    if (action === 'UPDATED')
-        return t('更新')
-    if (action === 'BOUND')
-        return t('绑定')
-    return action || '-'
-}
-
-
 function show_builtin_notice (action: BuiltinInitAction) {
     return ['upgrade', 'partial', 'invalid'].includes(action)
 }
@@ -126,6 +115,7 @@ function is_builtin_init_result (value: unknown): value is IBuiltinInitResult {
 
 
 function format_builtin_init_error (result: IBuiltinInitResult) {
+    const top_level_error = Boolean(result.errorCode || result.message)
     const lines = [
         result.state ? `${t('状态')}: ${result.state}` : '',
         result.errorCode ? `${t('错误码')}: ${result.errorCode}` : '',
@@ -142,7 +132,7 @@ function format_builtin_init_error (result: IBuiltinInitResult) {
     }
     
     const failures = result.lastFailures || [ ]
-    if (failures.length) {
+    if (!top_level_error && failures.length) {
         lines.push('', t('最近失败项'))
         failures.slice(0, 5).forEach((item, index) => {
             lines.push(`${index + 1}. ${format_builtin_failure_resource(item)}`)
@@ -167,10 +157,9 @@ function BuiltinStatusDetail ({ status, show_errors = false }: { status: IBuilti
             .map(([key, label]) => ({ label, value: summary[key] }))
             .filter(item => item.value !== undefined && item.value !== null)
         : [ ]
-    const changed_items = (status.items || [ ])
-        .filter(item => item.status === 'SUCCESS' && ['CREATED', 'UPDATED', 'BOUND'].includes(item.action || ''))
     const error_text = [status.errorCode, status.message].filter(Boolean).join(': ')
     const failures = status.lastFailures || [ ]
+    const display_failures = error_text ? [ ] : failures
         
     return <div className='ai-builtin-status-detail'>
         <div className='ai-builtin-status-row'>
@@ -193,30 +182,17 @@ function BuiltinStatusDetail ({ status, show_errors = false }: { status: IBuilti
                 )}
             </div>
         </div>}
-        {status.items && <div className='ai-builtin-status-row'>
-            <Text type='secondary'>{t('升级内容')}</Text>
-            <div className='ai-builtin-summary'>
-                {changed_items.length
-                    ? changed_items.map((item, index) =>
-                        <span key={`${item.resourceType}-${item.resourceKey}-${index}`} className='ai-builtin-summary-item'>
-                            {format_builtin_item_action(item.action)} {item.resourceType || ''} {format_builtin_failure_resource(item)}
-                        </span>
-                    )
-                    : <span className='ai-builtin-summary-item'>{t('无变更')}</span>
-                }
-            </div>
-        </div>}
         {show_errors && <div className='ai-builtin-status-row'>
             <Text type='secondary'>{t('错误信息')}</Text>
             <div className='ai-builtin-errors'>
                 {error_text && <div className='ai-builtin-error-item'>{error_text}</div>}
-                {failures.map((item, index) =>
+                {display_failures.map((item, index) =>
                     <div key={`${item.resourceType}-${item.resourceKey}-${index}`} className='ai-builtin-error-item'>
                         {[format_builtin_failure_resource(item), item.resourceType, item.action, item.status].filter(Boolean).join(' / ')}
                         {(item.errorCode || item.message) && <div>{[item.errorCode, item.message].filter(Boolean).join(': ')}</div>}
                     </div>
                 )}
-                {!error_text && !failures.length && <div className='ai-builtin-error-item'>-</div>}
+                {!error_text && !display_failures.length && <div className='ai-builtin-error-item'>-</div>}
             </div>
         </div>}
     </div>
