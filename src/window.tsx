@@ -65,6 +65,7 @@ create_root(
 
 function Root () {
     return <ConfigProvider
+        prefixCls=''
         locale={locales[language] as any}
         button={{ autoInsertSpace: false }}
         theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}

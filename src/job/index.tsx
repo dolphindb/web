@@ -155,6 +155,7 @@ export function Job () {
                                 cjob_cols.filter(col => group_cjob_columns.has(col.title as string)),
                                 'stop',
                                 async job => {
+                                    console.log('取消作业:', job)
                                     await model.cancel_console_job(job)
                                     await get_cjobs()
                                 }
@@ -201,6 +202,7 @@ export function Job () {
                                     rjobs.to_cols() as TableColumnType<Record<string, any>>[],
                                     'stop',
                                     async job => {
+                                        console.log('取消作业:', job)
                                         await model.cancel_job(job)
                                         await get_rjobs()
                                     }
@@ -229,6 +231,7 @@ export function Job () {
                             fix_scols(sjobs),
                             'delete',
                             async job => {
+                                console.log('删除作业:', job)
                                 await model.delete_scheduled_job(job)
                                 await get_sjobs()
                             }

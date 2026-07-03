@@ -15,7 +15,6 @@ interface IProps {
 
 
 export function Share ({ dashboard_ids, trigger_type }: IProps) {
-    const [api, contextHolder] = notification.useNotification({ maxCount: 1 })
     const message = trigger_type === 'icon' ? dashboard.message : model.message
     
     const trigger_click_handler = useCallback(async () => {
@@ -32,14 +31,13 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
         
         try {
             const { href } = url
+            
             await copy(href)
-            api.success({
+            
+            model.notification.success({
                 title: t('以下内容已复制到剪切板'),
-                style: {
-                    width: 1100
-                },
-                description: href,
                 placement: 'top',
+                description: href
             })
          } catch (e) {
             message.error(t('复制失败'))
@@ -48,22 +46,18 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
     
     const triggers = {
         button: <Button
-                    icon={<ShareAltOutlined />}
-                    onClick={trigger_click_handler}
-                >
-                    {t('批量分享')}
-                </Button>,
+                icon={<ShareAltOutlined />}
+                onClick={trigger_click_handler}
+            >
+                {t('批量分享')}
+            </Button>,
         text: <a onClick={trigger_click_handler }>{t('分享')}</a>,
         icon: <Tooltip title={t('分享')}>
             <Button className='action' onClick={trigger_click_handler }><ShareAltOutlined/></Button>
         </Tooltip>
-        
     }
     
-    return <>
-        {contextHolder}
-        {triggers[trigger_type]}
-    </>
+    return triggers[trigger_type]
 }
 
 
