@@ -262,14 +262,14 @@ async function build_web (production: boolean, full: boolean, version_name?: str
     const htmls: HtmlsConfig = {
         'index.html': {
             title: 'DolphinDB',
+            dependencies: ['antd', 'xterm', 'lodash', 'echarts', 'gridstack'],
             scripts: {
                 before: [{
                     // 前面构建出来的 deps.js 缓存
                     src: fpt_deps,
                     out: 'deps.js'
                 }]
-            },
-            dependencies: ['antd', 'xterm', 'lodash', 'echarts', 'gridstack'],
+            }
         },
         
         'window.html': {
