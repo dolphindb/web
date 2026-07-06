@@ -93,8 +93,8 @@ importers:
         specifier: 0.54.0
         version: 0.54.0
       plotly.js-dist-min:
-        specifier: ^3.6.0
-        version: 3.6.0
+        specifier: ^3.7.0
+        version: 3.7.0
       re-resizable:
         specifier: ^6.11.2
         version: 6.11.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -132,8 +132,8 @@ importers:
         specifier: ^9.3.2
         version: 9.3.2
       xshell:
-        specifier: ^1.4.16
-        version: 1.4.16(react-dom@19.2.7(react@19.2.7))
+        specifier: ^1.4.18
+        version: 1.4.18(react-dom@19.2.7(react@19.2.7))
     devDependencies:
       '@types/js-cookie':
         specifier: ^3.0.6
@@ -2863,8 +2863,8 @@ packages:
     resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
     engines: {node: '>=12'}
 
-  plotly.js-dist-min@3.6.0:
-    resolution: {integrity: sha512-VR9jO2YdcEwbzVwtRyPE0eAieXFv1x5q6M9nnIgUS8FggahPrjiID6kzpnTYABwLX0gZkgEc0zxS6gQgVmgHzw==}
+  plotly.js-dist-min@3.7.0:
+    resolution: {integrity: sha512-IRWNnBJZmKss3URDnicBK2nvt/VTSi/MD1GnUscAYFjwSuN6g/CTde5R1UC0RYtblehj8rkT4BL8r05e/c8j5Q==}
 
   possible-typed-array-names@1.0.0:
     resolution: {integrity: sha512-d7Uw+eZoloe0EHDIYoe+bQ5WXnGMOpmiZFTuMWCwpjzzkL2nTjcKiAk4hh8TjnGye2TwWOk3UXucZ+3rbmBa8Q==}
@@ -3391,8 +3391,8 @@ packages:
   undici-types@8.3.0:
     resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
 
-  undici@8.6.0:
-    resolution: {integrity: sha512-l2FlC6I510GawyEd1qgcE/okihKrzy+BRTEBlu6T0fdbM9m5yxtIH5Oa3ysRsH0zC4EhmWUEaSDsy2QngBeRlw==}
+  undici@8.7.0:
+    resolution: {integrity: sha512-N7iQtfyLhIMOFgQubvmLV26svHpO0bqKnAiWotTQCVKCmWrcGbBotPuW1x+xwYZ2VHdSTVUfPQQnlEt1/LouTQ==}
     engines: {node: '>=22.19.0'}
 
   unified@11.0.4:
@@ -3514,8 +3514,8 @@ packages:
     resolution: {integrity: sha512-3sFIGLiaDP7rTO4xh3g+b3AzhYDIUGGywE/WsmqzJWDxus5aJXVnPTNC/6L+r2WzrwXqVOdD262OaO+cEyPMSQ==}
     engines: {node: '>=20'}
 
-  xshell@1.4.16:
-    resolution: {integrity: sha512-puF4f92M+jA9KE4eJdI8/vUJRNntTWxzMOdJYNhvYwksL9e+3KfwzWbnW/3yTnvG8Co0oCjS8N3J0fNF/b1Ouw==}
+  xshell@1.4.18:
+    resolution: {integrity: sha512-14/yexup9Wf+Yaw1qXPIFyMthg2nAcPIlcm4s9OBnrHqWbNEZAuNHFFuFUqoRQ1/I+2Efxxw+IvtuZ10V7QwnA==}
     hasBin: true
 
   xtend@4.0.2:
@@ -5520,7 +5520,7 @@ snapshots:
       dayjs: 1.11.21
       ipaddr.js: 2.4.0
       tslib: 2.8.1
-      xshell: 1.4.16(react-dom@19.2.7(react@19.2.7))
+      xshell: 1.4.18(react-dom@19.2.7(react@19.2.7))
     transitivePeerDependencies:
       - bufferutil
       - jiti
@@ -6814,7 +6814,7 @@ snapshots:
 
   picomatch@4.0.3: {}
 
-  plotly.js-dist-min@3.6.0: {}
+  plotly.js-dist-min@3.7.0: {}
 
   possible-typed-array-names@1.0.0: {}
 
@@ -7441,7 +7441,7 @@ snapshots:
 
   undici-types@8.3.0: {}
 
-  undici@8.6.0: {}
+  undici@8.7.0: {}
 
   unified@11.0.4:
     dependencies:
@@ -7611,7 +7611,7 @@ snapshots:
       is-wsl: 3.1.0
       powershell-utils: 0.1.0
 
-  xshell@1.4.16(react-dom@19.2.7(react@19.2.7)):
+  xshell@1.4.18(react-dom@19.2.7(react@19.2.7)):
     dependencies:
       '@babel/core': 8.0.1
       '@babel/parser': 8.0.0
@@ -7645,7 +7645,7 @@ snapshots:
       socks-proxy-agent: 10.1.0
       strip-ansi: 7.2.0
       typescript: 6.0.3
-      undici: 8.6.0
+      undici: 8.7.0
       ws: 8.21.0
     transitivePeerDependencies:
       - bufferutil

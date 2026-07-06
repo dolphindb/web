@@ -1,8 +1,10 @@
-import './index.scss'
+import './index.sass'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Modal, Form, Input, Select, Segmented, Button } from 'antd'
 import { useCallback, useEffect, useRef, useState } from 'react'
+
+import { required } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
 import { model } from '@model'
@@ -19,7 +21,7 @@ interface IProps {
 }
 
 
-export function EditorField ({ onChange, disabled = false, value, ...others }: any) {
+function EditorField ({ onChange, disabled = false, value }: any) {
     const [mode, set_mode] = useState(0)
     
     let reditor = useRef<CodeEditor>(undefined)
@@ -52,7 +54,6 @@ export function EditorField ({ onChange, disabled = false, value, ...others }: a
                 reditor.current = editor
                 editor.setValue(rvalue.current = value || '')
             }}
-            {...others}
         /> }
         {mode === 1 && <Editor readonly default_value={template_code} />}
     </>  
@@ -93,7 +94,7 @@ export const ParserTemplateModal = NiceModal.create(({ refresh, editedTemplate, 
         open={modal.visible} 
         onCancel={modal.hide} 
         afterClose={modal.remove}
-        >
+    >
         <Form 
             onFinish={on_submit}
             disabled={mode === 'view'}
@@ -102,20 +103,18 @@ export const ParserTemplateModal = NiceModal.create(({ refresh, editedTemplate, 
             form={form} 
             labelCol={{ span: 4 }}
         >
-            <Form.Item 
-                label={t('名称')} 
-                name='name' 
-                rules={NAME_RULES}
-            >
+            <Form.Item label={t('名称')} name='name' rules={NAME_RULES}>
                 <Input placeholder={t('请输入模板名称')} />
             </Form.Item>
             <Form.Item label={t('协议')} name='protocol' rules={[{ required: true, message: t('请选择协议') }]}>
-                <Select placeholder={t('请选择协议')} options={protocols.map(item => ({ label: PROTOCOL_MAP[item], value: item }))}/>
+                <Select
+                    placeholder={t('请选择协议')}
+                    options={protocols.map(item => ({ label: PROTOCOL_MAP[item], value: item }))} />
             </Form.Item>
             <Form.Item label={t('备注')} name='comment'>
                 <Input placeholder={t('请输入备注')}/>
             </Form.Item>
-            <Form.Item label={t('代码')} name='handler' className='handler-form-item' rules={[{ required: true, message: t('请输入代码') }]}>
+            <Form.Item label={t('代码')} name='handler' className='handler-form-item' {...required}>
                 <EditorField disabled={mode === 'view'}/>
             </Form.Item>
             <Form.Item className='submit-btn-form-item'>
