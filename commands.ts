@@ -3,8 +3,7 @@
 import type { Context } from 'koa'
 
 import {
-    ramdisk, noprint, fdclear, Remote, set_inspect_options, fdelete, fread, crc32, fexists, fwrite,
-    fappend
+    ramdisk, noprint, fdclear, Remote, set_inspect_options, fdelete, fread, crc32, fexists, fwrite, fappend
 } from 'xshell'
 import { Git, type GitVersionInfo } from 'xshell/git.js'
 import { Server } from 'xshell/server.js'
