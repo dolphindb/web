@@ -5,6 +5,7 @@ import useSWR from 'swr'
 
 import { t } from '@i18n'
 import { model } from '@model'
+import { shell } from '@/shell/model.ts'
 
 export function ExistDBSelect (props: SelectProps) {
     
@@ -13,10 +14,15 @@ export function ExistDBSelect (props: SelectProps) {
     
     const { isLoading } = useSWR(
         ['getClusterDFSDatabases', id],
-        async () => model.ddb.eval('getClusterDFSDatabases()'),
-        { onSuccess: (data: any) => { 
-            set_options(data?.value?.map(item => ({ label: item.slice(6), value: item.slice(6) }))) 
-        } }
+        async () => model.ddb.invoke<string[]>(
+            'getClusterDFSDatabases',
+            await shell.can_hide_sysdb() ? [false] : undefined),
+        {
+            onSuccess (data: string[]) { 
+                set_options(data?.map(item => 
+                    ({ label: item.slice(6), value: item.slice(6) }))) 
+            }
+        }
     )
     
     return <Select 
