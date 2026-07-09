@@ -2077,6 +2077,8 @@ def chunksCid(params) {
     addColumn(chunkMeta, "cid", LONG)
     update chunkMeta set cid = versionList.split(",").at(0).split(":").at(1).long() where !(dfsPath.endsWith("domain") or dfsPath.endsWith(".tbl"))
     update chunkMeta set cid = versionList.split(":").at(0).long() where dfsPath.endsWith("domain") or dfsPath.endsWith(".tbl")
+    delete from masterMeta where cid == -1
+    delete from chunkMeta where cid == -1
     allNotEqual=select chunkId, masterMeta.file, chunkMeta.dfsPath, masterMeta.versionChain, masterMeta.cid as masterCid, chunkMeta.versionList, chunkMeta.cid as chunkCid from fj(masterMeta, chunkMeta, `chunkId) where masterMeta.cid != chunkMeta.cid 
     if (allNotEqual.size() > 0) {
         return (false, "控制节点存在 " + allNotEqual.size() + " 条元数据与数据节点元数据 cid 不一致，部分统计结果如下：", "请参考官方教程《分区状态不一致》排查问题，删除错误副本并拷贝正确副本恢复。", select top 10 * from allNotEqual)   

@@ -998,7 +998,13 @@ def enablePlan(id) {
     }
 
     writeLog("autoInspection: start to enable plan, plan id: " + id_ + ", node: " + enabledNode_)
-    jobId = rpc(enabledNode_, scheduleJob, "schedulePlan_" + plan.id, plan.desc, runPlan{plan.id}, minute(plan.scheduleTime), date(plan.startDate), date(plan.endDate), string(plan.frequency), int(plan.days))
+    frequency_ = string(plan.frequency)
+    if (frequency_ == "D") {
+        jobId = rpc(enabledNode_, scheduleJob, "schedulePlan_" + plan.id, plan.desc, runPlan{plan.id}, minute(plan.scheduleTime), date(plan.startDate), date(plan.endDate), frequency_)
+    } else {
+        days_ = plan.days.split(",").strip().int()
+        jobId = rpc(enabledNode_, scheduleJob, "schedulePlan_" + plan.id, plan.desc, runPlan{plan.id}, minute(plan.scheduleTime), date(plan.startDate), date(plan.endDate), frequency_, days_)
+    }
     update loadTable("dfs://autoInspection", "plans") set enabled = true where id == id_
     update loadTable("dfs://autoInspection", "plans") set enabledNode = enabledNode_ where id == id_
     writeLog("autoInspection: eanble plan successfully, plan id: " + id_ + ", node: " + enabledNode_)
