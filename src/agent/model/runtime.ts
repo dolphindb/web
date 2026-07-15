@@ -865,9 +865,36 @@ export class ChatRuntimeModel {
         if (repeated_result)
             return repeated_result
         
+        const handler = get_script_handler(parsed_call.type)
+        if (model.verbose)
+            console.log('[debug] handler found:', !!handler, 'for type:', parsed_call.type)
+        const script = handler && SCRIPT_APPROVAL_TOOLS.has(parsed_call.type)
+            ? normalize_script_args(parsed_call.payload)[0] || ''
+            : ''
+        const script_reviewed = Boolean(script) && this.chat.runtime.get_session_script_execute_approval_mode() !== 'auto'
+        if (script) {
+            const decision = await this.chat.runtime.request_script_execution_approval(parsed_call.type, script, tool_call_msg_id)
+            if (this.chat.runtime.is_request_interrupted(request_seq))
+                return null
+            if (decision === 'deny') {
+                this.chat._interrupted_request_seq = request_seq
+                this.chat.set({
+                    messages: [...this.chat.messages, {
+                        msgId: `tool_denied_${Date.now()}`,
+                        role: 'tool',
+                        messageType: 'tool_error',
+                        name: parsed_call.type,
+                        content: t('用户未允许执行 DolphinDB 脚本，流程已中断。'),
+                    }],
+                    agent_status: { status: 'idle' },
+                })
+                return { tool_result_content: '', next_loop: false, stopped: true }
+            }
+            this.chat.set({ agent_status: { status: 'tool_running' } })
+        }
         // 构建 ToolContext
         const context: ToolContext = {
-            eval: (script, options) => model.ddb.eval(script, options),
+            eval: (script, options) => model.ddb.eval(script, { ...options, ai: !script_reviewed }),
             api_fetch: (path, options) => this.chat.agent.api_fetch(path, options),
             agent_id: this.chat.agent_id,
             session_id: this.chat.current_session_id,
@@ -876,41 +903,13 @@ export class ChatRuntimeModel {
         }
         
         // 执行工具
-        const handler = get_script_handler(parsed_call.type)
-        if (model.verbose)
-            console.log('[debug] handler found:', !!handler, 'for type:', parsed_call.type)
         let script_result: ScriptResult
-        
         if (handler) {
             const payload_str = typeof parsed_call.payload === 'string'
                 ? parsed_call.payload
                 : JSON.stringify(parsed_call.payload)
             if (model.verbose)
                 console.log('[debug] calling handler with payload_str:', payload_str.slice(0, 200))
-            
-            const script = SCRIPT_APPROVAL_TOOLS.has(parsed_call.type)
-                ? normalize_script_args(parsed_call.payload)[0] || ''
-                : ''
-            if (script) {
-                const decision = await this.chat.runtime.request_script_execution_approval(parsed_call.type, script, tool_call_msg_id)
-                if (this.chat.runtime.is_request_interrupted(request_seq))
-                    return null
-                if (decision === 'deny') {
-                    this.chat._interrupted_request_seq = request_seq
-                    this.chat.set({
-                        messages: [...this.chat.messages, {
-                            msgId: `tool_denied_${Date.now()}`,
-                            role: 'tool',
-                            messageType: 'tool_error',
-                            name: parsed_call.type,
-                            content: t('用户未允许执行 DolphinDB 脚本，流程已中断。'),
-                        }],
-                        agent_status: { status: 'idle' },
-                    })
-                    return { tool_result_content: '', next_loop: false, stopped: true }
-                }
-                this.chat.set({ agent_status: { status: 'tool_running' } })
-            }
             
             try {
                 script_result = await handler(parsed_call.type, payload_str, context)
