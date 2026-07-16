@@ -50,8 +50,8 @@ rsync -av --delete ./web/ root@192.168.1.204:/path/to/dolphindb-dir/web/
 ### 开发
 
 打开下面的链接，在机器上安装最新版的 node.js 及浏览器。  
-- windows: https://nodejs.org/en/download/prebuilt-installer/current
-- linux: https://github.com/nodesource/distributions?tab=readme-ov-file#debian-and-ubuntu-based-distributions  
+- windows: https://nodejs.org/zh-cn/download/current 选择 “Windows 安装程序 .msi”
+- linux: https://github.com/nodesource/distributions/blob/master/DEV_README.md
 
 ```shell
 # 安装 pnpm 包管理器
