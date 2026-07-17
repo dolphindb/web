@@ -339,6 +339,9 @@ class ChatWorkspaceStore {
     
     async read_internal_file (session_id: string, api_fetch: ApiFetch, name: string) {
         try {
+            const result = await api_fetch(`/workspace/${encodeURIComponent(session_id)}/files`)
+            if (!(result.items || [ ]).some((item: any) => (item.name || item.path) === name))
+                return ''
             const file = await this.get_file(session_id, api_fetch, name)
             return file?.content || ''
         } catch (error) {
