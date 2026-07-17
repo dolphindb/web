@@ -517,6 +517,7 @@ function AiToolbar ({
     collapsed: boolean
     on_toggle_collapsed: () => void
 }) {
+    const { node_type } = model.use(['node_type'])
     const chat = get_chat_model(session_id)
     const {
         sessions, agents, agent_id, selected_llm_config_id, script_execute_approval_mode,
@@ -657,7 +658,7 @@ function AiToolbar ({
             </span>
         </Tooltip>
         
-        <Tooltip title={t('AI 设置')}>
+        {node_type !== NodeType.controller && node_type !== NodeType.data && <Tooltip title={t('AI 设置')}>
             <div
                 className='collapse-btn'
                 onClick={() => { chat_model.set({ settings_visible: true }) }}
@@ -665,7 +666,7 @@ function AiToolbar ({
                 <SettingOutlined />
                 <span style={{ marginLeft: 4 }}>{t('AI 设置')}</span>
             </div>
-        </Tooltip>
+        </Tooltip>}
         
         <div className='toolbar-divider' />
         
