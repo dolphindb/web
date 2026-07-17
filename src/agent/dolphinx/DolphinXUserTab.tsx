@@ -1718,7 +1718,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
 }
 
 
-export function DolphinXUserTab ({ admin = false }: { admin?: boolean }) {
+export function DolphinXUserTab () {
     return <Tabs
         className='ai-settings-tabs'
         destroyOnHidden
@@ -1733,11 +1733,11 @@ export function DolphinXUserTab ({ admin = false }: { admin?: boolean }) {
                 label: t('用量'),
                 children: <UsageSection />,
             },
-            ...admin ? [{
+            {
                 key: 'context_preview',
                 label: t('上下文预览'),
                 children: <ContextPreviewSection />,
-            }] : [ ],
+            },
         ]}
     />
 }
