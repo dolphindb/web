@@ -1,4 +1,4 @@
-import { t } from '@i18n'
+import { language, t } from '@i18n'
 import { model, storage_keys } from '@model'
 import { chat_model, type ChatModel } from '@/agent/model.ts'
 import { get_script_handler } from '@/agent/scripts/index.ts'
@@ -555,8 +555,8 @@ export class ChatRuntimeModel {
             // 这个实际上是不成立的，太坑了
             // check(chat_model.agents === this.chat.agnets)
             
-            const doc_search_enabled = chat_model.agents.find(a => a.agentId === this.chat.agent_id)
-                ?.config?.docSearchEnabled !== false
+            const agent = chat_model.agents.find(a => a.agentId === this.chat.agent_id)
+            const doc_search_enabled = agent?.config?.docSearchEnabled !== false
             
             const doc_search_enabled_changed = doc_search_enabled === this.last_doc_search_enabled
             
@@ -565,6 +565,13 @@ export class ChatRuntimeModel {
             const is_tool_result_turn = Boolean(options.tool_results?.length)
             const current_todo_prompt = is_tool_result_turn ? '' : build_current_todo_prompt(this.chat.current_workspace, this.chat.steps)
             const context_blocks = [
+                ...language === 'en' && agent?.config?.builtin && agent.systemPrompt
+                    ? [{
+                        name: 'web_localized_agent_prompt',
+                        content: agent.systemPrompt,
+                        position: 'after_system',
+                    }]
+                    : [ ],
                 {
                     name: 'web_tool_call_rules',
                     content: tool_call_adapter.build_system_prompt(

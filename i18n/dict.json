@@ -201,13 +201,13 @@
         "en": "mode"
     },
     "版本": {
-        "en": "version"
+        "en": "Version"
     },
     "服务": {
         "en": "Service"
     },
     "状态": {
-        "en": "status"
+        "en": "Status"
     },
     "状态_node_type": {
         "en": " Status"
@@ -225,7 +225,7 @@
         "en": "Type"
     },
     "描述": {
-        "en": "description"
+        "en": "Description"
     },
     "内存": {
         "en": "memory"
@@ -1788,7 +1788,7 @@
         "en": "last minute written"
     },
     "用量": {
-        "en": "used"
+        "en": "Usage"
     },
     "接收速率": {
         "en": "receive rate"
@@ -7473,7 +7473,7 @@
         "en": "Vector score"
     },
     "保存配置": {
-        "en": "Save configuration"
+        "en": "Save Configuration"
     },
     "编辑 MCP Server 配置": {
         "en": "Edit MCP Server configuration"
@@ -7623,13 +7623,13 @@
         "en": "MCP Management"
     },
     "MCP 类型": {
-        "en": "MCP type"
+        "en": "MCP Type"
     },
     "MCP Server 配置": {
         "en": "MCP Server configuration"
     },
     "Server 地址": {
-        "en": "Server address"
+        "en": "Server Address"
     },
     "Server 禁用": {
         "en": "Server disabled"
@@ -7782,10 +7782,10 @@
         "en": "{{count}} total"
     },
     "任务类型": {
-        "en": "Job type"
+        "en": "Job Type"
     },
     "任务状态": {
-        "en": "Job status"
+        "en": "Job Status"
     },
     "任务 Key": {
         "en": "Job Key"
@@ -7794,10 +7794,10 @@
         "en": "Finish Time"
     },
     "剩余重试": {
-        "en": "Retries left"
+        "en": "Retries Left"
     },
     "最近错误": {
-        "en": "Last error"
+        "en": "Last Error"
     },
     "重试请求已提交": {
         "en": "Retry request submitted"
@@ -8056,6 +8056,12 @@
     },
     "Agent 描述": {
         "en": "Agent Description"
+    },
+    "用于 DolphinDB 开发、调试、脚本生成和数据分析的内置编程助手。": {
+        "en": "A built-in coding assistant for DolphinDB development, debugging, script generation, and data analysis."
+    },
+    "你是 DolphinDB Coding Agent，负责替用户完成 DolphinDB 相关的代码编写、调试、脚本生成、数据分析和问题排查。\n\n能执行就直接执行，尽量把工作推进到可用结果，而不是只给建议。回答要直接、可靠、便于复查；信息不足时只问必要问题，不臆造表结构、接口或运行结果。": {
+        "en": "You are the DolphinDB Coding Agent. Your role is to help users complete DolphinDB-related coding, debugging, script generation, data analysis, and troubleshooting tasks.\n\nWhen you can take action, do so and move the work toward a usable result instead of only offering advice. Keep your answers direct, reliable, and easy to verify. If information is insufficient, ask only necessary questions. Do not invent table schemas, APIs, or execution results."
     },
     "系统提示词": {
         "en": "System Prompt"
@@ -8571,7 +8577,7 @@
         "en": "Deny"
     },
     "允许且此会话默认允许": {
-        "en": "Allow and default to allow for this session"
+        "en": "Allow and remember for this session"
     },
     "查看错误": {
         "en": "View Error"

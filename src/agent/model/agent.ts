@@ -34,6 +34,13 @@ function parse_agent_config (value: any) {
 }
 
 
+function localize_builtin_text (value: string | undefined, config: Record<string, any>) {
+    if (!value || !config.builtin)
+        return value
+    return t(value.replace(/\r\n/g, '\n').trim())
+}
+
+
 export class ChatAgentModel {
     constructor (private chat: ChatModel) { }
     async load_agent_page_items (path: string, limit = 100): Promise<any[]> {
@@ -148,14 +155,15 @@ export class ChatAgentModel {
         }
     }
     map_agent (a: any): IAgentInfo {
+        const config = parse_agent_config(a.config)
         return {
             agentId: a.agentId,
             agentName: a.agentName || a.agentId,
             ownerUserId: a.ownerUserId,
-            description: a.description,
-            systemPrompt: a.systemPrompt,
+            description: localize_builtin_text(a.description, config),
+            systemPrompt: localize_builtin_text(a.systemPrompt, config),
             llmConfigId: a.llmConfigId,
-            config: parse_agent_config(a.config),
+            config,
             status: a.status,
             statusName: a.statusName || '',
             createTime: a.createTime,

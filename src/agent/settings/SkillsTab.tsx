@@ -19,6 +19,14 @@ function page_total (offset: number, page_size: number, count: number, has_more:
 }
 
 
+function skill_description (skill: ISkillInfo) {
+    const description = skill.description ? t(skill.description) : t('无描述')
+    return language === 'en' && /[\u3400-\u9fff]/.test(description)
+        ? `DolphinDB ${skill.name.replace(/^dolphindb-/, '').replaceAll('-', ' ')} skill.`
+        : description
+}
+
+
 export function SkillsTab () {
     const [all_skills, set_all_skills] = useState<ISkillInfo[]>([ ])
     const [loading, set_loading] = useState(false)
@@ -352,9 +360,9 @@ export function SkillsTab () {
                             <Paragraph
                                 type='secondary'
                                 style={{ margin: 0, wordBreak: 'break-word' }}
-                                ellipsis={{ rows: 3, tooltip: s.description || t('无描述') }}
+                                ellipsis={{ rows: 3, tooltip: skill_description(s) }}
                             >
-                                {s.description || t('无描述')}
+                                {skill_description(s)}
                             </Paragraph>
                         </div>,
                     },
