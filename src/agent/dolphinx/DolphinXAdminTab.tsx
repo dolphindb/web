@@ -141,7 +141,7 @@ function AdminAccessSection ({ user_id }: { user_id?: string }) {
                     render: (value: string) => <Text title={value} style={{ display: 'block', maxWidth: '100%' }} ellipsis>{value}</Text>,
                 },
                 {
-                    title: t('权限'),
+                    title: t('状态'),
                     width: 120,
                     render: (_: unknown, agent: { value: string }) => {
                         const auth = agent_auth_map[agent.value]
