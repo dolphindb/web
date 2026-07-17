@@ -14,7 +14,7 @@ import { chat_model } from '@/agent/model.ts'
 
 
 export function Settings () {
-    let { shf, v3, node_type } = model.use(['shf', 'v3', 'node_type'])
+    let { shf, v3, node_type, logined } = model.use(['shf', 'v3', 'node_type', 'logined'])
     
     let rform = useRef<FormInstance<Fields>>(undefined)
     
@@ -73,7 +73,14 @@ export function Settings () {
                         <Button
                             block
                             icon={<RobotOutlined />}
-                            onClick={() => { chat_model.set({ settings_visible: true }) }}
+                            onClick={async () => {
+                                if (!logined) {
+                                    model.message?.warning(t('请先登录以使用 AI 功能'))
+                                    await model.goto_login()
+                                    return
+                                }
+                                chat_model.set({ settings_visible: true })
+                            }}
                         >
                             {t('AI 设置')}
                         </Button>

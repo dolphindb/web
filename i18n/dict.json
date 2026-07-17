@@ -11,6 +11,9 @@
     "请先登录": {
         "en": "Please log in first"
     },
+    "请先登录以使用 AI 功能": {
+        "en": "Please log in to use AI features"
+    },
     "集群总览": {
         "en": "Cluster"
     },
