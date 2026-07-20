@@ -68,7 +68,7 @@ export function License () {
             const width = 700
             
             if (license.license_type === LicenseType.LicenseServerVerify) {
-                let connected: boolean
+                let connected: boolean | null | undefined
                 let seconds_long: bigint
                 
                 const fn = 'getLicenseServerStatus'
@@ -92,7 +92,7 @@ export function License () {
                 
                 const seconds_until_shutdown = Number(seconds_long)
                 
-                if (!connected) {
+                if (connected === false) {
                     modal.error({
                         title: t('License Server 连接断开'),
                         width,
