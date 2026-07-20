@@ -1,7 +1,7 @@
 # DolphinDB Web
 
 <p align='center'>
-     <img src='./src/icons/ddb.svg' alt='DolphinDB Web' width='256'>
+     <img src='./src/icons/logos/dolphindb.shf.svg' alt='DolphinDB Web' width='256'>
 </p>
 
 <p align='center'>
@@ -49,8 +49,8 @@ If you need to deploy to a subpath through nginx (not recommended, one more forw
 ### Development
 
 Open the link below and install the latest version of node.js and browser on your machine.
-- windows: https://nodejs.org/en/download/prebuilt-installer/current
-- linux: https://github.com/nodesource/distributions?tab=readme-ov-file#debian-and-ubuntu-based-distributions
+- windows: https://nodejs.org/en/download/current 选择 “Windows Installer .msi”
+- linux: https://github.com/nodesource/distributions/blob/master/DEV_README.md
 
 ```shell
 # Install pnpm package manager
