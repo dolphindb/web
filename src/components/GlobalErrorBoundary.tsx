@@ -62,7 +62,12 @@ export class GlobalErrorBoundary extends Component<PropsWithChildren<{ }>, Globa
                 if (error.msg?.includes('operation is manually canceled') && error.type === 'cancelation') 
                     return
                 
-                error = new Error(JSON.stringify(error))
+                const jsonstr = JSON.stringify(error)
+                
+                if (jsonstr === '{"isTrusted":true}')
+                    return
+                
+                error = new Error(jsonstr)
             }
             
             const in_dashboard = new URLSearchParams(location.search).get('dashboard')
