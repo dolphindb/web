@@ -195,7 +195,7 @@ function load_monaco () {
             
             require(
                 ['vs/editor/editor.main'],
-                (mod: any) => { resolve(monaco = mod.m) },
+                (mod: any) => { resolve(monaco = mod) },
                 reject)
         } catch (error) {
             reject(error)

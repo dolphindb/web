@@ -1,3 +1,6 @@
+allowBuilds:
+    gridstack: false
+
 overrides:
     '@ant-design/icons': '6'
 
