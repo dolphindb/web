@@ -41,19 +41,33 @@ function GlobalAgentAdminSection ({ user_id }: { user_id?: string }) {
     
     useEffect(() => {
         load()
-    }, [ ])
+    }, [selected_user_id])
     
     const authorized = items.some(item => item.userId === selected_user_id)
     
     async function grant () {
-        set_items(await chat_model.agent.grant_global_agent_admin(selected_user_id))
-        message.success(t('已授予 Agent 管理权限'))
+        set_loading(true)
+        try {
+            set_items(await chat_model.agent.grant_global_agent_admin(selected_user_id))
+            message.success(t('已授予 Agent 管理权限'))
+        } catch (error) {
+            show_error(error, t('授予 Agent 管理权限失败'))
+        } finally {
+            set_loading(false)
+        }
     }
     
     
     async function revoke () {
-        set_items(await chat_model.agent.revoke_global_agent_admin(selected_user_id))
-        message.success(t('已撤销 Agent 管理权限'))
+        set_loading(true)
+        try {
+            set_items(await chat_model.agent.revoke_global_agent_admin(selected_user_id))
+            message.success(t('已撤销 Agent 管理权限'))
+        } catch (error) {
+            show_error(error, t('撤销 Agent 管理权限失败'))
+        } finally {
+            set_loading(false)
+        }
     }
     
     return <Section title={t('Agent 管理权限')}>

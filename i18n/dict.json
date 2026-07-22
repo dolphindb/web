@@ -7601,6 +7601,12 @@
     "已撤销 Agent 管理权限": {
         "en": "Agent management permission revoked"
     },
+    "撤销 Agent 管理权限失败": {
+        "en": "Failed to revoke Agent management permission"
+    },
+    "授予 Agent 管理权限失败": {
+        "en": "Failed to grant Agent management permission"
+    },
     "已授权管理 Agent": {
         "en": "Authorized to manage Agent"
     },

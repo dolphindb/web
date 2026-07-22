@@ -178,8 +178,9 @@ export class ChatAgentModel {
                 result = { items: await this.chat.agent.load_agent_page_items('/agent/list') }
             } catch (error) {
                 console.warn('Failed to list owned agents, fallback to accessible agents:', error)
-                can_manage_agents = false
                 result = { items: await this.chat.agent.load_agent_page_items('/agent/accessible') }
+                // /agent/list 失败不代表没有管理权限（网络抖动、5xx 同样会走到这里），以 /agent/accessible 返回的 myPermission 为准
+                can_manage_agents = (result.items || [ ]).some((a: any) => a.myPermission === 'AGENT_ADMIN')
             }
             const items: IAgentInfo[] = (result.items || [ ]).map((a: any) => this.chat.agent.map_agent(a))
             this.chat.set({ last_agent_load_error: '', can_manage_agents })
@@ -308,39 +309,40 @@ export class ChatAgentModel {
             permission: item.permission,
         }
     }
+    // 授权列表接口默认 limit = 100，必须翻页拉全，否则判断用户是否已授权会漏
     async load_agent_auth (agent_id: string): Promise<IAccessInfo[]> {
-        const result = await this.chat.agent.api_fetch(`/agent/${agent_id}/auth/list`)
-        return (result.items || [ ]).map((item: any) => this.chat.agent._map_access_info(item))
+        return (await this.chat.agent.load_agent_page_items(`/agent/${agent_id}/auth/list`))
+            .map((item: any) => this.chat.agent._map_access_info(item))
     }
     async grant_agent_auth (agent_id: string, user_id: string): Promise<IAccessInfo[]> {
-        const result = await this.chat.agent.api_fetch(`/agent/${agent_id}/auth`, {
+        await this.chat.agent.api_fetch(`/agent/${agent_id}/auth`, {
             method: 'POST',
             body: JSON.stringify({ userId: user_id }),
         })
-        return (result.items || [ ]).map((item: any) => this.chat.agent._map_access_info(item))
+        return this.chat.agent.load_agent_auth(agent_id)
     }
     async revoke_agent_auth (agent_id: string, user_id: string): Promise<IAccessInfo[]> {
-        const result = await this.chat.agent.api_fetch(`/agent/${agent_id}/auth?userId=${encodeURIComponent(user_id)}`, {
+        await this.chat.agent.api_fetch(`/agent/${agent_id}/auth?userId=${encodeURIComponent(user_id)}`, {
             method: 'DELETE',
         })
-        return (result.items || [ ]).map((item: any) => this.chat.agent._map_access_info(item))
+        return this.chat.agent.load_agent_auth(agent_id)
     }
     async load_global_agent_admins (): Promise<IAccessInfo[]> {
-        const result = await this.chat.agent.api_fetch('/admin/access')
-        return result.items || [ ]
+        return (await this.chat.agent.load_agent_page_items('/admin/access'))
+            .map((item: any) => this.chat.agent._map_access_info(item))
     }
     async grant_global_agent_admin (user_id: string): Promise<IAccessInfo[]> {
-        const result = await this.chat.agent.api_fetch('/admin/access', {
+        await this.chat.agent.api_fetch('/admin/access', {
             method: 'POST',
             body: JSON.stringify({ userId: user_id }),
         })
-        return result.items || [ ]
+        return this.chat.agent.load_global_agent_admins()
     }
     async revoke_global_agent_admin (user_id: string): Promise<IAccessInfo[]> {
-        const result = await this.chat.agent.api_fetch(`/admin/access?userId=${encodeURIComponent(user_id)}`, {
+        await this.chat.agent.api_fetch(`/admin/access?userId=${encodeURIComponent(user_id)}`, {
             method: 'DELETE',
         })
-        return result.items || [ ]
+        return this.chat.agent.load_global_agent_admins()
     }
     select_agent (agent_id: string) {
         this.chat.agent.set_active_agent(agent_id)
