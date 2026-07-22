@@ -713,18 +713,20 @@ function LanguageSelect () {
     const { language } = shell.use(['language'])
     
     return <span className='setting'>
-        <span className='title'>{t('语言:')}</span>
-        <Select
-            className='select-language'
-            value={language}
-            size='small'
-            options={[
-                { value: 'dolphindb', label: 'DolphinDB' },
-                { value: 'q', label: 'Q' },
-                // 现在是废弃状态不能用
-                // { value: 'python', label: 'Python' }
-            ]}
-            onChange={value => { shell.set_language(value) }}
-        />
+        <Tooltip title={t('选择脚本语言，如果选择 Q，将会启用 Q Parser Session（需预先加载 Q Parser）')}>
+            <span className='title'>{t('语言:')}</span>
+            <Select
+                className='select-language'
+                value={language}
+                size='small'
+                options={[
+                    { value: 'dolphindb', label: 'DolphinDB' },
+                    { value: 'q', label: 'Q', title: t('启用 Q Parser Session（需预先加载 Q Parser）') },
+                    // 现在是废弃状态不能用
+                    // { value: 'python', label: 'Python' }
+                ]}
+                onChange={value => { shell.set_language(value) }}
+            />
+        </Tooltip>
     </span>
 }

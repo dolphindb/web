@@ -8860,5 +8860,14 @@
     },
     "无效状态数": {
         "en": "Number of invalid statuses"
+    },
+    "启用 Q Parser Session（需预先加载 Q Parser）": {
+        "en": "Enable Q Parser Session (requires Q Parser loaded)"
+    },
+    "持久化 worker": {
+        "en": "Persistent worker"
+    },
+    "选择脚本语言，如果选择 Q，将会启用 Q Parser Session（需预先加载 Q Parser）": {
+        "en": "Select the script language; if Q is chosen, the Q Parser Session will be enabled (Q Parser must be pre-loaded)."
     }
 }
