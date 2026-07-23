@@ -374,11 +374,18 @@ async function build_web (production: boolean, full: boolean, version_name?: str
                     ]
                 })
             
-            // fix react-quill.js 缺少 globalThis 导出的问题，也不想自己构建一份
-            await fappend(
-                fpd_out + 'vendors/react-quill-new/dist/react-quill.js',
-                'globalThis.ReactQuill = ReactQuill\n',
-                noprint)
+            await Promise.all([
+                // fix react-quill.js 缺少 globalThis 导出的问题，也不想自己构建一份
+                fappend(
+                    fpd_out + 'vendors/react-quill-new/dist/react-quill.js',
+                    'globalThis.ReactQuill = ReactQuill\n',
+                    noprint),
+                
+                // fix https://github.com/microsoft/monaco-editor/issues/5402
+                fappend(
+                    fpd_out + `vendors/monaco-editor/${production ? 'min' : 'dev'}/vs/nls/lang/zh-cn.js`,
+                    '\nwindow.define?.("vs/nls/lang/zh-cn", [], function () { })\n')
+            ])
         })(),
         
         full && build_htmls(fpd_out, production, htmls, { template: true }),

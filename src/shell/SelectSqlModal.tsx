@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Modal, Select } from 'antd'
+import { Modal, Select, Tooltip } from 'antd'
 import { default as Icon, WarningFilled  } from '@ant-design/icons'
 import { SqlStandard } from 'dolphindb/browser.js'
 import { use_modal } from 'react-object-model/hooks.js'
@@ -39,24 +39,26 @@ export function SelectSqlModal () {
             <p>{t('切换 SQL Standard 后，当前页面将会刷新，且内存变量会清空')}</p>
         </Modal>
         
-        <span className='setting sql' title={t('设置当前代码执行的 SQL 标准')}>
-            <span className='title' title={t('SQL 标准')}>SQL:</span>
-            <Select
-                className='select-sql'
-                value={SqlStandard[model.sql]}
-                size='small'
-                suffixIcon={<Icon className='arrow-down' component={SvgArrowDown} />}
-                onSelect={ value => {
-                    ref_selected_sql.current = value
-                    open()
-                }}
-                popupMatchSelectWidth={false}
-                options={[
-                    { value: 'DolphinDB' },
-                    { value: 'Oracle' },
-                    { value: 'MySQL' },
-                ]}
-            />
+        <span className='setting sql'>
+            <Tooltip title={t('设置当前代码执行的 SQL 标准')}>
+                <span className='title' title={t('SQL 标准')}>SQL:</span>
+                <Select
+                    className='select-sql'
+                    value={SqlStandard[model.sql]}
+                    size='small'
+                    suffixIcon={<Icon className='arrow-down' component={SvgArrowDown} />}
+                    onSelect={ value => {
+                        ref_selected_sql.current = value
+                        open()
+                    }}
+                    popupMatchSelectWidth={false}
+                    options={[
+                        { value: 'DolphinDB' },
+                        { value: 'Oracle' },
+                        { value: 'MySQL' }
+                    ]}
+                />
+            </Tooltip>
         </span>
     </>
 }
