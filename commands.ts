@@ -90,7 +90,11 @@ async function dev (preview = false) {
             
             const { path } = request
             
-            if (path === '/favicon.ico' || path === '/vendors/monaco-editor/min-maps/vs/loader.js.map') {
+            if (
+                path === '/favicon.ico' || 
+                path === '/vendors/monaco-editor/min-maps/vs/loader.js.map' ||
+                path === '/quill.snow.css.map'
+            ) {
                 response.status = 404
                 return true
             }
