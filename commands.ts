@@ -331,19 +331,7 @@ async function build_web (production: boolean, full: boolean, version_name?: str
                         'react-router': 'ReactRouter',
                         '@xyflow/react': 'xyflow',
                         '@xterm/addon-webgl': 'XtermWebgl'
-                    },
-                    plugins: index ? [{
-                        name: 'fix-error',
-                        
-                        generateBundle (options, bundle) {
-                            let index_js = bundle['index.js'] as { code: string }
-                            let index_css = bundle['index.css'] as { source: string }
-                            index_js.code = index_js.code.replace('	IconProvider = Context.Provider;\n', '')
-                            index_css.source = index_css.source
-                                .replace('/*# sourceMappingURL=quill.snow.css.map*/\n', '')
-                                .replace('/*# sourceMappingURL=quill.core.css.map*/\n', '')
-                        }
-                    }] : undefined
+                    }
                 })
         }),
         
