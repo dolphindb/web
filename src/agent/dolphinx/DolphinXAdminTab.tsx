@@ -451,7 +451,8 @@ function UserPermissionTab () {
     const [user_admin_map, set_user_admin_map] = useState<Record<string, boolean>>({ })
     const [selected_user_id, set_selected_user_id] = useState('')
     const [user_page, set_user_page] = useState(1)
-    const user_page_size = 10
+    const default_page_size = 10
+    const [user_page_size, set_user_page_size] = useState(default_page_size)
     const paged_user_options = user_options.slice((user_page - 1) * user_page_size, user_page * user_page_size)
     
     useEffect(() => {
@@ -477,7 +478,7 @@ function UserPermissionTab () {
         const max_page = Math.max(1, Math.ceil(user_options.length / user_page_size))
         if (user_page > max_page)
             set_user_page(max_page)
-    }, [user_options.length, user_page])
+    }, [user_options.length, user_page, user_page_size])
     
     return <div style={{ display: 'flex', gap: 12, height: '100%', minHeight: 0 }}>
         <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
@@ -505,13 +506,16 @@ function UserPermissionTab () {
                         </div>
                     )}
             </div>
-            {user_options.length > user_page_size && <Pagination
+            {user_options.length > default_page_size && <Pagination
                 size='small'
                 simple
                 current={user_page}
                 pageSize={user_page_size}
                 total={user_options.length}
-                onChange={set_user_page}
+                onChange={(page, page_size) => {
+                    set_user_page(page)
+                    set_user_page_size(page_size)
+                }}
                 style={{ marginTop: 8 }}
             />}
         </div>

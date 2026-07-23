@@ -427,7 +427,8 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
     const [stats_loading, set_stats_loading] = useState(false)
     const memory_modal = use_modal()
     const forget_modal = use_modal()
-    const agent_page_size = 10
+    const default_page_size = 10
+    const [agent_page_size, set_agent_page_size] = useState(default_page_size)
     const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
     const has_memory_query = Boolean(query.trim())
     const saved_public_content = public_memory?.content || ''
@@ -438,7 +439,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
         const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
         if (agent_page > max_page)
             set_agent_page(max_page)
-    }, [options.length, agent_page])
+    }, [options.length, agent_page, agent_page_size])
     
     useEffect(() => {
         if (selected_agent_id) {
@@ -963,13 +964,16 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
                             </div>
                         )}
                 </div>
-                {options.length > agent_page_size && <Pagination
+                {options.length > default_page_size && <Pagination
                     size='small'
                     simple
                     current={agent_page}
                     pageSize={agent_page_size}
                     total={options.length}
-                    onChange={set_agent_page}
+                    onChange={(page, page_size) => {
+                        set_agent_page(page)
+                        set_agent_page_size(page_size)
+                    }}
                     style={{ marginTop: 8 }}
                 />}
             </div>
@@ -1216,7 +1220,8 @@ function MemoryConfigManagementSection () {
     const { options } = use_agent_options()
     const [selected_agent_id, set_selected_agent_id] = useState('')
     const [agent_page, set_agent_page] = useState(1)
-    const agent_page_size = 10
+    const default_page_size = 10
+    const [agent_page_size, set_agent_page_size] = useState(default_page_size)
     const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
     use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id)
     
@@ -1224,7 +1229,7 @@ function MemoryConfigManagementSection () {
         const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
         if (agent_page > max_page)
             set_agent_page(max_page)
-    }, [options.length, agent_page])
+    }, [options.length, agent_page, agent_page_size])
     
     return <div style={{ display: 'flex', gap: 12, height: '100%', minHeight: 0 }}>
         <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
@@ -1252,13 +1257,16 @@ function MemoryConfigManagementSection () {
                         </div>
                     )}
             </div>
-            {options.length > agent_page_size && <Pagination
+            {options.length > default_page_size && <Pagination
                 size='small'
                 simple
                 current={agent_page}
                 pageSize={agent_page_size}
                 total={options.length}
-                onChange={set_agent_page}
+                onChange={(page, page_size) => {
+                    set_agent_page(page)
+                    set_agent_page_size(page_size)
+                }}
                 style={{ marginTop: 8 }}
             />}
         </div>

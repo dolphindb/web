@@ -43,15 +43,17 @@ function localize_builtin_text (value: string | undefined, config: Record<string
 
 export class ChatAgentModel {
     constructor (private chat: ChatModel) { }
-    async load_agent_page_items (path: string, limit = 100): Promise<any[]> {
+    // 响应里的 size 是本页条数而非总数，只能用 total 判断是否取完；max_pages 防止后端忽略 offset 时死循环
+    async load_agent_page_items (path: string, limit = 100, max_pages = 20): Promise<any[]> {
         const items: any[] = [ ]
-        for (let offset = 0;  ;  offset += limit) {
-            const search = new URLSearchParams({ offset: String(offset), limit: String(limit) })
+        for (let page = 0;  page < max_pages;  page++) {
+            const search = new URLSearchParams({ offset: String(page * limit), limit: String(limit) })
             const result = await this.chat.agent.api_fetch(`${path}?${search}`)
             const page_items = result.items || [ ]
             items.push(...page_items)
-            const size = Number(result.size)
-            if (page_items.length < limit || Number.isFinite(size) && items.length >= size)
+            const total = Number(result.total)
+            // 本页不足 limit 说明已是末页；多于 limit 说明后端忽略了分页参数，已一次性返回全部
+            if (page_items.length !== limit || Number.isFinite(total) && items.length >= total)
                 break
         }
         return items
