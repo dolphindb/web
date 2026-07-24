@@ -1,5 +1,5 @@
 import { language, t } from '@i18n'
-import { model, storage_keys } from '@model'
+import { model } from '@model'
 import { chat_model, type ChatModel } from '@/agent/model.ts'
 import { get_script_handler } from '@/agent/scripts/index.ts'
 import type { ToolContext, ScriptResult } from '@/agent/scripts/types.ts'
@@ -548,7 +548,7 @@ export class ChatRuntimeModel {
         
         try {
             const url = `${this.chat.base_url}/chat/completions`
-            const token = localStorage.getItem(storage_keys.agent_bus_token) || ''
+            const token = model.agent_bus_ticket || await model.refresh_agent_bus_ticket()
             
             const tool_call_adapter = this.chat.runtime.get_tool_call_adapter()
             
@@ -602,15 +602,24 @@ export class ChatRuntimeModel {
             if (llm_config_id)
                 body.llmConfigId = llm_config_id
                 
-            const response = await fetch(url, {
+            const send = (bearer: string) => fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    ...(token ? { Authorization: `Bearer ${token}` } : { }),
+                    ...(bearer ? { Authorization: `Bearer ${bearer}` } : { }),
                 },
                 body: JSON.stringify(body),
                 signal: controller.signal,
             })
+            
+            let response = await send(token)
+            
+            // ticket 可能已过期，web 的登录还在的话重新申请一个再试一次
+            if (response.status === 401) {
+                const new_token = await model.refresh_agent_bus_ticket()
+                if (new_token)
+                    response = await send(new_token)
+            }
             
             if (response.status === 401) {
                 this.chat.agent.handle_auth_failed()

@@ -1,5 +1,5 @@
 import { t } from '@i18n'
-import { model, storage_keys } from '@model'
+import { model } from '@model'
 import type { ChatModel } from '@/agent/model.ts'
 
 import type { IAccessInfo, IAgentInfo } from './types.ts'
@@ -79,9 +79,9 @@ export class ChatAgentModel {
         if (agent_id)
             this.chat.llm.load_selectable_llms(agent_id)
     }
-    async api_fetch (path: string, options: RequestInit = { }): Promise<any> {
+    async api_fetch (path: string, options: RequestInit = { }, retried = false): Promise<any> {
         const url = /^https?:\/\//.test(path) ? path : `${this.chat.base_url}${path}`
-        const token = (localStorage.getItem(storage_keys.agent_bus_token) || '').replace(/[\r\n]/g, '')
+        const token = model.agent_bus_ticket.replace(/[\r\n]/g, '')
         const headers: Record<string, string> = {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : { }),
@@ -95,6 +95,9 @@ export class ChatAgentModel {
         const response = await fetch(url, { ...rest_options, headers })
         
         if (response.status === 401) {
+            // ticket 可能已过期，web 的登录还在的话重新申请一个再试一次
+            if (!retried && await model.refresh_agent_bus_ticket())
+                return this.chat.agent.api_fetch(path, options, true)
             this.chat.agent.handle_auth_failed()
             throw new Error('Unauthorized')
         }

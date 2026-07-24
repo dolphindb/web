@@ -92,6 +92,9 @@ export class DdbModel extends Model<DdbModel> {
     /** 可读取，但禁止直接修改，需要通过 this.update_user() 更新，会同时更新 logined, username, admin 和 configs */
     admin = false
     
+    /** agent-bus 使用的临时 ticket，只保存在内存中，通过 this.refresh_agent_bus_ticket() 更新 */
+    agent_bus_ticket = ''
+    
     node_type: NodeType
     
     node_alias: string
@@ -434,9 +437,6 @@ export class DdbModel extends Model<DdbModel> {
         
         await this.update_user()
         
-        // 同时登录 agent-bus
-        await this.login_agent_bus(username, password)
-        
         console.log(t('{{username}} 使用账号密码登陆成功', { username: this.username }))
     }
     
@@ -505,41 +505,38 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /** 使用 DolphinDB 用户名密码登录 agent-bus，获取独立 token */
-    async login_agent_bus (username: string, password: string) {
-        const protocol = location.protocol
-        const hostname = this.hostname || location.hostname
-        const port = this.port || location.port
-        const base = `${protocol}//${hostname}${port ? ':' + port : ''}`
-        this.clear_agent_bus_session()
+    /** 获取当前登录用户的 ticket，集群下需要到控制节点执行 */
+    async get_authenticated_user_ticket () {
+        return this.ddb.invoke<string>('getAuthenticatedUserTicket', undefined, {
+            urgent: true,
+            ... this.node_type === NodeType.controller || this.node_type === NodeType.single
+                ? undefined
+                : { node: this.controller_alias }
+        })
+    }
+    
+    
+    /** agent-bus 和 DolphinDB 使用同一套 ticket，这里单独申请一个临时 ticket 记录在内存中，
+        与 web 自动登录用的 ticket 分开，避免互相影响。登录态变化、新建会话时刷新 */
+    async refresh_agent_bus_ticket () {
+        if (!this.logined) {
+            this.agent_bus_ticket = ''
+            return ''
+        }
         
         try {
-            const response = await fetch(`${base}/api/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
-            })
-            
-            const result = await response.json()
-            
-            if (response.status !== 200 || result.code !== 0)
-                throw new Error(JSON.stringify(result))
-            
-            // result.result 是数组，result[0] 是 token
-            const tokens = result.result
-            if (Array.isArray(tokens) && tokens[0]) {
-                localStorage.setItem(storage_keys.agent_bus_token, tokens[0])
-                console.log('agent bus 登陆成功')
-            } else
-                throw new Error('agent bus: login 响应中无 token')
-        } catch (e) {
-            console.warn('agent bus 登录失败:', e)
+            this.agent_bus_ticket = await this.get_authenticated_user_ticket()
+        } catch (error) {
+            this.agent_bus_ticket = ''
+            console.warn('获取 agent-bus ticket 失败:', error)
         }
+        
+        return this.agent_bus_ticket
     }
     
     
     clear_agent_bus_session () {
-        localStorage.removeItem(storage_keys.agent_bus_token)
+        this.agent_bus_ticket = ''
         import('@/agent/model.ts')
             .then(({ clear_chat_agent_state }) => { clear_chat_agent_state() })
             .catch(error => { console.warn('clear agent state failed', error) })
@@ -732,17 +729,20 @@ export class DdbModel extends Model<DdbModel> {
         this.set({ logined, username, admin })
         
         if (logined) {
-            this.ddb.ticket = ticket ||= await this.ddb.invoke<string>('getAuthenticatedUserTicket', undefined, {
-                urgent: true,
-                ... this.node_type === NodeType.controller || this.node_type === NodeType.single 
-                    ? undefined
-                    : { node: this.controller_alias }
-            })
+            this.ddb.ticket = ticket ||= await this.get_authenticated_user_ticket()
             
             localStorage.setItem(storage_keys.username, username)
             localStorage.setItem(storage_keys.ticket, ticket)
         } else
             this.clear_login_auth()
+        
+        // 切换用户时，之前的 agent 状态和 ticket 都不再有效
+        if (user_changed && logined)
+            this.clear_agent_bus_session()
+        
+        // agent-bus 和 DolphinDB 共用登录态，账户信息变化后同步申请新的 ticket
+        if (logined && !this.agent_bus_ticket)
+            await this.refresh_agent_bus_ticket()
         
         // 同步 ddb 用户状态变更到 shell.ddb
         if (user_changed)
@@ -1388,7 +1388,6 @@ export const storage_keys = {
     git_api_root: 'ddb.git.api_root',
     shf: 'ddb.shf',
     grouping: 'ddb.grouping',
-    agent_bus_token: 'ddb.agent_bus_token',
 } as const
 
 
