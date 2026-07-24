@@ -811,7 +811,7 @@ export class DdbModel extends Model<DdbModel> {
     /** 获取除 agent 节点外的所有节点名 */
     get_online_node_names () {
         return this.get_online_nodes()
-            .map(select('name'))
+            .select('name')
     }
     
     
@@ -1045,12 +1045,9 @@ export class DdbModel extends Model<DdbModel> {
     async get_console_jobs () {
         return this.ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', undefined, {
             urgent: true,
-            nodes: this.node_type === NodeType.controller ? 
-                    this.nodes.filter(node =>
-                        node.state === DdbNodeState.online && node.mode !== NodeType.agent
-                    ).select('name')
-                :
-                    undefined
+            ... this.node_type === NodeType.controller ? {
+                nodes: model.get_online_node_names()
+            } : { }
         })
     }
     
@@ -1058,14 +1055,9 @@ export class DdbModel extends Model<DdbModel> {
     async get_recent_jobs () {
         return this.ddb.call<DdbObj<DdbObj[]>>('getRecentJobs', undefined, {
             urgent: true,
-            nodes: this.node_type === NodeType.controller ? 
-                    this.nodes.filter(node => 
-                        node.state === DdbNodeState.online && node.mode !== NodeType.agent
-                    ).map(node => 
-                        node.name
-                    )
-                :
-                    null
+            ... this.node_type === NodeType.controller ? {
+                nodes: model.get_online_node_names()
+            } : { }
         })
     }
     
