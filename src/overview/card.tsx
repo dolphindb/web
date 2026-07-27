@@ -410,7 +410,7 @@ function NodeSite ({ node }: { node: DdbNode }) {
                 { queries: { view: null } }))
     }
     
-    return <>
+    return <div className='node-sites'>
         <div className='node-site'>
             {mode === NodeType.agent ?
                 <Tooltip title={t('代理节点不可跳转')}>
@@ -442,6 +442,6 @@ function NodeSite ({ node }: { node: DdbNode }) {
                     </a>
             }
         </div>)}
-    </>
+    </div>
 }
 

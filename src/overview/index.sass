@@ -97,6 +97,8 @@
             
             color: #666666
             
+            white-space: nowrap
+            
             .nodes-select-all
                 zoom: 100%
                 margin: 0px 10px 0 30px
@@ -111,12 +113,16 @@
                 // align-items: center
                 padding-top: 4px
                 margin-left: 15px
+                flex-shrink: 1
+                min-width: 0
+                overflow-x: auto
         
         .node
             box-shadow: 0px 2px 10px rgba(51, 51, 51, 0.08)
             margin-bottom: 20px
             min-width: 1000px
             overflow: auto
+            white-space: nowrap
             
         .data-current-node
             border: 3px solid #0069CA
@@ -178,7 +184,7 @@
                         color: unset
                 
             .leader-tag
-                color:#412A9F
+                color:#412A9F !important
                 margin-left: 20px
                 min-width: 20px
 
@@ -337,26 +343,32 @@
     .single-node-content
         margin-top: 15px
     
-    .node-site
-        margin: 0 15px
-        font-weight: 500
-        color: #515151
-        font-size: 14px
+    .node-sites
         display: flex
-        justify-content: center
-        .site-text
-            margin-right: 10px 
-        a      
-            color: #515151
-            
-            &:hover
-                text-decoration: underline
+        justify-content: flex-start
+        flex-shrink: 1
+        min-width: 0px
+        overflow-x: auto
+        margin-left: 30px
         
-        .control-disable
-            cursor: not-allowed
+        .node-site
+            margin: 0 15px
+            font-weight: 500
+            color: #515151
+            font-size: 14px
+            .site-text
+                margin-right: 10px 
+            a
+                color: #515151
+                
+                &:hover
+                    text-decoration: underline
             
-            .disable-link
-                pointer-events: none
+            .control-disable
+                cursor: not-allowed
+                
+                .disable-link
+                    pointer-events: none
 
     .overview-table
         padding: 20px
