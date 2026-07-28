@@ -1,6 +1,7 @@
 import { language } from '@i18n'
 
 import { get_all_scripts } from './scripts/index.ts'
+import type { IAgentInfo } from './model/types.ts'
 import type { IChatWorkspace, IWorkspaceStep } from './workspace.ts'
 
 
@@ -37,7 +38,7 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = is_english ? {
         args_hint: '["select * from catalog.schema.tb"]',
     },
     skill_read: {
-        summary: 'Read complete details for a single skill by skillId or unique skill name, including instruction and fileTree. Use only for Skill metadata, not workspace files. If names collide, use skillId.',
+        summary: 'Read complete details for a single skill by skillId or unique skill name, including instruction and files. Use only for Skill metadata, not workspace files. If names collide, use skillId.',
         args_hint: '["<skillId-or-unique-skill-name>"]',
     },
     doc_search: {
@@ -132,7 +133,7 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = is_english ? {
         args_hint: '["select * from catalog.schema.tb"]',
     },
     skill_read: {
-        summary: '按 skillId 或唯一技能名称读取单个技能的完整详情，并包含技能指令 instruction 与文件目录结构 fileTree。只用于 Skill 元信息，不读取工作区文件；名称重名时必须改用 skillId。',
+        summary: '按 skillId 或唯一技能名称读取单个技能的完整详情，并包含技能指令 instruction 与文件列表 files。只用于 Skill 元信息，不读取工作区文件；名称重名时必须改用 skillId。',
         args_hint: '["<skillId-or-unique-skill-name>"]',
     },
     doc_search: {
@@ -213,6 +214,15 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = is_english ? {
 
 // ─── 基础系统提示词 ───
 
+const SKILL_USAGE_RULES = is_english ? [
+    '- Before writing, modifying, or executing code, inspect the available Skill descriptions. If any Skill may apply, call skill_read to read its complete instructions first and follow them. Do not skip this step because the task appears simple.',
+    '- After skill_read, follow the Skill workflow in order. If its instruction marks referenced files as required, mandatory, must-read, startup materials, or necessary for the task, read them with vfs_read before writing, modifying, or executing code. Calling skill_read alone does not complete the Skill.',
+] : [
+    '- 编写、修改或执行代码前，先检查可用 Skill 的描述；只要有 Skill 可能适用，就必须先调用 skill_read 读取完整指令并遵循，不能因为任务看起来简单而跳过。',
+    '- 调用 skill_read 后必须按 Skill 指令顺序执行；如果指令将引用文件标为 required、mandatory、must-read、启动材料或当前任务必需内容，必须先用 vfs_read 读取，再编写、修改或执行代码。只调用 skill_read 不代表已经完成 Skill。',
+]
+
+
 const BASE_SYSTEM_PROMPT = (is_english ? [
     '# Web Platform tool_call Notes',
     'You are running in the DolphinDB Web platform and can call platform tools. These are additional rules and recommendations for using tools in the Web platform:',
@@ -223,6 +233,7 @@ const BASE_SYSTEM_PROMPT = (is_english ? [
     '- Respond in the user question language. The English UI language means the conversation is in an English context by default; use English for reasoning and final answers unless the user asks otherwise.',
     '- At the beginning, decide whether the user request needs a TODO list. For complex tasks, multi-step verification, code/script changes, troubleshooting, or goals with more than one step, call step_create before other tools.',
     '- TODOs are the execution plan and progress source: call step_update checked=true immediately after each item is completed; call step_create again if the plan changes; call step_clear promptly after all TODOs are checked.',
+    ...SKILL_USAGE_RULES,
     '- Use `execute` for validation and continued reasoning. Make the final line of the script return a table, dictionary, string, scalar, or other readable value when possible.',
     `- Virtual file paths: Workspace files are under /home/workspace/<file>, and Skill files are under /home/skills/<skillId>/<file>. ${WORKSPACE_FILE_NAME_RULE}.`,
     '- For longer code, write it to /home/workspace with vfs_create first, then run it with execute_file.',
@@ -247,6 +258,7 @@ const BASE_SYSTEM_PROMPT = (is_english ? [
     '- 用户使用中文，处于中文语境。思考过程和最终回答都用中文表达；除非用户要求，不要切换英文。',
     '- 一开始必须先判断用户要求是否需要 TODO：凡是复杂任务、跨多步验证、需要修改代码/脚本、排查问题、或用户目标不止一步，都必须优先调用 step_create 建立 TODO，再开始其他工具调用。',
     '- TODO 是执行计划和进度来源：每完成一项必须及时调用 step_update checked=true；发现计划变化时重新 step_create；所有 TODO 都 checked 后必须及时调用 step_clear。',
+    ...SKILL_USAGE_RULES,
     '- `execute` 用于验证和继续推理；脚本最后一行尽量返回表、字典、字符串或标量，方便读取结果。',
     `- 虚拟文件路径：Workspace 文件在 /home/workspace/<file>，Skill 文件在 /home/skills/<skillId>/<file>。${WORKSPACE_FILE_NAME_RULE}。`,
     '- 如果要写或执行较长代码，必须优先使用 vfs_create 写入 /home/workspace，再用 execute_file 执行。',
@@ -273,6 +285,7 @@ const NATIVE_TOOL_SYSTEM_PROMPT = (is_english ? [
     '- Respond in the user question language. The English UI language means the conversation is in an English context by default; use English for reasoning and final answers unless the user asks otherwise.',
     '- At the beginning, decide whether the user request needs a TODO list. For complex tasks, multi-step verification, code/script changes, troubleshooting, or goals with more than one step, call step_create before other tools.',
     '- TODOs are the execution plan and progress source: call step_update checked=true immediately after each item is completed; call step_create again if the plan changes; call step_clear promptly after all TODOs are checked.',
+    ...SKILL_USAGE_RULES,
     '- Use `execute` for validation and continued reasoning. Make the final line of the script return a table, dictionary, string, scalar, or other readable value when possible.',
     `- Virtual file paths: Workspace files are under /home/workspace/<file>, and Skill files are under /home/skills/<skillId>/<file>. ${WORKSPACE_FILE_NAME_RULE}.`,
     '- For longer code, write it to /home/workspace with vfs_create first, then run it with execute_file.',
@@ -296,6 +309,7 @@ const NATIVE_TOOL_SYSTEM_PROMPT = (is_english ? [
     '- 用户使用中文或处于中文语境时，思考过程和最终回答都用中文表达；除非用户要求，不要切换英文。',
     '- 一开始必须先判断用户要求是否需要 TODO：凡是复杂任务、跨多步验证、需要修改代码/脚本、排查问题、或用户目标不止一步，都必须优先调用 step_create 建立 TODO，再开始其他工具调用。',
     '- TODO 是执行计划和进度来源：每完成一项必须及时调用 step_update checked=true；发现计划变化时重新 step_create；所有 TODO 都 checked 后必须及时调用 step_clear。',
+    ...SKILL_USAGE_RULES,
     '- `execute` 用于验证和继续推理；脚本最后一行尽量返回表、字典、字符串或标量，方便读取结果。',
     `- 虚拟文件路径：Workspace 文件在 /home/workspace/<file>，Skill 文件在 /home/skills/<skillId>/<file>。${WORKSPACE_FILE_NAME_RULE}。`,
     '- 如果要写或执行较长代码，必须优先使用 vfs_create 写入 /home/workspace，再用 execute_file 执行。',
@@ -404,16 +418,12 @@ function build_tools_section (doc_search_enabled = true): string {
 
 export function build_system_prompt (native_tool_calling = false, doc_search_enabled = true, doc_search_enabled_changed = false): string {
     try {
-        if (native_tool_calling) {
-            if (!doc_search_enabled_changed)
-                return NATIVE_TOOL_SYSTEM_PROMPT
-            
-            return NATIVE_TOOL_SYSTEM_PROMPT +
-                (is_english
+        if (native_tool_calling)
+            return NATIVE_TOOL_SYSTEM_PROMPT + (!doc_search_enabled_changed
+                ? ''
+                : is_english
                     ? `\n\nImportant: doc_search and doc_read tool calls are now ${doc_search_enabled ? 'available' : 'unavailable'}.\n\n`
-                    : `\n\n重要: 当前 doc_search, doc_read tool_call 调用变为 ${doc_search_enabled ? '可用' : '不可用'}\n\n`)  +
-                build_tools_section(doc_search_enabled)
-        }
+                    : `\n\n重要: 当前 doc_search, doc_read tool_call 调用变为 ${doc_search_enabled ? '可用' : '不可用'}\n\n`)
         
         const tools_section = build_tools_section(doc_search_enabled)
         return [BASE_SYSTEM_PROMPT, '', tools_section].join('\n')
@@ -474,4 +484,36 @@ export function build_current_todo_prompt (workspace: IChatWorkspace | null, ste
         '- 每完成一个待办，调用 step_update 标记完成。',
         '- 任务全部完成且不再需要追踪时，调用 step_clear。',
     ].join('\n')
+}
+
+
+export function build_web_context_blocks (
+    agent: IAgentInfo | undefined,
+    tool_prompt: string,
+    workspace: IChatWorkspace | null,
+    steps: IWorkspaceStep[],
+    include_current_todo = true,
+) {
+    const current_todo_prompt = include_current_todo ? build_current_todo_prompt(workspace, steps) : ''
+    return [
+        ...language === 'en' && agent?.config?.builtin && agent.systemPrompt
+            ? [{
+                name: 'web_localized_agent_prompt',
+                content: agent.systemPrompt,
+                position: 'after_system',
+            }]
+            : [ ],
+        {
+            name: 'web_tool_call_rules',
+            content: tool_prompt,
+            position: 'after_system',
+        },
+        ...current_todo_prompt
+            ? [{
+                name: 'web_current_todo',
+                content: current_todo_prompt,
+                position: 'before_current_turn',
+            }]
+            : [ ],
+    ]
 }

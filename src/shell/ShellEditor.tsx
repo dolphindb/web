@@ -520,8 +520,8 @@ function AiToolbar ({
     const { node_type } = model.use(['node_type'])
     const chat = get_chat_model(session_id)
     const {
-        sessions, agents, agent_id, selected_llm_config_id, script_execute_approval_mode,
-    } = chat.use(['sessions', 'agents', 'agent_id', 'selected_llm_config_id', 'script_execute_approval_mode'])
+        sessions, agents, agent_id, selected_llm_config_id, script_execute_approval_mode, agent_status,
+    } = chat.use(['sessions', 'agents', 'agent_id', 'selected_llm_config_id', 'script_execute_approval_mode', 'agent_status'])
     const { selectable_llms_by_agent_id } = chat_shared_model.use(['selectable_llms_by_agent_id'])
     const session = sessions.find(s => s.sessionId === session_id)
     const title = session?.title || shell.tabs.find(item => item.chat_id === session_id)?.name || t('新会话')
@@ -587,6 +587,7 @@ function AiToolbar ({
     // 构建 LLM 选项，默认模型标注
     const selectable_llms = selectable_llms_by_agent_id[agent_id] || [ ]
     const effective_llm_config_id = chat.agent.get_effective_llm_config_id(selected_llm_config_id)
+    const llm_select_disabled = !['idle', 'error'].includes(agent_status.status)
     const llm_options = selectable_llms.map(llm => ({
         value: llm.llmConfigId,
         label: llm.isAgentDefault ? `${llm.name} (${t('默认')})` : llm.name,
@@ -614,6 +615,7 @@ function AiToolbar ({
             value={effective_llm_config_id || undefined}
             placeholder={t('自动选择模型')}
             allowClear
+            disabled={llm_select_disabled}
             style={{ minWidth: 120, maxWidth: 200, marginRight: 8 }}
             onChange={(value: string | undefined) => {
                 chat.agent.select_llm_config(value || '')

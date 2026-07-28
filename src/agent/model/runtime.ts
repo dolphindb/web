@@ -1,4 +1,4 @@
-import { language, t } from '@i18n'
+import { t } from '@i18n'
 import { model } from '@model'
 import { chat_model, type ChatModel } from '@/agent/model.ts'
 import { get_script_handler } from '@/agent/scripts/index.ts'
@@ -10,7 +10,7 @@ import {
     parse_tool_result_json,
     tool_result_json,
 } from '@/agent/scripts/helpers.ts'
-import { build_current_todo_prompt } from '@/agent/prompt.ts'
+import { build_current_todo_prompt, build_web_context_blocks } from '@/agent/prompt.ts'
 import {
     legacy_json_tool_call_adapter,
     native_tool_call_adapter,
@@ -168,12 +168,17 @@ export class ChatRuntimeModel {
             this.chat.set({ agent_status: { status: 'thinking' } })
     }
     get_tool_call_adapter (): ToolCallAdapter {
-        const use_native_tool_calling = this.chat.agent.should_use_native_tool_calling()
+        const use_native_tool_calling = this.chat._active_use_native_tool_calling
         if (use_native_tool_calling !== this.chat.use_native_tool_calling)
             this.chat.set({ use_native_tool_calling })
         return use_native_tool_calling
             ? native_tool_call_adapter
             : legacy_json_tool_call_adapter
+    }
+    start_turn () {
+        const llm_config_id = this.chat.agent.get_turn_llm_config_id()
+        this.chat._active_llm_config_id = llm_config_id
+        this.chat._active_use_native_tool_calling = this.chat.agent.should_use_native_tool_calling(llm_config_id)
     }
     get_tool_call_signature (parsed_call: ParsedToolCall) {
         const tool_name = parsed_call.type.trim()
@@ -332,6 +337,7 @@ export class ChatRuntimeModel {
         this.chat._interrupted_request_seq = 0
         this.chat._pending_assistant_msg_ids = [ ]
         this.chat.runtime.reset_loop_guard()
+        this.chat.runtime.start_turn()
         this.chat._last_failed_completion = null
         this.chat.set({ pending_tool_loop_control: null })
         
@@ -558,35 +564,18 @@ export class ChatRuntimeModel {
             const agent = chat_model.agents.find(a => a.agentId === this.chat.agent_id)
             const doc_search_enabled = agent?.config?.docSearchEnabled !== false
             
-            const doc_search_enabled_changed = doc_search_enabled === this.last_doc_search_enabled
+            const doc_search_enabled_changed = doc_search_enabled !== this.last_doc_search_enabled
             
             this.last_doc_search_enabled = doc_search_enabled
             
             const is_tool_result_turn = Boolean(options.tool_results?.length)
-            const current_todo_prompt = is_tool_result_turn ? '' : build_current_todo_prompt(this.chat.current_workspace, this.chat.steps)
-            const context_blocks = [
-                ...language === 'en' && agent?.config?.builtin && agent.systemPrompt
-                    ? [{
-                        name: 'web_localized_agent_prompt',
-                        content: agent.systemPrompt,
-                        position: 'after_system',
-                    }]
-                    : [ ],
-                {
-                    name: 'web_tool_call_rules',
-                    content: tool_call_adapter.build_system_prompt(
-                        doc_search_enabled,
-                        doc_search_enabled_changed),
-                    position: 'after_system',
-                },
-                ...current_todo_prompt
-                    ? [{
-                        name: 'web_current_todo',
-                        content: current_todo_prompt,
-                        position: 'before_current_turn',
-                    }]
-                    : [ ],
-            ]
+            const context_blocks = build_web_context_blocks(
+                agent,
+                tool_call_adapter.build_system_prompt(doc_search_enabled, doc_search_enabled_changed),
+                this.chat.current_workspace,
+                this.chat.steps,
+                !is_tool_result_turn,
+            )
             
             const body: Record<string, any> = {
                 sessionId: this.chat.current_session_id,
@@ -598,7 +587,7 @@ export class ChatRuntimeModel {
                 },
             }
             tool_call_adapter.apply_request_body(body, message, options, doc_search_enabled)
-            const llm_config_id = this.chat.agent.get_effective_llm_config_id()
+            const llm_config_id = this.chat._active_llm_config_id
             if (llm_config_id)
                 body.llmConfigId = llm_config_id
                 
@@ -747,6 +736,8 @@ export class ChatRuntimeModel {
         this.chat._interrupted_request_seq = 0
         this.chat._pending_assistant_msg_ids = [ ]
         this.chat.runtime.reset_loop_guard()
+        if (!retry_completion || retry_completion.toolTurn === 0)
+            this.chat.runtime.start_turn()
         this.chat.set({
             messages,
             buffered_messages: [ ],

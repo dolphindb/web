@@ -95,6 +95,8 @@ export class ChatModel extends Model<ChatModel> {
     _request_seq = 0
     
     _active_request_seq = 0
+    _active_llm_config_id = ''
+    _active_use_native_tool_calling = true
     
     _interrupted_request_seq = 0
     

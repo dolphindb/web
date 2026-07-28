@@ -7,8 +7,12 @@ import { t } from '@i18n'
 import { model } from '@model'
 import { shell } from '@/shell/model.ts'
 
-import { chat_model, get_chat_model } from '@/agent/model.ts'
+import { chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
 import type { ILlmConfig, ILlmUsageStats, IMemoryEntry, IMemoryJob, IMemoryStats, IPublicMemory, ISession } from '@/agent/model.ts'
+import { build_web_context_blocks } from '@/agent/prompt.ts'
+import { get_all_tool_definitions } from '@/agent/scripts/index.ts'
+import { legacy_json_tool_call_adapter, native_tool_call_adapter } from '@/agent/tool_call_adapters.ts'
+import { chat_workspace_store } from '@/agent/workspace.ts'
 import { AgentListLayout, format_browser_time, show_error, use_agent_options, use_user_options, use_valid_agent_selection } from './common.tsx'
 
 
@@ -1485,9 +1489,38 @@ function ContextPreviewSection () {
         }
         set_loading(true)
         try {
+            const session = sessions.find(item => item.sessionId === selected_session_id)
+            const agent = chat_model.agents.find(item => item.agentId === selected_agent_id)
+            const llms = chat_shared_model.selectable_llms_by_agent_id[selected_agent_id] ||
+                await chat_model.llm.load_selectable_llms(selected_agent_id)
+            const session_chat = get_chat_model(selected_session_id)
+            const selected_llm_config_id = session_chat.current_session_id === selected_session_id
+                ? session_chat.selected_llm_config_id
+                : session?.llmConfigId || ''
+            const llm_config_id = chat_model.agent.get_llm_for_tool_call_mode(selected_llm_config_id, llms)?.llmConfigId || ''
+            const use_native_tool_calling = chat_model.agent.should_use_native_tool_calling(llm_config_id, llms)
+            const tool_call_adapter = use_native_tool_calling ? native_tool_call_adapter : legacy_json_tool_call_adapter
+            const doc_search_enabled = agent?.config?.docSearchEnabled !== false
+            const api_fetch = (path: string, options?: RequestInit) => chat_model.agent.api_fetch(path, options)
+            const [workspace, steps] = await Promise.all([
+                chat_workspace_store.get_workspace(selected_session_id, api_fetch),
+                chat_workspace_store.list_active_steps(selected_session_id, api_fetch),
+            ])
+            const assembly_config: Record<string, unknown> = {
+                contextBlocks: build_web_context_blocks(
+                    agent,
+                    tool_call_adapter.build_system_prompt(doc_search_enabled),
+                    workspace,
+                    steps,
+                ),
+            }
+            if (use_native_tool_calling)
+                assembly_config.tools = get_all_tool_definitions(doc_search_enabled)
             set_preview(await chat_model.session.preview_context({
                 sessionId: selected_session_id,
                 message: message_text.trim(),
+                ...(llm_config_id ? { llmConfigId: llm_config_id } : { }),
+                assemblyConfig: assembly_config,
             }))
         } catch (error) {
             show_error(error, t('加载上下文预览失败'))

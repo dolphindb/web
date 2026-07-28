@@ -219,9 +219,6 @@ export class ChatLlmModel {
             return [ ]
         try {
             const result = await this.chat.agent.api_fetch(`/agent/${aid}/llm/selectable`)
-            // 防止快速切换 agent 时旧请求覆盖新数据
-            if (aid !== this.chat.agent_id)
-                return [ ]
             const items: ISelectableLlmInfo[] = (result.items || [ ]).map((item: any) => ({
                 ...this.chat.llm._map_llm_config(item, provider_lookup),
                 source: item.source || 'agent',
@@ -235,9 +232,10 @@ export class ChatLlmModel {
                     [aid]: items,
                 },
             })
-            this.chat.set({
-                use_native_tool_calling: this.chat.agent.should_use_native_tool_calling(this.chat.agent.get_effective_llm_config_id(), items),
-            })
+            if (aid === this.chat.agent_id)
+                this.chat.set({
+                    use_native_tool_calling: this.chat.agent.should_use_native_tool_calling(this.chat.agent.get_effective_llm_config_id(), items),
+                })
             return items
         } catch {
             if (aid === this.chat.agent_id) {

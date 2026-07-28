@@ -371,6 +371,11 @@ export class ChatAgentModel {
             ? llm_config_id
             : ''
     }
+    get_turn_llm_config_id () {
+        return this.chat.agent.get_effective_llm_config_id() ||
+            this.chat.agent.get_llm_for_tool_call_mode()?.llmConfigId ||
+            ''
+    }
     get_llm_for_tool_call_mode (llm_config_id = this.chat.agent.get_effective_llm_config_id(), llms = this.chat.agent.get_selectable_llms()) {
         if (llm_config_id)
             return llms.find(llm => llm.llmConfigId === llm_config_id)
@@ -381,6 +386,8 @@ export class ChatAgentModel {
         return llm?.custom?.tool_call !== false
     }
     select_llm_config (llm_config_id: string) {
+        if (!['idle', 'error'].includes(this.chat.agent_status.status) || this.chat.sse_controller)
+            return
         const selected_llm_config_id = this.chat.agent.get_effective_llm_config_id(llm_config_id)
         this.chat.set({
             selected_llm_config_id,

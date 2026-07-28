@@ -3,7 +3,7 @@ import {
     normalize_script_args,
     stringify_ddb_result,
 } from './helpers.ts'
-import { normalize_skill_result_paths, to_skill_display_path } from './vfs_paths.ts'
+import { to_skill_display_path } from './vfs_paths.ts'
 
 
 function is_record (value: unknown): value is Record<string, unknown> {
@@ -35,14 +35,6 @@ function get_skill_ref (content: unknown) {
 }
 
 
-type SkillFileTreeNode = {
-    name: string
-    path: string
-    type: 'directory' | 'file'
-    children?: SkillFileTreeNode[]
-}
-
-
 function to_file_paths (value: unknown): string[] {
     const items = Array.isArray(value)
         ? value
@@ -55,36 +47,6 @@ function to_file_paths (value: unknown): string[] {
     return items
         .map(item => typeof item === 'string' ? item.trim() : is_record(item) ? String(item.filePath ?? item.file_path ?? item.path ?? item.name ?? '').trim() : '')
         .filter(Boolean)
-}
-
-
-function build_file_tree (file_paths: string[]): SkillFileTreeNode[] {
-    const roots: SkillFileTreeNode[] = [ ]
-    
-    for (const file_path of file_paths) {
-        const parts = file_path.split('/').map(part => part.trim()).filter(Boolean)
-        let level = roots
-        let current_path = ''
-        
-        parts.forEach((part, index) => {
-            current_path = current_path ? `${current_path}/${part}` : part
-            const is_file = index === parts.length - 1
-            let node = level.find(item => item.name === part)
-            if (!node) {
-                node = {
-                    name: part,
-                    path: current_path,
-                    type: is_file ? 'file' : 'directory',
-                    ...(!is_file ? { children: [ ] } : { }),
-                }
-                level.push(node)
-            }
-            if (!is_file)
-                level = node.children ?? [ ]
-        })
-    }
-    
-    return roots
 }
 
 
@@ -168,7 +130,7 @@ export const skill_read_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'skill_read',
-            description: '读取 Agent 技能详情，包括技能名称、描述、指令内容和 Skill 包文件目录；可传 skill_id 或唯一技能名称；只用于 Skill 元信息，不读取工作区文件',
+            description: '读取 Agent 技能详情，包括技能名称、描述、指令内容和 Skill 包文件列表；可传 skill_id 或唯一技能名称；只用于 Skill 元信息，不读取工作区文件',
             parameters: {
                 type: 'object',
                 properties: {
@@ -205,27 +167,17 @@ export const skill_read_config: ScriptConfig = {
             const files_detail = await context.api_fetch(`/skill/${encoded_skill_id}/files/list`)
             const files = to_file_paths(files_detail)
             const display_files = files.map(file_path => to_skill_display_path(skill_id, file_path))
-            const file_tree = normalize_skill_result_paths(build_file_tree(files), skill_id)
             const instruction = is_record(instruction_detail) && typeof instruction_detail.instruction === 'string'
                 ? instruction_detail.instruction
                 : ''
-            const result = is_record(skill_detail)
-                ? {
-                    ...skill_detail,
-                    instruction,
-                    instructionDetail: instruction_detail,
-                    files: display_files,
-                    fileTree: file_tree,
-                    filesDetail: normalize_skill_result_paths(files_detail, skill_id),
-                }
-                : {
-                    skill: skill_detail,
-                    instruction,
-                    instructionDetail: instruction_detail,
-                    files: display_files,
-                    fileTree: file_tree,
-                    filesDetail: normalize_skill_result_paths(files_detail, skill_id),
-                }
+            const result = {
+                skillId: skill_id,
+                name: get_skill_name_from_detail(skill_detail),
+                displayName: is_record(skill_detail) ? String(skill_detail.displayName ?? skill_detail.display_name ?? '') : '',
+                description: is_record(skill_detail) ? String(skill_detail.description ?? '') : '',
+                instruction,
+                files: display_files,
+            }
             const message_content = stringify_ddb_result(result)
             
             return {
