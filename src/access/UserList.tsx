@@ -74,7 +74,8 @@ export function UserList () {
             {
                 title: t('所属组'),
                 dataIndex: 'groups',
-                key: 'groups'
+                key: 'groups',
+                width: 280,
             },
             {
                 title: t('操作'),
@@ -138,6 +139,7 @@ export function UserList () {
             }
         }}
         pagination={{ hideOnSinglePage: true, size: 'small' }}
+        tableLayout='fixed'
         columns={cols}
         dataSource={users_access
             ?.filter(({ userId }) => userId.toLowerCase().includes(search_key.toLowerCase()))
@@ -146,7 +148,7 @@ export function UserList () {
                 user_name: current_user.userId,
                 is_admin: current_user.isAdmin ? <CheckCircleFilled className='green' /> : <MinusCircleFilled className='gray' />,
                 
-                groups: Boolean(current_user.groups) && <Flex gap='small' align='center'>{
+                groups: Boolean(current_user.groups) && <Flex gap='small' align='center' wrap="wrap">{
                     current_user.groups.split(',').map((group: string) => 
                         <DDBTag key={group}>{group}</DDBTag>)
                 }</Flex>,

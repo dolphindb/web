@@ -59,7 +59,8 @@ export function GroupList () {
             {
                 title: t('组成员'),
                 dataIndex: 'users',
-                key: 'users'
+                key: 'users',
+                width: 280,
             },
             {
                 title: t('操作'),
@@ -128,7 +129,7 @@ export function GroupList () {
                     key: group.groupName,
                     group_name: group.groupName,
                     
-                    users: Boolean(group.users) && <Flex gap='small' align='center'>{
+                    users: Boolean(group.users) && <Flex gap='small' align='center' wrap="wrap">{
                         group.users.split(',').filter(name => name !== 'admin').map((user: string) =>
                             <DDBTag key={user}>{user}</DDBTag>)
                     }</Flex>,
