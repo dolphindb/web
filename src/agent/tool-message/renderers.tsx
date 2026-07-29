@@ -125,18 +125,23 @@ function clean_doc_search_summary (value: unknown): string {
 }
 
 
-function render_doc_search_results (results: unknown[]): string {
+function render_doc_search_results (results: unknown[]) {
     return results.map((item, index) => {
         const record = is_object_record(item) ? item : null
         const id = to_message_text(record?.id).trim()
         const title = to_message_text(record?.title).trim()
         const summary = clean_doc_search_summary(record?.summary)
-        return [
-            `${index + 1}. ${title || id || '-'}`,
-            summary ? `摘要: ${summary}` : '',
-            id ? `id: ${id}` : '',
-        ].filter(Boolean).join('\n')
-    }).filter(Boolean).join('\n\n')
+        const url = to_message_text(record?.url).trim()
+        return <div className='ai-doc-search-result' key={id || `${title}-${index}`}>
+            <div className='ai-doc-search-result-title'>
+                <span className='ai-doc-search-result-index'>{index + 1}</span>
+                {url
+                    ? <Typography.Link href={url} target='_blank' rel='noreferrer'>{title || id || '-'}</Typography.Link>
+                    : <Text>{title || id || '-'}</Text>}
+            </div>
+            {summary && <Text type='secondary' className='ai-doc-search-result-summary'>{summary}</Text>}
+        </div>
+    })
 }
 
 
@@ -144,15 +149,18 @@ function DocSearchRenderer (props: ToolRendererProps) {
     if (!props.is_outcome)
         return null
         
-    return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
+    return <ParamResultSection props={props} build_data={({ args, structured_payload }) => {
         const query = get_arg_text(args, 0, ['query'])
         const parsed = is_object_record(structured_payload) ? structured_payload : null
         const results = Array.isArray(parsed?.results) ? parsed.results : [ ]
         return {
             result_rows: [{ label: t('文档搜索'), value: `${query || '-'}，${t('匹配')} ${results.length} ${t('条文档')}` }],
             result_details: compact_sections([
-                create_text_detail('doc-search-candidates', t('查看候选文档'), render_doc_search_results(results)),
-                create_json_detail('doc-search-results', t('查看结果'), structured_payload || message.content),
+                results.length ? {
+                    key: 'doc-search-candidates',
+                    label: t('查看候选文档'),
+                    children: <div className='ai-doc-search-results'>{render_doc_search_results(results)}</div>,
+                } : null,
             ]),
         }
     }} />

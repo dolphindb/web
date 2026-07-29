@@ -226,9 +226,15 @@ export function strip_tool_result_prefix (content: string): { tool?: string, con
 }
 
 
+function strip_web_runtime_context (content: string): string {
+    const marker = /(?:\r?\n){2}\[web_runtime_context\](?:\r?\n|$)/.exec(content)
+    return marker ? content.slice(0, marker.index) : content
+}
+
+
 export function parse_tool_result_payload (content: string): ToolResultPayloadView {
     const prefixed = strip_tool_result_prefix(content)
-    const parsed = parse_json_or_text(prefixed.content)
+    const parsed = parse_json_or_text(strip_web_runtime_context(prefixed.content))
     if (!is_object_record(parsed))
         return { tool: prefixed.tool, payload: parsed }
     

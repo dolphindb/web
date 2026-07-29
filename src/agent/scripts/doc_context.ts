@@ -228,6 +228,7 @@ export function doc_search_tool_result (query: string, candidates: DocCandidate[
             id: candidate.id,
             title: candidate.title,
             summary: candidate.summary,
+            url: /^https?:\/\//i.test(candidate.locator) ? candidate.locator : undefined,
         })),
     }
 }

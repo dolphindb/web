@@ -741,6 +741,36 @@
                             background: #f5f5f5
                             overflow: hidden
 
+                        .ai-doc-search-results
+                            max-height: 360px
+                            overflow-y: auto
+                            border: 1px solid #f0f0f0
+                            border-radius: 8px
+
+                        .ai-doc-search-result
+                            padding: 10px 12px
+
+                            &:not(:last-child)
+                                border-bottom: 1px solid #f0f0f0
+
+                            &:hover
+                                background: #fafafa
+
+                        .ai-doc-search-result-title
+                            display: flex
+                            align-items: flex-start
+                            gap: 8px
+                            line-height: 20px
+
+                        .ai-doc-search-result-index
+                            flex-shrink: 0
+                            color: #8c8c8c
+
+                        .ai-doc-search-result-summary
+                            display: block
+                            margin: 4px 0 0 22px
+                            line-height: 20px
+
                         .ai-tab-input
                             padding: 8px 16px 12px
                             border-top: 1px solid #f0f0f0
