@@ -170,7 +170,7 @@ function AdminAccessSection ({ user_id }: { user_id?: string }) {
                     render: (_: unknown, agent: { value: string }) => {
                         const auth = agent_auth_map[agent.value]
                         return <Space wrap>
-                            {!auth && <Button size='small' disabled={!selected_user_id} onClick={() => { grant(agent.value) }}>{t('授权访问')}</Button>}
+                            {!auth && <Button size='small' disabled={!selected_user_id} onClick={() => { grant(agent.value) }}>{t('授权')}</Button>}
                             {auth && <Button danger size='small' disabled={!selected_user_id} onClick={() => { revoke(agent.value) }}>{t('撤销')}</Button>}
                         </Space>
                     },
