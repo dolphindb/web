@@ -508,7 +508,7 @@ function UserPermissionTab () {
             </div>
             {user_options.length > default_page_size && <Pagination
                 size='small'
-                simple
+                simple={{ readOnly: true }}
                 current={user_page}
                 pageSize={user_page_size}
                 total={user_options.length}
