@@ -1,5 +1,8 @@
 import type { IMessage } from '@/agent/model.ts'
-import { spill_large_tool_result_content_if_needed } from '@/agent/tool_result_spill.ts'
+import {
+    spill_large_tool_result_content_if_needed,
+    spill_large_tool_result_print_if_needed,
+} from '@/agent/tool_result_spill.ts'
 
 import type { ScriptConfig, ScriptResult, ToolContext } from './types.ts'
 import {
@@ -708,7 +711,7 @@ export const execute_file_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'execute_file',
-            description: '执行当前会话工作区 /home/workspace 中的 DolphinDB 脚本文件',
+            description: '执行当前会话工作区 /home/workspace 中的 DolphinDB 脚本文件，将最后一行的结果返回给助手继续推理；中间表达式结果不会自动返回，如需多个结果请组合后在最后一行返回',
             parameters: {
                 type: 'object',
                 properties: {
@@ -719,6 +722,7 @@ export const execute_file_config: ScriptConfig = {
         },
     },
     handler: async (type, content, context): Promise<ScriptResult> => {
+        const print_messages: string[] = [ ]
         try {
             const path = get_named_arg(content)
             const file = await context.workspace_store.get_file(require_workspace(context), context.api_fetch, path)
@@ -730,23 +734,25 @@ export const execute_file_config: ScriptConfig = {
                     save_message: result_message(type, 'File is empty, nothing to execute.'),
                 }
             
-            const print_messages: string[] = [ ]
             const result = await context.eval(file.content, {
                 listener: message => {
                     if (message.type === 'print')
                         print_messages.push(String(message.data))
                 },
             })
-            const result_info = format_ddb_eval_result_info(result, print_messages)
+            const result_info = format_ddb_eval_result_info(result)
             let content_object: string | undefined
             try { content_object = uint8_to_base64(result.pack()) } catch { }
-            const result_content = await spill_large_tool_result_content_if_needed(result_info.content, type, context)
+            const [result_content, result_print] = await Promise.all([
+                spill_large_tool_result_content_if_needed(result_info.content, type, context),
+                spill_large_tool_result_print_if_needed(print_messages, type, context),
+            ])
             const message_content = tool_result_json({
                 ok: true,
                 tool: type,
                 returnedVoid: result_info.returnedVoid,
                 resultType: result_info.resultType,
-                ...(print_messages.length ? { print: print_messages } : { }),
+                ...(result_print.length ? { print: result_print } : { }),
                 content: result_content,
             })
             return {
@@ -755,7 +761,23 @@ export const execute_file_config: ScriptConfig = {
                 save_message: result_message(type, message_content, content_object),
             }
         } catch (error) {
-            return error_result(type, `execute_file failed: ${error instanceof Error ? error.message : String(error)}`)
+            const result_print = await spill_large_tool_result_print_if_needed(print_messages, type, context)
+            return {
+                next_loop: true,
+                save_message: {
+                    msgId: `tool_${Date.now()}`,
+                    role: 'tool',
+                    messageType: 'tool_error',
+                    name: type,
+                    content: tool_result_json({
+                        ok: false,
+                        tool: type,
+                        ...(result_print.length ? { print: result_print } : { }),
+                        error: `execute_file failed: ${error instanceof Error ? error.message : String(error)}`,
+                        hint: `${result_print.length ? 'print 为脚本报错前已产生的部分诊断输出。' : ''}请修正 DolphinDB 语法或 API 用法后再试；如果函数名或参数不确定，先查询官方文档，不要反复猜测。`,
+                    }),
+                },
+            }
         }
     },
 }

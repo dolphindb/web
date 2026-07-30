@@ -61,3 +61,15 @@ export async function spill_large_tool_result_content_if_needed (
         return build_failed_reference(content.length, error, preview)
     }
 }
+
+
+export async function spill_large_tool_result_print_if_needed (
+    print_messages: string[],
+    tool_type: string,
+    context: ToolContext,
+) {
+    const content = print_messages.join('\n')
+    if (content.length <= TOOL_RESULT_SPILL_THRESHOLD_CHARS)
+        return print_messages
+    return [await spill_large_tool_result_content_if_needed(content, `${tool_type}_print`, context)]
+}

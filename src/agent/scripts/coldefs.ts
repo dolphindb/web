@@ -1,9 +1,9 @@
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import {
     normalize_script_args,
-    stringify_ddb_result,
     tool_result_json,
 } from './helpers.ts'
+import type { ColdefColumn } from './helpers.ts'
 
 
 export const coldefs_config: ScriptConfig = {
@@ -44,11 +44,16 @@ export const coldefs_config: ScriptConfig = {
                 }
             
             const result = await context.eval(`schema(${tbhandle})['colDefs']`)
+            const columns: ColdefColumn[] = result.data().map((column: Record<string, unknown>) => ({
+                name: String(column.name ?? ''),
+                type: String(column.typeString ?? ''),
+                ...(column.comment ? { comment: String(column.comment) } : { }),
+                ...(column.sensitive ? { sensitive: true } : { }),
+            }))
             const message_content = tool_result_json({
                 ok: true,
                 tool: type,
-                resultType: 'table',
-                content: stringify_ddb_result(result.data({ table: 'full' })),
+                columns,
             })
             
             return {

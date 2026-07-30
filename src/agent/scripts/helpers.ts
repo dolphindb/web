@@ -129,6 +129,14 @@ export function stringify_ddb_result (result: unknown): string {
 }
 
 
+export type ColdefColumn = {
+    name: string
+    type: string
+    comment?: string
+    sensitive?: true
+}
+
+
 export type ToolResultEnvelope = {
     ok: boolean
     tool: string
@@ -142,6 +150,7 @@ export type ToolResultEnvelope = {
     resultCount?: number
     rowCount?: number | null
     print?: string[]
+    columns?: ColdefColumn[]
     preview?: unknown
     results?: unknown
     toolResultPersisted?: boolean
@@ -193,6 +202,7 @@ export function is_structured_tool_result_helpful (content: string): boolean {
         payload.content ||
         payload.results ||
         payload.preview ||
+        payload.columns?.length ||
         payload.rowCount !== undefined
     )
 }
@@ -209,18 +219,6 @@ export function infer_tool_result_type (value: unknown): string {
 }
 
 
-/** 将 DdbObj 结果与 print 输出合并格式化 */
-export function format_result_with_print (result: unknown, print_messages: string[]): string {
-    if (print_messages.length === 0)
-        return stringify_ddb_result(result)
-    
-    return stringify_ddb_result({
-        result,
-        print: print_messages,
-    })
-}
-
-
 const EMPTY_DDB_RESULT = {
     success: true,
     message: '脚本执行成功，无返回值。',
@@ -233,15 +231,15 @@ function is_empty_ddb_result_error (error: unknown): boolean {
 }
 
 
-export function format_ddb_eval_result (result: unknown, print_messages: string[] = [ ]): string {
-    return format_ddb_eval_result_info(result, print_messages).content
+export function format_ddb_eval_result (result: unknown): string {
+    return format_ddb_eval_result_info(result).content
 }
 
 
-export function format_ddb_eval_result_info (result: unknown, print_messages: string[] = [ ]): { content: string, returnedVoid: boolean, resultType: string } {
+export function format_ddb_eval_result_info (result: unknown): { content: string, returnedVoid: boolean, resultType: string } {
     if (result === null || result === undefined)
         return {
-            content: format_result_with_print(EMPTY_DDB_RESULT, print_messages),
+            content: stringify_ddb_result(EMPTY_DDB_RESULT),
             returnedVoid: true,
             resultType: 'void',
         }
@@ -249,7 +247,7 @@ export function format_ddb_eval_result_info (result: unknown, print_messages: st
     const maybe_ddb_obj = result as { data?: unknown }
     if (typeof maybe_ddb_obj.data !== 'function')
         return {
-            content: format_result_with_print(result, print_messages),
+            content: stringify_ddb_result(result),
             returnedVoid: false,
             resultType: infer_tool_result_type(result),
         }
@@ -258,14 +256,14 @@ export function format_ddb_eval_result_info (result: unknown, print_messages: st
         const data = maybe_ddb_obj.data({ table: 'full' })
         const returned_void = data === null || data === undefined
         return {
-            content: format_result_with_print(data ?? EMPTY_DDB_RESULT, print_messages),
+            content: stringify_ddb_result(data ?? EMPTY_DDB_RESULT),
             returnedVoid: returned_void,
             resultType: infer_tool_result_type(data),
         }
     } catch (error) {
         if (is_empty_ddb_result_error(error))
             return {
-                content: format_result_with_print(EMPTY_DDB_RESULT, print_messages),
+                content: stringify_ddb_result(EMPTY_DDB_RESULT),
                 returnedVoid: true,
                 resultType: 'void',
             }

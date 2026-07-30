@@ -51,7 +51,7 @@ export const show_config: ScriptConfig = {
                         print_messages.push(String(message.data))
                 },
             })
-            const result_info = format_ddb_eval_result_info(result, print_messages)
+            const result_info = format_ddb_eval_result_info(result)
             const message_content = tool_result_json({
                 ok: true,
                 tool: type,

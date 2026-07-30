@@ -82,11 +82,16 @@ function ExecuteLikeRenderer (props: ToolRendererProps) {
 function ColdefsRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
         const table_handle = get_arg_text(args, 0, ['table'])
-        const summary = get_table_like_summary(structured_payload)
+        const parsed = is_object_record(structured_payload) ? structured_payload : null
+        const raw_columns = Array.isArray(parsed?.columns) && parsed.columns.every(is_object_record)
+            ? parsed.columns
+            : parsed?.data
+        const columns = Array.isArray(raw_columns) ? raw_columns.filter(is_object_record) : [ ]
+        const column_names = columns.map(column => to_message_text(column.name)).filter(Boolean)
         return {
             param_rows: [{ label: t('表'), value: table_handle || '-' }],
             result_rows: [
-                { label: t('字段'), value: summary?.columns?.length ? summary.columns.join(', ') : to_preview_text(message.content, 140) },
+                { label: t('字段'), value: column_names.length ? column_names.join(', ') : to_preview_text(message.content, 140) },
             ],
             result_details: compact_sections([
                 create_json_detail('structured', t('查看详情'), structured_payload),

@@ -10,7 +10,7 @@ import {
     parse_tool_result_json,
     tool_result_json,
 } from '@/agent/scripts/helpers.ts'
-import { build_current_todo_prompt, build_web_context_blocks } from '@/agent/prompt.ts'
+import { build_web_context_blocks } from '@/agent/prompt.ts'
 import {
     legacy_json_tool_call_adapter,
     native_tool_call_adapter,
@@ -568,13 +568,11 @@ export class ChatRuntimeModel {
             
             this.last_doc_search_enabled = doc_search_enabled
             
-            const is_tool_result_turn = Boolean(options.tool_results?.length)
             const context_blocks = build_web_context_blocks(
                 agent,
                 tool_call_adapter.build_system_prompt(doc_search_enabled, doc_search_enabled_changed),
                 this.chat.current_workspace,
                 this.chat.steps,
-                !is_tool_result_turn,
             )
             
             const body: Record<string, any> = {
@@ -834,8 +832,7 @@ export class ChatRuntimeModel {
         if (this.chat.runtime.is_request_interrupted(request_seq))
             return
         
-        const runtime_context = build_current_todo_prompt(this.chat.current_workspace, this.chat.steps)
-        const continuation = tool_call_adapter.build_continuation(tool_result_contents, tool_results, runtime_context)
+        const continuation = tool_call_adapter.build_continuation(tool_result_contents, tool_results)
         if (continuation && should_continue_loop)
             await this.chat.runtime.do_chat_completions(continuation.message, continuation.options, tool_turn + 1, request_seq)
         else

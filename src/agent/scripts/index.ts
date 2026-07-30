@@ -6,8 +6,8 @@ import type { ScriptType, ScriptConfig, ScriptHandler, ToolDefinition } from './
 const script_registry = new Map<ScriptType, ScriptConfig>()
 
 const EN_TOOL_SCHEMA_TEXT = new Map<string, string>([
-    ['在 DolphinDB 中执行脚本代码，返回执行结果', 'Execute DolphinDB script code and return the execution result.'],
-    ['要执行的 DolphinDB 脚本代码', 'DolphinDB script code to execute.'],
+    ['在 DolphinDB 中执行脚本代码，将最后一行的结果返回给助手继续推理；中间表达式结果不会自动返回，如需多个结果请组合后在最后一行返回', 'Execute DolphinDB script code and return the last line result to the assistant for further reasoning. Intermediate expression results are not returned automatically; combine multiple results and return them on the final line.'],
+    ['要执行的 DolphinDB 脚本代码；最后一行必须是可求值内容，不能是赋值或控制语句', 'DolphinDB script code to execute. The final line must be evaluable, not an assignment or control statement.'],
     ['获取 DolphinDB 表的列定义（schema），返回字段名、类型等结构信息', 'Get DolphinDB table column definitions (schema), including field names and types.'],
     ['表名或表句柄表达式', 'Table name or table handle expression.'],
     ['在 DolphinDB 中测试 SQL 查询，返回前 5 行样例数据以验证查询正确性', 'Test a DolphinDB SQL query and return the first 5 sample rows to validate the query.'],
@@ -49,7 +49,7 @@ const EN_TOOL_SCHEMA_TEXT = new Map<string, string>([
     ['可选，命中行前后的上下文行数', 'Optional number of context lines around each matched line.'],
     ['可选，返回命中总数上限', 'Optional maximum total number of matches.'],
     ['可选，每个文件返回命中数上限', 'Optional maximum number of matches per file.'],
-    ['执行当前会话工作区 /home/workspace 中的 DolphinDB 脚本文件', 'Execute a DolphinDB script file in /home/workspace for the current session workspace.'],
+    ['执行当前会话工作区 /home/workspace 中的 DolphinDB 脚本文件，将最后一行的结果返回给助手继续推理；中间表达式结果不会自动返回，如需多个结果请组合后在最后一行返回', 'Execute a DolphinDB script file in /home/workspace for the current session workspace and return the last line result to the assistant for further reasoning. Intermediate expression results are not returned automatically; combine multiple results and return them on the final line.'],
     ['读取当前会话工作区状态文本', 'Read the current session workspace state text.'],
     ['通过精确字符串替换更新当前会话工作区状态文本', 'Update the current session workspace state text with exact string replacement.'],
     ['要替换的原状态片段；为空时追加', 'Old state fragment to replace. Append when empty.'],

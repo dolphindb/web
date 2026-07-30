@@ -36,7 +36,7 @@ export interface ToolCallAdapter {
     get_natural_text: (content: string) => string
     build_tool_call_message: (parsed_call: ParsedToolCall, msg_id: string, reasoning_content?: string, natural_text?: string) => IMessage
     collect_tool_result: (parsed_call: ParsedToolCall, content: string, tool_results: ToolResultPayload[]) => void
-    build_continuation: (tool_result_contents: string[], tool_results: ToolResultPayload[], runtime_context?: string) => ToolCallContinuation | null
+    build_continuation: (tool_result_contents: string[], tool_results: ToolResultPayload[]) => ToolCallContinuation | null
 }
 
 const CONTINUATION_LANGUAGE_HINT = language === 'en'
@@ -227,19 +227,9 @@ export const native_tool_call_adapter: ToolCallAdapter = {
             })
     },
     
-    build_continuation (_tool_result_contents, tool_results, runtime_context) {
+    build_continuation (_tool_result_contents, tool_results) {
         if (!tool_results.length)
             return null
-        if (runtime_context)
-            tool_results[tool_results.length - 1] = {
-                ...tool_results[tool_results.length - 1],
-                content: `${tool_results[tool_results.length - 1].content}\n\n[web_runtime_context]\n${runtime_context}`,
-            }
-        else
-            tool_results[tool_results.length - 1] = {
-                ...tool_results[tool_results.length - 1],
-                content: `${tool_results[tool_results.length - 1].content}\n\n[web_runtime_context]\n${CONTINUATION_LANGUAGE_HINT}`,
-            }
         return {
             message: '',
             options: {
