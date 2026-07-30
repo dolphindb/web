@@ -6,6 +6,16 @@ import { parse_tool_result_payload } from '@/agent/utils/message.ts'
 
 import type { IMessage, ISession, IToolCall } from './types.ts'
 
+
+function sort_sessions_by_update_time (sessions: ISession[]) {
+    return sessions.sort((a, b) => {
+        const ta = a.updateTime ? Date.parse(a.updateTime) : 0
+        const tb = b.updateTime ? Date.parse(b.updateTime) : 0
+        return (Number.isFinite(tb) ? tb : 0) - (Number.isFinite(ta) ? ta : 0)
+    })
+}
+
+
 export class ChatSessionModel {
     constructor (private chat: ChatModel) { }
     async load_sessions () {
@@ -13,12 +23,9 @@ export class ChatSessionModel {
             agentId: this.chat.agent_id,
         })
         const result = await this.chat.agent.api_fetch(`/session/list?${params}`)
-        const sessions: ISession[] = (result.items || [ ]).map((s: any) => this.chat.session.map_session(s))
-        sessions.sort((a, b) => {
-            const ta = a.updateTime ? Date.parse(a.updateTime) : 0
-            const tb = b.updateTime ? Date.parse(b.updateTime) : 0
-            return (Number.isFinite(tb) ? tb : 0) - (Number.isFinite(ta) ? ta : 0)
-        })
+        const sessions = sort_sessions_by_update_time(
+            (result.items || [ ]).map((s: any) => this.chat.session.map_session(s))
+        )
         this.chat.set({ sessions })
     }
     async create_session (title = t('新会话')): Promise<ISession> {
@@ -151,7 +158,9 @@ export class ChatSessionModel {
         const result = await this.chat.agent.api_fetch(`/session/list?${search}`)
         return {
             ...result,
-            items: (result.items || [ ]).map((s: any) => this.chat.session.map_session(s)),
+            items: sort_sessions_by_update_time(
+                (result.items || [ ]).map((s: any) => this.chat.session.map_session(s))
+            ),
         }
     }
     async load_session_workspace_stats (session_id: string): Promise<{ workspaceSize: number, workspaceFileCount: number } | null> {
