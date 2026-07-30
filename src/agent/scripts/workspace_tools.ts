@@ -1,4 +1,8 @@
+import { pickBy } from 'lodash'
+
 import type { IMessage } from '@/agent/model.ts'
+import { normalize_json_object, parse_json_string } from '@/agent/model/helpers.ts'
+import type { IWorkspaceSearchOptions } from '@/agent/workspace.ts'
 import {
     spill_large_tool_result_content_if_needed,
     spill_large_tool_result_print_if_needed,
@@ -69,16 +73,6 @@ function is_record (value: unknown): value is Record<string, unknown> {
 }
 
 
-function parse_payload (content: unknown): unknown {
-    if (typeof content !== 'string')
-        return content
-    const trimmed = content.trim()
-    if (!trimmed)
-        return content
-    try { return JSON.parse(trimmed) } catch { return content }
-}
-
-
 function decode_base64_utf8 (content: string): string {
     const binary = window.atob(content)
     const bytes = new Uint8Array(binary.length)
@@ -120,27 +114,27 @@ function get_display_workspace_path (path: string) {
 
 
 function get_named_arg (content: unknown) {
-    const parsed = parse_payload(content)
+    const parsed = normalize_json_object(content)
     const args = normalize_script_args(content)
-    if (is_record(parsed))
+    if (parsed)
         return get_workspace_arg(String(parsed.name ?? parsed.path ?? args[0] ?? '').trim(), true)
     return get_workspace_arg(args[0] || '', true)
 }
 
 
 function get_vfs_named_arg (content: unknown) {
-    const parsed = parse_payload(content)
+    const parsed = normalize_json_object(content)
     const args = normalize_script_args(content)
-    if (is_record(parsed))
+    if (parsed)
         return get_vfs_arg(String(parsed.name ?? parsed.path ?? args[0] ?? '').trim(), true)
     return get_vfs_arg(args[0] || '', true)
 }
 
 
 function get_create_args (content: unknown) {
-    const parsed = parse_payload(content)
+    const parsed = normalize_json_object(content)
     const args = normalize_script_args(content)
-    if (is_record(parsed))
+    if (parsed)
         return {
             name: get_workspace_arg(String(parsed.name ?? parsed.path ?? args[0] ?? '').trim()),
             content: String(parsed.content ?? args[1] ?? ''),
@@ -150,9 +144,9 @@ function get_create_args (content: unknown) {
 
 
 function get_copy_args (content: unknown) {
-    const parsed = parse_payload(content)
+    const parsed = normalize_json_object(content)
     const args = normalize_script_args(content)
-    if (is_record(parsed)) {
+    if (parsed) {
         const source_path = String(parsed.source ?? parsed.source_path ?? parsed.sourcePath ?? parsed.src ?? args[0] ?? '').trim()
         const source = parse_skill_file_path(source_path)
         const target_source = String(parsed.target ?? parsed.target_path ?? parsed.targetPath ?? parsed.dest ?? parsed.destination ?? parsed.name ?? parsed.path ?? args[1] ?? file_name(source.file_path)).trim()
@@ -200,9 +194,9 @@ function to_string_array (value: unknown): string[] | undefined {
 
 
 function get_read_args (content: unknown) {
-    const parsed = parse_payload(content)
+    const parsed = normalize_json_object(content)
     const args = normalize_script_args(content)
-    if (is_record(parsed))
+    if (parsed)
         return {
             name: get_vfs_arg(String(parsed.name ?? parsed.path ?? args[0] ?? '').trim()),
             start_line: to_optional_int(parsed.startLine ?? parsed.start_line ?? args[1]),
@@ -230,9 +224,9 @@ function to_replacements (value: unknown) {
 
 
 function get_update_args (content: unknown) {
-    const parsed = parse_payload(content)
+    const parsed = normalize_json_object(content)
     const args = normalize_script_args(content)
-    if (is_record(parsed)) {
+    if (parsed) {
         const replacements = to_replacements(parsed.replacements)
         return {
             name: get_workspace_arg(String(parsed.name ?? parsed.path ?? args[0] ?? '').trim()),
@@ -252,42 +246,28 @@ function get_update_args (content: unknown) {
 }
 
 
-function get_search_args (content: unknown) {
-    const parsed = parse_payload(content)
+type VfsSearchArgs = IWorkspaceSearchOptions & { path?: string }
+
+
+function get_search_args (content: unknown): VfsSearchArgs {
+    const parsed = normalize_json_object(content)
     const args = normalize_script_args(content)
-    if (is_record(parsed)) {
-        const result: Record<string, unknown> = { }
-        if (parsed.query)
-            result.query = String(parsed.query)
-        const all = to_string_array(parsed.all)
-        if (all?.length)
-            result.all = all
-        const any = to_string_array(parsed.any)
-        if (any?.length)
-            result.any = any
-        if (parsed.scope)
-            result.scope = String(parsed.scope)
-        if (parsed.caseSensitive !== undefined)
-            result.caseSensitive = parsed.caseSensitive === true || String(parsed.caseSensitive).toLowerCase() === 'true'
-        if (parsed.path)
-            result.path = String(parsed.path)
-        const names = to_string_array(parsed.names)
-        if (names?.length)
-            result.names = names
-        const extensions = to_string_array(parsed.extensions)
-        if (extensions?.length)
-            result.extensions = extensions
-        const contextLines = to_optional_int(parsed.contextLines ?? parsed.context_lines)
-        if (contextLines !== undefined)
-            result.contextLines = contextLines
-        const maxResults = to_optional_int(parsed.maxResults ?? parsed.max_results)
-        if (maxResults !== undefined)
-            result.maxResults = maxResults
-        const maxPerFile = to_optional_int(parsed.maxPerFile ?? parsed.max_per_file)
-        if (maxPerFile !== undefined)
-            result.maxPerFile = maxPerFile
-        return result
-    }
+    if (parsed)
+        return pickBy({
+            query: parsed.query ? String(parsed.query) : undefined,
+            all: to_string_array(parsed.all),
+            any: to_string_array(parsed.any),
+            scope: parsed.scope ? String(parsed.scope) : undefined,
+            caseSensitive: parsed.caseSensitive === undefined
+                ? undefined
+                : parsed.caseSensitive === true || String(parsed.caseSensitive).toLowerCase() === 'true',
+            path: parsed.path ? String(parsed.path) : undefined,
+            names: to_string_array(parsed.names),
+            extensions: to_string_array(parsed.extensions),
+            contextLines: to_optional_int(parsed.contextLines ?? parsed.context_lines),
+            maxResults: to_optional_int(parsed.maxResults ?? parsed.max_results),
+            maxPerFile: to_optional_int(parsed.maxPerFile ?? parsed.max_per_file),
+        }, value => value !== undefined && (!Array.isArray(value) || value.length > 0))
     return { query: args[0] || '' }
 }
 
@@ -332,7 +312,7 @@ function skill_ids_from_list (result: unknown): string[] {
 }
 
 
-function normalize_search_scope (args: Record<string, unknown>) {
+function normalize_search_scope (args: VfsSearchArgs) {
     const raw_path = typeof args.path === 'string' && args.path.trim() ? args.path.trim() : ''
     const raw_names = to_string_array(args.names)
     
@@ -365,9 +345,9 @@ function normalize_search_scope (args: Record<string, unknown>) {
 
 
 function get_state_update_args (content: unknown) {
-    const parsed = parse_payload(content)
+    const parsed = normalize_json_object(content)
     const args = normalize_script_args(content)
-    if (is_record(parsed))
+    if (parsed)
         return {
             old_string: String(parsed.old_string ?? parsed.oldString ?? args[0] ?? ''),
             new_string: String(parsed.new_string ?? parsed.newString ?? args[1] ?? ''),
@@ -380,13 +360,23 @@ function get_state_update_args (content: unknown) {
 
 
 function get_step_create_tasks (content: unknown) {
-    const parsed = parse_payload(content)
+    const parsed = typeof content === 'string' ? parse_json_string(content) : content
     const tasks = is_record(parsed) ? parsed.tasks : parsed
     if (!Array.isArray(tasks))
         throw new Error('step_create requires tasks as a string array.')
     if (tasks.some(task => typeof task !== 'string' || !task.trim()))
         throw new Error('step_create requires every task to be a non-empty string.')
     return tasks.map(task => task.trim())
+}
+
+
+function get_step_update_args (content: unknown) {
+    const parsed = normalize_json_object(content)
+    const args = normalize_script_args(content)
+    return {
+        index: Number(parsed?.index ?? args[0]),
+        checked: String(parsed?.checked ?? args[1] ?? '').toLowerCase() === 'true',
+    }
 }
 
 
@@ -916,11 +906,9 @@ export const step_update_config: ScriptConfig = {
     },
     handler: async (type, content, context): Promise<ScriptResult> => {
         try {
-            const args = normalize_script_args(content)
-            const index = Number(args[0])
+            const { index, checked } = get_step_update_args(content)
             if (!Number.isInteger(index))
                 throw new Error('Index must be a valid number.')
-            const checked = String(args[1] || '').toLowerCase() === 'true'
             await context.workspace_store.set_step_status_by_index(require_session(context), context.api_fetch, index, checked)
             const active_steps = await context.workspace_store.list_active_steps(require_session(context), context.api_fetch)
             const checked_count = active_steps.filter(step => step.checked).length

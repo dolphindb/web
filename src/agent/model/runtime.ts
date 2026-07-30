@@ -558,9 +558,6 @@ export class ChatRuntimeModel {
             
             const tool_call_adapter = this.chat.runtime.get_tool_call_adapter()
             
-            // 这个实际上是不成立的，太坑了
-            // check(chat_model.agents === this.chat.agnets)
-            
             const agent = chat_model.agents.find(a => a.agentId === this.chat.agent_id)
             const doc_search_enabled = agent?.config?.docSearchEnabled !== false
             
@@ -909,14 +906,11 @@ export class ChatRuntimeModel {
         // 执行工具
         let script_result: ScriptResult
         if (handler) {
-            const payload_str = typeof parsed_call.payload === 'string'
-                ? parsed_call.payload
-                : JSON.stringify(parsed_call.payload)
             if (model.verbose)
-                console.log('[debug] calling handler with payload_str:', payload_str.slice(0, 200))
+                console.log('[debug] calling handler with payload:', parsed_call.payload)
             
             try {
-                script_result = await handler(parsed_call.type, payload_str, context)
+                script_result = await handler(parsed_call.type, parsed_call.payload, context)
                 if (model.verbose)
                     console.log('[debug] handler result:', { next_loop: script_result.next_loop, has_message: !!script_result.save_message, messageType: script_result.save_message?.messageType })
             } catch (e) {

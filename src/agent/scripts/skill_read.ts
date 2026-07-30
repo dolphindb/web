@@ -1,3 +1,5 @@
+import { normalize_json_object } from '@/agent/model/helpers.ts'
+
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import {
     normalize_script_args,
@@ -11,20 +13,10 @@ function is_record (value: unknown): value is Record<string, unknown> {
 }
 
 
-function parse_payload (content: unknown): unknown {
-    if (typeof content !== 'string')
-        return content
-    const trimmed = content.trim()
-    if (!trimmed)
-        return content
-    try { return JSON.parse(trimmed) } catch { return content }
-}
-
-
 function get_skill_ref (content: unknown) {
-    const parsed = parse_payload(content)
+    const parsed = normalize_json_object(content)
     const args = normalize_script_args(content)
-    if (is_record(parsed)) {
+    if (parsed) {
         const explicit_id = String(parsed.skill_id ?? parsed.skillId ?? parsed.id ?? '').trim()
         if (explicit_id)
             return { value: explicit_id, kind: 'id' as const }
