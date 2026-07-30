@@ -68,9 +68,6 @@ importers:
       filenamify:
         specifier: ^7.0.2
         version: 7.0.2
-      final-form:
-        specifier: ^5.0.1
-        version: 5.0.1
       gridstack:
         specifier: ^13.0.2
         version: 13.0.2
@@ -2057,10 +2054,6 @@ packages:
   fill-range@7.0.1:
     resolution: {integrity: sha512-qOo9F+dMUmC2Lcb4BbVvnKJxTPjCm+RRpe4gDuGrzkL7mEVl/djYSu2OdQ2Pa302N4oqkSg9ir6jaLWJ2USVpQ==}
     engines: {node: '>=8'}
-
-  final-form@5.0.1:
-    resolution: {integrity: sha512-Ohygw2lDgc2HNynfUu82Jp5U45+OLLeBQcwWbrex1IAbQw0uNaFMUbm5dhYCF6y7jcORgl5tg19/1zYxlJtLmg==}
-    engines: {node: '>=18'}
 
   find-up@5.0.0:
     resolution: {integrity: sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng==}
@@ -5895,10 +5888,6 @@ snapshots:
     dependencies:
       to-regex-range: 5.0.1
     optional: true
-
-  final-form@5.0.1:
-    dependencies:
-      '@babel/runtime': 7.29.2
 
   find-up@5.0.0:
     dependencies:
