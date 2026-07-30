@@ -45,7 +45,6 @@
         "copy-to-clipboard": "^4.0.2",
         "dayjs": "^1.11.21",
         "dolphindb": "^3.1.53",
-        "donaco": "^1.0.9",
         "echarts": "^6.1.0",
         "filenamify": "^7.0.2",
         "final-form": "^5.0.1",

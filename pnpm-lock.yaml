@@ -62,9 +62,6 @@ importers:
       dolphindb:
         specifier: ^3.1.53
         version: 3.1.53(react-dom@19.2.8(react@19.2.8))(supports-color@7.2.0)
-      donaco:
-        specifier: ^1.0.9
-        version: 1.0.9(dolphindb@3.1.53(react-dom@19.2.8(react@19.2.8))(supports-color@7.2.0))(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vscode-oniguruma@2.0.1)(vscode-textmate@9.3.2)
       echarts:
         specifier: ^6.1.0
         version: 6.1.0
@@ -563,16 +560,6 @@ packages:
   '@koa/cors@5.0.0':
     resolution: {integrity: sha512-x/iUDjcS90W69PryLDIMgFyV21YLTnG9zOpPXS7Bkt2b8AsY3zZsIpOLBkYr9fBcF3HbkKaER5hOBZLfpLgYNw==}
     engines: {node: '>= 14.0.0'}
-
-  '@monaco-editor/loader@1.5.0':
-    resolution: {integrity: sha512-hKoGSM+7aAc7eRTRjpqAZucPmoNOC4UUbknb/VNoTkEIkCPhqV8LfbsgM1webRM7S/z21eHEx9Fkwx8Z/C/+Xw==}
-
-  '@monaco-editor/react@4.7.0':
-    resolution: {integrity: sha512-cyzXQCtO47ydzxpQtCGSQGOC8Gk3ZUeBXFAxD+CWXYFo5OqZyZUonFl0DwUlTyAfRHntBfw2p3w4s9R6oe1eCA==}
-    peerDependencies:
-      monaco-editor: '>= 0.25.0 < 1'
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   '@napi-rs/wasm-runtime@1.1.6':
     resolution: {integrity: sha512-ZLv/JdUfkvOy9eCnnBaGfiO+XimbjebAeO+MRQqD/B+FR1tnRN0tpKSJHRbE8sFfS6aqsXZ67TQjfwfsxULVbg==}
@@ -1855,14 +1842,6 @@ packages:
 
   domutils@3.0.1:
     resolution: {integrity: sha512-z08c1l761iKhDFtfXO04C7kTdPBLi41zwOZl00WS8b5eiaebNpY00HKbztwBq+e3vyqWNwWF3mP9YLUeqIrF+Q==}
-
-  donaco@1.0.9:
-    resolution: {integrity: sha512-uDa5oM+pE2bELsBJoX2XCEvkBu4I9baijH4eiH28/xdAPBg6J+SqXGkkpDi+IeBxC00aAfXGorgfcP2OrH/BRg==}
-    peerDependencies:
-      dolphindb: ^3.0.35
-      monaco-editor: '>=0.47.0'
-      vscode-oniguruma: ^2.0.1
-      vscode-textmate: ^9.0.0
 
   dot-case@3.0.4:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
@@ -3251,9 +3230,6 @@ packages:
     resolution: {integrity: sha512-l3BikUxvPOcn5E74dZiq5BGsTb5yEwhaTSzccU6t4sDOH8NWJCstKO5QT2CvtFoK6F0saL7p9xHAqHOlCPJygA==}
     engines: {node: '>= 8'}
 
-  state-local@1.0.7:
-    resolution: {integrity: sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==}
-
   statuses@1.5.0:
     resolution: {integrity: sha512-OpZ3zP+jT1PI7I8nemJX4AKmAX070ZkYPVWV/AaKTJl+tXCTGyVdC1a4SL8RUQYEwk/f34ZX8UTykN68FwrqAA==}
     engines: {node: '>= 0.6'}
@@ -4179,19 +4155,6 @@ snapshots:
   '@koa/cors@5.0.0':
     dependencies:
       vary: 1.1.2
-
-  '@monaco-editor/loader@1.5.0':
-    dependencies:
-      state-local: 1.0.7
-    optional: true
-
-  '@monaco-editor/react@4.7.0(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
-    dependencies:
-      '@monaco-editor/loader': 1.5.0
-      monaco-editor: 0.56.0
-      react: 19.2.8
-      react-dom: 19.2.8(react@19.2.8)
-    optional: true
 
   '@napi-rs/wasm-runtime@1.1.6(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)':
     dependencies:
@@ -5615,18 +5578,6 @@ snapshots:
       dom-serializer: 2.0.0
       domelementtype: 2.3.0
       domhandler: 5.0.3
-
-  donaco@1.0.9(dolphindb@3.1.53(react-dom@19.2.8(react@19.2.8))(supports-color@7.2.0))(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vscode-oniguruma@2.0.1)(vscode-textmate@9.3.2):
-    dependencies:
-      dolphindb: 3.1.53(react-dom@19.2.8(react@19.2.8))(supports-color@7.2.0)
-      monaco-editor: 0.56.0
-      vscode-oniguruma: 2.0.1
-      vscode-textmate: 9.3.2
-    optionalDependencies:
-      '@monaco-editor/react': 4.7.0(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-    transitivePeerDependencies:
-      - react
-      - react-dom
 
   dot-case@3.0.4:
     dependencies:
@@ -7328,9 +7279,6 @@ snapshots:
   source-map-js@1.2.1: {}
 
   source-map@0.7.4: {}
-
-  state-local@1.0.7:
-    optional: true
 
   statuses@1.5.0: {}
 
