@@ -1,3 +1,5 @@
+import { language } from '@i18n'
+
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import { normalize_script_args } from './helpers.ts'
 import {
@@ -75,6 +77,7 @@ export const doc_search_config: ScriptConfig = {
                     sessionId: context.session_id,
                     query,
                     maxResults: max_results,
+                    language,
                 }),
             })
             const candidates = normalize_doc_search_response(result)
@@ -90,6 +93,7 @@ export const doc_search_config: ScriptConfig = {
                         query,
                         maxResults: max_results,
                         candidates: candidates.map(candidate_for_rerank),
+                        language,
                     }),
                 })
                 ordered = order_by_rerank_response(reranked, candidates)
