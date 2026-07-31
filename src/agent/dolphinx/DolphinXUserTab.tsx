@@ -9,7 +9,7 @@ import { shell } from '@/shell/model.ts'
 
 import { chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
 import type { ILlmConfig, ILlmUsageStats, IMemoryEntry, IMemoryJob, IMemoryStats, IPublicMemory, ISession } from '@/agent/model.ts'
-import { build_web_context_blocks } from '@/agent/prompt.ts'
+import { build_web_assembly_config } from '@/agent/prompt.ts'
 import { get_all_tool_definitions } from '@/agent/scripts/index.ts'
 import { legacy_json_tool_call_adapter, native_tool_call_adapter } from '@/agent/tool_call_adapters.ts'
 import { chat_workspace_store } from '@/agent/workspace.ts'
@@ -1506,14 +1506,12 @@ function ContextPreviewSection () {
                 chat_workspace_store.get_workspace(selected_session_id, api_fetch),
                 chat_workspace_store.list_active_steps(selected_session_id, api_fetch),
             ])
-            const assembly_config: Record<string, unknown> = {
-                contextBlocks: build_web_context_blocks(
-                    agent,
-                    tool_call_adapter.build_system_prompt(doc_search_enabled),
-                    workspace,
-                    steps,
-                ),
-            }
+            const assembly_config: Record<string, unknown> = build_web_assembly_config(
+                agent,
+                tool_call_adapter.build_system_prompt(doc_search_enabled),
+                workspace,
+                steps,
+            )
             if (use_native_tool_calling)
                 assembly_config.tools = get_all_tool_definitions(doc_search_enabled)
             set_preview(await chat_model.session.preview_context({

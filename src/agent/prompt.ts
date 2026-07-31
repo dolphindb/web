@@ -487,7 +487,7 @@ export function build_current_todo_prompt (workspace: IChatWorkspace | null, ste
 }
 
 
-export function build_web_context_blocks (
+export function build_web_assembly_config (
     agent: IAgentInfo | undefined,
     tool_prompt: string,
     workspace: IChatWorkspace | null,
@@ -495,25 +495,23 @@ export function build_web_context_blocks (
     include_current_todo = true,
 ) {
     const current_todo_prompt = include_current_todo ? build_current_todo_prompt(workspace, steps) : ''
-    return [
+    return {
         ...language === 'en' && agent?.config?.builtin && agent.systemPrompt
-            ? [{
-                name: 'web_localized_agent_prompt',
-                content: agent.systemPrompt,
+            ? { systemPrompt: agent.systemPrompt }
+            : { },
+        contextBlocks: [
+            {
+                name: 'web_tool_call_rules',
+                content: tool_prompt,
                 position: 'after_system',
-            }]
-            : [ ],
-        {
-            name: 'web_tool_call_rules',
-            content: tool_prompt,
-            position: 'after_system',
-        },
-        ...current_todo_prompt
-            ? [{
-                name: 'web_current_todo',
-                content: current_todo_prompt,
-                position: 'before_current_turn',
-            }]
-            : [ ],
-    ]
+            },
+            ...current_todo_prompt
+                ? [{
+                    name: 'web_current_todo',
+                    content: current_todo_prompt,
+                    position: 'before_current_turn',
+                }]
+                : [ ],
+        ],
+    }
 }

@@ -10,7 +10,7 @@ import {
     parse_tool_result_json,
     tool_result_json,
 } from '@/agent/scripts/helpers.ts'
-import { build_web_context_blocks } from '@/agent/prompt.ts'
+import { build_web_assembly_config } from '@/agent/prompt.ts'
 import {
     legacy_json_tool_call_adapter,
     native_tool_call_adapter,
@@ -565,7 +565,7 @@ export class ChatRuntimeModel {
             
             this.last_doc_search_enabled = doc_search_enabled
             
-            const context_blocks = build_web_context_blocks(
+            const assembly_config = build_web_assembly_config(
                 agent,
                 tool_call_adapter.build_system_prompt(doc_search_enabled, doc_search_enabled_changed),
                 this.chat.current_workspace,
@@ -577,9 +577,7 @@ export class ChatRuntimeModel {
                 stream: true,
                 contextEvent: true,
                 includeReasoning: true,
-                assemblyConfig: {
-                    contextBlocks: context_blocks,
-                },
+                assemblyConfig: assembly_config,
             }
             tool_call_adapter.apply_request_body(body, message, options, doc_search_enabled)
             const llm_config_id = this.chat._active_llm_config_id
