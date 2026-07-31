@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { Button, Empty, Input, InputNumber, Modal, Pagination, Popconfirm, Select, Space, Switch, Table, Tabs, Tag, Tooltip, Typography, message } from 'antd'
+import { Button, Descriptions, Empty, Input, InputNumber, Modal, Pagination, Popconfirm, Select, Space, Switch, Table, Tabs, Tag, Tooltip, Typography, message } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
@@ -14,6 +14,13 @@ import { get_all_tool_definitions } from '@/agent/scripts/index.ts'
 import { legacy_json_tool_call_adapter, native_tool_call_adapter } from '@/agent/tool_call_adapters.ts'
 import { chat_workspace_store } from '@/agent/workspace.ts'
 import { AgentListLayout, format_browser_time, show_error, use_agent_options, use_user_options, use_valid_agent_selection } from './common.tsx'
+import {
+    ContextPreviewMessageDetail,
+    ContextPreviewMessageSummary,
+    ContextPreviewRole,
+    format_preview_value,
+    is_context_preview_message_expandable,
+} from './ContextPreviewMessage.tsx'
 
 
 const { Text } = Typography
@@ -1530,6 +1537,20 @@ function ContextPreviewSection () {
     const detail = preview?.detail || { }
     const token_breakdown = preview?.tokenBreakdown || { }
     const messages = Array.isArray(preview?.messages) ? preview.messages : [ ]
+    const preview_labels: Record<string, string> = {
+        estimatedTokens: t('预估 Token'),
+        assemblyMode: t('组装模式'),
+        memoriesIncluded: t('记忆数量'),
+        messagesIncluded: t('历史消息数'),
+        skillsInCatalog: t('技能数量'),
+        summaryIncluded: t('包含摘要'),
+    }
+    const preview_rows = [
+        ...Object.entries(preview || { })
+            .filter(([key]) => !['detail', 'messages', 'tokenBreakdown'].includes(key) && !(key in detail))
+            .map(([key, value]) => ({ key, label: preview_labels[key] || key, value })),
+        ...Object.entries(detail).map(([key, value]) => ({ key: `detail.${key}`, label: preview_labels[key] || key, value })),
+    ]
     
     return <AgentListLayout
         options={options}
@@ -1553,48 +1574,44 @@ function ContextPreviewSection () {
             placeholder={t('输入待预览的用户消息')}
             rows={3}
         />
-        {preview && <Space direction='vertical' style={{ width: '100%', marginTop: 12 }}>
-            <Table
+        {preview && <Space direction='vertical' className='context-preview-results' style={{ width: '100%', marginTop: 12 }}>
+            <Descriptions
                 size='small'
-                pagination={false}
-                rowKey='key'
-                dataSource={[
-                    { key: 'tokens', label: t('预估 Token'), value: preview.estimatedTokens ?? '-' },
-                    { key: 'mode', label: t('组装模式'), value: detail.assemblyMode || preview.assemblyMode || '-' },
-                    { key: 'memories', label: t('记忆数量'), value: detail.memoriesIncluded ?? '-' },
-                    { key: 'messages', label: t('历史消息数'), value: detail.messagesIncluded ?? '-' },
-                    { key: 'skills', label: t('技能数量'), value: detail.skillsInCatalog ?? '-' },
-                    { key: 'summary', label: t('包含摘要'), value: detail.summaryIncluded === undefined ? '-' : String(detail.summaryIncluded) },
-                ]}
-                columns={[
-                    { title: t('项目'), dataIndex: 'label', width: 140 },
-                    { title: t('值'), dataIndex: 'value' },
-                ]}
+                bordered
+                column={3}
+                className='context-preview-descriptions'
+                items={preview_rows.map(row => ({
+                    key: row.key,
+                    label: row.label,
+                    children: ellipsis_text(format_preview_value(row.value)),
+                }))}
             />
-            {Object.keys(token_breakdown).length > 0 && <Table
+            {Object.keys(token_breakdown).length > 0 && <Descriptions
                 size='small'
-                pagination={false}
-                rowKey='key'
-                dataSource={Object.entries(token_breakdown).map(([key, value]) => ({ key, value }))}
-                columns={[
-                    { title: t('Token 项'), dataIndex: 'key' },
-                    { title: t('数量'), dataIndex: 'value', width: 120 },
-                ]}
+                bordered
+                column={4}
+                className='context-preview-descriptions'
+                items={Object.entries(token_breakdown).map(([key, value]) => ({
+                    key,
+                    label: key,
+                    children: String(value),
+                }))}
             />}
             <Table
                 size='small'
+                tableLayout='fixed'
                 pagination={{ defaultPageSize: 8 }}
                 rowKey={(_, index) => String(index)}
                 dataSource={messages}
                 expandable={{
-                    expandedRowRender: row => <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{String(row.content || '')}</pre>,
-                    rowExpandable: row => Boolean(String(row.content || '').trim()),
+                    expandedRowRender: row => <ContextPreviewMessageDetail message={row} />,
+                    rowExpandable: is_context_preview_message_expandable,
                 }}
                 columns={[
-                    { title: t('角色'), dataIndex: 'role', width: 100 },
+                    { title: t('角色'), dataIndex: 'role', width: 100, render: role => <ContextPreviewRole role={role} /> },
                     {
                         title: t('内容'),
-                        render: (_: unknown, row: any) => <Text ellipsis style={{ maxWidth: 620 }}>{String(row.content || '')}</Text>,
+                        render: (_: unknown, row: Record<string, unknown>) => <ContextPreviewMessageSummary message={row} />,
                     },
                 ]}
             />
