@@ -303,7 +303,7 @@ export class DdbModel extends Model<DdbModel> {
             // 登录前只能拿很少的一些 guest 用户能拿的配置，登录之后需要重新获取
             config.load_configs(),
             
-            this.get_cluster_perf(true),
+            this.get_cluster_perf(true, true),
             
             this.get_license()
         ])
@@ -930,12 +930,13 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 获取 nodes 和 node 信息
         https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html  
-        Only master or single mode supports function getClusterPerf. */
-    async get_cluster_perf (print: boolean) {
+        - print: 是否在控制台打印节点信息
+        - timeout_modal?: `false` 显示超时弹窗  */
+    async get_cluster_perf (print: boolean, timeout_modal = false) {
         let nodes: DdbNode[]
         
-        // 超时提醒（在手动触发或者首次加载时才弹）
-        if (print)
+        // 超时提醒（首次加载时卡住才弹）
+        if (timeout_modal)
             setTimeout(() => {
                 if (!nodes)
                     this.show_error({ title: t('getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞') })
