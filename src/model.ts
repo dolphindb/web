@@ -506,7 +506,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     /** 获取当前登录用户的 ticket，集群下需要到控制节点执行 */
-    async get_authenticated_user_ticket () {
+    async get_ticket () {
         return this.ddb.invoke<string>('getAuthenticatedUserTicket', undefined, {
             urgent: true,
             ... this.node_type === NodeType.controller || this.node_type === NodeType.single
@@ -525,7 +525,7 @@ export class DdbModel extends Model<DdbModel> {
         }
         
         try {
-            this.agent_bus_ticket = await this.get_authenticated_user_ticket()
+            this.agent_bus_ticket = await this.get_ticket()
         } catch (error) {
             this.agent_bus_ticket = ''
             console.warn('获取 agent-bus ticket 失败:', error)
@@ -729,7 +729,7 @@ export class DdbModel extends Model<DdbModel> {
         this.set({ logined, username, admin })
         
         if (logined) {
-            this.ddb.ticket = ticket ||= await this.get_authenticated_user_ticket()
+            this.ddb.ticket = ticket ||= await this.get_ticket()
             
             localStorage.setItem(storage_keys.username, username)
             localStorage.setItem(storage_keys.ticket, ticket)
