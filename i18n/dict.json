@@ -8875,5 +8875,14 @@
     },
     "选择脚本语言，如果选择 Q，将会启用 Q Parser Session（需预先加载 Q Parser）": {
         "en": "Select the script language; if Q is chosen, the Q Parser Session will be enabled (Q Parser must be pre-loaded)."
+    },
+    "默认 (不偏移)": {
+        "en": "Default (no offset)"
+    },
+    "web 时区偏移": {
+        "en": "Web timezone offset"
+    },
+    "在 web 上增加一个时区偏移选项，默认不偏移。对于数据库返回的时间数据，在展示时自动加上这个时区偏移": {
+        "en": "An option for timezone offset is added on the web; by default, no offset is applied. For time data returned by the database, this timezone offset is automatically added when displayed."
     }
 }
