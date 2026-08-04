@@ -15,7 +15,7 @@ import { storage } from 'xshell/storage.js'
 
 import {
     DDB, DdbObj, SqlStandard, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, DdbDict, urgent
+    DdbDatabaseError, DdbDict, urgent, set_timezone
 } from 'dolphindb/browser.js'
 
 import type { Docs } from 'dolphindb/docs.js'
@@ -316,6 +316,15 @@ export class DdbModel extends Model<DdbModel> {
             enabled_modules: new Set(
                 config.get_config('webModules')?.split(',') || [ ])
         })
+        
+        // 设置时区（仅在启用了 web 时区偏移可选功能时生效）
+        if (this.enabled_modules.has('timezone')) {
+            const timezone = storage.getstr(storage_keys.timezone)
+            if (timezone) {
+                console.log('设置时区为:', timezone)
+                set_timezone(timezone)
+            }
+        }
         
         console.log('强制登录:', this.login_required)
         

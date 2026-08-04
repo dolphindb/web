@@ -11,6 +11,7 @@ import { t } from '@i18n'
 import { model } from '@model'
 
 import { LanguageSelect } from './LanguageSelect.tsx'
+import { TimeZoneSelect } from './TimeZoneSelect.tsx'
 
 import { Status } from './Status.tsx'
 
@@ -23,7 +24,7 @@ import { Logo } from './Logo.tsx'
 
 
 export function DdbHeader () {
-    const { logined, username } = model.use(['logined', 'username'])
+    const { logined, username, enabled_modules } = model.use(['logined', 'username', 'enabled_modules'])
     
     return <Layout.Header className='ddb-header'>
         <Logo header />
@@ -54,6 +55,8 @@ export function DdbHeader () {
             <Settings />
             
             <LanguageSelect />
+            
+            { enabled_modules.has('timezone') && <TimeZoneSelect /> }
             
             <Dropdown
                 menu={{

@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { ApartmentOutlined, default as Icon } from '@ant-design/icons'
+import { ApartmentOutlined, ClockCircleOutlined, default as Icon } from '@ant-design/icons'
 
 import { t } from '@i18n'
 
@@ -55,6 +55,14 @@ export function Settings () {
                         description={t('查看数据库表、计算引擎的血缘关系，清晰地展示节点的上游拓扑结构，帮助用户直观地理解数据流动路径，从而快速定位问题。')}
                     />
                 </> }
+                
+                <Card
+                    module_key='timezone'
+                    icon={<ClockCircleOutlined className='label-icon' />}
+                    label={t('web 时区偏移')}
+                    description={t('在 web 上增加一个时区偏移选项，默认不偏移。对于数据库返回的时间数据，在展示时自动加上这个时区偏移')}
+                    on_saved={() => { location.reload() }}
+                />
             </div>
         </div>
         
