@@ -61,7 +61,6 @@ export function Settings () {
                     icon={<ClockCircleOutlined className='label-icon' />}
                     label={t('web 时区偏移')}
                     description={t('在 web 上增加一个时区偏移选项，默认不偏移。对于数据库返回的时间数据，在展示时自动加上这个时区偏移')}
-                    on_saved={() => { location.reload() }}
                 />
             </div>
         </div>
