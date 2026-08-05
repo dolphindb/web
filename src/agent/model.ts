@@ -95,6 +95,8 @@ export class ChatModel extends Model<ChatModel> {
     _request_seq = 0
     
     _active_request_seq = 0
+    _active_session_id = ''
+    _active_agent_id = ''
     _active_llm_config_id = ''
     _active_use_native_tool_calling = true
     
@@ -150,6 +152,16 @@ export function bind_chat_model_session (old_session_id: string, session_id: str
     
     chat_model_instances.delete(old_session_id)
     chat_model_instances.set(session_id, chat)
+}
+
+
+export function release_chat_model (session_id: string) {
+    const chat = chat_model_instances.get(session_id)
+    if (!chat)
+        return
+    // 标签页关闭后不再保留无主运行时，避免其异步结果继续占用资源。
+    chat.runtime.interrupt_chat()
+    chat_model_instances.delete(session_id)
 }
 
 

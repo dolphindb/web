@@ -59,7 +59,7 @@ export class ChatAgentModel {
         return items
     }
     set_active_agent (agent_id: string, agents = this.chat.agents) {
-        this.chat.runtime.abort_sse()
+        this.chat.runtime.interrupt_chat()
         this.chat.set({
             agents,
             agent_id,

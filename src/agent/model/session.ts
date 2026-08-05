@@ -74,7 +74,7 @@ export class ChatSessionModel {
         if (session_id === this.chat.current_session_id && this.chat.agent_id)
             return
             
-        this.chat.runtime.abort_sse()
+        this.chat.runtime.interrupt_chat()
         const session = this.chat.sessions.find(s => s.sessionId === session_id) || await this.chat.session.get_session(session_id)
         if (!this.chat.sessions.some(s => s.sessionId === session_id))
             this.chat.set({ sessions: [session, ...this.chat.sessions] })
@@ -118,7 +118,7 @@ export class ChatSessionModel {
         const new_sessions = this.chat.sessions.filter(s => s.sessionId !== session_id)
         
         if (this.chat.current_session_id === session_id) {
-            this.chat.runtime.abort_sse()
+            this.chat.runtime.interrupt_chat()
             this.chat.set({
                 current_session_id: '',
                 current_workspace_id: '',

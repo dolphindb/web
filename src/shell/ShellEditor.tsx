@@ -11,7 +11,7 @@ import { model, NodeType, storage_keys } from '@model'
 
 import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 
-import { chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
+import { chat_model, chat_shared_model, get_chat_model, release_chat_model } from '@/agent/model.ts'
 import type { ScriptExecuteApprovalMode } from '@/agent/model.ts'
 import { AiTab } from '@/agent/ai-tab/AiTab.tsx'
 import { needs_builtin_init_action } from '@/agent/builtin-init.ts'
@@ -103,6 +103,8 @@ export function ShellEditor ({ collapser }) {
         const { tabs, itab } = shell
         
         function remove_tab () {
+            if (tab.chat_id)
+                release_chat_model(tab.chat_id)
             const index = tabs.findIndex(t => t.index === tabId)
             const new_tabs = tabs.filter(t => t.index !== tabId)
             if (tabId === itab)

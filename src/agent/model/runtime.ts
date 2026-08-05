@@ -1,6 +1,6 @@
 import { t } from '@i18n'
 import { model } from '@model'
-import { chat_model, type ChatModel } from '@/agent/model.ts'
+import type { ChatModel } from '@/agent/model.ts'
 import { get_script_handler } from '@/agent/scripts/index.ts'
 import type { ToolContext, ScriptResult } from '@/agent/scripts/types.ts'
 import {
@@ -47,8 +47,11 @@ export class ChatRuntimeModel {
             this.chat.sse_controller = null
         }
     }
-    is_request_interrupted (request_seq: number): boolean {
-        return request_seq > 0 && this.chat._interrupted_request_seq === request_seq
+    is_request_inactive (request_seq: number): boolean {
+        // 只有当前请求拥有写入消息和继续工具循环的权限；停止或新请求都会使旧请求永久失效。
+        return request_seq <= 0 ||
+            request_seq !== this.chat._active_request_seq ||
+            this.chat._interrupted_request_seq === request_seq
     }
     get_session_script_execute_approval_mode (session_id = this.chat.current_session_id): ScriptExecuteApprovalMode {
         if (!session_id)
@@ -81,7 +84,7 @@ export class ChatRuntimeModel {
         resolver?.(decision)
     }
     async request_script_execution_approval (tool_name: string, script: string, message_id: string): Promise<ScriptExecuteApprovalDecision> {
-        const session_id = this.chat.current_session_id
+        const session_id = this.chat._active_session_id
         if (
             this.chat.runtime.get_session_script_execute_approval_mode(session_id) === 'auto'
         )
@@ -177,6 +180,9 @@ export class ChatRuntimeModel {
     }
     start_turn () {
         const llm_config_id = this.chat.agent.get_turn_llm_config_id()
+        // 整轮工具调用固定使用开始时的归属，不能在异步返回后读取可能已切换的会话或 Agent。
+        this.chat._active_session_id = this.chat.current_session_id
+        this.chat._active_agent_id = this.chat.agent_id
         this.chat._active_llm_config_id = llm_config_id
         this.chat._active_use_native_tool_calling = this.chat.agent.should_use_native_tool_calling(llm_config_id)
     }
@@ -277,7 +283,7 @@ export class ChatRuntimeModel {
         this.chat.set({
             pending_tool_loop_control: {
                 id: `tool_loop_${Date.now()}`,
-                sessionId: this.chat.current_session_id,
+                sessionId: this.chat._active_session_id,
                 requestSeq: request_seq,
                 toolTurn: tool_turn,
                 message,
@@ -476,10 +482,12 @@ export class ChatRuntimeModel {
         }
         
         while (true) {
-            if (this.chat.runtime.is_request_interrupted(request_seq))
+            if (this.chat.runtime.is_request_inactive(request_seq))
                 return { content, reasoning_content, final_data }
             
             const { done, value } = await reader.read()
+            if (this.chat.runtime.is_request_inactive(request_seq))
+                return { content, reasoning_content, final_data }
             if (done)
                 break
             
@@ -499,12 +507,13 @@ export class ChatRuntimeModel {
         }
     }
     async do_chat_completions (message: string, options: ChatCompletionOptions = { }, _tool_turn = 0, request_seq = this.chat._active_request_seq) {
+        if (this.chat.runtime.is_request_inactive(request_seq))
+            return
         if (this.chat.tool_call_limit_enabled && _tool_turn > this.chat._tool_turn_limit) {
             this.chat.runtime.request_tool_loop_decision(message, options, _tool_turn, request_seq)
             return
         }
-        if (this.chat.runtime.is_request_interrupted(request_seq))
-            return
+        const session_id = this.chat._active_session_id
         
         // 首轮（非工具续传）时才中断上一次 SSE
         if (_tool_turn === 0)
@@ -516,7 +525,6 @@ export class ChatRuntimeModel {
         // 添加用户消息到 UI（仅新消息时）
         if (message && _tool_turn === 0 && options.append_user !== false) {
             const has_prior_user_msg = this.chat.messages.some(m => m.role === 'user')
-            const session_id = this.chat.current_session_id
             const user_msg: IMessage = {
                 msgId: `user_${Date.now()}`,
                 role: 'user',
@@ -558,7 +566,7 @@ export class ChatRuntimeModel {
             
             const tool_call_adapter = this.chat.runtime.get_tool_call_adapter()
             
-            const agent = chat_model.agents.find(a => a.agentId === this.chat.agent_id)
+            const agent = this.chat.agents.find(a => a.agentId === this.chat._active_agent_id)
             const doc_search_enabled = agent?.config?.docSearchEnabled !== false
             
             const doc_search_enabled_changed = doc_search_enabled !== this.last_doc_search_enabled
@@ -573,7 +581,7 @@ export class ChatRuntimeModel {
             )
             
             const body: Record<string, any> = {
-                sessionId: this.chat.current_session_id,
+                sessionId: session_id,
                 stream: true,
                 contextEvent: true,
                 includeReasoning: true,
@@ -641,7 +649,7 @@ export class ChatRuntimeModel {
                 })
             }
             
-            if (this.chat.runtime.is_request_interrupted(request_seq))
+            if (this.chat.runtime.is_request_inactive(request_seq))
                 return
             
             this.chat._last_failed_completion = null
@@ -682,14 +690,18 @@ export class ChatRuntimeModel {
                 this.chat.set({ agent_status: { status: 'idle' } })
             }
             
+            if (this.chat.runtime.is_request_inactive(request_seq))
+                return
             // 刷新会话列表以更新标题/时间
             this.chat.session.load_sessions().catch(() => { })
         } catch (e: any) {
             if (e.name === 'AbortError') {
-                if (this.chat.runtime.is_request_interrupted(request_seq))
+                if (this.chat.runtime.is_request_inactive(request_seq))
                     this.chat.runtime.remove_pending_empty_assistant_messages()
                 return
             }
+            if (this.chat.runtime.is_request_inactive(request_seq))
+                return
             console.error('Chat completions error:', e)
             this.chat._last_failed_completion = { message, options, toolTurn: _tool_turn }
             this.chat.set({ agent_status: { status: 'idle' } })
@@ -711,8 +723,8 @@ export class ChatRuntimeModel {
             model.message?.warning(no_available_llm_config_message())
             return
         }
-        if (this.chat.sse_controller)
-            this.chat.runtime.abort_sse()
+        if (this.chat.agent_status.status !== 'idle' || this.chat.sse_controller)
+            this.chat.runtime.interrupt_chat()
             
         const messages = [...this.chat.messages]
         const last_message = messages[messages.length - 1]
@@ -787,7 +799,7 @@ export class ChatRuntimeModel {
             })
         
         for (let index = 0;  index < parsed_calls.length;  index += 1) {
-            if (this.chat.runtime.is_request_interrupted(request_seq))
+            if (this.chat.runtime.is_request_inactive(request_seq))
                 return
             
             const parsed_call = parsed_calls[index]
@@ -824,7 +836,7 @@ export class ChatRuntimeModel {
                 should_continue_loop = true
         }
         
-        if (this.chat.runtime.is_request_interrupted(request_seq))
+        if (this.chat.runtime.is_request_inactive(request_seq))
             return
         
         const continuation = tool_call_adapter.build_continuation(tool_result_contents, tool_results)
@@ -834,7 +846,7 @@ export class ChatRuntimeModel {
             this.chat.set({ agent_status: { status: 'idle' } })
     }
     async execute_tool_call (parsed_call: ParsedToolCall, request_seq: number, tool_call_msg_id: string): Promise<ToolExecutionResult | null> {
-        if (this.chat.runtime.is_request_interrupted(request_seq))
+        if (this.chat.runtime.is_request_inactive(request_seq))
             return null
         if (parsed_call.type === INVALID_TOOL_CALL_FORMAT) {
             const content = tool_result_json({
@@ -870,10 +882,10 @@ export class ChatRuntimeModel {
         const script = handler && SCRIPT_APPROVAL_TOOLS.has(parsed_call.type)
             ? normalize_script_args(parsed_call.payload)[0] || ''
             : ''
-        const script_reviewed = Boolean(script) && this.chat.runtime.get_session_script_execute_approval_mode() !== 'auto'
+        const script_reviewed = Boolean(script) && this.chat.runtime.get_session_script_execute_approval_mode(this.chat._active_session_id) !== 'auto'
         if (script) {
             const decision = await this.chat.runtime.request_script_execution_approval(parsed_call.type, script, tool_call_msg_id)
-            if (this.chat.runtime.is_request_interrupted(request_seq))
+            if (this.chat.runtime.is_request_inactive(request_seq))
                 return null
             if (decision === 'deny') {
                 this.chat._interrupted_request_seq = request_seq
@@ -895,9 +907,9 @@ export class ChatRuntimeModel {
         const context: ToolContext = {
             eval: (script, options) => model.ddb.eval(script, { ...options, ai: !script_reviewed }),
             api_fetch: (path, options) => this.chat.agent.api_fetch(path, options),
-            agent_id: this.chat.agent_id,
-            session_id: this.chat.current_session_id,
-            workspace_id: this.chat.current_session_id,
+            agent_id: this.chat._active_agent_id,
+            session_id: this.chat._active_session_id,
+            workspace_id: this.chat._active_session_id,
             workspace_store: chat_workspace_store,
         }
         
@@ -927,7 +939,7 @@ export class ChatRuntimeModel {
         } else
             script_result = await this.chat.runtime.try_execute_mcp_tool_call(parsed_call, context)
         
-        if (this.chat.runtime.is_request_interrupted(request_seq))
+        if (this.chat.runtime.is_request_inactive(request_seq))
             return null
         
         let stop_loop = false
@@ -971,9 +983,11 @@ export class ChatRuntimeModel {
             parsed_call.type.startsWith('vfs_') ||
             parsed_call.type.startsWith('workspace_state_')
         )
-            await this.chat.workspace.refresh_workspace_context().catch(error => {
+            await this.chat.workspace.refresh_workspace_context(this.chat._active_session_id).catch(error => {
                 console.warn('Refresh workspace context failed:', error)
             })
+        if (this.chat.runtime.is_request_inactive(request_seq))
+            return null
         if (stop_loop)
             this.chat.set({ agent_status: { status: 'idle' } })
             
