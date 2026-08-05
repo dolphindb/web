@@ -73,7 +73,7 @@ export function Card ({
                     
                     model.message.success(t('{{label}}{{action}}成功', { label, action }))
                     
-                    on_saved(!active)
+                    on_saved?.(!active)
                 }}
             >
                 <Button
