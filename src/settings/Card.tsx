@@ -15,8 +15,7 @@ export function Card ({
     description,
     activate_prompt = t('您确定要启用此功能吗'),
     deactivate_prompt = t('您确定要停用此功能吗'),
-    on_activate,
-    on_deactivate,
+    on_saved
 }: {
     module_key: string
     icon: ReactElement
@@ -24,8 +23,7 @@ export function Card ({
     description: string
     activate_prompt?: string
     deactivate_prompt?: string
-    on_activate?: () => void | Promise<void>
-    on_deactivate?: () => void | Promise<void>
+    on_saved? (activated: boolean): void
 }) {
     const { enabled_modules } = model.use(['enabled_modules'])
     
@@ -44,16 +42,15 @@ export function Card ({
             <Popconfirm
                 okButtonProps={{ danger: active }}
                 title={active ? deactivate_prompt : activate_prompt}
+                okText={t('确定')}
+                cancelText={t('取消')}
                 onConfirm={async () => {
                     let enabled_modules_ = new Set(enabled_modules)
                     
-                    if (active) {
-                        await on_deactivate?.()
+                    if (active)
                         enabled_modules_.delete(module_key)
-                    } else {
-                        await on_activate?.()
+                    else
                         enabled_modules_.add(module_key)
-                    }
                     
                     if (enabled_modules_.size)
                         await config.change_configs([
@@ -75,9 +72,9 @@ export function Card ({
                     model.set({ enabled_modules: enabled_modules_ })
                     
                     model.message.success(t('{{label}}{{action}}成功', { label, action }))
+                    
+                    on_saved(!active)
                 }}
-                okText={t('确定')}
-                cancelText={t('取消')}
             >
                 <Button
                     className='button'
