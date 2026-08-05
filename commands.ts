@@ -3,7 +3,7 @@
 import type { Context } from 'koa'
 
 import {
-    ramdisk, noprint, fdclear, Remote, set_inspect_options, fdelete, fread, crc32, fexists, fwrite, fappend
+    ramdisk, noprint, fdclear, Remote, set_inspect_options, fdelete, fread, crc32, fexists, fwrite, fappend, flist
 } from 'xshell'
 import { Git, type GitVersionInfo } from 'xshell/git.js'
 import { Server } from 'xshell/server.js'
@@ -329,6 +329,7 @@ async function build_web (production: boolean, full: boolean, version_name?: str
                         'react-quill-new': 'window',
                         
                         'plotly.js-dist-min': 'Plotly',
+                        katex: 'katex',
                         
                         // deps.ts 已经预打包了
                         '@ant-design/pro-components': 'AntdPro',
@@ -348,6 +349,13 @@ async function build_web (production: boolean, full: boolean, version_name?: str
                 htmls,
                 {
                     productions: [
+                        ... (await flist(`${fpd_root}node_modules/katex/dist/fonts/`, {
+                            ...noprint,
+                            filter: /\.woff2$/
+                        })).map(font => ({
+                            src: `node_modules/katex/dist/fonts/${font}`,
+                            out: `fonts/${font}`
+                        })),
                         ... [
                             'overview/online.png', 'overview/offline.png',
                             'overview/icons/controller-background.svg',
