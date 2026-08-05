@@ -329,13 +329,13 @@ async function build_web (production: boolean, full: boolean, version_name?: str
                         'react-quill-new': 'window',
                         
                         'plotly.js-dist-min': 'Plotly',
-                        katex: 'katex',
                         
                         // deps.ts 已经预打包了
                         '@ant-design/pro-components': 'AntdPro',
                         'react-router': 'ReactRouter',
                         '@xyflow/react': 'xyflow',
-                        '@xterm/addon-webgl': 'XtermWebgl'
+                        '@xterm/addon-webgl': 'XtermWebgl',
+                        katex: 'katex'
                     }
                 })
         }),
@@ -350,7 +350,7 @@ async function build_web (production: boolean, full: boolean, version_name?: str
                 {
                     productions: [
                         ... (await flist(`${fpd_root}node_modules/katex/dist/fonts/`, {
-                            ...noprint,
+                            print: false,
                             filter: /\.woff2$/
                         })).map(font => ({
                             src: `node_modules/katex/dist/fonts/${font}`,
