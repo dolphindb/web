@@ -19,7 +19,7 @@ const EN_TOOL_SCHEMA_TEXT = new Map<string, string>([
     ['最大返回结果数，默认 20，上限 30', 'Maximum number of results. Default 20, maximum 30.'],
     ['读取 doc_search 返回的某个文档候选 id，返回和当前问题相关的正文内容', 'Read the document body related to the current question for an id returned by doc_search.'],
     ['doc_search 返回的文档候选 id', 'Document candidate id returned by doc_search.'],
-    ['读取 Agent 技能详情，包括技能名称、描述、指令内容和 Skill 包文件目录；可传 skill_id 或唯一技能名称；只用于 Skill 元信息，不读取工作区文件', 'Read Agent Skill details, including name, description, instructions, and Skill package file tree. Accepts skill_id or unique skill name. Use only for Skill metadata, not workspace files.'],
+    ['读取 Agent 技能详情，包括技能名称、描述、指令内容和 Skill 包文件列表；可传 skill_id 或唯一技能名称；只用于 Skill 元信息，不读取工作区文件', 'Read Agent Skill details, including name, description, instructions, and Skill package files. Accepts skill_id or unique skill name. Use only for Skill metadata, not workspace files.'],
     ['技能 ID', 'Skill ID.'],
     ['可选，技能名称；存在重名时必须改用 skill_id', 'Optional skill name. Use skill_id when names collide.'],
     ['列出虚拟文件。/home/workspace 返回工作区文件；/home/skills/<skill_id> 返回 Skill 包文件', 'List virtual files. /home/workspace returns workspace files; /home/skills/<skill_id> returns Skill package files.'],
