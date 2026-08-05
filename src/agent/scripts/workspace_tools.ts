@@ -10,6 +10,7 @@ import {
 
 import type { ScriptConfig, ScriptResult, ToolContext } from './types.ts'
 import {
+    TOOL_RESULT_SPILL_THRESHOLD_CHARS,
     normalize_script_args,
     format_ddb_eval_result_info,
     tool_result_json,
@@ -26,6 +27,10 @@ import {
     to_skill_display_path,
     to_workspace_display_path,
 } from './vfs_paths.ts'
+
+
+const VFS_READ_DEFAULT_START_LINE = 1
+const VFS_READ_DEFAULT_LINE_COUNT = 200
 
 
 function result_message (type: string, content: string, content_object?: unknown): IMessage {
@@ -105,6 +110,45 @@ function get_workspace_names (value: unknown): string[] | undefined {
 
 function get_display_workspace_result (result: unknown) {
     return JSON.stringify(normalize_workspace_result_paths(result))
+}
+
+
+function normalize_vfs_read_result (result: unknown) {
+    if (!is_record(result))
+        return result
+    const { line_count, start_line, end_line, ...rest } = result
+    return {
+        ...rest,
+        lineCount: result.lineCount ?? line_count,
+        startLine: result.startLine ?? start_line,
+        endLine: result.endLine ?? end_line,
+    }
+}
+
+
+function reject_oversized_vfs_read (type: string, result: unknown): ScriptResult | null {
+    if (!is_record(result) || typeof result.content !== 'string')
+        return null
+    const content = result.content
+    if (content.length <= TOOL_RESULT_SPILL_THRESHOLD_CHARS)
+        return null
+    const line_count = Number(result.lineCount ?? result.line_count)
+    return {
+        next_loop: true,
+        save_message: {
+            msgId: `tool_${Date.now()}`,
+            role: 'tool',
+            messageType: 'tool_error',
+            name: type,
+            content: tool_result_json({
+                ok: false,
+                tool: type,
+                ...(Number.isInteger(line_count) ? { lineCount: line_count } : { }),
+                error: `文件共 ${Number.isInteger(line_count) ? line_count : '未知'} 行；本次读取内容过大（${content.length} 字符），未放入模型上下文。`,
+                hint: '请缩小 startLine 和 endLine 的范围后重试，或先用 vfs_search 定位相关内容；未传范围时默认读取前 200 行。',
+            }),
+        },
+    }
 }
 
 
@@ -196,16 +240,12 @@ function to_string_array (value: unknown): string[] | undefined {
 function get_read_args (content: unknown) {
     const parsed = normalize_json_object(content)
     const args = normalize_script_args(content)
-    if (parsed)
-        return {
-            name: get_vfs_arg(String(parsed.name ?? parsed.path ?? args[0] ?? '').trim()),
-            start_line: to_optional_int(parsed.startLine ?? parsed.start_line ?? args[1]),
-            end_line: to_optional_int(parsed.endLine ?? parsed.end_line ?? args[2]),
-        }
+    const start_line = to_optional_int(parsed?.startLine ?? parsed?.start_line ?? args[1]) || VFS_READ_DEFAULT_START_LINE
+    const end_line = to_optional_int(parsed?.endLine ?? parsed?.end_line ?? args[2]) || start_line + VFS_READ_DEFAULT_LINE_COUNT - 1
     return {
-        name: get_vfs_arg(args[0] || ''),
-        start_line: to_optional_int(args[1]),
-        end_line: to_optional_int(args[2]),
+        name: get_vfs_arg(String(parsed?.name ?? parsed?.path ?? args[0] ?? '').trim()),
+        start_line,
+        end_line,
     }
 }
 
@@ -291,6 +331,21 @@ async function read_skill_file (context: ToolContext, skill_id: string, file_pat
         sourceEncoding: source_encoding || undefined,
         content: text,
     }, skill_id)
+}
+
+
+async function read_vfs_file (context: ToolContext, name: string, start_line: number, end_line: number) {
+    if (is_skill_path(name)) {
+        const { skill_id, file_path } = parse_skill_file_path(name)
+        return read_skill_file(context, skill_id, file_path, start_line, end_line)
+    }
+    const file = await context.workspace_store.get_file(require_workspace(context), context.api_fetch, get_workspace_arg(name), {
+        start_line,
+        end_line,
+    })
+    if (!file)
+        throw new Error(`File not found: ${name.replace(/^\/+/, '')}`)
+    return normalize_workspace_result_paths(file)
 }
 
 
@@ -472,38 +527,28 @@ export const vfs_read_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'vfs_read',
-            description: '读取虚拟文本文件。/home/workspace/<file> 返回 content、lineCount、startLine、endLine、hash；/home/skills/<skill_id>/<file_path> 返回 Skill 文件文本内容。',
+            description: '按行分段读取 /home/workspace/<file> 工作区文件或 /home/skills/<skill_id>/<file_path> Skill 文件。必须传入 startLine 和 endLine；未传时默认读取第 1–200 行。每次返回文件总行数 lineCount。',
             parameters: {
                 type: 'object',
                 properties: {
                     name: { type: 'string', description: VFS_PATH_RULE },
-                    startLine: { type: 'number', description: '可选，起始行，1-based' },
-                    endLine: { type: 'number', description: '可选，结束行，闭区间' },
+                    startLine: { type: 'number', description: '必填，起始行，1-based；未传时默认为 1' },
+                    endLine: { type: 'number', description: '必填，结束行，闭区间；未传时默认为 startLine + 199' },
                 },
-                required: ['name'],
+                required: ['name', 'startLine', 'endLine'],
             },
         },
     },
     handler: async (type, content, context): Promise<ScriptResult> => {
         try {
             const { name, start_line, end_line } = get_read_args(content)
-            if (is_skill_path(name)) {
-                const { skill_id, file_path } = parse_skill_file_path(name)
-                const file = await read_skill_file(context, skill_id, file_path, start_line, end_line)
-                return {
-                    next_loop: true,
-                    save_message: result_message(type, JSON.stringify(file)),
-                }
-            }
-            const file = await context.workspace_store.get_file(require_workspace(context), context.api_fetch, get_workspace_arg(name), {
-                start_line,
-                end_line,
-            })
-            if (!file)
-                throw new Error(`File not found: ${name.replace(/^\/+/, '')}`)
+            const file = normalize_vfs_read_result(await read_vfs_file(context, name, start_line, end_line))
+            const oversized = reject_oversized_vfs_read(type, file)
+            if (oversized)
+                return oversized
             return {
                 next_loop: true,
-                save_message: result_message(type, get_display_workspace_result(file)),
+                save_message: result_message(type, JSON.stringify(file)),
             }
         } catch (error) {
             return error_result(type, `vfs_read failed: ${error instanceof Error ? error.message : String(error)}`)

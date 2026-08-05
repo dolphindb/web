@@ -62,9 +62,9 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = is_english ? {
         args_hint: '["script.dos","select * from tb"]',
     },
     vfs_read: {
-        summary: 'Read a virtual text file. `/home/workspace/<file>` returns content, lineCount, startLine, endLine, and hash; `/home/skills/<skillId>/<file>` reads a Skill package file.',
-        args_desc: `args[0]=name(required, /home/workspace/<file> or /home/skills/<skillId>/<file>, ${WORKSPACE_FILE_NAME_RULE}); args[1]=startLine(optional, 1-based); args[2]=endLine(optional, inclusive).`,
-        args_hint: '["/home/skills/<skillId>/SKILL.md","1","120"]',
+        summary: 'Read `/home/workspace/<file>` workspace files or `/home/skills/<skillId>/<file>` Skill files in line ranges. Always pass startLine and endLine; omitted ranges default to lines 1–200. Every result includes the total file lineCount.',
+        args_desc: `args[0]=name(required, /home/workspace/<file> or /home/skills/<skillId>/<file>, ${WORKSPACE_FILE_NAME_RULE}); args[1]=startLine(required, 1-based); args[2]=endLine(required, inclusive).`,
+        args_hint: '["/home/skills/<skillId>/SKILL.md","1","200"]',
     },
     vfs_search: {
         summary: 'Search virtual text files by literal substring. Defaults to /home/workspace; pass path=/home/skills/<skillId> or names=/home/skills/<skillId>/<file> to search Skill package files.',
@@ -157,9 +157,9 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = is_english ? {
         args_hint: '["script.dos","select * from tb"]',
     },
     vfs_read: {
-        summary: '读取虚拟文本文件。`/home/workspace/<file>` 读工作区文件并返回 hash；`/home/skills/<skillId>/<file>` 读 Skill 包文件。',
-        args_desc: `args[0]=name(必填, /home/workspace/<file> 或 /home/skills/<skillId>/<file>，${WORKSPACE_FILE_NAME_RULE}); args[1]=startLine(可选, 1-based 起始行); args[2]=endLine(可选, 闭区间结束行)。`,
-        args_hint: '["/home/skills/<skillId>/SKILL.md","1","120"]',
+        summary: '按行分段读取 `/home/workspace/<file>` 工作区文件或 `/home/skills/<skillId>/<file>` Skill 文件。必须传入 startLine 和 endLine；未传范围时默认读取第 1–200 行。每次结果都会返回文件总行数 lineCount。',
+        args_desc: `args[0]=name(必填, /home/workspace/<file> 或 /home/skills/<skillId>/<file>，${WORKSPACE_FILE_NAME_RULE}); args[1]=startLine(必填, 1-based 起始行); args[2]=endLine(必填, 闭区间结束行)。`,
+        args_hint: '["/home/skills/<skillId>/SKILL.md","1","200"]',
     },
     vfs_search: {
         summary: '搜索虚拟文本文件。默认搜索 `/home/workspace`；传 path=`/home/skills/<skillId>` 或 names 中传 `/home/skills/<skillId>/<file>` 搜索 Skill 包。',

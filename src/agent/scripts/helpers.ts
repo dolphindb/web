@@ -149,6 +149,7 @@ export type ToolResultEnvelope = {
     resultType?: string
     resultCount?: number
     rowCount?: number | null
+    lineCount?: number
     print?: string[]
     columns?: ColdefColumn[]
     preview?: unknown
