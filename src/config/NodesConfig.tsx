@@ -111,7 +111,6 @@ export function NodesConfig () {
                             renderFormItem: () =>  
                                 <AutoComplete<{ label: string, value: string }>
                                     showSearch
-                                    optionFilterProp='label'
                                     options={(all_node_configs[key] || [ ]).map(to_option)} />
                         },
                         {
@@ -216,12 +215,10 @@ export function NodesConfig () {
         <div className='toolbar'>
             <div className='auto-search'>
                 <AutoComplete<string>
-                    showSearch
+                    showSearch={{ filterOption: filter_config }}
                     placeholder={t('请输入想要查找的配置项')}
-                    optionFilterProp='label'
                     value={search_key}
                     onChange={set_search_key}
-                    filterOption={filter_config}
                     onKeyDown={e => {
                         if (e.key === 'Enter') 
                             on_search()

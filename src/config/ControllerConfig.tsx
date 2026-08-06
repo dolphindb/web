@@ -45,9 +45,7 @@ export function ControllerConfig () {
             },
             renderFormItem: () =>  
                 <AutoComplete<{ label: string, value: string }>
-                    showSearch
-                    optionFilterProp='label'
-                    filterOption={filter_config}
+                    showSearch={{ filterOption: filter_config }}
                     options={controller_configs} 
                 />
         },
@@ -141,14 +139,12 @@ export function ControllerConfig () {
         toolBarRender={() => [
             <div className='auto-search'>
                 <AutoComplete<string>
-                    showSearch
+                    showSearch={{ filterOption: filter_config }}
                     placeholder={t('请输入想要查找的配置项')}
-                    optionFilterProp='label'
                     value={search_key}
                     onChange={value => {
                         set_search_key(value)
                     }}
-                    filterOption={filter_config}
                     onKeyDown={e => {
                         if (e.key === 'Enter') 
                             set_search_value(search_key)

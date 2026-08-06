@@ -165,9 +165,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
     const group_configs_columns: TableProps<GroupConfigDatatype>['columns'] = [
         {
             title: t('配置项'), key: 'name', render: (_, { key, name }) => <AutoComplete<string>
-                showSearch
-                optionFilterProp='label'
-                filterOption={filter_config}
+                showSearch={{ filterOption: filter_config }}
                 value={name}
                 style={{ width: 400 }}
                 status={(validating && name === '') ? 'error' : undefined}

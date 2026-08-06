@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 
 import type { editor } from 'monaco-editor'
 
-import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
+import type * as monacoapi from 'monaco-editor'
 export type { monacoapi }
 
 export type Monaco = typeof monacoapi

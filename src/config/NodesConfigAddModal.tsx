@@ -81,9 +81,7 @@ export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: st
                 rules={[{ required: true, message: t('请输入或选择配置项') }]}
             >
                 <AutoComplete<{ label: string, otpions: { label: string, value: string } }>
-                    showSearch
-                    optionFilterProp='label'
-                    filterOption={filter_config}
+                    showSearch={{ filterOption: filter_config }}
                     options={node_configs_options} />
             </Form.Item>
             <FormDependencies dependencies={['name']}>
