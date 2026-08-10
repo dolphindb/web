@@ -670,7 +670,7 @@ function StateTable ({
         <DDBTable
             tableLayout='fixed'
             rowSelection={
-                refresher
+                refresher && type !== 'persistWorkers'
                     ? {
                             type: 'checkbox',
                             selectedRowKeys: selected,
@@ -686,7 +686,7 @@ function StateTable ({
             size='small'
             title={header_text[type].title}
             help={header_text[type].tip}
-            buttons={refresher 
+            buttons={refresher && type !== 'persistWorkers'
                 ? <DeleteModal 
                     table_name={type} 
                     selected={selected} 

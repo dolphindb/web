@@ -1,6 +1,6 @@
 import { createRef } from 'react'
 import { Model } from 'react-object-model'
-import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
+import type * as monacoapi from 'monaco-editor'
 import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbLong, DdbDict, DdbInt } from 'dolphindb/browser.js'
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 import { assert, genid } from 'xshell/utils.browser.js'

@@ -132,13 +132,11 @@ export function ComputeGroupConfig () {
             <div className='toolbar'>
                 <div className='auto-search'>
                     <AutoComplete<string>
-                        showSearch
+                        showSearch={{ filterOption: filter_config }}
                         placeholder={t('请输入想要查找的配置项')}
-                        optionFilterProp='label'
                         value={search_kw}
                         style={{ width: 300, flex: '1' }}
                         onChange={set_search_kw}
-                        filterOption={filter_config}
                         onKeyDown={e => {
                             if (e.key === 'Enter')
                                 on_search()
