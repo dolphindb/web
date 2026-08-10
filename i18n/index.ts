@@ -10,6 +10,6 @@ const i18n = new I18N(_dict)
 if (!I18N.LANGUAGE_REGEXP.test(Intl.DateTimeFormat().resolvedOptions().locale.slice(0, 2)))
     i18n.language = i18n_api.language = i18n_xsh.language = 'en'
 
-const { t, Trans, language } = i18n
+const { t, language } = i18n
 
-export { i18n, t, Trans, language }
+export { i18n, t, language }

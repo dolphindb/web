@@ -7,7 +7,7 @@ import { debounce } from 'lodash'
 import type { Terminal } from '@xterm/xterm'
 import type { FitAddon } from '@xterm/addon-fit'
 
-import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
+import type * as monacoapi from 'monaco-editor'
 
 import { select } from 'xshell/prototype.browser.js'
 import { delta2str, assert, delay, strcmp, defer } from 'xshell/utils.browser.js'

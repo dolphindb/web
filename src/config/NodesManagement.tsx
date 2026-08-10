@@ -232,9 +232,8 @@ export function NodesManagement () {
         <div className='search-line'>
             <div className='search-comp'>
                 <AutoComplete<string>
-                    showSearch
+                    showSearch={{ filterOption: filter_config }}
                     placeholder={t('请输入想要查找的节点别名')}
-                    optionFilterProp='label'
                     value={search_key}
                     onChange={value => {
                         set_search_key(value)
@@ -243,7 +242,6 @@ export function NodesManagement () {
                         if (e.key === 'Enter')
                             set_search_value(search_key)
                     }}
-                    filterOption={filter_config}
                     options={all_nodes.map(({ alias }) => ({
                         label: alias,
                         value: alias
