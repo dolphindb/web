@@ -62,7 +62,7 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = is_english ? {
         args_hint: '["script.dos","select * from tb"]',
     },
     vfs_read: {
-        summary: 'Read `/home/workspace/<file>` workspace files or `/home/skills/<skillId>/<file>` Skill files in line ranges. Always pass startLine and endLine; omitted ranges default to lines 1–200. Every result includes the total file lineCount.',
+        summary: 'Read `/home/workspace/<file>` workspace files or `/home/skills/<skillId>/<file>` Skill files in line ranges. Always pass startLine and endLine. Every result includes the total file lineCount.',
         args_desc: `args[0]=name(required, /home/workspace/<file> or /home/skills/<skillId>/<file>, ${WORKSPACE_FILE_NAME_RULE}); args[1]=startLine(required, 1-based); args[2]=endLine(required, inclusive).`,
         args_hint: '["/home/skills/<skillId>/SKILL.md","1","200"]',
     },
@@ -157,7 +157,7 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = is_english ? {
         args_hint: '["script.dos","select * from tb"]',
     },
     vfs_read: {
-        summary: '按行分段读取 `/home/workspace/<file>` 工作区文件或 `/home/skills/<skillId>/<file>` Skill 文件。必须传入 startLine 和 endLine；未传范围时默认读取第 1–200 行。每次结果都会返回文件总行数 lineCount。',
+        summary: '按行分段读取 `/home/workspace/<file>` 工作区文件或 `/home/skills/<skillId>/<file>` Skill 文件。必须传入 startLine 和 endLine。每次结果都会返回文件总行数 lineCount。',
         args_desc: `args[0]=name(必填, /home/workspace/<file> 或 /home/skills/<skillId>/<file>，${WORKSPACE_FILE_NAME_RULE}); args[1]=startLine(必填, 1-based 起始行); args[2]=endLine(必填, 闭区间结束行)。`,
         args_hint: '["/home/skills/<skillId>/SKILL.md","1","200"]',
     },

@@ -29,10 +29,6 @@ import {
 } from './vfs_paths.ts'
 
 
-const VFS_READ_DEFAULT_START_LINE = 1
-const VFS_READ_DEFAULT_LINE_COUNT = 200
-
-
 function result_message (type: string, content: string, content_object?: unknown): IMessage {
     return {
         msgId: `tool_${Date.now()}`,
@@ -145,7 +141,7 @@ function reject_oversized_vfs_read (type: string, result: unknown): ScriptResult
                 tool: type,
                 ...(Number.isInteger(line_count) ? { lineCount: line_count } : { }),
                 error: `文件共 ${Number.isInteger(line_count) ? line_count : '未知'} 行；本次读取内容过大（${content.length} 字符），未放入模型上下文。`,
-                hint: '请缩小 startLine 和 endLine 的范围后重试，或先用 vfs_search 定位相关内容；未传范围时默认读取前 200 行。',
+                hint: '请缩小 startLine 和 endLine 的范围后重试，或先用 vfs_search 定位相关内容。',
             }),
         },
     }
@@ -240,8 +236,10 @@ function to_string_array (value: unknown): string[] | undefined {
 function get_read_args (content: unknown) {
     const parsed = normalize_json_object(content)
     const args = normalize_script_args(content)
-    const start_line = to_optional_int(parsed?.startLine ?? parsed?.start_line ?? args[1]) || VFS_READ_DEFAULT_START_LINE
-    const end_line = to_optional_int(parsed?.endLine ?? parsed?.end_line ?? args[2]) || start_line + VFS_READ_DEFAULT_LINE_COUNT - 1
+    const start_line = to_optional_int(parsed?.startLine ?? parsed?.start_line ?? args[1])
+    const end_line = to_optional_int(parsed?.endLine ?? parsed?.end_line ?? args[2])
+    if (!start_line || !end_line)
+        throw new Error('vfs_read requires startLine and endLine as positive integers.')
     return {
         name: get_vfs_arg(String(parsed?.name ?? parsed?.path ?? args[0] ?? '').trim()),
         start_line,
@@ -527,13 +525,13 @@ export const vfs_read_config: ScriptConfig = {
         type: 'function',
         function: {
             name: 'vfs_read',
-            description: '按行分段读取 /home/workspace/<file> 工作区文件或 /home/skills/<skill_id>/<file_path> Skill 文件。必须传入 startLine 和 endLine；未传时默认读取第 1–200 行。每次返回文件总行数 lineCount。',
+            description: '按行分段读取 /home/workspace/<file> 工作区文件或 /home/skills/<skill_id>/<file_path> Skill 文件。必须传入 startLine 和 endLine。每次返回文件总行数 lineCount。',
             parameters: {
                 type: 'object',
                 properties: {
                     name: { type: 'string', description: VFS_PATH_RULE },
-                    startLine: { type: 'number', description: '必填，起始行，1-based；未传时默认为 1' },
-                    endLine: { type: 'number', description: '必填，结束行，闭区间；未传时默认为 startLine + 199' },
+                    startLine: { type: 'number', description: '必填，起始行，1-based' },
+                    endLine: { type: 'number', description: '必填，结束行，闭区间' },
                 },
                 required: ['name', 'startLine', 'endLine'],
             },
