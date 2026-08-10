@@ -18,6 +18,7 @@ import {
 import type { ChatCompletionOptions, ToolCallAdapter, ToolResultPayload } from '@/agent/tool_call_adapters.ts'
 import { INVALID_TOOL_CALL_FORMAT } from '@/agent/tool_call_parser.ts'
 import type { ParsedToolCall } from '@/agent/tool_call_parser.ts'
+import { spill_large_tool_result_content_if_needed } from '@/agent/tool_result_spill.ts'
 import { chat_workspace_store } from '@/agent/workspace.ts'
 
 import type { ChatCompletionStreamResult, IMessage, IScriptExecutionApproval, IToolCall, MessageType, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode, ToolExecutionResult } from './types.ts'
@@ -1030,6 +1031,11 @@ export class ChatRuntimeModel {
                 }),
             })
             const ok = result?.ok !== false && result?.isError !== true
+            const content = await spill_large_tool_result_content_if_needed(
+                JSON.stringify(result?.content ?? result?.raw ?? result ?? { }),
+                parsed_call.type,
+                context,
+            )
             return {
                 next_loop: true,
                 save_message: {
@@ -1041,9 +1047,17 @@ export class ChatRuntimeModel {
                         ok,
                         tool: parsed_call.type,
                         resultType: 'mcp',
-                        content: JSON.stringify(result?.content ?? result?.raw ?? result ?? { }),
+                        content,
                         error: result?.error,
-                        preview: result,
+                        preview: {
+                            ok: result?.ok,
+                            tool: result?.tool,
+                            mcpServerId: result?.mcpServerId,
+                            originalName: result?.originalName,
+                            isError: result?.isError,
+                            truncated: result?.truncated,
+                            error: result?.error,
+                        },
                     }),
                 },
             }
