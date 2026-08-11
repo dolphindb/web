@@ -2475,7 +2475,7 @@
         "en": "Search Users"
     },
     "用户管理": {
-        "en": "User"
+        "en": "User Management"
     },
     "组管理": {
         "en": "Group"
@@ -6902,6 +6902,9 @@
     "技能管理": {
         "en": "Skills Management"
     },
+    "配置可供 Agent 绑定和调用的技能。": {
+        "en": "Configure skills that Agents can bind and use."
+    },
     "保存成功": {
         "en": "Saved successfully"
     },
@@ -7958,6 +7961,9 @@
     "加载用量失败": {
         "en": "Failed to load usage"
     },
+    "部分 Agent 用量加载失败": {
+        "en": "Failed to load usage for some agents"
+    },
     "我的用量": {
         "en": "My Usage"
     },
@@ -8156,8 +8162,8 @@
     "绑定失败": {
         "en": "Failed to bind"
     },
-    "暂无可用模型配置，请先在「模型配置」中创建": {
-        "en": "No available model configs. Please create one in Model Config first."
+    "暂无可用模型配置，请先在「模型管理」中创建": {
+        "en": "No model configurations available. Create one in Model Management first."
     },
     "技能绑定": {
         "en": "Skill Binding"
@@ -8231,8 +8237,8 @@
     "模型数: {{count}}_plural": {
         "en": "Models: {{count}}"
     },
-    "请从左侧选择一个 Provider，或点击上方新建": {
-        "en": "Select a Provider on the left, or click New above"
+    "请从左侧选择一个 Provider，或点击「模型管理」右侧的 + 新建": {
+        "en": "Select a Provider on the left, or click + to the right of Model Management."
     },
     "编辑 Provider": {
         "en": "Edit Provider"
@@ -8270,8 +8276,8 @@
     "关联模型配置": {
         "en": "Related Model Configs"
     },
-    "暂无模型，点击上方新增": {
-        "en": "No models. Click New above."
+    "暂无模型，请点击「关联模型配置」右侧的「新增模型」添加": {
+        "en": "No models. Click Add Model to the right of Related Model Configs."
     },
     "已删除的模型配置不可编辑": {
         "en": "Deleted model configs cannot be edited"
@@ -8465,11 +8471,50 @@
     "Agent 管理": {
         "en": "Agent Management"
     },
+    "模型管理": {
+        "en": "Model Management"
+    },
     "记忆管理": {
         "en": "Memory Management"
     },
+    "记忆配置": {
+        "en": "Memory Configuration"
+    },
+    "记忆任务": {
+        "en": "Memory Tasks"
+    },
     "个人中心": {
         "en": "Personal Center"
+    },
+    "个人会话": {
+        "en": "Personal Sessions"
+    },
+    "个人用量": {
+        "en": "Personal Usage"
+    },
+    "选择需要管理的 Provider": {
+        "en": "Select a Provider to manage"
+    },
+    "选择需要管理会话的 Agent": {
+        "en": "Select an Agent to manage sessions"
+    },
+    "选择需要查看记忆的 Agent": {
+        "en": "Select an Agent to view memory"
+    },
+    "选择需要配置记忆的 Agent": {
+        "en": "Select an Agent to configure memory"
+    },
+    "选择需要查看记忆任务的 Agent": {
+        "en": "Select an Agent to view memory tasks"
+    },
+    "选择需要预览上下文的 Agent": {
+        "en": "Select an Agent to preview context"
+    },
+    "选择需要查看用量的 Agent": {
+        "en": "Select an Agent to view usage"
+    },
+    "选择需要管理的用户": {
+        "en": "Select a user to manage"
     },
     "内置资源升级": {
         "en": "Built-in resource upgrade"

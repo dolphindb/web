@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 
 import {
-    Button, Empty, Input, message, Modal, Popconfirm, Space, Spin, Table, Tabs, Tag, Tree, Typography, Upload, type TreeDataNode,
+    Button, Empty, Input, message, Modal, Popconfirm, Space, Spin, Table, Tabs, Tag, Tooltip, Tree, Typography, Upload, type TreeDataNode,
 } from 'antd'
-import { CheckCircleOutlined, DeleteOutlined, DownloadOutlined, PlusOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, DeleteOutlined, DownloadOutlined, PlusOutlined, ReloadOutlined, StopOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { language, t } from '@i18n'
 
@@ -214,26 +214,26 @@ export function SkillsTab () {
         }
     }
     
-    if (loading && !creating)
-        return <div style={{ textAlign: 'center', padding: 60 }}><Spin /></div>
-        
-    return <div style={{ height: '100%', minHeight: 0, overflow: 'auto' }}>
-        <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
-            <Button
-                type='dashed'
-                icon={<PlusOutlined />}
-                onClick={() => {
-                    set_creating(!creating)
-                    set_form_error('')
-                }}
-            >
-                {t('注册技能')}
-            </Button>
+    return <div className='ai-settings-list-detail' style={{ height: '100%' }}>
+        <div className='ai-settings-detail-header'>
+            <div className='ai-settings-detail-title'>{t('技能管理')}</div>
         </div>
-        
-        {creating && <div style={{
-            border: '1px solid #d9d9d9', borderRadius: 6, padding: 16, marginBottom: 16,
-        }}>
+        <div className='ai-settings-detail-body'>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
+                <Text type='secondary' style={{ fontSize: 12 }}>{t('配置可供 Agent 绑定和调用的技能。')}</Text>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Tooltip title={t('刷新')}>
+                        <Button icon={<ReloadOutlined />} disabled={creating} onClick={() => { load() }} />
+                    </Tooltip>
+                    <Button type='primary' icon={<PlusOutlined />} disabled={creating} onClick={() => {
+                        set_creating(true)
+                        set_form_error('')
+                    }}>
+                        {t('注册技能')}
+                    </Button>
+                </div>
+            </div>
+            {creating && <div style={{ marginBottom: 16 }}>
             {form_error_alert(form_error)}
             <div style={{ marginBottom: 12 }}>
                 <div style={{ marginBottom: 4, fontSize: 13 }}>{required_label(<>{t('技能包')} (ZIP)</>)}</div>
@@ -334,8 +334,9 @@ export function SkillsTab () {
             </div>
         </div>}
         
-        {all_skills.length === 0
-            ? <Empty description={t('暂无可用技能，请先创建')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        <Spin spinning={loading && !creating}>
+            {all_skills.length === 0
+            ? <Empty description={t('暂无可用技能，请先创建')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ padding: 32 }} />
             : <Table
                 size='small'
                 rowKey='skillId'
@@ -439,8 +440,8 @@ export function SkillsTab () {
                         </Space>,
                     },
                 ]}
-            />
-        }
+            />}
+        </Spin>
         <Modal
             title={detail_skill ? t('技能详情：{{name}}', { name: detail_skill.displayName || detail_skill.name }) : t('技能详情')}
             open={Boolean(detail_skill)}
@@ -528,6 +529,7 @@ export function SkillsTab () {
                     />
                 </Space>
             </Spin>}
-        </Modal>
+            </Modal>
+        </div>
     </div>
 }

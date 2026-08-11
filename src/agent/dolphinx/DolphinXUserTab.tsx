@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { use_modal } from 'react-object-model/hooks.js'
 
 import { Button, Descriptions, Empty, Input, InputNumber, Modal, Pagination, Popconfirm, Select, Space, Switch, Table, Tabs, Tag, Tooltip, Typography, message } from 'antd'
@@ -59,7 +59,7 @@ function page_total (offset: number, count: number, has_more: boolean, total?: n
 }
 
 
-function SessionSection () {
+export function SessionSection () {
     const { agent_id, options } = use_agent_options()
     const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
     const [sessions, set_sessions] = useState<ISession[]>([ ])
@@ -239,6 +239,8 @@ function SessionSection () {
     
     return <>
         <AgentListLayout
+            detail_title={t('个人会话')}
+            list_subtitle={t('选择需要管理会话的 Agent')}
             options={options}
             selected_agent_id={selected_agent_id}
             set_selected_agent_id={set_selected_agent_id}
@@ -353,7 +355,7 @@ function SessionSection () {
                 placeholder={t('摘要要求（可选，例如：重点保留结论和关键 SQL）')}
             />
             <Space style={{ marginTop: 8 }} wrap>
-                <Switch checked={force_summary} onChange={set_force_summary} />
+                <Switch className='ai-settings-switch-medium' checked={force_summary} onChange={set_force_summary} />
                 <span>{t('重新生成完整摘要')}</span>
                 <Button type='primary' loading={generating_summary} disabled={!summary_session} onClick={generate_summary}>{t('生成摘要')}</Button>
             </Space>
@@ -379,38 +381,12 @@ const memory_job_kind_options = ['memory_stage1', 'memory_phase2', 'memory_deriv
 const memory_job_status_options = ['running', 'done', 'pending', 'error', 'failed'].map(value => ({ value, label: value }))
 
 
-export function MemoryManagementTab ({ can_manage_memory = false }: { can_manage_memory?: boolean }) {
-    return <Tabs
-        className='ai-settings-tabs'
-        destroyOnHidden
-        items={[
-            {
-                key: 'memories',
-                label: t('记忆'),
-                children: <MemorySection can_manage_memory={can_manage_memory} can_view_public_memory />,
-            },
-            ...can_manage_memory ? [{
-                key: 'config',
-                label: t('配置'),
-                children: <MemoryConfigManagementSection />,
-            },
-            {
-                key: 'jobs',
-                label: t('任务'),
-                children: <MemoryJobsSection />,
-            }] : [ ],
-        ]}
-    />
-}
-
-
-function MemorySection ({ can_manage_memory = false, can_view_public_memory = false }: { can_manage_memory?: boolean, can_view_public_memory?: boolean }) {
+export function MemorySection ({ can_manage_memory = false, can_view_public_memory = false }: { can_manage_memory?: boolean, can_view_public_memory?: boolean }) {
     const { options } = use_agent_options()
     const [view_type, set_view_type] = useState<MemoryViewType>('user_personal')
     const personal_memory = view_type === 'user_personal'
     
     const [selected_agent_id, set_selected_agent_id] = useState('')
-    const [agent_page, set_agent_page] = useState(1)
     const [memory_kind, set_memory_kind] = useState<IMemoryEntry['memoryKind'] | ''>('')
     const [query, set_query] = useState('')
     const [sort_by, set_sort_by] = useState<'RECENCY' | 'IMPORTANCE' | 'TEXT_SEARCH' | 'RANKED'>('RECENCY')
@@ -438,19 +414,9 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
     const [stats_loading, set_stats_loading] = useState(false)
     const memory_modal = use_modal()
     const forget_modal = use_modal()
-    const default_page_size = 10
-    const [agent_page_size, set_agent_page_size] = useState(default_page_size)
-    const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
     const has_memory_query = Boolean(query.trim())
     const saved_public_content = public_memory?.content || ''
     const public_dirty = public_content !== saved_public_content
-    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id)
-    
-    useEffect(() => {
-        const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
-        if (agent_page > max_page)
-            set_agent_page(max_page)
-    }, [options.length, agent_page, agent_page_size])
     
     useEffect(() => {
         if (selected_agent_id) {
@@ -781,7 +747,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
         return <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                 <Space wrap>
-                    <Switch checked={memory_enabled} loading={settings_loading} disabled={!selected_agent_id} onChange={set_personal_memory_enabled} />
+                    <Switch className='ai-settings-switch-medium' checked={memory_enabled} loading={settings_loading} disabled={!selected_agent_id} onChange={set_personal_memory_enabled} />
                     <span>{t('启用记忆')}</span>
                 </Space>
                 <Space wrap>
@@ -938,7 +904,7 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
             [t('已删除'), memory_stats?.deletedCount],
             [t('平均重要度'), memory_stats?.avgImportance?.toFixed(2)],
         ]
-        return <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fafafa', border: '1px solid #f0f0f0', borderRadius: 4 }}>
+        return <div style={{ marginBottom: 12 }}>
             <Space size={24} wrap>
                 {stats_items.map(([label, value]) => <span key={label}>
                     <Text type='secondary'>{label}</Text>
@@ -949,71 +915,29 @@ function MemorySection ({ can_manage_memory = false, can_view_public_memory = fa
     }
     
     return <>
-        <div style={{ display: 'flex', gap: 12, height: '100%', minHeight: 0 }}>
-            <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontWeight: 500, marginBottom: 8 }}>{t('Agent')}</div>
-                <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-                    {options.length === 0
-                        ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无 Agent')} />
-                        : paged_agent_options.map(agent =>
-                            <div
-                                key={agent.value}
-                                onClick={() => { set_selected_agent_id(agent.value) }}
-                                title={agent.label}
-                                style={{
-                                    padding: '8px 10px',
-                                    borderRadius: 4,
-                                    cursor: 'pointer',
-                                    marginBottom: 4,
-                                    background: selected_agent_id === agent.value ? '#e6f4ff' : undefined,
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
-                                }}
-                            >
-                                {agent.label}
-                            </div>
-                        )}
-                </div>
-                {options.length > default_page_size && <Pagination
-                    size='small'
-                    simple
-                    current={agent_page}
-                    pageSize={agent_page_size}
-                    total={options.length}
-                    onChange={(page, page_size) => {
-                        set_agent_page(page)
-                        set_agent_page_size(page_size)
-                    }}
-                    style={{ marginTop: 8 }}
-                />}
-            </div>
-            <div style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto' }}>
-                {selected_agent_id ? <>
-                    {stats_content()}
-                    <Tabs
-                        activeKey={view_type}
-                        onChange={key => {
-                            set_view_type(key as MemoryViewType)
-                            set_items([ ])
-                            set_memory_total(0)
-                        }}
-                        items={[
-                            {
-                                key: 'user_personal',
-                                label: t('个人'),
-                                children: render_personal_memory_content(),
-                            },
-                            ...can_view_public_memory ? [{
-                                key: 'public_memory',
-                                label: t('公共'),
-                                children: render_public_memory_content(),
-                            }] : [ ],
-                        ]}
-                    />
-                </> : <Empty description={t('请选择 Agent')} />}
-            </div>
-        </div>
+        <AgentListLayout detail_title={t('记忆')} list_subtitle={t('选择需要查看记忆的 Agent')} options={options} selected_agent_id={selected_agent_id} set_selected_agent_id={set_selected_agent_id}>
+            {stats_content()}
+            <Tabs
+                activeKey={view_type}
+                onChange={key => {
+                    set_view_type(key as MemoryViewType)
+                    set_items([ ])
+                    set_memory_total(0)
+                }}
+                items={[
+                    {
+                        key: 'user_personal',
+                        label: t('个人'),
+                        children: render_personal_memory_content(),
+                    },
+                    ...can_view_public_memory ? [{
+                        key: 'public_memory',
+                        label: t('公共'),
+                        children: render_public_memory_content(),
+                    }] : [ ],
+                ]}
+            />
+        </AgentListLayout>
         <Modal
             title={editing_memory_id ? t('编辑记忆') : t('新增记忆')}
             open={memory_modal.visible}
@@ -1185,7 +1109,7 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(240px, 1fr))', gap: '12px 16px' }}>
                 <div>
                     <div style={{ marginBottom: 4, fontSize: 13 }}>{t('允许个人记忆')}</div>
-                    <Switch checked={form.allowPersonalMemory} onChange={value => { set_form({ ...form, allowPersonalMemory: value }) }} />
+                    <Switch className='ai-settings-switch-medium' checked={form.allowPersonalMemory} onChange={value => { set_form({ ...form, allowPersonalMemory: value }) }} />
                 </div>
                 <div>
                     <div style={{ marginBottom: 4, fontSize: 13 }}>{t('记忆模型配置')}</div>
@@ -1227,70 +1151,16 @@ function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
 }
 
 
-function MemoryConfigManagementSection () {
+export function MemoryConfigManagementSection () {
     const { options } = use_agent_options()
     const [selected_agent_id, set_selected_agent_id] = useState('')
-    const [agent_page, set_agent_page] = useState(1)
-    const default_page_size = 10
-    const [agent_page_size, set_agent_page_size] = useState(default_page_size)
-    const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
-    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id)
-    
-    useEffect(() => {
-        const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
-        if (agent_page > max_page)
-            set_agent_page(max_page)
-    }, [options.length, agent_page, agent_page_size])
-    
-    return <div style={{ display: 'flex', gap: 12, height: '100%', minHeight: 0 }}>
-        <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontWeight: 500, marginBottom: 8 }}>{t('Agent')}</div>
-            <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-                {options.length === 0
-                    ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无 Agent')} />
-                    : paged_agent_options.map(agent =>
-                        <div
-                            key={agent.value}
-                            onClick={() => { set_selected_agent_id(agent.value) }}
-                            title={agent.label}
-                            style={{
-                                padding: '8px 10px',
-                                borderRadius: 4,
-                                cursor: 'pointer',
-                                marginBottom: 4,
-                                background: selected_agent_id === agent.value ? '#e6f4ff' : undefined,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                            }}
-                        >
-                            {agent.label}
-                        </div>
-                    )}
-            </div>
-            {options.length > default_page_size && <Pagination
-                size='small'
-                simple
-                current={agent_page}
-                pageSize={agent_page_size}
-                total={options.length}
-                onChange={(page, page_size) => {
-                    set_agent_page(page)
-                    set_agent_page_size(page_size)
-                }}
-                style={{ marginTop: 8 }}
-            />}
-        </div>
-        <div style={{ flex: 1, minWidth: 0, minHeight: 0 }}>
-            {selected_agent_id
-                ? <MemoryConfigSection agent_id={selected_agent_id} />
-                : <Empty description={t('请选择 Agent')} />}
-        </div>
-    </div>
+    return <AgentListLayout detail_title={t('记忆配置')} list_subtitle={t('选择需要配置记忆的 Agent')} options={options} selected_agent_id={selected_agent_id} set_selected_agent_id={set_selected_agent_id}>
+        <MemoryConfigSection agent_id={selected_agent_id} />
+    </AgentListLayout>
 }
 
 
-function MemoryJobsSection () {
+export function MemoryJobsSection () {
     const { options } = use_agent_options()
     const user_options = use_user_options()
     const memory_job_user_options = user_options.some(user => user.value === 'admin')
@@ -1377,16 +1247,18 @@ function MemoryJobsSection () {
     }
     
     return <AgentListLayout
+        detail_title={t('记忆任务')}
+        list_subtitle={t('选择需要查看记忆任务的 Agent')}
         options={options}
         selected_agent_id={selected_agent_id}
         set_selected_agent_id={set_selected_agent_id}
-        actions={<Button loading={loading} onClick={() => { load_jobs(1) }}>{t('刷新')}</Button>}
     >
-        <Space wrap style={{ marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <Select allowClear showSearch style={{ width: 180 }} placeholder={t('任务类型')} value={kind || undefined} onChange={value => { set_kind(value || '') }} options={memory_job_kind_options} />
             <Select allowClear showSearch style={{ width: 140 }} placeholder={t('任务状态')} value={status || undefined} onChange={value => { set_status(value || '') }} options={memory_job_status_options} />
             <Select allowClear showSearch style={{ width: 180 }} placeholder={t('用户')} value={target_user_id || undefined} onChange={value => { set_target_user_id(value || '') }} options={memory_job_user_options} />
-        </Space>
+            <Button style={{ marginLeft: 'auto' }} loading={loading} onClick={() => { load_jobs(1) }}>{t('刷新')}</Button>
+        </div>
         <Table
             size='small'
             rowKey={job => `${job.kind}:${job.jobKey}`}
@@ -1460,7 +1332,7 @@ function MemoryJobsSection () {
 }
 
 
-function ContextPreviewSection () {
+export function ContextPreviewSection () {
     const { agent_id, options } = use_agent_options()
     const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
     const [sessions, set_sessions] = useState<ISession[]>([ ])
@@ -1553,12 +1425,13 @@ function ContextPreviewSection () {
     ]
     
     return <AgentListLayout
+        detail_title={t('上下文预览')}
+        list_subtitle={t('选择需要预览上下文的 Agent')}
         options={options}
         selected_agent_id={selected_agent_id}
         set_selected_agent_id={set_selected_agent_id}
-        actions={<Button loading={loading} onClick={load_preview}>{t('预览')}</Button>}
     >
-        <Space wrap>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Select
                 style={{ width: 260 }}
                 placeholder={t('选择会话')}
@@ -1566,7 +1439,8 @@ function ContextPreviewSection () {
                 onChange={set_selected_session_id}
                 options={sessions.map(session => ({ value: session.sessionId, label: session.title || session.sessionId }))}
             />
-        </Space>
+            <Button loading={loading} onClick={load_preview}>{t('预览')}</Button>
+        </div>
         <Input.TextArea
             style={{ marginTop: 12 }}
             value={message_text}
@@ -1621,44 +1495,63 @@ function ContextPreviewSection () {
 
 
 export function UsageSection ({ admin = false }: { admin?: boolean }) {
-    const { agent_id, options } = use_agent_options()
-    const { username } = model.use(['username'])
-    const user_options = use_user_options()
+    const { agent_id, options } = use_agent_options({ active_only: admin })
+    const user_options = use_user_options(admin)
     const usage_user_options = user_options.some(user => user.value === 'admin')
         ? user_options
         : [{ value: 'admin', label: 'admin' }, ...user_options]
     
     const [selected_agent_id, set_selected_agent_id] = useState(agent_id)
-    const [usage, set_usage] = useState<ILlmUsageStats | null>(null)
+    const [usage_by_agent, set_usage_by_agent] = useState<Record<string, ILlmUsageStats>>({ })
     const [usage_by_user, set_usage_by_user] = useState<Record<string, ILlmUsageStats>>({ })
     const [loading_usage, set_loading_usage] = useState(false)
+    const personal_usage_request_seq = useRef(0)
+    const agent_ids_key = options.map(agent => agent.value).join('\n')
     const user_ids_key = usage_user_options.map(user => user.value).join('\n')
     const selected_agent_name = options.find(option => option.value === selected_agent_id)?.label || selected_agent_id || '-'
     use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id, agent_id)
     
     useEffect(() => {
-        if (!selected_agent_id)
-            return
         if (admin)
             load_admin_usage()
-        else
-            load_usage()
     }, [selected_agent_id, admin, user_ids_key])
-    
+    useEffect(() => {
+        if (!admin)
+            load_usage()
+        return () => { personal_usage_request_seq.current++ }
+    }, [admin, agent_ids_key])
     async function load_usage () {
-        if (!selected_agent_id) {
-            message.warning(t('请先选择 Agent'))
+        const request_seq = ++personal_usage_request_seq.current
+        if (options.length === 0) {
+            set_usage_by_agent({ })
+            set_loading_usage(false)
             return
         }
         set_loading_usage(true)
+        const entries: [string, ILlmUsageStats][] = [ ]
+        let has_error = false
         try {
-            set_usage(await chat_model.llm.load_llm_usage({
-                agentId: selected_agent_id,
-            }))
-        } catch (error) {
-            show_error(error, t('加载用量失败'))
+            for (const [index, agent] of options.entries()) {
+                // 使用统计接口按 Agent 查询，串行并留出间隔，避免页面打开时瞬间发送大量请求。
+                if (index > 0)
+                    await new Promise<void>(resolve => { setTimeout(resolve, 100) })
+                if (request_seq !== personal_usage_request_seq.current)
+                    return
+                try {
+                    entries.push([agent.value, await chat_model.llm.load_llm_usage({ agentId: agent.value })])
+                } catch (error) {
+                    has_error = true
+                    console.warn(`Failed to load usage for Agent ${agent.value}:`, error)
+                }
+            }
+            if (request_seq !== personal_usage_request_seq.current)
+                return
+            set_usage_by_agent(Object.fromEntries(entries))
+            if (has_error)
+                message.warning(t('部分 Agent 用量加载失败'))
         } finally {
-            set_loading_usage(false)
+            if (request_seq === personal_usage_request_seq.current)
+                set_loading_usage(false)
         }
     }
     
@@ -1688,49 +1581,50 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
     
     
     if (!admin)
-        return <AgentListLayout
-            options={options}
-            selected_agent_id={selected_agent_id}
-            set_selected_agent_id={set_selected_agent_id}
-            actions={<Button loading={loading_usage} onClick={load_usage}>{t('刷新')}</Button>}
-        >
-            <Table<{ agentId: string, agentName: string, userId: string, usage: ILlmUsageStats | null }>
-                size='small'
-                rowKey='agentId'
-                loading={loading_usage}
-                dataSource={selected_agent_id ? [{ agentId: selected_agent_id, agentName: selected_agent_name, userId: usage?.userId || username, usage }] : [ ]}
-                pagination={false}
-                locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用量')} /> }}
-                columns={[
-                    {
-                        title: t('用户'),
-                        dataIndex: 'userId',
-                    },
-                    {
-                        title: t('Agent 名称'),
-                        dataIndex: 'agentName',
-                    },
-                    {
-                        title: t('请求次数'),
-                        render: (_: unknown, row) => row.usage?.requestCount ?? 0,
-                    },
-                    {
-                        title: t('输入 Token'),
-                        render: (_: unknown, row) => row.usage?.totalPromptTokens ?? 0,
-                    },
-                    {
-                        title: t('输出 Token'),
-                        render: (_: unknown, row) => row.usage?.totalCompletionTokens ?? 0,
-                    },
-                    {
-                        title: t('总 Token'),
-                        render: (_: unknown, row) => row.usage?.totalTokens ?? 0,
-                    },
-                ]}
-            />
-        </AgentListLayout>
+        return <div className='ai-settings-list-detail' style={{ height: '100%' }}>
+            <div className='ai-settings-detail-header'>
+                <div className='ai-settings-detail-title'>{t('个人用量')}</div>
+            </div>
+            <div className='ai-settings-detail-body'>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                    <Button loading={loading_usage} onClick={load_usage}>{t('刷新')}</Button>
+                </div>
+                <Table<{ agentId: string, agentName: string, usage?: ILlmUsageStats }>
+                    size='small'
+                    rowKey='agentId'
+                    loading={loading_usage}
+                    dataSource={options.map(agent => ({ agentId: agent.value, agentName: agent.label, usage: usage_by_agent[agent.value] }))}
+                    pagination={false}
+                    locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用量')} /> }}
+                    columns={[
+                        {
+                            title: t('Agent 名称'),
+                            dataIndex: 'agentName',
+                        },
+                        {
+                            title: t('请求次数'),
+                            render: (_: unknown, row) => row.usage?.requestCount ?? 0,
+                        },
+                        {
+                            title: t('输入 Token'),
+                            render: (_: unknown, row) => row.usage?.totalPromptTokens ?? 0,
+                        },
+                        {
+                            title: t('输出 Token'),
+                            render: (_: unknown, row) => row.usage?.totalCompletionTokens ?? 0,
+                        },
+                        {
+                            title: t('总 Token'),
+                            render: (_: unknown, row) => row.usage?.totalTokens ?? 0,
+                        },
+                    ]}
+                />
+            </div>
+        </div>
     
     return <AgentListLayout
+        detail_title={t('用户用量')}
+        list_subtitle={t('选择需要查看用量的 Agent')}
         options={options}
         selected_agent_id={selected_agent_id}
         set_selected_agent_id={set_selected_agent_id}
@@ -1771,29 +1665,4 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
             ]}
         />
     </AgentListLayout>
-}
-
-
-export function DolphinXUserTab () {
-    return <Tabs
-        className='ai-settings-tabs'
-        destroyOnHidden
-        items={[
-            {
-                key: 'sessions',
-                label: t('会话'),
-                children: <SessionSection />,
-            },
-            {
-                key: 'usage',
-                label: t('用量'),
-                children: <UsageSection />,
-            },
-            {
-                key: 'context_preview',
-                label: t('上下文预览'),
-                children: <ContextPreviewSection />,
-            },
-        ]}
-    />
 }
