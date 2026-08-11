@@ -11,8 +11,7 @@ import { model, NodeType, storage_keys } from '@model'
 
 import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 
-import { chat_model, chat_shared_model, get_chat_model, release_chat_model } from '@/agent/model.ts'
-import type { ScriptExecuteApprovalMode } from '@/agent/model.ts'
+import { chat_model, get_chat_model, release_chat_model } from '@/agent/model.ts'
 import { AiTab } from '@/agent/ai-tab/AiTab.tsx'
 import { needs_builtin_init_action } from '@/agent/builtin-init.ts'
 
@@ -521,10 +520,7 @@ function AiToolbar ({
 }) {
     const { node_type } = model.use(['node_type'])
     const chat = get_chat_model(session_id)
-    const {
-        sessions, agents, agent_id, selected_llm_config_id, script_execute_approval_mode, agent_status,
-    } = chat.use(['sessions', 'agents', 'agent_id', 'selected_llm_config_id', 'script_execute_approval_mode', 'agent_status'])
-    const { selectable_llms_by_agent_id } = chat_shared_model.use(['selectable_llms_by_agent_id'])
+    const { sessions, agents, agent_id } = chat.use(['sessions', 'agents', 'agent_id'])
     const session = sessions.find(s => s.sessionId === session_id)
     const title = session?.title || shell.tabs.find(item => item.chat_id === session_id)?.name || t('新会话')
     const [editing_title, set_editing_title] = useState(false)
@@ -586,16 +582,27 @@ function AiToolbar ({
     const agent_select_disabled = !is_pending_ai_chat_id(session_id) || active_agents.length <= 1
     const agent_select_tooltip = !is_pending_ai_chat_id(session_id) ? t('会话开始后不能切换 Agent，如需切换请新建会话') : ''
     
-    // 构建 LLM 选项，默认模型标注
-    const selectable_llms = selectable_llms_by_agent_id[agent_id] || [ ]
-    const effective_llm_config_id = chat.agent.get_effective_llm_config_id(selected_llm_config_id)
-    const llm_select_disabled = !['idle', 'error'].includes(agent_status.status)
-    const llm_options = selectable_llms.map(llm => ({
-        value: llm.llmConfigId,
-        label: llm.isAgentDefault ? `${llm.name} (${t('默认')})` : llm.name,
-    }))
-    
     return <div className='toolbar ai-toolbar'>
+        <Tooltip title={agent_select_tooltip}>
+            <span className='ai-toolbar-agent'>
+                <Select
+                    className='ai-toolbar-agent-select'
+                    size='small'
+                    variant='borderless'
+                    value={agent_id || undefined}
+                    placeholder={t('选择 Agent')}
+                    disabled={agent_select_disabled}
+                    onChange={async (value: string) => {
+                        chat.agent.select_agent(value)
+                        await chat.session.load_sessions()
+                    }}
+                    options={active_agents.map(a => ({
+                        value: a.agentId,
+                        label: a.agentName,
+                    }))}
+                />
+            </span>
+        </Tooltip>
         {editing_title
             ? <Input
                 className='ai-toolbar-title'
@@ -609,83 +616,30 @@ function AiToolbar ({
             : <div className='ai-toolbar-title' title={title} onDoubleClick={() => { set_editing_title(true) }}>
                 {title}
             </div>}
-            
-        <div className='padding' />
-        
-        {llm_options.length > 0 && <Select
-            size='small'
-            value={effective_llm_config_id || undefined}
-            placeholder={t('自动选择模型')}
-            allowClear
-            disabled={llm_select_disabled}
-            style={{ minWidth: 120, maxWidth: 200, marginRight: 8 }}
-            onChange={(value: string | undefined) => {
-                chat.agent.select_llm_config(value || '')
-            }}
-            options={llm_options}
-        />}
-        
-        <Tooltip title={t('DolphinDB 脚本执行审批')}>
-            <Select
-                size='small'
-                value={script_execute_approval_mode}
-                style={{ minWidth: 110, marginRight: 8 }}
-                onChange={(value: ScriptExecuteApprovalMode) => { chat.runtime.set_script_execute_approval_mode(value) }}
-                options={[
-                    { value: 'approval', label: t('需要审批') },
-                    {
-                        value: 'auto',
-                        label: <Tooltip
-                            title={t('默认允许 Agent 在此会话执行脚本。AI 模型可能会出错。')}
-                        >{t('自动执行')}</Tooltip> },
-                ]}
-            />
-        </Tooltip>
-        
-        <Tooltip title={agent_select_tooltip}>
-            <span style={{ display: 'inline-block', marginRight: 8 }}>
-                <Select
-                    size='small'
-                    value={agent_id || undefined}
-                    placeholder={t('选择 Agent')}
-                    style={{ minWidth: 120, maxWidth: 200 }}
-                    disabled={agent_select_disabled}
-                    onChange={async (value: string) => {
-                        chat.agent.select_agent(value)
-                        await chat.session.load_sessions()
-                    }}
-                    options={active_agents.map(a => ({
-                        value: a.agentId,
-                        label: a.agentName,
-                    }))}
-                />
-            </span>
-        </Tooltip>
-        
-        {node_type !== NodeType.controller && node_type !== NodeType.data && <Tooltip title={t('AI 设置')}>
+        <div className='ai-toolbar-actions'>
+            {node_type !== NodeType.controller && node_type !== NodeType.data && <Tooltip title={t('AI 设置')}>
+                <div
+                    className='collapse-btn'
+                    onClick={() => { chat_model.set({ settings_visible: true }) }}
+                >
+                    <SettingOutlined />
+                    <span style={{ marginLeft: 4 }}>{t('AI 设置')}</span>
+                </div>
+            </Tooltip>}
+            <div className='toolbar-divider' />
             <div
                 className='collapse-btn'
-                onClick={() => { chat_model.set({ settings_visible: true }) }}
+                onClick={on_toggle_collapsed}
             >
-                <SettingOutlined />
-                <span style={{ marginLeft: 4 }}>{t('AI 设置')}</span>
+                {
+                    collapsed
+                        ? <DoubleLeftOutlined />
+                        : <span>
+                            {t('隐藏终端') + ' '}
+                            <DoubleRightOutlined />
+                        </span>
+                }
             </div>
-        </Tooltip>}
-        
-        <div className='toolbar-divider' />
-        
-        <div
-            className='collapse-btn'
-            onClick={on_toggle_collapsed}
-        >
-            {
-                collapsed
-                    ? <DoubleLeftOutlined />
-                    : <span>
-                        {t('隐藏终端') + ' '}
-                        <DoubleRightOutlined />
-                    </span>
-            }
         </div>
     </div>
 }

@@ -1,5 +1,6 @@
 import { type MouseEvent, useEffect, useRef, useState } from 'react'
-import { Alert, Button, Input, Spin, Typography, Space } from 'antd'
+import { Alert, Button, Input, Select, Space, Spin, Tooltip, Typography } from 'antd'
+import type { TextAreaRef } from 'antd/es/input/TextArea'
 import { PlusCircleOutlined, SendOutlined, SettingOutlined, StopOutlined } from '@ant-design/icons'
 import { type DdbObj, type DdbValue } from 'dolphindb/browser.js'
 
@@ -7,6 +8,7 @@ import { t } from '@i18n'
 import { model, NodeType } from '@model'
 import { copy } from '@utils'
 import { bind_chat_model_session, chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
+import type { ScriptExecuteApprovalMode } from '@/agent/model.ts'
 import { no_active_agent_message, no_available_llm_config_message } from '@/agent/model/agent.ts'
 import { parse_ddb_obj_from_content_object } from '@/agent/utils/ddb-object.ts'
 import { get_agent_status_text } from '@/agent/utils/message.ts'
@@ -30,10 +32,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const { node_type, admin, logined } = model.use(['node_type', 'admin', 'logined'])
     const {
         messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, pending_tool_loop_control, pending_script_approval, steps,
-        tool_call_limit_enabled, can_manage_agents, agent_id,
+        tool_call_limit_enabled, can_manage_agents, agent_id, selected_llm_config_id, script_execute_approval_mode,
     } = chat.use([
         'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'pending_tool_loop_control', 'pending_script_approval', 'steps',
-        'tool_call_limit_enabled', 'can_manage_agents', 'agent_id',
+        'tool_call_limit_enabled', 'can_manage_agents', 'agent_id', 'selected_llm_config_id', 'script_execute_approval_mode',
     ])
     const { selectable_llms_by_agent_id } = chat_shared_model.use(['selectable_llms_by_agent_id'])
     const is_agent_admin = admin || can_manage_agents
@@ -46,6 +48,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const unsupported_node = node_type === NodeType.controller || node_type === NodeType.data
     
     const messages_ref = useRef<HTMLDivElement>(null)
+    const input_ref = useRef<TextAreaRef>(null)
     const should_auto_scroll = useRef(true)
     const last_scroll_top = useRef(0)
     
@@ -288,6 +291,11 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const has_virtual = visible_status.status !== 'idle' || visible_buffered.length > 0 || Boolean(visible_loop_control)
     const can_interrupt = current_session_id === session_id && !['idle', 'error'].includes(visible_status.status)
     const selectable_llms = agent_id ? selectable_llms_by_agent_id[agent_id] || [ ] : [ ]
+    const effective_llm_config_id = chat.agent.get_effective_llm_config_id(selected_llm_config_id)
+    const llm_options = selectable_llms.map(llm => ({
+        value: llm.llmConfigId,
+        label: llm.isAgentDefault ? `${llm.name} (${t('默认')})` : llm.name,
+    }))
     const llm_config_unavailable = Boolean(agent_id && !selectable_llms.some(llm =>
         llm.capability !== 'embedding' && llm.enabled !== false && llm.statusName !== 'DELETED'
     ))
@@ -448,9 +456,17 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     {t('前往配置')}
                 </Button>}
             />}
-            <Space.Compact style={{ width: '100%' }}>
+            <div
+                className='ai-tab-composer'
+                onClick={event => {
+                    if (!(event.target as HTMLElement).closest('button, .ant-select'))
+                        input_ref.current?.focus()
+                }}
+            >
                 <Input.TextArea
+                    ref={input_ref}
                     className='ai-tab-message-input'
+                    variant='borderless'
                     value={input_value}
                     onChange={e => { set_input_value(e.target.value) }}
                     onPressEnter={e => {
@@ -460,30 +476,63 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         if (input_value.trim())
                             handle_send()
                     }}
-                    autoSize={{ minRows: 1, maxRows: 3 }}
+                    autoSize={{ minRows: 1, maxRows: 5 }}
                     placeholder={llm_config_unavailable ? '' : t('输入消息发送给助手...')}
                     size='large'
                     disabled={disable_input}
                 />
-                {can_interrupt && <Button
-                    danger
-                    size='large'
-                    icon={<StopOutlined />}
-                    onClick={() => { chat.runtime.interrupt_chat() }}
-                >
-                    {t('中断')}
-                </Button>}
-                <Button
-                    type='primary'
-                    size='large'
-                    icon={<SendOutlined />}
-                    loading={creating_session}
-                    disabled={!input_value.trim() || disable_input || can_interrupt}
-                    onClick={handle_send}
-                >
-                    {t('发送')}
-                </Button>
-            </Space.Compact>
+                <div className='ai-tab-composer-toolbar'>
+                    <div className='ai-tab-composer-selectors'>
+                        {llm_options.length > 0 && <Select
+                            className='ai-tab-model-select'
+                            size='small'
+                            variant='borderless'
+                            value={effective_llm_config_id || undefined}
+                            placeholder={t('自动选择模型')}
+                            allowClear
+                            disabled={!['idle', 'error'].includes(agent_status.status)}
+                            onChange={(value: string | undefined) => { chat.agent.select_llm_config(value || '') }}
+                            options={llm_options}
+                        />}
+                        <Tooltip title={t('DolphinDB 脚本执行审批')}>
+                            <Select
+                                className='ai-tab-approval-select'
+                                size='small'
+                                variant='borderless'
+                                value={script_execute_approval_mode}
+                                onChange={(value: ScriptExecuteApprovalMode) => { chat.runtime.set_script_execute_approval_mode(value) }}
+                                options={[
+                                    { value: 'approval', label: t('需要审批') },
+                                    {
+                                        value: 'auto',
+                                        label: <Tooltip title={t('默认允许 Agent 在此会话执行脚本。AI 模型可能会出错。')}>
+                                            {t('自动执行')}
+                                        </Tooltip>,
+                                    },
+                                ]}
+                            />
+                        </Tooltip>
+                    </div>
+                    <div className='ai-tab-composer-actions'>
+                        {can_interrupt && <Button
+                            danger
+                            icon={<StopOutlined />}
+                            onClick={() => { chat.runtime.interrupt_chat() }}
+                        >
+                            {t('中断')}
+                        </Button>}
+                        <Button
+                            type='primary'
+                            icon={<SendOutlined />}
+                            loading={creating_session}
+                            disabled={!input_value.trim() || disable_input || can_interrupt}
+                            onClick={handle_send}
+                        >
+                            {t('发送')}
+                        </Button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 }

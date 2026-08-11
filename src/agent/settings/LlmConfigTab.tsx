@@ -442,16 +442,17 @@ export function LlmConfigTab () {
         
         {/* 右侧 Provider 编辑器 + 内嵌模型列表 */}
         <div className='ai-settings-list-detail'>
-            <div className='ai-settings-detail-safe-area' aria-hidden='true' />
+            <div className='ai-settings-detail-header'>
+                {provider_mode !== 'idle' && <div className='ai-settings-detail-title'>
+                    {provider_mode === 'create' ? t('新建 Provider') : t('编辑 Provider')}
+                </div>}
+            </div>
             <div className='ai-settings-detail-body'>
                 {provider_mode === 'idle'
                 ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                     <Empty description={t('请从左侧选择一个 Provider，或点击「模型管理」右侧的 + 新建')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
                 </div>
                 : <>
-                    <div style={{ fontWeight: 500, fontSize: 15, marginBottom: 12 }}>
-                        {provider_mode === 'create' ? t('新建 Provider') : t('编辑 Provider')}
-                    </div>
                     {form_error_alert(provider_error)}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
                         <div>

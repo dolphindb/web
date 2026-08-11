@@ -133,8 +133,12 @@ export function AgentTab () {
                         : visible_agents.map(a =>
                             <div
                                 key={a.agentId}
-                                className={`ai-settings-list-item rich${selected_agent?.agentId === a.agentId ? ' active' : ''}`}
-                                onClick={() => { set_selected_agent(a) }}
+                                className={`ai-settings-list-item rich${!creating && selected_agent?.agentId === a.agentId ? ' active' : ''}`}
+                                onClick={() => {
+                                    set_selected_agent(a)
+                                    set_creating(false)
+                                    set_form_error('')
+                                }}
                             >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                     <span style={{ fontWeight: 500, fontSize: 13 }}>{a.agentName}</span>
@@ -154,7 +158,11 @@ export function AgentTab () {
         
         {/* 右侧详情 */}
         <div className='ai-settings-list-detail'>
-            <div className='ai-settings-detail-safe-area' aria-hidden='true' />
+            <div className='ai-settings-detail-header'>
+                {(creating || selected_agent) && <div className='ai-settings-detail-title'>
+                    {creating ? t('新建 Agent') : selected_agent?.agentName}
+                </div>}
+            </div>
             <div className='ai-settings-detail-body'>
                 {creating
                 ? <div>
@@ -419,8 +427,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
         {/* Agent 基本信息 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
             <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontSize: 16, fontWeight: 500 }}>{agent.agentName}</div>
-                <Text type='secondary' style={{ display: 'block', fontSize: 12, marginTop: 2, wordBreak: 'break-all' }}>
+                <Text type='secondary' style={{ display: 'block', fontSize: 12, wordBreak: 'break-all' }}>
                     Agent ID: {agent.agentId}
                 </Text>
                 {agent.description && <Paragraph type='secondary' style={{ fontSize: 12, margin: '2px 0 0' }} ellipsis={{ rows: 3, tooltip: agent.description }}>
