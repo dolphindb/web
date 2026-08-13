@@ -107,7 +107,7 @@ export function ContextPreviewMessageSummary ({ message }: { message: PreviewMes
         {tool_calls.map((call, index) =>
             <div key={call.id || `${call.name}-${index}`} className='context-preview-tool-summary'>
                 <Tag color='processing' className='context-preview-tool-tag'>{call.name}</Tag>
-                <Text type='secondary' ellipsis={{ tooltip: format_fields(call.args, 20) }} className='context-preview-tool-summary-value'>
+                <Text type='secondary' ellipsis className='context-preview-tool-summary-value'>
                     {format_fields(call.args)}
                 </Text>
             </div>
