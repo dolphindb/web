@@ -82,8 +82,9 @@ export class ChatAgentModel {
     async api_fetch (path: string, options: RequestInit = { }, retried = false): Promise<any> {
         const url = /^https?:\/\//.test(path) ? path : `${this.chat.base_url}${path}`
         const token = model.agent_bus_ticket.replace(/[\r\n]/g, '')
+        const is_form_data = typeof FormData !== 'undefined' && options.body instanceof FormData
         const headers: Record<string, string> = {
-            'Content-Type': 'application/json',
+            ...(!is_form_data ? { 'Content-Type': 'application/json' } : { }),
             ...(token ? { Authorization: `Bearer ${token}` } : { }),
         }
         

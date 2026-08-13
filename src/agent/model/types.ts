@@ -12,6 +12,76 @@ export type ScriptExecuteApprovalMode = 'approval' | 'auto'
 export type ScriptExecuteApprovalDecision = 'allow' | 'allow_session' | 'deny'
 
 
+export interface IChatTextContentPart {
+    type: 'text'
+    text: string
+}
+
+
+export type IChatImageContentPart =
+    | { type: 'image_url', image_url: { url: string } }
+    | { type: 'image_url', imageUrl: string }
+    | { type: 'image_url' | 'image', url: string }
+
+
+export type IChatFileContentPart = {
+    type: 'file' | 'attachment'
+    filename?: string
+    mimeType?: string
+} & (
+    | { fileId: string, attachmentId?: never }
+    | { attachmentId: string, fileId?: never }
+)
+
+
+export type IChatContentPart = IChatTextContentPart | IChatImageContentPart | IChatFileContentPart
+
+
+export interface IChatToolResult {
+    toolCallId: string
+    content?: string
+}
+
+
+export type IChatTurnInput =
+    | { message: string, content?: never, toolResults?: IChatToolResult[] }
+    | { content: IChatContentPart[], message?: never, toolResults?: IChatToolResult[] }
+    | { toolResults: IChatToolResult[], message?: never, content?: never }
+
+
+export type IChatCompletionRequest = IChatTurnInput & {
+    sessionId: string
+    stream?: boolean
+    contextEvent?: boolean
+    includeReasoning?: boolean
+    tools?: unknown[]
+    activeSkillNames?: string[]
+    llmConfigId?: string
+    model?: string
+    temperature?: number
+    maxTokens?: number
+    max_tokens?: number
+    max_completion_tokens?: number
+    topP?: number
+    top_p?: number
+    stop?: string | string[]
+    extensions?: Record<string, unknown>
+    assemblyConfig?: Record<string, unknown>
+}
+
+
+export type IContextPreviewRequest = IChatTurnInput & {
+    sessionId: string
+    tools?: unknown[]
+    activeSkillNames?: string[]
+    llmConfigId?: string
+    assemblyConfig?: Record<string, unknown>
+    maxTokens?: number
+    max_tokens?: number
+    max_completion_tokens?: number
+}
+
+
 export interface IScriptExecutionApproval {
     id: string
     sessionId: string
@@ -55,6 +125,67 @@ export interface ISession {
     workspaceFileCount?: number
     createTime?: string
     updateTime?: string
+}
+
+
+export type SessionAttachmentKind = 'image' | 'pdf' | 'document' | 'presentation' | 'spreadsheet' | 'text'
+
+export type SessionAttachmentStatus = 'uploaded' | 'processing' | 'processed' | 'failed' | 'deleted'
+
+
+export interface ISessionAttachment {
+    attachmentId: string
+    sessionId?: string
+    agentId?: string
+    userId?: string
+    filename: string
+    mimeType: string
+    kind: SessionAttachmentKind
+    sizeBytes: number
+    sha256: string
+    status: SessionAttachmentStatus
+    referencedMessageId?: string
+    metadata?: Record<string, unknown> & {
+        docParser?: {
+            status?: string
+            format?: string
+            blockCount?: number
+            warningCount?: number
+            error?: string
+            [key: string]: unknown
+        }
+    }
+    schemaVersion?: number
+    extra?: string
+    createTime?: string
+    updateTime?: string
+    data?: unknown
+    extractedText?: unknown
+}
+
+
+export interface ISessionAttachmentUpload {
+    filename: string
+    file: Blob
+    mimeType?: string
+    referencedMessageId?: string
+    metadata?: Record<string, unknown>
+    extra?: string
+}
+
+
+export interface ISessionAttachmentListResult {
+    sessionId: string
+    items: ISessionAttachment[]
+    offset: number
+    limit: number
+    size: number
+}
+
+
+export interface ISessionAttachmentDeleteResult {
+    attachmentId: string
+    deleted: boolean
 }
 
 
@@ -106,6 +237,8 @@ export interface ILlmConfig {
     requestPath: string
     defaultParams?: Record<string, unknown>
     contextWindow?: number | null
+    maxImageBytes?: number
+    maxInputFiles?: number
     maxConcurrency?: number | null
     rateLimitRPM?: number | null
     timeoutMs?: number | null
@@ -116,6 +249,29 @@ export interface ILlmConfig {
     enabled: boolean
     status: number
     statusName: string
+}
+
+
+export interface ILlmConfigInput {
+    name: string
+    providerId: string
+    model: string
+    capability?: 'chat' | 'embedding'
+    embeddingDimension?: number
+    embeddingMetric?: 'euclidean' | 'cosine'
+    embeddingNormalize?: boolean
+    requestPath: string
+    defaultParams?: Record<string, unknown> | null
+    contextWindow?: number | null
+    maxImageBytes?: number
+    maxInputFiles?: number
+    maxConcurrency?: number | null
+    rateLimitRPM?: number | null
+    timeoutMs?: number | null
+    retryConfig?: Record<string, unknown> | null
+    customData?: string
+    enabled?: boolean
+    extra?: string
 }
 
 

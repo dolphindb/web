@@ -4,7 +4,7 @@ import { shell } from '@/shell/model.ts'
 import { chat_workspace_store } from '@/agent/workspace.ts'
 import { parse_tool_result_payload } from '@/agent/utils/message.ts'
 
-import type { IMessage, ISession, IToolCall } from './types.ts'
+import type { IContextPreviewRequest, IMessage, ISession, IToolCall } from './types.ts'
 
 
 function sort_sessions_by_update_time (sessions: ISession[]) {
@@ -207,7 +207,7 @@ export class ChatSessionModel {
             body: JSON.stringify(params),
         })
     }
-    async preview_context (params: Record<string, unknown>): Promise<any> {
+    async preview_context (params: IContextPreviewRequest): Promise<any> {
         return this.chat.agent.api_fetch('/context/preview', {
             method: 'POST',
             body: JSON.stringify(params),

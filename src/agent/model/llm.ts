@@ -1,5 +1,5 @@
 import type { ChatModel } from '@/agent/model.ts'
-import type { IAgentLlmBinding, IBuiltinInitResult, ILlmConfig, ILlmProvider, ILlmUsageStats, ISelectableLlmInfo, IUserLlmAccessInfo } from './types.ts'
+import type { IAgentLlmBinding, IBuiltinInitResult, ILlmConfig, ILlmConfigInput, ILlmProvider, ILlmUsageStats, ISelectableLlmInfo, IUserLlmAccessInfo } from './types.ts'
 import { get_enabled, get_status, get_status_name, normalize_json_object, normalize_json_object_string, optional_positive_number } from './helpers.ts'
 import { chat_shared_model } from './shared.ts'
 
@@ -34,6 +34,8 @@ export class ChatLlmModel {
             requestPath: item.requestPath || '',
             defaultParams: item.defaultParams,
             contextWindow: item.contextWindow,
+            maxImageBytes: item.maxImageBytes,
+            maxInputFiles: item.maxInputFiles,
             maxConcurrency: optional_positive_number(item.maxConcurrency),
             rateLimitRPM: optional_positive_number(item.rateLimitRPM),
             timeoutMs: optional_positive_number(item.timeoutMs),
@@ -101,31 +103,13 @@ export class ChatLlmModel {
             return [ ]
         }
     }
-    async register_llm_config (config: {
-        name: string
-        providerId: string
-        model: string
-        capability?: 'chat' | 'embedding'
-        embeddingDimension?: number
-        embeddingMetric?: 'euclidean' | 'cosine'
-        embeddingNormalize?: boolean
-        requestPath: string
-        defaultParams?: Record<string, unknown> | null
-        contextWindow?: number | null
-        maxConcurrency?: number | null
-        rateLimitRPM?: number | null
-        timeoutMs?: number | null
-        retryConfig?: Record<string, unknown> | null
-        customData?: string
-        enabled?: boolean
-        extra?: string
-    }): Promise<ILlmConfig> {
+    async register_llm_config (config: ILlmConfigInput): Promise<ILlmConfig> {
         return this.chat.agent.api_fetch('/llm/config/register', {
             method: 'POST',
             body: JSON.stringify(config),
         })
     }
-    async update_llm_config (llm_config_id: string, updates: Record<string, any>): Promise<void> {
+    async update_llm_config (llm_config_id: string, updates: Partial<ILlmConfigInput>): Promise<void> {
         await this.chat.agent.api_fetch(`/llm/config/${llm_config_id}`, {
             method: 'PUT',
             body: JSON.stringify(updates),

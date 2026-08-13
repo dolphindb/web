@@ -1,6 +1,6 @@
 import { language } from '@i18n'
 
-import type { IMessage, IToolCall } from './model.ts'
+import type { IChatContentPart, IMessage, IToolCall } from './model.ts'
 import { build_system_prompt } from './prompt.ts'
 import { get_all_tool_definitions } from './scripts/index.ts'
 import { parse_tool_calls } from './tool_call_parser.ts'
@@ -19,6 +19,7 @@ export type ToolResultPayload = {
 export interface ChatCompletionOptions {
     append_user?: boolean
     tool_results?: ToolResultPayload[]
+    content?: IChatContentPart[]
 }
 
 
@@ -179,8 +180,11 @@ export const legacy_json_tool_call_adapter: ToolCallAdapter = {
     build_system_prompt: doc_search_enabled => 
         build_system_prompt(false, doc_search_enabled),
     
-    apply_request_body (body, message) {
-        body.message = message
+    apply_request_body (body, message, options) {
+        if (options.content?.length)
+            body.content = options.content
+        else
+            body.message = message
     },
     
     parse_tool_calls,
@@ -209,7 +213,9 @@ export const native_tool_call_adapter: ToolCallAdapter = {
         body.assemblyConfig.tools = get_all_tool_definitions(doc_search_enabled)
         if (options.tool_results?.length)
             body.toolResults = options.tool_results
-        else
+        if (options.content?.length)
+            body.content = options.content
+        else if (message)
             body.message = message
     },
     

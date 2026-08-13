@@ -15,10 +15,12 @@ import { ChatLlmModel } from './model/llm.ts'
 import { ChatMemoryModel } from './model/memory.ts'
 import { ChatSkillModel } from './model/skill.ts'
 import { ChatMcpModel } from './model/mcp.ts'
+import { ChatAttachmentModel } from './model/attachment.ts'
 import type { IAgentInfo, IAgentStatusEvent, IScriptExecutionApproval, ISession, IMessage, IToolLoopControl, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
 export { chat_shared_model } from './model/shared.ts'
 
-export type { AgentStatus, IAccessInfo, IAgentInfo, IAgentLlmBinding, IAgentStatusEvent, IBuiltinInitItem, IBuiltinInitResult, IBuiltinInitSummary, IBuiltinStateRecord, ILlmConfig, ILlmProvider, ILlmUsageStats, IMcpBindingInfo, IMcpEndpoint, IMcpServerInfo, IMcpServerListResult, IMcpServerTestPayload, IMcpServerTestResult, IMcpServerUpsertPayload, IMcpSharedAuthConfig, IMessage, IMemoryConfigResult, IMemoryEntry, IMemoryJob, IMemoryPersonalSettings, IMemoryResetResult, IMemoryStats, IPublicMemory, ISelectableLlmInfo, IScriptExecutionApproval, ISession, ISkillBinding, ISkillFileContent, ISkillFileInfo, ISkillInfo, IToolCall, IToolLoopControl, IUserLlmAccessInfo, McpCredentialMode, McpServerType, MessageRole, MessageType, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
+export type { AgentStatus, IAccessInfo, IAgentInfo, IAgentLlmBinding, IAgentStatusEvent, IBuiltinInitItem, IBuiltinInitResult, IBuiltinInitSummary, IBuiltinStateRecord, IChatCompletionRequest, IChatContentPart, IChatFileContentPart, IChatImageContentPart, IChatTextContentPart, IChatToolResult, IChatTurnInput, IContextPreviewRequest, ILlmConfig, ILlmConfigInput, ILlmProvider, ILlmUsageStats, IMcpBindingInfo, IMcpEndpoint, IMcpServerInfo, IMcpServerListResult, IMcpServerTestPayload, IMcpServerTestResult, IMcpServerUpsertPayload, IMcpSharedAuthConfig, IMessage, IMemoryConfigResult, IMemoryEntry, IMemoryJob, IMemoryPersonalSettings, IMemoryResetResult, IMemoryStats, IPublicMemory, ISelectableLlmInfo, IScriptExecutionApproval, ISession, ISessionAttachment, ISessionAttachmentDeleteResult, ISessionAttachmentListResult, ISessionAttachmentUpload, ISkillBinding, ISkillFileContent, ISkillFileInfo, ISkillInfo, IToolCall, IToolLoopControl, IUserLlmAccessInfo, McpCredentialMode, McpServerType, MessageRole, MessageType, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode, SessionAttachmentKind, SessionAttachmentStatus } from './model/types.ts'
+export type { ChatCompletionOptions } from './tool_call_adapters.ts'
 
 
 // 初始化工具注册表
@@ -41,6 +43,7 @@ export class ChatModel extends Model<ChatModel> {
     readonly skill = new ChatSkillModel(this)
     
     readonly mcp = new ChatMcpModel(this)
+    readonly attachment = new ChatAttachmentModel(this)
     
     
     agent_id = ''

@@ -324,8 +324,8 @@ export class ChatRuntimeModel {
         })
     }
     
-    send_message (content: string) {
-        if (!content.trim() || !this.chat.current_session_id)
+    send_message (content: string, options: ChatCompletionOptions = { }) {
+        if ((!content.trim() && !options.content?.length) || !this.chat.current_session_id)
             return
         if (!this.chat.runtime.is_ddb_connected()) {
             model.message?.warning(t('DolphinDB 连接已断开，无法发送消息'))
@@ -349,10 +349,11 @@ export class ChatRuntimeModel {
         this.chat.set({ pending_tool_loop_control: null })
         
         // 添加待发送提示
-        this.chat.set({ buffered_messages: [...this.chat.buffered_messages, content.trim()] })
+        if (content.trim())
+            this.chat.set({ buffered_messages: [...this.chat.buffered_messages, content.trim()] })
         
         // 异步执行 SSE 对话
-        this.chat.runtime.do_chat_completions(content.trim(), undefined, 0, request_seq).catch(e => {
+        this.chat.runtime.do_chat_completions(content.trim(), options, 0, request_seq).catch(e => {
             console.error('Chat completions failed:', e)
         })
     }
