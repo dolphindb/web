@@ -103,7 +103,7 @@ export function ContextPreviewMessageSummary ({ message }: { message: PreviewMes
     const call_id = to_message_text(message.toolCallId ?? message.tool_call_id).trim()
     
     return <div className='context-preview-message-summary'>
-        {content && <Text ellipsis={{ tooltip: content }} className='context-preview-message-content'>{content}</Text>}
+        {content && <Text ellipsis className='context-preview-message-content'>{content}</Text>}
         {tool_calls.map((call, index) =>
             <div key={call.id || `${call.name}-${index}`} className='context-preview-tool-summary'>
                 <Tag color='processing' className='context-preview-tool-tag'>{call.name}</Tag>
