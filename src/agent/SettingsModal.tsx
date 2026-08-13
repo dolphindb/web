@@ -1,17 +1,30 @@
 import './SettingsModal.sass'
 
-import { CloseOutlined } from '@ant-design/icons'
-import { useEffect, useState } from 'react'
-import { Button, Modal, Spin, Tabs, Typography, message } from 'antd'
+import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
+import { useEffect, useState, type ReactNode } from 'react'
+import { Button, Modal, Spin, Tooltip, Typography, message } from 'antd'
+import {
+    Bot, BrainCircuit, ChartNoAxesColumn, Database, ListTodo, MessagesSquare,
+    Plug, ScanText, SlidersHorizontal, UserCog, WandSparkles,
+} from 'lucide-react'
 
-import { t } from '@i18n'
+import { language, t } from '@i18n'
 import { model } from '@model'
+import SvgAi from '@/shell/icons/ai.icon.svg'
 
 import { chat_model } from './model.ts'
 import type { IBuiltinInitResult } from './model.ts'
 import { get_builtin_init_action } from './builtin-init.ts'
 import type { BuiltinInitAction } from './builtin-init.ts'
-import { DolphinXAdminTab, DolphinXUserTab, MemoryManagementTab } from './DolphinXUserSettings.tsx'
+import {
+    ContextPreviewSection,
+    MemoryConfigManagementSection,
+    MemoryJobsSection,
+    MemorySection,
+    SessionSection,
+    UsageSection,
+    UserPermissionTab,
+} from './DolphinXUserSettings.tsx'
 import { AgentTab } from './settings/AgentTab.tsx'
 import { LlmConfigTab } from './settings/LlmConfigTab.tsx'
 import { McpTab } from './settings/McpTab.tsx'
@@ -38,6 +51,36 @@ const builtin_dry_run_summary_labels: [keyof NonNullable<IBuiltinInitResult['sum
     ['createdBindings', t('待新建绑定')],
     ['failed', t('风险项')],
 ]
+
+
+interface SettingItem {
+    key: string
+    label: string
+    icon: ReactNode
+    content: ReactNode
+}
+
+
+interface SettingGroup {
+    title?: string
+    items: SettingItem[]
+}
+
+
+function SettingNavItem ({ item, active, collapsed, on_click }: { item: SettingItem, active: boolean, collapsed: boolean, on_click: () => void }) {
+    const button = <button
+        type='button'
+        className={`ai-settings-nav-item${active ? ' active' : ''}`}
+        aria-current={active ? 'page' : undefined}
+        onClick={on_click}
+    >
+        <span className='ai-settings-nav-icon' aria-hidden='true'>{item.icon}</span>
+        <span className='ai-settings-nav-label'>{item.label}</span>
+    </button>
+    return collapsed
+        ? <Tooltip title={item.label} placement='right' mouseEnterDelay={0}>{button}</Tooltip>
+        : button
+}
 
 
 function stringify_error_detail (value: unknown) {
@@ -223,6 +266,8 @@ export function SettingsModal () {
     const [show_builtin_errors, set_show_builtin_errors] = useState(false)
     const [builtin_action_result, set_builtin_action_result] = useState<IBuiltinInitResult | null>(null)
     const [builtin_action_result_type, set_builtin_action_result_type] = useState<BuiltinInitAction>('none')
+    const [active_setting_key, set_active_setting_key] = useState('agent')
+    const [sidebar_collapsed, set_sidebar_collapsed] = useState(false)
     const can_manage_agent = admin || can_manage_agents
     
     useEffect(() => {
@@ -258,6 +303,46 @@ export function SettingsModal () {
     const show_builtin_init = checking_builtin || builtin_action === 'initialize'
     const show_builtin_notice_card = builtin_notice_visible && (show_builtin_notice(builtin_action) || Boolean(builtin_action_result))
     const builtin_display_status = builtin_action_result || merge_builtin_preview_status(builtin_status, builtin_preview_status)
+    const setting_groups: SettingGroup[] = [
+        {
+            items: [
+                ...can_manage_agent ? [{ key: 'agent', label: t('Agent 管理'), icon: <Bot />, content: <AgentTab /> }] : [ ],
+                ...admin ? [
+                    { key: 'llm', label: t('模型管理'), icon: <BrainCircuit />, content: <LlmConfigTab /> },
+                    { key: 'skills', label: t('技能管理'), icon: <WandSparkles />, content: <SkillsTab /> },
+                ] : [ ],
+                ...can_manage_agent ? [{ key: 'mcp', label: t('MCP 管理'), icon: <Plug />, content: <McpTab can_manage_mcp /> }] : [ ],
+            ],
+        },
+        {
+            title: t('记忆管理'),
+            items: [
+                { key: 'memory', label: t('记忆'), icon: <Database />, content: <MemorySection can_manage_memory={can_manage_agent} can_view_public_memory /> },
+                ...can_manage_agent ? [
+                    { key: 'memory_config', label: t('记忆配置'), icon: <SlidersHorizontal />, content: <MemoryConfigManagementSection /> },
+                    { key: 'memory_jobs', label: t('记忆任务'), icon: <ListTodo />, content: <MemoryJobsSection /> },
+                ] : [ ],
+            ],
+        },
+        {
+            title: t('个人中心'),
+            items: [
+                { key: 'sessions', label: t('个人会话'), icon: <MessagesSquare />, content: <SessionSection /> },
+                { key: 'usage', label: t('个人用量'), icon: <ChartNoAxesColumn />, content: <UsageSection /> },
+                { key: 'context_preview', label: t('上下文预览'), icon: <ScanText />, content: <ContextPreviewSection /> },
+            ],
+        },
+        ...admin ? [{
+            title: t('用户管理'),
+            items: [
+                { key: 'users', label: t('用户权限'), icon: <UserCog />, content: <UserPermissionTab /> },
+                { key: 'admin_usage', label: t('用户用量'), icon: <ChartNoAxesColumn />, content: <UsageSection admin /> },
+            ],
+        }] : [ ],
+    ]
+    const setting_items = setting_groups.flatMap(group => group.items)
+    const active_setting = setting_items.find(item => item.key === active_setting_key) || setting_items[0]
+    const show_builtin_upgrade_entry = !checking_builtin && show_builtin_notice(builtin_action)
     if (!v3)
         return null
     
@@ -315,17 +400,6 @@ export function SettingsModal () {
     }
     
     return <Modal
-        title={<div className='ai-settings-modal-title'>
-            <span>{t('AI 设置')}</span>
-            {!checking_builtin && show_builtin_notice(builtin_action) && <Button
-                type='link'
-                size='small'
-                className='ai-builtin-upgrade-entry'
-                onClick={open_builtin_notice}
-            >
-                {get_builtin_notice_label(builtin_action)}
-            </Button>}
-        </div>}
         open={settings_visible}
         onCancel={() => {
             set_builtin_notice_visible(false)
@@ -337,53 +411,59 @@ export function SettingsModal () {
         }}
         footer={null}
         width='min(1440px, calc(100vw - 48px))'
+        styles={{ container: { paddingInline: 0 } }}
         className='ai-settings-modal'
         destroyOnHidden
     >
         <div className='ai-settings-modal-content'>
-            <Tabs
-                className='ai-settings-tabs'
-                destroyOnHidden
-                items={[
-                    ...can_manage_agent ? [{
-                        key: 'agent',
-                        label: t('Agent 管理'),
-                        children: <AgentTab />,
-                    }] : [ ],
-                    ...admin ? [{
-                        key: 'llm',
-                        label: t('模型配置'),
-                        children: <LlmConfigTab />,
-                    },
-                    {
-                        key: 'skills',
-                        label: t('技能管理'),
-                        children: <SkillsTab />,
-                    }] : [ ],
-                    {
-                        key: 'memory',
-                        label: t('记忆管理'),
-                        children: <MemoryManagementTab can_manage_memory={can_manage_agent} />,
-                    },
-                    ...can_manage_agent ? [{
-                        key: 'mcp',
-                        label: t('MCP 管理'),
-                        children: <McpTab can_manage_mcp={can_manage_agent} />,
-                    }] : [ ],
-                    {
-                        key: 'user',
-                        label: t('个人中心'),
-                        children: <DolphinXUserTab />,
-                    },
-                    ...admin
-                        ? [{
-                            key: 'admin',
-                            label: t('用户管理'),
-                            children: <DolphinXAdminTab />,
-                        }]
-                        : [ ],
-                ]}
-            />
+            <div className='ai-settings-layout'>
+                <nav className={`ai-settings-sidebar${language === 'en' ? ' english' : ''}${sidebar_collapsed ? ' collapsed' : ''}`} aria-label={t('AI 设置')}>
+                    <div className='ai-settings-sidebar-header'>
+                        {sidebar_collapsed
+                            ? <Tooltip title={t('展开')} placement='right' mouseEnterDelay={0}>
+                                <button
+                                    type='button'
+                                    className='ai-settings-sidebar-brand'
+                                    aria-label={t('展开')}
+                                    onClick={() => { set_sidebar_collapsed(false) }}
+                                >
+                                    <SvgAi className='ai-settings-brand-icon' aria-hidden='true' />
+                                    <DoubleRightOutlined className='ai-settings-brand-open' aria-hidden='true' />
+                                </button>
+                            </Tooltip>
+                            : <>
+                                <div className='ai-settings-sidebar-title'>{t('AI 设置')}</div>
+                                <button
+                                    type='button'
+                                    className='ai-settings-sidebar-collapse'
+                                    title={t('收起侧栏')}
+                                    aria-label={t('收起侧栏')}
+                                    onClick={() => { set_sidebar_collapsed(true) }}
+                                >
+                                    <DoubleLeftOutlined />
+                                </button>
+                            </>}
+                    </div>
+                    {setting_groups.map((group, index) => group.items.length > 0 && <div className='ai-settings-nav-group' key={group.title || index}>
+                        {group.title && <div className='ai-settings-nav-title'>{group.title}</div>}
+                        {group.items.map(item => <SettingNavItem
+                            key={item.key}
+                            item={item}
+                            active={active_setting.key === item.key}
+                            collapsed={sidebar_collapsed}
+                            on_click={() => { set_active_setting_key(item.key) }}
+                        />)}
+                    </div>)}
+                </nav>
+                <div className={`ai-settings-pane${show_builtin_upgrade_entry ? ' with-notice' : ''}`} key={active_setting.key}>
+                    {show_builtin_upgrade_entry && <div className='ai-settings-pane-notices'>
+                        <Button type='link' size='small' className='ai-builtin-upgrade-entry' onClick={open_builtin_notice}>
+                            {get_builtin_notice_label(builtin_action)}
+                        </Button>
+                    </div>}
+                    {active_setting.content}
+                </div>
+            </div>
             {(show_builtin_init || show_builtin_notice_card) && <div
                 className='ai-builtin-mask'
                 onClick={() => {

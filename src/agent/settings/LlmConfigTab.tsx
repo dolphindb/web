@@ -389,18 +389,24 @@ export function LlmConfigTab () {
     
     const is_embedding_form = config_form.capability === 'embedding'
     
-    return <div style={{ display: 'flex', height: '100%', minHeight: 0 }}>
+    return <div className='ai-settings-list-layout' style={{ height: '100%' }}>
         {/* 左侧 Provider 列表 */}
-        <div style={{
-            width: 260, borderRight: '1px solid #f0f0f0', display: 'flex',
-            flexDirection: 'column', flexShrink: 0, minWidth: 0, minHeight: 0,
-        }}>
-            <div style={{ padding: '0 12px 12px', borderBottom: '1px solid #f0f0f0' }}>
-                <Button type='dashed' block icon={<PlusOutlined />} onClick={open_create_provider}>
-                    {t('新建 Provider')}
-                </Button>
+        <div className='ai-settings-list-sidebar'>
+            <div className='ai-settings-list-title'>
+                <span className='ai-settings-list-title-text'>{t('模型管理')}</span>
+                <Tooltip title={t('新建 Provider')}>
+                    <button
+                        type='button'
+                        className='ai-settings-list-title-action'
+                        aria-label={t('新建 Provider')}
+                        onClick={open_create_provider}
+                    >
+                        <PlusOutlined />
+                    </button>
+                </Tooltip>
             </div>
-            <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '8px 0', minWidth: 0 }}>
+            <div className='ai-settings-list-subtitle' title={t('选择需要管理的 Provider')}>{t('选择需要管理的 Provider')}</div>
+            <div className='ai-settings-list-content rich'>
                 {loading
                     ? <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
                     : providers.length === 0
@@ -409,12 +415,7 @@ export function LlmConfigTab () {
                             const count = configs.filter(c => c.providerId === p.providerId).length
                             return <div
                                 key={p.providerId}
-                                style={{
-                                    padding: '10px 16px', cursor: 'pointer',
-                                    background: p.providerId === selected_provider_id ? '#e6f4ff' : 'transparent',
-                                    borderLeft: p.providerId === selected_provider_id ? '3px solid #1677ff' : '3px solid transparent',
-                                    boxSizing: 'border-box',
-                                }}
+                                className={`ai-settings-list-item rich${p.providerId === selected_provider_id ? ' active' : ''}`}
                                 onClick={() => { open_edit_provider(p) }}
                             >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flexWrap: 'wrap' }}>
@@ -440,15 +441,18 @@ export function LlmConfigTab () {
         </div>
         
         {/* 右侧 Provider 编辑器 + 内嵌模型列表 */}
-        <div style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto', padding: '0 20px' }}>
-            {provider_mode === 'idle'
+        <div className='ai-settings-list-detail'>
+            <div className='ai-settings-detail-header'>
+                {provider_mode !== 'idle' && <div className='ai-settings-detail-title'>
+                    {provider_mode === 'create' ? t('新建 Provider') : t('编辑 Provider')}
+                </div>}
+            </div>
+            <div className='ai-settings-detail-body'>
+                {provider_mode === 'idle'
                 ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                    <Empty description={t('请从左侧选择一个 Provider，或点击上方新建')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                    <Empty description={t('请从左侧选择一个 Provider，或点击「模型管理」右侧的 + 新建')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
                 </div>
                 : <>
-                    <div style={{ fontWeight: 500, fontSize: 15, marginBottom: 12 }}>
-                        {provider_mode === 'create' ? t('新建 Provider') : t('编辑 Provider')}
-                    </div>
                     {form_error_alert(provider_error)}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
                         <div>
@@ -512,7 +516,7 @@ export function LlmConfigTab () {
                         </Button>
                     </div>
                     
-                    {provider_mode === 'edit' && selected_provider && <div style={{ marginTop: 24, borderTop: '1px solid #f0f0f0', paddingTop: 16 }}>
+                    {provider_mode === 'edit' && selected_provider && <div style={{ marginTop: 24 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                             <div style={{ fontWeight: 500, fontSize: 14 }}>{t('关联模型配置') + ` (${provider_configs.length})`}</div>
                             <Button size='small' icon={<PlusOutlined />} disabled={selected_provider.enabled === false} onClick={open_create_config}>
@@ -520,11 +524,10 @@ export function LlmConfigTab () {
                             </Button>
                         </div>
                         {provider_configs.length === 0
-                            ? <Empty description={t('暂无模型，点击上方新增')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                            ? <Empty description={t('暂无模型，请点击「关联模型配置」右侧的「新增模型」添加')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
                             : provider_configs.map(cfg =>
-                                <div key={cfg.llmConfigId} style={{
+                                <div key={cfg.llmConfigId} className='ai-settings-data-row' style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    padding: '8px 12px', border: '1px solid #f0f0f0', borderRadius: 4, marginBottom: 6,
                                 }}>
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
@@ -577,7 +580,8 @@ export function LlmConfigTab () {
                         }
                     </div>}
                 </>
-            }
+                }
+            </div>
         </div>
         
         {/* 模型配置编辑 Modal */}
@@ -672,6 +676,7 @@ export function LlmConfigTab () {
                 </div>
                 {!is_embedding_form && <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Switch
+                        className='ai-settings-switch-medium'
                         checked={config_form.nativeToolCall}
                         onChange={checked => { set_config_form({ ...config_form, nativeToolCall: checked }) }}
                     />
@@ -698,6 +703,7 @@ export function LlmConfigTab () {
                     </div>
                     <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 8 }}>
                         <Switch
+                            className='ai-settings-switch-medium'
                             checked={config_form.embeddingMetric === 'cosine' || config_form.embeddingNormalize}
                             disabled={config_form.embeddingMetric === 'cosine'}
                             onChange={checked => { set_config_form({ ...config_form, embeddingNormalize: checked }) }}

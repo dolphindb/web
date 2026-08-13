@@ -197,8 +197,10 @@ export function WorkspaceSidebar ({
         </Tooltip>
         <div className={`ai-workspace-sidebar ${visible ? 'open' : ''}`}>
             <div className='ai-workspace-header'>
-                <Text strong>{t('工作区文件')}</Text>
-                <Button type='text' size='small' icon={<ReloadOutlined />} loading={files_loading} onClick={() => { refresh_files() }} />
+                <div className='ai-workspace-title'>{t('工作区文件')}</div>
+                <Tooltip title={t('刷新')}>
+                    <Button aria-label={t('刷新')} type='text' size='small' icon={<ReloadOutlined />} loading={files_loading} onClick={() => { refresh_files() }} />
+                </Tooltip>
             </div>
             <div className='ai-workspace-body'>
                 {files_error

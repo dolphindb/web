@@ -105,19 +105,27 @@ export function AgentTab () {
             agent_create_time(b) - agent_create_time(a)
         )
     
-    return <div style={{ display: 'flex', height: '100%', minHeight: 0 }}>
+    return <div className='ai-settings-list-layout' style={{ height: '100%' }}>
         {/* 左侧 Agent 列表 */}
-        <div style={{ width: 260, borderRight: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column', flexShrink: 0, minHeight: 0 }}>
-            <div style={{ padding: '0 12px 12px', borderBottom: '1px solid #f0f0f0' }}>
-                <Button type='dashed' block icon={<PlusOutlined />} onClick={() => {
-                    set_creating(!creating)
-                    set_form_error('')
-                }}>
-                    {t('新建 Agent')}
-                </Button>
+        <div className='ai-settings-list-sidebar'>
+            <div className='ai-settings-list-title'>
+                <span className='ai-settings-list-title-text'>{t('Agent 管理')}</span>
+                <Tooltip title={t('新建 Agent')}>
+                    <button
+                        type='button'
+                        className='ai-settings-list-title-action'
+                        aria-label={t('新建 Agent')}
+                        disabled={creating}
+                        onClick={() => {
+                            set_creating(true)
+                            set_form_error('')
+                        }}
+                    >
+                        <PlusOutlined />
+                    </button>
+                </Tooltip>
             </div>
-            
-            <div style={{ flex: 1, overflow: 'auto', padding: '8px 0' }}>
+            <div className='ai-settings-list-content rich'>
                 {loading && !creating
                     ? <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
                     : visible_agents.length === 0
@@ -125,13 +133,12 @@ export function AgentTab () {
                         : visible_agents.map(a =>
                             <div
                                 key={a.agentId}
-                                style={{
-                                    padding: '8px 12px',
-                                    cursor: 'pointer',
-                                    background: selected_agent?.agentId === a.agentId ? '#e6f4ff' : 'transparent',
-                                    borderLeft: selected_agent?.agentId === a.agentId ? '3px solid #1677ff' : '3px solid transparent',
+                                className={`ai-settings-list-item rich${!creating && selected_agent?.agentId === a.agentId ? ' active' : ''}`}
+                                onClick={() => {
+                                    set_selected_agent(a)
+                                    set_creating(false)
+                                    set_form_error('')
                                 }}
-                                onClick={() => { set_selected_agent(a) }}
                             >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                     <span style={{ fontWeight: 500, fontSize: 13 }}>{a.agentName}</span>
@@ -150,9 +157,15 @@ export function AgentTab () {
         </div>
         
         {/* 右侧详情 */}
-        <div style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto', padding: '0 16px' }}>
-            {creating
-                ? <div style={{ padding: '16px 0' }}>
+        <div className='ai-settings-list-detail'>
+            <div className='ai-settings-detail-header'>
+                {(creating || selected_agent) && <div className='ai-settings-detail-title'>
+                    {creating ? t('新建 Agent') : selected_agent?.agentName}
+                </div>}
+            </div>
+            <div className='ai-settings-detail-body'>
+                {creating
+                ? <div>
                     {form_error_alert(form_error)}
                     <div style={{ display: 'grid', gap: '12px 16px' }}>
                         <div>
@@ -181,21 +194,25 @@ export function AgentTab () {
                             />
                         </div>
                         <div style={{ gridColumn: '1 / -1' }}>
-                            <Space>
-                                <Switch checked={form.allowLlmFallback} onChange={checked => { set_form({ ...form, allowLlmFallback: checked }) }} />
-                                <span>{t('允许模型失败时自动切换')}</span>
-                            </Space>
-                            <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
-                                {t('开启后，当前模型调用失败且尚未输出内容时，会按模型绑定优先级尝试下一个模型。')}
+                            <div className='ai-settings-switch-setting'>
+                                <div className='ai-settings-switch-copy'>
+                                    <div>{t('允许模型失败时自动切换')}</div>
+                                    <div className='ai-settings-switch-description'>
+                                        {t('开启后，当前模型调用失败且尚未输出内容时，会按模型绑定优先级尝试下一个模型。')}
+                                    </div>
+                                </div>
+                                <Switch className='ai-settings-switch-medium' checked={form.allowLlmFallback} onChange={checked => { set_form({ ...form, allowLlmFallback: checked }) }} />
                             </div>
                         </div>
                         <div style={{ gridColumn: '1 / -1' }}>
-                            <Space>
-                                <Switch checked={form.docSearchEnabled} onChange={checked => { set_form({ ...form, docSearchEnabled: checked }) }} />
-                                <span>{t('启用文档搜索')}</span>
-                            </Space>
-                            <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
-                                {t('关闭后，AI 助手将不会联网搜索 DolphinDB 官方文档。')}
+                            <div className='ai-settings-switch-setting'>
+                                <div className='ai-settings-switch-copy'>
+                                    <div>{t('启用文档搜索')}</div>
+                                    <div className='ai-settings-switch-description'>
+                                        {t('关闭后，AI 助手将不会联网搜索 DolphinDB 官方文档。')}
+                                    </div>
+                                </div>
+                                <Switch className='ai-settings-switch-medium' checked={form.docSearchEnabled} onChange={checked => { set_form({ ...form, docSearchEnabled: checked }) }} />
                             </div>
                         </div>
                     </div>
@@ -210,9 +227,63 @@ export function AgentTab () {
                 : selected_agent
                     ? <AgentDetailPanel agent={selected_agent} is_current={selected_agent.agentId === agent_id} on_refresh={refresh} />
                     : <Empty description={t('请选择一个 Agent')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ paddingTop: 100 }} />
-            }
+                }
+            </div>
         </div>
     </div>
+}
+
+
+function AgentActions ({ agent, is_current, on_refresh }: { agent: IAgentInfo, is_current: boolean, on_refresh: () => void }) {
+    return <Space size={4}>
+        {!is_current && agent.statusName === 'ACTIVE' && <Button
+            size='small'
+            type='primary'
+            onClick={() => { chat_model.agent.select_agent(agent.agentId) }}
+        >{t('设为当前')}</Button>}
+        {agent.statusName !== 'ACTIVE' && <Button
+            size='small'
+            icon={<CheckCircleOutlined />}
+            onClick={async () => {
+                try {
+                    await chat_model.agent.activate_agent(agent.agentId)
+                    model.message.success(t('已激活'))
+                    on_refresh()
+                } catch (err: any) {
+                    model.message.error(err.message || t('激活失败'))
+                }
+            }}
+        >{t('激活')}</Button>}
+        {agent.statusName === 'ACTIVE' && <Popconfirm
+            title={t('确定挂起此 Agent？')}
+            onConfirm={async () => {
+                try {
+                    await chat_model.agent.suspend_agent(agent.agentId)
+                    model.message.success(t('已挂起'))
+                    on_refresh()
+                } catch (err: any) {
+                    model.message.error(err.message || t('挂起失败'))
+                }
+            }}
+        >
+            <Button size='small' icon={<StopOutlined />}>{t('挂起')}</Button>
+        </Popconfirm>}
+        <Popconfirm
+            title={t('确定删除此 Agent？')}
+            okButtonProps={{ danger: true }}
+            onConfirm={async () => {
+                try {
+                    await chat_model.agent.delete_agent(agent.agentId)
+                    model.message.success(t('已删除'))
+                    on_refresh()
+                } catch (err: any) {
+                    model.message.error(err.message || t('删除失败'))
+                }
+            }}
+        >
+            <Button size='small' danger icon={<DeleteOutlined />}>{t('删除')}</Button>
+        </Popconfirm>
+    </Space>
 }
 
 
@@ -352,69 +423,20 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
     }
     // --- end mcp
     
-    return <div style={{ padding: '12px 0' }}>
+    return <div>
         {/* Agent 基本信息 */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
             <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontSize: 16, fontWeight: 500 }}>{agent.agentName}</div>
-                <Text type='secondary' style={{ display: 'block', fontSize: 12, marginTop: 2, wordBreak: 'break-all' }}>
+                <Text type='secondary' style={{ display: 'block', fontSize: 12, wordBreak: 'break-all' }}>
                     Agent ID: {agent.agentId}
                 </Text>
                 {agent.description && <Paragraph type='secondary' style={{ fontSize: 12, margin: '2px 0 0' }} ellipsis={{ rows: 3, tooltip: agent.description }}>
                     {agent.description}
                 </Paragraph>}
             </div>
-            <Space size={4}>
-                {!is_current && agent.statusName === 'ACTIVE' && <Button
-                    size='small'
-                    type='primary'
-                    onClick={() => { chat_model.agent.select_agent(agent.agentId) }}
-                >{t('设为当前')}</Button>}
-                {agent.statusName !== 'ACTIVE' && <Button
-                    size='small'
-                    icon={<CheckCircleOutlined />}
-                    onClick={async () => {
-                        try {
-                            await chat_model.agent.activate_agent(agent.agentId)
-                            model.message.success(t('已激活'))
-                            on_refresh()
-                        } catch (err: any) {
-                            model.message.error(err.message || t('激活失败'))
-                        }
-                    }}
-                >{t('激活')}</Button>}
-                {agent.statusName === 'ACTIVE' && <Popconfirm
-                    title={t('确定挂起此 Agent？')}
-                    onConfirm={async () => {
-                        try {
-                            await chat_model.agent.suspend_agent(agent.agentId)
-                            model.message.success(t('已挂起'))
-                            on_refresh()
-                        } catch (err: any) {
-                            model.message.error(err.message || t('挂起失败'))
-                        }
-                    }}
-                >
-                    <Button size='small' icon={<StopOutlined />}>{t('挂起')}</Button>
-                </Popconfirm>}
-                <Popconfirm
-                    title={t('确定删除此 Agent？')}
-                    okButtonProps={{ danger: true }}
-                    onConfirm={async () => {
-                        try {
-                            await chat_model.agent.delete_agent(agent.agentId)
-                            model.message.success(t('已删除'))
-                            on_refresh()
-                        } catch (err: any) {
-                            model.message.error(err.message || t('删除失败'))
-                        }
-                    }}
-                >
-                    <Button size='small' danger icon={<DeleteOutlined />}>{t('删除')}</Button>
-                </Popconfirm>
-            </Space>
+            <AgentActions agent={agent} is_current={is_current} on_refresh={on_refresh} />
         </div>
-        <div style={{ border: '1px solid #f0f0f0', borderRadius: 6, padding: 12, marginBottom: 16 }}>
+        <div style={{ marginBottom: 16 }}>
             <div style={{ marginBottom: 8, fontWeight: 500 }}>{t('Agent 配置')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
                 <div>
@@ -433,21 +455,25 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                     />
                 </div>
                 <div>
-                    <Space>
-                        <Switch checked={agent_form.allowLlmFallback} onChange={checked => { set_agent_form({ ...agent_form, allowLlmFallback: checked }) }} />
-                        <span>{t('允许模型失败时自动切换')}</span>
-                    </Space>
-                    <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
-                        {t('开启后，当前模型调用失败且尚未输出内容时，会按模型绑定优先级尝试下一个模型。')}
+                    <div className='ai-settings-switch-setting'>
+                        <div className='ai-settings-switch-copy'>
+                            <div>{t('允许模型失败时自动切换')}</div>
+                            <div className='ai-settings-switch-description'>
+                                {t('开启后，当前模型调用失败且尚未输出内容时，会按模型绑定优先级尝试下一个模型。')}
+                            </div>
+                        </div>
+                        <Switch className='ai-settings-switch-medium' checked={agent_form.allowLlmFallback} onChange={checked => { set_agent_form({ ...agent_form, allowLlmFallback: checked }) }} />
                     </div>
                 </div>
                 <div>
-                    <Space>
-                        <Switch checked={agent_form.docSearchEnabled} onChange={checked => { set_agent_form({ ...agent_form, docSearchEnabled: checked }) }} />
-                        <span>{t('启用文档搜索')}</span>
-                    </Space>
-                    <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
-                        {t('关闭后，AI 助手将不会联网搜索 DolphinDB 官方文档。')}
+                    <div className='ai-settings-switch-setting'>
+                        <div className='ai-settings-switch-copy'>
+                            <div>{t('启用文档搜索')}</div>
+                            <div className='ai-settings-switch-description'>
+                                {t('关闭后，AI 助手将不会联网搜索 DolphinDB 官方文档。')}
+                            </div>
+                        </div>
+                        <Switch className='ai-settings-switch-medium' checked={agent_form.docSearchEnabled} onChange={checked => { set_agent_form({ ...agent_form, docSearchEnabled: checked }) }} />
                     </div>
                 </div>
             </div>
@@ -468,9 +494,8 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                         {/* 已绑定的 LLM */}
                         {bound_llms.length > 0 && <div style={{ marginBottom: 12 }}>
                             {sorted_bound_llms.map(llm =>
-                                <div key={llm.llmConfigId} style={{
+                                <div key={llm.llmConfigId} className='ai-settings-data-row' style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    padding: '6px 10px', border: '1px solid #f0f0f0', borderRadius: 4, marginBottom: 4,
                                 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4 }}>
                                         <span style={{ fontWeight: 500, fontSize: 13 }}>{get_llm_config_display_name(llm)}</span>
@@ -536,9 +561,8 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                             ? <div>
                                 <div style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>{t('可用模型配置')}</div>
                                 {unbound_llms.map(llm =>
-                                    <div key={llm.llmConfigId} style={{
+                                    <div key={llm.llmConfigId} className='ai-settings-data-row' style={{
                                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                        padding: '6px 10px', border: '1px dashed #d9d9d9', borderRadius: 4, marginBottom: 4,
                                     }}>
                                         <div>
                                             <span style={{ fontSize: 13 }}>{get_llm_config_display_name(llm)}</span>
@@ -557,7 +581,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                     </div>
                                 )}
                             </div>
-                            : bound_llms.length === 0 && <Empty description={t('暂无可用模型配置，请先在「模型配置」中创建')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                            : bound_llms.length === 0 && <Empty description={t('暂无可用模型配置，请先在「模型管理」中创建')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
                         }
                     </div>,
                 },
@@ -569,9 +593,8 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                             ? <div style={{ marginBottom: 12 }}>
                             {skill_items.map(({ binding, skill }) => {
                                 const skill_id = binding?.skillId ?? skill!.skillId
-                                return <div key={skill_id} style={{
+                                return <div key={skill_id} className='ai-settings-data-row' style={{
                                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    padding: '6px 10px', border: binding ? '1px solid #f0f0f0' : '1px dashed #d9d9d9', borderRadius: 4, marginBottom: 4,
                                 }}>
                                     <div style={{ minWidth: 0, flex: 1 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -585,7 +608,7 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                                         </Paragraph>}
                                     </div>
                                     <Switch
-                                        size='small'
+                                        className='ai-settings-switch-medium'
                                         checked={!!binding?.enabled}
                                         onChange={async checked => {
                                             await chat_model.skill.toggle_skill_binding(skill_id, checked, agent.agentId)
@@ -607,11 +630,9 @@ function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInf
                             ? <div style={{ marginBottom: 12 }}>
                                 {mcp_items.map(({ binding, server }) => {
                                     const server_id = binding?.mcpServerId ?? server!.mcpServerId
-                                    const bound = Boolean(binding)
                                     const server_available = server ? server.enabled !== false : undefined
-                                    return <div key={server_id} style={{
+                                    return <div key={server_id} className='ai-settings-data-row' style={{
                                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                        padding: '6px 10px', border: bound ? '1px solid #f0f0f0' : '1px dashed #d9d9d9', borderRadius: 4, marginBottom: 4,
                                     }}>
                                         <div style={{ minWidth: 0, flex: 1 }}>
                                             <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>

@@ -3,10 +3,78 @@
         height: min(680px, calc(100vh - 200px))
         overflow: hidden
 
-.ai-settings-modal-title
+.ai-settings-sidebar-header
     display: flex
     align-items: center
-    gap: 8px
+    gap: 4px
+    min-height: 32px
+    margin-bottom: 20px
+    padding: 0 10px
+
+.ai-settings-sidebar-title
+    flex: none
+    font-size: 20px
+    font-weight: 600
+    line-height: 24px
+
+.ai-settings-sidebar-brand
+    display: flex
+    align-items: center
+    justify-content: center
+    width: 32px
+    height: 32px
+    margin: 0 auto
+    padding: 6px
+    border: 0
+    border-radius: 6px
+    background: transparent
+    color: var(--ant-color-text)
+    cursor: pointer
+
+    .ai-settings-brand-icon
+        display: block
+        width: 20px
+        height: 20px
+
+    .ai-settings-brand-open
+        display: none
+        align-items: center
+        justify-content: center
+        width: 20px
+        height: 20px
+        font-size: 16px
+
+    &:hover
+        background: var(--ant-color-fill-tertiary)
+
+        .ai-settings-brand-icon
+            display: none
+
+        .ai-settings-brand-open
+            display: flex
+
+    &:focus-visible
+        outline: 2px solid var(--ant-color-primary-border)
+        outline-offset: -2px
+
+.ai-settings-sidebar-collapse
+    width: 24px
+    height: 24px
+    margin-left: auto
+    padding: 0
+    border: 0
+    border-radius: 4px
+    background: transparent
+    color: var(--ant-color-text-secondary)
+    cursor: pointer
+
+    &:hover
+        background: var(--ant-color-fill-tertiary)
+        color: var(--ant-color-text)
+
+    &:focus-visible
+        outline: 2px solid var(--ant-color-primary-border)
+        outline-offset: -2px
 
 .ai-builtin-upgrade-entry
     height: 22px
@@ -18,25 +86,310 @@
     height: 100%
     min-height: 0
 
-.ai-settings-tabs
+.ai-settings-layout
     height: 100%
+    display: flex
+    min-height: 0
+
+.ai-settings-sidebar
+    flex: 0 0 208px
+    min-height: 0
+    padding: 0 14px 0 24px
+    border-right: 1px solid var(--ant-color-border-secondary)
+    overflow-y: auto
+    transition: flex-basis 0.2s ease, padding 0.2s ease
+
+    &.english
+        flex-basis: 248px
+
+    &.collapsed
+        flex-basis: 49px
+        padding: 0 8px
+
+        .ai-settings-sidebar-header
+            padding: 0
+
+        .ai-settings-nav-title,
+        .ai-settings-nav-label
+            display: none
+
+        .ai-settings-nav-item
+            justify-content: center
+            width: 32px
+            margin: 0 auto
+            padding: 0
+
+.ai-settings-nav-group
+    display: flex
+    flex-direction: column
+    gap: 2px
+
+.ai-settings-nav-group + .ai-settings-nav-group
+    margin-top: 8px
+
+.ai-settings-nav-title
+    display: flex
+    align-items: center
+    height: 32px
+    padding: 0 10px
+    color: var(--ant-color-text)
+    font-size: 12px
+    font-weight: 600
+    line-height: 16px
+
+.ai-settings-nav-item,
+.ai-settings-list-item
+    width: 100%
+    padding: 0 10px
+    border: 0
+    border-radius: 6px
+    background: transparent
+    color: var(--ant-color-text)
+    font: inherit
+    line-height: 20px
+    text-align: left
+    cursor: pointer
+    overflow: hidden
+    text-overflow: ellipsis
+
+    &:hover
+        background: var(--ant-color-fill-tertiary)
+
+    &:focus-visible
+        outline: 2px solid var(--ant-color-primary-border)
+        outline-offset: -2px
+
+    &.active
+        background: var(--ant-color-primary-bg)
+        color: var(--ant-color-primary)
+        font-weight: 500
+
+.ai-settings-nav-item
+    display: flex
+    align-items: center
+    gap: 10px
+    height: 32px
+
+.ai-settings-nav-icon
+    width: 16px
+    height: 16px
+    flex: none
+
+    > svg
+        display: block
+        width: 16px
+        height: 16px
+        stroke-width: 1.75
+
+.ai-settings-nav-label
+    min-width: 0
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+
+.ai-settings-list-layout
+    display: flex
+    gap: 12px
+    min-height: 0
+
+.ai-settings-list-sidebar
+    flex: 0 0 248px
+    min-width: 0
+    min-height: 0
+    padding-right: 14px
+    border-right: 1px solid var(--ant-color-border-secondary)
     display: flex
     flex-direction: column
 
-    > .ant-tabs-nav
+.ai-settings-list-title
+    display: flex
+    align-items: center
+    justify-content: space-between
+    gap: 8px
+    height: 32px
+    padding: 0
+    color: var(--ant-color-text)
+    font-size: 15px
+    font-weight: 600
+    line-height: 22px
+
+.ai-settings-list-title-text
+    min-width: 0
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+
+.ai-settings-list-title-action
+    flex: none
+    display: flex
+    align-items: center
+    justify-content: center
+    width: 24px
+    height: 24px
+    padding: 0
+    border: 0
+    border-radius: 4px
+    background: transparent
+    color: var(--ant-color-text)
+    cursor: pointer
+
+    &:hover:not(:disabled)
+        background: var(--ant-color-fill-tertiary)
+
+    &:focus-visible
+        outline: 2px solid var(--ant-color-primary-border)
+        outline-offset: -2px
+
+    &:disabled
+        color: var(--ant-color-text-quaternary)
+        cursor: default
+
+.ai-settings-list-subtitle
+    min-width: 0
+    display: flex
+    align-items: center
+    height: 32px
+    padding: 0
+    color: var(--ant-color-text)
+    font-size: 12px
+    font-weight: 600
+    line-height: 16px
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+
+.ai-settings-list-content
+    flex: 1
+    min-height: 0
+    display: flex
+    flex-direction: column
+    gap: 2px
+    overflow-x: hidden
+    overflow-y: auto
+
+    &.rich
+        padding-top: 8px
+
+.ai-settings-list-item
+    flex: none
+    min-height: 32px
+    line-height: 20px
+    white-space: nowrap
+
+    &.rich
+        padding: 6px 10px
+        white-space: normal
+
+.ai-settings-list-pagination
+    margin-top: 8px
+
+.ai-settings-list-detail
+    flex: 1
+    min-width: 0
+    min-height: 0
+    display: flex
+    flex-direction: column
+    overflow: hidden
+
+.ai-settings-detail-header
+    flex: 0 0 32px
+    min-width: 0
+    padding-right: 48px
+    display: flex
+    align-items: center
+
+.ai-settings-detail-safe-area
+    flex: 0 0 32px
+
+.ai-settings-detail-title
+    min-width: 0
+    overflow: hidden
+    font-size: 15px
+    font-weight: 600
+    line-height: 22px
+    text-overflow: ellipsis
+    white-space: nowrap
+
+.ai-settings-detail-body
+    flex: 1
+    min-width: 0
+    min-height: 0
+    box-sizing: border-box
+    padding: 12px 12px 16px 0
+    overflow: auto
+
+.ai-settings-section
+    margin-bottom: 24px
+
+    &:last-child
+        margin-bottom: 0
+
+.ai-settings-section-title
+    margin-bottom: 12px
+    font-size: 14px
+    font-weight: 600
+
+.ai-settings-data-row
+    margin-bottom: 2px
+    padding: 8px 10px
+    border-radius: 4px
+
+    &:hover
+        background: var(--ant-color-fill-tertiary)
+
+.ai-settings-switch-setting
+    display: flex
+    align-items: center
+    justify-content: space-between
+    gap: 16px
+
+    > .ant-switch
         flex: none
 
-    > .ant-tabs-body-holder
-        flex: 1
-        min-height: 0
-        overflow: hidden
+.ai-settings-switch-copy
+    flex: 1
+    min-width: 0
 
-        > .ant-tabs-body
-            height: 100%
+.ai-settings-switch-description
+    margin-top: 4px
+    color: var(--ant-color-text-tertiary)
+    font-size: 12px
 
-            > .ant-tabs-content
-                height: 100%
-                min-height: 0
+.ai-settings-switch-medium.ant-switch
+    min-width: 36px
+    width: 36px
+    height: 20px
+    line-height: 20px
+
+    .ant-switch-handle
+        top: 2px
+        inset-inline-start: 2px
+        width: 16px
+        height: 16px
+
+    &.ant-switch-checked .ant-switch-handle
+        inset-inline-start: calc(100% - 18px)
+
+.ai-settings-pane
+    position: relative
+    flex: 1
+    min-width: 0
+    min-height: 0
+    padding: 0 24px
+    overflow: hidden
+
+    &.with-notice .ai-settings-detail-header
+        padding-right: 240px
+
+.ai-settings-pane-notices
+    position: absolute
+    z-index: 1
+    top: 0
+    right: 48px
+    height: 32px
+    display: flex
+    align-items: center
+    justify-content: flex-end
 
 .ai-builtin-mask
     position: absolute

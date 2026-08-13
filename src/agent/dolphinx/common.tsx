@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react'
 
-import { Card, Empty, Pagination } from 'antd'
+import { Empty, Pagination } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
@@ -15,13 +15,16 @@ export function show_error (error: unknown, fallback: string) {
 
 
 export function Section ({ title, children }: { title: string, children: ReactNode }) {
-    return <Card size='small' title={title} style={{ marginBottom: 12 }}>
+    return <section className='ai-settings-section'>
+        <div className='ai-settings-section-title'>{title}</div>
         {children}
-    </Card>
+    </section>
 }
 
 
 export function AgentListLayout ({
+    detail_title,
+    list_subtitle,
     options,
     selected_agent_id,
     set_selected_agent_id,
@@ -29,6 +32,8 @@ export function AgentListLayout ({
     children,
     height = '100%',
 }: {
+    detail_title: string
+    list_subtitle: string
     options: { value: string, label: string }[]
     selected_agent_id: string
     set_selected_agent_id: (agent_id: string) => void
@@ -36,60 +41,97 @@ export function AgentListLayout ({
     children: ReactNode
     height?: number | string
 }) {
-    const [agent_page, set_agent_page] = useState(1)
+    return <SettingsListLayout
+        title={detail_title}
+        list_subtitle={list_subtitle}
+        options={options}
+        selected_id={selected_agent_id}
+        set_selected_id={set_selected_agent_id}
+        empty_description={t('暂无 Agent')}
+        select_description={t('请选择 Agent')}
+        actions={actions}
+        height={height}
+    >
+        {children}
+    </SettingsListLayout>
+}
+
+
+export function SettingsListLayout ({
+    title,
+    list_subtitle,
+    options,
+    selected_id,
+    set_selected_id,
+    empty_description,
+    select_description,
+    actions,
+    children,
+    height = '100%',
+}: {
+    title: string
+    list_subtitle: string
+    options: { value: string, label: string }[]
+    selected_id: string
+    set_selected_id: (id: string) => void
+    empty_description: string
+    select_description: string
+    actions?: ReactNode
+    children: ReactNode
+    height?: number | string
+}) {
+    const [page, set_page] = useState(1)
     const default_page_size = 10
-    const [agent_page_size, set_agent_page_size] = useState(default_page_size)
-    const paged_agent_options = options.slice((agent_page - 1) * agent_page_size, agent_page * agent_page_size)
-    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id)
+    const [page_size, set_page_size] = useState(default_page_size)
+    const paged_options = options.slice((page - 1) * page_size, page * page_size)
+    use_valid_agent_selection(options, selected_id, set_selected_id)
     
     useEffect(() => {
-        const max_page = Math.max(1, Math.ceil(options.length / agent_page_size))
-        if (agent_page > max_page)
-            set_agent_page(max_page)
-    }, [options.length, agent_page, agent_page_size])
+        const max_page = Math.max(1, Math.ceil(options.length / page_size))
+        if (page > max_page)
+            set_page(max_page)
+    }, [options.length, page, page_size])
     
-    return <div style={{ display: 'flex', gap: 12, height, minHeight: 0 }}>
-        <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontWeight: 500, marginBottom: 8 }}>{t('Agent')}</div>
-            <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+    return <div className='ai-settings-list-layout' style={{ height }}>
+        <div className='ai-settings-list-sidebar'>
+            <div className='ai-settings-list-title'>
+                <span className='ai-settings-list-title-text'>{title}</span>
+            </div>
+            <div className='ai-settings-list-subtitle' title={list_subtitle}>{list_subtitle}</div>
+            <div className='ai-settings-list-content'>
                 {options.length === 0
-                    ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无 Agent')} />
-                    : paged_agent_options.map(agent =>
-                        <div
-                            key={agent.value}
-                            onClick={() => { set_selected_agent_id(agent.value) }}
-                            title={agent.label}
-                            style={{
-                                padding: '8px 10px',
-                                borderRadius: 4,
-                                cursor: 'pointer',
-                                marginBottom: 4,
-                                background: selected_agent_id === agent.value ? '#e6f4ff' : undefined,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                            }}
+                    ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={empty_description} />
+                    : paged_options.map(option =>
+                        <button
+                            type='button'
+                            key={option.value}
+                            onClick={() => { set_selected_id(option.value) }}
+                            title={option.label}
+                            className={`ai-settings-list-item${selected_id === option.value ? ' active' : ''}`}
                         >
-                            {agent.label}
-                        </div>
+                            {option.label}
+                        </button>
                     )}
             </div>
             {options.length > default_page_size && <Pagination
                 size='small'
-                simple
-                current={agent_page}
-                pageSize={agent_page_size}
+                simple={{ readOnly: true }}
+                current={page}
+                pageSize={page_size}
                 total={options.length}
                 onChange={(page, page_size) => {
-                    set_agent_page(page)
-                    set_agent_page_size(page_size)
+                    set_page(page)
+                    set_page_size(page_size)
                 }}
-                style={{ marginTop: 8 }}
+                className='ai-settings-list-pagination'
             />}
         </div>
-        <div style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto' }}>
-            {actions && <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>{actions}</div>}
-            {selected_agent_id ? children : <Empty description={t('请选择 Agent')} />}
+        <div className='ai-settings-list-detail'>
+            <div className='ai-settings-detail-safe-area' aria-hidden='true' />
+            <div className='ai-settings-detail-body'>
+                {actions && <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>{actions}</div>}
+                {selected_id ? children : <Empty description={select_description} />}
+            </div>
         </div>
     </div>
 }
@@ -102,10 +144,10 @@ export function format_browser_time (value?: string) {
 }
 
 
-export function use_agent_options () {
+export function use_agent_options ({ active_only = true }: { active_only?: boolean } = { }) {
     const { agents, agent_id } = chat_model.use(['agents', 'agent_id'])
     const options = agents
-        .filter(agent => agent.statusName === 'ACTIVE')
+        .filter(agent => !active_only || agent.statusName === 'ACTIVE')
         .map(agent => ({ value: agent.agentId, label: agent.agentName || agent.agentId }))
     const active_agent_id = options.some(agent => agent.value === agent_id) ? agent_id : options[0]?.value || ''
     
@@ -139,16 +181,16 @@ export function use_valid_agent_selection (
 }
 
 
-export function use_user_options () {
+export function use_user_options (enabled = true) {
     const [users, set_users] = useState<string[]>([ ])
     
     useEffect(() => {
-        if (!model.admin)
+        if (!enabled || !model.admin)
             return
         access.get_user_list()
             .then(set_users)
             .catch(error => { console.warn('load users failed', error) })
-    }, [ ])
+    }, [enabled])
     
     return users.map(user => ({ value: user, label: user }))
 }

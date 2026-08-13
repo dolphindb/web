@@ -284,23 +284,23 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
         }
     }
     
-    return <div style={{ height: '100%', minHeight: 0, overflow: 'auto', padding: '0 4px 16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
-            <div>
-                <div style={{ fontSize: 16, fontWeight: 500 }}>{t('MCP Server 配置')}</div>
+    return <div className='ai-settings-list-detail' style={{ height: '100%' }}>
+        <div className='ai-settings-detail-header'>
+            <div className='ai-settings-detail-title'>{t('MCP 管理')}</div>
+        </div>
+        <div className='ai-settings-detail-body'>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
                 <Text type='secondary' style={{ fontSize: 12 }}>{t('配置可供 Agent 绑定和调用的 MCP Server。')}</Text>
-            </div>
-            <Space size={8}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Tooltip title={t('刷新')}>
                     <Button icon={<ReloadOutlined />} onClick={refresh} />
                 </Tooltip>
                 <Button type='primary' icon={<PlusOutlined />} disabled={!can_manage_mcp} onClick={open_create_server}>
                     {t('添加 MCP Server')}
                 </Button>
-            </Space>
-        </div>
-        
-        <Spin spinning={loading_servers}>
+                </div>
+            </div>
+            <Spin spinning={loading_servers}>
             {servers.length === 0
                 ? <Empty description={t('暂无 MCP Server 配置')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ padding: 32 }} />
                 : <Table<IMcpServerInfo>
@@ -529,6 +529,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                     </div>}
                 </div>
             </Form>
-        </Modal>
+            </Modal>
+        </div>
     </div>
 }

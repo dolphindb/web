@@ -1,2 +1,9 @@
-export { DolphinXUserTab, MemoryManagementTab } from './dolphinx/DolphinXUserTab.tsx'
-export { DolphinXAdminTab } from './dolphinx/DolphinXAdminTab.tsx'
+export {
+    ContextPreviewSection,
+    MemoryConfigManagementSection,
+    MemoryJobsSection,
+    MemorySection,
+    SessionSection,
+    UsageSection,
+} from './dolphinx/DolphinXUserTab.tsx'
+export { UserPermissionTab } from './dolphinx/DolphinXAdminTab.tsx'

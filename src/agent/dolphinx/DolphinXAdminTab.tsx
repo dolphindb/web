@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { Button, Empty, Modal, Pagination, Popconfirm, Select, Space, Switch, Table, Tabs, Tag, Typography, message } from 'antd'
+import { Button, Empty, Modal, Popconfirm, Select, Space, Switch, Table, Tag, Typography, message } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
@@ -9,8 +9,7 @@ import { access } from '@/access/model.ts'
 
 import { chat_model } from '@/agent/model.ts'
 import type { IAccessInfo, ILlmConfig, ISkillInfo, IUserLlmAccessInfo } from '@/agent/model.ts'
-import { Section, show_error, use_agent_options, use_user_options, use_valid_agent_selection } from './common.tsx'
-import { UsageSection } from './DolphinXUserTab.tsx'
+import { Section, SettingsListLayout, show_error, use_agent_options, use_user_options, use_valid_agent_selection } from './common.tsx'
 
 
 const { Paragraph, Text } = Typography
@@ -433,11 +432,11 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
             <Space direction='vertical' style={{ width: '100%' }}>
                 <Select style={{ width: '100%' }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
                 <Space>
-                    <Switch checked={include_memories} onChange={set_include_memories} />
+                    <Switch className='ai-settings-switch-medium' checked={include_memories} onChange={set_include_memories} />
                     <span>{t('移除个人记忆')}</span>
                 </Space>
                 <Space>
-                    <Switch checked={include_stage1} onChange={set_include_stage1} />
+                    <Switch className='ai-settings-switch-medium' checked={include_stage1} onChange={set_include_stage1} />
                     <span>{t('清除中间记忆结果')}</span>
                 </Space>
             </Space>
@@ -446,14 +445,10 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
 }
 
 
-function UserPermissionTab () {
+export function UserPermissionTab () {
     const [user_options, set_user_options] = useState<{ value: string, label: string }[]>([ ])
     const [user_admin_map, set_user_admin_map] = useState<Record<string, boolean>>({ })
     const [selected_user_id, set_selected_user_id] = useState('')
-    const [user_page, set_user_page] = useState(1)
-    const default_page_size = 10
-    const [user_page_size, set_user_page_size] = useState(default_page_size)
-    const paged_user_options = user_options.slice((user_page - 1) * user_page_size, user_page * user_page_size)
     
     useEffect(() => {
         access.get_user_list()
@@ -469,94 +464,24 @@ function UserPermissionTab () {
             .catch(error => { show_error(error, t('加载用户失败')) })
     }, [ ])
     
-    useEffect(() => {
-        if (!user_options.some(user => user.value === selected_user_id))
-            set_selected_user_id(user_options[0]?.value || '')
-    }, [user_options, selected_user_id])
-    
-    useEffect(() => {
-        const max_page = Math.max(1, Math.ceil(user_options.length / user_page_size))
-        if (user_page > max_page)
-            set_user_page(max_page)
-    }, [user_options.length, user_page, user_page_size])
-    
-    return <div style={{ display: 'flex', gap: 12, height: '100%', minHeight: 0 }}>
-        <div style={{ width: 220, borderRight: '1px solid #f0f0f0', paddingRight: 12, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontWeight: 500, marginBottom: 8 }}>{t('用户')}</div>
-            <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-                {user_options.length === 0
-                    ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用户')} />
-                    : paged_user_options.map(user =>
-                        <div
-                            key={user.value}
-                            onClick={() => { set_selected_user_id(user.value) }}
-                            title={user.label}
-                            style={{
-                                padding: '8px 10px',
-                                borderRadius: 4,
-                                cursor: 'pointer',
-                                marginBottom: 4,
-                                background: selected_user_id === user.value ? '#e6f4ff' : undefined,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                            }}
-                        >
-                            {user.label}
-                        </div>
-                    )}
-            </div>
-            {user_options.length > default_page_size && <Pagination
-                size='small'
-                simple={{ readOnly: true }}
-                current={user_page}
-                pageSize={user_page_size}
-                total={user_options.length}
-                onChange={(page, page_size) => {
-                    set_user_page(page)
-                    set_user_page_size(page_size)
-                }}
-                style={{ marginTop: 8 }}
-            />}
+    return <SettingsListLayout
+        title={t('用户权限')}
+        list_subtitle={t('选择需要管理的用户')}
+        options={user_options}
+        selected_id={selected_user_id}
+        set_selected_id={set_selected_user_id}
+        empty_description={t('暂无用户')}
+        select_description={t('请选择用户')}
+    >
+        <div style={{ fontWeight: 500, marginBottom: 12 }}>
+            {t('正在编辑用户：{{user}}', { user: selected_user_id })}
         </div>
-        <div style={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'auto' }}>
-            {selected_user_id
-                ? <>
-                    <div style={{ fontWeight: 500, marginBottom: 12 }}>
-                        {t('正在编辑用户：{{user}}', { user: selected_user_id })}
-                    </div>
-                    <ResetUserMemorySection user_id={selected_user_id} />
-                    {!user_admin_map[selected_user_id] && <>
-                        <GlobalAgentAdminSection user_id={selected_user_id} />
-                        <AdminAccessSection user_id={selected_user_id} />
-                        <UserLlmSection user_id={selected_user_id} />
-                        <SkillAccessSection user_id={selected_user_id} />
-                    </>}
-                </>
-                : <Empty description={t('请选择用户')} />}
-        </div>
-    </div>
-}
-
-
-export function DolphinXAdminTab () {
-    if (!model.admin)
-        return <Empty description={t('仅管理员可访问')} />
-    
-    return <Tabs
-        className='ai-settings-tabs'
-        destroyOnHidden
-        items={[
-            {
-                key: 'users',
-                label: t('用户权限'),
-                children: <UserPermissionTab />,
-            },
-            {
-                key: 'usage',
-                label: t('用量'),
-                children: <UsageSection admin />,
-            },
-        ]}
-    />
+        <ResetUserMemorySection user_id={selected_user_id} />
+        {!user_admin_map[selected_user_id] && <>
+            <GlobalAgentAdminSection user_id={selected_user_id} />
+            <AdminAccessSection user_id={selected_user_id} />
+            <UserLlmSection user_id={selected_user_id} />
+            <SkillAccessSection user_id={selected_user_id} />
+        </>}
+    </SettingsListLayout>
 }
