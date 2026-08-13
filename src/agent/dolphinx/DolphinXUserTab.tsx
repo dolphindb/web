@@ -1452,7 +1452,7 @@ export function ContextPreviewSection () {
             <Descriptions
                 size='small'
                 bordered
-                column={3}
+                column={2}
                 className='context-preview-descriptions'
                 items={preview_rows.map(row => ({
                     key: row.key,
@@ -1463,7 +1463,7 @@ export function ContextPreviewSection () {
             {Object.keys(token_breakdown).length > 0 && <Descriptions
                 size='small'
                 bordered
-                column={4}
+                column={2}
                 className='context-preview-descriptions'
                 items={Object.entries(token_breakdown).map(([key, value]) => ({
                     key,
