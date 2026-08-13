@@ -8,7 +8,7 @@ import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 import type { NavigateFunction, NavigateOptions } from 'react-router'
 
 import 'xshell/polyfill.browser.js'
-import { not_empty, select } from 'xshell/prototype.browser.js'
+import { not_empty } from 'xshell/prototype.browser.js'
 import { check, filter_values, map_keys, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 import { storage } from 'xshell/storage.js'
