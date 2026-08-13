@@ -8935,5 +8935,8 @@
     },
     "时区已切换为 {{timezone}}，下次执行代码时生效": {
         "en": "Timezone switched to {{timezone}}; will take effect on the next code execution"
+    },
+    "正在执行": {
+        "en": "Executing…"
     }
 }
