@@ -144,7 +144,7 @@ export function Job () {
         <div className={`cjobs themed ${ !gjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || gjob_rows.length) ? 'block' : 'none' }}>
             <DDBTable
                 title={<>
-                    <Tooltip title='getConsoleJobs'>{t('运行中作业')} </Tooltip>
+                    <Tooltip title='getConsoleJobs'>{t('同步作业')} </Tooltip>
                     ({gjob_rows.length} {t('个进行中')})
                 </>}
          
@@ -191,7 +191,7 @@ export function Job () {
         <div className={`rjobs themed ${ !rjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || rjob_rows.length) ? 'block' : 'none' }}>
             <DDBTable
                 title={<>
-                    <Tooltip title='getRecentJobs'>{t('已提交作业')} </Tooltip>
+                    <Tooltip title='getRecentJobs'>{t('异步作业')} </Tooltip>
                     ({n_rjob_rows_uncompleted} {t('个进行中')}, {rjob_rows.length - n_rjob_rows_uncompleted} {t('个已完成')})
                 </>}
                 columns={
@@ -221,7 +221,7 @@ export function Job () {
         <div className={`sjobs themed ${ !sjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || sjob_rows.length) ? 'block' : 'none' }}>
             <DDBTable
                 title={<>
-                     <Tooltip title='getScheduledJobs'>{t('已定时作业')} </Tooltip>
+                     <Tooltip title='getScheduledJobs'>{t('定时作业')} </Tooltip>
                      ({sjob_rows.length} {t('个已配置')})
                 </>}
                 
