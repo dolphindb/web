@@ -2,6 +2,8 @@ node_modules/
 
 /out/
 
+/docs/
+
 /i18n/untranslateds.json
 
 /.vscode/settings.json
