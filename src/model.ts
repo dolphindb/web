@@ -518,9 +518,10 @@ export class DdbModel extends Model<DdbModel> {
     async get_ticket () {
         return this.ddb.invoke<string>('getAuthenticatedUserTicket', undefined, {
             urgent: true,
-            ... this.node_type === NodeType.controller || this.node_type === NodeType.single
-                ? undefined
-                : { node: this.controller_alias }
+            node: this.node_type === NodeType.controller || this.node_type === NodeType.single ?
+                undefined
+            :
+                this.controller_alias
         })
     }
     
