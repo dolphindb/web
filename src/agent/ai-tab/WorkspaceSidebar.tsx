@@ -238,13 +238,16 @@ export function WorkspaceSidebar ({
                 <section className='ai-workspace-section ai-attachment-section'>
                     <div className='ai-workspace-section-header'>
                         <div className='ai-workspace-section-title'>{t('文件')}</div>
-                        <Button
-                            type='text'
-                            size='small'
-                            icon={<UploadOutlined />}
-                            loading={attachments_loading}
-                            onClick={() => { attachment_input_ref.current?.click() }}
-                        >{t('上传文件')}</Button>
+                        <Tooltip title={t('上传文件')}>
+                            <Button
+                                aria-label={t('上传文件')}
+                                type='text'
+                                size='small'
+                                icon={<UploadOutlined />}
+                                disabled={attachments_loading}
+                                onClick={() => { attachment_input_ref.current?.click() }}
+                            />
+                        </Tooltip>
                     </div>
                     {attachments_error
                         ? <Alert type='error' showIcon message={t('加载文件失败')} description={attachments_error} />
@@ -265,6 +268,7 @@ export function WorkspaceSidebar ({
                         className='ai-attachment-file-input'
                         type='file'
                         multiple
+                        hidden
                         onChange={async event => {
                             const selected_files = Array.from(event.target.files || [ ])
                             event.target.value = ''

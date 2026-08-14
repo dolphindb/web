@@ -79,6 +79,7 @@ export function AttachmentPicker ({
             className='ai-attachment-file-input'
             type='file'
             multiple
+            hidden
             onChange={async event => {
                 const files = Array.from(event.target.files || [ ])
                 event.target.value = ''
