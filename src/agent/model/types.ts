@@ -103,6 +103,14 @@ export interface IMessage {
     name?: string
     tool_call_id?: string
     tool_calls?: IToolCall[]
+    attachments?: IMessageAttachment[]
+}
+
+
+export interface IMessageAttachment {
+    attachmentId: string
+    filename?: string
+    mimeType?: string
 }
 
 

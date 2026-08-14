@@ -4,7 +4,7 @@ import { shell } from '@/shell/model.ts'
 import { chat_workspace_store } from '@/agent/workspace.ts'
 import { parse_tool_result_payload } from '@/agent/utils/message.ts'
 
-import type { IContextPreviewRequest, IMessage, ISession, IToolCall } from './types.ts'
+import type { IContextPreviewRequest, IMessage, IMessageAttachment, ISession, IToolCall } from './types.ts'
 
 
 function sort_sessions_by_update_time (sessions: ISession[]) {
@@ -13,6 +13,54 @@ function sort_sessions_by_update_time (sessions: ISession[]) {
         const tb = b.updateTime ? Date.parse(b.updateTime) : 0
         return (Number.isFinite(tb) ? tb : 0) - (Number.isFinite(ta) ? ta : 0)
     })
+}
+
+
+function get_content_parts (value: unknown): Array<Record<string, unknown>> {
+    let parsed = value
+    if (typeof parsed === 'string')
+        try {
+            parsed = JSON.parse(parsed)
+        } catch {
+            return [ ]
+        }
+    if (Array.isArray(parsed))
+        return parsed.filter(part => part && typeof part === 'object')
+    if (parsed && typeof parsed === 'object') {
+        const object = parsed as Record<string, unknown>
+        if (typeof object.type === 'string')
+            return [object]
+        const parts = object.content ?? object.contentParts ?? object.content_parts ?? object.parts
+        if (Array.isArray(parts))
+            return parts.filter(part => part && typeof part === 'object')
+    }
+    return [ ]
+}
+
+
+function parse_multimodal_message (message: any): { content: string, attachments?: IMessageAttachment[] } {
+    const parts = [message.contentParts, message.content_parts, message.contentObject, message.content_object, message.content]
+        .map(get_content_parts)
+        .find(items => items.length) || [ ]
+    if (!parts.length)
+        return { content: typeof message.content === 'string' ? message.content : '' }
+    const content = parts
+        .filter(part => part.type === 'text' && typeof part.text === 'string')
+        .map(part => String(part.text))
+        .join('\n')
+    const attachments = parts.flatMap(part => {
+        if (part.type !== 'file' && part.type !== 'attachment')
+            return [ ]
+        const attachment_id = part.fileId ?? part.attachmentId ?? part.file_id ?? part.attachment_id
+        if (!attachment_id)
+            return [ ]
+        return [{
+            attachmentId: String(attachment_id),
+            filename: part.filename ? String(part.filename) : undefined,
+            mimeType: part.mimeType ? String(part.mimeType) : part.mime_type ? String(part.mime_type) : undefined,
+        }]
+    })
+    return { content, attachments: attachments.length ? attachments : undefined }
 }
 
 
@@ -303,7 +351,9 @@ export class ChatSessionModel {
                     tool_calls = parsed.tool_calls
             } catch { }
             
-        const content: string = m.content || ''
+        const { content, attachments } = m.role === 'user'
+            ? parse_multimodal_message(m)
+            : { content: typeof m.content === 'string' ? m.content : '', attachments: undefined }
         let name: string | undefined
         
         let display_content = content
@@ -322,6 +372,7 @@ export class ChatSessionModel {
             tool_call_id: m.toolCallId,
             tool_calls,
             name,
+            attachments,
         }
     }
 }

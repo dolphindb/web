@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { Alert, Button, Empty, Modal, Spin, Tooltip, Typography } from 'antd'
-import { CopyOutlined, DownloadOutlined, FileTextOutlined, FolderOpenOutlined, ReloadOutlined } from '@ant-design/icons'
+import { CopyOutlined, DownloadOutlined, FileTextOutlined, FolderOpenOutlined, PaperClipOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 import { model } from '@model'
 import { copy } from '@utils'
 import { Editor } from '@components/Editor/index.tsx'
-import type { ChatModel, IMessage } from '@/agent/model.ts'
+import type { ChatModel, IMessage, ISessionAttachment } from '@/agent/model.ts'
 import { chat_workspace_store, normalize_workspace_path } from '@/agent/workspace.ts'
 import type { IWorkspaceFile } from '@/agent/workspace.ts'
 
@@ -22,14 +22,23 @@ export function WorkspaceSidebar ({
     session_id,
     current_session_id,
     messages,
+    attachments,
+    attachments_loading,
+    attachments_error,
+    on_refresh_attachments,
+    on_upload_attachments,
 }: {
     chat: ChatModel
     session_id: string
     current_session_id: string
     messages: IMessage[]
+    attachments: ISessionAttachment[]
+    attachments_loading: boolean
+    attachments_error: string
+    on_refresh_attachments: () => Promise<void>
+    on_upload_attachments: (files: File[]) => Promise<void>
 }) {
     const [visible, set_visible] = useState(false)
-    const [has_workspace, set_has_workspace] = useState(false)
     const [files, set_files] = useState<IWorkspaceFile[]>([ ])
     const [files_loading, set_files_loading] = useState(false)
     const [files_error, set_files_error] = useState('')
@@ -39,6 +48,7 @@ export function WorkspaceSidebar ({
     const list_request_ref = useRef(0)
     const file_request_ref = useRef(0)
     const last_message_id_ref = useRef('')
+    const attachment_input_ref = useRef<HTMLInputElement>(null)
     
     async function refresh_files ({ silent = false }: { silent?: boolean } = { }) {
         const request_id = ++list_request_ref.current
@@ -48,19 +58,12 @@ export function WorkspaceSidebar ({
         try {
             const next_files = await chat_workspace_store.list_files(session_id, (path, options) => chat.agent.api_fetch(path, options))
             if (request_id === list_request_ref.current) {
-                const exists = next_files.length > 0
                 set_files(next_files)
-                set_has_workspace(exists)
-                if (!exists) {
-                    set_visible(false)
-                    set_opened_file(null)
-                } else if (opened_file && !next_files.some(file => normalize_workspace_path(file.path) === normalize_workspace_path(opened_file.path)))
+                if (opened_file && !next_files.some(file => normalize_workspace_path(file.path) === normalize_workspace_path(opened_file.path)))
                     set_opened_file(null)
             }
         } catch (error) {
             if (request_id === list_request_ref.current) {
-                set_has_workspace(false)
-                set_visible(false)
                 set_opened_file(null)
                 if (!silent)
                     set_files_error(error instanceof Error ? error.message : String(error))
@@ -118,7 +121,6 @@ export function WorkspaceSidebar ({
     useEffect(() => {
         set_files([ ])
         set_files_error('')
-        set_has_workspace(false)
         set_visible(false)
         set_opened_file(null)
         last_message_id_ref.current = ''
@@ -181,51 +183,96 @@ export function WorkspaceSidebar ({
         return () => { clearTimeout(timer) }
     }, [file_copied])
     
-    if (!has_workspace)
-        return null
-    
     return <>
-        <Tooltip title={visible ? t('关闭工作区') : t('打开工作区')}>
+        <Tooltip title={visible ? t('关闭工作区和文件') : t('打开工作区和文件')}>
             <button
                 type='button'
                 className={`ai-workspace-toggle ${visible ? 'open' : ''}`}
                 onClick={() => { set_visible(!visible) }}
             >
                 <FolderOpenOutlined />
-                <span>{t('工作区')}</span>
+                <span>{t('工作区和文件')}</span>
             </button>
         </Tooltip>
         <div className={`ai-workspace-sidebar ${visible ? 'open' : ''}`}>
             <div className='ai-workspace-header'>
-                <div className='ai-workspace-title'>{t('工作区文件')}</div>
+                <div className='ai-workspace-title'>{t('工作区和文件')}</div>
                 <Tooltip title={t('刷新')}>
-                    <Button aria-label={t('刷新')} type='text' size='small' icon={<ReloadOutlined />} loading={files_loading} onClick={() => { refresh_files() }} />
+                    <Button
+                        aria-label={t('刷新')}
+                        type='text'
+                        size='small'
+                        icon={<ReloadOutlined />}
+                        loading={files_loading || attachments_loading}
+                        onClick={() => { Promise.all([refresh_files(), on_refresh_attachments()]) }}
+                    />
                 </Tooltip>
             </div>
             <div className='ai-workspace-body'>
-                {files_error
-                    ? <Alert type='error' showIcon message={t('加载工作区失败')} description={files_error} />
-                    : files_loading
-                        ? <div className='ai-workspace-loading'><Spin /></div>
-                        : files.length === 0
-                            ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无文件')} />
-                            : <div className='ai-workspace-file-list'>
-                                {files.map(file =>
-                                    <button
-                                        type='button'
-                                        key={file.key}
-                                        className='ai-workspace-file'
-                                        onClick={() => { open_file(file.path) }}
-                                    >
-                                        <FileTextOutlined />
-                                        <span className='ai-workspace-file-name' title={file.path}>{file.path}</span>
-                                        {file.size !== undefined && <Text type='secondary' className='ai-workspace-file-size'>
-                                            {format_file_size(file.size)}
-                                        </Text>}
-                                    </button>
-                                )}
-                            </div>
-                }
+                <section className='ai-workspace-section'>
+                    <div className='ai-workspace-section-title'>{t('工作区')}</div>
+                    {files_error
+                        ? <Alert type='error' showIcon message={t('加载工作区失败')} description={files_error} />
+                        : files_loading
+                            ? <div className='ai-workspace-loading'><Spin /></div>
+                            : files.length === 0
+                                ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无工作区文件')} />
+                                : <div className='ai-workspace-file-list'>
+                                    {files.map(file =>
+                                        <button
+                                            type='button'
+                                            key={file.key}
+                                            className='ai-workspace-file'
+                                            onClick={() => { open_file(file.path) }}
+                                        >
+                                            <FileTextOutlined />
+                                            <span className='ai-workspace-file-name' title={file.path}>{file.path}</span>
+                                            {file.size !== undefined && <Text type='secondary' className='ai-workspace-file-size'>
+                                                {format_file_size(file.size)}
+                                            </Text>}
+                                        </button>
+                                    )}
+                                </div>
+                    }
+                </section>
+                <section className='ai-workspace-section ai-attachment-section'>
+                    <div className='ai-workspace-section-header'>
+                        <div className='ai-workspace-section-title'>{t('文件')}</div>
+                        <Button
+                            type='text'
+                            size='small'
+                            icon={<UploadOutlined />}
+                            loading={attachments_loading}
+                            onClick={() => { attachment_input_ref.current?.click() }}
+                        >{t('上传文件')}</Button>
+                    </div>
+                    {attachments_error
+                        ? <Alert type='error' showIcon message={t('加载文件失败')} description={attachments_error} />
+                        : attachments_loading
+                            ? <div className='ai-workspace-loading'><Spin /></div>
+                            : attachments.length === 0
+                                ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无上传文件')} />
+                                : <div className='ai-workspace-file-list'>
+                                    {attachments.map(attachment => <div className='ai-workspace-file ai-session-attachment-file' key={attachment.attachmentId}>
+                                        <PaperClipOutlined />
+                                        <span className='ai-workspace-file-name' title={attachment.filename}>{attachment.filename}</span>
+                                        <Text type='secondary' className='ai-workspace-file-size'>{format_file_size(attachment.sizeBytes)}</Text>
+                                    </div>)}
+                                </div>
+                    }
+                    <input
+                        ref={attachment_input_ref}
+                        className='ai-attachment-file-input'
+                        type='file'
+                        multiple
+                        onChange={async event => {
+                            const selected_files = Array.from(event.target.files || [ ])
+                            event.target.value = ''
+                            if (selected_files.length)
+                                await on_upload_attachments(selected_files)
+                        }}
+                    />
+                </section>
             </div>
         </div>
         <Modal

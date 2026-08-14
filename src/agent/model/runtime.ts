@@ -21,7 +21,7 @@ import type { ParsedToolCall } from '@/agent/tool_call_parser.ts'
 import { spill_large_tool_result_content_if_needed } from '@/agent/tool_result_spill.ts'
 import { chat_workspace_store } from '@/agent/workspace.ts'
 
-import type { ChatCompletionStreamResult, IMessage, IScriptExecutionApproval, IToolCall, MessageType, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode, ToolExecutionResult } from './types.ts'
+import type { ChatCompletionStreamResult, IChatFileContentPart, IMessage, IMessageAttachment, IScriptExecutionApproval, IToolCall, MessageType, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode, ToolExecutionResult } from './types.ts'
 import { MAX_CONSECUTIVE_DDB_FAILURES_BEFORE_HINT, MAX_REPEATED_TOOL_CALLS, MAX_TOOL_TURNS, REPEAT_GUARD_EXEMPT_TOOLS, DDB_RESULT_TOOLS, SCRIPT_APPROVAL_TOOLS, TOOL_CALL_LIMIT_ENABLED_KEY } from './constants.ts'
 import { get_reasoning_text, parse_sse_event, stable_json_stringify, to_stream_text } from './helpers.ts'
 import { is_no_available_llm_config_error, no_available_llm_config_message } from './agent.ts'
@@ -34,6 +34,20 @@ function get_agent_bus_error_message (payload: any, fallback: string) {
         payload?.data?.message ||
         fallback
     return is_no_available_llm_config_error(message) ? no_available_llm_config_message() : message
+}
+
+
+function get_message_attachments (options: ChatCompletionOptions): IMessageAttachment[] {
+    return (options.content || [ ]).flatMap(part => {
+        if (part.type !== 'file' && part.type !== 'attachment')
+            return [ ]
+        const file_part = part as IChatFileContentPart
+        return [{
+            attachmentId: 'fileId' in file_part ? file_part.fileId : file_part.attachmentId,
+            filename: file_part.filename,
+            mimeType: file_part.mimeType,
+        }]
+    })
 }
 
 
@@ -525,13 +539,15 @@ export class ChatRuntimeModel {
         this.chat.sse_controller = controller
         
         // 添加用户消息到 UI（仅新消息时）
-        if (message && _tool_turn === 0 && options.append_user !== false) {
+        const message_attachments = get_message_attachments(options)
+        if ((message || message_attachments.length) && _tool_turn === 0 && options.append_user !== false) {
             const has_prior_user_msg = this.chat.messages.some(m => m.role === 'user')
             const user_msg: IMessage = {
                 msgId: `user_${Date.now()}`,
                 role: 'user',
                 messageType: 'text',
                 content: message,
+                attachments: message_attachments,
             }
             this.chat.set({
                 messages: [...this.chat.messages, user_msg],

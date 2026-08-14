@@ -561,6 +561,29 @@
                             overflow: auto
                             padding: 8px 10px
 
+                        .ai-workspace-section
+                            padding: 4px 0 14px
+
+                            & + .ai-workspace-section
+                                padding-top: 14px
+                                border-top: 1px solid var(--ant-color-border-secondary)
+
+                        .ai-workspace-section-header
+                            min-height: 28px
+                            display: flex
+                            align-items: center
+                            justify-content: space-between
+                            gap: 8px
+
+                            .ant-btn
+                                padding-inline: 4px
+
+                        .ai-workspace-section-title
+                            padding: 0 8px 6px
+                            color: var(--ant-color-text-secondary)
+                            font-size: 12px
+                            font-weight: 600
+
                         .ai-workspace-loading
                             height: 120px
                             display: flex
@@ -604,6 +627,9 @@
                         .ai-workspace-file-size
                             flex-shrink: 0
                             font-size: 12px
+
+                        .ai-session-attachment-file
+                            cursor: default
 
                         .ai-todo-list
                             background: #fafafa
@@ -666,6 +692,45 @@
                                 padding: 8px 12px
                                 border-radius: 8px
                                 background: #e6f4ff
+
+                            .ai-user-message
+                                max-width: 78%
+                                display: flex
+                                flex-direction: column
+                                align-items: flex-end
+                                gap: 6px
+
+                                .ai-message-bubble
+                                    max-width: 100%
+
+                            .ai-message-attachments
+                                display: flex
+                                flex-wrap: wrap
+                                justify-content: flex-end
+                                gap: 6px
+
+                            .ai-message-attachment
+                                max-width: 240px
+                                min-height: 30px
+                                padding: 5px 9px
+                                border: 1px solid var(--ant-color-border-secondary)
+                                border-radius: 5px
+                                background: var(--ant-color-bg-container)
+                                display: flex
+                                align-items: center
+                                gap: 6px
+                                color: var(--ant-color-text)
+                                font-size: 12px
+
+                                .anticon
+                                    flex-shrink: 0
+                                    color: var(--ant-color-text-secondary)
+
+                                span
+                                    min-width: 0
+                                    overflow: hidden
+                                    text-overflow: ellipsis
+                                    white-space: nowrap
 
                             .ai-message-bubble
                                 .ai-message-content
@@ -863,6 +928,7 @@
                                 border: 1px solid var(--ant-color-border)
                                 border-radius: 6px
                                 transition: border-color 0.2s
+                                position: relative
 
                                 &:focus-within
                                     border-color: var(--ant-color-primary)
@@ -878,6 +944,140 @@
                                     border: 0
                                     outline: none
                                     box-shadow: none
+
+                            .ai-pending-attachments
+                                display: flex
+                                flex-wrap: wrap
+                                gap: 6px
+                                padding: 8px 10px 0
+
+                            .ai-pending-attachment
+                                max-width: 240px
+                                height: 30px
+                                padding: 0 4px 0 9px
+                                border: 1px solid var(--ant-color-border-secondary)
+                                border-radius: 5px
+                                background: var(--ant-color-fill-quaternary)
+                                display: flex
+                                align-items: center
+                                gap: 4px
+
+                                button
+                                    width: 22px
+                                    height: 22px
+                                    border: 0
+                                    border-radius: 4px
+                                    padding: 0
+                                    background: transparent
+                                    color: var(--ant-color-text-secondary)
+                                    cursor: pointer
+                                    font-size: 17px
+                                    line-height: 20px
+
+                                    &:hover
+                                        background: var(--ant-color-fill-secondary)
+                                        color: var(--ant-color-text)
+
+                            .ai-pending-attachment-name
+                                min-width: 0
+                                overflow: hidden
+                                text-overflow: ellipsis
+                                white-space: nowrap
+                                font-size: 12px
+
+                            .ai-attachment-picker
+                                position: relative
+                                flex-shrink: 0
+
+                            .ai-attachment-add
+                                width: 28px
+                                height: 24px
+                                border: 0
+                                border-radius: 4px
+                                padding: 0
+                                background: transparent
+                                color: var(--ant-color-text-secondary)
+                                cursor: pointer
+                                font-size: 20px
+                                line-height: 22px
+
+                                &:hover:not(:disabled)
+                                    background: var(--ant-color-fill-tertiary)
+                                    color: var(--ant-color-text)
+
+                                &:disabled
+                                    cursor: not-allowed
+                                    opacity: 0.45
+
+                            .ai-attachment-popover
+                                position: absolute
+                                bottom: calc(100% + 8px)
+                                left: 0
+                                z-index: 50
+                                width: 260px
+                                max-height: 300px
+                                padding: 6px
+                                border: 1px solid var(--ant-color-border-secondary)
+                                border-radius: 7px
+                                background: var(--ant-color-bg-container)
+                                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14)
+
+                            .ai-attachment-upload-action, .ai-attachment-option
+                                width: 100%
+                                border: 0
+                                border-radius: 4px
+                                background: transparent
+                                display: flex
+                                align-items: center
+                                cursor: pointer
+                                color: var(--ant-color-text)
+                                text-align: left
+
+                                &:hover:not(:disabled)
+                                    background: var(--ant-color-fill-tertiary)
+
+                            .ai-attachment-upload-action
+                                height: 34px
+                                gap: 8px
+                                padding: 0 8px
+
+                            .ai-attachment-upload-icon
+                                color: var(--ant-color-primary)
+                                font-size: 16px
+
+                            .ai-attachment-popover-title
+                                padding: 9px 8px 5px
+                                border-top: 1px solid var(--ant-color-border-secondary)
+                                margin-top: 5px
+                                color: var(--ant-color-text-secondary)
+                                font-size: 12px
+
+                            .ai-attachment-popover-list
+                                max-height: 190px
+                                overflow-y: auto
+
+                            .ai-attachment-option
+                                min-height: 34px
+                                gap: 8px
+                                padding: 6px 8px
+
+                            .ai-attachment-option-name
+                                min-width: 0
+                                flex: 1
+                                overflow: hidden
+                                text-overflow: ellipsis
+                                white-space: nowrap
+
+                            .ai-attachment-option-size, .ai-attachment-empty
+                                color: var(--ant-color-text-secondary)
+                                font-size: 12px
+
+                            .ai-attachment-empty
+                                padding: 12px 8px
+                                text-align: center
+
+                            .ai-attachment-file-input
+                                display: none
 
                             .ai-tab-composer-toolbar
                                 display: flex

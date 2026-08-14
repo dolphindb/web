@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { Collapse, Typography } from 'antd'
-import { BulbOutlined, CodeOutlined } from '@ant-design/icons'
+import { BulbOutlined, CodeOutlined, PaperClipOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 import type { AgentStatus, ChatModel, IMessage, IToolCall } from '@/agent/model.ts'
@@ -44,6 +44,18 @@ function is_tool_message (msg: IMessage) {
 
 function PlainTextMessageContent ({ content }: { content: string }) {
     return <div className='ai-message-content' style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{content}</div>
+}
+
+
+function MessageAttachments ({ attachments }: { attachments: NonNullable<IMessage['attachments']> }) {
+    return <div className='ai-message-attachments'>
+        {attachments.map(attachment => <div className='ai-message-attachment' key={attachment.attachmentId}>
+            <PaperClipOutlined />
+            <span title={attachment.filename || attachment.attachmentId}>
+                {attachment.filename || attachment.attachmentId}
+            </span>
+        </div>)}
+    </div>
 }
 
 
@@ -512,6 +524,7 @@ export function AiMessageRow ({
     const reasoning_key = `reasoning-${collapse_key}`
     const has_reasoning = Boolean(msg.reasoning_content)
     const has_content = Boolean(msg.content.trim())
+    const has_attachments = Boolean(msg.attachments?.length)
     const is_reasoning_streaming = has_reasoning && is_last && agent_status === 'thinking' && !has_content
     const [reasoning_active_keys, set_reasoning_active_keys] = useState<string[]>([ ])
     const last_reasoning_msg_id = useRef(msg.msgId)
@@ -597,13 +610,14 @@ export function AiMessageRow ({
                 collapse_key_suffix={collapse_key}
                 chat={chat}
             />
-            : msg.content.trim() && (
-                msg.role === 'user'
-                    ? <div className='ai-message-bubble'>
+            : msg.role === 'user'
+                ? (has_content || has_attachments) && <div className='ai-user-message'>
+                    {msg.attachments?.length && <MessageAttachments attachments={msg.attachments} />}
+                    {has_content && <div className='ai-message-bubble'>
                         <PlainTextMessageContent content={msg.content} />
-                    </div>
-                    : <div className='ai-message-content' dangerouslySetInnerHTML={{ __html: render_markdown(msg.content) }} />
-            )
+                    </div>}
+                </div>
+                : has_content && <div className='ai-message-content' dangerouslySetInnerHTML={{ __html: render_markdown(msg.content) }} />
         }
         
         {has_ddb_obj && <div style={{ marginLeft: 12, marginTop: 4 }}>

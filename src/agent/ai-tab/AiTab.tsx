@@ -7,8 +7,8 @@ import { type DdbObj, type DdbValue } from 'dolphindb/browser.js'
 import { t } from '@i18n'
 import { model, NodeType } from '@model'
 import { copy } from '@utils'
-import { bind_chat_model_session, chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
-import type { ScriptExecuteApprovalMode } from '@/agent/model.ts'
+import { chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
+import type { IChatContentPart, ScriptExecuteApprovalMode } from '@/agent/model.ts'
 import { no_active_agent_message, no_available_llm_config_message } from '@/agent/model/agent.ts'
 import { parse_ddb_obj_from_content_object } from '@/agent/utils/ddb-object.ts'
 import { get_agent_status_text } from '@/agent/utils/message.ts'
@@ -17,8 +17,10 @@ import { render_markdown } from '@/agent/ai-tab/markdown.ts'
 import { AiMessageRow, expand_tool_call_envelopes, group_messages, ToolMessageGroup } from '@/agent/ai-tab/messages.tsx'
 import { TodoList } from '@/agent/ai-tab/TodoList.tsx'
 import { WorkspaceSidebar } from '@/agent/ai-tab/WorkspaceSidebar.tsx'
+import { AttachmentPicker } from '@/agent/ai-tab/AttachmentPicker.tsx'
+import { use_session_attachments } from '@/agent/ai-tab/useSessionAttachments.ts'
 
-import { is_pending_ai_chat_id, shell } from '@/shell/model.ts'
+import { is_pending_ai_chat_id } from '@/shell/model.ts'
 
 
 const { Text } = Typography
@@ -46,6 +48,10 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const [creating_session, set_creating_session] = useState(false)
     const pending_session = is_pending_ai_chat_id(session_id)
     const unsupported_node = node_type === NodeType.controller || node_type === NodeType.data
+    const {
+        attachments, selected_attachments, attachments_loading, attachments_error, set_selected_attachments,
+        ensure_session, refresh_attachments, upload_attachments,
+    } = use_session_attachments({ chat, session_id, current_session_id, pending_session, creating_session })
     
     const messages_ref = useRef<HTMLDivElement>(null)
     const input_ref = useRef<TextAreaRef>(null)
@@ -230,7 +236,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     }
     
     async function handle_send () {
-        if (!input_value.trim())
+        if (!input_value.trim() && selected_attachments.length === 0)
             return
         if (!logined) {
             model.message?.warning(t('请先登录'))
@@ -264,13 +270,23 @@ export function AiTab ({ session_id }: { session_id: string }) {
         try {
             if (pending_session) {
                 set_creating_session(true)
-                const tab_name = shell.tabs.find(tab => tab.chat_id === session_id)?.name
-                const session = await chat.session.create_session(tab_name || t('新会话'))
-                bind_chat_model_session(session_id, session.sessionId)
-                shell.bind_ai_tab_session(session_id, session.sessionId, session.title || tab_name || t('新会话'))
+                await ensure_session()
             }
-            chat.runtime.send_message(message)
+            if (selected_attachments.length) {
+                const content: IChatContentPart[] = [
+                    ...(message ? [{ type: 'text' as const, text: message }] : [ ]),
+                    ...selected_attachments.map(attachment => ({
+                        type: 'file' as const,
+                        fileId: attachment.attachmentId,
+                        filename: attachment.filename,
+                        mimeType: attachment.mimeType,
+                    })),
+                ]
+                chat.runtime.send_message(message, { content })
+            } else
+                chat.runtime.send_message(message)
             set_input_value('')
+            set_selected_attachments([ ])
             should_auto_scroll.current = true
         } catch (error) {
             model.message?.error(error instanceof Error ? error.message : t('创建 AI 会话失败'))
@@ -299,7 +315,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const llm_config_unavailable = Boolean(agent_id && !selectable_llms.some(llm =>
         llm.capability !== 'embedding' && llm.enabled !== false && llm.statusName !== 'DELETED'
     ))
-    const disable_input = creating_session || llm_config_unavailable
+    const disable_input = creating_session || attachments_loading || llm_config_unavailable
     
     if (!inited)
         return <div className='ai-tab-loading'>
@@ -378,7 +394,17 @@ export function AiTab ({ session_id }: { session_id: string }) {
         </div>
         
     return <div className='ai-tab'>
-        {!pending_session && <WorkspaceSidebar chat={chat} session_id={session_id} current_session_id={current_session_id} messages={messages} />}
+        {!pending_session && <WorkspaceSidebar
+            chat={chat}
+            session_id={session_id}
+            current_session_id={current_session_id}
+            messages={messages}
+            attachments={attachments}
+            attachments_loading={attachments_loading}
+            attachments_error={attachments_error}
+            on_refresh_attachments={() => refresh_attachments(session_id)}
+            on_upload_attachments={files => upload_attachments(files, false)}
+        />}
         <TodoList steps={visible_steps} />
         
         {/* Messages */}
@@ -463,6 +489,18 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         input_ref.current?.focus()
                 }}
             >
+                {selected_attachments.length > 0 && <div className='ai-pending-attachments'>
+                    {selected_attachments.map(attachment => <div className='ai-pending-attachment' key={attachment.attachmentId}>
+                        <span className='ai-pending-attachment-name' title={attachment.filename}>{attachment.filename}</span>
+                        <button
+                            type='button'
+                            aria-label={t('取消发送附件')}
+                            onClick={() => {
+                                set_selected_attachments(current => current.filter(item => item.attachmentId !== attachment.attachmentId))
+                            }}
+                        >×</button>
+                    </div>)}
+                </div>}
                 <Input.TextArea
                     ref={input_ref}
                     className='ai-tab-message-input'
@@ -473,7 +511,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         if (e.shiftKey)
                             return
                         e.preventDefault()
-                        if (input_value.trim())
+                        if (input_value.trim() || selected_attachments.length)
                             handle_send()
                     }}
                     autoSize={{ minRows: 1, maxRows: 5 }}
@@ -483,6 +521,14 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 />
                 <div className='ai-tab-composer-toolbar'>
                     <div className='ai-tab-composer-selectors'>
+                        <AttachmentPicker
+                            attachments={attachments}
+                            selected_attachment_ids={selected_attachments.map(attachment => attachment.attachmentId)}
+                            loading={attachments_loading}
+                            disabled={disable_input || can_interrupt}
+                            on_select={attachment => { set_selected_attachments(current => [...current, attachment]) }}
+                            on_upload={files => upload_attachments(files)}
+                        />
                         {llm_options.length > 0 && <Select
                             className='ai-tab-model-select'
                             size='small'
@@ -525,7 +571,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                             type='primary'
                             icon={<SendOutlined />}
                             loading={creating_session}
-                            disabled={!input_value.trim() || disable_input || can_interrupt}
+                            disabled={(!input_value.trim() && selected_attachments.length === 0) || disable_input || can_interrupt}
                             onClick={handle_send}
                         >
                             {t('发送')}
