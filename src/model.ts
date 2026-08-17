@@ -8,7 +8,7 @@ import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 import type { NavigateFunction, NavigateOptions } from 'react-router'
 
 import 'xshell/polyfill.browser.js'
-import { not_empty, select } from 'xshell/prototype.browser.js'
+import { not_empty } from 'xshell/prototype.browser.js'
 import { check, filter_values, map_keys, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 import { storage } from 'xshell/storage.js'
@@ -518,9 +518,10 @@ export class DdbModel extends Model<DdbModel> {
     async get_ticket () {
         return this.ddb.invoke<string>('getAuthenticatedUserTicket', undefined, {
             urgent: true,
-            ... this.node_type === NodeType.controller || this.node_type === NodeType.single
-                ? undefined
-                : { node: this.controller_alias }
+            node: this.node_type === NodeType.controller || this.node_type === NodeType.single ?
+                undefined
+            :
+                this.controller_alias
         })
     }
     
