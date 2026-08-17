@@ -7,6 +7,9 @@ import { parse_tool_result_payload } from '@/agent/utils/message.ts'
 import type { IContextPreviewRequest, IMessage, IMessageAttachment, ISession, IToolCall } from './types.ts'
 
 
+const MESSAGE_PAGE_SIZE = 50
+
+
 function sort_sessions_by_update_time (sessions: ISession[]) {
     return sessions.sort((a, b) => {
         const ta = a.updateTime ? Date.parse(a.updateTime) : 0
@@ -109,6 +112,8 @@ export class ChatSessionModel {
             current_workspace: workspace,
             steps: [ ],
             messages: [ ],
+            has_more_messages: false,
+            loading_older_messages: false,
             buffered_messages: [ ],
             agent_status: { status: 'idle' },
             script_execute_approval_mode,
@@ -116,6 +121,7 @@ export class ChatSessionModel {
             selected_llm_config_id: session.llmConfigId || '',
             use_native_tool_calling: this.chat.agent.should_use_native_tool_calling(session.llmConfigId || ''),
         })
+        this.chat._first_message_seq = 0
         return session
     }
     async select_session (session_id: string) {
@@ -140,6 +146,8 @@ export class ChatSessionModel {
             agent_id: session.agentId || this.chat.agent_id,
             current_session_id: session_id,
             messages: [ ],
+            has_more_messages: false,
+            loading_older_messages: false,
             buffered_messages: [ ],
             agent_status: { status: 'idle' },
             latest_ddb_result: null,
@@ -156,10 +164,51 @@ export class ChatSessionModel {
         // 加载历史消息
         const result = await this.chat.agent.api_fetch(`/session/${session_id}/messages`)
         const raw_items: any[] = result.items || [ ]
-        const messages = raw_items
+        // 接口暂不返回最后序号或总数，首屏先只转换末页；更早消息再按 sequenceNum 分页获取。
+        const page_items = raw_items.slice(-MESSAGE_PAGE_SIZE)
+        const messages = page_items
             .map((m: any) => this.chat.session.map_dolphinx_message(m))
             .filter((m): m is IMessage => m !== null)
-        this.chat.set({ messages })
+        if (this.chat.current_session_id !== session_id)
+            return
+        this.chat._first_message_seq = Number(page_items[0]?.sequenceNum) || Math.max(1, raw_items.length - MESSAGE_PAGE_SIZE + 1)
+        this.chat.set({ messages, has_more_messages: this.chat._first_message_seq > 1 })
+    }
+    async load_older_messages (session_id: string) {
+        if (
+            session_id !== this.chat.current_session_id ||
+            !this.chat.has_more_messages ||
+            this.chat.loading_older_messages
+        )
+            return 0
+        const end_seq = this.chat._first_message_seq - 1
+        const start_seq = Math.max(1, end_seq - MESSAGE_PAGE_SIZE + 1)
+        if (end_seq < 1) {
+            this.chat.set({ has_more_messages: false })
+            return 0
+        }
+        this.chat.set({ loading_older_messages: true })
+        try {
+            const search = new URLSearchParams({ startSeq: String(start_seq), endSeq: String(end_seq) })
+            const result = await this.chat.agent.api_fetch(`/session/${session_id}/messages?${search}`)
+            const raw_items: any[] = result.items || [ ]
+            if (session_id !== this.chat.current_session_id)
+                return 0
+            const older_messages = raw_items
+                .map((m: any) => this.chat.session.map_dolphinx_message(m))
+                .filter((m): m is IMessage => m !== null)
+            const existing_ids = new Set(this.chat.messages.map(message => message.msgId))
+            const prepended_messages = older_messages.filter(message => !existing_ids.has(message.msgId))
+            this.chat._first_message_seq = Number(raw_items[0]?.sequenceNum) || start_seq
+            this.chat.set({
+                messages: [...prepended_messages, ...this.chat.messages],
+                has_more_messages: start_seq > 1,
+            })
+            return prepended_messages.length
+        } finally {
+            if (session_id === this.chat.current_session_id)
+                this.chat.set({ loading_older_messages: false })
+        }
     }
     async delete_session (session_id: string) {
         await this.chat.agent.api_fetch(`/session/${session_id}`, { method: 'DELETE' })
@@ -173,8 +222,11 @@ export class ChatSessionModel {
                 current_workspace: null,
                 steps: [ ],
                 messages: [ ],
+                has_more_messages: false,
+                loading_older_messages: false,
                 buffered_messages: [ ],
             })
+            this.chat._first_message_seq = 0
         }
         
         this.chat.set({ sessions: new_sessions })

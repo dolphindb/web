@@ -67,6 +67,8 @@ export class ChatModel extends Model<ChatModel> {
     steps: IWorkspaceStep[] = [ ]
     
     messages: IMessage[] = [ ]
+    has_more_messages = false
+    loading_older_messages = false
     
     buffered_messages: string[] = [ ]
     
@@ -110,6 +112,7 @@ export class ChatModel extends Model<ChatModel> {
     _script_approval_resolver: ((decision: ScriptExecuteApprovalDecision) => void) | null = null
     
     _session_script_approval_modes = new Map<string, ScriptExecuteApprovalMode>()
+    _first_message_seq = 0
     
     _last_tool_call_signature = ''
     

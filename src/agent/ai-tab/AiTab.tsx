@@ -1,4 +1,4 @@
-import { type MouseEvent, useEffect, useRef, useState } from 'react'
+import { type MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Alert, Button, Input, Select, Space, Spin, Tooltip, Typography } from 'antd'
 import type { TextAreaRef } from 'antd/es/input/TextArea'
 import { PlusCircleOutlined, SendOutlined, SettingOutlined, StopOutlined } from '@ant-design/icons'
@@ -27,16 +27,17 @@ const { Text } = Typography
 
 const AUTO_SCROLL_THRESHOLD = 50
 const AUTO_SCROLL_INTERVAL = 1000
+const LOAD_MORE_THRESHOLD = 50
 
 
 export function AiTab ({ session_id }: { session_id: string }) {
     const chat = get_chat_model(session_id)
     const { node_type, admin, logined } = model.use(['node_type', 'admin', 'logined'])
     const {
-        messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, pending_tool_loop_control, pending_script_approval, steps,
+        messages, has_more_messages, loading_older_messages, buffered_messages, agent_status, current_session_id, latest_ddb_result, pending_tool_loop_control, pending_script_approval, steps,
         tool_call_limit_enabled, can_manage_agents, agent_id, selected_llm_config_id, script_execute_approval_mode,
     } = chat.use([
-        'messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'pending_tool_loop_control', 'pending_script_approval', 'steps',
+        'messages', 'has_more_messages', 'loading_older_messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'pending_tool_loop_control', 'pending_script_approval', 'steps',
         'tool_call_limit_enabled', 'can_manage_agents', 'agent_id', 'selected_llm_config_id', 'script_execute_approval_mode',
     ])
     const { selectable_llms_by_agent_id } = chat_shared_model.use(['selectable_llms_by_agent_id'])
@@ -57,6 +58,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const input_ref = useRef<TextAreaRef>(null)
     const should_auto_scroll = useRef(true)
     const last_scroll_top = useRef(0)
+    const pending_history_scroll = useRef<{ first_message_id?: string, scroll_height: number, scroll_top: number } | null>(null)
     
     // Init: ensure chat model is initialized, then select this session
     useEffect(() => {
@@ -142,6 +144,20 @@ export function AiTab ({ session_id }: { session_id: string }) {
             last_scroll_top.current = el.scrollTop
         }
     }, [messages, buffered_messages, agent_status.status])
+    useLayoutEffect(() => {
+        const pending = pending_history_scroll.current
+        const el = messages_ref.current
+        if (!pending || !el || messages[0]?.msgId === pending.first_message_id)
+            return
+        el.scrollTop = pending.scroll_top + el.scrollHeight - pending.scroll_height
+        last_scroll_top.current = el.scrollTop
+        pending_history_scroll.current = null
+    }, [messages])
+    useEffect(() => {
+        const el = messages_ref.current
+        if (el && el.scrollHeight <= el.clientHeight)
+            load_older_messages()
+    }, [messages, has_more_messages])
     
     // Route live DdbObj results to DataView (direct reference, no pack/unpack)
     // 使用 ref 标记本次 session 已经路由过 live obj，避免 messages 兜底再把旧数据覆盖回去
@@ -152,6 +168,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     useEffect(() => {
         live_routed_ref.current = false
         last_seen_msg_id_ref.current = null
+        pending_history_scroll.current = null
     }, [session_id])
     
     useEffect(() => {
@@ -204,6 +221,31 @@ export function AiTab ({ session_id }: { session_id: string }) {
             route_ddb_obj_to_dataview(obj)
     }, [messages])
     
+    function load_older_messages () {
+        const el = messages_ref.current
+        if (
+            !el ||
+            current_session_id !== session_id ||
+            !has_more_messages ||
+            loading_older_messages ||
+            pending_history_scroll.current
+        )
+            return
+        pending_history_scroll.current = {
+            first_message_id: messages[0]?.msgId,
+            scroll_height: el.scrollHeight,
+            scroll_top: el.scrollTop,
+        }
+        chat.session.load_older_messages(session_id)
+            .then(loaded => {
+                if (!loaded)
+                    pending_history_scroll.current = null
+            })
+            .catch(error => {
+                pending_history_scroll.current = null
+                model.message?.error(error instanceof Error ? error.message : t('加载历史消息失败'))
+            })
+    }
     function handle_message_scroll () {
         const el = messages_ref.current
         if (!el)
@@ -216,6 +258,8 @@ export function AiTab ({ session_id }: { session_id: string }) {
             should_auto_scroll.current = false
         else if (current > prev && distance_to_bottom <= AUTO_SCROLL_THRESHOLD)
             should_auto_scroll.current = true
+        if (current <= LOAD_MORE_THRESHOLD)
+            load_older_messages()
             
         last_scroll_top.current = current
     }
@@ -410,6 +454,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         {/* Messages */}
         <div className='ai-tab-messages' ref={messages_ref} onScroll={handle_message_scroll} onClick={handle_message_click}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {loading_older_messages && <div style={{ height: 0, textAlign: 'center', zIndex: 1 }}><Spin size='small' /></div>}
                 {visible_groups.map((group, idx) => {
                     const is_last = idx === visible_groups.length - 1
                     if (group.type === 'natural_text')

@@ -70,12 +70,15 @@ export class ChatAgentModel {
             current_workspace: null,
             steps: [ ],
             messages: [ ],
+            has_more_messages: false,
+            loading_older_messages: false,
             buffered_messages: [ ],
             selected_llm_config_id: '',
             use_native_tool_calling: true,
             latest_ddb_result: null,
             agent_status: { status: 'idle' },
         })
+        this.chat._first_message_seq = 0
         if (agent_id)
             this.chat.llm.load_selectable_llms(agent_id)
     }

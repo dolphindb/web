@@ -7340,6 +7340,9 @@
     "加载会话失败": {
         "en": "Failed to load sessions"
     },
+    "加载历史消息失败": {
+        "en": "Failed to load message history"
+    },
     "已归档": {
         "en": "Archived"
     },
