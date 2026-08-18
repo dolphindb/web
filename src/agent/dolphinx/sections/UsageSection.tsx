@@ -124,12 +124,14 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                     size='small'
                     rowKey='agentId'
                     loading={loading_usage}
-                    dataSource={options.map(agent => ({
-                        agentId: agent.value,
-                        agentName: agent.label,
-                        statusName: agent.statusName,
-                        usage: usage_by_agent[agent.value],
-                    }))}
+                    dataSource={[...options]
+                        .sort((a, b) => Number(b.active) - Number(a.active))
+                        .map(agent => ({
+                            agentId: agent.value,
+                            agentName: agent.label,
+                            statusName: agent.statusName,
+                            usage: usage_by_agent[agent.value],
+                        }))}
                     pagination={false}
                     locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用量')} /> }}
                     columns={[
