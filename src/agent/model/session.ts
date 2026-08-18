@@ -162,16 +162,15 @@ export class ChatSessionModel {
         await this.chat.workspace.refresh_workspace_context(session_id)
         
         // 加载历史消息
-        const result = await this.chat.agent.api_fetch(`/session/${session_id}/messages`)
+        const search = new URLSearchParams({ limit: String(MESSAGE_PAGE_SIZE), from: 'tail' })
+        const result = await this.chat.agent.api_fetch(`/session/${session_id}/messages?${search}`)
         const raw_items: any[] = result.items || [ ]
-        // 接口暂不返回最后序号或总数，首屏先只转换末页；更早消息再按 sequenceNum 分页获取。
-        const page_items = raw_items.slice(-MESSAGE_PAGE_SIZE)
-        const messages = page_items
+        const messages = raw_items
             .map((m: any) => this.chat.session.map_dolphinx_message(m))
             .filter((m): m is IMessage => m !== null)
         if (this.chat.current_session_id !== session_id)
             return
-        this.chat._first_message_seq = Number(page_items[0]?.sequenceNum) || Math.max(1, raw_items.length - MESSAGE_PAGE_SIZE + 1)
+        this.chat._first_message_seq = Number(raw_items[0]?.sequenceNum) || 0
         this.chat.set({ messages, has_more_messages: this.chat._first_message_seq > 1 })
     }
     async load_older_messages (session_id: string) {
@@ -182,14 +181,13 @@ export class ChatSessionModel {
         )
             return 0
         const end_seq = this.chat._first_message_seq - 1
-        const start_seq = Math.max(1, end_seq - MESSAGE_PAGE_SIZE + 1)
         if (end_seq < 1) {
             this.chat.set({ has_more_messages: false })
             return 0
         }
         this.chat.set({ loading_older_messages: true })
         try {
-            const search = new URLSearchParams({ startSeq: String(start_seq), endSeq: String(end_seq) })
+            const search = new URLSearchParams({ endSeq: String(end_seq), limit: String(MESSAGE_PAGE_SIZE), from: 'tail' })
             const result = await this.chat.agent.api_fetch(`/session/${session_id}/messages?${search}`)
             const raw_items: any[] = result.items || [ ]
             if (session_id !== this.chat.current_session_id)
@@ -199,10 +197,10 @@ export class ChatSessionModel {
                 .filter((m): m is IMessage => m !== null)
             const existing_ids = new Set(this.chat.messages.map(message => message.msgId))
             const prepended_messages = older_messages.filter(message => !existing_ids.has(message.msgId))
-            this.chat._first_message_seq = Number(raw_items[0]?.sequenceNum) || start_seq
+            this.chat._first_message_seq = Number(raw_items[0]?.sequenceNum) || 0
             this.chat.set({
                 messages: [...prepended_messages, ...this.chat.messages],
-                has_more_messages: start_seq > 1,
+                has_more_messages: this.chat._first_message_seq > 1,
             })
             return prepended_messages.length
         } finally {
