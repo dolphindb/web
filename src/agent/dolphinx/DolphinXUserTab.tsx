@@ -1600,6 +1600,8 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                         {
                             title: t('Agent 名称'),
                             dataIndex: 'agentName',
+                            width: 200,
+                            ellipsis: true,
                         },
                         {
                             title: t('请求次数'),
@@ -1647,6 +1649,8 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                 {
                     title: t('Agent 名称'),
                     dataIndex: 'agentName',
+                    width: 200,
+                    ellipsis: true,
                 },
                 {
                     title: t('请求次数'),
