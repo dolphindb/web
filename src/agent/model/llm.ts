@@ -5,15 +5,18 @@ import { chat_shared_model } from './shared.ts'
 
 export class ChatLlmModel {
     constructor (private chat: ChatModel) { }
-    async load_page_items (path: string, limit = 100): Promise<any[]> {
+    // 响应里的 size 是本页条数而非总数，只能用 total 判断是否取完；max_pages 防止后端忽略 offset 时死循环
+    async load_page_items (path: string, limit = 100, max_pages = 100): Promise<any[]> {
         const items: any[] = [ ]
-        for (let offset = 0;  ;  offset += limit) {
-            const search = new URLSearchParams({ offset: String(offset), limit: String(limit) })
-            const result = await this.chat.agent.api_fetch(`${path}?${search}`)
+        const sep = path.includes('?') ? '&' : '?'
+        for (let page = 0;  page < max_pages;  page++) {
+            const search = new URLSearchParams({ offset: String(page * limit), limit: String(limit) })
+            const result = await this.chat.agent.api_fetch(`${path}${sep}${search}`)
             const page_items = result.items || [ ]
             items.push(...page_items)
-            const size = Number(result.size)
-            if (page_items.length < limit || Number.isFinite(size) && items.length >= size)
+            const total = Number(result.total)
+            // 本页不足 limit 说明已是末页；多于 limit 说明后端忽略了分页参数，已一次性返回全部
+            if (page_items.length !== limit || Number.isFinite(total) && items.length >= total)
                 break
         }
         return items
@@ -126,8 +129,7 @@ export class ChatLlmModel {
     }
     async load_agent_llm_bindings (agent_id: string, provider_lookup?: Map<string, ILlmProvider>): Promise<IAgentLlmBinding[]> {
         try {
-            const result = await this.chat.agent.api_fetch(`/agent/${agent_id}/llm/list`)
-            return (result.items || [ ]).map((item: any) => ({
+            return (await this.chat.llm.load_page_items(`/agent/${agent_id}/llm/list`)).map((item: any) => ({
                 ...this.chat.llm._map_llm_config(item, provider_lookup),
                 isDefault: item.isDefault ?? false,
                 priority: item.priority ?? 0,
@@ -162,8 +164,11 @@ export class ChatLlmModel {
         })
     }
     async load_user_llm_access (user_id: string): Promise<IUserLlmAccessInfo[]> {
-        const result = await this.chat.agent.api_fetch(`/user/${encodeURIComponent(user_id)}/llm/access`)
-        return result.items || [ ]
+        try {
+            return await this.chat.llm.load_page_items(`/user/${encodeURIComponent(user_id)}/llm/access`)
+        } catch {
+            return [ ]
+        }
     }
     async grant_user_llm_access (user_id: string, llm_config_id: string): Promise<IUserLlmAccessInfo[]> {
         const result = await this.chat.agent.api_fetch(`/user/${encodeURIComponent(user_id)}/llm/access`, {
@@ -202,8 +207,8 @@ export class ChatLlmModel {
         if (!aid)
             return [ ]
         try {
-            const result = await this.chat.agent.api_fetch(`/agent/${aid}/llm/selectable`)
-            const items: ISelectableLlmInfo[] = (result.items || [ ]).map((item: any) => ({
+            const page_items = await this.chat.llm.load_page_items(`/agent/${aid}/llm/selectable`)
+            const items: ISelectableLlmInfo[] = page_items.map((item: any) => ({
                 ...this.chat.llm._map_llm_config(item, provider_lookup),
                 source: item.source || 'agent',
                 isAgentDefault: item.isAgentDefault ?? false,

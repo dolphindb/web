@@ -70,8 +70,8 @@ async function list_skills_by_name (context: Parameters<ScriptConfig['handler']>
         const result = await context.api_fetch(`/skill/list?offset=${offset}&limit=${limit}`)
         const items = get_skill_items(result)
         matches.push(...items.filter(item => get_skill_name_from_detail(item) === skill_name))
-        const size = is_record(result) ? Number(result.size ?? 0) : 0
-        if (items.length < limit || offset + items.length >= size)
+        const total = is_record(result) ? Number(result.total ?? 0) : 0
+        if (items.length !== limit || Number.isFinite(total) && total > 0 && offset + items.length >= total)
             break
     }
     return matches
