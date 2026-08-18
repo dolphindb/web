@@ -209,10 +209,12 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                 {
                     title: t('输出 Token'),
                     render: (_: unknown, row: { usage?: ILlmUsageStats }) => row.usage?.totalCompletionTokens ?? 0,
+                    sorter: (a, b) => (a.usage?.totalCompletionTokens ?? 0) - (b.usage?.totalCompletionTokens ?? 0),
                 },
                 {
                     title: t('总 Token'),
                     render: (_: unknown, row: { usage?: ILlmUsageStats }) => row.usage?.totalTokens ?? 0,
+                    sorter: (a, b) => (a.usage?.totalTokens ?? 0) - (b.usage?.totalTokens ?? 0),
                 },
             ]}
         />
