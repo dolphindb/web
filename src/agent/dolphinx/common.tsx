@@ -186,7 +186,12 @@ export function use_agent_options ({ active_only = true }: { active_only?: boole
     const { agents, agent_id } = chat_model.use(['agents', 'agent_id'])
     const options = agents
         .filter(agent => !active_only || agent.statusName === 'ACTIVE')
-        .map(agent => ({ value: agent.agentId, label: agent.agentName || agent.agentId }))
+        .map(agent => ({
+            value: agent.agentId,
+            label: agent.agentName || agent.agentId,
+            statusName: agent.statusName,
+            active: agent.statusName === 'ACTIVE',
+        }))
     const active_agent_id = options.some(agent => agent.value === agent_id) ? agent_id : options[0]?.value || ''
     
     useEffect(() => {

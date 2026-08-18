@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { Button, Empty, Table, message } from 'antd'
+import { Button, Empty, Table, Tag, message } from 'antd'
 
 import { t } from '@i18n'
 
@@ -55,6 +55,16 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
         let has_error = false
         try {
             for (const [index, agent] of options.entries()) {
+                if (agent.statusName !== 'ACTIVE') {
+                    entries.push([agent.value, {
+                        agentId: agent.value,
+                        requestCount: 0,
+                        totalPromptTokens: 0,
+                        totalCompletionTokens: 0,
+                        totalTokens: 0,
+                    }])
+                    continue
+                }
                 // 使用统计接口按 Agent 查询，串行并留出间隔，避免页面打开时瞬间发送大量请求。
                 if (index > 0)
                     await new Promise<void>(resolve => { setTimeout(resolve, 100) })
@@ -110,35 +120,48 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                     <Button loading={loading_usage} onClick={load_usage}>{t('刷新')}</Button>
                 </div>
-                <Table<{ agentId: string, agentName: string, usage?: ILlmUsageStats }>
+                <Table<{ agentId: string, agentName: string, statusName?: string, usage?: ILlmUsageStats }>
                     size='small'
                     rowKey='agentId'
                     loading={loading_usage}
-                    dataSource={options.map(agent => ({ agentId: agent.value, agentName: agent.label, usage: usage_by_agent[agent.value] }))}
+                    dataSource={options.map(agent => ({
+                        agentId: agent.value,
+                        agentName: agent.label,
+                        statusName: agent.statusName,
+                        usage: usage_by_agent[agent.value],
+                    }))}
                     pagination={false}
                     locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用量')} /> }}
                     columns={[
                         {
                             title: t('Agent 名称'),
                             dataIndex: 'agentName',
-                            width: 200,
-                            ellipsis: true,
+                            width: 220,
+                            render: (_: unknown, row) =>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        {row.agentName}
+                                    </span>
+                                    {row.statusName !== 'ACTIVE' && <Tag color='default' style={{ fontSize: 11 }}>
+                                        {t('未激活')}
+                                    </Tag>}
+                                </div>,
                         },
                         {
                             title: t('请求次数'),
-                            render: (_: unknown, row) => row.usage?.requestCount ?? 0,
+                            render: (_: unknown, row) => row.statusName !== 'ACTIVE' ? '-' : (row.usage?.requestCount ?? 0),
                         },
                         {
                             title: t('输入 Token'),
-                            render: (_: unknown, row) => row.usage?.totalPromptTokens ?? 0,
+                            render: (_: unknown, row) => row.statusName !== 'ACTIVE' ? '-' : (row.usage?.totalPromptTokens ?? 0),
                         },
                         {
                             title: t('输出 Token'),
-                            render: (_: unknown, row) => row.usage?.totalCompletionTokens ?? 0,
+                            render: (_: unknown, row) => row.statusName !== 'ACTIVE' ? '-' : (row.usage?.totalCompletionTokens ?? 0),
                         },
                         {
                             title: t('总 Token'),
-                            render: (_: unknown, row) => row.usage?.totalTokens ?? 0,
+                            render: (_: unknown, row) => row.statusName !== 'ACTIVE' ? '-' : (row.usage?.totalTokens ?? 0),
                         },
                     ]}
                 />
