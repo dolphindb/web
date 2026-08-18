@@ -35,6 +35,8 @@ export const DEFAULT_CONFIG_FORM = {
     embeddingDimension: 1536,
     embeddingMetric: 'euclidean' as 'euclidean' | 'cosine',
     embeddingNormalize: false,
+    maxImageBytes: 0,
+    maxInputFiles: 4,
     maxConcurrency: undefined as number | undefined,
     rateLimitRPM: undefined as number | undefined,
     timeoutMs: undefined as number | undefined,

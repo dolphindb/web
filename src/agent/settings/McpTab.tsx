@@ -217,22 +217,24 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
         }
     }
     
-    return <div className='ai-settings-mcp-page'>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ fontSize: 13, color: '#666' }}>
-                {t('管理 MCP Server。每个 Server 可以提供一组外部工具。')}
-            </div>
-            <Space>
-                <Button icon={<ReloadOutlined />} onClick={refresh} loading={loading_servers}>
-                    {t('刷新')}
-                </Button>
-                {can_manage_mcp && <Button type='primary' icon={<PlusOutlined />} onClick={open_create_server}>
-                    {t('添加 Server')}
-                </Button>}
-            </Space>
+    return <div className='ai-settings-list-detail ai-settings-mcp-page' style={{ height: '100%' }}>
+        <div className='ai-settings-detail-header'>
+            <div className='ai-settings-detail-title'>{t('MCP 管理')}</div>
         </div>
-        
-        <div style={{ flex: 1, minHeight: 0 }}>
+        <div className='ai-settings-detail-body'>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <Text type='secondary' style={{ fontSize: 12 }}>
+                    {t('管理 MCP Server。每个 Server 可以提供一组外部工具。')}
+                </Text>
+                <Space>
+                    <Button icon={<ReloadOutlined />} onClick={refresh} loading={loading_servers}>
+                        {t('刷新')}
+                    </Button>
+                    {can_manage_mcp && <Button type='primary' icon={<PlusOutlined />} onClick={open_create_server}>
+                        {t('添加 Server')}
+                    </Button>}
+                </Space>
+            </div>
             <Spin spinning={loading_servers}>
                 {servers.length === 0 && !loading_servers
                     ? <Empty description={t('暂无 MCP Server 配置')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ padding: 40 }} />

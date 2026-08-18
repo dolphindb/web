@@ -86,6 +86,29 @@ export function ConfigEditModal ({
                     step={1024}
                 />
             </div>
+            {!is_embedding_form && <>
+                <div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('图片大小上限（字节）')}</div>
+                    <InputNumber
+                        style={{ width: '100%' }}
+                        value={config_form.maxImageBytes}
+                        onChange={val => { set_config_form({ ...config_form, maxImageBytes: val ?? 0 }) }}
+                        min={0}
+                        precision={0}
+                        step={1024 * 1024}
+                    />
+                </div>
+                <div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('最大输入文件数')}</div>
+                    <InputNumber
+                        style={{ width: '100%' }}
+                        value={config_form.maxInputFiles}
+                        onChange={val => { set_config_form({ ...config_form, maxInputFiles: val ?? 0 }) }}
+                        min={0}
+                        precision={0}
+                    />
+                </div>
+            </>}
             <div>
                 <div style={{ marginBottom: 4, fontSize: 13 }}>{t('最大并发（可选）')}</div>
                 <InputNumber
