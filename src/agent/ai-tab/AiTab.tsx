@@ -10,6 +10,7 @@ import { copy } from '@utils'
 import { chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
 import type { IChatContentPart, ScriptExecuteApprovalMode } from '@/agent/model.ts'
 import { no_active_agent_message, no_available_llm_config_message } from '@/agent/model/agent.ts'
+import { ENABLE_WORKSPACE_AND_ATTACHMENTS } from '@/agent/model/constants.ts'
 import { parse_ddb_obj_from_content_object } from '@/agent/utils/ddb-object.ts'
 import { get_agent_status_text } from '@/agent/utils/message.ts'
 import { route_ddb_obj_to_dataview } from '@/agent/ai-tab/ddb-result.ts'
@@ -53,6 +54,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         attachments, selected_attachments, attachments_loading, attachments_error, set_selected_attachments,
         ensure_session, refresh_attachments, upload_attachments,
     } = use_session_attachments({ chat, session_id, current_session_id, pending_session, creating_session })
+    const has_attachments = ENABLE_WORKSPACE_AND_ATTACHMENTS && selected_attachments.length > 0
     
     const messages_ref = useRef<HTMLDivElement>(null)
     const input_ref = useRef<TextAreaRef>(null)
@@ -280,7 +282,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     }
     
     async function handle_send () {
-        if (!input_value.trim() && selected_attachments.length === 0)
+        if (!input_value.trim() && !has_attachments)
             return
         if (!logined) {
             model.message?.warning(t('请先登录'))
@@ -316,7 +318,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 set_creating_session(true)
                 await ensure_session()
             }
-            if (selected_attachments.length) {
+            if (has_attachments) {
                 const content: IChatContentPart[] = [
                     ...(message ? [{ type: 'text' as const, text: message }] : [ ]),
                     ...selected_attachments.map(attachment => ({
@@ -359,7 +361,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const llm_config_unavailable = Boolean(agent_id && !selectable_llms.some(llm =>
         llm.capability !== 'embedding' && llm.enabled !== false && llm.statusName !== 'DELETED'
     ))
-    const disable_input = creating_session || attachments_loading || llm_config_unavailable
+    const disable_input = creating_session || (ENABLE_WORKSPACE_AND_ATTACHMENTS && attachments_loading) || llm_config_unavailable
     
     if (!inited)
         return <div className='ai-tab-loading'>
@@ -438,7 +440,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         </div>
         
     return <div className='ai-tab'>
-        {!pending_session && <WorkspaceSidebar
+        {ENABLE_WORKSPACE_AND_ATTACHMENTS && !pending_session && <WorkspaceSidebar
             chat={chat}
             session_id={session_id}
             current_session_id={current_session_id}
@@ -534,7 +536,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         input_ref.current?.focus()
                 }}
             >
-                {selected_attachments.length > 0 && <div className='ai-pending-attachments'>
+                {has_attachments && <div className='ai-pending-attachments'>
                     {selected_attachments.map(attachment => <div className='ai-pending-attachment' key={attachment.attachmentId}>
                         <span className='ai-pending-attachment-name' title={attachment.filename}>{attachment.filename}</span>
                         <button
@@ -556,7 +558,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         if (e.shiftKey)
                             return
                         e.preventDefault()
-                        if (input_value.trim() || selected_attachments.length)
+                        if (input_value.trim() || has_attachments)
                             handle_send()
                     }}
                     autoSize={{ minRows: 1, maxRows: 5 }}
@@ -566,14 +568,14 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 />
                 <div className='ai-tab-composer-toolbar'>
                     <div className='ai-tab-composer-selectors'>
-                        <AttachmentPicker
+                        {ENABLE_WORKSPACE_AND_ATTACHMENTS && <AttachmentPicker
                             attachments={attachments}
                             selected_attachment_ids={selected_attachments.map(attachment => attachment.attachmentId)}
                             loading={attachments_loading}
                             disabled={disable_input || can_interrupt}
                             on_select={attachment => { set_selected_attachments(current => [...current, attachment]) }}
                             on_upload={files => upload_attachments(files)}
-                        />
+                        />}
                         {llm_options.length > 0 && <Select
                             className='ai-tab-model-select'
                             size='small'
@@ -616,7 +618,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                             type='primary'
                             icon={<SendOutlined />}
                             loading={creating_session}
-                            disabled={(!input_value.trim() && selected_attachments.length === 0) || disable_input || can_interrupt}
+                            disabled={(!input_value.trim() && !has_attachments) || disable_input || can_interrupt}
                             onClick={handle_send}
                         >
                             {t('发送')}

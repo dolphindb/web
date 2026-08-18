@@ -5,6 +5,7 @@ import { BulbOutlined, CodeOutlined, PaperClipOutlined } from '@ant-design/icons
 
 import { t } from '@i18n'
 import type { AgentStatus, ChatModel, IMessage, IToolCall } from '@/agent/model.ts'
+import { ENABLE_WORKSPACE_AND_ATTACHMENTS } from '@/agent/model/constants.ts'
 import { ToolMessageRenderer } from '@/agent/ToolMessageRenderer.tsx'
 import {
     TOOL_LIKE_MESSAGE_TYPES,
@@ -524,7 +525,8 @@ export function AiMessageRow ({
     const reasoning_key = `reasoning-${collapse_key}`
     const has_reasoning = Boolean(msg.reasoning_content)
     const has_content = Boolean(msg.content.trim())
-    const has_attachments = Boolean(msg.attachments?.length)
+    const visible_attachments = ENABLE_WORKSPACE_AND_ATTACHMENTS ? msg.attachments : undefined
+    const has_attachments = Boolean(visible_attachments?.length)
     const is_reasoning_streaming = has_reasoning && is_last && agent_status === 'thinking' && !has_content
     const [reasoning_active_keys, set_reasoning_active_keys] = useState<string[]>([ ])
     const last_reasoning_msg_id = useRef(msg.msgId)
@@ -612,7 +614,7 @@ export function AiMessageRow ({
             />
             : msg.role === 'user'
                 ? (has_content || has_attachments) && <div className='ai-user-message'>
-                    {msg.attachments?.length && <MessageAttachments attachments={msg.attachments} />}
+                    {visible_attachments?.length && <MessageAttachments attachments={visible_attachments} />}
                     {has_content && <div className='ai-message-bubble'>
                         <PlainTextMessageContent content={msg.content} />
                     </div>}

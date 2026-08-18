@@ -4,6 +4,7 @@ import { t } from '@i18n'
 import { model } from '@model'
 import { bind_chat_model_session } from '@/agent/model.ts'
 import type { ChatModel, ISessionAttachment } from '@/agent/model.ts'
+import { ENABLE_WORKSPACE_AND_ATTACHMENTS } from '@/agent/model/constants.ts'
 import { is_pending_ai_chat_id, shell } from '@/shell/model.ts'
 
 
@@ -44,7 +45,7 @@ export function use_session_attachments ({
         return session.sessionId
     }
     async function refresh_attachments (target_session_id = current_session_id || session_id, silent = false) {
-        if (!target_session_id || is_pending_ai_chat_id(target_session_id))
+        if (!ENABLE_WORKSPACE_AND_ATTACHMENTS || !target_session_id || is_pending_ai_chat_id(target_session_id))
             return
         if (!silent)
             set_attachments_loading(true)
@@ -60,7 +61,7 @@ export function use_session_attachments ({
         }
     }
     async function upload_attachments (files: File[], select_after_upload = true) {
-        if (!files.length || creating_session || attachments_loading)
+        if (!ENABLE_WORKSPACE_AND_ATTACHMENTS || !files.length || creating_session || attachments_loading)
             return
         set_attachments_loading(true)
         set_attachments_error('')
@@ -102,6 +103,8 @@ export function use_session_attachments ({
         }
     }
     useEffect(() => {
+        if (!ENABLE_WORKSPACE_AND_ATTACHMENTS)
+            return
         const transferred_attachments = pending_attachment_selections.get(session_id) || [ ]
         pending_attachment_selections.delete(session_id)
         set_attachments(transferred_attachments)
