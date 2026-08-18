@@ -8977,5 +8977,11 @@
     },
     "正在执行": {
         "en": "Executing…"
+    },
+    "图片大小上限（字节，0 表示不限制）": {
+        "en": "Image size limit (bytes, 0 means unlimited)"
+    },
+    "最大输入文件数（0 表示不限制）": {
+        "en": "Maximum number of input files (0 means unlimited)"
     }
 }

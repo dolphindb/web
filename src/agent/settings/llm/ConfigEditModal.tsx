@@ -88,7 +88,7 @@ export function ConfigEditModal ({
             </div>
             {!is_embedding_form && <>
                 <div>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('图片大小上限（字节）')}</div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('图片大小上限（字节，0 表示不限制）')}</div>
                     <InputNumber
                         style={{ width: '100%' }}
                         value={config_form.maxImageBytes}
@@ -99,7 +99,7 @@ export function ConfigEditModal ({
                     />
                 </div>
                 <div>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('最大输入文件数')}</div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('最大输入文件数（0 表示不限制）')}</div>
                     <InputNumber
                         style={{ width: '100%' }}
                         value={config_form.maxInputFiles}
