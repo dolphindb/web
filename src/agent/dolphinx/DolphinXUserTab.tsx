@@ -1630,17 +1630,19 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
         set_selected_agent_id={set_selected_agent_id}
         actions={<Button loading={loading_usage} onClick={load_admin_usage}>{t('刷新')}</Button>}
     >
-        <Table
+        <Table<{ value: string, label: string, agentName: string, usage?: ILlmUsageStats }>
             size='small'
             rowKey='value'
             loading={loading_usage}
             dataSource={usage_user_options.map(user => ({ ...user, agentName: selected_agent_name, usage: usage_by_user[user.value] }))}
-            pagination={false}
+            pagination={{ defaultPageSize: 10, showSizeChanger: true }}
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用户')} /> }}
             columns={[
                 {
                     title: t('用户'),
                     dataIndex: 'label',
+                    defaultSortOrder: 'ascend',
+                    sorter: (a, b) => a.label.localeCompare(b.label),
                 },
                 {
                     title: t('Agent 名称'),
@@ -1649,10 +1651,12 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                 {
                     title: t('请求次数'),
                     render: (_: unknown, row: { usage?: ILlmUsageStats }) => row.usage?.requestCount ?? 0,
+                    sorter: (a, b) => (a.usage?.requestCount ?? 0) - (b.usage?.requestCount ?? 0),
                 },
                 {
                     title: t('输入 Token'),
                     render: (_: unknown, row: { usage?: ILlmUsageStats }) => row.usage?.totalPromptTokens ?? 0,
+                    sorter: (a, b) => (a.usage?.totalPromptTokens ?? 0) - (b.usage?.totalPromptTokens ?? 0),
                 },
                 {
                     title: t('输出 Token'),
