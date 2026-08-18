@@ -3,16 +3,15 @@ import './index.sass'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Modal, Form, Input, Select, Segmented, Button } from 'antd'
 import { useCallback, useEffect, useRef, useState } from 'react'
-
 import { required } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
 import { model } from '@model'
 import { Editor } from '@components/Editor/index.tsx'
+import type { CodeEditor } from '@components/Editor/MonacoEditor.tsx'
 import type { IParserTemplate } from '@/data-collection/type.ts'
 import { request } from '@/data-collection/utils.ts'
 import { NAME_RULES, PROTOCOL_MAP, protocols, template_code } from '@/data-collection/constant.ts'
-import type { CodeEditor } from '@components/Editor/MonacoEditor.tsx'
 
 interface IProps {
     editedTemplate?: IParserTemplate

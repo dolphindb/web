@@ -148,7 +148,7 @@ export function UserList () {
                 user_name: current_user.userId,
                 is_admin: current_user.isAdmin ? <CheckCircleFilled className='green' /> : <MinusCircleFilled className='gray' />,
                 
-                groups: Boolean(current_user.groups) && <Flex gap='small' align='center' wrap="wrap">{
+                groups: Boolean(current_user.groups) && <Flex gap='small' align='center' wrap='wrap'>{
                     current_user.groups.split(',').map((group: string) => 
                         <DDBTag key={group}>{group}</DDBTag>)
                 }</Flex>,

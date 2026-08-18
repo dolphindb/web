@@ -1,12 +1,11 @@
 import { Select } from 'antd'
 import { useState } from 'react'
 import { ClockCircleOutlined } from '@ant-design/icons'
-
 import { set_timezone } from 'dolphindb/browser.js'
+import { storage } from 'xshell/storage.js'
 
 import { t } from '@i18n'
 import { model, storage_keys } from '@model'
-import { storage } from 'xshell/storage.js'
 
 
 const options = [
@@ -52,6 +51,6 @@ export function TimeZoneSelect () {
                 : t('时区已切换为 {{timezone}}，下次执行代码时生效', { timezone: key }))
         }}
         suffixIcon={<ClockCircleOutlined className='header-settings-icon' />}
-        onOpenChange={open => set_opened(open)}
+        onOpenChange={open => { set_opened(open) }}
     />
 }

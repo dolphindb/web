@@ -129,7 +129,7 @@ export function GroupList () {
                     key: group.groupName,
                     group_name: group.groupName,
                     
-                    users: Boolean(group.users) && <Flex gap='small' align='center' wrap="wrap">{
+                    users: Boolean(group.users) && <Flex gap='small' align='center' wrap='wrap'>{
                         group.users.split(',').filter(name => name !== 'admin').map((user: string) =>
                             <DDBTag key={user}>{user}</DDBTag>)
                     }</Flex>,

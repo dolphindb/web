@@ -2,67 +2,46 @@ import { useEffect, useState } from 'react'
 import { use_modal } from 'react-object-model/hooks.js'
 
 import {
-    Alert,
     Button,
     Empty,
     Form,
-    Input,
-    Modal,
     Popconfirm,
-    Select,
     Space,
     Spin,
     Table,
     Tag,
-    Tooltip,
     Typography,
 } from 'antd'
 import {
     ApiOutlined,
     CheckCircleOutlined,
-    CloseOutlined,
     DeleteOutlined,
     EditOutlined,
     PlusOutlined,
     ReloadOutlined,
-    SaveOutlined,
     StopOutlined,
 } from '@ant-design/icons'
 
 import { t } from '@i18n'
-
 import { model } from '@model'
 
 import { chat_model } from '@/agent/model.ts'
 import type {
     IMcpServerInfo,
-    IMcpServerTestPayload,
     IMcpServerTestResult,
-    IMcpServerUpsertPayload,
-    McpCredentialMode,
     McpServerType,
 } from '@/agent/model.ts'
+import {
+    McpServerModal,
+    build_server_payload,
+    build_test_payload,
+    empty_server_form,
+    validate_server_form,
+    type ServerFormState,
+} from './mcp/index.ts'
 
 
-const { Paragraph, Text } = Typography
-
-
-interface ServerFormState {
-    name: string
-    serverType: McpServerType
-    url: string
-    credentialMode: McpCredentialMode
-    token: string
-}
-
-
-const empty_server_form: ServerFormState = {
-    name: '',
-    serverType: 'dolphindb',
-    url: '',
-    credentialMode: 'dolphindb_current_user',
-    token: '',
-}
+const { Text } = Typography
 
 
 export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
@@ -77,7 +56,6 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
     const server_modal = use_modal()
     const [editing_server, set_editing_server] = useState<IMcpServerInfo | null>(null)
     const [server_form] = Form.useForm<ServerFormState>()
-    const server_type = Form.useWatch('serverType', server_form)
     const [test_result, set_test_result] = useState<IMcpServerTestResult | null>(null)
     
     async function load_servers () {
@@ -135,61 +113,6 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
         })
     }
     
-    function validate_server_form (form_values: ServerFormState): string {
-        if (!form_values.name.trim())
-            return t('请输入 MCP Server 名称')
-        
-        const credential_mode = form_values.serverType === 'dolphindb'
-            ? 'dolphindb_current_user'
-            : form_values.credentialMode
-        if (credential_mode === 'shared_token') {
-            const changing_to_shared_token = !editing_server || editing_server.credentialMode !== 'shared_token'
-            if (changing_to_shared_token && !form_values.token.trim())
-                return t('固定 Token 认证方式需要填写 Token')
-        }
-        return ''
-    }
-    
-    function build_server_payload (form_values: ServerFormState): IMcpServerUpsertPayload {
-        const endpoint = {
-            url: form_values.url.trim(),
-        }
-        const credential_mode: McpCredentialMode = form_values.serverType === 'dolphindb'
-            ? 'dolphindb_current_user'
-            : form_values.credentialMode
-        const payload: IMcpServerUpsertPayload = {
-            name: form_values.name.trim(),
-            endpoint,
-        }
-        if (!editing_server)
-            payload.serverType = form_values.serverType
-        if (form_values.serverType !== 'dolphindb') {
-            const credential_changed = !editing_server || editing_server.credentialMode !== credential_mode
-            if (!editing_server || credential_changed || credential_mode !== 'shared_token' || form_values.token.trim())
-                payload.credentialMode = credential_mode
-            if (credential_mode === 'shared_token' && form_values.token.trim())
-                payload.sharedAuthConfig = { type: 'bearer', token: form_values.token.trim() }
-        }
-        return payload
-    }
-    function build_test_payload (form_values: ServerFormState): IMcpServerTestPayload {
-        return {
-            ...(editing_server ? { mcpServerId: editing_server.mcpServerId } : { }),
-            ...build_server_payload(form_values),
-        }
-    }
-    
-    function test_result_text (result: IMcpServerTestResult): string {
-        if (result.ok) {
-            if (result.toolCount === 0 && !has_mcp_exec)
-                return t('连接成功，但缺少 MCP_EXEC 权限查看工具列表')
-            
-            return t('连接成功，发现 {{count}} 个工具: {{names}}', { count: result.toolCount, names: result.toolNames.join(', ') })
-        }
-        
-        return result.message || result.error || t('连接失败')
-    }
-    
     async function test_form_server () {
         let form_values: ServerFormState
         try {
@@ -198,46 +121,86 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
             return
         }
         
-        const error = validate_server_form(form_values)
+        const error = validate_server_form(form_values, editing_server)
         if (error) {
             model.message.error(error)
             return
         }
-        set_test_result(null)
         set_testing_form(true)
         try {
-            const result = await chat_model.mcp.test_mcp_server(build_test_payload(form_values))
+            const result = await chat_model.mcp.test_mcp_server(build_test_payload(form_values, editing_server))
             set_test_result(result)
-        } catch (error: any) {
+            if (result.ok)
+                model.message.success(t('MCP Server 连接测试成功'))
+            else
+                model.message.error(result.message || result.error || t('MCP Server 连接测试失败'))
+        } catch (err: any) {
             set_test_result({
                 ok: false,
-                message: error.message || t('连接失败'),
-                error: error.message,
                 toolCount: 0,
                 toolNames: [ ],
+                error: err.message,
+                message: err.message,
             })
+            model.message.error(err.message || t('MCP Server 连接测试失败'))
         } finally {
             set_testing_form(false)
         }
     }
     
+    async function test_saved_server (server: IMcpServerInfo) {
+        set_testing_server_id(server.mcpServerId)
+        try {
+            const result = await chat_model.mcp.test_mcp_server({
+                mcpServerId: server.mcpServerId,
+            })
+            if (result.ok)
+                if (result.toolCount === 0 && !has_mcp_exec)
+                    model.message.warning(t('MCP Server 连接成功，但当前用户缺少 MCP_EXEC 权限'))
+                else
+                    model.message.success(t('连接成功，发现 {{count}} 个工具', { count: result.toolCount }))
+            else
+                model.message.error(result.message || result.error || t('MCP Server 连接测试失败'))
+        } catch (err: any) {
+            model.message.error(err.message || t('MCP Server 连接测试失败'))
+        } finally {
+            set_testing_server_id('')
+        }
+    }
+    
     async function save_server (form_values: ServerFormState) {
-        const error = validate_server_form(form_values)
+        const error = validate_server_form(form_values, editing_server)
         if (error) {
             model.message.error(error)
             return
         }
         set_saving(true)
         try {
+            const payload = build_server_payload(form_values, editing_server)
             if (editing_server)
-                await chat_model.mcp.update_mcp_server(editing_server.mcpServerId, build_server_payload(form_values))
+                await chat_model.mcp.update_mcp_server(editing_server.mcpServerId, payload)
             else
-                await chat_model.mcp.register_mcp_server(build_server_payload(form_values))
-            model.message.success(t('配置已保存'))
+                await chat_model.mcp.register_mcp_server(payload)
+            model.message.success(editing_server ? t('保存成功') : t('注册成功'))
             server_modal.close()
             await refresh()
+        } catch (err: any) {
+            model.message.error(err.message || t('保存失败'))
         } finally {
             set_saving(false)
+        }
+    }
+    
+    async function delete_server (server: IMcpServerInfo) {
+        set_updating_server_id(server.mcpServerId)
+        try {
+            await chat_model.mcp.delete_mcp_server(server.mcpServerId)
+            model.message.success(t('已删除'))
+            await refresh()
+        } catch (err: any) {
+            model.message.error(err.message || t('删除失败'))
+        } finally {
+            set_updating_server_id('')
         }
     }
     
@@ -246,290 +209,157 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
         try {
             await chat_model.mcp.update_mcp_server(server.mcpServerId, { enabled })
             model.message.success(enabled ? t('已启用') : t('已禁用'))
-            await load_servers()
+            await refresh()
+        } catch (err: any) {
+            model.message.error(err.message || (enabled ? t('启用失败') : t('禁用失败')))
         } finally {
             set_updating_server_id('')
         }
     }
     
-    function mcp_delete_error_message (error: any): string {
-        const raw_message = error?.message ? String(error.message) : ''
-        if (raw_message.includes('still bound to an Agent'))
-            return t('该 MCP Server 仍被 Agent 绑定，请先解绑后再删除')
-        return raw_message || t('删除失败')
-    }
-    
-    async function delete_server (server: IMcpServerInfo) {
-        try {
-            await chat_model.mcp.delete_mcp_server(server.mcpServerId)
-            model.message.success(t('配置已删除'))
-            await refresh()
-        } catch (error: any) {
-            model.message.error(mcp_delete_error_message(error))
-        }
-    }
-    async function test_saved_server (server: IMcpServerInfo) {
-        set_testing_server_id(server.mcpServerId)
-        try {
-            const result = await chat_model.mcp.test_mcp_server({ mcpServerId: server.mcpServerId })
-            if (result.ok)
-                if (result.toolCount === 0 && !has_mcp_exec)
-                    model.message.warning(test_result_text(result), 5)
-                else
-                    model.message.success(test_result_text(result), 5)
-            else
-                model.message.error(test_result_text(result))
-        } finally {
-            set_testing_server_id('')
-        }
-    }
-    
-    return <div className='ai-settings-list-detail' style={{ height: '100%' }}>
-        <div className='ai-settings-detail-header'>
-            <div className='ai-settings-detail-title'>{t('MCP 管理')}</div>
-        </div>
-        <div className='ai-settings-detail-body'>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
-                <Text type='secondary' style={{ fontSize: 12 }}>{t('配置可供 Agent 绑定和调用的 MCP Server。')}</Text>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Tooltip title={t('刷新')}>
-                    <Button icon={<ReloadOutlined />} onClick={refresh} />
-                </Tooltip>
-                <Button type='primary' icon={<PlusOutlined />} disabled={!can_manage_mcp} onClick={open_create_server}>
-                    {t('添加 MCP Server')}
-                </Button>
-                </div>
+    return <div className='ai-settings-mcp-page'>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div style={{ fontSize: 13, color: '#666' }}>
+                {t('管理 MCP Server。每个 Server 可以提供一组外部工具。')}
             </div>
+            <Space>
+                <Button icon={<ReloadOutlined />} onClick={refresh} loading={loading_servers}>
+                    {t('刷新')}
+                </Button>
+                {can_manage_mcp && <Button type='primary' icon={<PlusOutlined />} onClick={open_create_server}>
+                    {t('添加 Server')}
+                </Button>}
+            </Space>
+        </div>
+        
+        <div style={{ flex: 1, minHeight: 0 }}>
             <Spin spinning={loading_servers}>
-            {servers.length === 0
-                ? <Empty description={t('暂无 MCP Server 配置')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ padding: 32 }} />
-                : <Table<IMcpServerInfo>
-                    size='small'
-                    rowKey='mcpServerId'
-                    dataSource={servers}
-                    pagination={{ showSizeChanger: true, showQuickJumper: true }}
-                    tableLayout='fixed'
-                    scroll={{ x: 980 }}
-                    columns={[
-                        {
-                            title: t('名称'),
-                            width: 260,
-                            render: (_: unknown, server) => <div style={{ minWidth: 0 }}>
-                                <Text title={server.name} style={{ display: 'block', maxWidth: '100%' }} ellipsis>{server.name}</Text>
-                                <Text type='secondary' style={{ display: 'block', fontSize: 12, wordBreak: 'break-all' }}>{server.mcpServerId}</Text>
-                            </div>,
-                        },
-                        {
-                            title: t('MCP 类型'),
-                            width: 140,
-                            render: (_: unknown, server) => <Tag color={server.serverType === 'dolphindb' ? 'blue' : 'purple'}>
-                                {server.serverType === 'dolphindb' ? t('DolphinDB 内置 MCP') : t('第三方 MCP')}
-                            </Tag>,
-                        },
-                        {
-                            title: t('Server 地址'),
-                            width: 280,
-                            render: (_: unknown, server) => <Paragraph style={{ margin: 0, wordBreak: 'break-all' }} ellipsis={{ rows: 2, tooltip: server.endpoint.url }}>
-                                {server.endpoint.url || '-'}
-                            </Paragraph>,
-                        },
-                        {
-                            title: t('认证方式'),
-                            width: 160,
-                            render: (_: unknown, server) => <Tag>
-                                {server.credentialMode === 'dolphindb_current_user'
-                                    ? t('使用当前 DolphinDB 用户')
-                                    : server.credentialMode === 'shared_token'
-                                        ? t('固定 Token')
-                                        : t('无需认证')}
-                            </Tag>,
-                        },
-                        {
-                            title: t('状态'),
-                            width: 60,
-                            render: (_: unknown, server) => <Tag color={server.enabled !== false ? 'green' : 'default'}>
-                                {server.enabled !== false ? t('启用') : t('禁用')}
-                            </Tag>,
-                        },
-                        {
-                            title: t('操作'),
-                            width: 260,
-                            render: (_: unknown, server) => <Space size={4}>
-                                <Button
-                                    type='text'
-                                    size='small'
-                                    icon={<ApiOutlined />}
-                                    loading={testing_server_id === server.mcpServerId}
-                                    disabled={!can_manage_mcp}
-                                    onClick={() => { test_saved_server(server) }}
-                                >{t('测试')}</Button>
-                                <Button
-                                    type='text'
-                                    size='small'
-                                    icon={<EditOutlined />}
-                                    disabled={!can_manage_mcp}
-                                    onClick={() => { open_edit_server(server) }}
-                                >{t('编辑')}</Button>
-                                {server.enabled === false
-                                    ? <Button
+                {servers.length === 0 && !loading_servers
+                    ? <Empty description={t('暂无 MCP Server 配置')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ padding: 40 }} />
+                    : <Table<IMcpServerInfo>
+                        dataSource={servers}
+                        rowKey='mcpServerId'
+                        pagination={false}
+                        size='middle'
+                        tableLayout='fixed'
+                        columns={[
+                            {
+                                title: t('名称'),
+                                dataIndex: 'name',
+                                width: 220,
+                                ellipsis: true,
+                                render: (text, server) => <Space direction='vertical' size={2} style={{ width: '100%' }}>
+                                    <Text strong ellipsis={{ tooltip: text }}>{text}</Text>
+                                    <Text type='secondary' style={{ fontSize: 12 }} ellipsis={{ tooltip: server.mcpServerId }}>
+                                        {server.mcpServerId}
+                                    </Text>
+                                </Space>,
+                            },
+                            {
+                                title: t('类型'),
+                                width: 140,
+                                render: (_: unknown, server) => <Tag color={server.serverType === 'dolphindb' ? 'blue' : 'purple'}>
+                                    {server.serverType === 'dolphindb' ? t('DolphinDB 内置') : t('第三方')}
+                                </Tag>,
+                            },
+                            {
+                                title: t('Server 地址'),
+                                ellipsis: true,
+                                render: (_: unknown, server) => <Text
+                                    copyable={{ text: server.endpoint.url }}
+                                    ellipsis={{ tooltip: server.endpoint.url }}
+                                >
+                                    {server.endpoint.url}
+                                </Text>,
+                            },
+                            {
+                                title: t('认证方式'),
+                                width: 150,
+                                render: (_: unknown, server) => <Tag>
+                                    {server.credentialMode === 'dolphindb_current_user'
+                                        ? t('使用当前 DolphinDB 用户')
+                                        : server.credentialMode === 'shared_token'
+                                            ? t('固定 Token')
+                                            : t('无需认证')}
+                                </Tag>,
+                            },
+                            {
+                                title: t('状态'),
+                                width: 60,
+                                render: (_: unknown, server) => <Tag color={server.enabled !== false ? 'green' : 'default'}>
+                                    {server.enabled !== false ? t('启用') : t('禁用')}
+                                </Tag>,
+                            },
+                            {
+                                title: t('操作'),
+                                width: 260,
+                                render: (_: unknown, server) => <Space size={4}>
+                                    <Button
                                         type='text'
                                         size='small'
-                                        icon={<CheckCircleOutlined />}
-                                        loading={updating_server_id === server.mcpServerId}
+                                        icon={<ApiOutlined />}
+                                        loading={testing_server_id === server.mcpServerId}
                                         disabled={!can_manage_mcp}
-                                        onClick={() => { set_server_enabled(server, true) }}
-                                    >{t('启用')}</Button>
-                                    : <Popconfirm
-                                        title={t('确定禁用此 MCP Server？')}
-                                        onConfirm={() => { set_server_enabled(server, false) }}
-                                    >
-                                        <Button
+                                        onClick={() => { test_saved_server(server) }}
+                                    >{t('测试')}</Button>
+                                    <Button
+                                        type='text'
+                                        size='small'
+                                        icon={<EditOutlined />}
+                                        disabled={!can_manage_mcp}
+                                        onClick={() => { open_edit_server(server) }}
+                                    >{t('编辑')}</Button>
+                                    {server.enabled === false
+                                        ? <Button
                                             type='text'
                                             size='small'
-                                            icon={<StopOutlined />}
+                                            icon={<CheckCircleOutlined />}
                                             loading={updating_server_id === server.mcpServerId}
                                             disabled={!can_manage_mcp}
+                                            onClick={() => { set_server_enabled(server, true) }}
+                                        >{t('启用')}</Button>
+                                        : <Popconfirm
+                                            title={t('确定禁用此 MCP Server？')}
+                                            onConfirm={() => { set_server_enabled(server, false) }}
                                         >
-                                            {t('禁用')}
-                                        </Button>
+                                            <Button
+                                                type='text'
+                                                size='small'
+                                                icon={<StopOutlined />}
+                                                loading={updating_server_id === server.mcpServerId}
+                                                disabled={!can_manage_mcp}
+                                            >
+                                                {t('禁用')}
+                                            </Button>
+                                        </Popconfirm>
+                                    }
+                                    <Popconfirm
+                                        title={t('确定删除此 MCP Server 配置？')}
+                                        okButtonProps={{ danger: true }}
+                                        onConfirm={() => { delete_server(server) }}
+                                    >
+                                        <Button type='text' size='small' danger icon={<DeleteOutlined />} disabled={!can_manage_mcp}>{t('删除')}</Button>
                                     </Popconfirm>
-                                }
-                                <Popconfirm
-                                    title={t('确定删除此 MCP Server 配置？')}
-                                    okButtonProps={{ danger: true }}
-                                    onConfirm={() => { delete_server(server) }}
-                                >
-                                    <Button type='text' size='small' danger icon={<DeleteOutlined />} disabled={!can_manage_mcp}>{t('删除')}</Button>
-                                </Popconfirm>
-                            </Space>,
-                        },
-                    ]}
-                />
-            }
-        </Spin>
-        
-        <Modal
-            title={editing_server ? t('编辑 MCP Server 配置') : t('添加 MCP Server 配置')}
-            open={server_modal.visible}
-            onCancel={server_modal.close}
-            onOk={() => { server_form.submit() }}
-            okText={t('保存配置')}
-            okButtonProps={{ icon: <SaveOutlined /> }}
-            cancelButtonProps={{ icon: <CloseOutlined /> }}
-            confirmLoading={saving}
-            width={720}
-            destroyOnHidden
-            footer={(_, { CancelBtn, OkBtn }) => <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                    <CancelBtn />
-                    <Button icon={<ApiOutlined />} loading={testing_form} onClick={test_form_server}>
-                        {t('测试')}
-                    </Button>
-                    <OkBtn />
-                </div>}
-        >
-            <Form
-                form={server_form}
-                layout='vertical'
-                onFinish={save_server}
-                initialValues={empty_server_form}
-            >
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
-                    <Form.Item
-                        name='name'
-                        label={t('名称')}
-                        required
-                        rules={[{ required: true, message: t('请输入 MCP Server 名称') }]}
-                        style={{ marginBottom: 0 }}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name='serverType'
-                        label={t('MCP 类型')}
-                        required
-                        rules={[{ required: true, message: t('请选择 MCP 类型') }]}
-                        style={{ marginBottom: 0 }}
-                    >
-                        {editing_server
-                            ? <Tag color={server_type === 'dolphindb' ? 'blue' : 'purple'} style={{ marginTop: 4 }}>
-                                {server_type === 'dolphindb' ? t('DolphinDB 内置 MCP') : t('第三方 MCP')}
-                            </Tag>
-                            : <Select
-                                options={[
-                                    { value: 'dolphindb', label: t('DolphinDB 内置 MCP') },
-                                    { value: 'third_party', label: t('第三方 MCP') },
-                                ]}
-                                onChange={update_server_type}
-                            />
-                        }
-                    </Form.Item>
-                    <Form.Item
-                        name='url'
-                        label={t('Server 地址')}
-                        required
-                        rules={[
-                            { required: true },
-                            { type: 'url', message: t('Server 地址格式不正确，请输入合法的 URL') },
-                            {
-                                validator (_, value) {
-                                    if (value && !/^https?:\/\//.test(value))
-                                        return Promise.reject(new Error(t('Server 地址必须以 http:// 或 https:// 开头')))
-                                    return Promise.resolve()
-                                }
-                            }
+                                </Space>,
+                            },
                         ]}
-                        style={{ marginBottom: 0, gridColumn: '1 / -1' }}
-                    >
-                        <Input placeholder='https://example.com/mcp' />
-                    </Form.Item>
-                    
-                    <Form.Item
-                        name='credentialMode'
-                        label={t('认证方式')}
-                        required
-                        rules={[{ required: true, message: t('请选择认证方式') }]}
-                        style={{ marginBottom: 0 }}
-                    >
-                        <Select
-                            disabled={server_type === 'dolphindb'}
-                            options={[
-                                { value: 'dolphindb_current_user', label: t('使用当前 DolphinDB 用户'), disabled: true },
-                                { value: 'none', label: t('无需认证') },
-                                { value: 'shared_token', label: t('固定 Token') },
-                            ]}
-                        />
-                    </Form.Item>
-                    
-                    <Form.Item dependencies={['serverType', 'credentialMode']}>{
-                        () => 
-                            server_form.getFieldValue('serverType') !== 'dolphindb' && server_form.getFieldValue('credentialMode') === 'shared_token' && <Form.Item
-                                name='token'
-                                label='Token'
-                                required={editing_server?.credentialMode !== 'shared_token'}
-                                rules={editing_server?.credentialMode === 'shared_token' ? [ ] : [{ required: true, message: t('固定 Token 认证方式需要填写 Token') }]}
-                                style={{ marginBottom: 0, gridColumn: '1 / -1' }}
-                            >
-                                <Input.Password placeholder={editing_server?.credentialMode === 'shared_token' ? t('留空表示不修改') : ''} />
-                            </Form.Item>
-                    }</Form.Item>
-                    
-                    {test_result && <div style={{ gridColumn: '1 / -1' }}>
-                        <Alert
-                            showIcon
-                            type={
-                                test_result.ok ?
-                                    (test_result.toolCount === 0 && !has_mcp_exec ? 
-                                        'warning'
-                                    :
-                                        'success')
-                                : 'error'
-                            }
-                            title={test_result_text(test_result)}
-                        />
-                    </div>}
-                </div>
-            </Form>
-            </Modal>
+                    />
+                }
+            </Spin>
+            
+            <McpServerModal
+                visible={server_modal.visible}
+                editing_server={editing_server}
+                server_form={server_form}
+                saving={saving}
+                testing_form={testing_form}
+                test_result={test_result}
+                has_mcp_exec={has_mcp_exec}
+                on_close={server_modal.close}
+                on_save={save_server}
+                on_test={test_form_server}
+                on_update_server_type={update_server_type}
+            />
         </div>
     </div>
 }

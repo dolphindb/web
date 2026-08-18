@@ -1,12 +1,50 @@
 import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react'
 
-import { Empty, Pagination } from 'antd'
+import { Empty, Pagination, Typography } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
 import { access } from '@/access/model.ts'
 
 import { chat_model } from '@/agent/model.ts'
+
+
+const { Text } = Typography
+
+
+export function ellipsis_text (value: unknown) {
+    const text = String(value ?? '-')
+    return <Text title={text} style={{ display: 'block', maxWidth: '100%' }} ellipsis>{text}</Text>
+}
+
+
+export function format_file_size (size?: number) {
+    if (size === undefined)
+        return '-'
+    if (size < 1024)
+        return `${size} B`
+    const units = ['KB', 'MB', 'GB']
+    let value = size / 1024
+    for (const unit of units) {
+        if (value < 1024)
+            return `${value.toFixed(value >= 10 ? 1 : 2)} ${unit}`
+        value /= 1024
+    }
+    return `${value.toFixed(1)} TB`
+}
+
+
+export function optional_nonnegative_number (value: unknown) {
+    if (value === null || value === undefined || value === '')
+        return undefined
+    const num = Number(value)
+    return Number.isFinite(num) && num >= 0 ? num : undefined
+}
+
+
+export function page_total (offset: number, count: number, has_more: boolean, total?: number) {
+    return total ?? offset + count + (has_more ? 1 : 0)
+}
 
 
 export function show_error (error: unknown, fallback: string) {
