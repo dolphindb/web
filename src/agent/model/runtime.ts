@@ -385,14 +385,28 @@ export class ChatRuntimeModel {
         
         const show_fallback_notice = (data: any) => {
             const metadata = data?.metadata && typeof data.metadata === 'object' ? data.metadata : data
-            if (fallback_notice_shown || !(metadata?.fallbackApplied === true || metadata?.fallbackApplied === 'true'))
+            if (!(metadata?.fallbackApplied === true || metadata?.fallbackApplied === 'true'))
+                return
+            
+            const target_llm_config_id = metadata?.llmConfigId || data?.llmConfigId || metadata?.fallbackToLlmConfigId
+            if (target_llm_config_id && typeof target_llm_config_id === 'string') {
+                const use_native_tool_calling = this.chat.agent.should_use_native_tool_calling(target_llm_config_id)
+                this.chat._active_llm_config_id = target_llm_config_id
+                this.chat._active_use_native_tool_calling = use_native_tool_calling
+                this.chat.set({
+                    selected_llm_config_id: target_llm_config_id,
+                    use_native_tool_calling,
+                })
+            }
+            
+            if (fallback_notice_shown)
                 return
             fallback_notice_shown = true
             
             const parts = [
                 t('模型调用失败，已自动切换到备用模型。'),
-                metadata?.fallbackFromLlmConfigId && metadata?.llmConfigId
-                    ? t('模型：{{from}} → {{to}}', { from: metadata.fallbackFromLlmConfigId, to: metadata.llmConfigId })
+                metadata?.fallbackFromLlmConfigId && target_llm_config_id
+                    ? t('模型：{{from}} → {{to}}', { from: metadata.fallbackFromLlmConfigId, to: target_llm_config_id })
                     : '',
                 metadata?.fallbackStatusCode ? t('状态码：{{status}}', { status: metadata.fallbackStatusCode }) : '',
                 metadata?.fallbackReason ? t('原因：{{reason}}', { reason: metadata.fallbackReason }) : '',
@@ -661,6 +675,19 @@ export class ChatRuntimeModel {
                 content = data.content || ''
                 reasoning_content = data.reasoning || data.reasoning_content || data.reasoningContent || ''
                 tool_calls = data.toolCalls || data.tool_calls
+                const metadata = data?.metadata && typeof data.metadata === 'object' ? data.metadata : data
+                if (metadata?.fallbackApplied === true || metadata?.fallbackApplied === 'true') {
+                    const target_llm_config_id = metadata?.llmConfigId || data?.llmConfigId || metadata?.fallbackToLlmConfigId
+                    if (target_llm_config_id && typeof target_llm_config_id === 'string') {
+                        const use_native_tool_calling = this.chat.agent.should_use_native_tool_calling(target_llm_config_id)
+                        this.chat._active_llm_config_id = target_llm_config_id
+                        this.chat._active_use_native_tool_calling = use_native_tool_calling
+                        this.chat.set({
+                            selected_llm_config_id: target_llm_config_id,
+                            use_native_tool_calling,
+                        })
+                    }
+                }
                 this.chat.runtime.update_assistant_content(assistant_msg_id, {
                     content,
                     reasoning_content: reasoning_content || undefined,
@@ -678,7 +705,8 @@ export class ChatRuntimeModel {
             // 从文本内容或 function calling 格式中解析工具调用
             if (model.verbose)
                 console.log('[debug] content length:', content.length, 'toolCalls:', tool_calls)
-            const parsed_calls = tool_call_adapter.parse_tool_calls(tool_calls, content)
+            const active_tool_call_adapter = this.chat.runtime.get_tool_call_adapter()
+            const parsed_calls = active_tool_call_adapter.parse_tool_calls(tool_calls, content)
             if (model.verbose)
                 console.log('[debug] parsed_calls:', parsed_calls)
             
@@ -693,7 +721,7 @@ export class ChatRuntimeModel {
                     request_seq,
                     assistant_msg_id,
                     content,
-                    tool_call_adapter
+                    active_tool_call_adapter
                 )
                 if (model.verbose)
                     console.log('[debug] handle_tool_calls completed')
