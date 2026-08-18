@@ -50,21 +50,26 @@ export function build_skill_file_tree (paths: string[]) {
         let current_path = ''
         let siblings = roots
         parts.forEach((part, index) => {
+            const is_leaf = index === parts.length - 1
             current_path = current_path ? `${current_path}/${part}` : part
             let node = node_map.get(current_path)
             if (!node) {
-                const is_leaf = index === parts.length - 1
                 node = {
                     key: current_path,
                     title: part,
                     isLeaf: is_leaf,
+                    selectable: is_leaf,
                     children: is_leaf ? undefined : [ ],
                 }
                 node_map.set(current_path, node)
                 siblings.push(node)
             }
-            if (node.children)
+            if (!is_leaf) {
+                node.isLeaf = false
+                node.selectable = false
+                node.children ||= [ ]
                 siblings = node.children
+            }
         })
     }
     return roots

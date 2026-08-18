@@ -9,7 +9,7 @@ import { t } from '@i18n'
 
 import { model } from '@model'
 
-import { Logo } from '@components/DdbHeader/Logo.tsx'
+import { Logo } from '@components/DDBHeader/Logo.tsx'
 
 
 export function Login () {

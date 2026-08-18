@@ -36,9 +36,9 @@ import { model } from '@model'
 import { light } from './theme.ts'
 import { apply_favicon } from './utils.common.ts'
 
-import { DdbHeader } from './components/DdbHeader/index.tsx'
+import { DdbHeader } from './components/DDBHeader/index.tsx'
 import { DdbSider } from './components/DdbSider.tsx'
-import { HostSelect } from './components/DdbHeader/HostSelect.tsx'
+import { HostSelect } from './components/DDBHeader/HostSelect.tsx'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx'
 import { SettingsModal } from './agent/SettingsModal.tsx'
 

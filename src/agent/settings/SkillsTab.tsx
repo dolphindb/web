@@ -8,7 +8,7 @@ import { CheckCircleOutlined, DeleteOutlined, DownloadOutlined, PlusOutlined, Re
 import { language, t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
-import type { ISkillFileInfo, ISkillInfo } from '@/agent/model.ts'
+import type { ISkillInfo } from '@/agent/model.ts'
 import {
     DEFAULT_OVERRIDES,
     SkillCreateForm,
@@ -68,10 +68,12 @@ export function SkillsTab () {
     async function open_skill_file (file_path: string) {
         if (!detail_skill)
             return
+        const skill_id = detail_skill.skillId
         const current_request = ++file_request_ref.current
         setSelected_skill_file_state(file_path)
+        set_loading_detail(true)
         try {
-            const file_info: ISkillFileInfo = await chat_model.skill.get_skill_file(detail_skill.skillId, file_path)
+            const file_info = await chat_model.skill.get_skill_file(skill_id, file_path)
             if (current_request !== file_request_ref.current)
                 return
             set_skill_file_content(decode_skill_file(file_info.content, file_info.encoding))
@@ -80,6 +82,9 @@ export function SkillsTab () {
                 return
             set_skill_file_content('')
             message.error(error.message || t('加载文件内容失败'))
+        } finally {
+            if (current_request === file_request_ref.current)
+                set_loading_detail(false)
         }
     }
     
@@ -90,6 +95,7 @@ export function SkillsTab () {
     
     async function open_skill_detail (skill: ISkillInfo) {
         const current_request = ++detail_request_ref.current
+        file_request_ref.current += 1
         set_detail_skill(skill)
         set_skill_instruction('')
         set_skill_files([ ])
@@ -97,16 +103,31 @@ export function SkillsTab () {
         set_loading_detail(true)
         try {
             const [instruction, files] = await Promise.all([
-                chat_model.skill.get_skill_instruction(skill.skillId),
-                chat_model.skill.list_skill_files(skill.skillId),
+                skill.enabled !== false && skill.hasInstruction !== false
+                    ? chat_model.skill.load_skill_instruction(skill.skillId).catch(error => {
+                        console.error('Load skill instruction failed:', error)
+                        message.error(t('加载技能指令失败'))
+                        return null
+                    })
+                    : null,
+                chat_model.skill.load_skill_files(skill.skillId).catch(error => {
+                    console.error('Load skill files failed:', error)
+                    message.error(t('加载技能文件失败'))
+                    return { items: [ ] }
+                }),
             ])
             if (current_request !== detail_request_ref.current)
                 return
-            set_skill_instruction(instruction)
-            set_skill_files(files)
-            const first_file = files[0] || ''
-            if (first_file)
-                await open_skill_file(first_file)
+            const file_items = files.items || [ ]
+            const file_paths = file_items
+                .map(file => typeof file === 'string' ? file : file.filePath)
+                .filter((file_path): file_path is string => typeof file_path === 'string' && Boolean(file_path.trim()))
+                .map(file_path => file_path.trim())
+            if (file_paths.length !== file_items.length)
+                message.error(t('技能文件列表格式异常，已忽略无效文件'))
+            if (instruction)
+                set_skill_instruction(instruction.instruction || instruction.content || JSON.stringify(instruction, null, 2))
+            set_skill_files(file_paths)
         } catch (error: any) {
             if (current_request !== detail_request_ref.current)
                 return

@@ -8983,5 +8983,47 @@
     },
     "最大输入文件数（0 表示不限制）": {
         "en": "Maximum number of input files (0 means unlimited)"
+    },
+    "第三方": {
+        "en": "Third-party"
+    },
+    "管理 MCP Server。每个 Server 可以提供一组外部工具。": {
+        "en": "Manage MCP servers. Each server can provide a set of external tools."
+    },
+    "技能禁用": {
+        "en": "Skill disabled"
+    },
+    "加载技能详情失败": {
+        "en": "Failed to load skill details"
+    },
+    "加载文件内容失败": {
+        "en": "Failed to load file content"
+    },
+    "连接成功，发现 {{count}} 个工具": {
+        "en": "Connected successfully. Found {{count}} tools."
+    },
+    "模型禁用": {
+        "en": "Model disabled"
+    },
+    "添加 Server": {
+        "en": "Add Server"
+    },
+    "未激活": {
+        "en": "Inactive"
+    },
+    "注册成功": {
+        "en": "Registered successfully"
+    },
+    "DolphinDB 内置": {
+        "en": "DolphinDB built-in"
+    },
+    "MCP Server 连接测试成功": {
+        "en": "MCP server connection test succeeded"
+    },
+    "MCP Server 连接测试失败": {
+        "en": "MCP server connection test failed"
+    },
+    "MCP Server 连接成功，但当前用户缺少 MCP_EXEC 权限": {
+        "en": "The MCP server connected successfully, but the current user does not have MCP_EXEC permission"
     }
 }

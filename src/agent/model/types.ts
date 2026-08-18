@@ -493,6 +493,15 @@ export interface ISkillFileInfo {
 }
 
 
+export interface ISkillInstruction {
+    skillId: string
+    name: string
+    description?: string
+    instruction: string
+    content?: string
+}
+
+
 export interface ISkillFileContent {
     skillId: string
     filePath: string

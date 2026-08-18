@@ -126,6 +126,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
             model.message.error(error)
             return
         }
+        set_test_result(null)
         set_testing_form(true)
         try {
             const result = await chat_model.mcp.test_mcp_server(build_test_payload(form_values, editing_server))

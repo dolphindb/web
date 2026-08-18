@@ -1,7 +1,7 @@
 import { t } from '@i18n'
 import type { ChatModel } from '@/agent/model.ts'
 
-import type { ISkillBinding, ISkillFileContent, ISkillFileInfo, ISkillInfo } from './types.ts'
+import type { ISkillBinding, ISkillFileContent, ISkillFileInfo, ISkillInfo, ISkillInstruction } from './types.ts'
 import { get_enabled, get_status, get_status_name } from './helpers.ts'
 
 interface ISkillListParams {
@@ -112,7 +112,7 @@ export class ChatSkillModel {
             body: JSON.stringify(body),
         }))
     }
-    async load_skill_instruction (skill_id: string): Promise<any> {
+    async load_skill_instruction (skill_id: string): Promise<ISkillInstruction> {
         return this.chat.agent.api_fetch(`/skill/${encodeURIComponent(skill_id)}/instruction`)
     }
     async load_skill_files (skill_id: string): Promise<{ skillId: string, items: ISkillFileInfo[], size: number }> {
