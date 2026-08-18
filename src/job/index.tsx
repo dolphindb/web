@@ -385,9 +385,9 @@ function append_action_col (
                     
                 
                 return <div className='action-col'>
-                    <JobMessageShow
+                    { job.node && <JobMessageShow
                         disabled={!job.jobId}
-                        job={job} />
+                        job={job} /> }
                     
                     <Popconfirm
                         title={type === 'stop' ? t('确认停止作业') : t('确认删除作业')}
@@ -570,9 +570,6 @@ function JobMessageShow ({ job, disabled }: { job: DdbJob, disabled?: boolean })
             model.message.error(t('复制失败'))
         }
     }
-    
-    if (!node)
-        return null
     
     return <>
         <Modal
