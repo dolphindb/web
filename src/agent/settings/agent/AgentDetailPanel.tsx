@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 
 import {
-    Button, Empty, Input, InputNumber, Popconfirm, Space, Spin, Switch, Tabs, Tag, Tooltip, Typography,
+    Button, Empty, Input, InputNumber, Space, Spin, Switch, Tabs, Tag, Tooltip, Typography,
 } from 'antd'
 import {
-    CheckCircleOutlined, DisconnectOutlined, LinkOutlined, SaveOutlined,
+    CheckCircleOutlined, SaveOutlined,
 } from '@ant-design/icons'
 
 import { t } from '@i18n'
@@ -27,7 +27,7 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
     const [all_mcp_servers, set_all_mcp_servers] = useState<IMcpServerInfo[]>([ ])
     const [loading, set_loading] = useState(true)
     const [saving_agent, set_saving_agent] = useState(false)
-    const [binding_mcp_server_id, set_binding_mcp_server_id] = useState('')
+    const [operating_id, set_operating_id] = useState('')
     const [binding_tab_key, set_binding_tab_key] = useState('llm')
     const [agent_form, set_agent_form] = useState({
         description: agent.description || '',
@@ -98,58 +98,52 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
         }
     }
     
+    // --- LLM
     const bound_llm_ids = new Set(bound_llms.map(l => l.llmConfigId))
-    const unbound_llms = all_llms.filter(l => !bound_llm_ids.has(l.llmConfigId) && l.enabled !== false)
     const sorted_bound_llms = [...bound_llms].sort((a, b) => a.priority - b.priority)
+    const unbound_llms = all_llms.filter(l => !bound_llm_ids.has(l.llmConfigId) && l.enabled !== false)
+    const llm_items = [
+        ...sorted_bound_llms.map(binding => ({
+            binding,
+            config: binding as ILlmConfig,
+        })),
+        ...unbound_llms.map(config => ({
+            binding: undefined,
+            config,
+        })),
+    ]
     
-    const bound_skill_lookup = new Map(bound_skills.map(binding => [binding.skillId, binding]))
-    const skill_items = all_skills
-        .filter(skill => skill.enabled !== false || bound_skill_lookup.has(skill.skillId))
-        .map(skill => ({ binding: bound_skill_lookup.get(skill.skillId), skill }))
+    // --- Skill
+    const bound_skill_ids = new Set(bound_skills.map(b => b.skillId))
+    const all_skill_lookup = new Map(all_skills.map(s => [s.skillId, s]))
+    const unbound_skills = all_skills.filter(s => s.enabled !== false && !bound_skill_ids.has(s.skillId))
+    const skill_items = [
+        ...bound_skills.map(binding => ({
+            binding,
+            skill: binding.skill || all_skill_lookup.get(binding.skillId),
+        })),
+        ...unbound_skills.map(skill => ({
+            binding: undefined,
+            skill,
+        })),
+    ]
     
-    // --- mcp
-    const mcp_server_lookup = new Map(all_mcp_servers.map(server => [server.mcpServerId, server]))
-    const bound_mcp_server_ids = new Set(bound_mcp_servers.map(binding => binding.mcpServerId))
-    const unbound_mcp_servers = all_mcp_servers.filter(server => 
-        server.enabled !== false &&
-        !bound_mcp_server_ids.has(server.mcpServerId))
-    
+    // --- MCP
+    const mcp_server_lookup = new Map(all_mcp_servers.map(s => [s.mcpServerId, s]))
+    const bound_mcp_server_ids = new Set(bound_mcp_servers.map(b => b.mcpServerId))
+    const unbound_mcp_servers = all_mcp_servers.filter(s => 
+        s.enabled !== false &&
+        !bound_mcp_server_ids.has(s.mcpServerId))
     const mcp_items = [
         ...bound_mcp_servers.map(binding => ({
             binding,
-            server: binding.server || mcp_server_lookup.get(binding.mcpServerId)
+            server: binding.server || mcp_server_lookup.get(binding.mcpServerId),
         })),
-        ...unbound_mcp_servers.map(server => ({ binding: undefined, server })),
+        ...unbound_mcp_servers.map(server => ({
+            binding: undefined,
+            server,
+        })),
     ]
-    
-    async function bind_mcp_server (server: IMcpServerInfo) {
-        set_binding_mcp_server_id(server.mcpServerId)
-        try {
-            await chat_model.mcp.bind_mcp_server(agent.agentId, {
-                mcpServerId: server.mcpServerId,
-                enabled: true,
-            })
-            model.message.success(t('已绑定'))
-            await load()
-        } catch (error: any) {
-            model.message.error(error.message || t('绑定失败'))
-        } finally {
-            set_binding_mcp_server_id('')
-        }
-    }
-    
-    async function unbind_mcp_server (binding: IMcpBindingInfo) {
-        set_binding_mcp_server_id(binding.mcpServerId)
-        try {
-            await chat_model.mcp.unbind_mcp_server(agent.agentId, binding.mcpServerId)
-            model.message.success(t('已解绑'))
-            await load()
-        } catch (error: any) {
-            model.message.error(error.message || t('解绑失败'))
-        } finally {
-            set_binding_mcp_server_id('')
-        }
-    }
     
     return <div>
         {/* Agent 基本信息 */}
@@ -219,98 +213,104 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
                     key: 'llm',
                     label: t('模型绑定') + ` (${bound_llms.length})`,
                     children: <div>
-                        {/* 已绑定的 LLM */}
-                        {bound_llms.length > 0 && <div style={{ marginBottom: 12 }}>
-                            {sorted_bound_llms.map(llm =>
-                                <div key={llm.llmConfigId} className='ai-settings-data-row' style={{
-                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4 }}>
-                                        <span style={{ fontWeight: 500, fontSize: 13 }}>{get_llm_config_display_name(llm)}</span>
-                                        {llm.isDefault && <Tag color='blue'>{t('默认')}</Tag>}
-                                    </div>
-                                    <Space size={4}>
-                                        <Tooltip title={t('优先级（数值越小优先级越高）')}>
-                                            <InputNumber
-                                                size='small'
-                                                min={0}
-                                                value={llm.priority}
-                                                style={{ width: 60 }}
-                                                disabled={llm.isDefault}
-                                                onChange={async value => {
-                                                    if (value === null || value === llm.priority)
-                                                        return
-                                                    try {
-                                                        await chat_model.llm.bind_llm_to_agent(agent.agentId, llm.llmConfigId, llm.isDefault, value)
-                                                        await load()
-                                                    } catch (err: any) {
-                                                        model.message.error(err.message || t('设置失败'))
-                                                    }
-                                                }}
-                                            />
-                                        </Tooltip>
-                                        {!llm.isDefault && <Tooltip title={t('设为默认')}>
-                                            <Button
-                                                type='text' size='small'
-                                                icon={<CheckCircleOutlined />}
-                                                onClick={async () => {
-                                                    try {
-                                                        await chat_model.llm.bind_llm_to_agent(agent.agentId, llm.llmConfigId, true)
-                                                        model.message.success(t('已设为默认'))
-                                                        await load()
-                                                    } catch (err: any) {
-                                                        model.message.error(err.message || t('设置失败'))
-                                                    }
-                                                }}
-                                            />
-                                        </Tooltip>}
-                                        <Tooltip title={t('解绑')}>
-                                            <Button
-                                                type='text' size='small' danger
-                                                icon={<DisconnectOutlined />}
-                                                onClick={async () => {
-                                                    try {
-                                                        await chat_model.llm.unbind_llm_from_agent(agent.agentId, llm.llmConfigId)
-                                                        model.message.success(t('已解绑'))
-                                                        await load()
-                                                    } catch (err: any) {
-                                                        model.message.error(err.message || t('解绑失败'))
-                                                    }
-                                                }}
-                                            />
-                                        </Tooltip>
-                                    </Space>
-                                </div>
-                            )}
-                        </div>}
-                        
-                        {/* 可绑定的 LLM */}
-                        {unbound_llms.length > 0
-                            ? <div>
-                                <div style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>{t('可用模型配置')}</div>
-                                {unbound_llms.map(llm =>
-                                    <div key={llm.llmConfigId} className='ai-settings-data-row' style={{
-                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    }}>
-                                        <div>
-                                            <span style={{ fontSize: 13 }}>{get_llm_config_display_name(llm)}</span>
+                        {llm_items.length > 0
+                            ? <div style={{ marginBottom: 12 }}>
+                                {llm_items.map(({ binding, config }) => {
+                                    const is_bound = Boolean(binding)
+                                    return <div
+                                        key={config.llmConfigId}
+                                        className='ai-settings-data-row'
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            gap: 12,
+                                        }}
+                                    >
+                                        <div style={{ minWidth: 0, flex: 1 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                                                <span style={{ fontWeight: 500, fontSize: 13 }}>
+                                                    {get_llm_config_display_name(config)}
+                                                </span>
+                                                {binding?.isDefault && <Tag color='blue' style={{ fontSize: 11 }}>{t('默认')}</Tag>}
+                                                <Tag
+                                                    style={{ fontSize: 11 }}
+                                                    color={config.capability === 'embedding' ? 'purple' : 'blue'}
+                                                >
+                                                    {config.capability || 'chat'}
+                                                </Tag>
+                                                {config.enabled === false && <Tag color='default' style={{ fontSize: 11 }}>{t('模型禁用')}</Tag>}
+                                            </div>
+                                            <Text type='secondary' style={{ display: 'block', fontSize: 12, marginTop: 2, wordBreak: 'break-all' }}>
+                                                {config.model}{config.requestPath ? ` · ${config.requestPath}` : ''}
+                                            </Text>
                                         </div>
-                                        <Tooltip title={t('绑定')}>
-                                            <Button
-                                                type='text' size='small'
-                                                icon={<LinkOutlined />}
-                                                onClick={async () => {
-                                                    await chat_model.llm.bind_llm_to_agent(agent.agentId, llm.llmConfigId, bound_llms.length === 0)
-                                                    model.message.success(t('已绑定'))
-                                                    await load()
+                                        <Space size={6} style={{ flexShrink: 0 }}>
+                                            {binding && <>
+                                                <Tooltip title={t('优先级（数值越小优先级越高）')}>
+                                                    <InputNumber
+                                                        size='small'
+                                                        min={0}
+                                                        value={binding.priority}
+                                                        style={{ width: 60 }}
+                                                        disabled={binding.isDefault || operating_id === config.llmConfigId}
+                                                        onChange={async value => {
+                                                            if (value === null || value === binding.priority)
+                                                                return
+                                                            try {
+                                                                await chat_model.llm.bind_llm_to_agent(agent.agentId, config.llmConfigId, binding.isDefault, value)
+                                                                await load(false)
+                                                            } catch (err: any) {
+                                                                model.message.error(err.message || t('设置失败'))
+                                                            }
+                                                        }}
+                                                    />
+                                                </Tooltip>
+                                                {!binding.isDefault && <Tooltip title={t('设为默认')}>
+                                                    <Button
+                                                        type='text'
+                                                        size='small'
+                                                        icon={<CheckCircleOutlined />}
+                                                        disabled={operating_id === config.llmConfigId}
+                                                        onClick={async () => {
+                                                            try {
+                                                                await chat_model.llm.bind_llm_to_agent(agent.agentId, config.llmConfigId, true)
+                                                                model.message.success(t('已设为默认'))
+                                                                await load(false)
+                                                            } catch (err: any) {
+                                                                model.message.error(err.message || t('设置失败'))
+                                                            }
+                                                        }}
+                                                    />
+                                                </Tooltip>}
+                                            </>}
+                                            <Switch
+                                                className='ai-settings-switch-medium'
+                                                checked={is_bound}
+                                                loading={operating_id === config.llmConfigId}
+                                                onChange={async checked => {
+                                                    set_operating_id(config.llmConfigId)
+                                                    try {
+                                                        if (checked) {
+                                                            await chat_model.llm.bind_llm_to_agent(agent.agentId, config.llmConfigId, bound_llms.length === 0)
+                                                            model.message.success(t('已绑定'))
+                                                        } else {
+                                                            await chat_model.llm.unbind_llm_from_agent(agent.agentId, config.llmConfigId)
+                                                            model.message.success(t('已解绑'))
+                                                        }
+                                                        await load(false)
+                                                    } catch (err: any) {
+                                                        model.message.error(err.message || (checked ? t('绑定失败') : t('解绑失败')))
+                                                    } finally {
+                                                        set_operating_id('')
+                                                    }
                                                 }}
                                             />
-                                        </Tooltip>
+                                        </Space>
                                     </div>
-                                )}
+                                })}
                             </div>
-                            : bound_llms.length === 0 && <Empty description={t('暂无可用模型配置，请先在「模型管理」中创建')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                        }
+                            : <Empty description={t('暂无可用模型配置，请先在「模型管理」中创建')} image={Empty.PRESENTED_IMAGE_SIMPLE} />}
                     </div>,
                 },
                 {
@@ -319,33 +319,54 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
                     children: <div>
                         {skill_items.length > 0
                             ? <div style={{ marginBottom: 12 }}>
-                            {skill_items.map(({ binding, skill }) => {
-                                const skill_id = binding?.skillId ?? skill!.skillId
-                                return <div key={skill_id} className='ai-settings-data-row' style={{
-                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                }}>
-                                    <div style={{ minWidth: 0, flex: 1 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                            <span style={{ fontWeight: 500, fontSize: 13 }}>{skill?.displayName || skill?.name || skill_id}</span>
-                                            <Tag color={binding?.enabled ? 'green' : 'default'} style={{ fontSize: 11 }}>
-                                                {binding?.enabled ? t('启用') : t('禁用')}
-                                            </Tag>
-                                        </div>
-                                        {skill?.description && <Paragraph type='secondary' style={{ fontSize: 12, margin: '2px 0 0' }} ellipsis={{ rows: 3, tooltip: skill.description }}>
-                                            {skill.description}
-                                        </Paragraph>}
-                                    </div>
-                                    <Switch
-                                        className='ai-settings-switch-medium'
-                                        checked={!!binding?.enabled}
-                                        onChange={async checked => {
-                                            await chat_model.skill.toggle_skill_binding(skill_id, checked, agent.agentId)
-                                            model.message.success(checked ? t('已启用') : t('已禁用'))
-                                            await load(false)
+                                {skill_items.map(({ binding, skill }) => {
+                                    const skill_id = binding?.skillId ?? skill!.skillId
+                                    const is_bound = Boolean(binding && binding.enabled !== false)
+                                    return <div
+                                        key={skill_id}
+                                        className='ai-settings-data-row'
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            gap: 12,
                                         }}
-                                    />
-                                </div>
-                            })}
+                                    >
+                                        <div style={{ minWidth: 0, flex: 1 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                                                <span style={{ fontWeight: 500, fontSize: 13 }}>
+                                                    {skill?.displayName || skill?.name || skill_id}
+                                                </span>
+                                                {skill?.category && <Tag style={{ fontSize: 11 }}>{skill.category}</Tag>}
+                                                {skill && skill.enabled === false && <Tag color='default' style={{ fontSize: 11 }}>{t('技能禁用')}</Tag>}
+                                            </div>
+                                            {skill?.description && <Paragraph
+                                                type='secondary'
+                                                style={{ fontSize: 12, margin: '2px 0 0' }}
+                                                ellipsis={{ rows: 2, tooltip: skill.description }}
+                                            >
+                                                {skill.description}
+                                            </Paragraph>}
+                                        </div>
+                                        <Switch
+                                            className='ai-settings-switch-medium'
+                                            checked={is_bound}
+                                            loading={operating_id === skill_id}
+                                            onChange={async checked => {
+                                                set_operating_id(skill_id)
+                                                try {
+                                                    await chat_model.skill.toggle_skill_binding(skill_id, checked, agent.agentId)
+                                                    model.message.success(checked ? t('已绑定') : t('已解绑'))
+                                                    await load(false)
+                                                } catch (err: any) {
+                                                    model.message.error(err.message || (checked ? t('绑定失败') : t('解绑失败')))
+                                                } finally {
+                                                    set_operating_id('')
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                })}
                             </div>
                             : <Empty description={t('暂无可用技能，请先在「技能管理」中上传')} image={Empty.PRESENTED_IMAGE_SIMPLE} />}
                     </div>,
@@ -358,58 +379,58 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
                             ? <div style={{ marginBottom: 12 }}>
                                 {mcp_items.map(({ binding, server }) => {
                                     const server_id = binding?.mcpServerId ?? server!.mcpServerId
+                                    const is_bound = Boolean(binding && binding.enabled !== false)
                                     const server_available = server ? server.enabled !== false : undefined
-                                    return <div key={server_id} className='ai-settings-data-row' style={{
-                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    }}>
+                                    return <div
+                                        key={server_id}
+                                        className='ai-settings-data-row'
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            gap: 12,
+                                        }}
+                                    >
                                         <div style={{ minWidth: 0, flex: 1 }}>
                                             <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
                                                 <Text
-                                                    style={{ fontWeight: 500, fontSize: 13, minWidth: 0, maxWidth: '100%' }}
+                                                    style={{ fontWeight: 500, fontSize: 13, minWidth: 0 }}
                                                     ellipsis={{ tooltip: get_mcp_server_display_name(server, server_id) }}
                                                 >
                                                     {get_mcp_server_display_name(server, server_id)}
                                                 </Text>
-                                                <Tag color={server_available ? 'green' : 'default'} style={{ fontSize: 11 }}>
-                                                    {server_available === undefined
-                                                        ? t('Server 未知')
-                                                        : server_available
-                                                            ? t('Server 可用')
-                                                            : t('Server 禁用')}
-                                                </Tag>
-                                                {binding && <Tag color='blue' style={{ fontSize: 11 }}>{t('已绑定')}</Tag>}
+                                                {server?.serverType && <Tag style={{ fontSize: 11 }}>{server.serverType}</Tag>}
+                                                {server_available === false && <Tag color='default' style={{ fontSize: 11 }}>{t('Server 禁用')}</Tag>}
                                             </div>
                                             <Text type='secondary' style={{ display: 'block', fontSize: 12, marginTop: 2, wordBreak: 'break-all' }}>
-                                                {server_id}
+                                                {server?.endpoint?.url || server_id}
                                             </Text>
                                         </div>
-                                        {binding
-                                            ? <Popconfirm
-                                                title={t('确定解绑此 MCP Server？')}
-                                                okButtonProps={{ danger: true }}
-                                                onConfirm={() => { unbind_mcp_server(binding) }}
-                                            >
-                                                <Button
-                                                    size='small'
-                                                    danger
-                                                    icon={<DisconnectOutlined />}
-                                                    loading={binding_mcp_server_id === server_id}
-                                                >
-                                                    {t('解绑')}
-                                                </Button>
-                                            </Popconfirm>
-                                            : <Tooltip title={t('绑定')}>
-                                                <Button
-                                                    type='primary'
-                                                    size='small'
-                                                    icon={<LinkOutlined />}
-                                                    loading={binding_mcp_server_id === server_id}
-                                                    onClick={() => { server && bind_mcp_server(server) }}
-                                                >
-                                                    {t('绑定')}
-                                                </Button>
-                                            </Tooltip>
-                                        }
+                                        <Switch
+                                            className='ai-settings-switch-medium'
+                                            checked={is_bound}
+                                            loading={operating_id === server_id}
+                                            onChange={async checked => {
+                                                set_operating_id(server_id)
+                                                try {
+                                                    if (checked) {
+                                                        await chat_model.mcp.bind_mcp_server(agent.agentId, {
+                                                            mcpServerId: server_id,
+                                                            enabled: true,
+                                                        })
+                                                        model.message.success(t('已绑定'))
+                                                    } else {
+                                                        await chat_model.mcp.unbind_mcp_server(agent.agentId, server_id)
+                                                        model.message.success(t('已解绑'))
+                                                    }
+                                                    await load(false)
+                                                } catch (err: any) {
+                                                    model.message.error(err.message || (checked ? t('绑定失败') : t('解绑失败')))
+                                                } finally {
+                                                    set_operating_id('')
+                                                }
+                                            }}
+                                        />
                                     </div>
                                 })}
                             </div>
