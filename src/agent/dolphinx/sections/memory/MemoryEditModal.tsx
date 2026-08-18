@@ -2,6 +2,7 @@ import { Input, InputNumber, Modal, Select, Space } from 'antd'
 
 import { t } from '@i18n'
 import type { IMemoryEntry } from '@/agent/model.ts'
+import { required_label } from '@/agent/settings/common.tsx'
 import { memory_kind_options } from './types.ts'
 
 
@@ -50,7 +51,7 @@ export function MemoryEditModal ({
                 <Input value={form_title} onChange={event => { set_form_title(event.target.value) }} placeholder={t('标题')} />
             </div>
             <div>
-                <div style={{ marginBottom: 4 }}>{t('记忆内容')}</div>
+                <div style={{ marginBottom: 4 }}>{required_label(t('记忆内容'))}</div>
                 <Input.TextArea value={form_content} onChange={event => { set_form_content(event.target.value) }} rows={5} placeholder={t('记忆内容')} />
             </div>
             <div>

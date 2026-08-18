@@ -33,7 +33,7 @@ export function SkillDetailModal ({
         onCancel={on_close}
         footer={null}
         width={1120}
-        styles={{ body: { maxHeight: 'calc(100vh - 140px)', overflowY: 'auto' } }}
+        styles={{ body: { maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' } }}
     >
         {detail_skill && <Spin spinning={loading_detail}>
             <Space direction='vertical' style={{ width: '100%' }}>

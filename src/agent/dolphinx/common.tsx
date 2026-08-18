@@ -14,7 +14,7 @@ const { Text } = Typography
 
 export function ellipsis_text (value: unknown) {
     const text = String(value ?? '-')
-    return <Text title={text} style={{ display: 'block', maxWidth: '100%' }} ellipsis>{text}</Text>
+    return <Text title={text} style={{ display: 'block', width: '100%', minWidth: 0 }} ellipsis>{text}</Text>
 }
 
 
