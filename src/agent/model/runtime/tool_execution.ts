@@ -146,18 +146,24 @@ export async function execute_tool_call (
         if (chat.runtime.is_request_inactive(request_seq))
             return null
         if (decision === 'deny') {
-            chat._interrupted_request_seq = request_seq
+            const content = tool_result_json({
+                ok: false,
+                tool: parsed_call.type,
+                denied: true,
+                content: '',
+                error: t('用户未允许执行 DolphinDB 脚本。'),
+            })
             chat.set({
                 messages: [...chat.messages, {
                     msgId: `tool_denied_${Date.now()}`,
                     role: 'tool',
                     messageType: 'tool_error',
                     name: parsed_call.type,
-                    content: t('用户未允许执行 DolphinDB 脚本，流程已中断。'),
+                    content,
+                    tool_call_id: parsed_call.id || undefined,
                 }],
-                agent_status: { status: 'idle' },
             })
-            return { tool_result_content: '', next_loop: false, stopped: true }
+            return { tool_result_content: content, next_loop: true }
         }
         chat.set({ agent_status: { status: 'tool_running' } })
     }

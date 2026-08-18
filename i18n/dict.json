@@ -8084,8 +8084,8 @@
     "检测到以 tool 开头的 JSON 字段，但格式不符合要求。请使用 {\"tool_call\":\"工具名\",\"args\":[...]}，例如 {\"tool_call\":\"step_update\",\"args\":[\"0\",\"true\"]}。不要使用 tool_update、tool_calls_update 等自定义字段。": {
         "en": "Detected a JSON field starting with tool, but its format is invalid. Use {\"tool_call\":\"tool name\",\"args\":[...]}, for example {\"tool_call\":\"step_update\",\"args\":[\"0\",\"true\"]}. Do not use custom fields such as tool_update or tool_calls_update."
     },
-    "用户未允许执行 DolphinDB 脚本，流程已中断。": {
-        "en": "The user did not allow DolphinDB script execution. The flow has been interrupted."
+    "用户未允许执行 DolphinDB 脚本。": {
+        "en": "The user did not allow DolphinDB script execution."
     },
     "加载 Agent 列表失败": {
         "en": "Failed to load Agent list"

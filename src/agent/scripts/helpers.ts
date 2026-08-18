@@ -140,6 +140,7 @@ export type ColdefColumn = {
 export type ToolResultEnvelope = {
     ok: boolean
     tool: string
+    denied?: boolean
     content?: string
     error?: string
     hint?: string
