@@ -133,18 +133,19 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                             usage: usage_by_agent[agent.value],
                         }))}
                     pagination={false}
+                    tableLayout='fixed'
                     locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用量')} /> }}
                     columns={[
                         {
                             title: t('Agent 名称'),
                             dataIndex: 'agentName',
-                            width: 220,
+                            width: 280,
                             render: (_: unknown, row) =>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                                    <span title={row.agentName} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                         {row.agentName}
                                     </span>
-                                    {row.statusName !== 'ACTIVE' && <Tag color='default' style={{ fontSize: 11 }}>
+                                    {row.statusName !== 'ACTIVE' && <Tag color='default' style={{ fontSize: 11, flexShrink: 0, margin: 0 }}>
                                         {t('未激活')}
                                     </Tag>}
                                 </div>,
@@ -184,6 +185,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
             loading={loading_usage}
             dataSource={usage_user_options.map(user => ({ ...user, agentName: selected_agent_name, usage: usage_by_user[user.value] }))}
             pagination={{ defaultPageSize: 10, showSizeChanger: true }}
+            tableLayout='fixed'
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用户')} /> }}
             columns={[
                 {
@@ -195,7 +197,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                 {
                     title: t('Agent 名称'),
                     dataIndex: 'agentName',
-                    width: 200,
+                    width: 240,
                     ellipsis: true,
                 },
                 {
