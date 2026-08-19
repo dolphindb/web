@@ -29,10 +29,10 @@ export function ShellEditor ({ collapser }) {
     const { logined, node_type, v3 } = model.use(['logined', 'node_type', 'v3'])
     
     const [minimap, set_minimap] = useState(() =>
-        storage.get_bool(storage_keys.minimap))
+        storage.get_bool(storage_keys.minimap) ?? false)
     
     const [enter_completion, set_enter_completion] = useState(() =>
-        storage.get_bool(storage_keys.enter_completion))
+        storage.get_bool(storage_keys.enter_completion) ?? false)
     
     const [font_size, set_font_size] = useState(() =>
         storage.get(storage_keys.font_size, 16))

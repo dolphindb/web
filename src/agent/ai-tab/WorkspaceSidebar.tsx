@@ -4,9 +4,10 @@ import { Alert, Button, Empty, Modal, Spin, Tooltip, Typography } from 'antd'
 import { CopyOutlined, DownloadOutlined, FileTextOutlined, FolderOpenOutlined, PaperClipOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import { model } from '@model'
+import { model, storage_keys } from '@model'
 import { copy } from '@utils'
 import { Editor } from '@components/Editor/index.tsx'
+import { storage } from 'xshell/storage.js'
 import type { ChatModel, IMessage, ISessionAttachment } from '@/agent/model.ts'
 import { chat_workspace_store, normalize_workspace_path } from '@/agent/workspace.ts'
 import type { IWorkspaceFile } from '@/agent/workspace.ts'
@@ -39,6 +40,8 @@ export function WorkspaceSidebar ({
     on_upload_attachments: (files: File[]) => Promise<void>
 }) {
     const [visible, set_visible] = useState(false)
+    // 代码地图设置仅在组件挂载时读取一次，避免每次渲染都访问 localStorage
+    const [minimap] = useState(() => storage.get_bool(storage_keys.minimap) ?? false)
     const [files, set_files] = useState<IWorkspaceFile[]>([ ])
     const [files_loading, set_files_loading] = useState(false)
     const [files_error, set_files_error] = useState('')
@@ -311,7 +314,7 @@ export function WorkspaceSidebar ({
                         readonly
                         default_value={opened_file?.content || ''}
                         options={{
-                            minimap: { enabled: true },
+                            minimap: { enabled: minimap },
                             wordWrap: 'on',
                             scrollBeyondLastLine: false,
                             automaticLayout: true,
