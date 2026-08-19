@@ -7355,6 +7355,9 @@
     "授权对象不能为空": {
         "en": "Authorization subject cannot be empty"
     },
+    "用户组级别赋权功能暂未开启": {
+        "en": "Group-level authorization is not enabled"
+    },
     "请先选择 Agent": {
         "en": "Please select an Agent first"
     },

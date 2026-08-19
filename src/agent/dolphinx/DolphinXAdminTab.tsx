@@ -9,6 +9,7 @@ import { access } from '@/access/model.ts'
 
 import { chat_model } from '@/agent/model.ts'
 import type { AgentAuthSubjectType, IAccessInfo, ILlmConfig, ISkillInfo, IUserLlmAccessInfo } from '@/agent/model.ts'
+import { ENABLE_AGENT_GROUP_AUTH } from '@/agent/model/constants.ts'
 import { Section, SettingsListLayout, show_error, use_agent_options, use_user_options, use_valid_agent_selection } from './common.tsx'
 
 
@@ -483,6 +484,8 @@ export function GroupPermissionTab () {
     const [selected_group_id, set_selected_group_id] = useState('')
 
     useEffect(() => {
+        if (!ENABLE_AGENT_GROUP_AUTH)
+            return
         access.get_group_list()
             .then(groups => { set_group_options(groups.map((group: string) => ({ value: group, label: group }))) })
             .catch(error => { show_error(error, t('加载用户组失败')) })

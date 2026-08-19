@@ -3,6 +3,7 @@ import { model } from '@model'
 import type { ChatModel } from '@/agent/model.ts'
 
 import type { AgentAuthSubjectType, IAccessInfo, IAgentInfo } from './types.ts'
+import { ENABLE_AGENT_GROUP_AUTH } from './constants.ts'
 import { chat_shared_model } from './shared.ts'
 
 export function agent_access_denied_message () {
@@ -35,6 +36,8 @@ function parse_agent_config (value: any) {
 
 
 function get_agent_auth_subject_parameter (subject_type: AgentAuthSubjectType, subject_id: string) {
+    if (subject_type === 'GROUP' && !ENABLE_AGENT_GROUP_AUTH)
+        throw new Error(t('用户组级别赋权功能暂未开启'))
     if (!subject_id.trim())
         throw new Error(t('授权对象不能为空'))
     return [subject_type === 'USER' ? 'userId' : 'groupId', subject_id] as const
