@@ -8,7 +8,7 @@ import { model } from '@model'
 import { access } from '@/access/model.ts'
 
 import { chat_model } from '@/agent/model.ts'
-import type { IAccessInfo, ILlmConfig, ISkillInfo, IUserLlmAccessInfo } from '@/agent/model.ts'
+import type { AgentAuthSubjectType, IAccessInfo, ILlmConfig, ISkillInfo, IUserLlmAccessInfo } from '@/agent/model.ts'
 import { Section, SettingsListLayout, show_error, use_agent_options, use_user_options, use_valid_agent_selection } from './common.tsx'
 
 
@@ -81,17 +81,14 @@ function GlobalAgentAdminSection ({ user_id }: { user_id?: string }) {
 }
 
 
-function AdminAccessSection ({ user_id }: { user_id?: string }) {
+function AgentAccessSection ({ subject_type, subject_id }: { subject_type: AgentAuthSubjectType, subject_id: string }) {
     const { options } = use_agent_options()
-    const user_options = use_user_options()
-    
-    const [selected_user_id, set_selected_user_id] = useState(user_id || '')
     const [agent_auth_map, set_agent_auth_map] = useState<Record<string, IAccessInfo | undefined>>({ })
     const [loading, set_loading] = useState(false)
     const agent_ids_key = options.map(agent => agent.value).join('\n')
     
     async function load_agent_auth () {
-        if (!selected_user_id || options.length === 0) {
+        if (!subject_id || options.length === 0) {
             set_agent_auth_map({ })
             return
         }
@@ -99,7 +96,7 @@ function AdminAccessSection ({ user_id }: { user_id?: string }) {
         try {
             const entries = await Promise.all(options.map(async agent => {
                 const auth_list = await chat_model.agent.load_agent_auth(agent.value)
-                return [agent.value, auth_list.find(item => item.userId === selected_user_id)] as const
+                return [agent.value, auth_list.find(item => item.subjectType === subject_type && item.subjectId === subject_id)] as const
             }))
             set_agent_auth_map(Object.fromEntries(entries))
         } catch (error) {
@@ -110,35 +107,29 @@ function AdminAccessSection ({ user_id }: { user_id?: string }) {
     }
     
     useEffect(() => {
-        if (user_id)
-            set_selected_user_id(user_id)
-    }, [user_id])
-    
-    useEffect(() => {
         load_agent_auth()
-    }, [agent_ids_key, selected_user_id])
+    }, [agent_ids_key, subject_type, subject_id])
     
     async function grant (agent_id: string) {
-        const auth_list = await chat_model.agent.grant_agent_auth(agent_id, selected_user_id)
+        const auth_list = await chat_model.agent.grant_agent_auth(agent_id, subject_type, subject_id)
         set_agent_auth_map(map => ({
             ...map,
-            [agent_id]: auth_list.find(item => item.userId === selected_user_id),
+            [agent_id]: auth_list.find(item => item.subjectType === subject_type && item.subjectId === subject_id),
         }))
         message.success(t('已授权'))
     }
     
     
     async function revoke (agent_id: string) {
-        const auth_list = await chat_model.agent.revoke_agent_auth(agent_id, selected_user_id)
+        const auth_list = await chat_model.agent.revoke_agent_auth(agent_id, subject_type, subject_id)
         set_agent_auth_map(map => ({
             ...map,
-            [agent_id]: auth_list.find(item => item.userId === selected_user_id),
+            [agent_id]: auth_list.find(item => item.subjectType === subject_type && item.subjectId === subject_id),
         }))
         message.success(t('已撤销'))
     }
     
     return <Section title={t('Agent 权限')}>
-        {!user_id && <Select showSearch style={{ width: 180, marginBottom: 12 }} placeholder={t('选择用户')} value={selected_user_id || undefined} onChange={set_selected_user_id} options={user_options} />}
         <Table
             size='small'
             rowKey='value'
@@ -169,8 +160,8 @@ function AdminAccessSection ({ user_id }: { user_id?: string }) {
                     render: (_: unknown, agent: { value: string }) => {
                         const auth = agent_auth_map[agent.value]
                         return <Space wrap>
-                            {!auth && <Button size='small' disabled={!selected_user_id} onClick={() => { grant(agent.value) }}>{t('授权')}</Button>}
-                            {auth && <Button danger size='small' disabled={!selected_user_id} onClick={() => { revoke(agent.value) }}>{t('撤销')}</Button>}
+                            {!auth && <Button size='small' disabled={!subject_id} onClick={() => { grant(agent.value) }}>{t('授权')}</Button>}
+                            {auth && <Button danger size='small' disabled={!subject_id} onClick={() => { revoke(agent.value) }}>{t('撤销')}</Button>}
                         </Space>
                     },
                 },
@@ -479,9 +470,36 @@ export function UserPermissionTab () {
         <ResetUserMemorySection user_id={selected_user_id} />
         {!user_admin_map[selected_user_id] && <>
             <GlobalAgentAdminSection user_id={selected_user_id} />
-            <AdminAccessSection user_id={selected_user_id} />
+            <AgentAccessSection subject_type='USER' subject_id={selected_user_id} />
             <UserLlmSection user_id={selected_user_id} />
             <SkillAccessSection user_id={selected_user_id} />
         </>}
+    </SettingsListLayout>
+}
+
+
+export function GroupPermissionTab () {
+    const [group_options, set_group_options] = useState<{ value: string, label: string }[]>([ ])
+    const [selected_group_id, set_selected_group_id] = useState('')
+
+    useEffect(() => {
+        access.get_group_list()
+            .then(groups => { set_group_options(groups.map((group: string) => ({ value: group, label: group }))) })
+            .catch(error => { show_error(error, t('加载用户组失败')) })
+    }, [ ])
+
+    return <SettingsListLayout
+        title={t('用户组权限')}
+        list_subtitle={t('选择需要管理的用户组')}
+        options={group_options}
+        selected_id={selected_group_id}
+        set_selected_id={set_selected_group_id}
+        empty_description={t('暂无用户组')}
+        select_description={t('请选择用户组')}
+    >
+        <div style={{ fontWeight: 500, marginBottom: 12 }}>
+            {t('正在编辑用户组：{{group}}', { group: selected_group_id })}
+        </div>
+        <AgentAccessSection subject_type='GROUP' subject_id={selected_group_id} />
     </SettingsListLayout>
 }

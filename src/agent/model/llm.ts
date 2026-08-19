@@ -1,4 +1,5 @@
 import type { ChatModel } from '@/agent/model.ts'
+import { ENABLE_WORKSPACE_AND_ATTACHMENTS } from './constants.ts'
 import type { IAgentLlmBinding, IBuiltinInitResult, ILlmConfig, ILlmConfigInput, ILlmProvider, ILlmUsageStats, ISelectableLlmInfo, IUserLlmAccessInfo } from './types.ts'
 import { get_enabled, get_status, get_status_name, normalize_json_object, normalize_json_object_string, optional_positive_number } from './helpers.ts'
 import { chat_shared_model } from './shared.ts'
@@ -37,8 +38,10 @@ export class ChatLlmModel {
             requestPath: item.requestPath || '',
             defaultParams: item.defaultParams,
             contextWindow: item.contextWindow,
-            maxImageBytes: item.maxImageBytes,
-            maxInputFiles: item.maxInputFiles,
+            ...(ENABLE_WORKSPACE_AND_ATTACHMENTS ? {
+                maxImageBytes: item.maxImageBytes,
+                maxInputFiles: item.maxInputFiles,
+            } : { }),
             maxConcurrency: optional_positive_number(item.maxConcurrency),
             rateLimitRPM: optional_positive_number(item.rateLimitRPM),
             timeoutMs: optional_positive_number(item.timeoutMs),

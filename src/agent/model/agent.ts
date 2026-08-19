@@ -2,7 +2,7 @@ import { t } from '@i18n'
 import { model } from '@model'
 import type { ChatModel } from '@/agent/model.ts'
 
-import type { IAccessInfo, IAgentInfo } from './types.ts'
+import type { AgentAuthSubjectType, IAccessInfo, IAgentInfo } from './types.ts'
 import { chat_shared_model } from './shared.ts'
 
 export function agent_access_denied_message () {
@@ -31,6 +31,13 @@ function parse_agent_config (value: any) {
             return { }
         }
     return typeof value === 'object' ? value : { }
+}
+
+
+function get_agent_auth_subject_parameter (subject_type: AgentAuthSubjectType, subject_id: string) {
+    if (!subject_id.trim())
+        throw new Error(t('授权对象不能为空'))
+    return [subject_type === 'USER' ? 'userId' : 'groupId', subject_id] as const
 }
 
 
@@ -311,10 +318,13 @@ export class ChatAgentModel {
             this.chat.set({ agents: new_agents })
     }
     _map_access_info (item: any): IAccessInfo {
+        const subject_type = item.subjectType || 'USER'
+        const subject_id = item.subjectId || item.userId
         return {
             ...item,
-            userId: item.userId || item.subjectId,
-            subjectId: item.subjectId,
+            userId: subject_type === 'USER' ? subject_id : item.userId,
+            subjectType: subject_type,
+            subjectId: subject_id,
             permission: item.permission,
         }
     }
@@ -323,15 +333,17 @@ export class ChatAgentModel {
         return (await this.chat.agent.load_agent_page_items(`/agent/${agent_id}/auth/list`))
             .map((item: any) => this.chat.agent._map_access_info(item))
     }
-    async grant_agent_auth (agent_id: string, user_id: string): Promise<IAccessInfo[]> {
+    async grant_agent_auth (agent_id: string, subject_type: AgentAuthSubjectType, subject_id: string): Promise<IAccessInfo[]> {
+        const [subject_key, subject_value] = get_agent_auth_subject_parameter(subject_type, subject_id)
         await this.chat.agent.api_fetch(`/agent/${agent_id}/auth`, {
             method: 'POST',
-            body: JSON.stringify({ userId: user_id }),
+            body: JSON.stringify({ [subject_key]: subject_value }),
         })
         return this.chat.agent.load_agent_auth(agent_id)
     }
-    async revoke_agent_auth (agent_id: string, user_id: string): Promise<IAccessInfo[]> {
-        await this.chat.agent.api_fetch(`/agent/${agent_id}/auth?userId=${encodeURIComponent(user_id)}`, {
+    async revoke_agent_auth (agent_id: string, subject_type: AgentAuthSubjectType, subject_id: string): Promise<IAccessInfo[]> {
+        const [subject_key, subject_value] = get_agent_auth_subject_parameter(subject_type, subject_id)
+        await this.chat.agent.api_fetch(`/agent/${agent_id}/auth?${subject_key}=${encodeURIComponent(subject_value)}`, {
             method: 'DELETE',
         })
         return this.chat.agent.load_agent_auth(agent_id)

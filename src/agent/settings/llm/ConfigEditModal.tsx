@@ -1,6 +1,7 @@
 import { Input, InputNumber, Modal, Select, Switch } from 'antd'
 
 import { t } from '@i18n'
+import { ENABLE_WORKSPACE_AND_ATTACHMENTS } from '@/agent/model/constants.ts'
 import { form_error_alert, required_label } from '@/agent/settings/common.tsx'
 import {
     EMBEDDING_METRIC_OPTIONS,
@@ -86,7 +87,7 @@ export function ConfigEditModal ({
                     step={1024}
                 />
             </div>
-            {!is_embedding_form && <>
+            {ENABLE_WORKSPACE_AND_ATTACHMENTS && !is_embedding_form && <>
                 <div>
                     <div style={{ marginBottom: 4, fontSize: 13 }}>{t('图片大小上限（字节，0 表示不限制）')}</div>
                     <InputNumber

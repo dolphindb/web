@@ -358,8 +358,12 @@ export interface IAgentInfo {
 }
 
 
+export type AgentAuthSubjectType = 'USER' | 'GROUP'
+
+
 export interface IAccessInfo {
-    userId: string
+    userId?: string
+    subjectType?: AgentAuthSubjectType
     subjectId?: string
     permission?: string
     grantedBy?: string

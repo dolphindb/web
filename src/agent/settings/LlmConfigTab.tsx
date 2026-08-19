@@ -5,6 +5,7 @@ import { t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
 import type { ILlmConfig, ILlmProvider } from '@/agent/model.ts'
+import { ENABLE_WORKSPACE_AND_ATTACHMENTS } from '@/agent/model/constants.ts'
 import {
     ConfigEditModal,
     ConfigList,
@@ -252,8 +253,10 @@ export function LlmConfigTab () {
             capability: config_form.capability,
             requestPath: config_form.requestPath.trim(),
             contextWindow: config_form.contextWindow ?? null,
-            maxImageBytes: config_form.maxImageBytes,
-            maxInputFiles: config_form.maxInputFiles,
+            ...(ENABLE_WORKSPACE_AND_ATTACHMENTS ? {
+                maxImageBytes: config_form.maxImageBytes,
+                maxInputFiles: config_form.maxInputFiles,
+            } : { }),
             maxConcurrency: config_form.maxConcurrency ?? null,
             rateLimitRPM: config_form.rateLimitRPM ?? null,
             timeoutMs: config_form.timeoutMs ?? null,

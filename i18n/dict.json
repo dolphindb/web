@@ -7334,6 +7334,27 @@
     "用户权限": {
         "en": "User Permissions"
     },
+    "用户组权限": {
+        "en": "Group Permissions"
+    },
+    "选择需要管理的用户组": {
+        "en": "Select a group to manage"
+    },
+    "加载用户组失败": {
+        "en": "Failed to load groups"
+    },
+    "暂无用户组": {
+        "en": "No groups"
+    },
+    "请选择用户组": {
+        "en": "Please select a group"
+    },
+    "正在编辑用户组：{{group}}": {
+        "en": "Editing group: {{group}}"
+    },
+    "授权对象不能为空": {
+        "en": "Authorization subject cannot be empty"
+    },
     "请先选择 Agent": {
         "en": "Please select an Agent first"
     },

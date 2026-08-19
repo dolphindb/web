@@ -6,4 +6,4 @@ export {
     SessionSection,
     UsageSection,
 } from './dolphinx/DolphinXUserTab.tsx'
-export { UserPermissionTab } from './dolphinx/DolphinXAdminTab.tsx'
+export { GroupPermissionTab, UserPermissionTab } from './dolphinx/DolphinXAdminTab.tsx'

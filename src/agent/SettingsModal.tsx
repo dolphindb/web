@@ -5,7 +5,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { Button, Modal, Spin, Tooltip, Typography, message } from 'antd'
 import {
     Bot, BrainCircuit, ChartNoAxesColumn, Database, ListTodo, MessagesSquare,
-    Plug, ScanText, SlidersHorizontal, UserCog, WandSparkles,
+    Plug, ScanText, SlidersHorizontal, UserCog, UsersRound, WandSparkles,
 } from 'lucide-react'
 
 import { language, t } from '@i18n'
@@ -18,6 +18,7 @@ import { get_builtin_init_action } from './builtin-init.ts'
 import type { BuiltinInitAction } from './builtin-init.ts'
 import {
     ContextPreviewSection,
+    GroupPermissionTab,
     MemoryConfigManagementSection,
     MemoryJobsSection,
     MemorySection,
@@ -336,6 +337,7 @@ export function SettingsModal () {
             title: t('用户管理'),
             items: [
                 { key: 'users', label: t('用户权限'), icon: <UserCog />, content: <UserPermissionTab /> },
+                { key: 'groups', label: t('用户组权限'), icon: <UsersRound />, content: <GroupPermissionTab /> },
                 { key: 'admin_usage', label: t('用户用量'), icon: <ChartNoAxesColumn />, content: <UsageSection admin /> },
             ],
         }] : [ ],
