@@ -1911,20 +1911,22 @@ function Chart ({
             <EChartsComponent option={get_chart_option(config)} />
         }
         
-        {ctx !== 'window' && <div className='bottom-bar-placeholder' />}
-        
-        {ctx !== 'window' && <div className='bottom-bar'>
-            <div className='actions'>
-                {(ctx === 'page' || ctx === 'embed') && <Icon
-                    className='icon-link'
-                    title={t('在新窗口中打开')}
-                    component={SvgLink}
-                    onClick={async () => {
-                        await open_obj({ obj, objref, remote, ddb, options, product_name, assets_root })
-                    }}
-                />}
+        {(ctx === 'page' || ctx === 'embed') && <>
+            <div className='bottom-bar-placeholder' />
+            
+            <div className='bottom-bar'>
+                <div className='actions'>
+                    <Icon
+                        className='icon-link'
+                        title={t('在新窗口中打开')}
+                        component={SvgLink}
+                        onClick={async () => {
+                            await open_obj({ obj, objref, remote, ddb, options, product_name, assets_root })
+                        }}
+                    />
+                </div>
             </div>
-        </div>}
+        </> }
     </div>
 }
 
