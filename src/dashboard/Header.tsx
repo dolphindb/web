@@ -12,8 +12,8 @@ import useSWR from 'swr'
 
 import { t } from '@i18n'
 import { model, storage_keys } from '@model'
-import { CompileAndRefresh } from '@components/DDBHeader/CompileAndRefresh.tsx'
-import { HostSelect } from '@components/DDBHeader/HostSelect.tsx'
+import { CompileAndRefresh } from '@components/DdbHeader/CompileAndRefresh.tsx'
+import { HostSelect } from '@components/DdbHeader/HostSelect.tsx'
 
 import { type DashBoardConfig, type Widget, dashboard, DashboardPermission } from './model.ts'
 import { DataSourceConfig } from './DataSource/DataSourceConfig.tsx'
