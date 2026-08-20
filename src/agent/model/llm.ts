@@ -132,7 +132,8 @@ export class ChatLlmModel {
     }
     async load_agent_llm_bindings (agent_id: string, provider_lookup?: Map<string, ILlmProvider>): Promise<IAgentLlmBinding[]> {
         try {
-            return (await this.chat.llm.load_page_items(`/agent/${agent_id}/llm/list`)).map((item: any) => ({
+            const result = await this.chat.agent.api_fetch(`/agent/${encodeURIComponent(agent_id)}/llm/list`)
+            return (result.items || [ ]).map((item: any) => ({
                 ...this.chat.llm._map_llm_config(item, provider_lookup),
                 isDefault: item.isDefault ?? false,
                 priority: item.priority ?? 0,
