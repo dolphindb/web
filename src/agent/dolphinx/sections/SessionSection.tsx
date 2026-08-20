@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { use_modal } from 'react-object-model/hooks.js'
 
 import { Button, Empty, Input, Modal, Popconfirm, Space, Switch, Table, Tooltip, Typography, message } from 'antd'
@@ -36,11 +36,12 @@ export function SessionSection () {
     const [summary_instructions, set_summary_instructions] = useState('')
     const [force_summary, set_force_summary] = useState(false)
     const [summary, set_summary] = useState('')
-    const [generating_summary, set_generating_summary] = useState(false)
+    const [generating_summary_session_id, set_generating_summary_session_id] = useState('')
     const [triggering_session_id, set_triggering_session_id] = useState('')
     const [memory_enabled, set_memory_enabled] = useState(false)
     const [memory_settings_loading, set_memory_settings_loading] = useState(false)
     const [loading, set_loading] = useState(false)
+    const summary_session_ref = useRef<ISession | null>(null)
     const summary_modal = use_modal()
     const title_modal = use_modal()
     use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id, agent_id)
@@ -132,18 +133,22 @@ export function SessionSection () {
     async function generate_summary () {
         if (!summary_session)
             return
-        set_generating_summary(true)
+        const session_id = summary_session.sessionId
+        set_generating_summary_session_id(session_id)
         try {
-            const result = await chat_model.session.generate_session_summary(summary_session.sessionId, {
+            const result = await chat_model.session.generate_session_summary(session_id, {
                 instructions: summary_instructions || undefined,
                 force: force_summary,
             })
+            if (summary_session_ref.current?.sessionId !== session_id)
+                return
             set_summary(result.content || '')
             message.success(t('摘要已生成'))
         } catch (error) {
-            show_error(error, t('摘要生成失败'))
+            if (summary_session_ref.current?.sessionId === session_id)
+                show_error(error, t('摘要生成失败'))
         } finally {
-            set_generating_summary(false)
+            set_generating_summary_session_id(current => current === session_id ? '' : current)
         }
     }
     
@@ -162,6 +167,7 @@ export function SessionSection () {
     }
     
     function open_summary_modal (session: ISession) {
+        summary_session_ref.current = session
         set_summary_session(session)
         set_summary('')
         set_summary_instructions('')
@@ -302,7 +308,11 @@ export function SessionSection () {
                 {summary_session ? t('会话摘要：{{title}}', { title: summary_session.title || summary_session.sessionId }) : t('会话摘要')}
             </Text>}
             open={summary_modal.visible}
-            onCancel={summary_modal.close}
+            onCancel={() => {
+                summary_session_ref.current = null
+                set_summary_session(null)
+                summary_modal.close()
+            }}
             footer={null}
             width={720}
         >
@@ -315,7 +325,7 @@ export function SessionSection () {
             <Space style={{ marginTop: 8 }} wrap>
                 <Switch className='ai-settings-switch-medium' checked={force_summary} onChange={set_force_summary} />
                 <span>{t('重新生成完整摘要')}</span>
-                <Button type='primary' loading={generating_summary} disabled={!summary_session} onClick={generate_summary}>{t('生成摘要')}</Button>
+                <Button type='primary' loading={generating_summary_session_id === summary_session?.sessionId} disabled={!summary_session} onClick={generate_summary}>{t('生成摘要')}</Button>
             </Space>
             {summary && <div style={{ marginTop: 12, padding: 12, background: '#fafafa', border: '1px solid #f0f0f0', borderRadius: 4, whiteSpace: 'pre-wrap' }}>
                 {summary}
