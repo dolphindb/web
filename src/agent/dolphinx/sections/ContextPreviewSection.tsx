@@ -104,12 +104,36 @@ export function ContextPreviewSection () {
     const token_breakdown = preview?.tokenBreakdown || { }
     const messages = Array.isArray(preview?.messages) ? preview.messages : [ ]
     const preview_labels: Record<string, string> = {
+        agentId: t('Agent ID'),
+        sessionId: t('会话 ID'),
+        userId: t('用户 ID'),
+        tools: t('工具列表'),
+        maxContextTokens: t('最大上下文 Token 数'),
         estimatedTokens: t('预估 Token'),
+        mcpDiagnostics: t('MCP 诊断'),
         assemblyMode: t('组装模式'),
         memoriesIncluded: t('记忆数量'),
         messagesIncluded: t('历史消息数'),
         skillsInCatalog: t('技能数量'),
+        activeInstructions: t('已加载技能指令数'),
+        toolsIncluded: t('工具数量'),
+        publicMemoryIncluded: t('包含公共记忆'),
+        historyMode: t('历史模式'),
+        summaryConfigured: t('摘要已配置'),
         summaryIncluded: t('包含摘要'),
+        summaryUpToSeqNum: t('摘要截止序号'),
+        historyFromSeq: t('历史消息起始序号'),
+        historyToSeq: t('历史消息结束序号'),
+        systemPrompt: t('系统提示词'),
+        skillCatalog: t('技能目录'),
+        skillInstructions: t('技能指令'),
+        publicMemory: t('公共记忆'),
+        memoryContext: t('记忆上下文'),
+        summaryMessage: t('摘要消息'),
+        historyMessages: t('历史消息'),
+        externalContext: t('外部上下文'),
+        userMessage: t('用户消息'),
+        toolDefinitions: t('工具定义'),
     }
     const preview_rows = [
         ...Object.entries(preview || { })
@@ -161,7 +185,7 @@ export function ContextPreviewSection () {
                 className='context-preview-descriptions'
                 items={Object.entries(token_breakdown).map(([key, value]) => ({
                     key,
-                    label: key,
+                    label: preview_labels[key] || key,
                     children: String(value),
                 }))}
             />}

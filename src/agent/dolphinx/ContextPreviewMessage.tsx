@@ -1,6 +1,6 @@
 import './ContextPreviewMessage.sass'
 
-import { Space, Tag, Typography } from 'antd'
+import { Tag, Typography } from 'antd'
 
 import { t } from '@i18n'
 import { is_object_record, parse_maybe_json, to_message_text, to_preview_text } from '@/agent/utils/message.ts'
@@ -135,10 +135,10 @@ export function ContextPreviewMessageDetail ({ message }: { message: PreviewMess
                 key={call.id || `${call.name}-${index}`}
                 className='context-preview-tool-detail'
             >
-                <Space size={4} className='context-preview-tool-head'>
+                <div className='context-preview-tool-head'>
                     <Tag color='processing' className='context-preview-tool-tag'>{call.name}</Tag>
                     {call.id && <Text type='secondary' ellipsis={{ tooltip: call.id }} className='context-preview-tool-id'>ID: {call.id}</Text>}
-                </Space>
+                </div>
                 <Fields value={call.args} />
             </div>
         )}

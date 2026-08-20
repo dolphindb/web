@@ -7991,8 +7991,20 @@
     "输入待预览的用户消息": {
         "en": "Enter the user message to preview"
     },
+    "Agent ID": {
+        "en": "Agent ID"
+    },
+    "工具列表": {
+        "en": "Tools"
+    },
+    "最大上下文 Token 数": {
+        "en": "Maximum Context Tokens"
+    },
     "预估 Token": {
         "en": "Estimated Tokens"
+    },
+    "MCP 诊断": {
+        "en": "MCP Diagnostics"
     },
     "组装模式": {
         "en": "Assembly Mode"
@@ -8006,8 +8018,53 @@
     "技能数量": {
         "en": "Skill Count"
     },
+    "已加载技能指令数": {
+        "en": "Loaded Skill Instructions"
+    },
+    "工具数量": {
+        "en": "Tool Count"
+    },
+    "包含公共记忆": {
+        "en": "Includes Public Memory"
+    },
+    "历史模式": {
+        "en": "History Mode"
+    },
+    "摘要已配置": {
+        "en": "Summary Configured"
+    },
     "包含摘要": {
         "en": "Includes Summary"
+    },
+    "摘要截止序号": {
+        "en": "Summary Through Sequence"
+    },
+    "历史消息起始序号": {
+        "en": "History Start Sequence"
+    },
+    "历史消息结束序号": {
+        "en": "History End Sequence"
+    },
+    "技能目录": {
+        "en": "Skill Catalog"
+    },
+    "记忆上下文": {
+        "en": "Memory Context"
+    },
+    "摘要消息": {
+        "en": "Summary Message"
+    },
+    "历史消息": {
+        "en": "History Messages"
+    },
+    "外部上下文": {
+        "en": "External Context"
+    },
+    "用户消息": {
+        "en": "User Message"
+    },
+    "工具定义": {
+        "en": "Tool Definitions"
     },
     "项目": {
         "en": "Item"
