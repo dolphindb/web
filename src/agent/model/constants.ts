@@ -1,7 +1,7 @@
 export const TOOL_CALL_LIMIT_ENABLED_KEY = 'ddb.chat.tool_call_limit_enabled'
 
 /** 会话附件功能总开关 */
-export const ENABLE_ATTACHMENTS = true
+export const ENABLE_ATTACHMENTS = false
 
 /** Agent 用户组级别赋权总开关 */
 export const ENABLE_AGENT_GROUP_AUTH = false
