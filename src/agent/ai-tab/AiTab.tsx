@@ -114,17 +114,6 @@ export function AiTab ({ session_id }: { session_id: string }) {
         return () => { cancelled = true }
     }, [chat, session_id, pending_session, unsupported_node, is_agent_admin, logined])
     
-    // When tab switches back, re-select the correct session
-    useEffect(() => {
-        if (inited && logined && !unsupported_node && !pending_session && current_session_id !== session_id)
-            chat.session.select_session(session_id)
-                .then(() => { set_init_error('') })
-                .catch(error => {
-                    console.error(error)
-                    set_init_error(error instanceof Error ? error.message : String(error))
-                })
-    }, [chat, inited, pending_session, session_id, unsupported_node, logined])
-    
     // Auto-scroll periodic check
     useEffect(() => {
         const timer = setInterval(() => {

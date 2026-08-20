@@ -246,7 +246,7 @@ export class ChatRuntimeModel {
         return read_chat_completion_stream(this.chat, response, assistant_msg_id, request_seq)
     }
     
-    async do_chat_completions (message: string, options: ChatCompletionOptions = { }, _tool_turn = 0, request_seq = this.chat._active_request_seq) {
+    async do_chat_completions (message: string, options: ChatCompletionOptions = { }, _tool_turn = 0, request_seq = this.chat._active_request_seq, refresh_sessions = true) {
         if (this.is_request_inactive(request_seq))
             return
         if (this.chat.tool_call_limit_enabled && _tool_turn > this.chat._tool_turn_limit) {
@@ -431,7 +431,8 @@ export class ChatRuntimeModel {
             
             if (this.is_request_inactive(request_seq))
                 return
-            this.chat.session.load_sessions().catch(() => { })
+            if (refresh_sessions)
+                this.chat.session.load_sessions().catch(() => { })
         } catch (e: any) {
             if (e.name === 'AbortError') {
                 if (this.is_request_inactive(request_seq))

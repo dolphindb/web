@@ -1,4 +1,5 @@
 import { language, t } from '@i18n'
+import { model } from '@model'
 import type { ChatModel } from '@/agent/model.ts'
 import { shell } from '@/shell/model.ts'
 import { chat_workspace_store } from '@/agent/workspace.ts'
@@ -8,6 +9,22 @@ import type { IContextPreviewRequest, IMessage, IMessageAttachment, ISession, IT
 
 
 const MESSAGE_PAGE_SIZE = 50
+// 不同页面各自持有 ChatModel；相同用户发出的相同会话 GET 在完成前共用一个请求。
+const session_requests = new Map<string, Promise<any>>()
+
+
+function fetch_session_data (chat: ChatModel, path: string) {
+    const key = `${model.username}:${chat.base_url}${path}`
+    const current = session_requests.get(key)
+    if (current)
+        return current
+    const request = chat.agent.api_fetch(path).finally(() => {
+        if (session_requests.get(key) === request)
+            session_requests.delete(key)
+    })
+    session_requests.set(key, request)
+    return request
+}
 
 
 function sort_sessions_by_update_time (sessions: ISession[]) {
@@ -70,10 +87,13 @@ function parse_multimodal_message (message: any): { content: string, attachments
 export class ChatSessionModel {
     constructor (private chat: ChatModel) { }
     async load_sessions () {
+        const agent_id = this.chat.agent_id
         const params = new URLSearchParams({
-            agentId: this.chat.agent_id,
+            agentId: agent_id,
         })
-        const result = await this.chat.agent.api_fetch(`/session/list?${params}`)
+        const result = await fetch_session_data(this.chat, `/session/list?${params}`)
+        if (agent_id !== this.chat.agent_id)
+            return
         const sessions = sort_sessions_by_update_time(
             (result.items || [ ]).map((s: any) => this.chat.session.map_session(s))
         )
@@ -240,7 +260,7 @@ export class ChatSessionModel {
         }
     }
     async get_session (session_id: string): Promise<ISession> {
-        return this.chat.session.map_session(await this.chat.agent.api_fetch(`/session/${session_id}`))
+        return this.chat.session.map_session(await fetch_session_data(this.chat, `/session/${session_id}`))
     }
     async list_sessions (params: { agentId?: string, targetUserId?: string, offset?: number, limit?: number } = { }): Promise<{ items: ISession[], size: number, offset?: number, limit?: number, total?: number }> {
         const search = new URLSearchParams()
@@ -253,7 +273,7 @@ export class ChatSessionModel {
         if (params.limit !== undefined)
             search.set('limit', String(params.limit))
         
-        const result = await this.chat.agent.api_fetch(`/session/list?${search}`)
+        const result = await fetch_session_data(this.chat, `/session/list?${search}`)
         return {
             ...result,
             items: sort_sessions_by_update_time(

@@ -94,6 +94,7 @@ export class DdbModel extends Model<DdbModel> {
     
     /** agent-bus 使用的临时 ticket，只保存在内存中，通过 this.refresh_agent_bus_ticket() 更新 */
     agent_bus_ticket = ''
+    private agent_bus_ticket_refresh: Promise<string> | null = null
     
     node_type: NodeType
     
@@ -533,20 +534,36 @@ export class DdbModel extends Model<DdbModel> {
             this.agent_bus_ticket = ''
             return ''
         }
+        if (this.agent_bus_ticket_refresh)
+            return this.agent_bus_ticket_refresh
+
+        const username = this.username
+        // 并发 401 共用同一次 ticket 申请，避免重复占用 DolphinDB 会话。
+        const refresh = (async () => {
+            try {
+                const ticket = await this.get_ticket()
+                return this.agent_bus_ticket = this.logined && this.username === username ? ticket : ''
+            } catch (error) {
+                if (this.username === username)
+                    this.agent_bus_ticket = ''
+                console.warn('获取 agent-bus ticket 失败:', error)
+                return ''
+            }
+        })()
+        this.agent_bus_ticket_refresh = refresh
         
         try {
-            this.agent_bus_ticket = await this.get_ticket()
-        } catch (error) {
-            this.agent_bus_ticket = ''
-            console.warn('获取 agent-bus ticket 失败:', error)
+            return await refresh
+        } finally {
+            if (this.agent_bus_ticket_refresh === refresh)
+                this.agent_bus_ticket_refresh = null
         }
-        
-        return this.agent_bus_ticket
     }
     
     
     clear_agent_bus_session () {
         this.agent_bus_ticket = ''
+        this.agent_bus_ticket_refresh = null
         import('@/agent/model.ts')
             .then(({ clear_chat_agent_state }) => { clear_chat_agent_state() })
             .catch(error => { console.warn('clear agent state failed', error) })

@@ -329,7 +329,7 @@ export async function handle_tool_calls (
     
     const continuation = tool_call_adapter.build_continuation(tool_result_contents, tool_results)
     if (continuation && should_continue_loop)
-        await chat.runtime.do_chat_completions(continuation.message, continuation.options, tool_turn + 1, request_seq)
+        await chat.runtime.do_chat_completions(continuation.message, continuation.options, tool_turn + 1, request_seq, false)
     else
         chat.set({ agent_status: { status: 'idle' } })
 }
