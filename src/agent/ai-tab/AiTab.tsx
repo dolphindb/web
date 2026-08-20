@@ -10,7 +10,7 @@ import { copy } from '@utils'
 import { chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
 import type { IChatContentPart, ScriptExecuteApprovalMode } from '@/agent/model.ts'
 import { no_active_agent_message, no_available_llm_config_message } from '@/agent/model/agent.ts'
-import { ENABLE_WORKSPACE_AND_ATTACHMENTS } from '@/agent/model/constants.ts'
+import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
 import { parse_ddb_obj_from_content_object } from '@/agent/utils/ddb-object.ts'
 import { get_agent_status_text } from '@/agent/utils/message.ts'
 import { route_ddb_obj_to_dataview } from '@/agent/ai-tab/ddb-result.ts'
@@ -54,7 +54,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         attachments, selected_attachments, attachments_loading, attachments_error, set_selected_attachments,
         ensure_session, refresh_attachments, upload_attachments,
     } = use_session_attachments({ chat, session_id, current_session_id, pending_session, creating_session })
-    const has_attachments = ENABLE_WORKSPACE_AND_ATTACHMENTS && selected_attachments.length > 0
+    const has_attachments = ENABLE_ATTACHMENTS && selected_attachments.length > 0
     
     const messages_ref = useRef<HTMLDivElement>(null)
     const input_ref = useRef<TextAreaRef>(null)
@@ -350,7 +350,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const llm_config_unavailable = Boolean(agent_id && !selectable_llms.some(llm =>
         llm.capability !== 'embedding' && llm.enabled !== false && llm.statusName !== 'DELETED'
     ))
-    const disable_input = creating_session || (ENABLE_WORKSPACE_AND_ATTACHMENTS && attachments_loading) || llm_config_unavailable
+    const disable_input = creating_session || (ENABLE_ATTACHMENTS && attachments_loading) || llm_config_unavailable
     
     if (!inited)
         return <div className='ai-tab-loading'>
@@ -429,7 +429,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         </div>
         
     return <div className='ai-tab'>
-        {ENABLE_WORKSPACE_AND_ATTACHMENTS && !pending_session && <WorkspaceSidebar
+        {!pending_session && <WorkspaceSidebar
             chat={chat}
             session_id={session_id}
             current_session_id={current_session_id}
@@ -557,7 +557,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 />
                 <div className='ai-tab-composer-toolbar'>
                     <div className='ai-tab-composer-selectors'>
-                        {ENABLE_WORKSPACE_AND_ATTACHMENTS && <AttachmentPicker
+                        {ENABLE_ATTACHMENTS && <AttachmentPicker
                             attachments={attachments}
                             selected_attachment_ids={selected_attachments.map(attachment => attachment.attachmentId)}
                             loading={attachments_loading}

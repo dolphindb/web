@@ -11,6 +11,7 @@ import { storage } from 'xshell/storage.js'
 import type { ChatModel, IMessage, ISessionAttachment } from '@/agent/model.ts'
 import { chat_workspace_store, normalize_workspace_path } from '@/agent/workspace.ts'
 import type { IWorkspaceFile } from '@/agent/workspace.ts'
+import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
 
 import { format_file_size, get_workspace_file_change } from './messages.tsx'
 
@@ -238,7 +239,7 @@ export function WorkspaceSidebar ({
                                 </div>
                     }
                 </section>
-                <section className='ai-workspace-section ai-attachment-section'>
+                {ENABLE_ATTACHMENTS && <section className='ai-workspace-section ai-attachment-section'>
                     <div className='ai-workspace-section-header'>
                         <div className='ai-workspace-section-title'>{t('文件')}</div>
                         <Tooltip title={t('上传文件')}>
@@ -279,7 +280,7 @@ export function WorkspaceSidebar ({
                                 await on_upload_attachments(selected_files)
                         }}
                     />
-                </section>
+                </section>}
             </div>
         </div>
         <Modal
