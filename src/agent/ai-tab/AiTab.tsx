@@ -582,6 +582,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                             variant='borderless'
                             value={effective_llm_config_id || undefined}
                             placeholder={t('自动选择模型')}
+                            popupMatchSelectWidth={280}
                             allowClear
                             disabled={!['idle', 'error'].includes(agent_status.status)}
                             onChange={(value: string | undefined) => { chat.agent.select_llm_config(value || '') }}
