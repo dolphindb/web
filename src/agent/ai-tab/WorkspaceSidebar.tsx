@@ -53,6 +53,10 @@ export function WorkspaceSidebar ({
     const file_request_ref = useRef(0)
     const last_message_id_ref = useRef('')
     const attachment_input_ref = useRef<HTMLInputElement>(null)
+    const sidebar_title = ENABLE_ATTACHMENTS ? t('工作区和文件') : t('工作区')
+    const toggle_title = ENABLE_ATTACHMENTS
+        ? (visible ? t('关闭工作区和文件') : t('打开工作区和文件'))
+        : (visible ? t('关闭工作区') : t('打开工作区'))
     
     async function refresh_files ({ silent = false }: { silent?: boolean } = { }) {
         const request_id = ++list_request_ref.current
@@ -188,27 +192,32 @@ export function WorkspaceSidebar ({
     }, [file_copied])
     
     return <>
-        <Tooltip title={visible ? t('关闭工作区和文件') : t('打开工作区和文件')}>
+        <Tooltip title={toggle_title}>
             <button
                 type='button'
                 className={`ai-workspace-toggle ${visible ? 'open' : ''}`}
                 onClick={() => { set_visible(!visible) }}
             >
                 <FolderOpenOutlined />
-                <span>{t('工作区和文件')}</span>
+                <span>{sidebar_title}</span>
             </button>
         </Tooltip>
         <div className={`ai-workspace-sidebar ${visible ? 'open' : ''}`}>
             <div className='ai-workspace-header'>
-                <div className='ai-workspace-title'>{t('工作区和文件')}</div>
+                <div className='ai-workspace-title'>{sidebar_title}</div>
                 <Tooltip title={t('刷新')}>
                     <Button
                         aria-label={t('刷新')}
                         type='text'
                         size='small'
                         icon={<ReloadOutlined />}
-                        loading={files_loading || attachments_loading}
-                        onClick={() => { Promise.all([refresh_files(), on_refresh_attachments()]) }}
+                        loading={files_loading || (ENABLE_ATTACHMENTS && attachments_loading)}
+                        onClick={() => {
+                            Promise.all([
+                                refresh_files(),
+                                ...(ENABLE_ATTACHMENTS ? [on_refresh_attachments()] : [ ]),
+                            ])
+                        }}
                     />
                 </Tooltip>
             </div>
