@@ -18,6 +18,12 @@ export function ellipsis_text (value: unknown) {
 }
 
 
+export function tooltip_ellipsis_text (value: unknown) {
+    const text = String(value ?? '-')
+    return <Text style={{ display: 'block', width: '100%', minWidth: 0 }} ellipsis={{ tooltip: text }}>{text}</Text>
+}
+
+
 export function format_file_size (size?: number) {
     if (size === undefined)
         return '-'

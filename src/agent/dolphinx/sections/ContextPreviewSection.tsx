@@ -12,8 +12,8 @@ import { legacy_json_tool_call_adapter, native_tool_call_adapter } from '@/agent
 import { chat_workspace_store } from '@/agent/workspace.ts'
 import {
     AgentListLayout,
-    ellipsis_text,
     show_error,
+    tooltip_ellipsis_text,
     use_agent_options,
     use_valid_agent_selection,
 } from '@/agent/dolphinx/common.tsx'
@@ -151,7 +151,7 @@ export function ContextPreviewSection () {
                 items={preview_rows.map(row => ({
                     key: row.key,
                     label: row.label,
-                    children: ellipsis_text(format_preview_value(row.value)),
+                    children: tooltip_ellipsis_text(format_preview_value(row.value)),
                 }))}
             />
             {Object.keys(token_breakdown).length > 0 && <Descriptions
