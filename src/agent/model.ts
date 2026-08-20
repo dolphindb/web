@@ -167,7 +167,6 @@ export function release_chat_model (session_id: string) {
         return
     // 标签页关闭后不再保留无主运行时，避免其异步结果继续占用资源。
     chat.runtime.interrupt_chat()
-    chat.agent.abort_requests()
     chat_model_instances.delete(session_id)
 }
 

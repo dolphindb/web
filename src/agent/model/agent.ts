@@ -6,9 +6,6 @@ import type { AgentAuthSubjectType, IAccessInfo, IAgentInfo } from './types.ts'
 import { ENABLE_AGENT_GROUP_AUTH } from './constants.ts'
 import { chat_shared_model } from './shared.ts'
 
-
-const AGENT_API_TIMEOUT_MS = 30_000
-
 export function agent_access_denied_message () {
     return t('没有权限访问 AI 助手，请联系管理员授权。')
 }
@@ -55,40 +52,7 @@ function localize_builtin_text (value: string | undefined, config: Record<string
 
 
 export class ChatAgentModel {
-    private api_controllers = new Set<AbortController>()
-
     constructor (private chat: ChatModel) { }
-    abort_requests () {
-        for (const controller of this.api_controllers)
-            controller.abort()
-        this.api_controllers.clear()
-    }
-    private async fetch (url: string, options: RequestInit, signal?: AbortSignal): Promise<{ response: Response, text: string }> {
-        const controller = new AbortController()
-        let timed_out = false
-        const abort = () => { controller.abort() }
-        const timeout = setTimeout(() => {
-            timed_out = true
-            controller.abort()
-        }, AGENT_API_TIMEOUT_MS)
-        if (signal?.aborted)
-            controller.abort()
-        else
-            signal?.addEventListener('abort', abort, { once: true })
-        this.api_controllers.add(controller)
-        try {
-            const response = await fetch(url, { ...options, signal: controller.signal })
-            return { response, text: await response.text() }
-        } catch (error) {
-            if (timed_out)
-                throw new Error(t('Agent 请求超时，请稍后重试'))
-            throw error
-        } finally {
-            clearTimeout(timeout)
-            signal?.removeEventListener('abort', abort)
-            this.api_controllers.delete(controller)
-        }
-    }
     // 响应里的 size 是本页条数而非总数，只能用 total 判断是否取完；max_pages 防止后端忽略 offset 时死循环
     async load_agent_page_items (path: string, limit = 100, max_pages = 20): Promise<any[]> {
         const items: any[] = [ ]
@@ -106,7 +70,6 @@ export class ChatAgentModel {
     }
     set_active_agent (agent_id: string, agents = this.chat.agents) {
         this.chat.runtime.interrupt_chat()
-        this.chat.agent.abort_requests()
         this.chat.set({
             agents,
             agent_id,
@@ -142,8 +105,8 @@ export class ChatAgentModel {
         if (options.headers)
             Object.assign(headers, options.headers)
             
-        const { headers: _ignored, signal, ...rest_options } = options
-        const { response, text: response_text } = await this.fetch(url, { ...rest_options, headers }, signal)
+        const { headers: _ignored, ...rest_options } = options
+        const response = await fetch(url, { ...rest_options, headers })
         
         if (response.status === 401) {
             // ticket 可能已过期，web 的登录还在的话重新申请一个再试一次
@@ -154,8 +117,9 @@ export class ChatAgentModel {
         }
         
         if (!response.ok) {
+            const text = await response.text()
             let parsed: any
-            try { parsed = JSON.parse(response_text) } catch { parsed = { message: response_text } }
+            try { parsed = JSON.parse(text) } catch { parsed = { message: text } }
             
             if (response.status === 403)
                 throw new Error(agent_access_denied_message())
@@ -164,7 +128,7 @@ export class ChatAgentModel {
             throw new Error(is_no_available_llm_config_error(message) ? no_available_llm_config_message() : message)
         }
         
-        const result = JSON.parse(response_text)
+        const result = await response.json()
         
         if (result.type === 'ERROR') {
             if (Number(result.headers?.httpStatus) === 403)

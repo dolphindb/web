@@ -7601,9 +7601,6 @@
     "没有权限访问 AI 助手，请联系管理员授权。": {
         "en": "You do not have permission to access the AI assistant. Contact an administrator for access."
     },
-    "Agent 请求超时，请稍后重试": {
-        "en": "Agent request timed out. Try again later."
-    },
     "配置可供 Agent 绑定和调用的 MCP Server。": {
         "en": "Configure MCP Servers that Agents can bind and call."
     },
