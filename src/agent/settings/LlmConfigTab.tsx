@@ -85,7 +85,7 @@ export function LlmConfigTab () {
         set_provider_mode('edit')
         set_provider_form({
             name: p.name,
-            adapterType: p.adapterType || 'openai',
+            adapterType: p.adapterType || 'deepseek',
             baseUrl: p.baseUrl,
             apiKey: p.apiKey || '',
         })

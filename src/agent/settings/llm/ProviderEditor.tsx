@@ -9,6 +9,13 @@ import { form_error_alert, required_label } from '@/agent/settings/common.tsx'
 import { ADAPTER_TYPE_OPTIONS, type ProviderFormData } from './types.ts'
 
 
+const base_url_placeholders: Record<string, string> = {
+    deepseek: 'https://api.deepseek.com',
+    openai: 'https://api.openai.com',
+    anthropic: 'https://api.anthropic.com',
+}
+
+
 export function ProviderEditor ({
     provider_mode,
     provider_form,
@@ -70,7 +77,7 @@ export function ProviderEditor ({
                             <Input
                                 value={provider_form.baseUrl}
                                 onChange={e => { set_provider_form({ ...provider_form, baseUrl: e.target.value }) }}
-                                placeholder='https://api.openai.com'
+                                placeholder={base_url_placeholders[provider_form.adapterType] || 'https://api.deepseek.com'}
                             />
                         </div>
                         <div style={{ gridColumn: '1 / -1' }}>
