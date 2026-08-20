@@ -8,7 +8,7 @@ import {
     parse_tool_result_json,
     tool_result_json,
 } from '@/agent/scripts/helpers.ts'
-import type { ToolCallAdapter, ToolResultPayload } from '@/agent/tool_call_adapters.ts'
+import type { ToolCallAdapter, ToolCallContinuation, ToolResultPayload } from '@/agent/tool_call_adapters.ts'
 import { INVALID_TOOL_CALL_FORMAT, type ParsedToolCall } from '@/agent/tool_call_parser.ts'
 import { spill_large_tool_result_content_if_needed } from '@/agent/tool_result_spill.ts'
 import { chat_workspace_store } from '@/agent/workspace.ts'
@@ -267,12 +267,11 @@ export async function handle_tool_calls (
     chat: ChatModel,
     parsed_calls: ParsedToolCall[],
     reasoning_content: string,
-    tool_turn: number,
     request_seq: number,
     first_tool_call_msg_id: string,
     response_content: string,
     tool_call_adapter: ToolCallAdapter,
-) {
+): Promise<ToolCallContinuation | null | undefined> {
     const tool_result_contents: string[] = [ ]
     const tool_results: ToolResultPayload[] = [ ]
     let should_continue_loop = false
@@ -316,7 +315,7 @@ export async function handle_tool_calls (
         if (!result)
             return
         if (result.stopped)
-            return
+            return null
         if (result.tool_result_content)
             tool_result_contents.push(result.tool_result_content)
         tool_call_adapter.collect_tool_result(parsed_call, result.tool_result_content, tool_results)
@@ -329,7 +328,7 @@ export async function handle_tool_calls (
     
     const continuation = tool_call_adapter.build_continuation(tool_result_contents, tool_results)
     if (continuation && should_continue_loop)
-        await chat.runtime.do_chat_completions(continuation.message, continuation.options, tool_turn + 1, request_seq, false)
-    else
-        chat.set({ agent_status: { status: 'idle' } })
+        return continuation
+    chat.set({ agent_status: { status: 'idle' } })
+    return null
 }

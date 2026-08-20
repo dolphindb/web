@@ -8,6 +8,7 @@ import {
     native_tool_call_adapter,
     type ChatCompletionOptions,
     type ToolCallAdapter,
+    type ToolCallContinuation,
 } from '@/agent/tool_call_adapters.ts'
 import type { ParsedToolCall } from '@/agent/tool_call_parser.ts'
 import type {
@@ -246,23 +247,45 @@ export class ChatRuntimeModel {
         return read_chat_completion_stream(this.chat, response, assistant_msg_id, request_seq)
     }
     
-    async do_chat_completions (message: string, options: ChatCompletionOptions = { }, _tool_turn = 0, request_seq = this.chat._active_request_seq, refresh_sessions = true) {
+    async do_chat_completions (message: string, options: ChatCompletionOptions = { }, tool_turn = 0, request_seq = this.chat._active_request_seq) {
+        // 工具结果只负责提供下一轮输入，整个 Agent 生命周期由这一层循环统一收尾。
+        let should_refresh_sessions = false
+        while (!this.is_request_inactive(request_seq)) {
+            if (this.chat.tool_call_limit_enabled && tool_turn > this.chat._tool_turn_limit) {
+                this.request_tool_loop_decision(message, options, tool_turn, request_seq)
+                break
+            }
+            const continuation = await this.do_chat_completion_turn(message, options, tool_turn, request_seq)
+            if (continuation === undefined)
+                break
+            should_refresh_sessions = true
+            if (!continuation)
+                break
+            message = continuation.message
+            options = continuation.options ?? { }
+            tool_turn += 1
+        }
+        if (should_refresh_sessions && !this.is_request_inactive(request_seq))
+            this.chat.session.load_sessions().catch(() => { })
+    }
+    private async do_chat_completion_turn (
+        message: string,
+        options: ChatCompletionOptions,
+        tool_turn: number,
+        request_seq: number,
+    ): Promise<ToolCallContinuation | null | undefined> {
         if (this.is_request_inactive(request_seq))
             return
-        if (this.chat.tool_call_limit_enabled && _tool_turn > this.chat._tool_turn_limit) {
-            this.request_tool_loop_decision(message, options, _tool_turn, request_seq)
-            return
-        }
         const session_id = this.chat._active_session_id
         
-        if (_tool_turn === 0)
+        if (tool_turn === 0)
             this.abort_sse()
             
         const controller = new AbortController()
         this.chat.sse_controller = controller
         
         const message_attachments = get_message_attachments(options)
-        if ((message || message_attachments.length) && _tool_turn === 0 && options.append_user !== false) {
+        if ((message || message_attachments.length) && tool_turn === 0 && options.append_user !== false) {
             const has_prior_user_msg = this.chat.messages.some(m => m.role === 'user')
             const user_msg: IMessage = {
                 msgId: `user_${Date.now()}`,
@@ -407,18 +430,21 @@ export class ChatRuntimeModel {
                 
             const active_tool_call_adapter = this.get_tool_call_adapter()
             const parsed_calls = active_tool_call_adapter.parse_tool_calls(tool_calls, content)
+            let continuation: ToolCallContinuation | null = null
             
             if (parsed_calls.length > 0) {
                 this.chat.set({ agent_status: { status: 'tool_running' } })
-                await this.handle_tool_calls(
+                const tool_continuation = await this.handle_tool_calls(
                     parsed_calls,
                     reasoning_content,
-                    _tool_turn,
                     request_seq,
                     assistant_msg_id,
                     content,
                     active_tool_call_adapter
                 )
+                if (tool_continuation === undefined)
+                    return
+                continuation = tool_continuation
             } else {
                 if (!content.trim() && !reasoning_content.trim())
                     this.update_assistant_content(assistant_msg_id, {
@@ -431,8 +457,7 @@ export class ChatRuntimeModel {
             
             if (this.is_request_inactive(request_seq))
                 return
-            if (refresh_sessions)
-                this.chat.session.load_sessions().catch(() => { })
+            return continuation
         } catch (e: any) {
             if (e.name === 'AbortError') {
                 if (this.is_request_inactive(request_seq))
@@ -442,7 +467,7 @@ export class ChatRuntimeModel {
             if (this.is_request_inactive(request_seq))
                 return
             console.error('Chat completions error:', e)
-            this.chat._last_failed_completion = { message, options, toolTurn: _tool_turn }
+            this.chat._last_failed_completion = { message, options, toolTurn: tool_turn }
             this.chat.set({ agent_status: { status: 'idle' } })
             
             this.update_assistant_content(assistant_msg_id, {
@@ -520,7 +545,6 @@ export class ChatRuntimeModel {
     async handle_tool_calls (
         parsed_calls: ParsedToolCall[],
         reasoning_content: string,
-        tool_turn: number,
         request_seq: number,
         first_tool_call_msg_id: string,
         response_content: string,
@@ -530,7 +554,6 @@ export class ChatRuntimeModel {
             this.chat,
             parsed_calls,
             reasoning_content,
-            tool_turn,
             request_seq,
             first_tool_call_msg_id,
             response_content,
