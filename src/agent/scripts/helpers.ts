@@ -106,7 +106,7 @@ export function normalize_script_args (payload: unknown): string[] {
 }
 
 
-const DEFAULT_TOOL_CONTENT_MAX_CHARS = 5000
+const DEFAULT_TOOL_CONTENT_MAX_CHARS = 10000
 export const TOOL_RESULT_SPILL_THRESHOLD_CHARS = DEFAULT_TOOL_CONTENT_MAX_CHARS
 
 
