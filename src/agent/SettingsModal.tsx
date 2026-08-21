@@ -4,7 +4,7 @@ import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-des
 import { useEffect, useState, type ReactNode } from 'react'
 import { Button, Modal, Spin, Tooltip, Typography, message } from 'antd'
 import {
-    Bot, BrainCircuit, ChartNoAxesColumn, Database, ListTodo, MessagesSquare,
+    BookOpen, Bot, BrainCircuit, ChartNoAxesColumn, Database, ListTodo, MessagesSquare,
     Plug, ScanText, SlidersHorizontal, UserCog, UsersRound, WandSparkles,
 } from 'lucide-react'
 
@@ -28,6 +28,7 @@ import {
     UserPermissionTab,
 } from './DolphinXUserSettings.tsx'
 import { AgentTab } from './settings/AgentTab.tsx'
+import { KnowledgeTab } from './settings/KnowledgeTab.tsx'
 import { LlmConfigTab } from './settings/LlmConfigTab.tsx'
 import { McpTab } from './settings/McpTab.tsx'
 import { SkillsTab } from './settings/SkillsTab.tsx'
@@ -313,7 +314,10 @@ export function SettingsModal () {
                     { key: 'llm', label: t('模型管理'), icon: <BrainCircuit />, content: <LlmConfigTab /> },
                     { key: 'skills', label: t('技能管理'), icon: <WandSparkles />, content: <SkillsTab /> },
                 ] : [ ],
-                ...can_manage_agent ? [{ key: 'mcp', label: t('MCP 管理'), icon: <Plug />, content: <McpTab can_manage_mcp /> }] : [ ],
+                ...can_manage_agent ? [
+                    { key: 'knowledge', label: t('知识库管理'), icon: <BookOpen />, content: <KnowledgeTab /> },
+                    { key: 'mcp', label: t('MCP 管理'), icon: <Plug />, content: <McpTab can_manage_mcp /> },
+                ] : [ ],
             ],
         },
         {

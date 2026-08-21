@@ -50,6 +50,9 @@ const TOOL_NAME_LABELS: Record<string, string> = {
     skill_read: '技能读取',
     doc_search: '文档搜索',
     doc_read: '文档读取',
+    kb_list: '列出知识库',
+    kb_search: '知识检索',
+    kb_read: '读取知识片段',
     workspace_state_read: '读取工作区状态',
     workspace_state_update: '更新工作区状态',
 }

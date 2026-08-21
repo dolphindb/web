@@ -16,10 +16,35 @@ import { ChatMemoryModel } from './model/memory.ts'
 import { ChatSkillModel } from './model/skill.ts'
 import { ChatMcpModel } from './model/mcp.ts'
 import { ChatAttachmentModel } from './model/attachment.ts'
+import { ChatKnowledgeModel } from './model/knowledge.ts'
 import type { IAgentInfo, IAgentStatusEvent, IScriptExecutionApproval, ISession, IMessage, IToolLoopControl, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
 export { chat_shared_model } from './model/shared.ts'
 
-export type { AgentAuthSubjectType, AgentStatus, IAccessInfo, IAgentInfo, IAgentLlmBinding, IAgentStatusEvent, IBuiltinInitItem, IBuiltinInitResult, IBuiltinInitSummary, IBuiltinStateRecord, IChatCompletionRequest, IChatContentPart, IChatFileContentPart, IChatImageContentPart, IChatTextContentPart, IChatToolResult, IChatTurnInput, IContextPreviewRequest, ILlmConfig, ILlmConfigInput, ILlmProvider, ILlmUsageStats, IMcpBindingInfo, IMcpEndpoint, IMcpServerInfo, IMcpServerListResult, IMcpServerTestPayload, IMcpServerTestResult, IMcpServerUpsertPayload, IMcpSharedAuthConfig, IMessage, IMessageAttachment, IMemoryConfigResult, IMemoryEntry, IMemoryJob, IMemoryPersonalSettings, IMemoryResetResult, IMemoryStats, IPublicMemory, ISelectableLlmInfo, IScriptExecutionApproval, ISession, ISessionAttachment, ISessionAttachmentDeleteResult, ISessionAttachmentListResult, ISessionAttachmentUpload, ISkillBinding, ISkillFileContent, ISkillFileInfo, ISkillInfo, IToolCall, IToolLoopControl, IUserLlmAccessInfo, McpCredentialMode, McpServerType, MessageRole, MessageType, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode, SessionAttachmentKind, SessionAttachmentStatus } from './model/types.ts'
+export type {
+    AgentAuthSubjectType, AgentStatus, IAccessInfo, IAgentInfo, IAgentLlmBinding, IAgentStatusEvent,
+    IBuiltinInitItem, IBuiltinInitResult, IBuiltinInitSummary, IBuiltinStateRecord,
+    IChatCompletionRequest, IChatContentPart, IChatFileContentPart, IChatImageContentPart, IChatTextContentPart,
+    IChatToolResult, IChatTurnInput, IContextPreviewRequest,
+    IKnowledgeAvailableItem, IKnowledgeBaseAgentBinding, IKnowledgeBaseAgentBindingListResult,
+    IKnowledgeBaseChunkingConfig, IKnowledgeBaseConfig, IKnowledgeBaseEmbeddingRef, IKnowledgeBaseInfo,
+    IKnowledgeBaseListResult, IKnowledgeBaseRegisterPayload, IKnowledgeBaseTextIndexConfig, IKnowledgeBaseUpdatePayload,
+    IKnowledgeBaseVectorIndexConfig, IKnowledgeChunkItem, IKnowledgeChunkSource,
+    IKnowledgeDocumentInfo, IKnowledgeDocumentListResult,
+    IKnowledgeGenerationInfo, IKnowledgeGenerationListResult,
+    IKnowledgeJobInfo, IKnowledgeJobListResult,
+    IKnowledgeReadResult, IKnowledgeRerankConfig, IKnowledgeRerankConfigInput,
+    IKnowledgeRetrievalDiagnostic, IKnowledgeRetrieveResult, IKnowledgeUploadInfo, IKnowledgeUploadInitPayload,
+    ILlmConfig, ILlmConfigInput, ILlmProvider, ILlmUsageStats,
+    IMcpBindingInfo, IMcpEndpoint, IMcpServerInfo, IMcpServerListResult, IMcpServerTestPayload, IMcpServerTestResult, IMcpServerUpsertPayload, IMcpSharedAuthConfig,
+    IMessage, IMessageAttachment, IMemoryConfigResult, IMemoryEntry, IMemoryJob, IMemoryPersonalSettings, IMemoryResetResult, IMemoryStats,
+    IPublicMemory, ISelectableLlmInfo, IScriptExecutionApproval, ISession, ISessionAttachment, ISessionAttachmentDeleteResult, ISessionAttachmentListResult, ISessionAttachmentUpload,
+    ISkillBinding, ISkillFileContent, ISkillFileInfo, ISkillInfo,
+    IToolCall, IToolLoopControl, IUserLlmAccessInfo,
+    KnowledgeBaseStatus, KnowledgeJobStatus, KnowledgeJobType,
+    McpCredentialMode, McpServerType, MessageRole, MessageType,
+    ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode,
+    SessionAttachmentKind, SessionAttachmentStatus,
+} from './model/types.ts'
 export type { ChatCompletionOptions } from './tool_call_adapters.ts'
 
 
@@ -44,6 +69,7 @@ export class ChatModel extends Model<ChatModel> {
     
     readonly mcp = new ChatMcpModel(this)
     readonly attachment = new ChatAttachmentModel(this)
+    readonly knowledge = new ChatKnowledgeModel(this)
     
     
     agent_id = ''
