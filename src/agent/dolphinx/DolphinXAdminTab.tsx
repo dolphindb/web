@@ -10,16 +10,13 @@ import { access } from '@/access/model.ts'
 import { chat_model } from '@/agent/model.ts'
 import type { AgentAuthSubjectType, IAccessInfo, ILlmConfig, ISkillInfo, IUserLlmAccessInfo } from '@/agent/model.ts'
 import { ENABLE_AGENT_GROUP_AUTH } from '@/agent/model/constants.ts'
-import { Section, SettingsListLayout, show_error, use_agent_options, use_user_options, use_valid_agent_selection } from './common.tsx'
+import { Section, SettingsListLayout, show_error, use_agent_options, use_valid_agent_selection } from './common.tsx'
 
 
 const { Paragraph, Text } = Typography
 
 
-function GlobalAgentAdminSection ({ user_id }: { user_id?: string }) {
-    const user_options = use_user_options()
-    
-    const [selected_user_id, set_selected_user_id] = useState(user_id || '')
+function GlobalAgentAdminSection ({ subject_type, subject_id }: { subject_type: AgentAuthSubjectType, subject_id: string }) {
     const [items, set_items] = useState<IAccessInfo[]>([ ])
     const [loading, set_loading] = useState(false)
     
@@ -35,20 +32,15 @@ function GlobalAgentAdminSection ({ user_id }: { user_id?: string }) {
     }
     
     useEffect(() => {
-        if (user_id)
-            set_selected_user_id(user_id)
-    }, [user_id])
-    
-    useEffect(() => {
         load()
-    }, [selected_user_id])
+    }, [subject_type, subject_id])
     
-    const authorized = items.some(item => item.userId === selected_user_id)
+    const authorized = items.some(item => item.subjectType === subject_type && item.subjectId === subject_id)
     
     async function grant () {
         set_loading(true)
         try {
-            set_items(await chat_model.agent.grant_global_agent_admin(selected_user_id))
+            set_items(await chat_model.agent.grant_global_agent_admin(subject_type, subject_id))
             message.success(t('已授予 Agent 管理权限'))
         } catch (error) {
             show_error(error, t('授予 Agent 管理权限失败'))
@@ -61,7 +53,7 @@ function GlobalAgentAdminSection ({ user_id }: { user_id?: string }) {
     async function revoke () {
         set_loading(true)
         try {
-            set_items(await chat_model.agent.revoke_global_agent_admin(selected_user_id))
+            set_items(await chat_model.agent.revoke_global_agent_admin(subject_type, subject_id))
             message.success(t('已撤销 Agent 管理权限'))
         } catch (error) {
             show_error(error, t('撤销 Agent 管理权限失败'))
@@ -71,12 +63,11 @@ function GlobalAgentAdminSection ({ user_id }: { user_id?: string }) {
     }
     
     return <Section title={t('Agent 管理权限')}>
-        {!user_id && <Select showSearch style={{ width: 180, marginBottom: 12 }} placeholder={t('选择用户')} value={selected_user_id || undefined} onChange={set_selected_user_id} options={user_options} />}
         <Space wrap>
             <Tag color={authorized ? 'green' : undefined}>{authorized ? t('已授权管理 Agent') : t('未授权管理 Agent')}</Tag>
             {authorized
-                ? <Button danger size='small' loading={loading} disabled={!selected_user_id} onClick={revoke}>{t('撤销管理权限')}</Button>
-                : <Button size='small' loading={loading} disabled={!selected_user_id} onClick={grant}>{t('授权管理 Agent')}</Button>}
+                ? <Button danger size='small' loading={loading} disabled={!subject_id} onClick={revoke}>{t('撤销管理权限')}</Button>
+                : <Button size='small' loading={loading} disabled={!subject_id} onClick={grant}>{t('授权管理 Agent')}</Button>}
         </Space>
     </Section>
 }
@@ -172,11 +163,10 @@ function AgentAccessSection ({ subject_type, subject_id }: { subject_type: Agent
 }
 
 
-function UserLlmSection ({ user_id }: { user_id?: string }) {
-    const user_options = use_user_options()
+function LlmAccessSection ({ subject_type, subject_id }: { subject_type: AgentAuthSubjectType, subject_id: string }) {
     const [configs, set_configs] = useState<ILlmConfig[]>([ ])
-    const [selected_user_id, set_selected_user_id] = useState(user_id || '')
     const [items, set_items] = useState<IUserLlmAccessInfo[]>([ ])
+    const load_error = subject_type === 'USER' ? t('加载用户 LLM 授权失败') : t('加载用户组 LLM 授权失败')
     
     useEffect(() => {
         chat_model.llm.load_llm_providers()
@@ -185,46 +175,35 @@ function UserLlmSection ({ user_id }: { user_id?: string }) {
             .catch(error => { show_error(error, t('加载模型配置失败')) })
     }, [ ])
     
-    useEffect(() => {
-        if (user_id) {
-            set_selected_user_id(user_id)
-            chat_model.llm.load_user_llm_access(user_id)
-                .then(set_items)
-                .catch(error => { show_error(error, t('加载用户 LLM 授权失败')) })
-        }
-    }, [user_id])
-    
     const visible_configs = useMemo(
         () => configs.filter(config => config.statusName !== 'DELETED'),
         [configs]
     )
     
     useEffect(() => {
-        if (selected_user_id)
-            load().catch(error => { show_error(error, t('加载用户 LLM 授权失败')) })
-    }, [selected_user_id])
+        if (!subject_id) {
+            set_items([ ])
+            return
+        }
+        load().catch(error => { show_error(error, load_error) })
+    }, [subject_type, subject_id])
     
     async function load () {
-        if (!selected_user_id)
-            return
-        set_items(await chat_model.llm.load_user_llm_access(selected_user_id))
+        set_items(await chat_model.llm.load_subject_llm_access(subject_type, subject_id))
     }
     
     async function grant (llm_config_id: string) {
-        set_items(await chat_model.llm.grant_user_llm_access(selected_user_id, llm_config_id))
+        set_items(await chat_model.llm.grant_subject_llm_access(subject_type, subject_id, llm_config_id))
         message.success(t('已授权'))
     }
     
     
     async function revoke (llm_config_id: string) {
-        set_items(await chat_model.llm.revoke_user_llm_access(selected_user_id, llm_config_id))
+        set_items(await chat_model.llm.revoke_subject_llm_access(subject_type, subject_id, llm_config_id))
         message.success(t('已撤销'))
     }
     
-    return <Section title={t('用户模型权限')}>
-        {!user_id && <Space wrap style={{ marginBottom: 12 }}>
-            {!user_id && <Select showSearch style={{ width: 180 }} placeholder={t('选择用户')} value={selected_user_id || undefined} onChange={set_selected_user_id} options={user_options} />}
-        </Space>}
+    return <Section title={subject_type === 'USER' ? t('用户模型权限') : t('用户组模型权限')}>
         <Table
             size='small'
             rowKey='llmConfigId'
@@ -263,8 +242,8 @@ function UserLlmSection ({ user_id }: { user_id?: string }) {
                     title: t('操作'),
                     width: 120,
                     render: (_: unknown, config: ILlmConfig) => items.some(item => item.llmConfigId === config.llmConfigId)
-                        ? <Button danger size='small' disabled={!selected_user_id} onClick={() => { revoke(config.llmConfigId) }}>{t('撤销')}</Button>
-                        : <Button size='small' disabled={!selected_user_id} onClick={() => { grant(config.llmConfigId) }}>{t('授权')}</Button>,
+                        ? <Button danger size='small' disabled={!subject_id} onClick={() => { revoke(config.llmConfigId) }}>{t('撤销')}</Button>
+                        : <Button size='small' disabled={!subject_id} onClick={() => { grant(config.llmConfigId) }}>{t('授权')}</Button>,
                 },
             ]}
         />
@@ -272,10 +251,8 @@ function UserLlmSection ({ user_id }: { user_id?: string }) {
 }
 
 
-function SkillAccessSection ({ user_id }: { user_id?: string }) {
-    const user_options = use_user_options()
+function SkillAccessSection ({ subject_type, subject_id }: { subject_type: AgentAuthSubjectType, subject_id: string }) {
     const [skills, set_skills] = useState<ISkillInfo[]>([ ])
-    const [selected_user_id, set_selected_user_id] = useState(user_id || '')
     const [denied_skill_ids, set_denied_skill_ids] = useState<string[]>([ ])
     
     useEffect(() => {
@@ -285,41 +262,33 @@ function SkillAccessSection ({ user_id }: { user_id?: string }) {
     }, [ ])
     
     useEffect(() => {
-        if (user_id)
-            set_selected_user_id(user_id)
-    }, [user_id])
-    
-    useEffect(() => {
         load_denied().catch(error => { show_error(error, t('加载禁用技能失败')) })
-    }, [selected_user_id])
+    }, [subject_type, subject_id])
     
     async function load_denied () {
-        if (!selected_user_id) {
+        if (!subject_id) {
             set_denied_skill_ids([ ])
             return
         }
-        const result = await chat_model.skill.load_denied_user_skills(selected_user_id)
+        const result = await chat_model.skill.load_denied_subject_skills(subject_type, subject_id)
         set_denied_skill_ids(result.skillIds)
     }
     
     
     async function allow (skill_id: string) {
-        const result = await chat_model.skill.allow_user_skill(skill_id, selected_user_id)
+        const result = await chat_model.skill.allow_subject_skill(skill_id, subject_type, subject_id)
         set_denied_skill_ids(result.skillIds || [ ])
         message.success(t('已允许'))
     }
     
     
     async function deny (skill_id: string) {
-        const result = await chat_model.skill.deny_user_skill(skill_id, selected_user_id)
+        const result = await chat_model.skill.deny_subject_skill(skill_id, subject_type, subject_id)
         set_denied_skill_ids(result.skillIds || [ ])
         message.success(t('已禁用'))
     }
     
-    return <Section title={t('用户技能权限')}>
-        {!user_id && <Space wrap style={{ marginBottom: 12 }}>
-            <Select showSearch style={{ width: 180 }} placeholder={t('选择用户')} value={selected_user_id || undefined} onChange={set_selected_user_id} options={user_options} />
-        </Space>}
+    return <Section title={subject_type === 'USER' ? t('用户技能权限') : t('用户组技能权限')}>
         <Table
             size='small'
             rowKey='skillId'
@@ -354,8 +323,8 @@ function SkillAccessSection ({ user_id }: { user_id?: string }) {
                     title: t('操作'),
                     width: 120,
                     render: (_: unknown, skill: ISkillInfo) => denied_skill_ids.includes(skill.skillId)
-                        ? <Button size='small' disabled={!selected_user_id} onClick={() => { allow(skill.skillId) }}>{t('允许')}</Button>
-                        : <Button danger size='small' disabled={!selected_user_id} onClick={() => { deny(skill.skillId) }}>{t('禁用')}</Button>,
+                        ? <Button size='small' disabled={!subject_id} onClick={() => { allow(skill.skillId) }}>{t('允许')}</Button>
+                        : <Button danger size='small' disabled={!subject_id} onClick={() => { deny(skill.skillId) }}>{t('禁用')}</Button>,
                 },
             ]}
         />
@@ -470,10 +439,10 @@ export function UserPermissionTab () {
         </div>
         <ResetUserMemorySection user_id={selected_user_id} />
         {!user_admin_map[selected_user_id] && <>
-            <GlobalAgentAdminSection user_id={selected_user_id} />
+            <GlobalAgentAdminSection subject_type='USER' subject_id={selected_user_id} />
             <AgentAccessSection subject_type='USER' subject_id={selected_user_id} />
-            <UserLlmSection user_id={selected_user_id} />
-            <SkillAccessSection user_id={selected_user_id} />
+            <LlmAccessSection subject_type='USER' subject_id={selected_user_id} />
+            <SkillAccessSection subject_type='USER' subject_id={selected_user_id} />
         </>}
     </SettingsListLayout>
 }
@@ -503,6 +472,9 @@ export function GroupPermissionTab () {
         <div style={{ fontWeight: 500, marginBottom: 12 }}>
             {t('正在编辑用户组：{{group}}', { group: selected_group_id })}
         </div>
+        <GlobalAgentAdminSection subject_type='GROUP' subject_id={selected_group_id} />
         <AgentAccessSection subject_type='GROUP' subject_id={selected_group_id} />
+        <LlmAccessSection subject_type='GROUP' subject_id={selected_group_id} />
+        <SkillAccessSection subject_type='GROUP' subject_id={selected_group_id} />
     </SettingsListLayout>
 }

@@ -3,7 +3,7 @@ import { model } from '@model'
 import type { ChatModel } from '@/agent/model.ts'
 
 import type { AgentAuthSubjectType, IAccessInfo, IAgentInfo } from './types.ts'
-import { ENABLE_AGENT_GROUP_AUTH } from './constants.ts'
+import { get_auth_subject_parameter } from './helpers.ts'
 import { chat_shared_model } from './shared.ts'
 
 export function agent_access_denied_message () {
@@ -32,15 +32,6 @@ function parse_agent_config (value: any) {
             return { }
         }
     return typeof value === 'object' ? value : { }
-}
-
-
-function get_agent_auth_subject_parameter (subject_type: AgentAuthSubjectType, subject_id: string) {
-    if (subject_type === 'GROUP' && !ENABLE_AGENT_GROUP_AUTH)
-        throw new Error(t('用户组级别赋权功能暂未开启'))
-    if (!subject_id.trim())
-        throw new Error(t('授权对象不能为空'))
-    return [subject_type === 'USER' ? 'userId' : 'groupId', subject_id] as const
 }
 
 
@@ -321,11 +312,12 @@ export class ChatAgentModel {
             this.chat.set({ agents: new_agents })
     }
     _map_access_info (item: any): IAccessInfo {
-        const subject_type = item.subjectType || 'USER'
-        const subject_id = item.subjectId || item.userId
+        const subject_type: AgentAuthSubjectType = item.subjectType === 'GROUP' || (!item.subjectType && item.groupId) ? 'GROUP' : 'USER'
+        const subject_id = item.subjectId || (subject_type === 'GROUP' ? item.groupId : item.userId)
         return {
             ...item,
             userId: subject_type === 'USER' ? subject_id : item.userId,
+            groupId: subject_type === 'GROUP' ? subject_id : item.groupId,
             subjectType: subject_type,
             subjectId: subject_id,
             permission: item.permission,
@@ -337,7 +329,7 @@ export class ChatAgentModel {
             .map((item: any) => this.chat.agent._map_access_info(item))
     }
     async grant_agent_auth (agent_id: string, subject_type: AgentAuthSubjectType, subject_id: string): Promise<IAccessInfo[]> {
-        const [subject_key, subject_value] = get_agent_auth_subject_parameter(subject_type, subject_id)
+        const [subject_key, subject_value] = get_auth_subject_parameter(subject_type, subject_id)
         await this.chat.agent.api_fetch(`/agent/${agent_id}/auth`, {
             method: 'POST',
             body: JSON.stringify({ [subject_key]: subject_value }),
@@ -345,7 +337,7 @@ export class ChatAgentModel {
         return this.chat.agent.load_agent_auth(agent_id)
     }
     async revoke_agent_auth (agent_id: string, subject_type: AgentAuthSubjectType, subject_id: string): Promise<IAccessInfo[]> {
-        const [subject_key, subject_value] = get_agent_auth_subject_parameter(subject_type, subject_id)
+        const [subject_key, subject_value] = get_auth_subject_parameter(subject_type, subject_id)
         await this.chat.agent.api_fetch(`/agent/${agent_id}/auth?${subject_key}=${encodeURIComponent(subject_value)}`, {
             method: 'DELETE',
         })
@@ -355,15 +347,17 @@ export class ChatAgentModel {
         return (await this.chat.agent.load_agent_page_items('/admin/access'))
             .map((item: any) => this.chat.agent._map_access_info(item))
     }
-    async grant_global_agent_admin (user_id: string): Promise<IAccessInfo[]> {
+    async grant_global_agent_admin (subject_type: AgentAuthSubjectType, subject_id: string): Promise<IAccessInfo[]> {
+        const [subject_key, subject_value] = get_auth_subject_parameter(subject_type, subject_id)
         await this.chat.agent.api_fetch('/admin/access', {
             method: 'POST',
-            body: JSON.stringify({ userId: user_id }),
+            body: JSON.stringify({ [subject_key]: subject_value }),
         })
         return this.chat.agent.load_global_agent_admins()
     }
-    async revoke_global_agent_admin (user_id: string): Promise<IAccessInfo[]> {
-        await this.chat.agent.api_fetch(`/admin/access?userId=${encodeURIComponent(user_id)}`, {
+    async revoke_global_agent_admin (subject_type: AgentAuthSubjectType, subject_id: string): Promise<IAccessInfo[]> {
+        const [subject_key, subject_value] = get_auth_subject_parameter(subject_type, subject_id)
+        await this.chat.agent.api_fetch(`/admin/access?${subject_key}=${encodeURIComponent(subject_value)}`, {
             method: 'DELETE',
         })
         return this.chat.agent.load_global_agent_admins()

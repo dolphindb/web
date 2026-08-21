@@ -1,7 +1,7 @@
 import type { ChatModel } from '@/agent/model.ts'
 import { ENABLE_ATTACHMENTS } from './constants.ts'
-import type { IAgentLlmBinding, IBuiltinInitResult, ILlmConfig, ILlmConfigInput, ILlmProvider, ILlmUsageStats, ISelectableLlmInfo, IUserLlmAccessInfo } from './types.ts'
-import { get_enabled, get_status, get_status_name, normalize_json_object, normalize_json_object_string, optional_positive_number } from './helpers.ts'
+import type { AgentAuthSubjectType, IAgentLlmBinding, IBuiltinInitResult, ILlmConfig, ILlmConfigInput, ILlmProvider, ILlmUsageStats, ISelectableLlmInfo, IUserLlmAccessInfo } from './types.ts'
+import { get_auth_subject_parameter, get_enabled, get_status, get_status_name, normalize_json_object, normalize_json_object_string, optional_positive_number } from './helpers.ts'
 import { chat_shared_model } from './shared.ts'
 
 export class ChatLlmModel {
@@ -167,22 +167,28 @@ export class ChatLlmModel {
             method: 'DELETE',
         })
     }
-    async load_user_llm_access (user_id: string): Promise<IUserLlmAccessInfo[]> {
+    get_subject_llm_access_path (subject_type: AgentAuthSubjectType, subject_id: string) {
+        const [, validated_subject_id] = get_auth_subject_parameter(subject_type, subject_id)
+        return `/${subject_type.toLowerCase()}/${encodeURIComponent(validated_subject_id)}/llm/access`
+    }
+    async load_subject_llm_access (subject_type: AgentAuthSubjectType, subject_id: string): Promise<IUserLlmAccessInfo[]> {
+        const path = this.chat.llm.get_subject_llm_access_path(subject_type, subject_id)
         try {
-            return await this.chat.llm.load_page_items(`/user/${encodeURIComponent(user_id)}/llm/access`)
+            return await this.chat.llm.load_page_items(path)
         } catch {
             return [ ]
         }
     }
-    async grant_user_llm_access (user_id: string, llm_config_id: string): Promise<IUserLlmAccessInfo[]> {
-        const result = await this.chat.agent.api_fetch(`/user/${encodeURIComponent(user_id)}/llm/access`, {
+    async grant_subject_llm_access (subject_type: AgentAuthSubjectType, subject_id: string, llm_config_id: string): Promise<IUserLlmAccessInfo[]> {
+        const result = await this.chat.agent.api_fetch(this.chat.llm.get_subject_llm_access_path(subject_type, subject_id), {
             method: 'POST',
             body: JSON.stringify({ llmConfigId: llm_config_id }),
         })
         return result.items || [ ]
     }
-    async revoke_user_llm_access (user_id: string, llm_config_id: string): Promise<IUserLlmAccessInfo[]> {
-        const result = await this.chat.agent.api_fetch(`/user/${encodeURIComponent(user_id)}/llm/access?llmConfigId=${encodeURIComponent(llm_config_id)}`, {
+    async revoke_subject_llm_access (subject_type: AgentAuthSubjectType, subject_id: string, llm_config_id: string): Promise<IUserLlmAccessInfo[]> {
+        const path = this.chat.llm.get_subject_llm_access_path(subject_type, subject_id)
+        const result = await this.chat.agent.api_fetch(`${path}?llmConfigId=${encodeURIComponent(llm_config_id)}`, {
             method: 'DELETE',
         })
         return result.items || [ ]

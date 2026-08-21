@@ -1,3 +1,18 @@
+import { t } from '@i18n'
+
+import type { AgentAuthSubjectType } from './types.ts'
+import { ENABLE_AGENT_GROUP_AUTH } from './constants.ts'
+
+
+export function get_auth_subject_parameter (subject_type: AgentAuthSubjectType, subject_id: string) {
+    if (subject_type === 'GROUP' && !ENABLE_AGENT_GROUP_AUTH)
+        throw new Error(t('用户组级别赋权功能暂未开启'))
+    if (!subject_id.trim())
+        throw new Error(t('授权对象不能为空'))
+    return [subject_type === 'USER' ? 'userId' : 'groupId', subject_id] as const
+}
+
+
 export function parse_json_string (value: string): unknown {
     const trimmed = value.trim()
     if (!trimmed)

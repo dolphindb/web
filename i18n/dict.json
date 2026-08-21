@@ -7283,8 +7283,14 @@
     "加载用户 LLM 授权失败": {
         "en": "Failed to load user LLM authorization"
     },
+    "加载用户组 LLM 授权失败": {
+        "en": "Failed to load group LLM authorization"
+    },
     "用户模型权限": {
         "en": "User Model Permissions"
+    },
+    "用户组模型权限": {
+        "en": "Group Model Permissions"
     },
     "模型": {
         "en": "Model"
@@ -7306,6 +7312,9 @@
     },
     "用户技能权限": {
         "en": "User Skill Permissions"
+    },
+    "用户组技能权限": {
+        "en": "Group Skill Permissions"
     },
     "技能": {
         "en": "Skill"

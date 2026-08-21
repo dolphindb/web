@@ -1,8 +1,8 @@
 import { t } from '@i18n'
 import type { ChatModel } from '@/agent/model.ts'
 
-import type { ISkillBinding, ISkillFileContent, ISkillFileInfo, ISkillInfo, ISkillInstruction } from './types.ts'
-import { get_enabled, get_status, get_status_name } from './helpers.ts'
+import type { AgentAuthSubjectType, ISkillBinding, ISkillFileContent, ISkillFileInfo, ISkillInfo, ISkillInstruction } from './types.ts'
+import { get_auth_subject_parameter, get_enabled, get_status, get_status_name } from './helpers.ts'
 
 interface ISkillListParams {
     category?: string
@@ -147,20 +147,23 @@ export class ChatSkillModel {
             body: JSON.stringify({ activeSkillNames: active_skill_names }),
         })
     }
-    async deny_user_skill (skill_id: string, user_id: string): Promise<any> {
-        return this.chat.agent.api_fetch('/skill/user/deny', {
+    async deny_subject_skill (skill_id: string, subject_type: AgentAuthSubjectType, subject_id: string): Promise<any> {
+        const [subject_key, subject_value] = get_auth_subject_parameter(subject_type, subject_id)
+        return this.chat.agent.api_fetch(`/skill/${subject_type.toLowerCase()}/deny`, {
             method: 'POST',
-            body: JSON.stringify({ skillId: skill_id, userId: user_id }),
+            body: JSON.stringify({ skillId: skill_id, [subject_key]: subject_value }),
         })
     }
-    async allow_user_skill (skill_id: string, user_id: string): Promise<any> {
-        return this.chat.agent.api_fetch('/skill/user/allow', {
+    async allow_subject_skill (skill_id: string, subject_type: AgentAuthSubjectType, subject_id: string): Promise<any> {
+        const [subject_key, subject_value] = get_auth_subject_parameter(subject_type, subject_id)
+        return this.chat.agent.api_fetch(`/skill/${subject_type.toLowerCase()}/allow`, {
             method: 'POST',
-            body: JSON.stringify({ skillId: skill_id, userId: user_id }),
+            body: JSON.stringify({ skillId: skill_id, [subject_key]: subject_value }),
         })
     }
-    async load_denied_user_skills (user_id: string): Promise<{ userId: string, skillIds: string[], size: number }> {
-        const result = await this.chat.agent.api_fetch(`/skill/user/${encodeURIComponent(user_id)}/denied`)
+    async load_denied_subject_skills (subject_type: AgentAuthSubjectType, subject_id: string): Promise<{ userId?: string, groupId?: string, skillIds: string[], size: number }> {
+        const [, subject_value] = get_auth_subject_parameter(subject_type, subject_id)
+        const result = await this.chat.agent.api_fetch(`/skill/${subject_type.toLowerCase()}/${encodeURIComponent(subject_value)}/denied`)
         return { ...result, skillIds: result.skillIds || [ ] }
     }
     async load_skill_bindings (agent_id?: string): Promise<ISkillBinding[]> {

@@ -363,6 +363,7 @@ export type AgentAuthSubjectType = 'USER' | 'GROUP'
 
 export interface IAccessInfo {
     userId?: string
+    groupId?: string
     subjectType?: AgentAuthSubjectType
     subjectId?: string
     permission?: string
@@ -373,7 +374,8 @@ export interface IAccessInfo {
 
 
 export interface IUserLlmAccessInfo {
-    userId: string
+    userId?: string
+    groupId?: string
     llmConfigId: string
     grantedBy?: string
     createTime?: string
