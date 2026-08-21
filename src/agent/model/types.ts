@@ -923,4 +923,3 @@ export interface IKnowledgeRetrievalDiagnostic {
     createTime?: string
     finishTime?: string
 }
-

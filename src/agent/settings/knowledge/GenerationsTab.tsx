@@ -5,6 +5,7 @@ import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { t } from '@i18n'
 import type { IKnowledgeBaseConfig, IKnowledgeBaseInfo, IKnowledgeGenerationInfo, ILlmConfig } from '@/agent/model.ts'
 import { chat_model } from '@/agent/model.ts'
+import { format_browser_time } from '@/agent/dolphinx/common.tsx'
 import { get_kb_status_color, get_kb_status_label } from './types.ts'
 import { IndexBuildModal } from './IndexBuildModal.tsx'
 
@@ -88,12 +89,10 @@ export function GenerationsTab ({
                 {
                     title: 'Generation ID',
                     dataIndex: 'generationId',
-                    render: (id: string, record: IKnowledgeGenerationInfo) => (
-                        <div>
+                    render: (id: string, record: IKnowledgeGenerationInfo) => <div>
                             <Text strong style={{ fontSize: 12 }}>{id}</Text>
                             {record.generationId === kb.activeGenerationId && <Tag color='blue' style={{ marginLeft: 6 }}>{t('当前')}</Tag>}
-                        </div>
-                    ),
+                        </div>,
                 },
                 {
                     title: t('状态'),
@@ -118,11 +117,9 @@ export function GenerationsTab ({
                 {
                     title: t('文档 / Chunk'),
                     width: 120,
-                    render: (_: unknown, record: IKnowledgeGenerationInfo) => (
-                        <Text style={{ fontSize: 12 }}>
+                    render: (_: unknown, record: IKnowledgeGenerationInfo) => <Text style={{ fontSize: 12 }}>
                             {record.documentCount ?? 0} {t('篇')} / {record.chunkCount ?? 0} {t('块')}
-                        </Text>
-                    ),
+                        </Text>,
                 },
                 {
                     title: t('配置概要'),
@@ -142,14 +139,13 @@ export function GenerationsTab ({
                     title: t('创建时间'),
                     dataIndex: 'createTime',
                     width: 160,
-                    render: (time: string) => <Text type='secondary' style={{ fontSize: 12 }}>{time ? new Date(time).toLocaleString() : '-'}</Text>,
+                    render: (time: string) => <Text type='secondary' style={{ fontSize: 12 }}>{format_browser_time(time)}</Text>,
                 },
             ]}
         />
         
         <IndexBuildModal
             visible={build_modal_visible}
-            kb={kb}
             embedding_configs={embedding_configs}
             loading={building}
             on_close={() => { set_build_modal_visible(false) }}

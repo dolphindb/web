@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Button, Card, Descriptions, Form, Input, InputNumber, Modal, Select, Space, Spin, Tag, Typography, message } from 'antd'
+import { useEffect, useMemo, useState } from 'react'
+import { Alert, Button, Card, Descriptions, Form, Input, InputNumber, Modal, Select, Space, Spin, Tag, Typography, message } from 'antd'
 import { SearchOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
@@ -21,19 +21,39 @@ export function RetrievalTestModal ({
     agents: IAgentInfo[]
     on_close: () => void
 }) {
-    const [selected_agent_id, set_selected_agent_id] = useState(agents[0]?.agentId || '')
+    const [selected_agent_id, set_selected_agent_id] = useState('')
     const [query, set_query] = useState('')
     const [top_k, set_top_k] = useState(8)
     const [loading, set_loading] = useState(false)
     const [result, set_result] = useState<IKnowledgeRetrieveResult | null>(null)
     const [diagnostic, set_diagnostic] = useState<IKnowledgeRetrievalDiagnostic | null>(null)
-    const [loading_diag, set_loading_diag] = useState(false)
+    const active_agents = useMemo(() => agents.filter(agent => agent.statusName === 'ACTIVE'), [agents])
+    
+    useEffect(() => {
+        if (!visible)
+            return
+        set_query('')
+        set_top_k(8)
+        set_result(null)
+        set_diagnostic(null)
+    }, [visible, kb?.knowledgeBaseId])
+    
+    useEffect(() => {
+        if (visible)
+            set_selected_agent_id(current =>
+                active_agents.some(agent => agent.agentId === current) ? current : active_agents[0]?.agentId || ''
+            )
+    }, [visible, active_agents])
     
     async function handle_test () {
         if (!kb)
             return
         if (!query.trim()) {
             message.warning(t('请输入检索词'))
+            return
+        }
+        if (!selected_agent_id) {
+            message.warning(t('请选择一个活跃 Agent'))
             return
         }
         
@@ -43,23 +63,19 @@ export function RetrievalTestModal ({
         
         try {
             const res = await chat_model.knowledge.test_retrieval({
-                agentId: selected_agent_id || undefined,
+                agentId: selected_agent_id,
                 knowledgeBaseId: kb.knowledgeBaseId,
                 query: query.trim(),
                 topK: top_k,
             })
             set_result(res)
             
-            if (res.retrievalId) {
-                set_loading_diag(true)
+            if (res.retrievalId) 
                 try {
                     const diag = await chat_model.knowledge.get_retrieval_diagnostic(res.retrievalId)
                     set_diagnostic(diag)
                 } catch { }
-                finally {
-                    set_loading_diag(false)
-                }
-            }
+            
         } catch (err: any) {
             message.error(err.message || t('检索测试失败'))
         } finally {
@@ -77,14 +93,16 @@ export function RetrievalTestModal ({
     >
         <div style={{ marginTop: 12 }}>
             <Form layout='vertical' size='small'>
-                {agents.length > 0 && <Form.Item label={t('测试 Agent（权限归属）')}>
+                {active_agents.length > 0
+                    ? <Form.Item label={t('测试 Agent（权限归属）')} required>
                     <Select
                         placeholder={t('选择 Agent')}
                         value={selected_agent_id || undefined}
                         onChange={set_selected_agent_id}
-                        options={agents.map(a => ({ value: a.agentId, label: a.agentName || a.agentId }))}
+                        options={active_agents.map(a => ({ value: a.agentId, label: a.agentName || a.agentId }))}
                     />
-                </Form.Item>}
+                    </Form.Item>
+                    : <Alert type='warning' showIcon message={t('暂无活跃 Agent，无法执行检索测试')} style={{ marginBottom: 12 }} />}
                 
                 <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                     <Form.Item label={t('检索查询词')} required style={{ flex: 1, marginBottom: 12 }}>
@@ -105,7 +123,7 @@ export function RetrievalTestModal ({
                         />
                     </Form.Item>
                     <Form.Item label=' ' style={{ marginBottom: 12 }}>
-                        <Button type='primary' icon={<SearchOutlined />} loading={loading} onClick={handle_test}>
+                        <Button type='primary' icon={<SearchOutlined />} loading={loading} disabled={!selected_agent_id} onClick={handle_test}>
                             {t('检索')}
                         </Button>
                     </Form.Item>
@@ -139,8 +157,7 @@ export function RetrievalTestModal ({
                 <div style={{ maxHeight: 380, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {result.items?.length === 0
                         ? <div style={{ textAlign: 'center', padding: 24, color: 'var(--ant-color-text-secondary)' }}>{t('未检索到匹配的相关片段')}</div>
-                        : result.items?.map((item, index) => (
-                            <div
+                        : result.items?.map((item, index) => <div
                                 key={item.chunkId || index}
                                 style={{
                                     padding: '10px 12px',
@@ -162,8 +179,7 @@ export function RetrievalTestModal ({
                                 <Paragraph style={{ fontSize: 13, lineHeight: 1.5, margin: '6px 0 0', whiteSpace: 'pre-wrap' }}>
                                     {item.content}
                                 </Paragraph>
-                            </div>
-                        ))
+                            </div>)
                     }
                 </div>
             </div>}

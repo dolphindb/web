@@ -194,6 +194,28 @@ function DocReadRenderer (props: ToolRendererProps) {
 }
 
 
+function get_kb_source_text (item: Record<string, unknown>) {
+    const source = is_object_record(item.source) ? item.source : { }
+    const file_name = to_message_text(source.fileName)
+    const page_no = source.pageNo !== undefined && source.pageNo !== null ? Number(source.pageNo) : null
+    const document_id = to_message_text(source.documentId)
+    return [
+        file_name ? `${file_name}${page_no !== null ? ` (P.${page_no})` : ''}` : '',
+        document_id ? `documentId: ${document_id}` : '',
+    ].filter(Boolean).join(' · ')
+}
+
+
+function KbChunkSource ({ item }: { item: Record<string, unknown> }) {
+    const source_text = get_kb_source_text(item)
+    return source_text
+        ? <Text type='secondary' style={{ display: 'block', fontSize: 11, marginBottom: 4 }} ellipsis={{ tooltip: source_text }}>
+            {source_text}
+        </Text>
+        : null
+}
+
+
 function KbListRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ message, structured_payload }) => {
         const parsed = is_object_record(structured_payload) ? structured_payload : null
@@ -212,15 +234,13 @@ function KbListRenderer (props: ToolRendererProps) {
                     key: 'kb-list-items',
                     label: t('查看知识库列表'),
                     children: <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        {items.map((kb, idx) => (
-                            <div key={to_message_text(kb.knowledgeBaseId) || idx} style={{ padding: '4px 8px', background: 'var(--ant-color-fill-quaternary)', borderRadius: 4 }}>
+                        {items.map((kb, idx) => <div key={to_message_text(kb.knowledgeBaseId) || idx} style={{ padding: '4px 8px', background: 'var(--ant-color-fill-quaternary)', borderRadius: 4 }}>
                                 <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
                                     <span>{to_message_text(kb.name) || to_message_text(kb.knowledgeBaseId)}</span>
                                     <Text type='secondary' style={{ fontSize: 11 }}>({to_message_text(kb.knowledgeBaseId)})</Text>
                                 </div>
                                 {to_message_text(kb.description) && <Text type='secondary' style={{ fontSize: 12 }}>{to_message_text(kb.description)}</Text>}
-                            </div>
-                        ))}
+                            </div>)}
                     </div>,
                 } : null,
                 !items.length ? create_compact_text_detail('text', t('查看结果'), message.content, 120) : null,
@@ -257,14 +277,12 @@ function KbSearchRenderer (props: ToolRendererProps) {
                     label: t('查看召回片段'),
                     children: <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {items.map((item, idx) => {
-                            const source = is_object_record(item.source) ? item.source : { }
-                            const file_name = to_message_text(source.fileName)
-                            const page_no = source.pageNo !== undefined && source.pageNo !== null ? Number(source.pageNo) : null
+                            const source_text = get_kb_source_text(item)
                             const content = to_message_text(item.content)
                             return <div key={to_message_text(item.chunkId) || idx} style={{ padding: 8, background: 'var(--ant-color-fill-quaternary)', borderRadius: 6 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                                    <Text strong style={{ fontSize: 12 }}>
-                                        {file_name ? `${file_name}${page_no !== null ? ` (P.${page_no})` : ''}` : `Chunk #${idx + 1}`}
+                                    <Text strong style={{ minWidth: 0, fontSize: 12 }} ellipsis={{ tooltip: source_text }}>
+                                        {source_text || `Chunk #${idx + 1}`}
                                     </Text>
                                     <Text type='secondary' style={{ fontSize: 11 }}>{to_message_text(item.chunkId)}</Text>
                                 </div>
@@ -306,25 +324,24 @@ function KbReadRenderer (props: ToolRendererProps) {
                     key: 'kb-read-chunks',
                     label: t('查看完整正文'),
                     children: <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {before.map((b, idx) => (
-                            <div key={`before-${idx}`} style={{ padding: 8, background: 'var(--ant-color-fill-quaternary)', borderRadius: 6, opacity: 0.85 }}>
+                        {before.map((b, idx) => <div key={`before-${idx}`} style={{ padding: 8, background: 'var(--ant-color-fill-quaternary)', borderRadius: 6, opacity: 0.85 }}>
                                 <Text type='secondary' style={{ fontSize: 11, display: 'block', marginBottom: 2 }}>{t('前置片段')} ({to_message_text(b.chunkId)})</Text>
+                                <KbChunkSource item={b} />
                                 <div style={{ fontSize: 13, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{to_message_text(b.content)}</div>
-                            </div>
-                        ))}
+                            </div>)}
                         {item && <div style={{ padding: 8, background: 'var(--ant-color-primary-bg)', border: '1px solid var(--ant-color-primary-border)', borderRadius: 6 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                                 <Text strong style={{ color: 'var(--ant-color-primary)' }}>{t('目标片段')}</Text>
                                 <Text type='secondary' style={{ fontSize: 11 }}>{to_message_text(item.chunkId)}</Text>
                             </div>
+                            <KbChunkSource item={item} />
                             <div style={{ fontSize: 13, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{to_message_text(item.content)}</div>
                         </div>}
-                        {after.map((a, idx) => (
-                            <div key={`after-${idx}`} style={{ padding: 8, background: 'var(--ant-color-fill-quaternary)', borderRadius: 6, opacity: 0.85 }}>
+                        {after.map((a, idx) => <div key={`after-${idx}`} style={{ padding: 8, background: 'var(--ant-color-fill-quaternary)', borderRadius: 6, opacity: 0.85 }}>
                                 <Text type='secondary' style={{ fontSize: 11, display: 'block', marginBottom: 2 }}>{t('后置片段')} ({to_message_text(a.chunkId)})</Text>
+                                <KbChunkSource item={a} />
                                 <div style={{ fontSize: 13, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{to_message_text(a.content)}</div>
-                            </div>
-                        ))}
+                            </div>)}
                     </div>,
                 } : null,
                 total_chunks === 0 ? create_compact_text_detail('text', t('查看结果'), message.content, 120) : null,

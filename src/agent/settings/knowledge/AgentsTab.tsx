@@ -79,16 +79,14 @@ export function AgentsTab ({
             columns={[
                 {
                     title: 'Agent',
-                    render: (_: unknown, agent: IAgentInfo) => (
-                        <div style={{ minWidth: 0 }}>
+                    render: (_: unknown, agent: IAgentInfo) => <div style={{ minWidth: 0 }}>
                             <Text strong title={agent.agentName} style={{ display: 'block', maxWidth: '100%' }} ellipsis>
                                 {agent.agentName}
                             </Text>
                             {agent.description && <Text type='secondary' style={{ fontSize: 11 }} ellipsis>
                                 {agent.description}
                             </Text>}
-                        </div>
-                    ),
+                        </div>,
                 },
                 {
                     title: t('状态'),
@@ -102,15 +100,13 @@ export function AgentsTab ({
                 {
                     title: t('操作'),
                     width: 100,
-                    render: (_: unknown, agent: IAgentInfo) => (
-                        <Switch
+                    render: (_: unknown, agent: IAgentInfo) => <Switch
                             className='ai-settings-switch-medium'
                             checked={bound_agent_ids.has(agent.agentId)}
                             loading={operating_agent_id === agent.agentId}
                             disabled={kb.status !== 'ACTIVE'}
                             onChange={checked => { toggle_binding(agent.agentId, checked) }}
-                        />
-                    ),
+                        />,
                 },
             ]}
         />

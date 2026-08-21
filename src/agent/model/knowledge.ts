@@ -1,3 +1,4 @@
+import { t } from '@i18n'
 import type { ChatModel } from '@/agent/model.ts'
 import type {
     IKnowledgeAvailableItem,
@@ -5,15 +6,12 @@ import type {
     IKnowledgeBaseAgentBindingListResult,
     IKnowledgeBaseConfig,
     IKnowledgeBaseInfo,
-    IKnowledgeBaseListResult,
     IKnowledgeBaseRegisterPayload,
     IKnowledgeBaseUpdatePayload,
     IKnowledgeDocumentInfo,
-    IKnowledgeDocumentListResult,
     IKnowledgeGenerationInfo,
     IKnowledgeGenerationListResult,
     IKnowledgeJobInfo,
-    IKnowledgeJobListResult,
     IKnowledgeReadResult,
     IKnowledgeRerankConfig,
     IKnowledgeRerankConfigInput,
@@ -33,19 +31,46 @@ async function compute_sha256 (buffer: ArrayBuffer): Promise<string> {
 export class ChatKnowledgeModel {
     constructor (private chat: ChatModel) { }
     
+    private async load_page_items<T> (
+        path: string,
+        search: URLSearchParams,
+        offset?: number,
+        limit?: number,
+        page_size = 100
+    ): Promise<T[]> {
+        if (offset !== undefined || limit !== undefined) {
+            if (offset !== undefined)
+                search.set('offset', String(offset))
+            if (limit !== undefined)
+                search.set('limit', String(limit))
+            const query = search.toString()
+            const result: { items?: T[] } = await this.chat.agent.api_fetch(`${path}${query ? `?${query}` : ''}`)
+            return result.items || [ ]
+        }
+        
+        const items: T[] = [ ]
+        let page_offset = 0
+        while (true) {
+            const page_search = new URLSearchParams(search)
+            page_search.set('offset', String(page_offset))
+            page_search.set('limit', String(page_size))
+            const result: { items?: T[] } = await this.chat.agent.api_fetch(`${path}?${page_search}`)
+            const page_items = result.items || [ ]
+            if (!page_items.length)
+                break
+            items.push(...page_items)
+            page_offset += page_items.length
+        }
+        return items
+    }
+    
     // --- 知识库 CRUD ---
     
     async list_knowledge_bases (params: { status?: string, offset?: number, limit?: number } = { }): Promise<IKnowledgeBaseInfo[]> {
         const search = new URLSearchParams()
         if (params.status)
             search.set('status', params.status)
-        if (params.offset !== undefined)
-            search.set('offset', String(params.offset))
-        if (params.limit !== undefined)
-            search.set('limit', String(params.limit))
-        const query = search.toString()
-        const result: IKnowledgeBaseListResult = await this.chat.agent.api_fetch(`/knowledge/base/list${query ? `?${query}` : ''}`)
-        return result.items || [ ]
+        return this.load_page_items<IKnowledgeBaseInfo>('/knowledge/base/list', search, params.offset, params.limit)
     }
     
     async get_knowledge_base (knowledge_base_id: string): Promise<IKnowledgeBaseInfo> {
@@ -107,8 +132,12 @@ export class ChatKnowledgeModel {
         })
     }
     
-    async load_agent_knowledge_bases (agent_id: string): Promise<IKnowledgeAvailableItem[]> {
-        return this.get_available_knowledge_bases({ agentId: agent_id })
+    async load_agent_knowledge_bases (agent_id: string, knowledge_bases?: IKnowledgeBaseInfo[]): Promise<IKnowledgeBaseInfo[]> {
+        const visible_kbs = (knowledge_bases || await this.list_knowledge_bases()).filter(kb => kb.status !== 'DELETED')
+        const binding_states = await Promise.all(visible_kbs.map(async kb =>
+            (await this.list_agent_bindings(kb.knowledgeBaseId)).some(binding => binding.agentId === agent_id)
+        ))
+        return visible_kbs.filter((_, index) => binding_states[index])
     }
     
     // --- 文档管理 ---
@@ -124,13 +153,12 @@ export class ChatKnowledgeModel {
             search.set('fileName', params.fileName)
         if (params.importJobId)
             search.set('importJobId', params.importJobId)
-        if (params.offset !== undefined)
-            search.set('offset', String(params.offset))
-        if (params.limit !== undefined)
-            search.set('limit', String(params.limit))
-        const query = search.toString()
-        const result: IKnowledgeDocumentListResult = await this.chat.agent.api_fetch(`/knowledge/base/${encodeURIComponent(knowledge_base_id)}/document/list${query ? `?${query}` : ''}`)
-        return result.items || [ ]
+        return this.load_page_items<IKnowledgeDocumentInfo>(
+            `/knowledge/base/${encodeURIComponent(knowledge_base_id)}/document/list`,
+            search,
+            params.offset,
+            params.limit
+        )
     }
     
     async get_document (document_id: string): Promise<IKnowledgeDocumentInfo> {
@@ -149,8 +177,17 @@ export class ChatKnowledgeModel {
         upload_mode?: 'DOCUMENT' | 'ZIP_IMPORT',
         on_progress?: (percent: number) => void
     ): Promise<{ jobId: string }> {
-        const is_zip = file.name.toLowerCase().endsWith('.zip') || file.type.includes('zip')
-        const mode = upload_mode || (is_zip ? 'ZIP_IMPORT' : 'DOCUMENT')
+        const is_zip_file = file.name.toLowerCase().endsWith('.zip')
+        const mode = upload_mode || (is_zip_file ? 'ZIP_IMPORT' : 'DOCUMENT')
+        if (mode === 'ZIP_IMPORT' && !is_zip_file)
+            throw new Error(t('ZIP 导入要求文件名以 .zip 结尾'))
+        if (file.size < 1 || file.size > 100 * 1024 * 1024)
+            throw new Error(t('文件大小必须在 1 字节到 100 MiB 之间'))
+            
+        const zip_content_types = new Set(['application/zip', 'application/x-zip-compressed'])
+        const content_type = mode === 'ZIP_IMPORT'
+            ? zip_content_types.has(file.type.toLowerCase()) ? file.type : 'application/zip'
+            : file.type || 'application/octet-stream'
         const buffer = await file.arrayBuffer()
         const sha256 = await compute_sha256(buffer)
         
@@ -161,7 +198,7 @@ export class ChatKnowledgeModel {
                 body: JSON.stringify({
                     uploadMode: mode,
                     fileName: file.name,
-                    contentType: file.type || (is_zip ? 'application/zip' : 'application/octet-stream'),
+                    contentType: content_type,
                     byteSize: file.size,
                     sha256,
                 }),
@@ -217,13 +254,7 @@ export class ChatKnowledgeModel {
             search.set('jobType', params.jobType)
         if (params.status)
             search.set('status', params.status)
-        if (params.offset !== undefined)
-            search.set('offset', String(params.offset))
-        if (params.limit !== undefined)
-            search.set('limit', String(params.limit))
-        const query = search.toString()
-        const result: IKnowledgeJobListResult = await this.chat.agent.api_fetch(`/knowledge/job/list${query ? `?${query}` : ''}`)
-        return result.items || [ ]
+        return this.load_page_items<IKnowledgeJobInfo>('/knowledge/job/list', search, params.offset, params.limit)
     }
     
     async get_job (job_id: string): Promise<IKnowledgeJobInfo> {

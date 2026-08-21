@@ -5,6 +5,7 @@ import { RedoOutlined, ReloadOutlined, StopOutlined } from '@ant-design/icons'
 import { t } from '@i18n'
 import type { IKnowledgeBaseInfo, IKnowledgeJobInfo } from '@/agent/model.ts'
 import { chat_model } from '@/agent/model.ts'
+import { format_browser_time } from '@/agent/dolphinx/common.tsx'
 import { get_job_type_label, get_kb_status_color, get_kb_status_label } from './types.ts'
 
 
@@ -80,14 +81,12 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                 {
                     title: 'Job ID',
                     dataIndex: 'jobId',
-                    render: (id: string, record: IKnowledgeJobInfo) => (
-                        <div style={{ minWidth: 0 }}>
+                    render: (id: string, record: IKnowledgeJobInfo) => <div style={{ minWidth: 0 }}>
                             <Text strong style={{ fontSize: 12 }} ellipsis={{ tooltip: id }}>{id}</Text>
                             {record.documentFileName && <Text type='secondary' style={{ fontSize: 11, display: 'block' }} ellipsis={{ tooltip: record.documentFileName }}>
                                 {record.documentFileName}
                             </Text>}
-                        </div>
-                    ),
+                        </div>,
                 },
                 {
                     title: t('类型'),
@@ -110,24 +109,22 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                 {
                     title: t('重试次数'),
                     width: 90,
-                    render: (_: unknown, record: IKnowledgeJobInfo) => (
-                        <Text type='secondary' style={{ fontSize: 12 }}>
+                    render: (_: unknown, record: IKnowledgeJobInfo) => <Text type='secondary' style={{ fontSize: 12 }}>
                             {record.attempt ?? 0}/{record.maxAttempts ?? 3}
-                        </Text>
-                    ),
+                        </Text>,
                 },
                 {
                     title: t('创建时间'),
                     dataIndex: 'createTime',
                     width: 160,
-                    render: (time: string) => <Text type='secondary' style={{ fontSize: 12 }}>{time ? new Date(time).toLocaleString() : '-'}</Text>,
+                    render: (time: string) => <Text type='secondary' style={{ fontSize: 12 }}>{format_browser_time(time)}</Text>,
                 },
                 {
                     title: t('操作'),
                     width: 90,
                     render: (_: unknown, record: IKnowledgeJobInfo) => {
-                        const can_retry = record.allowedActions?.includes('RETRY') || record.status === 'FAILED'
-                        const can_cancel = record.allowedActions?.includes('CANCEL') || record.status === 'RUNNING' || record.status === 'PENDING'
+                        const can_retry = record.allowedActions?.includes('RETRY') === true
+                        const can_cancel = record.allowedActions?.includes('CANCEL') === true
                         return <Space size={4}>
                             {can_retry && <Tooltip title={t('重试任务')}>
                                 <Button

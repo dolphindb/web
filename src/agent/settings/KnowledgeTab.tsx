@@ -35,18 +35,17 @@ export function KnowledgeTab () {
             ])
             const provider_map = new Map<string, ILlmProvider>(providers.map(p => [p.providerId, p] as const))
             const all_configs = await chat_model.llm.load_llm_configs(provider_map).catch(() => [ ])
-            const active_configs = all_configs.filter(c => c.enabled !== false && c.statusName !== 'DELETED')
+            const active_configs = all_configs.filter(config => {
+                const provider = provider_map.get(config.providerId)
+                return Boolean(provider) && config.enabled !== false && config.statusName !== 'DELETED' &&
+                    provider?.enabled !== false && provider?.statusName !== 'DELETED'
+            })
             
             set_knowledge_bases(kbs)
             set_agents(all_agents)
             set_embedding_configs(active_configs.filter(c => c.capability === 'embedding'))
             set_chat_configs(active_configs.filter(c => !c.capability || c.capability === 'chat'))
             
-            if (!selected_kb_id && kbs.length > 0) {
-                const first_active = kbs.find(kb => kb.status !== 'DELETED')
-                if (first_active)
-                    set_selected_kb_id(first_active.knowledgeBaseId)
-            }
         } catch {
             model.message.error(t('加载知识库列表失败'))
         } finally {
@@ -57,6 +56,12 @@ export function KnowledgeTab () {
     useEffect(() => {
         load()
     }, [ ])
+    
+    useEffect(() => {
+        if (knowledge_bases.some(kb => kb.knowledgeBaseId === selected_kb_id && kb.status !== 'DELETED'))
+            return
+        set_selected_kb_id(knowledge_bases.find(kb => kb.status !== 'DELETED')?.knowledgeBaseId || '')
+    }, [knowledge_bases, selected_kb_id])
     
     const selected_kb = knowledge_bases.find(kb => kb.knowledgeBaseId === selected_kb_id) || null
     

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-
 import {
-    Button, Empty, Input, InputNumber, Space, Spin, Switch, Tabs, Tag, Tooltip, Typography,
+    Alert, Button, Empty, Input, InputNumber, Space, Spin, Switch, Tabs, Tag, Tooltip, Typography,
 } from 'antd'
 import {
     CheckCircleOutlined, ReloadOutlined, SaveOutlined,
@@ -10,10 +9,11 @@ import {
 import { t } from '@i18n'
 import { model } from '@model'
 import { chat_model } from '@/agent/model.ts'
-import type { IAgentInfo, IAgentLlmBinding, IKnowledgeAvailableItem, IKnowledgeBaseInfo, ILlmConfig, IMcpBindingInfo, IMcpServerInfo, ISkillBinding, ISkillInfo } from '@/agent/model.ts'
+import type { IAgentInfo, IAgentLlmBinding, IKnowledgeBaseInfo, ILlmConfig, IMcpBindingInfo, IMcpServerInfo, ISkillBinding, ISkillInfo } from '@/agent/model.ts'
+import { get_kb_status_label } from '@/agent/settings/knowledge/types.ts'
+
 import { AgentActions } from './AgentActions.tsx'
 import { get_llm_config_display_name, get_mcp_server_display_name } from './types.ts'
-import { get_kb_status_label } from '../knowledge/types.ts'
 
 
 const { Paragraph, Text } = Typography
@@ -26,8 +26,9 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
     const [all_skills, set_all_skills] = useState<ISkillInfo[]>([ ])
     const [bound_mcp_servers, set_bound_mcp_servers] = useState<IMcpBindingInfo[]>([ ])
     const [all_mcp_servers, set_all_mcp_servers] = useState<IMcpServerInfo[]>([ ])
-    const [bound_kbs, set_bound_kbs] = useState<IKnowledgeAvailableItem[]>([ ])
+    const [bound_kbs, set_bound_kbs] = useState<IKnowledgeBaseInfo[]>([ ])
     const [all_kbs, set_all_kbs] = useState<IKnowledgeBaseInfo[]>([ ])
+    const [knowledge_load_error, set_knowledge_load_error] = useState('')
     const [loading, set_loading] = useState(true)
     const [saving_agent, set_saving_agent] = useState(false)
     const [operating_id, set_operating_id] = useState('')
@@ -45,15 +46,22 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
         try {
             const providers = await chat_model.llm.load_llm_providers()
             const provider_lookup = new Map(providers.map(provider => [provider.providerId, provider]))
-            const [llms, global_llms, skills, global_skills, mcp_bindings, mcp_servers, kbs_bound, kbs_all] = await Promise.all([
+            const [llms, global_llms, skills, global_skills, mcp_bindings, mcp_servers, knowledge_state] = await Promise.all([
                 chat_model.llm.load_agent_llm_bindings(agent.agentId, provider_lookup),
                 chat_model.llm.load_llm_configs(provider_lookup),
                 chat_model.skill.load_skill_bindings(agent.agentId),
                 chat_model.skill.load_skills(),
                 chat_model.mcp.load_agent_mcp_bindings(agent.agentId),
                 chat_model.mcp.load_mcp_servers(),
-                chat_model.knowledge.get_available_knowledge_bases({ agentId: agent.agentId }).catch(() => [ ]),
-                chat_model.knowledge.list_knowledge_bases().catch(() => [ ]),
+                chat_model.knowledge.list_knowledge_bases().then(async knowledge_bases => ({
+                    knowledge_bases,
+                    bound_knowledge_bases: await chat_model.knowledge.load_agent_knowledge_bases(agent.agentId, knowledge_bases),
+                    error: '',
+                })).catch(error => ({
+                    knowledge_bases: [ ] as IKnowledgeBaseInfo[],
+                    bound_knowledge_bases: [ ] as IKnowledgeBaseInfo[],
+                    error: error instanceof Error ? error.message : String(error),
+                })),
             ])
             set_bound_llms(llms)
             set_all_llms(global_llms)
@@ -61,8 +69,9 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
             set_all_skills(global_skills)
             set_bound_mcp_servers(mcp_bindings)
             set_all_mcp_servers(mcp_servers)
-            set_bound_kbs(kbs_bound)
-            set_all_kbs(kbs_all)
+            set_bound_kbs(knowledge_state.bound_knowledge_bases)
+            set_all_kbs(knowledge_state.knowledge_bases)
+            set_knowledge_load_error(knowledge_state.error)
             // 同步刷新工具栏的可选 LLM 下拉列表
             if (is_current)
                 chat_model.llm.load_selectable_llms(agent.agentId).catch(() => { })
@@ -156,7 +165,7 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
     const bound_kb_ids = new Set(bound_kbs.map(b => b.knowledgeBaseId))
     const all_kb_lookup = new Map(all_kbs.map(k => [k.knowledgeBaseId, k]))
     const visible_kbs = all_kbs.filter(k => k.status !== 'DELETED')
-    const bound_kb_items = bound_kbs.map(b => all_kb_lookup.get(b.knowledgeBaseId) || b).filter(Boolean) as (IKnowledgeBaseInfo | IKnowledgeAvailableItem)[]
+    const bound_kb_items = bound_kbs.map(b => all_kb_lookup.get(b.knowledgeBaseId) || b)
     const unbound_kbs = visible_kbs.filter(k => !bound_kb_ids.has(k.knowledgeBaseId))
     const kb_items = [
         ...bound_kb_items.map(kb => ({
@@ -465,11 +474,19 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
                     key: 'knowledge',
                     label: t('知识库绑定') + ` (${bound_kbs.length})`,
                     children: <div>
-                        {kb_items.length > 0
+                        {knowledge_load_error
+                            ? <Alert
+                                type='error'
+                                showIcon
+                                message={t('加载知识库绑定失败')}
+                                description={knowledge_load_error}
+                                action={<Button size='small' onClick={() => { load(false) }}>{t('重试')}</Button>}
+                            />
+                            : kb_items.length > 0
                             ? <div style={{ marginBottom: 12 }}>
                                 {kb_items.map(({ is_bound, kb }) => {
                                     const kb_id = kb.knowledgeBaseId
-                                    const status = 'status' in kb ? kb.status : 'ACTIVE'
+                                    const status = kb.status
                                     return <div
                                         key={kb_id}
                                         className='ai-settings-data-row'

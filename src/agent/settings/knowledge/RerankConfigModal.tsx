@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Form, InputNumber, Modal, Select, Space, Spin, Switch, Typography, message } from 'antd'
+import { Alert, Button, Form, InputNumber, Modal, Select, Space, Spin, Switch, Typography, message } from 'antd'
 
 import { t } from '@i18n'
-import type { IKnowledgeRerankConfig, ILlmConfig } from '@/agent/model.ts'
+import type { ILlmConfig } from '@/agent/model.ts'
 import { chat_model } from '@/agent/model.ts'
 
 
@@ -18,25 +18,25 @@ export function RerankConfigModal ({
     chat_configs: ILlmConfig[]
     on_close: () => void
 }) {
-    const [config, set_config] = useState<IKnowledgeRerankConfig | null>(null)
     const [enabled, set_enabled] = useState(false)
     const [provider_config_id, set_provider_config_id] = useState('')
     const [candidate_count, set_candidate_count] = useState(30)
     const [loading, set_loading] = useState(false)
     const [saving, set_saving] = useState(false)
+    const [load_error, set_load_error] = useState('')
     const [error_msg, set_error_msg] = useState('')
     
     async function load () {
         set_loading(true)
+        set_load_error('')
         try {
             const data = await chat_model.knowledge.get_rerank_config()
-            set_config(data)
             set_enabled(Boolean(data?.enabled))
             set_provider_config_id(data?.providerConfigId || '')
             set_candidate_count(data?.candidateCount ?? 30)
             set_error_msg('')
-        } catch {
-            message.error(t('加载全局 Rerank 配置失败'))
+        } catch (error) {
+            set_load_error(error instanceof Error ? error.message : t('加载全局 Rerank 配置失败'))
         } finally {
             set_loading(false)
         }
@@ -48,7 +48,9 @@ export function RerankConfigModal ({
     }, [visible])
     
     async function handle_save () {
-        if (enabled && !provider_config_id) {
+        if (loading || load_error)
+            return
+        if (enabled && !chat_configs.some(config => config.llmConfigId === provider_config_id)) {
             set_error_msg(t('启用全局 Rerank 时必须选择模型配置'))
             return
         }
@@ -75,13 +77,23 @@ export function RerankConfigModal ({
         onCancel={on_close}
         onOk={handle_save}
         confirmLoading={saving}
+        okButtonProps={{ disabled: loading || Boolean(load_error) }}
         okText={t('保存')}
         cancelText={t('取消')}
         destroyOnHidden
     >
         {loading
             ? <div style={{ textAlign: 'center', padding: 32 }}><Spin /></div>
-            : <Form layout='vertical' size='small' style={{ marginTop: 12 }}>
+            : load_error
+                ? <Alert
+                    type='error'
+                    showIcon
+                    message={t('加载全局 Rerank 配置失败')}
+                    description={load_error}
+                    action={<Button size='small' onClick={load}>{t('重试')}</Button>}
+                    style={{ marginTop: 12 }}
+                />
+                : <Form layout='vertical' size='small' style={{ marginTop: 12 }}>
                 <Form.Item label={t('启用全局 Rerank')}>
                     <Space>
                         <Switch checked={enabled} onChange={set_enabled} />
@@ -99,7 +111,7 @@ export function RerankConfigModal ({
                             onChange={set_provider_config_id}
                             options={chat_configs.map(cfg => ({
                                 value: cfg.llmConfigId,
-                                label: `${cfg.name} (${cfg.model})`,
+                                label: [cfg.model, cfg.name, cfg.providerName].filter(Boolean).join(' · '),
                             }))}
                         />
                     </Form.Item>
@@ -116,7 +128,7 @@ export function RerankConfigModal ({
                 </>}
                 
                 {error_msg && <Text type='danger'>{error_msg}</Text>}
-            </Form>
+                </Form>
         }
     </Modal>
 }

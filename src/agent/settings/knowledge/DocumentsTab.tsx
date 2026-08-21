@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, Empty, Modal, Popconfirm, Progress, Space, Table, Tag, Tooltip, Typography, Upload, message } from 'antd'
 import { DeleteOutlined, InboxOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 import type { IKnowledgeBaseInfo, IKnowledgeDocumentInfo } from '@/agent/model.ts'
 import { chat_model } from '@/agent/model.ts'
+import { format_browser_time } from '@/agent/dolphinx/common.tsx'
 import { format_byte_size, get_kb_status_color, get_kb_status_label } from './types.ts'
 
 
@@ -113,16 +114,14 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                 {
                     title: t('文件名'),
                     dataIndex: 'fileName',
-                    render: (fileName: string, record: IKnowledgeDocumentInfo) => (
-                        <div style={{ minWidth: 0 }}>
+                    render: (fileName: string, record: IKnowledgeDocumentInfo) => <div style={{ minWidth: 0 }}>
                             <Text strong title={fileName} style={{ display: 'block', maxWidth: '100%' }} ellipsis>
                                 {fileName}
                             </Text>
                             {record.sourceRelativePath && <Text type='secondary' style={{ fontSize: 11 }}>
                                 {record.sourceRelativePath}
                             </Text>}
-                        </div>
-                    ),
+                        </div>,
                 },
                 {
                     title: t('大小'),
@@ -134,13 +133,11 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                     title: t('解析状态'),
                     dataIndex: 'parseStatus',
                     width: 110,
-                    render: (status: string, record: IKnowledgeDocumentInfo) => (
-                        <Tooltip title={record.lastError || undefined}>
+                    render: (status: string, record: IKnowledgeDocumentInfo) => <Tooltip title={record.lastError || undefined}>
                             <Tag color={get_kb_status_color(status)} style={{ cursor: record.lastError ? 'pointer' : 'default' }}>
                                 {get_kb_status_label(status)}
                             </Tag>
-                        </Tooltip>
-                    ),
+                        </Tooltip>,
                 },
                 {
                     title: t('状态'),
@@ -152,20 +149,18 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                     title: t('上传时间'),
                     dataIndex: 'createTime',
                     width: 160,
-                    render: (time: string) => <Text type='secondary' style={{ fontSize: 12 }}>{time ? new Date(time).toLocaleString() : '-'}</Text>,
+                    render: (time: string) => <Text type='secondary' style={{ fontSize: 12 }}>{format_browser_time(time)}</Text>,
                 },
                 {
                     title: t('操作'),
                     width: 80,
-                    render: (_: unknown, record: IKnowledgeDocumentInfo) => (
-                        <Popconfirm
+                    render: (_: unknown, record: IKnowledgeDocumentInfo) => <Popconfirm
                             title={t('确定删除该文档？')}
                             onConfirm={() => { delete_doc(record) }}
                             okButtonProps={{ danger: true }}
                         >
                             <Button size='small' danger type='text' icon={<DeleteOutlined />} />
-                        </Popconfirm>
-                    ),
+                        </Popconfirm>,
                 },
             ]}
         />

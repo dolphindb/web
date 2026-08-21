@@ -6,6 +6,7 @@ import { model } from '@model'
 import type { IAgentInfo, IKnowledgeBaseInfo, ILlmConfig } from '@/agent/model.ts'
 import { chat_model } from '@/agent/model.ts'
 import { DocumentsTab } from './DocumentsTab.tsx'
+import { AgentsTab } from './AgentsTab.tsx'
 import { GenerationsTab } from './GenerationsTab.tsx'
 import { JobsTab } from './JobsTab.tsx'
 import { KnowledgeActions } from './KnowledgeActions.tsx'
@@ -94,6 +95,11 @@ export function KnowledgeDetailPanel ({
                     children: <DocumentsTab kb={kb} />,
                 },
                 {
+                    key: 'agents',
+                    label: t('Agent 绑定'),
+                    children: <AgentsTab kb={kb} agents={agents} />,
+                },
+                {
                     key: 'generations',
                     label: t('索引版本'),
                     children: <GenerationsTab kb={kb} embedding_configs={embedding_configs} on_rebuild_success={on_refresh} />,
@@ -116,7 +122,6 @@ export function KnowledgeDetailPanel ({
         
         <IndexBuildModal
             visible={build_modal_visible}
-            kb={kb}
             embedding_configs={embedding_configs}
             loading={building_index}
             on_close={() => { set_build_modal_visible(false) }}

@@ -1,6 +1,7 @@
+import { normalize_json_object } from '@/agent/model/helpers.ts'
+
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import { normalize_script_args } from './helpers.ts'
-import { normalize_json_object } from '@/agent/model/helpers.ts'
 
 
 function parse_positive_number (value: unknown, fallback: number, min = 1, max = 20): number {
@@ -91,6 +92,7 @@ export const kb_search_config: ScriptConfig = {
                 chunkId: String(item.chunkId || ''),
                 content: String(item.content || '').trim(),
                 source: {
+                    documentId: String(item.source?.documentId || ''),
                     fileName: String(item.source?.fileName || ''),
                     ...(typeof item.source?.pageNo === 'number' ? { pageNo: item.source.pageNo } : { }),
                 },

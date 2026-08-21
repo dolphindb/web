@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { Form, InputNumber, Modal, Radio, Select, Space, Switch, Typography, message } from 'antd'
+import { Form, InputNumber, Modal, Radio, Select, Switch, Typography, message } from 'antd'
 
 import { t } from '@i18n'
-import type { IKnowledgeBaseConfig, IKnowledgeBaseInfo, ILlmConfig } from '@/agent/model.ts'
-import { DEFAULT_KB_CONFIG } from './types.ts'
+import type { IKnowledgeBaseConfig, ILlmConfig } from '@/agent/model.ts'
 
 
 const { Text } = Typography
@@ -11,14 +10,12 @@ const { Text } = Typography
 
 export function IndexBuildModal ({
     visible,
-    kb,
     embedding_configs,
     loading,
     on_close,
     on_submit,
 }: {
     visible: boolean
-    kb: IKnowledgeBaseInfo | null
     embedding_configs: ILlmConfig[]
     loading: boolean
     on_close: () => void
@@ -105,7 +102,7 @@ export function IndexBuildModal ({
                 style={{ marginBottom: 16 }}
             >
                 <Radio value={false}>{t('复用当前索引配置（重新全量索引）')}</Radio>
-                <Radio value={true}>{t('自定义新索引配置')}</Radio>
+                <Radio value>{t('自定义新索引配置')}</Radio>
             </Radio.Group>
             
             {use_custom_config && <Form layout='vertical' size='small'>

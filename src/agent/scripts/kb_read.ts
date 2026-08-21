@@ -1,6 +1,7 @@
+import { normalize_json_object } from '@/agent/model/helpers.ts'
+
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import { normalize_script_args } from './helpers.ts'
-import { normalize_json_object } from '@/agent/model/helpers.ts'
 
 
 function parse_clamp_int (value: unknown, fallback: number, min = 0, max = 5): number {
@@ -26,6 +27,7 @@ function clean_chunk (raw: any) {
         chunkId: chunk_id,
         content,
         source: {
+            documentId: String(raw.source?.documentId || ''),
             fileName: String(raw.source?.fileName || ''),
             ...(typeof raw.source?.pageNo === 'number' ? { pageNo: raw.source.pageNo } : { }),
         },
