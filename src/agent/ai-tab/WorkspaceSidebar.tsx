@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
-
 import { Alert, Button, Empty, Modal, Spin, Tooltip, Typography } from 'antd'
 import { CopyOutlined, DownloadOutlined, FileTextOutlined, FolderOpenOutlined, PaperClipOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons'
+import { storage } from 'xshell/storage.js'
 
 import { t } from '@i18n'
 import { model, storage_keys } from '@model'
 import { copy } from '@utils'
 import { Editor } from '@components/Editor/index.tsx'
-import { storage } from 'xshell/storage.js'
-import type { ChatModel, IMessage, ISessionAttachment } from '@/agent/model.ts'
+import type { ChatModel } from '@/agent/model.ts'
+import type { IMessage, ISessionAttachment } from '@/agent/model/types.ts'
 import { chat_workspace_store, normalize_workspace_path } from '@/agent/workspace.ts'
 import type { IWorkspaceFile } from '@/agent/workspace.ts'
 import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'

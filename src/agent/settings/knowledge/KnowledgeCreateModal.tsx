@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Form, Input, InputNumber, Modal, Radio, Select, Space, Switch, Typography, message } from 'antd'
 
 import { t } from '@i18n'
-import type { ILlmConfig, IKnowledgeBaseRegisterPayload } from '@/agent/model.ts'
+import type { ILlmConfig, IKnowledgeBaseRegisterPayload } from '@/agent/model/types.ts'
 import { DEFAULT_KB_FORM, type KnowledgeCreateFormState } from './types.ts'
 
 

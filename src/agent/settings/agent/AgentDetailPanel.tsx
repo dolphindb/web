@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { use_modal } from 'react-object-model/hooks.js'
 import {
     Alert, Button, Empty, Input, InputNumber, Space, Spin, Switch, Tabs, Tag, Tooltip, Typography,
 } from 'antd'
@@ -9,7 +10,8 @@ import {
 import { t } from '@i18n'
 import { model } from '@model'
 import { chat_model } from '@/agent/model.ts'
-import type { IAgentInfo, IAgentLlmBinding, IKnowledgeBaseInfo, ILlmConfig, IMcpBindingInfo, IMcpServerInfo, ISkillBinding, ISkillInfo } from '@/agent/model.ts'
+import type { IAgentInfo, IAgentLlmBinding, IKnowledgeBaseInfo, ILlmConfig, IMcpBindingInfo, IMcpServerInfo, ISkillBinding, ISkillInfo } from '@/agent/model/types.ts'
+import { BudgetModal } from '@/agent/dolphinx/sections/BudgetModal.tsx'
 import { get_kb_status_label } from '@/agent/settings/knowledge/types.ts'
 
 import { AgentActions } from './AgentActions.tsx'
@@ -33,6 +35,7 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
     const [saving_agent, set_saving_agent] = useState(false)
     const [operating_id, set_operating_id] = useState('')
     const [binding_tab_key, set_binding_tab_key] = useState('llm')
+    const budget_modal = use_modal()
     const [agent_form, set_agent_form] = useState({
         description: agent.description || '',
         systemPrompt: agent.systemPrompt || '',
@@ -189,8 +192,12 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
                     {agent.description}
                 </Paragraph>}
             </div>
-            <AgentActions agent={agent} is_current={is_current} on_refresh={on_refresh} />
+            <Space size={6}>
+                <Button size='small' onClick={budget_modal.open}>{t('Token 预算')}</Button>
+                <AgentActions agent={agent} is_current={is_current} on_refresh={on_refresh} />
+            </Space>
         </div>
+        <BudgetModal agent_id={agent.agentId} visible={budget_modal.visible} on_close={budget_modal.close} />
         <div style={{ marginBottom: 16 }}>
             <div style={{ marginBottom: 8, fontWeight: 500 }}>{t('Agent 配置')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>

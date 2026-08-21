@@ -3,7 +3,7 @@ import { Empty, Space, Switch, Table, Tag, Tooltip, Typography, message } from '
 import { ReloadOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import type { IAgentInfo, IKnowledgeBaseAgentBinding, IKnowledgeBaseInfo } from '@/agent/model.ts'
+import type { IAgentInfo, IKnowledgeBaseAgentBinding, IKnowledgeBaseInfo } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 
 

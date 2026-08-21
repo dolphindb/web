@@ -2,7 +2,7 @@ import { Empty, Spin, Tag, Tooltip } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import type { ILlmConfig, ILlmProvider } from '@/agent/model.ts'
+import type { ILlmConfig, ILlmProvider } from '@/agent/model/types.ts'
 
 
 export function ProviderSidebar ({

@@ -3,7 +3,7 @@ import { Empty, Input, Spin, Tag, Tooltip, Typography } from 'antd'
 import { PlusOutlined, ReloadOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import type { IKnowledgeBaseInfo } from '@/agent/model.ts'
+import type { IKnowledgeBaseInfo } from '@/agent/model/types.ts'
 import { get_kb_status_color, get_kb_status_label } from './types.ts'
 
 

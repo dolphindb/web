@@ -1,7 +1,7 @@
 import type { TreeDataNode } from 'antd'
 
 import { language, t } from '@i18n'
-import type { ISkillInfo } from '@/agent/model.ts'
+import type { ISkillInfo } from '@/agent/model/types.ts'
 
 
 export const DEFAULT_OVERRIDES = {

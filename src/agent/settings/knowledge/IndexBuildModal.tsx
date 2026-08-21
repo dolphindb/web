@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Form, InputNumber, Modal, Radio, Select, Switch, Typography, message } from 'antd'
 
 import { t } from '@i18n'
-import type { IKnowledgeBaseConfig, ILlmConfig } from '@/agent/model.ts'
+import type { IKnowledgeBaseConfig, ILlmConfig } from '@/agent/model/types.ts'
 
 
 const { Text } = Typography

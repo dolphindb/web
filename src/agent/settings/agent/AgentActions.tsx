@@ -4,7 +4,7 @@ import { CheckCircleOutlined, DeleteOutlined, StopOutlined } from '@ant-design/i
 import { t } from '@i18n'
 import { model } from '@model'
 import { chat_model } from '@/agent/model.ts'
-import type { IAgentInfo } from '@/agent/model.ts'
+import type { IAgentInfo } from '@/agent/model/types.ts'
 
 
 export function AgentActions ({ agent, is_current, on_refresh }: { agent: IAgentInfo, is_current: boolean, on_refresh: () => void }) {

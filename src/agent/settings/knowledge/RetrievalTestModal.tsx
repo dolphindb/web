@@ -3,7 +3,7 @@ import { Alert, Button, Card, Descriptions, Form, Input, InputNumber, Modal, Sel
 import { SearchOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import type { IAgentInfo, IKnowledgeBaseInfo, IKnowledgeRetrievalDiagnostic, IKnowledgeRetrieveResult } from '@/agent/model.ts'
+import type { IAgentInfo, IKnowledgeBaseInfo, IKnowledgeRetrievalDiagnostic, IKnowledgeRetrieveResult } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 
 

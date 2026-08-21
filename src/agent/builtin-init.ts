@@ -1,4 +1,4 @@
-import type { IBuiltinInitResult } from './model.ts'
+import type { IBuiltinInitResult } from './model/types.ts'
 
 
 export type BuiltinInitAction = 'none' | 'initialize' | 'upgrade' | 'partial' | 'invalid'

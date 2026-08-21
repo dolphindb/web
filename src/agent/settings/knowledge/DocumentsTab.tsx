@@ -3,7 +3,7 @@ import { Button, Empty, Modal, Popconfirm, Progress, Space, Table, Tag, Tooltip,
 import { DeleteOutlined, InboxOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import type { IKnowledgeBaseInfo, IKnowledgeDocumentInfo } from '@/agent/model.ts'
+import type { IKnowledgeBaseInfo, IKnowledgeDocumentInfo } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 import { format_browser_time } from '@/agent/dolphinx/common.tsx'
 import { format_byte_size, get_kb_status_color, get_kb_status_label } from './types.ts'

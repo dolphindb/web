@@ -1,5 +1,5 @@
 import { t } from '@i18n'
-import type { IMessage, MessageType } from '@/agent/model.ts'
+import type { IMessage, MessageType } from '@/agent/model/types.ts'
 import { parse_tool_calls as parse_text_tool_calls } from '@/agent/tool_call_parser.ts'
 
 

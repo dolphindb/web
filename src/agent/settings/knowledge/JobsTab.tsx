@@ -3,7 +3,7 @@ import { Button, Empty, Popconfirm, Space, Table, Tag, Tooltip, Typography, mess
 import { RedoOutlined, ReloadOutlined, StopOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import type { IKnowledgeBaseInfo, IKnowledgeJobInfo } from '@/agent/model.ts'
+import type { IKnowledgeBaseInfo, IKnowledgeJobInfo } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 import { format_browser_time } from '@/agent/dolphinx/common.tsx'
 import { get_job_type_label, get_kb_status_color, get_kb_status_label } from './types.ts'

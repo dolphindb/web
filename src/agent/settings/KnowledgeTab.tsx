@@ -3,7 +3,7 @@ import { Empty } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
-import type { IAgentInfo, IKnowledgeBaseInfo, ILlmConfig, ILlmProvider } from '@/agent/model.ts'
+import type { IAgentInfo, IKnowledgeBaseInfo, ILlmConfig, ILlmProvider } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 import {
     KnowledgeCreateModal,

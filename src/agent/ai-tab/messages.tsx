@@ -4,7 +4,8 @@ import { Collapse, Typography } from 'antd'
 import { BulbOutlined, CodeOutlined, PaperClipOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import type { AgentStatus, ChatModel, IMessage, IToolCall } from '@/agent/model.ts'
+import type { ChatModel } from '@/agent/model.ts'
+import type { AgentStatus, IMessage, IToolCall } from '@/agent/model/types.ts'
 import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
 import { ToolMessageRenderer } from '@/agent/ToolMessageRenderer.tsx'
 import {

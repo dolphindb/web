@@ -3,7 +3,7 @@ import { Form, Input, Modal, Typography } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
-import type { IKnowledgeBaseInfo } from '@/agent/model.ts'
+import type { IKnowledgeBaseInfo } from '@/agent/model/types.ts'
 
 
 const { Text } = Typography

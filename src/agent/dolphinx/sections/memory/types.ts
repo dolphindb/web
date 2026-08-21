@@ -1,5 +1,5 @@
 import { t } from '@i18n'
-import type { IMemoryEntry } from '@/agent/model.ts'
+import type { IMemoryEntry } from '@/agent/model/types.ts'
 
 
 export type MemoryViewType = 'user_personal' | 'public_memory'

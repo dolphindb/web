@@ -517,15 +517,45 @@ export interface ISkillFileContent {
 }
 
 
+export interface ILlmModelUsage {
+    model: string
+    promptTokens?: number
+    completionTokens?: number
+    totalTokens?: number
+    requestCount?: number
+}
+
+
 export interface ILlmUsageStats {
     agentId: string
     userId?: string
-    startTime?: number
-    endTime?: number
+    startTime?: string | number
+    endTime?: string | number
     totalPromptTokens?: number
     totalCompletionTokens?: number
     totalTokens?: number
     requestCount?: number
+    tokensByModel?: Record<string, number>
+    models?: ILlmModelUsage[]
+}
+
+
+export interface ILlmBudgetConfig {
+    enabled?: boolean
+    maxTokens?: number
+    startTime?: string | number
+    endTime?: string | number
+    models?: Record<string, number | { maxTokens?: number }>
+}
+
+
+export interface ILlmBudgetStatus {
+    agentId: string
+    userId?: string
+    budget?: ILlmBudgetConfig
+    usage: ILlmUsageStats
+    remainingTokens?: number
+    remainingTokensByModel?: Record<string, number>
 }
 
 

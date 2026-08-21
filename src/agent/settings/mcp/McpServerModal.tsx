@@ -19,7 +19,7 @@ import type {
     IMcpServerInfo,
     IMcpServerTestResult,
     McpServerType,
-} from '@/agent/model.ts'
+} from '@/agent/model/types.ts'
 import {
     empty_server_form,
     test_result_text,

@@ -5,7 +5,7 @@ import { Button, InputNumber, Select, Switch, message } from 'antd'
 import { t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
-import type { ILlmConfig } from '@/agent/model.ts'
+import type { ILlmConfig } from '@/agent/model/types.ts'
 import {
     AgentListLayout,
     optional_nonnegative_number,

@@ -3,7 +3,7 @@ import { Tabs, Typography } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
-import type { IAgentInfo, IKnowledgeBaseInfo, ILlmConfig } from '@/agent/model.ts'
+import type { IAgentInfo, IKnowledgeBaseInfo, ILlmConfig } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 import { DocumentsTab } from './DocumentsTab.tsx'
 import { AgentsTab } from './AgentsTab.tsx'

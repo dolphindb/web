@@ -1,6 +1,6 @@
 import type { ChatModel } from '@/agent/model.ts'
 import { ENABLE_ATTACHMENTS } from './constants.ts'
-import type { AgentAuthSubjectType, IAgentLlmBinding, IBuiltinInitResult, ILlmConfig, ILlmConfigInput, ILlmProvider, ILlmUsageStats, ISelectableLlmInfo, IUserLlmAccessInfo } from './types.ts'
+import type { AgentAuthSubjectType, IAgentLlmBinding, IBuiltinInitResult, ILlmBudgetConfig, ILlmBudgetStatus, ILlmConfig, ILlmConfigInput, ILlmProvider, ILlmUsageStats, ISelectableLlmInfo, IUserLlmAccessInfo } from './types.ts'
 import { get_auth_subject_parameter, get_enabled, get_status, get_status_name, normalize_json_object, normalize_json_object_string, optional_positive_number } from './helpers.ts'
 import { chat_shared_model } from './shared.ts'
 
@@ -202,6 +202,18 @@ export class ChatLlmModel {
         if (params.endTime !== undefined)
             search.set('endTime', String(params.endTime))
         return this.chat.agent.api_fetch(`/llm/usage?${search}`)
+    }
+    async load_llm_budget (params: { agentId: string, targetUserId?: string }): Promise<ILlmBudgetStatus> {
+        const search = new URLSearchParams({ agentId: params.agentId })
+        if (params.targetUserId)
+            search.set('targetUserId', params.targetUserId)
+        return this.chat.agent.api_fetch(`/llm/budget?${search}`)
+    }
+    async update_llm_budget (agent_id: string, budget: ILlmBudgetConfig): Promise<ILlmBudgetStatus> {
+        return this.chat.agent.api_fetch('/llm/budget', {
+            method: 'PUT',
+            body: JSON.stringify({ agentId: agent_id, budget }),
+        })
     }
     async init_builtins (params: { dryRun?: boolean, includeDetails?: boolean }): Promise<IBuiltinInitResult> {
         return this.chat.agent.api_fetch('/builtin/init', {

@@ -1,5 +1,5 @@
 import type { DdbEvalOptions } from 'dolphindb/browser.js'
-import type { IMessage } from '@/agent/model.ts'
+import type { IMessage } from '@/agent/model/types.ts'
 import type { chat_workspace_store } from '@/agent/workspace.ts'
 
 

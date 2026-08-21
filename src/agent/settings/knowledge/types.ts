@@ -1,5 +1,5 @@
 import { t } from '@i18n'
-import type { IKnowledgeBaseConfig } from '@/agent/model.ts'
+import type { IKnowledgeBaseConfig } from '@/agent/model/types.ts'
 
 
 export const DEFAULT_KB_CONFIG: IKnowledgeBaseConfig = {

@@ -1,7 +1,7 @@
 import { Button, Empty, Input, Popconfirm, Select, Space, Switch, Table, Tag, Typography } from 'antd'
 
 import { t } from '@i18n'
-import type { IMemoryEntry } from '@/agent/model.ts'
+import type { IMemoryEntry } from '@/agent/model/types.ts'
 import { ellipsis_text, format_browser_time } from '@/agent/dolphinx/common.tsx'
 import { memory_kind_options } from './types.ts'
 

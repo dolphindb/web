@@ -7,7 +7,8 @@ import { t } from '@i18n'
 import { copy } from '@utils'
 import { shell } from '@/shell/model.ts'
 
-import type { ChatModel, IMessage } from '@/agent/model.ts'
+import type { ChatModel } from '@/agent/model.ts'
+import type { IMessage } from '@/agent/model/types.ts'
 import {
     type ToolCallViewModel,
     to_message_text,

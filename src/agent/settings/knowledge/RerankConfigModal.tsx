@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Alert, Button, Form, InputNumber, Modal, Select, Space, Spin, Switch, Typography, message } from 'antd'
 
 import { t } from '@i18n'
-import type { ILlmConfig } from '@/agent/model.ts'
+import type { ILlmConfig } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 
 

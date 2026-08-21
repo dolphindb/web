@@ -4,7 +4,7 @@ import { message } from 'antd'
 import { t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
-import type { ILlmConfig, ILlmProvider } from '@/agent/model.ts'
+import type { ILlmConfig, ILlmProvider } from '@/agent/model/types.ts'
 import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
 import {
     ConfigEditModal,

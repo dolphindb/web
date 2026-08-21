@@ -2,7 +2,7 @@ import { Button, Popconfirm, Space } from 'antd'
 import { DeleteOutlined, EditOutlined, SyncOutlined, ThunderboltOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import type { IKnowledgeBaseInfo } from '@/agent/model.ts'
+import type { IKnowledgeBaseInfo } from '@/agent/model/types.ts'
 
 
 export function KnowledgeActions ({

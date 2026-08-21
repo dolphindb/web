@@ -13,7 +13,7 @@ import { model } from '@model'
 import SvgAi from '@/shell/icons/ai.icon.svg'
 
 import { chat_model } from './model.ts'
-import type { IBuiltinInitResult } from './model.ts'
+import type { IBuiltinInitResult } from './model/types.ts'
 import { get_builtin_init_action } from './builtin-init.ts'
 import type { BuiltinInitAction } from './builtin-init.ts'
 import { ENABLE_AGENT_GROUP_AUTH } from './model/constants.ts'

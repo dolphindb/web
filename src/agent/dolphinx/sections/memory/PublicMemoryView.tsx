@@ -1,7 +1,7 @@
 import { Button, Input, Space, Typography } from 'antd'
 
 import { t } from '@i18n'
-import type { IPublicMemory } from '@/agent/model.ts'
+import type { IPublicMemory } from '@/agent/model/types.ts'
 import { format_browser_time } from '@/agent/dolphinx/common.tsx'
 
 
