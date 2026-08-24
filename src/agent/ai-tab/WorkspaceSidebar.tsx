@@ -1,18 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Button, Empty, Modal, Spin, Tooltip, Typography } from 'antd'
-import { CopyOutlined, DownloadOutlined, FileTextOutlined, FolderOpenOutlined, PaperClipOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons'
-import { storage } from 'xshell/storage.js'
+import { Alert, Button, Empty, Spin, Tooltip, Typography } from 'antd'
+import { FileTextOutlined, FolderOpenOutlined, PaperClipOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import { model, storage_keys } from '@model'
-import { copy } from '@utils'
-import { Editor } from '@components/Editor/index.tsx'
 import type { ChatModel } from '@/agent/model.ts'
 import type { IMessage, ISessionAttachment } from '@/agent/model/types.ts'
-import { chat_workspace_store, normalize_workspace_path } from '@/agent/workspace.ts'
+import { chat_workspace_store } from '@/agent/workspace.ts'
 import type { IWorkspaceFile } from '@/agent/workspace.ts'
 import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
 
+import type { IFilePreviewTarget } from './FilePreviewModal.tsx'
 import { format_file_size, get_workspace_file_change } from './messages.tsx'
 
 
@@ -29,6 +26,7 @@ export function WorkspaceSidebar ({
     attachments_error,
     on_refresh_attachments,
     on_upload_attachments,
+    on_preview_file,
 }: {
     chat: ChatModel
     session_id: string
@@ -39,18 +37,13 @@ export function WorkspaceSidebar ({
     attachments_error: string
     on_refresh_attachments: () => Promise<void>
     on_upload_attachments: (files: File[]) => Promise<void>
+    on_preview_file: (target: IFilePreviewTarget) => void
 }) {
     const [visible, set_visible] = useState(false)
-    // 代码地图设置仅在组件挂载时读取一次，避免每次渲染都访问 localStorage
-    const [minimap] = useState(() => storage.get_bool(storage_keys.minimap) ?? false)
     const [files, set_files] = useState<IWorkspaceFile[]>([ ])
     const [files_loading, set_files_loading] = useState(false)
     const [files_error, set_files_error] = useState('')
-    const [opened_file, set_opened_file] = useState<IWorkspaceFile | null>(null)
-    const [file_loading, set_file_loading] = useState(false)
-    const [file_copied, set_file_copied] = useState(false)
     const list_request_ref = useRef(0)
-    const file_request_ref = useRef(0)
     const last_message_id_ref = useRef('')
     const attachment_input_ref = useRef<HTMLInputElement>(null)
     const sidebar_title = ENABLE_ATTACHMENTS ? t('工作区和文件') : t('工作区')
@@ -65,14 +58,10 @@ export function WorkspaceSidebar ({
         set_files_error('')
         try {
             const next_files = await chat_workspace_store.list_files(session_id, (path, options) => chat.agent.api_fetch(path, options))
-            if (request_id === list_request_ref.current) {
+            if (request_id === list_request_ref.current)
                 set_files(next_files)
-                if (opened_file && !next_files.some(file => normalize_workspace_path(file.path) === normalize_workspace_path(opened_file.path)))
-                    set_opened_file(null)
-            }
         } catch (error) {
             if (request_id === list_request_ref.current) {
-                set_opened_file(null)
                 if (!silent)
                     set_files_error(error instanceof Error ? error.message : String(error))
             }
@@ -83,54 +72,10 @@ export function WorkspaceSidebar ({
     }
     
     
-    async function open_file (path: string) {
-        const request_id = ++file_request_ref.current
-        set_file_loading(true)
-        try {
-            const file = await chat_workspace_store.get_file(session_id, (api_path, options) => chat.agent.api_fetch(api_path, options), path)
-            if (request_id !== file_request_ref.current)
-                return
-            if (!file) {
-                model.message?.warning(t('文件不存在或已被删除'))
-                set_opened_file(null)
-                return
-            }
-            set_opened_file(file)
-        } catch (error) {
-            if (request_id === file_request_ref.current)
-                model.message?.error(error instanceof Error ? error.message : t('加载文件失败'))
-        } finally {
-            if (request_id === file_request_ref.current)
-                set_file_loading(false)
-        }
-    }
-    
-    
-    function get_download_name () {
-        const name = opened_file?.path.replace(/\\/g, '/').split('/').filter(Boolean).pop() || 'workspace'
-        return name
-    }
-    
-    
-    function download_file () {
-        if (!opened_file)
-            return
-        const url = URL.createObjectURL(new Blob([opened_file.content || ''], { type: 'text/plain;charset=utf-8' }))
-        const link = document.createElement('a')
-        link.href = url
-        link.download = get_download_name()
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        URL.revokeObjectURL(url)
-    }
-    
-    
     useEffect(() => {
         set_files([ ])
         set_files_error('')
         set_visible(false)
-        set_opened_file(null)
         last_message_id_ref.current = ''
         refresh_files({ silent: true })
     }, [session_id])
@@ -161,35 +106,17 @@ export function WorkspaceSidebar ({
         last_message_id_ref.current = last_message_id
         
         let should_refresh_files = false
-        let should_refresh_opened_file = false
-        const opened_path = normalize_workspace_path(opened_file?.path || '')
         for (let index = start_index;  index < messages.length;  index++) {
             const change = get_workspace_file_change(messages, index)
-            if (!change)
-                continue
-            should_refresh_files = true
-            if (opened_path && change.path && normalize_workspace_path(change.path) === opened_path)
-                should_refresh_opened_file = true
+            if (change) {
+                should_refresh_files = true
+                break
+            }
         }
         
         if (should_refresh_files)
             refresh_files({ silent: !visible })
-        if (should_refresh_opened_file && opened_file)
-            open_file(opened_file.path)
-    }, [messages, current_session_id, session_id, visible, opened_file?.path])
-    
-    
-    useEffect(() => {
-        set_file_copied(false)
-    }, [opened_file?.path, opened_file?.content])
-    
-    
-    useEffect(() => {
-        if (!file_copied)
-            return
-        const timer = setTimeout(() => { set_file_copied(false) }, 1500)
-        return () => { clearTimeout(timer) }
-    }, [file_copied])
+    }, [messages, current_session_id, session_id, visible])
     
     return <>
         <Tooltip title={toggle_title}>
@@ -236,7 +163,7 @@ export function WorkspaceSidebar ({
                                             type='button'
                                             key={file.key}
                                             className='ai-workspace-file'
-                                            onClick={() => { open_file(file.path) }}
+                                            onClick={() => { on_preview_file({ type: 'workspace', path: file.path }) }}
                                         >
                                             <FileTextOutlined />
                                             <span className='ai-workspace-file-name' title={file.path}>{file.path}</span>
@@ -269,11 +196,22 @@ export function WorkspaceSidebar ({
                             : attachments.length === 0
                                 ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无上传文件')} />
                                 : <div className='ai-workspace-file-list'>
-                                    {attachments.map(attachment => <div className='ai-workspace-file ai-session-attachment-file' key={attachment.attachmentId}>
+                                    {attachments.map(attachment => <button
+                                        type='button'
+                                        className='ai-workspace-file ai-session-attachment-file'
+                                        key={attachment.attachmentId}
+                                        onClick={() => {
+                                            on_preview_file({
+                                                type: 'attachment',
+                                                attachment_id: attachment.attachmentId,
+                                                filename: attachment.filename,
+                                            })
+                                        }}
+                                    >
                                         <PaperClipOutlined />
                                         <span className='ai-workspace-file-name' title={attachment.filename}>{attachment.filename}</span>
                                         <Text type='secondary' className='ai-workspace-file-size'>{format_file_size(attachment.sizeBytes)}</Text>
-                                    </div>)}
+                                    </button>)}
                                 </div>
                     }
                     <input
@@ -292,47 +230,5 @@ export function WorkspaceSidebar ({
                 </section>}
             </div>
         </div>
-        <Modal
-            title={opened_file?.path || t('工作区文件')}
-            open={Boolean(opened_file)}
-            onCancel={() => { set_opened_file(null) }}
-            footer={<>
-                <Button
-                    icon={<CopyOutlined />}
-                    disabled={!opened_file}
-                    onClick={async () => {
-                        try {
-                            await copy(opened_file?.content || '')
-                            set_file_copied(true)
-                        } catch (error) {
-                            console.error('[ai] copy workspace file failed:', error)
-                        }
-                    }}
-                >
-                    {file_copied ? t('已复制') : t('复制')}
-                </Button>
-                <Button icon={<DownloadOutlined />} disabled={!opened_file} onClick={download_file}>
-                    {t('下载')}
-                </Button>
-            </>}
-            width={960}
-            destroyOnHidden
-        >
-            <Spin spinning={file_loading}>
-                <div className='ai-workspace-editor'>
-                    <Editor
-                        readonly
-                        default_value={opened_file?.content || ''}
-                        options={{
-                            minimap: { enabled: minimap },
-                            wordWrap: 'on',
-                            scrollBeyondLastLine: false,
-                            automaticLayout: true,
-                            dimension: { width: 0, height: 560 },
-                        }}
-                    />
-                </div>
-            </Spin>
-        </Modal>
     </>
 }

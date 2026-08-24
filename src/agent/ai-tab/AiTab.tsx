@@ -19,6 +19,7 @@ import { AiMessageRow, expand_tool_call_envelopes, group_messages, ToolMessageGr
 import { TodoList } from '@/agent/ai-tab/TodoList.tsx'
 import { WorkspaceSidebar } from '@/agent/ai-tab/WorkspaceSidebar.tsx'
 import { AttachmentPicker } from '@/agent/ai-tab/AttachmentPicker.tsx'
+import { FilePreviewModal, type IFilePreviewTarget } from '@/agent/ai-tab/FilePreviewModal.tsx'
 import { use_session_attachments } from '@/agent/ai-tab/useSessionAttachments.ts'
 
 import { is_pending_ai_chat_id } from '@/shell/model.ts'
@@ -50,11 +51,16 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const [creating_session, set_creating_session] = useState(false)
     const pending_session = is_pending_ai_chat_id(session_id)
     const unsupported_node = node_type === NodeType.controller || node_type === NodeType.data
+    const [preview_target, set_preview_target] = useState<IFilePreviewTarget | null>(null)
     const {
         attachments, selected_attachments, attachments_loading, attachments_error, set_selected_attachments,
         ensure_session, refresh_attachments, upload_attachments,
     } = use_session_attachments({ chat, session_id, current_session_id, pending_session, creating_session })
     const has_attachments = ENABLE_ATTACHMENTS && selected_attachments.length > 0
+    
+    useEffect(() => {
+        set_preview_target(null)
+    }, [session_id])
     
     const messages_ref = useRef<HTMLDivElement>(null)
     const input_ref = useRef<TextAreaRef>(null)
@@ -439,6 +445,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
             attachments_error={attachments_error}
             on_refresh_attachments={() => refresh_attachments(session_id)}
             on_upload_attachments={files => upload_attachments(files, false)}
+            on_preview_file={set_preview_target}
         />}
         <TodoList steps={visible_steps} />
         
@@ -458,7 +465,15 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         </div>
                         
                     if (group.type === 'tools')
-                        return <ToolMessageGroup key={`tools-${group.start_index}-${group.end_index}`} chat={chat} group={group} is_last={is_last} />
+                        return <ToolMessageGroup
+                            key={`tools-${group.start_index}-${group.end_index}`}
+                            chat={chat}
+                            group={group}
+                            is_last={is_last}
+                            on_preview_attachment={(attachment_id, filename) => {
+                                set_preview_target({ type: 'attachment', attachment_id, filename })
+                            }}
+                        />
                         
                     const msg = group.msg
                     const prev = group.index > 0 ? visible_messages[group.index - 1] : null
@@ -471,6 +486,9 @@ export function AiTab ({ session_id }: { session_id: string }) {
                         is_last={is_last}
                         agent_status={visible_status.status}
                         chat={chat}
+                        on_preview_attachment={(attachment_id, filename) => {
+                            set_preview_target({ type: 'attachment', attachment_id, filename })
+                        }}
                     />
                 })}
                 
@@ -617,5 +635,13 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 </div>
             </div>
         </div>
+        <FilePreviewModal
+            chat={chat}
+            session_id={session_id}
+            target={preview_target}
+            messages={messages}
+            current_session_id={current_session_id}
+            on_close={() => { set_preview_target(null) }}
+        />
     </div>
 }

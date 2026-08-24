@@ -629,7 +629,7 @@
                             font-size: 12px
 
                         .ai-session-attachment-file
-                            cursor: default
+                            cursor: pointer
 
                         .ai-todo-list
                             background: #fafafa
@@ -721,6 +721,16 @@
                                 gap: 6px
                                 color: var(--ant-color-text)
                                 font-size: 12px
+                                cursor: pointer
+                                text-align: left
+                                transition: all 0.2s
+
+                                &:hover
+                                    border-color: var(--ant-color-primary)
+                                    color: var(--ant-color-primary)
+
+                                    .anticon
+                                        color: var(--ant-color-primary)
 
                                 .anticon
                                     flex-shrink: 0
