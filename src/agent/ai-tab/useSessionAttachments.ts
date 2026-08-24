@@ -103,6 +103,22 @@ export function use_session_attachments ({
             set_attachments_loading(false)
         }
     }
+    async function delete_attachment (attachment_id: string) {
+        if (!ENABLE_ATTACHMENTS || !attachment_id)
+            return
+        const target_session_id = current_session_id || session_id
+        if (!target_session_id || is_pending_ai_chat_id(target_session_id))
+            return
+        try {
+            await chat.attachment.delete_attachment(target_session_id, attachment_id)
+            set_attachments(current => current.filter(item => item.attachmentId !== attachment_id))
+            set_selected_attachments(current => current.filter(item => item.attachmentId !== attachment_id))
+            model.message?.success(t('附件已删除'))
+        } catch (error) {
+            const message = error instanceof Error ? error.message : t('删除附件失败')
+            model.message?.error(message)
+        }
+    }
     useEffect(() => {
         if (!ENABLE_ATTACHMENTS)
             return
@@ -123,5 +139,6 @@ export function use_session_attachments ({
         ensure_session,
         refresh_attachments,
         upload_attachments,
+        delete_attachment,
     }
 }

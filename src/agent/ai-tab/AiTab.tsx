@@ -54,7 +54,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const [preview_target, set_preview_target] = useState<IFilePreviewTarget | null>(null)
     const {
         attachments, selected_attachments, attachments_loading, attachments_error, set_selected_attachments,
-        ensure_session, refresh_attachments, upload_attachments,
+        ensure_session, refresh_attachments, upload_attachments, delete_attachment,
     } = use_session_attachments({ chat, session_id, current_session_id, pending_session, creating_session })
     const has_attachments = ENABLE_ATTACHMENTS && selected_attachments.length > 0
     
@@ -445,6 +445,11 @@ export function AiTab ({ session_id }: { session_id: string }) {
             attachments_error={attachments_error}
             on_refresh_attachments={() => refresh_attachments(session_id)}
             on_upload_attachments={files => upload_attachments(files, false)}
+            on_delete_attachment={async attachment_id => {
+                if (preview_target?.type === 'attachment' && preview_target.attachment_id === attachment_id)
+                    set_preview_target(null)
+                await delete_attachment(attachment_id)
+            }}
             on_preview_file={set_preview_target}
         />}
         <TodoList steps={visible_steps} />

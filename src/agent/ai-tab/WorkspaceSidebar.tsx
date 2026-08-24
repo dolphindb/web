@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Alert, Button, Empty, Spin, Tooltip, Typography } from 'antd'
-import { FileTextOutlined, FolderOpenOutlined, PaperClipOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons'
+import { Alert, Button, Empty, Popconfirm, Spin, Tooltip, Typography } from 'antd'
+import { DeleteOutlined, FileTextOutlined, FolderOpenOutlined, PaperClipOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 import type { ChatModel } from '@/agent/model.ts'
@@ -26,6 +26,7 @@ export function WorkspaceSidebar ({
     attachments_error,
     on_refresh_attachments,
     on_upload_attachments,
+    on_delete_attachment,
     on_preview_file,
 }: {
     chat: ChatModel
@@ -37,6 +38,7 @@ export function WorkspaceSidebar ({
     attachments_error: string
     on_refresh_attachments: () => Promise<void>
     on_upload_attachments: (files: File[]) => Promise<void>
+    on_delete_attachment: (attachment_id: string) => Promise<void>
     on_preview_file: (target: IFilePreviewTarget) => void
 }) {
     const [visible, set_visible] = useState(false)
@@ -61,10 +63,10 @@ export function WorkspaceSidebar ({
             if (request_id === list_request_ref.current)
                 set_files(next_files)
         } catch (error) {
-            if (request_id === list_request_ref.current) {
+            if (request_id === list_request_ref.current) 
                 if (!silent)
                     set_files_error(error instanceof Error ? error.message : String(error))
-            }
+            
         } finally {
             if (request_id === list_request_ref.current)
                 set_files_loading(false)
@@ -196,22 +198,44 @@ export function WorkspaceSidebar ({
                             : attachments.length === 0
                                 ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无上传文件')} />
                                 : <div className='ai-workspace-file-list'>
-                                    {attachments.map(attachment => <button
-                                        type='button'
-                                        className='ai-workspace-file ai-session-attachment-file'
+                                    {attachments.map(attachment => <div
                                         key={attachment.attachmentId}
-                                        onClick={() => {
-                                            on_preview_file({
-                                                type: 'attachment',
-                                                attachment_id: attachment.attachmentId,
-                                                filename: attachment.filename,
-                                            })
-                                        }}
+                                        className='ai-workspace-file ai-session-attachment-file'
                                     >
-                                        <PaperClipOutlined />
-                                        <span className='ai-workspace-file-name' title={attachment.filename}>{attachment.filename}</span>
-                                        <Text type='secondary' className='ai-workspace-file-size'>{format_file_size(attachment.sizeBytes)}</Text>
-                                    </button>)}
+                                        <button
+                                            type='button'
+                                            className='ai-workspace-file-main'
+                                            onClick={() => {
+                                                on_preview_file({
+                                                    type: 'attachment',
+                                                    attachment_id: attachment.attachmentId,
+                                                    filename: attachment.filename,
+                                                })
+                                            }}
+                                        >
+                                            <PaperClipOutlined />
+                                            <span className='ai-workspace-file-name' title={attachment.filename}>{attachment.filename}</span>
+                                            <Text type='secondary' className='ai-workspace-file-size'>{format_file_size(attachment.sizeBytes)}</Text>
+                                        </button>
+                                        <Popconfirm
+                                            title={t('确定删除该文件？')}
+                                            okText={t('删除')}
+                                            cancelText={t('取消')}
+                                            okButtonProps={{ danger: true }}
+                                            onConfirm={async () => {
+                                                await on_delete_attachment(attachment.attachmentId)
+                                            }}
+                                        >
+                                            <Button
+                                                type='text'
+                                                size='small'
+                                                className='ai-workspace-file-action'
+                                                icon={<DeleteOutlined />}
+                                                aria-label={t('删除文件')}
+                                                onClick={event => { event.stopPropagation() }}
+                                            />
+                                        </Popconfirm>
+                                    </div>)}
                                 </div>
                     }
                     <input
