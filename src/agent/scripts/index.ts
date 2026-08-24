@@ -27,7 +27,7 @@ const EN_TOOL_SCHEMA_TEXT = new Map<string, string>([
     ['知识库 ID（可从 kb_list 获取）', 'Knowledge base ID (obtainable from kb_list).'],
     ['检索查询词或问题', 'Search query or question.'],
     ['可选，返回候选片段上限（1～20，默认 8）', 'Optional. Maximum number of candidate chunks to return (1-20, default 8).'],
-    ['读取指定 chunk 片段的正文内容及前后相邻 chunk，用于扩展上下文', 'Read the content of a specific chunk along with adjacent preceding/succeeding chunks to expand context.'],
+    ['读取指定 chunk 片段的正文内容及前后相邻 chunk，拼接为连贯上下文。返回结果包含 startChunkId 和 endChunkId，如需继续向前读取请传入 startChunkId 及 before 参数，如需继续向后读取请传入 endChunkId 及 after 参数。', 'Read the content of a specific chunk along with adjacent preceding/succeeding chunks into a continuous context. Returns startChunkId and endChunkId; pass startChunkId with before to read further before, or endChunkId with after to read further after.'],
     ['知识库 ID', 'Knowledge base ID.'],
     ['目标 chunk ID（来自 kb_search 结果）', 'Target chunk ID (from kb_search results).'],
     ['可选，向前读取相邻 chunk 数量（0～5，默认 0）', 'Optional. Number of preceding adjacent chunks to read (0-5, default 0).'],

@@ -16,32 +16,13 @@ function parse_clamp_int (value: unknown, fallback: number, min = 0, max = 5): n
 }
 
 
-function clean_chunk (raw: any) {
-    if (!raw || typeof raw !== 'object')
-        return null
-    const chunk_id = String(raw.chunkId || '').trim()
-    const content = String(raw.content || '').trim()
-    if (!chunk_id && !content)
-        return null
-    return {
-        chunkId: chunk_id,
-        content,
-        source: {
-            documentId: String(raw.source?.documentId || ''),
-            fileName: String(raw.source?.fileName || ''),
-            ...(typeof raw.source?.pageNo === 'number' ? { pageNo: raw.source.pageNo } : { }),
-        },
-    }
-}
-
-
 export const kb_read_config: ScriptConfig = {
     function: 'kb_read',
     definition: {
         type: 'function',
         function: {
             name: 'kb_read',
-            description: '读取指定 chunk 片段的正文内容及前后相邻 chunk，用于扩展上下文',
+            description: '读取指定 chunk 片段的正文内容及前后相邻 chunk，拼接为连贯上下文。返回结果包含 startChunkId 和 endChunkId，如需继续向前读取请传入 startChunkId 及 before 参数，如需继续向后读取请传入 endChunkId 及 after 参数。',
             parameters: {
                 type: 'object',
                 properties: {
@@ -114,17 +95,47 @@ export const kb_read_config: ScriptConfig = {
                 }),
             })
             
-            const item = clean_chunk(result?.item)
+            const raw_item = result?.item
             const raw_before = Array.isArray(result?.before) ? result.before : [ ]
             const raw_after = Array.isArray(result?.after) ? result.after : [ ]
             
-            const cleaned_before = raw_before.map(clean_chunk).filter(Boolean)
-            const cleaned_after = raw_after.map(clean_chunk).filter(Boolean)
+            const all_raw_chunks = [...raw_before, raw_item, ...raw_after].filter(Boolean)
+            const valid_chunks = all_raw_chunks.map((c: any) => ({
+                chunkId: String(c.chunkId || '').trim(),
+                content: String(c.content || '').trim(),
+                fileName: String(c.source?.fileName || c.fileName || c.file || '').trim(),
+                pageNo: typeof c.source?.pageNo === 'number'
+                    ? c.source.pageNo
+                    : (typeof c.pageNo === 'number' ? c.pageNo : undefined),
+            })).filter(c => c.chunkId || c.content)
+            
+            if (valid_chunks.length === 0)
+                return {
+                    next_loop: true,
+                    save_message: {
+                        msgId: `tool_${Date.now()}`,
+                        role: 'tool',
+                        messageType: 'tool_result',
+                        name: type,
+                        content: JSON.stringify({
+                            content: '',
+                            message: '未找到指定的知识片段或已被删除。',
+                        }),
+                    },
+                }
+            
+            const file_name = valid_chunks.find(c => c.fileName)?.fileName || ''
+            const page_no = valid_chunks.find(c => c.pageNo !== undefined)?.pageNo
+            const stitched_content = valid_chunks.map(c => c.content).filter(Boolean).join('\n\n')
+            const start_chunk_id = valid_chunks[0]?.chunkId || ''
+            const end_chunk_id = valid_chunks[valid_chunks.length - 1]?.chunkId || ''
             
             const cleaned_payload = {
-                item,
-                before: cleaned_before,
-                after: cleaned_after,
+                ...(file_name ? { file: file_name } : { }),
+                ...(page_no !== undefined ? { pageNo: page_no } : { }),
+                content: stitched_content,
+                startChunkId: start_chunk_id,
+                endChunkId: end_chunk_id,
             }
             
             return {

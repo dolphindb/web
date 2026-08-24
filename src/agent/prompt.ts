@@ -61,8 +61,8 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = is_english ? {
         args_hint: '{"tool_call":"kb_search","args":{"knowledge_base_id":"kb_xxx","query":"deployment check","top_k":8}}',
     },
     kb_read: {
-        summary: 'Read a target chunk and optional adjacent chunks before/after it to expand context.',
-        args_desc: 'Object arguments supported: knowledge_base_id (required), chunk_id (required, from kb_search), before (optional, 0-5), after (optional, 0-5). Or array: ["<knowledgeBaseId>", "<chunkId>", "1", "1"].',
+        summary: 'Read a target chunk and optional adjacent chunks before/after it to expand context into continuous text (returns startChunkId and endChunkId for further pagination).',
+        args_desc: 'Object arguments supported: knowledge_base_id (required), chunk_id (required, from kb_search or startChunkId/endChunkId), before (optional, 0-5), after (optional, 0-5). Or array: ["<knowledgeBaseId>", "<chunkId>", "1", "1"].',
         args_hint: '{"tool_call":"kb_read","args":{"knowledge_base_id":"kb_xxx","chunk_id":"chunk_xxx","before":1,"after":1}}',
     },
     vfs_list: {
@@ -170,8 +170,8 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = is_english ? {
         args_hint: '{"tool_call":"kb_search","args":{"knowledge_base_id":"kb_xxx","query":"部署检查","top_k":8}}',
     },
     kb_read: {
-        summary: '读取指定 chunk 片段的正文以及前后相邻 chunk，用于扩展上下文。',
-        args_desc: '支持对象参数：knowledge_base_id（必填）, chunk_id（必填, 来自 kb_search 结果）, before（可选, 0～5）, after（可选, 0～5）。或数组参数：["<knowledgeBaseId>", "<chunkId>", "1", "1"]。',
+        summary: '读取指定 chunk 片段的正文以及前后相邻 chunk 并拼接为连贯上下文（返回 startChunkId 与 endChunkId 用于继续翻页）。',
+        args_desc: '支持对象参数：knowledge_base_id（必填）, chunk_id（必填, 来自 kb_search 或 startChunkId/endChunkId）, before（可选, 0～5）, after（可选, 0～5）。或数组参数：["<knowledgeBaseId>", "<chunkId>", "1", "1"]。',
         args_hint: '{"tool_call":"kb_read","args":{"knowledge_base_id":"kb_xxx","chunk_id":"chunk_xxx","before":1,"after":1}}',
     },
     vfs_list: {
@@ -388,7 +388,7 @@ function build_tools_section (doc_search_enabled = true): string {
         '- Use execute/execute_file for intermediate validation, and use show only to display real final results. The result view displays the data; the tool result only needs to say whether display succeeded.',
         '- Do not use show or print when a natural language answer is sufficient.',
         '- Use skill_read when Skill details are needed; use vfs_search to locate Skill file content, then vfs_read in ranges. To continue editing based on Skill files, copy them to /home/workspace with vfs_copy.',
-        '- When unsure which knowledge base to search, call kb_list first; after identifying the knowledgeBaseId, call kb_search; only call kb_read when you need to expand surrounding context.',
+        '- When unsure which knowledge base to search, call kb_list first; after identifying the knowledgeBaseId, call kb_search; only call kb_read when you need to expand surrounding context (use startChunkId/endChunkId to paginate).',
     ] : [
         '- 复杂任务第一步就是 step_create 拆成 TODO，不要等执行到一半才补；执行过程中每完成一项立即 step_update。',
         '- 1-3 行临时验证可用 execute；较长代码、需要反复修改的代码、或用户要求保存代码时，优先使用工作区文件和 execute_file。',
@@ -397,7 +397,7 @@ function build_tools_section (doc_search_enabled = true): string {
         '- 中间验证用 execute/execute_file，最终展示真实结果才用 show；show 的结果视图负责展示数据，工具结果只需说明是否展示成功。',
         '- 能自然语言回答时不要用 show 或 print。',
         '- 需要技能细节时先用 skill_read；需要定位技能文件内容时用 vfs_search，再用 vfs_read 分段读取；需要基于技能文件继续改代码时，用 vfs_copy 复制到 /home/workspace。',
-        '- 无法确定知识库时先用 kb_list 查询可用库；选定知识库后用 kb_search 检索证据片段；仅在需要展开上下文时才调用 kb_read。',
+        '- 无法确定知识库时先用 kb_list 查询可用库；选定知识库后用 kb_search 检索证据片段；仅在需要展开上下文时才调用 kb_read（可使用返回的 startChunkId/endChunkId 继续向前/向后扩展）。',
     ]
     
     const doc_suggestions = doc_search_enabled

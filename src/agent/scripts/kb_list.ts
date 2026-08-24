@@ -29,11 +29,18 @@ export const kb_list_config: ScriptConfig = {
             })
             
             const raw_items = Array.isArray(result?.items) ? result.items : [ ]
-            const items = raw_items.map((item: any) => ({
-                knowledgeBaseId: String(item.knowledgeBaseId || ''),
-                name: String(item.name || ''),
-                description: String(item.description || ''),
-            })).filter((item: any) => item.knowledgeBaseId)
+            const items = raw_items.map((item: any) => {
+                const kb_id = String(item.knowledgeBaseId || '').trim()
+                const name = String(item.name || '').trim()
+                const description = String(item.description || '').trim()
+                if (!kb_id)
+                    return null
+                return {
+                    knowledgeBaseId: kb_id,
+                    name: name || kb_id,
+                    ...(description ? { description } : { }),
+                }
+            }).filter(Boolean)
             
             const content = JSON.stringify({
                 knowledgeBases: items,

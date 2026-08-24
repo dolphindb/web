@@ -196,13 +196,11 @@ function DocReadRenderer (props: ToolRendererProps) {
 
 function get_kb_source_text (item: Record<string, unknown>) {
     const source = is_object_record(item.source) ? item.source : { }
-    const file_name = to_message_text(source.fileName)
-    const page_no = source.pageNo !== undefined && source.pageNo !== null ? Number(source.pageNo) : null
-    const document_id = to_message_text(source.documentId)
-    return [
-        file_name ? `${file_name}${page_no !== null ? ` (P.${page_no})` : ''}` : '',
-        document_id ? `documentId: ${document_id}` : '',
-    ].filter(Boolean).join(' · ')
+    const file_name = to_message_text(item.file || item.fileName || source.fileName)
+    const page_no = item.pageNo !== undefined && item.pageNo !== null
+        ? Number(item.pageNo)
+        : (source.pageNo !== undefined && source.pageNo !== null ? Number(source.pageNo) : null)
+    return file_name ? `${file_name}${page_no !== null ? ` (P.${page_no})` : ''}` : ''
 }
 
 
@@ -304,6 +302,13 @@ function KbReadRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload, is_outcome }) => {
         const chunk_id = get_arg_text(args, 1, ['chunk_id', 'chunkId']) || get_arg_text(args, 0, ['chunk_id', 'chunkId'])
         const parsed = is_object_record(structured_payload) ? structured_payload : null
+        
+        const has_stitched_content = typeof parsed?.content === 'string'
+        const file_name = to_message_text(parsed?.file || parsed?.fileName)
+        const page_no = parsed?.pageNo !== undefined && parsed?.pageNo !== null ? Number(parsed.pageNo) : null
+        const source_desc = file_name ? `${file_name}${page_no !== null ? ` (P.${page_no})` : ''}` : ''
+        const content_str = to_message_text(parsed?.content)
+        
         const item = is_object_record(parsed?.item) ? parsed.item : null
         const before = Array.isArray(parsed?.before) ? parsed.before.filter(is_object_record) : [ ]
         const after = Array.isArray(parsed?.after) ? parsed.after.filter(is_object_record) : [ ]
@@ -312,15 +317,19 @@ function KbReadRenderer (props: ToolRendererProps) {
         return {
             param_rows: [
                 { label: 'chunkId', value: chunk_id || to_message_text(item?.chunkId) || '-' },
+                ...(source_desc ? [{ label: t('来源'), value: source_desc }] : [ ]),
             ],
             result_rows: is_outcome ? [
                 {
                     label: t('读取结果'),
-                    value: total_chunks > 0 ? t('共读取 {{count}} 个片段', { count: total_chunks }) : to_preview_text(message.content, 120),
+                    value: has_stitched_content
+                        ? (content_str ? t('读取成功') : to_preview_text(message.content, 120))
+                        : (total_chunks > 0 ? t('共读取 {{count}} 个片段', { count: total_chunks }) : to_preview_text(message.content, 120)),
                 },
             ] : [ ],
             result_details: compact_sections([
-                total_chunks > 0 ? {
+                has_stitched_content && content_str ? create_markdown_detail('kb-content', t('查看完整正文'), content_str) : null,
+                !has_stitched_content && total_chunks > 0 ? {
                     key: 'kb-read-chunks',
                     label: t('查看完整正文'),
                     children: <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -344,7 +353,7 @@ function KbReadRenderer (props: ToolRendererProps) {
                             </div>)}
                     </div>,
                 } : null,
-                total_chunks === 0 ? create_compact_text_detail('text', t('查看结果'), message.content, 120) : null,
+                !content_str && total_chunks === 0 ? create_compact_text_detail('text', t('查看结果'), message.content, 120) : null,
             ]),
         }
     }} />

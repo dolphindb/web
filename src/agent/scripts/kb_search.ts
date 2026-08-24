@@ -88,21 +88,26 @@ export const kb_search_config: ScriptConfig = {
             })
             
             const raw_items = Array.isArray(result?.items) ? result.items : [ ]
-            const cleaned_items = raw_items.map((item: any) => ({
-                chunkId: String(item.chunkId || ''),
-                content: String(item.content || '').trim(),
-                source: {
-                    documentId: String(item.source?.documentId || ''),
-                    fileName: String(item.source?.fileName || ''),
-                    ...(typeof item.source?.pageNo === 'number' ? { pageNo: item.source.pageNo } : { }),
-                },
-            })).filter((item: any) => item.chunkId && item.content)
+            const cleaned_items = raw_items.map((item: any) => {
+                const chunk_id = String(item.chunkId || '').trim()
+                const content = String(item.content || '').trim()
+                if (!chunk_id || !content)
+                    return null
+                const file_name = String(item.source?.fileName || item.fileName || item.file || '').trim()
+                const page_no = typeof item.source?.pageNo === 'number'
+                    ? item.source.pageNo
+                    : (typeof item.pageNo === 'number' ? item.pageNo : undefined)
+                return {
+                    chunkId: chunk_id,
+                    ...(file_name ? { file: file_name } : { }),
+                    ...(page_no !== undefined ? { pageNo: page_no } : { }),
+                    content,
+                }
+            }).filter(Boolean)
             
-            const result_status = String(result?.resultStatus || (cleaned_items.length ? 'OK' : 'NO_RELEVANT_EVIDENCE'))
-            
-            const cleaned_payload = {
-                resultStatus: result_status,
+            const cleaned_payload: Record<string, unknown> = {
                 items: cleaned_items,
+                ...(cleaned_items.length === 0 ? { message: '未检索到相关知识片段。' } : { }),
             }
             
             return {
