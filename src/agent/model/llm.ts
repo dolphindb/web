@@ -24,6 +24,7 @@ export class ChatLlmModel {
     }
     _map_llm_config (item: any, provider_lookup?: Map<string, ILlmProvider>): ILlmConfig {
         const provider = item.providerId && provider_lookup?.get(item.providerId)
+        const extra = normalize_json_object(item.extra)
         return {
             llmConfigId: item.llmConfigId,
             name: item.name || item.llmConfigId,
@@ -39,8 +40,8 @@ export class ChatLlmModel {
             defaultParams: item.defaultParams,
             contextWindow: item.contextWindow,
             ...(ENABLE_ATTACHMENTS ? {
-                maxImageBytes: item.maxImageBytes,
-                maxInputFiles: item.maxInputFiles,
+                maxImageBytes: extra?.maxImageBytes as number | undefined,
+                maxInputFiles: extra?.maxInputFiles as number | undefined,
             } : { }),
             maxConcurrency: optional_positive_number(item.maxConcurrency),
             rateLimitRPM: optional_positive_number(item.rateLimitRPM),
