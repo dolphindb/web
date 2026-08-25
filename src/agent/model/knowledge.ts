@@ -1,3 +1,4 @@
+import { sha256 as compute_sha256 } from 'js-sha256'
 import { t } from '@i18n'
 import type { ChatModel } from '@/agent/model.ts'
 import type {
@@ -19,15 +20,6 @@ import type {
     IKnowledgeRetrieveResult,
     IKnowledgeUploadInfo,
 } from './types.ts'
-
-
-async function compute_sha256 (buffer: ArrayBuffer): Promise<string> {
-    const hash_buffer = await crypto.subtle.digest('SHA-256', buffer)
-    const hash_array = Array.from(new Uint8Array(hash_buffer))
-    return hash_array.map(b => b.toString(16).padStart(2, '0')).join('')
-}
-
-
 export class ChatKnowledgeModel {
     constructor (private chat: ChatModel) { }
     
@@ -189,7 +181,7 @@ export class ChatKnowledgeModel {
             ? zip_content_types.has(file.type.toLowerCase()) ? file.type : 'application/zip'
             : file.type || 'application/octet-stream'
         const buffer = await file.arrayBuffer()
-        const sha256 = await compute_sha256(buffer)
+        const sha256 = compute_sha256(buffer)
         
         const init_res: IKnowledgeUploadInfo = await this.chat.agent.api_fetch(
             `/knowledge/base/${encodeURIComponent(knowledge_base_id)}/document/upload/init`,
@@ -212,7 +204,7 @@ export class ChatKnowledgeModel {
                 const start = part_no * partSize
                 const end = Math.min(start + partSize, file.size)
                 const part_buffer = buffer.slice(start, end)
-                const part_sha256 = await compute_sha256(part_buffer)
+                const part_sha256 = compute_sha256(part_buffer)
                 
                 await this.chat.agent.api_fetch(
                     `/knowledge/upload/${encodeURIComponent(uploadId)}/part/${part_no}`,

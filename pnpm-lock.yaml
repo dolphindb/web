@@ -74,6 +74,9 @@ importers:
       js-cookie:
         specifier: ^3.0.8
         version: 3.0.8
+      js-sha256:
+        specifier: ^1.0.0
+        version: 1.0.0
       katex:
         specifier: ^0.18.4
         version: 0.18.4
@@ -2447,6 +2450,9 @@ packages:
 
   js-cookie@3.0.8:
     resolution: {integrity: sha512-yeJd4aNAdYZQjaon2bpD/Gb0B/omw7HQOsynXXcOiWVCacbBcPlgn8S/d1X6blFSaHao7ozqtW7NZW19xpCtIw==}
+
+  js-sha256@1.0.0:
+    resolution: {integrity: sha512-Bqxf6ENUzYIMzuELCmRNrJOVbjKH1oMgbfYJBKVr/W1Xf9fazpahqCbb24v1pR7XV1isuqhM+w9KWpK7zCyUQw==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -6210,6 +6216,8 @@ snapshots:
   js-cookie@3.0.7: {}
 
   js-cookie@3.0.8: {}
+
+  js-sha256@1.0.0: {}
 
   js-tokens@4.0.0: {}
 
