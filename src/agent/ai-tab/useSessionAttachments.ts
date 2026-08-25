@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { t } from '@i18n'
 import { model } from '@model'
@@ -9,7 +9,8 @@ import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
 import { is_pending_ai_chat_id, shell } from '@/shell/model.ts'
 
 
-const pending_attachment_selections = new Map<string, ISessionAttachment[]>()
+export const pending_input_drafts = new Map<string, string>()
+export const pending_attachment_selections = new Map<string, ISessionAttachment[]>()
 
 
 export function use_session_attachments ({
@@ -18,15 +19,26 @@ export function use_session_attachments ({
     current_session_id,
     pending_session,
     creating_session,
+    input_value = '',
 }: {
     chat: ChatModel
     session_id: string
     current_session_id: string
     pending_session: boolean
     creating_session: boolean
+    input_value?: string
 }) {
-    const [attachments, set_attachments] = useState<ISessionAttachment[]>([ ])
-    const [selected_attachments, set_selected_attachments] = useState<ISessionAttachment[]>([ ])
+    const input_value_ref = useRef(input_value)
+    useEffect(() => {
+        input_value_ref.current = input_value
+    }, [input_value])
+    
+    const [attachments, set_attachments] = useState<ISessionAttachment[]>(() =>
+        pending_attachment_selections.get(session_id) || [ ]
+    )
+    const [selected_attachments, set_selected_attachments] = useState<ISessionAttachment[]>(() =>
+        pending_attachment_selections.get(session_id) || [ ]
+    )
     const [attachments_loading, set_attachments_loading] = useState(false)
     const [attachments_error, set_attachments_error] = useState('')
     async function create_session () {
@@ -88,6 +100,8 @@ export function use_session_attachments ({
                     ...uploaded.filter(item => !current.some(selected => selected.attachmentId === item.attachmentId)),
                 ])
             if (created) {
+                if (input_value_ref.current)
+                    pending_input_drafts.set(target_session_id, input_value_ref.current)
                 if (select_after_upload)
                     pending_attachment_selections.set(target_session_id, uploaded)
                 bind_session(created.session, created.tab_name)
@@ -122,10 +136,12 @@ export function use_session_attachments ({
     useEffect(() => {
         if (!ENABLE_ATTACHMENTS)
             return
-        const transferred_attachments = pending_attachment_selections.get(session_id) || [ ]
-        pending_attachment_selections.delete(session_id)
-        set_attachments(transferred_attachments)
-        set_selected_attachments(transferred_attachments)
+        const transferred_attachments = pending_attachment_selections.get(session_id)
+        if (transferred_attachments) {
+            pending_attachment_selections.delete(session_id)
+            set_attachments(transferred_attachments)
+            set_selected_attachments(transferred_attachments)
+        }
         set_attachments_error('')
         if (!pending_session)
             refresh_attachments(session_id, true)

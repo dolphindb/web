@@ -20,7 +20,7 @@ import { TodoList } from '@/agent/ai-tab/TodoList.tsx'
 import { WorkspaceSidebar } from '@/agent/ai-tab/WorkspaceSidebar.tsx'
 import { AttachmentPicker } from '@/agent/ai-tab/AttachmentPicker.tsx'
 import { FilePreviewModal, type IFilePreviewTarget } from '@/agent/ai-tab/FilePreviewModal.tsx'
-import { use_session_attachments } from '@/agent/ai-tab/useSessionAttachments.ts'
+import { pending_input_drafts, use_session_attachments } from '@/agent/ai-tab/useSessionAttachments.ts'
 
 import { is_pending_ai_chat_id } from '@/shell/model.ts'
 
@@ -45,7 +45,14 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const { selectable_llms_by_agent_id } = chat_shared_model.use(['selectable_llms_by_agent_id'])
     const is_agent_admin = admin || can_manage_agents
     
-    const [input_value, set_input_value] = useState('')
+    const [input_value, set_input_value] = useState(() => {
+        const draft = pending_input_drafts.get(session_id)
+        if (draft !== undefined) {
+            pending_input_drafts.delete(session_id)
+            return draft
+        }
+        return ''
+    })
     const [inited, set_inited] = useState(false)
     const [init_error, set_init_error] = useState('')
     const [creating_session, set_creating_session] = useState(false)
@@ -55,7 +62,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const {
         attachments, selected_attachments, attachments_loading, attachments_error, set_selected_attachments,
         ensure_session, refresh_attachments, upload_attachments, delete_attachment,
-    } = use_session_attachments({ chat, session_id, current_session_id, pending_session, creating_session })
+    } = use_session_attachments({ chat, session_id, current_session_id, pending_session, creating_session, input_value })
     const has_attachments = ENABLE_ATTACHMENTS && selected_attachments.length > 0
     
     useEffect(() => {
