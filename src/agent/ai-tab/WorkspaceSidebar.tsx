@@ -5,6 +5,7 @@ import { DeleteOutlined, FileTextOutlined, FolderOpenOutlined, PaperClipOutlined
 import { t } from '@i18n'
 import type { ChatModel } from '@/agent/model.ts'
 import type { IMessage, ISessionAttachment } from '@/agent/model/types.ts'
+import { SESSION_ATTACHMENT_ACCEPT } from '@/agent/model/attachment.ts'
 import { chat_workspace_store } from '@/agent/workspace.ts'
 import type { IWorkspaceFile } from '@/agent/workspace.ts'
 import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
@@ -242,6 +243,7 @@ export function WorkspaceSidebar ({
                         ref={attachment_input_ref}
                         className='ai-attachment-file-input'
                         type='file'
+                        accept={SESSION_ATTACHMENT_ACCEPT}
                         multiple
                         hidden
                         onChange={async event => {

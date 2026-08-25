@@ -59,6 +59,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const pending_session = is_pending_ai_chat_id(session_id)
     const unsupported_node = node_type === NodeType.controller || node_type === NodeType.data
     const [preview_target, set_preview_target] = useState<IFilePreviewTarget | null>(null)
+    const [dragging_files, set_dragging_files] = useState(false)
     const {
         attachments, selected_attachments, attachments_loading, attachments_error, set_selected_attachments,
         ensure_session, refresh_attachments, upload_attachments, delete_attachment,
@@ -71,6 +72,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     
     const messages_ref = useRef<HTMLDivElement>(null)
     const input_ref = useRef<TextAreaRef>(null)
+    const drag_depth_ref = useRef(0)
     const should_auto_scroll = useRef(true)
     const last_scroll_top = useRef(0)
     const pending_history_scroll = useRef<{ first_message_id?: string, scroll_height: number, scroll_top: number } | null>(null)
@@ -356,6 +358,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const can_interrupt = current_session_id === session_id && !['idle', 'error'].includes(visible_status.status)
     const selectable_llms = agent_id ? selectable_llms_by_agent_id[agent_id] || [ ] : [ ]
     const effective_llm_config_id = chat.agent.get_effective_llm_config_id(selected_llm_config_id)
+    const current_llm = chat.agent.get_llm_for_tool_call_mode(effective_llm_config_id, selectable_llms)
     const llm_options = selectable_llms.map(llm => ({
         value: llm.llmConfigId,
         label: llm.isAgentDefault ? `${llm.name} (${t('默认')})` : llm.name,
@@ -549,12 +552,44 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 </Button>}
             />}
             <div
-                className='ai-tab-composer'
+                className={`ai-tab-composer ${dragging_files ? 'dragging-files' : ''}`}
                 onClick={event => {
                     if (!(event.target as HTMLElement).closest('button, .ant-select'))
                         input_ref.current?.focus()
                 }}
+                onDragEnter={event => {
+                    if (!ENABLE_ATTACHMENTS || !Array.from(event.dataTransfer.types).includes('Files'))
+                        return
+                    event.preventDefault()
+                    drag_depth_ref.current++
+                    if (!disable_input && !can_interrupt)
+                        set_dragging_files(true)
+                }}
+                onDragOver={event => {
+                    if (ENABLE_ATTACHMENTS && Array.from(event.dataTransfer.types).includes('Files'))
+                        event.preventDefault()
+                }}
+                onDragLeave={event => {
+                    if (!ENABLE_ATTACHMENTS || !Array.from(event.dataTransfer.types).includes('Files'))
+                        return
+                    drag_depth_ref.current--
+                    if (drag_depth_ref.current <= 0)
+                        set_dragging_files(false)
+                }}
+                onDrop={async event => {
+                    if (!ENABLE_ATTACHMENTS || !Array.from(event.dataTransfer.types).includes('Files'))
+                        return
+                    event.preventDefault()
+                    drag_depth_ref.current = 0
+                    set_dragging_files(false)
+                    if (disable_input || can_interrupt)
+                        return
+                    const files = Array.from(event.dataTransfer.files)
+                    if (files.length)
+                        await upload_attachments(files)
+                }}
             >
+                {dragging_files && <div className='ai-attachment-drop-hint'>{t('拖拽文件到此处上传')}</div>}
                 {has_attachments && <div className='ai-pending-attachments'>
                     {selected_attachments.map(attachment => <div className='ai-pending-attachment' key={attachment.attachmentId}>
                         <span className='ai-pending-attachment-name' title={attachment.filename}>{attachment.filename}</span>
@@ -592,6 +627,8 @@ export function AiTab ({ session_id }: { session_id: string }) {
                             selected_attachment_ids={selected_attachments.map(attachment => attachment.attachmentId)}
                             loading={attachments_loading}
                             disabled={disable_input || can_interrupt}
+                            max_image_bytes={Number(current_llm?.maxImageBytes) || 0}
+                            max_input_files={Number(current_llm?.maxInputFiles) || 0}
                             on_select={attachment => { set_selected_attachments(current => [...current, attachment]) }}
                             on_upload={files => upload_attachments(files)}
                         />}

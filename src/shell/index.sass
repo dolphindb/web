@@ -967,6 +967,21 @@
                                 &:focus-within
                                     border-color: var(--ant-color-primary)
 
+                                &.dragging-files
+                                    border-color: var(--ant-color-primary)
+
+                            .ai-attachment-drop-hint
+                                position: absolute
+                                inset: 0
+                                z-index: 51
+                                border-radius: 5px
+                                background: var(--ant-color-primary-bg)
+                                display: flex
+                                align-items: center
+                                justify-content: center
+                                color: var(--ant-color-primary)
+                                pointer-events: none
+
                             .ai-tab-message-input.ant-input
                                 resize: none
                                 border: 0
@@ -1048,8 +1063,8 @@
                                 bottom: calc(100% + 8px)
                                 left: 0
                                 z-index: 50
-                                width: 260px
-                                max-height: 300px
+                                width: 320px
+                                max-height: 360px
                                 padding: 6px
                                 border: 1px solid var(--ant-color-border-secondary)
                                 border-radius: 7px
@@ -1079,6 +1094,12 @@
                                 color: var(--ant-color-primary)
                                 font-size: 16px
 
+                            .ai-attachment-upload-hint
+                                padding: 4px 8px 7px
+                                color: var(--ant-color-text-secondary)
+                                font-size: 12px
+                                line-height: 18px
+
                             .ai-attachment-popover-title
                                 padding: 9px 8px 5px
                                 border-top: 1px solid var(--ant-color-border-secondary)
@@ -1094,6 +1115,10 @@
                                 min-height: 34px
                                 gap: 8px
                                 padding: 6px 8px
+
+                                &:disabled
+                                    cursor: default
+                                    opacity: 0.6
 
                             .ai-attachment-option-name
                                 min-width: 0

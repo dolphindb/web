@@ -3,6 +3,9 @@ import type { ChatModel } from '@/agent/model.ts'
 import type { ISessionAttachment, ISessionAttachmentDeleteResult, ISessionAttachmentListResult, ISessionAttachmentUpload } from './types.ts'
 
 
+export const SESSION_ATTACHMENT_ACCEPT = '.png,.jpg,.jpeg,.webp,.gif,.pdf,.docx,.pptx,.xlsx,.xls,.txt,.text,.log,.md,.csv,.tsv,.xml,image/*,text/*,application/xml'
+
+
 export class ChatAttachmentModel {
     constructor (private chat: ChatModel) { }
     async upload_attachment (session_id: string, params: ISessionAttachmentUpload): Promise<ISessionAttachment> {
@@ -43,7 +46,6 @@ export class ChatAttachmentModel {
             `/session/${encodeURIComponent(session_id)}/attachments/${encodeURIComponent(attachment_id)}${search}`
         )
     }
-
     async delete_attachment (session_id: string, attachment_id: string): Promise<ISessionAttachmentDeleteResult> {
         return this.chat.agent.api_fetch(
             `/session/${encodeURIComponent(session_id)}/attachments/${encodeURIComponent(attachment_id)}`,
