@@ -1,6 +1,6 @@
 import type { ChatModel } from '@/agent/model.ts'
 import { ENABLE_ATTACHMENTS } from './constants.ts'
-import type { AgentAuthSubjectType, IAgentLlmBinding, IBuiltinInitResult, ILlmConfig, ILlmConfigInput, ILlmProvider, ILlmUsageStats, ISelectableLlmInfo, IUserLlmAccessInfo } from './types.ts'
+import type { AgentAuthSubjectType, IAgentLlmBinding, IBuiltinInitResult, ILlmBudgetConfig, ILlmBudgetStatus, ILlmConfig, ILlmConfigInput, ILlmProvider, ILlmUsageStats, ISelectableLlmInfo, IUserLlmAccessInfo } from './types.ts'
 import { get_auth_subject_parameter, get_enabled, get_status, get_status_name, normalize_json_object, normalize_json_object_string, optional_positive_number } from './helpers.ts'
 import { chat_shared_model } from './shared.ts'
 
@@ -24,6 +24,7 @@ export class ChatLlmModel {
     }
     _map_llm_config (item: any, provider_lookup?: Map<string, ILlmProvider>): ILlmConfig {
         const provider = item.providerId && provider_lookup?.get(item.providerId)
+        const extra = normalize_json_object(item.extra)
         return {
             llmConfigId: item.llmConfigId,
             name: item.name || item.llmConfigId,
@@ -39,8 +40,8 @@ export class ChatLlmModel {
             defaultParams: item.defaultParams,
             contextWindow: item.contextWindow,
             ...(ENABLE_ATTACHMENTS ? {
-                maxImageBytes: item.maxImageBytes,
-                maxInputFiles: item.maxInputFiles,
+                maxImageBytes: extra?.maxImageBytes as number | undefined,
+                maxInputFiles: extra?.maxInputFiles as number | undefined,
             } : { }),
             maxConcurrency: optional_positive_number(item.maxConcurrency),
             rateLimitRPM: optional_positive_number(item.rateLimitRPM),
@@ -202,6 +203,18 @@ export class ChatLlmModel {
         if (params.endTime !== undefined)
             search.set('endTime', String(params.endTime))
         return this.chat.agent.api_fetch(`/llm/usage?${search}`)
+    }
+    async load_llm_budget (params: { agentId: string, targetUserId?: string }): Promise<ILlmBudgetStatus> {
+        const search = new URLSearchParams({ agentId: params.agentId })
+        if (params.targetUserId)
+            search.set('targetUserId', params.targetUserId)
+        return this.chat.agent.api_fetch(`/llm/budget?${search}`)
+    }
+    async update_llm_budget (agent_id: string, budget: ILlmBudgetConfig): Promise<ILlmBudgetStatus> {
+        return this.chat.agent.api_fetch('/llm/budget', {
+            method: 'PUT',
+            body: JSON.stringify({ agentId: agent_id, budget }),
+        })
     }
     async init_builtins (params: { dryRun?: boolean, includeDetails?: boolean }): Promise<IBuiltinInitResult> {
         return this.chat.agent.api_fetch('/builtin/init', {

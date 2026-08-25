@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { t } from '@i18n'
 import { model } from '@model'
 import { bind_chat_model_session } from '@/agent/model.ts'
-import type { ChatModel, ISessionAttachment } from '@/agent/model.ts'
+import type { ChatModel } from '@/agent/model.ts'
+import type { ISessionAttachment } from '@/agent/model/types.ts'
 import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
 import { is_pending_ai_chat_id, shell } from '@/shell/model.ts'
 
 
-const pending_attachment_selections = new Map<string, ISessionAttachment[]>()
+export const pending_input_drafts = new Map<string, string>()
+export const pending_attachment_selections = new Map<string, ISessionAttachment[]>()
 
 
 export function use_session_attachments ({
@@ -17,15 +19,26 @@ export function use_session_attachments ({
     current_session_id,
     pending_session,
     creating_session,
+    input_value = '',
 }: {
     chat: ChatModel
     session_id: string
     current_session_id: string
     pending_session: boolean
     creating_session: boolean
+    input_value?: string
 }) {
-    const [attachments, set_attachments] = useState<ISessionAttachment[]>([ ])
-    const [selected_attachments, set_selected_attachments] = useState<ISessionAttachment[]>([ ])
+    const input_value_ref = useRef(input_value)
+    useEffect(() => {
+        input_value_ref.current = input_value
+    }, [input_value])
+    
+    const [attachments, set_attachments] = useState<ISessionAttachment[]>(() =>
+        pending_attachment_selections.get(session_id) || [ ]
+    )
+    const [selected_attachments, set_selected_attachments] = useState<ISessionAttachment[]>(() =>
+        pending_attachment_selections.get(session_id) || [ ]
+    )
     const [attachments_loading, set_attachments_loading] = useState(false)
     const [attachments_error, set_attachments_error] = useState('')
     async function create_session () {
@@ -87,6 +100,8 @@ export function use_session_attachments ({
                     ...uploaded.filter(item => !current.some(selected => selected.attachmentId === item.attachmentId)),
                 ])
             if (created) {
+                if (input_value_ref.current)
+                    pending_input_drafts.set(target_session_id, input_value_ref.current)
                 if (select_after_upload)
                     pending_attachment_selections.set(target_session_id, uploaded)
                 bind_session(created.session, created.tab_name)
@@ -102,13 +117,31 @@ export function use_session_attachments ({
             set_attachments_loading(false)
         }
     }
+    async function delete_attachment (attachment_id: string) {
+        if (!ENABLE_ATTACHMENTS || !attachment_id)
+            return
+        const target_session_id = current_session_id || session_id
+        if (!target_session_id || is_pending_ai_chat_id(target_session_id))
+            return
+        try {
+            await chat.attachment.delete_attachment(target_session_id, attachment_id)
+            set_attachments(current => current.filter(item => item.attachmentId !== attachment_id))
+            set_selected_attachments(current => current.filter(item => item.attachmentId !== attachment_id))
+            model.message?.success(t('附件已删除'))
+        } catch (error) {
+            const message = error instanceof Error ? error.message : t('删除附件失败')
+            model.message?.error(message)
+        }
+    }
     useEffect(() => {
         if (!ENABLE_ATTACHMENTS)
             return
-        const transferred_attachments = pending_attachment_selections.get(session_id) || [ ]
-        pending_attachment_selections.delete(session_id)
-        set_attachments(transferred_attachments)
-        set_selected_attachments(transferred_attachments)
+        const transferred_attachments = pending_attachment_selections.get(session_id)
+        if (transferred_attachments) {
+            pending_attachment_selections.delete(session_id)
+            set_attachments(transferred_attachments)
+            set_selected_attachments(transferred_attachments)
+        }
         set_attachments_error('')
         if (!pending_session)
             refresh_attachments(session_id, true)
@@ -122,5 +155,6 @@ export function use_session_attachments ({
         ensure_session,
         refresh_attachments,
         upload_attachments,
+        delete_attachment,
     }
 }

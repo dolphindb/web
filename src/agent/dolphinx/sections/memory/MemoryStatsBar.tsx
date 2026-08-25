@@ -1,7 +1,7 @@
 import { Space, Typography } from 'antd'
 
 import { t } from '@i18n'
-import type { IMemoryStats } from '@/agent/model.ts'
+import type { IMemoryStats } from '@/agent/model/types.ts'
 
 
 const { Text } = Typography

@@ -1,9 +1,9 @@
 import type { DdbEvalOptions } from 'dolphindb/browser.js'
-import type { IMessage } from '@/agent/model.ts'
+import type { IMessage } from '@/agent/model/types.ts'
 import type { chat_workspace_store } from '@/agent/workspace.ts'
 
 
-export type ScriptType = 'execute' | 'coldefs' | 'testsql' | 'show' | 'doc_search' | 'doc_read' | 'skill_read' | string
+export type ScriptType = 'execute' | 'coldefs' | 'testsql' | 'show' | 'doc_search' | 'doc_read' | 'skill_read' | 'kb_list' | 'kb_search' | 'kb_read' | string
 
 
 export interface ScriptResult {

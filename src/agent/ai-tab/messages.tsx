@@ -4,7 +4,8 @@ import { Collapse, Typography } from 'antd'
 import { BulbOutlined, CodeOutlined, PaperClipOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import type { AgentStatus, ChatModel, IMessage, IToolCall } from '@/agent/model.ts'
+import type { ChatModel } from '@/agent/model.ts'
+import type { AgentStatus, IMessage, IToolCall } from '@/agent/model/types.ts'
 import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
 import { ToolMessageRenderer } from '@/agent/ToolMessageRenderer.tsx'
 import {
@@ -48,14 +49,25 @@ function PlainTextMessageContent ({ content }: { content: string }) {
 }
 
 
-function MessageAttachments ({ attachments }: { attachments: NonNullable<IMessage['attachments']> }) {
+function MessageAttachments ({
+    attachments,
+    on_preview_attachment,
+}: {
+    attachments: NonNullable<IMessage['attachments']>
+    on_preview_attachment?: (attachment_id: string, filename?: string) => void
+}) {
     return <div className='ai-message-attachments'>
-        {attachments.map(attachment => <div className='ai-message-attachment' key={attachment.attachmentId}>
+        {attachments.map(attachment => <button
+            type='button'
+            className='ai-message-attachment'
+            key={attachment.attachmentId}
+            onClick={() => { on_preview_attachment?.(attachment.attachmentId, attachment.filename) }}
+        >
             <PaperClipOutlined />
             <span title={attachment.filename || attachment.attachmentId}>
                 {attachment.filename || attachment.attachmentId}
             </span>
-        </div>)}
+        </button>)}
     </div>
 }
 
@@ -390,6 +402,12 @@ function get_tool_preview_arg (tool_name: string, args: unknown) {
         return get_arg_text(args, 0, ['query'])
     if (normalized === 'doc_read')
         return get_arg_text(args, 0, ['url'])
+    if (normalized === 'kb_list')
+        return ''
+    if (normalized === 'kb_search')
+        return get_arg_text(args, 1, ['query']) || get_arg_text(args, 0, ['query'])
+    if (normalized === 'kb_read')
+        return get_arg_text(args, 1, ['chunk_id', 'chunkId']) || get_arg_text(args, 0, ['chunk_id', 'chunkId'])
     if (normalized.startsWith('skill_'))
         return get_arg_text(args, 0, ['skill_id', 'skillId'])
     return get_tool_file_name(args) || get_arg_text(args, 0, ['name', 'path'])
@@ -430,7 +448,17 @@ function get_tool_command_preview (pair: ReturnType<typeof get_tool_pairs>[numbe
 }
 
 
-export function ToolMessageGroup ({ chat, group, is_last }: { chat: ChatModel, group: Extract<MessageGroup, { type: 'tools' }>, is_last: boolean }) {
+export function ToolMessageGroup ({
+    chat,
+    group,
+    is_last,
+    on_preview_attachment,
+}: {
+    chat: ChatModel
+    group: Extract<MessageGroup, { type: 'tools' }>
+    is_last: boolean
+    on_preview_attachment?: (attachment_id: string, filename?: string) => void
+}) {
     const pairs = get_tool_pairs(group.messages)
  
     return <div
@@ -473,6 +501,7 @@ export function ToolMessageGroup ({ chat, group, is_last }: { chat: ChatModel, g
                                             is_last={msg_index === pair.messages.length - 1}
                                             agent_status='idle'
                                             chat={chat}
+                                            on_preview_attachment={on_preview_attachment}
                                         />
                                     })}
                                 </div>,
@@ -493,6 +522,7 @@ export function AiMessageRow ({
     next,
     is_last,
     agent_status,
+    on_preview_attachment,
 }: {
     chat: ChatModel
     msg: IMessage
@@ -500,6 +530,7 @@ export function AiMessageRow ({
     next: IMessage | null
     is_last: boolean
     agent_status: AgentStatus
+    on_preview_attachment?: (attachment_id: string, filename?: string) => void
 }) {
     const current_tool_call = msg.messageType === 'tool_call' ? parse_tool_call(msg) : null
     const previous_tool_call = prev?.messageType === 'tool_call' ? parse_tool_call(prev) : null
@@ -614,7 +645,10 @@ export function AiMessageRow ({
             />
             : msg.role === 'user'
                 ? (has_content || has_attachments) && <div className='ai-user-message'>
-                    {visible_attachments?.length && <MessageAttachments attachments={visible_attachments} />}
+                    {visible_attachments?.length && <MessageAttachments
+                        attachments={visible_attachments}
+                        on_preview_attachment={on_preview_attachment}
+                    />}
                     {has_content && <div className='ai-message-bubble'>
                         <PlainTextMessageContent content={msg.content} />
                     </div>}

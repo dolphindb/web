@@ -4,7 +4,7 @@ import { Button, Empty, Input, Popconfirm, Select } from 'antd'
 import { CheckCircleOutlined, DeleteOutlined, SaveOutlined, StopOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import type { ILlmProvider } from '@/agent/model.ts'
+import type { ILlmProvider } from '@/agent/model/types.ts'
 import { form_error_alert, required_label } from '@/agent/settings/common.tsx'
 import { ADAPTER_TYPE_OPTIONS, type ProviderFormData } from './types.ts'
 

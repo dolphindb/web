@@ -1,4 +1,5 @@
-import type { ChatModel, IMessage } from './model.ts'
+import type { ChatModel } from './model.ts'
+import type { IMessage } from './model/types.ts'
 import {
     type ToolCallViewModel,
     get_tool_natural_text as get_tool_message_natural_text,

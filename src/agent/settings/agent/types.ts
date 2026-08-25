@@ -1,4 +1,4 @@
-import type { IAgentInfo, ILlmConfig, IMcpServerInfo } from '@/agent/model.ts'
+import type { IAgentInfo, ILlmConfig, IMcpServerInfo } from '@/agent/model/types.ts'
 
 
 export const DEFAULT_AGENT_FORM = {

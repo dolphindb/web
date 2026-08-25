@@ -194,6 +194,172 @@ function DocReadRenderer (props: ToolRendererProps) {
 }
 
 
+function get_kb_source_text (item: Record<string, unknown>) {
+    const source = is_object_record(item.source) ? item.source : { }
+    const file_name = to_message_text(item.file || item.fileName || source.fileName)
+    const page_no = item.pageNo !== undefined && item.pageNo !== null
+        ? Number(item.pageNo)
+        : (source.pageNo !== undefined && source.pageNo !== null ? Number(source.pageNo) : null)
+    return file_name ? `${file_name}${page_no !== null ? ` (P.${page_no})` : ''}` : ''
+}
+
+
+function KbChunkSource ({ item }: { item: Record<string, unknown> }) {
+    const source_text = get_kb_source_text(item)
+    return source_text
+        ? <Text type='secondary' style={{ display: 'block', fontSize: 11, marginBottom: 4 }} ellipsis={{ tooltip: source_text }}>
+            {source_text}
+        </Text>
+        : null
+}
+
+
+function KbListRenderer (props: ToolRendererProps) {
+    return <ParamResultSection props={props} build_data={({ message, structured_payload }) => {
+        const parsed = is_object_record(structured_payload) ? structured_payload : null
+        const raw_kbs = Array.isArray(parsed?.knowledgeBases)
+            ? parsed.knowledgeBases
+            : Array.isArray(parsed?.items)
+                ? parsed.items
+                : [ ]
+        const items = raw_kbs.filter(is_object_record)
+        return {
+            result_rows: [
+                { label: t('知识库'), value: t('共 {{count}} 个可用知识库', { count: items.length }) },
+            ],
+            result_details: compact_sections([
+                items.length ? {
+                    key: 'kb-list-items',
+                    label: t('查看知识库列表'),
+                    children: <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {items.map((kb, idx) => <div key={to_message_text(kb.knowledgeBaseId) || idx} style={{ padding: '4px 8px', background: 'var(--ant-color-fill-quaternary)', borderRadius: 4 }}>
+                                <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <span>{to_message_text(kb.name) || to_message_text(kb.knowledgeBaseId)}</span>
+                                    <Text type='secondary' style={{ fontSize: 11 }}>({to_message_text(kb.knowledgeBaseId)})</Text>
+                                </div>
+                                {to_message_text(kb.description) && <Text type='secondary' style={{ fontSize: 12 }}>{to_message_text(kb.description)}</Text>}
+                            </div>)}
+                    </div>,
+                } : null,
+                !items.length ? create_compact_text_detail('text', t('查看结果'), message.content, 120) : null,
+            ]),
+        }
+    }} />
+}
+
+
+function KbSearchRenderer (props: ToolRendererProps) {
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload, is_outcome }) => {
+        const kb_id = get_arg_text(args, 0, ['knowledge_base_id', 'knowledgeBaseId'])
+        const query = get_arg_text(args, 1, ['query']) || (is_object_record(args) ? to_message_text((args as any).query) : '')
+        const parsed = is_object_record(structured_payload) ? structured_payload : null
+        const items = Array.isArray(parsed?.items) ? parsed.items.filter(is_object_record) : [ ]
+        const status = to_message_text(parsed?.resultStatus)
+        
+        return {
+            param_rows: [
+                { label: t('检索词'), value: query || '-' },
+                ...(kb_id ? [{ label: t('知识库'), value: kb_id }] : [ ]),
+            ],
+            result_rows: is_outcome ? [
+                {
+                    label: t('检索结果'),
+                    value: items.length > 0
+                        ? t('召回 {{count}} 条相关片段', { count: items.length })
+                        : status === 'NO_RELEVANT_EVIDENCE' ? t('未找到相关内容') : to_preview_text(message.content, 120),
+                },
+            ] : [ ],
+            result_details: compact_sections([
+                items.length ? {
+                    key: 'kb-search-results',
+                    label: t('查看召回片段'),
+                    children: <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {items.map((item, idx) => {
+                            const source_text = get_kb_source_text(item)
+                            const content = to_message_text(item.content)
+                            return <div key={to_message_text(item.chunkId) || idx} style={{ padding: 8, background: 'var(--ant-color-fill-quaternary)', borderRadius: 6 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                                    <Text strong style={{ minWidth: 0, fontSize: 12 }} ellipsis={{ tooltip: source_text }}>
+                                        {source_text || `Chunk #${idx + 1}`}
+                                    </Text>
+                                    <Text type='secondary' style={{ fontSize: 11 }}>{to_message_text(item.chunkId)}</Text>
+                                </div>
+                                <div style={{ fontSize: 13, lineHeight: 1.5, whiteSpace: 'pre-wrap', maxHeight: 200, overflowY: 'auto' }}>
+                                    {content}
+                                </div>
+                            </div>
+                        })}
+                    </div>,
+                } : null,
+                !items.length ? create_compact_text_detail('text', t('查看结果'), message.content, 120) : null,
+            ]),
+        }
+    }} />
+}
+
+
+function KbReadRenderer (props: ToolRendererProps) {
+    return <ParamResultSection props={props} build_data={({ args, message, structured_payload, is_outcome }) => {
+        const chunk_id = get_arg_text(args, 1, ['chunk_id', 'chunkId']) || get_arg_text(args, 0, ['chunk_id', 'chunkId'])
+        const parsed = is_object_record(structured_payload) ? structured_payload : null
+        
+        const has_stitched_content = typeof parsed?.content === 'string'
+        const file_name = to_message_text(parsed?.file || parsed?.fileName)
+        const page_no = parsed?.pageNo !== undefined && parsed?.pageNo !== null ? Number(parsed.pageNo) : null
+        const source_desc = file_name ? `${file_name}${page_no !== null ? ` (P.${page_no})` : ''}` : ''
+        const content_str = to_message_text(parsed?.content)
+        
+        const item = is_object_record(parsed?.item) ? parsed.item : null
+        const before = Array.isArray(parsed?.before) ? parsed.before.filter(is_object_record) : [ ]
+        const after = Array.isArray(parsed?.after) ? parsed.after.filter(is_object_record) : [ ]
+        const total_chunks = (item ? 1 : 0) + before.length + after.length
+        
+        return {
+            param_rows: [
+                { label: 'chunkId', value: chunk_id || to_message_text(item?.chunkId) || '-' },
+                ...(source_desc ? [{ label: t('来源'), value: source_desc }] : [ ]),
+            ],
+            result_rows: is_outcome ? [
+                {
+                    label: t('读取结果'),
+                    value: has_stitched_content
+                        ? (content_str ? t('读取成功') : to_preview_text(message.content, 120))
+                        : (total_chunks > 0 ? t('共读取 {{count}} 个片段', { count: total_chunks }) : to_preview_text(message.content, 120)),
+                },
+            ] : [ ],
+            result_details: compact_sections([
+                has_stitched_content && content_str ? create_markdown_detail('kb-content', t('查看完整正文'), content_str) : null,
+                !has_stitched_content && total_chunks > 0 ? {
+                    key: 'kb-read-chunks',
+                    label: t('查看完整正文'),
+                    children: <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {before.map((b, idx) => <div key={`before-${idx}`} style={{ padding: 8, background: 'var(--ant-color-fill-quaternary)', borderRadius: 6, opacity: 0.85 }}>
+                                <Text type='secondary' style={{ fontSize: 11, display: 'block', marginBottom: 2 }}>{t('前置片段')} ({to_message_text(b.chunkId)})</Text>
+                                <KbChunkSource item={b} />
+                                <div style={{ fontSize: 13, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{to_message_text(b.content)}</div>
+                            </div>)}
+                        {item && <div style={{ padding: 8, background: 'var(--ant-color-primary-bg)', border: '1px solid var(--ant-color-primary-border)', borderRadius: 6 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                                <Text strong style={{ color: 'var(--ant-color-primary)' }}>{t('目标片段')}</Text>
+                                <Text type='secondary' style={{ fontSize: 11 }}>{to_message_text(item.chunkId)}</Text>
+                            </div>
+                            <KbChunkSource item={item} />
+                            <div style={{ fontSize: 13, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{to_message_text(item.content)}</div>
+                        </div>}
+                        {after.map((a, idx) => <div key={`after-${idx}`} style={{ padding: 8, background: 'var(--ant-color-fill-quaternary)', borderRadius: 6, opacity: 0.85 }}>
+                                <Text type='secondary' style={{ fontSize: 11, display: 'block', marginBottom: 2 }}>{t('后置片段')} ({to_message_text(a.chunkId)})</Text>
+                                <KbChunkSource item={a} />
+                                <div style={{ fontSize: 13, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{to_message_text(a.content)}</div>
+                            </div>)}
+                    </div>,
+                } : null,
+                !content_str && total_chunks === 0 ? create_compact_text_detail('text', t('查看结果'), message.content, 120) : null,
+            ]),
+        }
+    }} />
+}
+
+
 function get_named_arg_text (args: unknown): string {
     return get_arg_text(args, 0, ['name', 'path'])
 }
@@ -517,6 +683,9 @@ export const TOOL_RENDERERS: Record<string, (props: ToolRendererProps) => React.
     skill_read: props => <SkillReadRenderer {...props} />,
     doc_search: props => <DocSearchRenderer {...props} />,
     doc_read: props => <DocReadRenderer {...props} />,
+    kb_list: props => <KbListRenderer {...props} />,
+    kb_search: props => <KbSearchRenderer {...props} />,
+    kb_read: props => <KbReadRenderer {...props} />,
     vfs_list: props => <VfsListRenderer {...props} />,
     vfs_create: props => <VfsCreateRenderer {...props} />,
     vfs_read: props => <VfsReadRenderer {...props} />,

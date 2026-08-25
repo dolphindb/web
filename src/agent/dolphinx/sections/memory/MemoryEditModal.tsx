@@ -1,7 +1,7 @@
 import { Input, InputNumber, Modal, Select, Space } from 'antd'
 
 import { t } from '@i18n'
-import type { IMemoryEntry } from '@/agent/model.ts'
+import type { IMemoryEntry } from '@/agent/model/types.ts'
 import { required_label } from '@/agent/settings/common.tsx'
 import { memory_kind_options } from './types.ts'
 

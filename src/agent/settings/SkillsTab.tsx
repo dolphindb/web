@@ -8,7 +8,7 @@ import { CheckCircleOutlined, DeleteOutlined, DownloadOutlined, PlusOutlined, Re
 import { language, t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
-import type { ISkillInfo } from '@/agent/model.ts'
+import type { ISkillInfo } from '@/agent/model/types.ts'
 import {
     DEFAULT_OVERRIDES,
     SkillCreateForm,

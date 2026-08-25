@@ -271,8 +271,6 @@ export interface ILlmConfigInput {
     requestPath: string
     defaultParams?: Record<string, unknown> | null
     contextWindow?: number | null
-    maxImageBytes?: number
-    maxInputFiles?: number
     maxConcurrency?: number | null
     rateLimitRPM?: number | null
     timeoutMs?: number | null
@@ -517,15 +515,45 @@ export interface ISkillFileContent {
 }
 
 
+export interface ILlmModelUsage {
+    model: string
+    promptTokens?: number
+    completionTokens?: number
+    totalTokens?: number
+    requestCount?: number
+}
+
+
 export interface ILlmUsageStats {
     agentId: string
     userId?: string
-    startTime?: number
-    endTime?: number
+    startTime?: string | number
+    endTime?: string | number
     totalPromptTokens?: number
     totalCompletionTokens?: number
     totalTokens?: number
     requestCount?: number
+    tokensByModel?: Record<string, number>
+    models?: ILlmModelUsage[]
+}
+
+
+export interface ILlmBudgetConfig {
+    enabled?: boolean
+    maxTokens?: number
+    startTime?: string | number
+    endTime?: string | number
+    models?: Record<string, number | { maxTokens?: number }>
+}
+
+
+export interface ILlmBudgetStatus {
+    agentId: string
+    userId?: string
+    budget?: ILlmBudgetConfig
+    usage: ILlmUsageStats
+    remainingTokens?: number
+    remainingTokensByModel?: Record<string, number>
 }
 
 
@@ -667,4 +695,259 @@ export interface ToolExecutionResult {
     tool_result_content: string
     next_loop: boolean
     stopped?: boolean
+}
+
+
+export interface IKnowledgeBaseEmbeddingRef {
+    source: 'builtin' | 'llmConfig'
+    llmConfigId?: string
+    resolvedModel?: string
+    dimension?: number
+    metric?: string
+    normalize?: boolean
+}
+
+export interface IKnowledgeBaseChunkingConfig {
+    maxChunkChars: number
+    overlapChars: number
+    includeHeading?: boolean
+}
+
+export interface IKnowledgeBaseTextIndexConfig {
+    parser: 'mixed' | 'chinese' | 'english'
+    full?: boolean
+    lowercase?: boolean
+    stem?: boolean
+}
+
+export interface IKnowledgeBaseVectorIndexConfig {
+    indexType: 'flat' | 'hnsw'
+}
+
+export interface IKnowledgeBaseConfig {
+    embeddingRef: IKnowledgeBaseEmbeddingRef
+    chunking: IKnowledgeBaseChunkingConfig
+    textIndex: IKnowledgeBaseTextIndexConfig
+    vectorIndex: IKnowledgeBaseVectorIndexConfig
+}
+
+export type KnowledgeBaseStatus = 'INITIALIZING' | 'ACTIVE' | 'ERROR' | 'DELETING' | 'DELETED'
+
+export interface IKnowledgeBaseInfo {
+    knowledgeBaseId: string
+    name: string
+    description?: string
+    status: KnowledgeBaseStatus
+    activeGenerationId?: string
+    createUserId?: string
+    createTime?: string
+    updateTime?: string
+}
+
+export interface IKnowledgeBaseRegisterPayload {
+    name: string
+    description: string
+    config: IKnowledgeBaseConfig
+}
+
+export interface IKnowledgeBaseUpdatePayload {
+    name?: string
+    description?: string
+}
+
+export interface IKnowledgeBaseListResult {
+    items: IKnowledgeBaseInfo[]
+}
+
+export interface IKnowledgeBaseAgentBinding {
+    agentId: string
+    createUserId?: string
+    createTime?: string
+}
+
+export interface IKnowledgeBaseAgentBindingListResult {
+    items: IKnowledgeBaseAgentBinding[]
+}
+
+export interface IKnowledgeGenerationInfo {
+    generationId: string
+    config: IKnowledgeBaseConfig & {
+        profileSchemaVersion?: number
+        parserSchemaVersion?: string
+        normalizationVersion?: string
+    }
+    profileHash?: string
+    triggerType: 'INITIAL_BUILD' | 'CONFIG_CHANGE' | 'MANUAL_REBUILD'
+    status: 'PENDING' | 'BUILDING' | 'READY' | 'ACTIVE' | 'FAILED' | 'RETIRED' | 'DELETING' | 'DELETED'
+    buildJobId?: string
+    documentCount?: number
+    chunkCount?: number
+    failedDocumentCount?: number
+    validation?: Record<string, unknown>
+    lastError?: string
+    createTime?: string
+    readyTime?: string
+    activateTime?: string
+    updateTime?: string
+}
+
+export interface IKnowledgeGenerationListResult {
+    items: IKnowledgeGenerationInfo[]
+}
+
+export interface IKnowledgeDocumentInfo {
+    documentId: string
+    knowledgeBaseId?: string
+    fileName: string
+    contentType: string
+    byteSize: number
+    sha256?: string
+    importJobId?: string
+    sourceRelativePath?: string
+    status: 'ACTIVE' | 'DELETING' | 'DELETED' | string
+    parseStatus: 'OK' | 'FAILED' | 'PARSING' | string
+    parserVersion?: string
+    parserSchemaVersion?: string
+    lastError?: string
+    createTime?: string
+    updateTime?: string
+    deleteTime?: string | null
+}
+
+export interface IKnowledgeDocumentListResult {
+    items: IKnowledgeDocumentInfo[]
+}
+
+export interface IKnowledgeUploadInitPayload {
+    uploadMode: 'DOCUMENT' | 'ZIP_IMPORT'
+    fileName: string
+    contentType: string
+    byteSize: number
+    sha256: string
+}
+
+export interface IKnowledgeUploadInfo {
+    uploadId: string
+    knowledgeBaseId: string
+    uploadMode: 'DOCUMENT' | 'ZIP_IMPORT'
+    fileName: string
+    contentType: string
+    byteSize: number
+    sha256: string
+    partSize: number
+    partCount: number
+    uploadedPartCount: number
+    status: 'UPLOADING' | 'VERIFYING' | 'COMMITTED' | 'ABORTED' | 'DELETING' | 'DELETED' | 'ERROR'
+    expireTime?: string
+    lastError?: string
+    limits?: {
+        maxArchiveBytes?: number
+        maxEntries?: number
+        maxExpandedBytes?: number
+        maxEntryBytes?: number
+        maxCompressionRatio?: number
+        maxCentralDirectoryBytes?: number
+        maxEntryPathBytes?: number
+        maxExtractionTimeMs?: number
+    }
+}
+
+export type KnowledgeJobType = 'INDEX_BUILD' | 'DOCUMENT_IMPORT' | 'ZIP_IMPORT' | 'DOCUMENT_DELETE' | 'KNOWLEDGE_BASE_DELETE' | 'INDEX_CLEANUP'
+export type KnowledgeJobStatus = 'PENDING' | 'RUNNING' | 'RETRY_WAIT' | 'CANCEL_REQUESTED' | 'CANCELLED' | 'SUCCEEDED' | 'FAILED'
+
+export interface IKnowledgeJobInfo {
+    jobId: string
+    jobType: KnowledgeJobType
+    knowledgeBaseId?: string
+    knowledgeBaseName?: string
+    generationId?: string
+    documentId?: string
+    documentFileName?: string
+    uploadId?: string
+    status: KnowledgeJobStatus
+    stage?: string
+    attempt?: number
+    maxAttempts?: number
+    retryAt?: string | null
+    lastError?: string
+    progress?: Record<string, unknown>
+    allowedActions?: ('CANCEL' | 'RETRY')[]
+    createTime?: string
+    startTime?: string
+    finishTime?: string | null
+    updateTime?: string
+}
+
+export interface IKnowledgeJobListResult {
+    items: IKnowledgeJobInfo[]
+}
+
+export interface IKnowledgeRerankConfig {
+    enabled: boolean
+    providerConfigId?: string
+    providerConfigName?: string
+    providerName?: string
+    model?: string
+    candidateCount: number
+    updateTime?: string
+}
+
+export interface IKnowledgeRerankConfigInput {
+    enabled: boolean
+    providerConfigId?: string
+    candidateCount?: number
+}
+
+export interface IKnowledgeAvailableItem {
+    knowledgeBaseId: string
+    name: string
+    description?: string
+}
+
+export interface IKnowledgeChunkSource {
+    documentId?: string
+    fileName?: string
+    pageNo?: number | null
+}
+
+export interface IKnowledgeChunkItem {
+    chunkId: string
+    content: string
+    source: IKnowledgeChunkSource
+}
+
+export interface IKnowledgeRetrieveResult {
+    retrievalId?: string
+    resultStatus: 'OK' | 'NO_RELEVANT_EVIDENCE' | string
+    items: IKnowledgeChunkItem[]
+}
+
+export interface IKnowledgeReadResult {
+    item?: IKnowledgeChunkItem | null
+    before: IKnowledgeChunkItem[]
+    after: IKnowledgeChunkItem[]
+}
+
+export interface IKnowledgeRetrievalDiagnostic {
+    retrievalId: string
+    knowledgeBaseId?: string
+    generationId?: string
+    agentId?: string
+    userId?: string
+    queryHash?: string
+    queryBytes?: number
+    topK?: number
+    candidateCount?: number
+    textCandidateCount?: number
+    vectorCandidateCount?: number
+    fusedCandidateCount?: number
+    textApplied?: boolean
+    vectorApplied?: boolean
+    rerankConfigured?: boolean
+    rerankApplied?: boolean
+    degradationReason?: string
+    resultStatus?: string
+    diagnostics?: Record<string, unknown>
+    createTime?: string
+    finishTime?: string
 }

@@ -30,7 +30,7 @@ import type {
     IMcpServerInfo,
     IMcpServerTestResult,
     McpServerType,
-} from '@/agent/model.ts'
+} from '@/agent/model/types.ts'
 import {
     McpServerModal,
     build_server_payload,

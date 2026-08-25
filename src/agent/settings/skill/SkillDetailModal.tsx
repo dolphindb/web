@@ -1,7 +1,7 @@
 import { Empty, Input, Modal, Space, Spin, Table, Tabs, Tree, Typography } from 'antd'
 
 import { t } from '@i18n'
-import type { ISkillInfo } from '@/agent/model.ts'
+import type { ISkillInfo } from '@/agent/model/types.ts'
 import { build_skill_file_tree } from './types.ts'
 
 

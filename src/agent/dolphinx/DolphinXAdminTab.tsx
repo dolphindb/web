@@ -8,7 +8,7 @@ import { model } from '@model'
 import { access } from '@/access/model.ts'
 
 import { chat_model } from '@/agent/model.ts'
-import type { AgentAuthSubjectType, IAccessInfo, ILlmConfig, ISkillInfo, IUserLlmAccessInfo } from '@/agent/model.ts'
+import type { AgentAuthSubjectType, IAccessInfo, ILlmConfig, ISkillInfo, IUserLlmAccessInfo } from '@/agent/model/types.ts'
 import { ENABLE_AGENT_GROUP_AUTH } from '@/agent/model/constants.ts'
 import { Section, SettingsListLayout, show_error, use_agent_options, use_valid_agent_selection } from './common.tsx'
 

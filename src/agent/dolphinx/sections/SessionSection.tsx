@@ -8,7 +8,7 @@ import { model } from '@model'
 import { shell } from '@/shell/model.ts'
 
 import { chat_model, get_chat_model } from '@/agent/model.ts'
-import type { ISession } from '@/agent/model.ts'
+import type { ISession } from '@/agent/model/types.ts'
 import {
     AgentListLayout,
     format_browser_time,

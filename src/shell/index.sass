@@ -600,11 +600,11 @@
                             min-height: 34px
                             border: 0
                             border-radius: 4px
-                            padding: 6px 10px
+                            padding: 4px 8px
                             background: transparent
                             display: flex
                             align-items: center
-                            gap: 8px
+                            gap: 6px
                             cursor: pointer
                             text-align: left
                             color: #333
@@ -615,6 +615,19 @@
                             .anticon
                                 color: #8c8c8c
                                 flex-shrink: 0
+
+                        .ai-workspace-file-main
+                            min-width: 0
+                            flex: 1
+                            display: flex
+                            align-items: center
+                            gap: 6px
+                            border: 0
+                            background: transparent
+                            padding: 0
+                            cursor: pointer
+                            text-align: left
+                            color: inherit
 
                         .ai-workspace-file-name
                             min-width: 0
@@ -628,8 +641,19 @@
                             flex-shrink: 0
                             font-size: 12px
 
+                        .ai-workspace-file-action
+                            color: #8c8c8c
+                            padding: 0 !important
+                            height: 22px !important
+                            width: 22px !important
+                            flex-shrink: 0
+
+                            &:hover
+                                color: #ff4d4f !important
+                                background: rgba(255, 77, 79, 0.1) !important
+
                         .ai-session-attachment-file
-                            cursor: default
+                            cursor: pointer
 
                         .ai-todo-list
                             background: #fafafa
@@ -721,6 +745,16 @@
                                 gap: 6px
                                 color: var(--ant-color-text)
                                 font-size: 12px
+                                cursor: pointer
+                                text-align: left
+                                transition: all 0.2s
+
+                                &:hover
+                                    border-color: var(--ant-color-primary)
+                                    color: var(--ant-color-primary)
+
+                                    .anticon
+                                        color: var(--ant-color-primary)
 
                                 .anticon
                                     flex-shrink: 0

@@ -5,7 +5,7 @@ import { Button, Descriptions, Input, Select, Space, Table, message } from 'antd
 import { t } from '@i18n'
 
 import { chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
-import type { ISession } from '@/agent/model.ts'
+import type { ISession } from '@/agent/model/types.ts'
 import { build_web_assembly_config } from '@/agent/prompt.ts'
 import { get_all_tool_definitions } from '@/agent/scripts/index.ts'
 import { legacy_json_tool_call_adapter, native_tool_call_adapter } from '@/agent/tool_call_adapters.ts'
@@ -192,7 +192,7 @@ export function ContextPreviewSection () {
             <Table
                 size='small'
                 tableLayout='fixed'
-                pagination={{ defaultPageSize: 8 }}
+                pagination={{ defaultPageSize: 8, showSizeChanger: true }}
                 rowKey={(_, index) => String(index)}
                 dataSource={messages}
                 expandable={{

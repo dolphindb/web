@@ -6,6 +6,9 @@ import { show_config } from './show.ts'
 import { doc_search_config } from './doc_search.ts'
 import { doc_read_config } from './doc_read.ts'
 import { skill_read_config } from './skill_read.ts'
+import { kb_list_config } from './kb_list.ts'
+import { kb_search_config } from './kb_search.ts'
+import { kb_read_config } from './kb_read.ts'
 import {
     execute_file_config,
     step_clear_config,
@@ -31,6 +34,9 @@ export function init_scripts () {
     register_script(doc_search_config)
     register_script(doc_read_config)
     register_script(skill_read_config)
+    register_script(kb_list_config)
+    register_script(kb_search_config)
+    register_script(kb_read_config)
     register_script(vfs_list_config)
     register_script(vfs_create_config)
     register_script(vfs_read_config)

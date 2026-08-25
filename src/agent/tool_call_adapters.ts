@@ -1,6 +1,6 @@
 import { language } from '@i18n'
 
-import type { IChatContentPart, IMessage, IToolCall } from './model.ts'
+import type { IChatContentPart, IMessage, IToolCall } from './model/types.ts'
 import { build_system_prompt } from './prompt.ts'
 import { get_all_tool_definitions } from './scripts/index.ts'
 import { parse_tool_calls } from './tool_call_parser.ts'

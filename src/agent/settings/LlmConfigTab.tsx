@@ -4,8 +4,9 @@ import { message } from 'antd'
 import { t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
-import type { ILlmConfig, ILlmProvider } from '@/agent/model.ts'
+import type { ILlmConfig, ILlmProvider } from '@/agent/model/types.ts'
 import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
+import { normalize_json_object } from '@/agent/model/helpers.ts'
 import {
     ConfigEditModal,
     ConfigList,
@@ -254,8 +255,11 @@ export function LlmConfigTab () {
             requestPath: config_form.requestPath.trim(),
             contextWindow: config_form.contextWindow ?? null,
             ...(ENABLE_ATTACHMENTS ? {
-                maxImageBytes: config_form.maxImageBytes,
-                maxInputFiles: config_form.maxInputFiles,
+                extra: JSON.stringify({
+                    ...normalize_json_object(configs.find(config => config.llmConfigId === editing_config_id)?.extra),
+                    maxImageBytes: config_form.maxImageBytes,
+                    maxInputFiles: config_form.maxInputFiles,
+                }),
             } : { }),
             maxConcurrency: config_form.maxConcurrency ?? null,
             rateLimitRPM: config_form.rateLimitRPM ?? null,

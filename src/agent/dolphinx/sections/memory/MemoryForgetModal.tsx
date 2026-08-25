@@ -1,7 +1,7 @@
 import { Modal, Select } from 'antd'
 
 import { t } from '@i18n'
-import type { ISession } from '@/agent/model.ts'
+import type { ISession } from '@/agent/model/types.ts'
 
 
 export function MemoryForgetModal ({

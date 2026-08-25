@@ -5,7 +5,7 @@ import { t } from '@i18n'
 import { model } from '@model'
 
 import { chat_model } from '@/agent/model.ts'
-import type { IAgentInfo } from '@/agent/model.ts'
+import type { IAgentInfo } from '@/agent/model/types.ts'
 import {
     AgentCreateForm,
     AgentDetailPanel,

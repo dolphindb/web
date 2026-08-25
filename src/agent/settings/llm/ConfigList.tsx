@@ -2,7 +2,7 @@ import { Button, Empty, Popconfirm, Space, Tag, Tooltip } from 'antd'
 import { CheckCircleOutlined, DeleteOutlined, EditOutlined, PlusOutlined, StopOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import type { ILlmConfig } from '@/agent/model.ts'
+import type { ILlmConfig } from '@/agent/model/types.ts'
 
 
 export function ConfigList ({

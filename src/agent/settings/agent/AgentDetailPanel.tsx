@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react'
-
+import { use_modal } from 'react-object-model/hooks.js'
 import {
-    Button, Empty, Input, InputNumber, Space, Spin, Switch, Tabs, Tag, Tooltip, Typography,
+    Alert, Button, Empty, Input, InputNumber, Space, Spin, Switch, Tabs, Tag, Tooltip, Typography,
 } from 'antd'
 import {
-    CheckCircleOutlined, SaveOutlined,
+    CheckCircleOutlined, ReloadOutlined, SaveOutlined,
 } from '@ant-design/icons'
 
 import { t } from '@i18n'
 import { model } from '@model'
 import { chat_model } from '@/agent/model.ts'
-import type { IAgentInfo, IAgentLlmBinding, ILlmConfig, IMcpBindingInfo, IMcpServerInfo, ISkillBinding, ISkillInfo } from '@/agent/model.ts'
+import type { IAgentInfo, IAgentLlmBinding, IKnowledgeBaseInfo, ILlmConfig, IMcpBindingInfo, IMcpServerInfo, ISkillBinding, ISkillInfo } from '@/agent/model/types.ts'
+import { BudgetModal } from '@/agent/dolphinx/sections/BudgetModal.tsx'
+import { get_kb_status_label } from '@/agent/settings/knowledge/types.ts'
+
 import { AgentActions } from './AgentActions.tsx'
 import { get_llm_config_display_name, get_mcp_server_display_name } from './types.ts'
 
@@ -25,10 +28,14 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
     const [all_skills, set_all_skills] = useState<ISkillInfo[]>([ ])
     const [bound_mcp_servers, set_bound_mcp_servers] = useState<IMcpBindingInfo[]>([ ])
     const [all_mcp_servers, set_all_mcp_servers] = useState<IMcpServerInfo[]>([ ])
+    const [bound_kbs, set_bound_kbs] = useState<IKnowledgeBaseInfo[]>([ ])
+    const [all_kbs, set_all_kbs] = useState<IKnowledgeBaseInfo[]>([ ])
+    const [knowledge_load_error, set_knowledge_load_error] = useState('')
     const [loading, set_loading] = useState(true)
     const [saving_agent, set_saving_agent] = useState(false)
     const [operating_id, set_operating_id] = useState('')
     const [binding_tab_key, set_binding_tab_key] = useState('llm')
+    const budget_modal = use_modal()
     const [agent_form, set_agent_form] = useState({
         description: agent.description || '',
         systemPrompt: agent.systemPrompt || '',
@@ -42,13 +49,22 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
         try {
             const providers = await chat_model.llm.load_llm_providers()
             const provider_lookup = new Map(providers.map(provider => [provider.providerId, provider]))
-            const [llms, global_llms, skills, global_skills, mcp_bindings, mcp_servers] = await Promise.all([
+            const [llms, global_llms, skills, global_skills, mcp_bindings, mcp_servers, knowledge_state] = await Promise.all([
                 chat_model.llm.load_agent_llm_bindings(agent.agentId, provider_lookup),
                 chat_model.llm.load_llm_configs(provider_lookup),
                 chat_model.skill.load_skill_bindings(agent.agentId),
                 chat_model.skill.load_skills(),
                 chat_model.mcp.load_agent_mcp_bindings(agent.agentId),
                 chat_model.mcp.load_mcp_servers(),
+                chat_model.knowledge.list_knowledge_bases().then(async knowledge_bases => ({
+                    knowledge_bases,
+                    bound_knowledge_bases: await chat_model.knowledge.load_agent_knowledge_bases(agent.agentId, knowledge_bases),
+                    error: '',
+                })).catch(error => ({
+                    knowledge_bases: [ ] as IKnowledgeBaseInfo[],
+                    bound_knowledge_bases: [ ] as IKnowledgeBaseInfo[],
+                    error: error instanceof Error ? error.message : String(error),
+                })),
             ])
             set_bound_llms(llms)
             set_all_llms(global_llms)
@@ -56,6 +72,9 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
             set_all_skills(global_skills)
             set_bound_mcp_servers(mcp_bindings)
             set_all_mcp_servers(mcp_servers)
+            set_bound_kbs(knowledge_state.bound_knowledge_bases)
+            set_all_kbs(knowledge_state.knowledge_bases)
+            set_knowledge_load_error(knowledge_state.error)
             // 同步刷新工具栏的可选 LLM 下拉列表
             if (is_current)
                 chat_model.llm.load_selectable_llms(agent.agentId).catch(() => { })
@@ -145,6 +164,23 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
         })),
     ]
     
+    // --- Knowledge
+    const bound_kb_ids = new Set(bound_kbs.map(b => b.knowledgeBaseId))
+    const all_kb_lookup = new Map(all_kbs.map(k => [k.knowledgeBaseId, k]))
+    const visible_kbs = all_kbs.filter(k => k.status !== 'DELETED')
+    const bound_kb_items = bound_kbs.map(b => all_kb_lookup.get(b.knowledgeBaseId) || b)
+    const unbound_kbs = visible_kbs.filter(k => !bound_kb_ids.has(k.knowledgeBaseId))
+    const kb_items = [
+        ...bound_kb_items.map(kb => ({
+            is_bound: true,
+            kb,
+        })),
+        ...unbound_kbs.map(kb => ({
+            is_bound: false,
+            kb,
+        })),
+    ]
+    
     return <div>
         {/* Agent 基本信息 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
@@ -156,8 +192,12 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
                     {agent.description}
                 </Paragraph>}
             </div>
-            <AgentActions agent={agent} is_current={is_current} on_refresh={on_refresh} />
+            <Space size={6}>
+                <Button size='small' onClick={budget_modal.open}>{t('Token 预算')}</Button>
+                <AgentActions agent={agent} is_current={is_current} on_refresh={on_refresh} />
+            </Space>
         </div>
+        <BudgetModal agent_id={agent.agentId} visible={budget_modal.visible} on_close={budget_modal.close} />
         <div style={{ marginBottom: 16 }}>
             <div style={{ marginBottom: 8, fontWeight: 500 }}>{t('Agent 配置')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
@@ -435,6 +475,82 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
                                 })}
                             </div>
                             : <Empty description={t('暂无可用 MCP Server，请先在「MCP 管理」中添加配置')} image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+                    </div>,
+                },
+                {
+                    key: 'knowledge',
+                    label: t('知识库绑定') + ` (${bound_kbs.length})`,
+                    children: <div>
+                        {knowledge_load_error
+                            ? <Alert
+                                type='error'
+                                showIcon
+                                message={t('加载知识库绑定失败')}
+                                description={knowledge_load_error}
+                                action={<Button size='small' onClick={() => { load(false) }}>{t('重试')}</Button>}
+                            />
+                            : kb_items.length > 0
+                            ? <div style={{ marginBottom: 12 }}>
+                                {kb_items.map(({ is_bound, kb }) => {
+                                    const kb_id = kb.knowledgeBaseId
+                                    const status = kb.status
+                                    return <div
+                                        key={kb_id}
+                                        className='ai-settings-data-row'
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            gap: 12,
+                                        }}
+                                    >
+                                        <div style={{ minWidth: 0, flex: 1 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                                                <span style={{ fontWeight: 500, fontSize: 13 }}>
+                                                    {kb.name}
+                                                </span>
+                                                <Tag
+                                                    color={status === 'ACTIVE' ? 'green' : 'default'}
+                                                    style={{ fontSize: 11 }}
+                                                >
+                                                    {get_kb_status_label(status)}
+                                                </Tag>
+                                            </div>
+                                            {kb.description && <Paragraph
+                                                type='secondary'
+                                                style={{ fontSize: 12, margin: '2px 0 0' }}
+                                                ellipsis={{ rows: 2, tooltip: kb.description }}
+                                            >
+                                                {kb.description}
+                                            </Paragraph>}
+                                        </div>
+                                        <Switch
+                                            className='ai-settings-switch-medium'
+                                            checked={is_bound}
+                                            disabled={status !== 'ACTIVE'}
+                                            loading={operating_id === kb_id}
+                                            onChange={async checked => {
+                                                set_operating_id(kb_id)
+                                                try {
+                                                    if (checked) {
+                                                        await chat_model.knowledge.bind_agent(kb_id, agent.agentId)
+                                                        model.message.success(t('已绑定'))
+                                                    } else {
+                                                        await chat_model.knowledge.unbind_agent(kb_id, agent.agentId)
+                                                        model.message.success(t('已解绑'))
+                                                    }
+                                                    await load(false)
+                                                } catch (err: any) {
+                                                    model.message.error(err.message || (checked ? t('绑定失败') : t('解绑失败')))
+                                                } finally {
+                                                    set_operating_id('')
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                })}
+                            </div>
+                            : <Empty description={t('暂无可用知识库，请先在「知识库管理」中创建')} image={Empty.PRESENTED_IMAGE_SIMPLE} />}
                     </div>,
                 },
             ]} />

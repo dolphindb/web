@@ -9115,5 +9115,494 @@
     },
     "MCP Server 连接成功，但当前用户缺少 MCP_EXEC 权限": {
         "en": "The MCP server connected successfully, but the current user does not have MCP_EXEC permission"
+    },
+    "绑定后，Agent 可在对话推理时使用该知识库进行知识检索与问答。": {
+        "en": "Once bound, the Agent can use this knowledge base for retrieval and question answering."
+    },
+    "包含标题": {
+        "en": "Include headings"
+    },
+    "保存全局 Rerank 配置成功": {
+        "en": "Global rerank configuration saved"
+    },
+    "保存全局 Rerank 配置失败": {
+        "en": "Failed to save global rerank configuration"
+    },
+    "编辑知识库": {
+        "en": "Edit knowledge base"
+    },
+    "测试 Agent（权限归属）": {
+        "en": "Test Agent (usage attribution)"
+    },
+    "查看完整正文": {
+        "en": "View full content"
+    },
+    "查看召回片段": {
+        "en": "View retrieved chunks"
+    },
+    "查看知识库列表": {
+        "en": "View knowledge bases"
+    },
+    "初始构建": {
+        "en": "Initial build"
+    },
+    "初始化中": {
+        "en": "Initializing"
+    },
+    "触发类型": {
+        "en": "Trigger type"
+    },
+    "触发索引构建失败": {
+        "en": "Failed to start index build"
+    },
+    "创建知识库": {
+        "en": "Create knowledge base"
+    },
+    "创建知识库失败": {
+        "en": "Failed to create knowledge base"
+    },
+    "等待中": {
+        "en": "Pending"
+    },
+    "等待重试": {
+        "en": "Waiting to retry"
+    },
+    "点击或将文件拖拽至此处上传": {
+        "en": "Click or drag a file here to upload"
+    },
+    "读取结果": {
+        "en": "Read result"
+    },
+    "读取知识片段": {
+        "en": "Read knowledge chunk"
+    },
+    "分块大小": {
+        "en": "Chunk size"
+    },
+    "分块大小 (200~4000)": {
+        "en": "Chunk size (200-4000)"
+    },
+    "分片校验与上传中...": {
+        "en": "Validating and uploading parts..."
+    },
+    "复用当前索引配置（重新全量索引）": {
+        "en": "Reuse current index configuration (full rebuild)"
+    },
+    "更新知识库失败": {
+        "en": "Failed to update knowledge base"
+    },
+    "共 {{count}} 个可用知识库": {
+        "en": "{{count}} knowledge bases available"
+    },
+    "共读取 {{count}} 个片段": {
+        "en": "Read {{count}} chunks"
+    },
+    "构建索引 Generation": {
+        "en": "Build index generation"
+    },
+    "构建新索引": {
+        "en": "Build new index"
+    },
+    "构建新索引失败": {
+        "en": "Failed to build new index"
+    },
+    "后置片段": {
+        "en": "Following chunk"
+    },
+    "候选重排数量 (20~50)": {
+        "en": "Rerank candidate count (20-50)"
+    },
+    "加载 Agent 绑定列表失败": {
+        "en": "Failed to load Agent bindings"
+    },
+    "加载后台任务列表失败": {
+        "en": "Failed to load background jobs"
+    },
+    "加载全局 Rerank 配置失败": {
+        "en": "Failed to load global rerank configuration"
+    },
+    "加载索引版本列表失败": {
+        "en": "Failed to load index generations"
+    },
+    "加载文档列表失败": {
+        "en": "Failed to load documents"
+    },
+    "加载知识库绑定失败": {
+        "en": "Failed to load knowledge base bindings"
+    },
+    "加载知识库列表失败": {
+        "en": "Failed to load knowledge bases"
+    },
+    "检索": {
+        "en": "Retrieve"
+    },
+    "检索测试": {
+        "en": "Test retrieval"
+    },
+    "检索测试失败": {
+        "en": "Retrieval test failed"
+    },
+    "检索测试与相关性诊断": {
+        "en": "Retrieval test and relevance diagnostics"
+    },
+    "检索查询词": {
+        "en": "Retrieval query"
+    },
+    "检索词": {
+        "en": "Query"
+    },
+    "检索结果": {
+        "en": "Retrieval result"
+    },
+    "检索诊断": {
+        "en": "Retrieval diagnostics"
+    },
+    "阶段": {
+        "en": "Stage"
+    },
+    "解析中": {
+        "en": "Parsing"
+    },
+    "解析状态": {
+        "en": "Parse status"
+    },
+    "就绪": {
+        "en": "Ready"
+    },
+    "开始构建": {
+        "en": "Start build"
+    },
+    "开始上传": {
+        "en": "Start upload"
+    },
+    "块": {
+        "en": "chunks"
+    },
+    "例如：产品手册、运维知识库": {
+        "en": "For example: Product manuals or operations knowledge"
+    },
+    "列出知识库": {
+        "en": "List knowledge bases"
+    },
+    "描述该知识库覆盖的范围和内容": {
+        "en": "Describe the scope and content covered by this knowledge base"
+    },
+    "命中 {{count}} 条结果": {
+        "en": "{{count}} results found"
+    },
+    "目标片段": {
+        "en": "Target chunk"
+    },
+    "内置 Embedding (granite)": {
+        "en": "Built-in embedding (granite)"
+    },
+    "配置变更": {
+        "en": "Configuration change"
+    },
+    "配置概要": {
+        "en": "Configuration summary"
+    },
+    "篇": {
+        "en": "documents"
+    },
+    "启用全局 Rerank": {
+        "en": "Enable global rerank"
+    },
+    "启用全局 Rerank 时必须选择模型配置": {
+        "en": "Select a model configuration before enabling global rerank"
+    },
+    "前置片段": {
+        "en": "Preceding chunk"
+    },
+    "请输入检索词": {
+        "en": "Enter a retrieval query"
+    },
+    "请输入知识库描述": {
+        "en": "Enter a knowledge base description"
+    },
+    "请输入知识库名称": {
+        "en": "Enter a knowledge base name"
+    },
+    "请选择 Embedding 模型配置": {
+        "en": "Select an embedding model configuration"
+    },
+    "请选择要上传的文档或 ZIP 压缩包": {
+        "en": "Select a document or ZIP archive to upload"
+    },
+    "请选择一个活跃 Agent": {
+        "en": "Select an active Agent"
+    },
+    "请选择一个知识库": {
+        "en": "Select a knowledge base"
+    },
+    "取消任务失败": {
+        "en": "Failed to cancel job"
+    },
+    "取消中": {
+        "en": "Cancelling"
+    },
+    "全局 Rerank": {
+        "en": "Global rerank"
+    },
+    "全局 Rerank 重排配置": {
+        "en": "Global rerank configuration"
+    },
+    "确定取消该任务？": {
+        "en": "Cancel this job?"
+    },
+    "确定删除此知识库？": {
+        "en": "Delete this knowledge base?"
+    },
+    "确定删除该文档？": {
+        "en": "Delete this document?"
+    },
+    "任务历史": {
+        "en": "Job history"
+    },
+    "融合候选数": {
+        "en": "Fused candidates"
+    },
+    "删除后将发起后台清理任务，不可恢复。": {
+        "en": "Deletion starts a background cleanup job and cannot be undone."
+    },
+    "删除中": {
+        "en": "Deleting"
+    },
+    "上传失败": {
+        "en": "Upload failed"
+    },
+    "上传时间": {
+        "en": "Upload time"
+    },
+    "上传完成，文档处理任务已在后台启动": {
+        "en": "Upload completed and document processing has started"
+    },
+    "上传文档": {
+        "en": "Upload document"
+    },
+    "上传文档或 ZIP 导入": {
+        "en": "Upload a document or import a ZIP archive"
+    },
+    "手动重建": {
+        "en": "Manual rebuild"
+    },
+    "输入想要在知识库中搜索的自然语言或关键词": {
+        "en": "Enter natural language or keywords to search the knowledge base"
+    },
+    "搜索知识库...": {
+        "en": "Search knowledge bases..."
+    },
+    "索引版本": {
+        "en": "Index generations"
+    },
+    "索引构建": {
+        "en": "Index build"
+    },
+    "索引清理": {
+        "en": "Index cleanup"
+    },
+    "未绑定": {
+        "en": "Not bound"
+    },
+    "未检索到匹配的相关片段": {
+        "en": "No matching chunks were retrieved"
+    },
+    "未应用": {
+        "en": "Not applied"
+    },
+    "未找到相关内容": {
+        "en": "No relevant content found"
+    },
+    "文本分词器": {
+        "en": "Text parser"
+    },
+    "文本候选数": {
+        "en": "Text candidates"
+    },
+    "文本索引应用": {
+        "en": "Text index applied"
+    },
+    "文档 / Chunk": {
+        "en": "Documents / Chunks"
+    },
+    "文档导入": {
+        "en": "Document import"
+    },
+    "文档导入、分块解析、索引构建和清理等后台异步任务。": {
+        "en": "Background jobs for document import, parsing, index building, and cleanup."
+    },
+    "文档管理": {
+        "en": "Documents"
+    },
+    "文档删除": {
+        "en": "Document deletion"
+    },
+    "向量候选数": {
+        "en": "Vector candidates"
+    },
+    "向量索引类型": {
+        "en": "Vector index type"
+    },
+    "向量索引应用": {
+        "en": "Vector index applied"
+    },
+    "向量与索引配置": {
+        "en": "Vector and index configuration"
+    },
+    "新建知识库": {
+        "en": "New knowledge base"
+    },
+    "选择启用的 Chat 模型配置": {
+        "en": "Select an enabled chat model configuration"
+    },
+    "选择启用的 Embedding 模型配置": {
+        "en": "Select an enabled embedding model configuration"
+    },
+    "已触发任务重试": {
+        "en": "Job retry started"
+    },
+    "已触发新索引 Generation 构建任务": {
+        "en": "New index generation build started"
+    },
+    "已禁用，使用多路召回 RRF 融合结果": {
+        "en": "Disabled; retrieval uses RRF fusion"
+    },
+    "已启用，知识库检索将对候选 chunk 进行二次重排": {
+        "en": "Enabled; retrieved chunks will be reranked"
+    },
+    "已请求取消任务": {
+        "en": "Job cancellation requested"
+    },
+    "已取消": {
+        "en": "Cancelled"
+    },
+    "已提交删除任务": {
+        "en": "Deletion job submitted"
+    },
+    "已应用": {
+        "en": "Applied"
+    },
+    "英文 (english)": {
+        "en": "English"
+    },
+    "英文词干提取": {
+        "en": "English stemming"
+    },
+    "英文统一小写": {
+        "en": "Lowercase English text"
+    },
+    "暂无活跃 Agent，无法执行检索测试": {
+        "en": "No active Agent is available for retrieval testing"
+    },
+    "暂无可用知识库，请先在「知识库管理」中创建": {
+        "en": "No knowledge bases are available. Create one in Knowledge Base Management first."
+    },
+    "暂无任务": {
+        "en": "No jobs"
+    },
+    "暂无索引版本": {
+        "en": "No index generations"
+    },
+    "暂无文档": {
+        "en": "No documents"
+    },
+    "暂无知识库": {
+        "en": "No knowledge bases"
+    },
+    "暂无知识库，请先创建": {
+        "en": "No knowledge bases. Create one first."
+    },
+    "召回 {{count}} 条相关片段": {
+        "en": "Retrieved {{count}} relevant chunks"
+    },
+    "召回结果": {
+        "en": "Retrieved results"
+    },
+    "支持单文件上传（PDF, DOCX, TXT, MD 等，最大 100MB）或 ZIP 压缩包批量导入（ZIP 内所有文件必须在同一层，最大 100MB）。": {
+        "en": "Upload one PDF, DOCX, TXT, MD, or similar file up to 100 MB, or import a flat ZIP archive up to 100 MB."
+    },
+    "支持上传单个 PDF、Word、TXT、Markdown 等文档，或打包为单层 ZIP 批量导入。": {
+        "en": "Upload a PDF, Word, TXT, Markdown, or similar document, or import multiple files in a flat ZIP archive."
+    },
+    "知识检索": {
+        "en": "Knowledge retrieval"
+    },
+    "知识库": {
+        "en": "Knowledge base"
+    },
+    "知识库绑定": {
+        "en": "Knowledge base bindings"
+    },
+    "知识库创建成功，正在后台初始化索引": {
+        "en": "Knowledge base created; the index is initializing in the background"
+    },
+    "知识库的物理索引版本（Generation）。修改参数或重建时会生成新版本并异步激活。": {
+        "en": "Physical index generations for this knowledge base. Configuration changes and rebuilds create and activate a new generation asynchronously."
+    },
+    "知识库管理": {
+        "en": "Knowledge Base Management"
+    },
+    "知识库删除": {
+        "en": "Knowledge base deletion"
+    },
+    "中文 (chinese)": {
+        "en": "Chinese"
+    },
+    "中文全模式分词": {
+        "en": "Chinese full-mode tokenization"
+    },
+    "中英混合 (mixed)": {
+        "en": "Mixed Chinese and English"
+    },
+    "重叠字符数不能超过最大分块字符数的 25%": {
+        "en": "Chunk overlap cannot exceed 25% of the maximum chunk size"
+    },
+    "重叠字数": {
+        "en": "Overlap characters"
+    },
+    "重叠字数 (≤25%)": {
+        "en": "Overlap characters (≤25%)"
+    },
+    "重建索引": {
+        "en": "Rebuild index"
+    },
+    "重试次数": {
+        "en": "Attempts"
+    },
+    "重试任务": {
+        "en": "Retry job"
+    },
+    "重试任务失败": {
+        "en": "Failed to retry job"
+    },
+    "自定义 Embedding 配置": {
+        "en": "Custom embedding configuration"
+    },
+    "自定义新索引配置": {
+        "en": "Use a custom index configuration"
+    },
+    "Agent 绑定": {
+        "en": "Agent bindings"
+    },
+    "Embedding 模型": {
+        "en": "Embedding model"
+    },
+    "Rerank 评估模型": {
+        "en": "Rerank evaluation model"
+    },
+    "Rerank 应用": {
+        "en": "Rerank applied"
+    },
+    "Top K": {
+        "en": "Top K"
+    },
+    "ZIP 批量导入": {
+        "en": "ZIP batch import"
+    },
+    "ZIP 导入要求文件名以 .zip 结尾": {
+        "en": "ZIP imports require a file name ending in .zip"
+    },
+    "文件大小必须在 1 字节到 100 MiB 之间": {
+        "en": "File size must be between 1 byte and 100 MiB"
     }
 }

@@ -1,6 +1,6 @@
 import { pickBy } from 'lodash'
 
-import type { IMessage } from '@/agent/model.ts'
+import type { IMessage } from '@/agent/model/types.ts'
 import { normalize_json_object, parse_json_string } from '@/agent/model/helpers.ts'
 import type { IWorkspaceSearchOptions } from '@/agent/workspace.ts'
 import {

@@ -1,0 +1,61 @@
+.ai-file-preview-header
+    display: flex
+    align-items: center
+    justify-content: space-between
+    gap: 16px
+    padding-right: 28px
+
+.ai-file-preview-title
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+    font-size: 16px
+    font-weight: 500
+
+.ai-file-preview-body
+    min-height: 200px
+
+.ai-file-preview-loading
+    display: flex
+    align-items: center
+    justify-content: center
+    height: 360px
+
+.ai-file-preview-image
+    display: flex
+    align-items: center
+    justify-content: center
+    height: 560px
+    background: var(--ant-color-fill-quaternary)
+    border-radius: 6px
+    overflow: auto
+    padding: 16px
+
+    img
+        max-width: 100%
+        max-height: 100%
+        object-fit: contain
+        border-radius: 4px
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08)
+
+.ai-file-preview-markdown
+    height: 560px
+    overflow-y: auto
+    padding: 16px 20px
+    background: var(--ant-color-bg-container)
+    border: 1px solid var(--ant-color-border-secondary)
+    border-radius: 6px
+
+.ai-file-preview-editor
+    height: 560px
+
+.ai-file-preview-empty
+    height: 360px
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    gap: 12px
+
+.ai-file-preview-extracted-tip
+    margin-bottom: 8px

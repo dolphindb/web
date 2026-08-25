@@ -2,7 +2,7 @@ import { Empty, Spin, Tag, Tooltip, Typography } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import type { IAgentInfo } from '@/agent/model.ts'
+import type { IAgentInfo } from '@/agent/model/types.ts'
 import { agent_create_time } from './types.ts'
 
 

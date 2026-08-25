@@ -6,7 +6,7 @@ import type {
     IMcpServerUpsertPayload,
     McpCredentialMode,
     McpServerType,
-} from '@/agent/model.ts'
+} from '@/agent/model/types.ts'
 
 
 export interface ServerFormState {

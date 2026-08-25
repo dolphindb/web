@@ -43,6 +43,7 @@ export class ChatAttachmentModel {
             `/session/${encodeURIComponent(session_id)}/attachments/${encodeURIComponent(attachment_id)}${search}`
         )
     }
+
     async delete_attachment (session_id: string, attachment_id: string): Promise<ISessionAttachmentDeleteResult> {
         return this.chat.agent.api_fetch(
             `/session/${encodeURIComponent(session_id)}/attachments/${encodeURIComponent(attachment_id)}`,

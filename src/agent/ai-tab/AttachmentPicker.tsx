@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { t } from '@i18n'
-import type { ISessionAttachment } from '@/agent/model.ts'
+import type { ISessionAttachment } from '@/agent/model/types.ts'
 
 import { format_file_size } from './messages.tsx'
 

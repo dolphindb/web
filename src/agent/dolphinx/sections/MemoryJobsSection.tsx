@@ -5,7 +5,7 @@ import { Button, Empty, Input, Modal, Select, Space, Table, message } from 'antd
 import { t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
-import type { IMemoryJob } from '@/agent/model.ts'
+import type { IMemoryJob } from '@/agent/model/types.ts'
 import {
     AgentListLayout,
     ellipsis_text,

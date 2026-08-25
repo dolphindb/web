@@ -22,6 +22,58 @@ export function is_no_available_llm_config_error (message: string) {
     return /no active [il]lm config is available/i.test(message)
 }
 
+
+export function clean_json_string (raw: string): string {
+    let result = ''
+    let in_string = false
+    let is_escaped = false
+    
+    for (let i = 0;  i < raw.length;  i++) {
+        const char = raw[i]
+        const code = raw.charCodeAt(i)
+        
+        if (in_string) {
+            if (is_escaped) {
+                result += char
+                is_escaped = false
+                continue
+            }
+            if (char === '\\') {
+                result += char
+                is_escaped = true
+                continue
+            }
+            if (char === '"') {
+                result += char
+                in_string = false
+                continue
+            }
+            if (code < 0x20) {
+                if (char === '\n')
+                    result += '\\n'
+                else if (char === '\r')
+                    result += '\\r'
+                else if (char === '\t')
+                    result += '\\t'
+                else if (char === '\b')
+                    result += '\\b'
+                else if (char === '\f')
+                    result += '\\f'
+                else
+                    result += `\\u${code.toString(16).padStart(4, '0')}`
+                continue
+            }
+            result += char
+        } else {
+            if (char === '"')
+                in_string = true
+            result += char
+        }
+    }
+    
+    return result
+}
+
 function parse_agent_config (value: any) {
     if (!value)
         return { }
@@ -119,7 +171,17 @@ export class ChatAgentModel {
             throw new Error(is_no_available_llm_config_error(message) ? no_available_llm_config_message() : message)
         }
         
-        const result = await response.json()
+        const text = await response.text()
+        let result: any
+        try {
+            result = JSON.parse(text)
+        } catch {
+            try {
+                result = JSON.parse(clean_json_string(text))
+            } catch {
+                throw new Error(text || 'Invalid JSON response')
+            }
+        }
         
         if (result.type === 'ERROR') {
             if (Number(result.headers?.httpStatus) === 403)
