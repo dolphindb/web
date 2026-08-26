@@ -1,0 +1,46 @@
+.ai-required-plugins-modal
+    display: flex
+    flex-direction: column
+    gap: 16px
+    padding-top: 4px
+
+.ai-required-plugins-header,
+.ai-required-plugin-row,
+.ai-required-plugin-status,
+.ai-required-plugin-actions
+    display: flex
+    align-items: center
+
+.ai-required-plugins-header,
+.ai-required-plugin-row
+    justify-content: space-between
+
+.ai-required-plugin-list
+    overflow: hidden
+    border: 1px solid var(--ant-color-border-secondary)
+    border-radius: 6px
+
+.ai-required-plugin-row
+    min-height: 58px
+    padding: 8px 12px
+    border-bottom: 1px solid var(--ant-color-border-secondary)
+
+    &:last-child
+        border-bottom: 0
+
+.ai-required-plugin-name
+    font-weight: 600
+
+.ai-required-plugin-status,
+.ai-required-plugin-actions
+    gap: 8px
+
+.ai-required-plugin-status .ant-tag
+    margin: 0
+
+.ai-required-plugin-section
+    display: flex
+    flex-direction: column
+    gap: 8px
+    padding-top: 16px
+    border-top: 1px solid var(--ant-color-border-secondary)

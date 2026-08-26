@@ -9616,5 +9616,59 @@
     },
     "文件大小必须在 1 字节到 100 MiB 之间": {
         "en": "File size must be between 1 byte and 100 MiB"
+    },
+    "AI 文件与知识库插件": {
+        "en": "AI File and Knowledge Base Plugins"
+    },
+    "AI 对话附件和知识库功能需要加载以下两个插件。": {
+        "en": "AI chat attachments and knowledge bases require the following two plugins."
+    },
+    "相关操作失败": {
+        "en": "The related operation failed"
+    },
+    "检查插件状态失败": {
+        "en": "Failed to check plugin status"
+    },
+    "插件操作失败": {
+        "en": "Plugin operation failed"
+    },
+    "所需插件均已加载": {
+        "en": "All required plugins are loaded"
+    },
+    "当前插件加载情况": {
+        "en": "Current plugin status"
+    },
+    "版本：{{version}}": {
+        "en": "Version: {{version}}"
+    },
+    "未加载": {
+        "en": "Not loaded"
+    },
+    "未知": {
+        "en": "Unknown"
+    },
+    "自动下载": {
+        "en": "Automatic download"
+    },
+    "下载并加载缺失插件": {
+        "en": "Download and load missing plugins"
+    },
+    "如果无法自动下载插件，请": {
+        "en": "If the plugins cannot be downloaded automatically,"
+    },
+    "查看手动安装指引": {
+        "en": "View manual installation guide"
+    },
+    "插件 {{plugin}} 加载成功": {
+        "en": "Plugin {{plugin}} loaded successfully"
+    },
+    "所需插件已下载并加载": {
+        "en": "The required plugins were downloaded and loaded"
+    },
+    "未加载：{{plugins}}": {
+        "en": "Not loaded: {{plugins}}"
+    },
+    "需要下载插件": {
+        "en": "Plugins required"
     }
 }

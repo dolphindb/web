@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Form, Input, InputNumber, Modal, Radio, Select, Space, Switch, Typography, message } from 'antd'
+import { Form, Input, InputNumber, Modal, Radio, Select, Space, Switch, Typography } from 'antd'
 
 import { t } from '@i18n'
 import type { ILlmConfig, IKnowledgeBaseRegisterPayload } from '@/agent/model/types.ts'
+import { required_plugins_model } from '@/agent/model/required-plugins.ts'
 import { DEFAULT_KB_FORM, type KnowledgeCreateFormState } from './types.ts'
 
 
@@ -74,7 +75,7 @@ export function KnowledgeCreateModal ({
             set_form({ ...DEFAULT_KB_FORM })
             set_error_msg('')
         } catch (err: any) {
-            message.error(err.message || t('创建知识库失败'))
+            required_plugins_model.open(err)
         }
     }
     

@@ -11,6 +11,7 @@ import { chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
 import type { IChatContentPart, ScriptExecuteApprovalMode } from '@/agent/model/types.ts'
 import { no_active_agent_message, no_available_llm_config_message } from '@/agent/model/agent.ts'
 import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
+import { required_plugins_model } from '@/agent/model/required-plugins.ts'
 import { parse_ddb_obj_from_content_object } from '@/agent/utils/ddb-object.ts'
 import { get_agent_status_text } from '@/agent/utils/message.ts'
 import { route_ddb_obj_to_dataview } from '@/agent/ai-tab/ddb-result.ts'
@@ -301,6 +302,8 @@ export function AiTab ({ session_id }: { session_id: string }) {
             return
         if (can_interrupt)
             return
+        if (has_attachments && !await required_plugins_model.ensure_loaded())
+            return
         if (!await chat.agent.ensure_active_agent()) {
             if (is_agent_admin)
                 chat_model.set({ settings_visible: true })
@@ -585,7 +588,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
                     if (disable_input || can_interrupt)
                         return
                     const files = Array.from(event.dataTransfer.files)
-                    if (files.length)
+                    if (files.length && await required_plugins_model.ensure_loaded())
                         await upload_attachments(files)
                 }}
             >

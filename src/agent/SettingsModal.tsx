@@ -1,6 +1,6 @@
 import './SettingsModal.sass'
 
-import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
+import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, WarningOutlined } from '@ant-design/icons'
 import { useEffect, useState, type ReactNode } from 'react'
 import { Button, Modal, Spin, Tooltip, Typography, message } from 'antd'
 import {
@@ -17,6 +17,7 @@ import type { IBuiltinInitResult } from './model/types.ts'
 import { get_builtin_init_action } from './builtin-init.ts'
 import type { BuiltinInitAction } from './builtin-init.ts'
 import { ENABLE_AGENT_GROUP_AUTH } from './model/constants.ts'
+import { REQUIRED_FILE_PLUGINS, required_plugins_model } from './model/required-plugins.ts'
 import {
     ContextPreviewSection,
     GroupPermissionTab,
@@ -61,6 +62,7 @@ interface SettingItem {
     label: string
     icon: ReactNode
     content: ReactNode
+    notice?: ReactNode
 }
 
 
@@ -259,6 +261,9 @@ function BuiltinStatusDetail ({ status, show_errors = false }: { status: IBuilti
 
 export function SettingsModal () {
     const { settings_visible, can_manage_agents } = chat_model.use(['settings_visible', 'can_manage_agents'])
+    const { checked: plugins_checked, checking: plugins_checking, loaded_plugins, check_error: plugin_check_error } = required_plugins_model.use([
+        'checked', 'checking', 'loaded_plugins', 'check_error',
+    ])
     const { admin, v3 } = model.use(['admin', 'v3'])
     const [builtin_status, set_builtin_status] = useState<IBuiltinInitResult | null>(null)
     const [checking_builtin, set_checking_builtin] = useState(false)
@@ -301,11 +306,31 @@ export function SettingsModal () {
             })
         return () => { disposed = true }
     }, [settings_visible, admin])
+
+    useEffect(() => {
+        if (settings_visible && active_setting_key === 'knowledge')
+            required_plugins_model.refresh()
+    }, [settings_visible, active_setting_key])
     
     const builtin_action = get_builtin_init_action(builtin_status)
     const show_builtin_init = checking_builtin || builtin_action === 'initialize'
     const show_builtin_notice_card = builtin_notice_visible && (show_builtin_notice(builtin_action) || Boolean(builtin_action_result))
     const builtin_display_status = builtin_action_result || merge_builtin_preview_status(builtin_status, builtin_preview_status)
+    const missing_plugins = REQUIRED_FILE_PLUGINS.filter(plugin =>
+        !loaded_plugins.some(item => item.plugin === plugin)
+    )
+    const knowledge_plugin_notice = (plugin_check_error || plugins_checked && missing_plugins.length > 0)
+        ? <Tooltip title={plugin_check_error ? t('检查插件状态失败') : t('未加载：{{plugins}}', { plugins: missing_plugins.join(', ') })}>
+            <Button
+                type='link'
+                danger
+                size='small'
+                icon={<WarningOutlined />}
+                loading={plugins_checking}
+                onClick={() => { required_plugins_model.open() }}
+            >{t('需要下载插件')}</Button>
+        </Tooltip>
+        : null
     const setting_groups: SettingGroup[] = [
         {
             items: [
@@ -315,7 +340,7 @@ export function SettingsModal () {
                     { key: 'skills', label: t('技能管理'), icon: <WandSparkles />, content: <SkillsTab /> },
                 ] : [ ],
                 ...can_manage_agent ? [
-                    { key: 'knowledge', label: t('知识库管理'), icon: <BookOpen />, content: <KnowledgeTab /> },
+                    { key: 'knowledge', label: t('知识库管理'), icon: <BookOpen />, content: <KnowledgeTab />, notice: knowledge_plugin_notice },
                     { key: 'mcp', label: t('MCP 管理'), icon: <Plug />, content: <McpTab can_manage_mcp /> },
                 ] : [ ],
             ],
@@ -350,6 +375,7 @@ export function SettingsModal () {
     const setting_items = setting_groups.flatMap(group => group.items)
     const active_setting = setting_items.find(item => item.key === active_setting_key) || setting_items[0]
     const show_builtin_upgrade_entry = !checking_builtin && show_builtin_notice(builtin_action)
+    const show_pane_notices = show_builtin_upgrade_entry || Boolean(active_setting.notice)
     if (!v3)
         return null
     
@@ -462,11 +488,12 @@ export function SettingsModal () {
                         />)}
                     </div>)}
                 </nav>
-                <div className={`ai-settings-pane${show_builtin_upgrade_entry ? ' with-notice' : ''}`} key={active_setting.key}>
-                    {show_builtin_upgrade_entry && <div className='ai-settings-pane-notices'>
-                        <Button type='link' size='small' className='ai-builtin-upgrade-entry' onClick={open_builtin_notice}>
+                <div className={`ai-settings-pane${show_pane_notices ? ' with-notice' : ''}`} key={active_setting.key}>
+                    {show_pane_notices && <div className='ai-settings-pane-notices'>
+                        {active_setting.notice}
+                        {show_builtin_upgrade_entry && <Button type='link' size='small' className='ai-builtin-upgrade-entry' onClick={open_builtin_notice}>
                             {get_builtin_notice_label(builtin_action)}
-                        </Button>
+                        </Button>}
                     </div>}
                     {active_setting.content}
                 </div>

@@ -9,6 +9,7 @@ import { SESSION_ATTACHMENT_ACCEPT } from '@/agent/model/attachment.ts'
 import { chat_workspace_store } from '@/agent/workspace.ts'
 import type { IWorkspaceFile } from '@/agent/workspace.ts'
 import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
+import { required_plugins_model } from '@/agent/model/required-plugins.ts'
 
 import type { IFilePreviewTarget } from './FilePreviewModal.tsx'
 import { format_file_size, get_workspace_file_change } from './messages.tsx'
@@ -188,7 +189,10 @@ export function WorkspaceSidebar ({
                                 size='small'
                                 icon={<UploadOutlined />}
                                 disabled={attachments_loading}
-                                onClick={() => { attachment_input_ref.current?.click() }}
+                                onClick={async () => {
+                                    if (await required_plugins_model.ensure_loaded())
+                                        attachment_input_ref.current?.click()
+                                }}
                             />
                         </Tooltip>
                     </div>

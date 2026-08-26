@@ -6,6 +6,7 @@ import { t } from '@i18n'
 import { model } from '@model'
 import type { IKnowledgeBaseInfo, IKnowledgeDocumentInfo } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
+import { required_plugins_model } from '@/agent/model/required-plugins.ts'
 import { format_browser_time } from '@/agent/dolphinx/common.tsx'
 import { format_byte_size, get_kb_status_color, get_kb_status_label } from './types.ts'
 
@@ -68,6 +69,7 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
             }, 2000)
         } catch (err: any) {
             set_upload_error(err.message || t('上传失败'))
+            required_plugins_model.open(err)
         } finally {
             set_uploading(false)
         }

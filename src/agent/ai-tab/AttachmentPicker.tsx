@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { t } from '@i18n'
 import { SESSION_ATTACHMENT_ACCEPT } from '@/agent/model/attachment.ts'
 import type { ISessionAttachment } from '@/agent/model/types.ts'
+import { required_plugins_model } from '@/agent/model/required-plugins.ts'
 
 import { format_file_size } from './messages.tsx'
 
@@ -53,7 +54,10 @@ export function AttachmentPicker ({
                 type='button'
                 className='ai-attachment-upload-action'
                 disabled={loading}
-                onClick={() => { file_input_ref.current?.click() }}
+                onClick={async () => {
+                    if (await required_plugins_model.ensure_loaded())
+                        file_input_ref.current?.click()
+                }}
             >
                 <span className='ai-attachment-upload-icon'>↑</span>
                 <span>{loading ? t('上传中...') : t('上传新文件')}</span>

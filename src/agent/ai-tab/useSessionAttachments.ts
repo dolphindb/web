@@ -6,6 +6,7 @@ import { bind_chat_model_session } from '@/agent/model.ts'
 import type { ChatModel } from '@/agent/model.ts'
 import type { ISessionAttachment } from '@/agent/model/types.ts'
 import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
+import { required_plugins_model } from '@/agent/model/required-plugins.ts'
 import { is_pending_ai_chat_id, shell } from '@/shell/model.ts'
 
 
@@ -112,7 +113,7 @@ export function use_session_attachments ({
                 bind_session(created.session, created.tab_name)
             const message = error instanceof Error ? error.message : t('上传附件失败')
             set_attachments_error(message)
-            model.message?.error(message)
+            required_plugins_model.open(error)
         } finally {
             set_attachments_loading(false)
         }
