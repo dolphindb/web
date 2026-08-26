@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Button, Empty, Popconfirm, Space, Table, Tag, Tooltip, Typography, message } from 'antd'
+import { Button, Empty, Popconfirm, Space, Table, Tag, Tooltip, Typography } from 'antd'
 import { RedoOutlined, ReloadOutlined, StopOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
+import { model } from '@model'
 import type { IKnowledgeBaseInfo, IKnowledgeJobInfo } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 import { format_browser_time } from '@/agent/dolphinx/common.tsx'
@@ -17,15 +18,18 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
     const [loading, set_loading] = useState(false)
     const [operating_job_id, set_operating_job_id] = useState('')
     
-    async function load () {
-        set_loading(true)
+    async function load (silent = false) {
+        if (!silent)
+            set_loading(true)
         try {
             const items = await chat_model.knowledge.list_jobs({ knowledgeBaseId: kb.knowledgeBaseId })
             set_jobs(items)
         } catch {
-            message.error(t('加载后台任务列表失败'))
+            if (!silent)
+                model.message?.error(t('加载后台任务列表失败'))
         } finally {
-            set_loading(false)
+            if (!silent)
+                set_loading(false)
         }
     }
     
@@ -37,10 +41,10 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
         set_operating_job_id(job.jobId)
         try {
             await chat_model.knowledge.retry_job(job.jobId)
-            message.success(t('已触发任务重试'))
+            model.message?.success(t('已触发任务重试'))
             await load()
         } catch (err: any) {
-            message.error(err.message || t('重试任务失败'))
+            model.message?.error(err.message || t('重试任务失败'))
         } finally {
             set_operating_job_id('')
         }
@@ -50,10 +54,10 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
         set_operating_job_id(job.jobId)
         try {
             await chat_model.knowledge.cancel_job(job.jobId)
-            message.success(t('已请求取消任务'))
+            model.message?.success(t('已请求取消任务'))
             await load()
         } catch (err: any) {
-            message.error(err.message || t('取消任务失败'))
+            model.message?.error(err.message || t('取消任务失败'))
         } finally {
             set_operating_job_id('')
         }
@@ -65,7 +69,7 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                 {t('文档导入、分块解析、索引构建和清理等后台异步任务。')}
             </Text>
             <Tooltip title={t('刷新')}>
-                <Button size='small' icon={<ReloadOutlined />} onClick={load} />
+                <Button size='small' icon={<ReloadOutlined />} onClick={() => { load() }} />
             </Tooltip>
         </div>
         

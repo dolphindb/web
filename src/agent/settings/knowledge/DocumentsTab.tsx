@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Button, Empty, Modal, Popconfirm, Progress, Space, Table, Tag, Tooltip, Typography, Upload, message } from 'antd'
+import { Button, Empty, Modal, Popconfirm, Progress, Space, Table, Tag, Tooltip, Typography, Upload } from 'antd'
 import { DeleteOutlined, InboxOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
+import { model } from '@model'
 import type { IKnowledgeBaseInfo, IKnowledgeDocumentInfo } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 import { format_browser_time } from '@/agent/dolphinx/common.tsx'
@@ -22,15 +23,18 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
     const [upload_file, set_upload_file] = useState<File | null>(null)
     const [upload_error, set_upload_error] = useState('')
     
-    async function load () {
-        set_loading(true)
+    async function load (silent = false) {
+        if (!silent)
+            set_loading(true)
         try {
             const items = await chat_model.knowledge.list_documents(kb.knowledgeBaseId)
             set_docs(items)
         } catch {
-            message.error(t('加载文档列表失败'))
+            if (!silent)
+                model.message?.error(t('加载文档列表失败'))
         } finally {
-            set_loading(false)
+            if (!silent)
+                set_loading(false)
         }
     }
     
@@ -54,11 +58,14 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                 undefined,
                 percent => { set_upload_progress(percent) }
             )
-            message.success(t('上传完成，文档处理任务已在后台启动'))
+            model.message?.success(t('上传完成，文档处理任务已在后台启动'))
             set_upload_modal_visible(false)
             set_upload_file(null)
             set_upload_progress(0)
             await load()
+            setTimeout(() => {
+                load(true)
+            }, 2000)
         } catch (err: any) {
             set_upload_error(err.message || t('上传失败'))
         } finally {
@@ -69,10 +76,13 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
     async function delete_doc (doc: IKnowledgeDocumentInfo) {
         try {
             await chat_model.knowledge.delete_document(doc.documentId)
-            message.success(t('已提交删除任务'))
+            model.message?.success(t('已提交删除任务'))
             await load()
+            setTimeout(() => {
+                load(true)
+            }, 2000)
         } catch (err: any) {
-            message.error(err.message || t('删除失败'))
+            model.message?.error(err.message || t('删除失败'))
         }
     }
     
@@ -83,7 +93,7 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
             </Text>
             <Space size={8}>
                 <Tooltip title={t('刷新')}>
-                    <Button size='small' icon={<ReloadOutlined />} onClick={load} />
+                    <Button size='small' icon={<ReloadOutlined />} onClick={() => { load() }} />
                 </Tooltip>
                 <Button
                     type='primary'
