@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { Button, Empty, Space, Table, Tag, message } from 'antd'
+import { Button, Empty, Space, Table, Tag, Tooltip, message } from 'antd'
 
 import { t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
-import type { ILlmBudgetStatus } from '@/agent/model/types.ts'
+import type { ILlmBudgetStatus, ILlmModelUsage } from '@/agent/model/types.ts'
 import {
     AgentListLayout,
     show_error,
@@ -16,7 +16,49 @@ import {
 } from '@/agent/dolphinx/common.tsx'
 
 import { BudgetModal } from './BudgetModal.tsx'
-import { format_remaining_tokens, has_model_usage, UsageModelTable } from './UsageModelTable.tsx'
+import { format_remaining_tokens, get_model_usage } from './usage.ts'
+
+
+interface UsageRow {
+    key: string
+    userName?: string
+    agentName?: string
+    statusName?: string
+    status?: ILlmBudgetStatus
+    modelUsage?: ILlmModelUsage
+    children?: UsageRow[]
+}
+
+type UsageTotalKey = 'requestCount' | 'totalPromptTokens' | 'totalCompletionTokens' | 'totalTokens'
+type ModelUsageKey = 'requestCount' | 'promptTokens' | 'completionTokens' | 'totalTokens'
+
+
+function get_model_rows (parent_key: string, status?: ILlmBudgetStatus) {
+    const models = get_model_usage(status?.usage)
+    return models.length ? models.map((modelUsage, index) => ({
+        key: `${parent_key}-${modelUsage.model}-${index}`,
+        status,
+        modelUsage,
+    })) : undefined
+}
+
+
+function get_usage_value (row: UsageRow, total_key: UsageTotalKey, model_key: ModelUsageKey) {
+    if (row.modelUsage)
+        return row.modelUsage[model_key] ?? (model_key === 'totalTokens' ? 0 : '-')
+    if (row.statusName && row.statusName !== 'ACTIVE')
+        return '-'
+    return row.status?.usage[total_key] ?? 0
+}
+
+
+function get_remaining_tokens (row: UsageRow) {
+    if (row.modelUsage)
+        return row.status?.remainingTokensByModel?.[row.modelUsage.model]
+    if (row.statusName && row.statusName !== 'ACTIVE')
+        return undefined
+    return row.status?.remainingTokens
+}
 
 
 async function load_usage_status (params: { agentId: string, targetUserId?: string }): Promise<ILlmBudgetStatus> {
@@ -142,31 +184,34 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                     <Button loading={loading_usage} onClick={load_usage}>{t('刷新')}</Button>
                 </div>
-                <Table<{ agentId: string, agentName: string, statusName?: string, status?: ILlmBudgetStatus }>
+                <Table<UsageRow>
+                    className='ai-usage-table'
                     size='small'
-                    rowKey='agentId'
+                    rowKey='key'
                     loading={loading_usage}
                     dataSource={[...options]
                         .sort((a, b) => Number(b.active) - Number(a.active))
-                        .map(agent => ({
-                            agentId: agent.value,
-                            agentName: agent.label,
-                            statusName: agent.statusName,
-                            status: usage_by_agent[agent.value],
-                        }))}
+                        .map(agent => {
+                            const status = usage_by_agent[agent.value]
+                            return {
+                                key: agent.value,
+                                agentName: agent.label,
+                                statusName: agent.statusName,
+                                status,
+                                children: agent.statusName === 'ACTIVE' ? get_model_rows(agent.value, status) : undefined,
+                            }
+                        })}
                     pagination={false}
+                    scroll={{ x: 1000 }}
                     tableLayout='fixed'
                     locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用量')} /> }}
-                    expandable={{
-                        expandedRowRender: row => <UsageModelTable usage={row.status?.usage} remaining_tokens_by_model={row.status?.remainingTokensByModel} />,
-                        rowExpandable: row => row.statusName === 'ACTIVE' && has_model_usage(row.status?.usage),
-                    }}
                     columns={[
                         {
                             title: t('Agent 名称'),
                             dataIndex: 'agentName',
                             width: 280,
                             render: (_: unknown, row) =>
+                                row.modelUsage ? null :
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
                                     <span title={row.agentName} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                         {row.agentName}
@@ -177,24 +222,29 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                                 </div>,
                         },
                         {
+                            title: t('模型'),
+                            render: (_: unknown, row) => row.modelUsage?.model || '-',
+                            ellipsis: true,
+                        },
+                        {
                             title: t('请求次数'),
-                            render: (_: unknown, row) => row.statusName !== 'ACTIVE' ? '-' : (row.status?.usage.requestCount ?? 0),
+                            render: (_: unknown, row) => get_usage_value(row, 'requestCount', 'requestCount'),
                         },
                         {
                             title: t('输入 Token'),
-                            render: (_: unknown, row) => row.statusName !== 'ACTIVE' ? '-' : (row.status?.usage.totalPromptTokens ?? 0),
+                            render: (_: unknown, row) => get_usage_value(row, 'totalPromptTokens', 'promptTokens'),
                         },
                         {
                             title: t('输出 Token'),
-                            render: (_: unknown, row) => row.statusName !== 'ACTIVE' ? '-' : (row.status?.usage.totalCompletionTokens ?? 0),
+                            render: (_: unknown, row) => get_usage_value(row, 'totalCompletionTokens', 'completionTokens'),
                         },
                         {
                             title: t('总 Token'),
-                            render: (_: unknown, row) => row.statusName !== 'ACTIVE' ? '-' : (row.status?.usage.totalTokens ?? 0),
+                            render: (_: unknown, row) => get_usage_value(row, 'totalTokens', 'totalTokens'),
                         },
                         {
                             title: t('剩余 Token'),
-                            render: (_: unknown, row) => row.statusName !== 'ACTIVE' ? '-' : format_remaining_tokens(row.status?.remainingTokens),
+                            render: (_: unknown, row) => format_remaining_tokens(get_remaining_tokens(row)),
                         },
                     ]}
                 />
@@ -212,24 +262,34 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
             <Button loading={loading_usage} onClick={load_admin_usage}>{t('刷新')}</Button>
         </Space>}
     >
-        <Table<{ value: string, label: string, agentName: string, status?: ILlmBudgetStatus }>
+        <Table<UsageRow>
+            className='ai-usage-table'
             size='small'
-            rowKey='value'
+            rowKey='key'
             loading={loading_usage}
-            dataSource={usage_user_options.map(user => ({ ...user, agentName: selected_agent_name, status: usage_by_user[user.value] }))}
+            dataSource={usage_user_options.map(user => {
+                const status = usage_by_user[user.value]
+                return {
+                    key: user.value,
+                    userName: user.label,
+                    agentName: selected_agent_name,
+                    status,
+                    children: get_model_rows(user.value, status),
+                }
+            })}
             pagination={{ defaultPageSize: 10, showSizeChanger: true }}
+            scroll={{ x: 1100 }}
             tableLayout='fixed'
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无用户')} /> }}
-            expandable={{
-                expandedRowRender: row => <UsageModelTable usage={row.status?.usage} remaining_tokens_by_model={row.status?.remainingTokensByModel} />,
-                rowExpandable: row => has_model_usage(row.status?.usage),
-            }}
             columns={[
                 {
                     title: t('用户'),
-                    dataIndex: 'label',
+                    dataIndex: 'userName',
+                    width: 140,
+                    ellipsis: { showTitle: false },
                     defaultSortOrder: 'ascend',
-                    sorter: (a, b) => a.label.localeCompare(b.label),
+                    sorter: (a, b) => (a.userName || '').localeCompare(b.userName || ''),
+                    render: user_name => user_name ? <Tooltip title={user_name}>{user_name}</Tooltip> : null,
                 },
                 {
                     title: t('Agent 名称'),
@@ -238,28 +298,33 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                     ellipsis: true,
                 },
                 {
+                    title: t('模型'),
+                    render: (_: unknown, row) => row.modelUsage?.model || '-',
+                    ellipsis: true,
+                },
+                {
                     title: t('请求次数'),
-                    render: (_: unknown, row) => row.status?.usage.requestCount ?? 0,
+                    render: (_: unknown, row) => get_usage_value(row, 'requestCount', 'requestCount'),
                     sorter: (a, b) => (a.status?.usage.requestCount ?? 0) - (b.status?.usage.requestCount ?? 0),
                 },
                 {
                     title: t('输入 Token'),
-                    render: (_: unknown, row) => row.status?.usage.totalPromptTokens ?? 0,
+                    render: (_: unknown, row) => get_usage_value(row, 'totalPromptTokens', 'promptTokens'),
                     sorter: (a, b) => (a.status?.usage.totalPromptTokens ?? 0) - (b.status?.usage.totalPromptTokens ?? 0),
                 },
                 {
                     title: t('输出 Token'),
-                    render: (_: unknown, row) => row.status?.usage.totalCompletionTokens ?? 0,
+                    render: (_: unknown, row) => get_usage_value(row, 'totalCompletionTokens', 'completionTokens'),
                     sorter: (a, b) => (a.status?.usage.totalCompletionTokens ?? 0) - (b.status?.usage.totalCompletionTokens ?? 0),
                 },
                 {
                     title: t('总 Token'),
-                    render: (_: unknown, row) => row.status?.usage.totalTokens ?? 0,
+                    render: (_: unknown, row) => get_usage_value(row, 'totalTokens', 'totalTokens'),
                     sorter: (a, b) => (a.status?.usage.totalTokens ?? 0) - (b.status?.usage.totalTokens ?? 0),
                 },
                 {
                     title: t('剩余 Token'),
-                    render: (_: unknown, row) => format_remaining_tokens(row.status?.remainingTokens),
+                    render: (_: unknown, row) => format_remaining_tokens(get_remaining_tokens(row)),
                     sorter: (a, b) => (a.status?.remainingTokens ?? -1) - (b.status?.remainingTokens ?? -1),
                 },
             ]}
