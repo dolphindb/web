@@ -329,13 +329,18 @@ export function AiTab ({ session_id }: { session_id: string }) {
                 const content: IChatContentPart[] = [
                     ...(message ? [{ type: 'text' as const, text: message }] : [ ]),
                     ...selected_attachments.map(attachment => ({
-                        type: 'file' as const,
-                        fileId: attachment.attachmentId,
+                        type: 'attachment' as const,
+                        attachmentId: attachment.attachmentId,
+                    })),
+                ]
+                chat.runtime.send_message(message, {
+                    content,
+                    message_attachments: selected_attachments.map(attachment => ({
+                        attachmentId: attachment.attachmentId,
                         filename: attachment.filename,
                         mimeType: attachment.mimeType,
                     })),
-                ]
-                chat.runtime.send_message(message, { content })
+                })
             } else
                 chat.runtime.send_message(message)
             set_input_value('')

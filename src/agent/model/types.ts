@@ -24,17 +24,13 @@ export type IChatImageContentPart =
     | { type: 'image_url' | 'image', url: string }
 
 
-export type IChatFileContentPart = {
-    type: 'file' | 'attachment'
-    filename?: string
-    mimeType?: string
-} & (
-    | { fileId: string, attachmentId?: never }
-    | { attachmentId: string, fileId?: never }
-)
+export interface IChatAttachmentContentPart {
+    type: 'attachment'
+    attachmentId: string
+}
 
 
-export type IChatContentPart = IChatTextContentPart | IChatImageContentPart | IChatFileContentPart
+export type IChatContentPart = IChatTextContentPart | IChatImageContentPart | IChatAttachmentContentPart
 
 
 export interface IChatToolResult {
@@ -138,35 +134,39 @@ export interface ISession {
 
 export type SessionAttachmentKind = 'image' | 'pdf' | 'document' | 'presentation' | 'spreadsheet' | 'text'
 
-export type SessionAttachmentStatus = 'uploaded' | 'processing' | 'processed' | 'failed' | 'deleted'
+export type SessionAttachmentUploadStatus = 'UPLOADING' | 'COMMITTED' | 'DELETING' | 'DELETED'
+
+export type SessionAttachmentParseStatus = 'NOT_STARTED' | 'PARSING' | 'PARSED' | 'PARSE_FAILED' | 'NOT_APPLICABLE'
+
+export type SessionAttachmentIndexStatus = 'NOT_STARTED' | 'INDEXING' | 'READY' | 'INDEX_FAILED' | 'NOT_APPLICABLE'
 
 
 export interface ISessionAttachment {
     attachmentId: string
-    sessionId?: string
-    agentId?: string
-    userId?: string
+    sessionId: string
+    agentId: string
+    userId: string
+    assetId: string
+    documentId: string
     filename: string
     mimeType: string
     kind: SessionAttachmentKind
-    sizeBytes: number
+    byteSize: number
     sha256: string
-    status: SessionAttachmentStatus
-    referencedMessageId?: string
-    metadata?: Record<string, unknown> & {
-        docParser?: {
-            status?: string
-            format?: string
-            blockCount?: number
-            warningCount?: number
-            error?: string
-            [key: string]: unknown
-        }
-    }
-    schemaVersion?: number
-    extra?: string
-    createTime?: string
-    updateTime?: string
+    uploadStatus: SessionAttachmentUploadStatus
+    parseStatus: SessionAttachmentParseStatus
+    indexStatus: SessionAttachmentIndexStatus
+    parseError: string
+    indexError: string
+    indexJobId: string
+    schemaVersion: number
+    extra: string
+    createTime: string
+    updateTime: string
+}
+
+
+export interface ISessionAttachmentDetail extends ISessionAttachment {
     data?: unknown
     extractedText?: unknown
 }
@@ -176,9 +176,23 @@ export interface ISessionAttachmentUpload {
     filename: string
     file: Blob
     mimeType?: string
-    referencedMessageId?: string
-    metadata?: Record<string, unknown>
     extra?: string
+}
+
+
+export interface ISessionAttachmentUploadInit {
+    filename: string
+    mimeType: string
+    byteSize: number
+    sha256: string
+    extra?: string
+}
+
+
+export interface ISessionAttachmentUploadInfo extends ISessionAttachment {
+    partSize: number
+    partCount: number
+    uploadedPartCount: number
 }
 
 

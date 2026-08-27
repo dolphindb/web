@@ -1,7 +1,10 @@
 import { Model } from 'react-object-model'
+import type { DdbObj } from 'dolphindb/browser.js'
 
 import { t } from '@i18n'
 import { model } from '@model'
+
+import { ENABLE_DOC_PLUGIN_SOURCE } from './constants.ts'
 
 
 export const REQUIRED_FILE_PLUGINS = ['ModelInference', 'DocParser'] as const
@@ -19,6 +22,18 @@ export interface ILoadedPlugin {
 
 function format_error (error: unknown) {
     return error instanceof Error ? error.message : String(error)
+}
+
+
+async function get_plugin_server_addr () {
+    if (!ENABLE_DOC_PLUGIN_SOURCE)
+        return undefined
+    try {
+        const { value } = await model.ddb.eval<DdbObj<string>>('DOC_PLUGIN_SOURCE["url"]')
+        return typeof value === 'string' ? value.trim() || undefined : undefined
+    } catch {
+        return undefined
+    }
 }
 
 
@@ -82,8 +97,11 @@ class RequiredPluginsModel extends Model<RequiredPluginsModel> {
         return false
     }
 
-    async _install_and_load (plugin: RequiredFilePlugin) {
-        const plugin_path = await model.ddb.invoke<string>('installPlugin', [plugin])
+    async _install_and_load (plugin: RequiredFilePlugin, plugin_server_addr?: string) {
+        const plugin_path = await model.ddb.invoke<string>('installPlugin', plugin_server_addr
+            ? [plugin, undefined, plugin_server_addr]
+            : [plugin]
+        )
         await model.ddb.invoke<void>('loadPlugin', [plugin_path])
     }
 
@@ -104,10 +122,11 @@ class RequiredPluginsModel extends Model<RequiredPluginsModel> {
         const missing_plugins = REQUIRED_FILE_PLUGINS.filter(plugin => !this.is_loaded(plugin))
         const errors: string[] = [ ]
         this.set({ installing_all: true })
+        const plugin_server_addr = await get_plugin_server_addr()
         for (const plugin of missing_plugins) {
             this.set({ action: 'install', action_plugin: plugin })
             try {
-                await this._install_and_load(plugin)
+                await this._install_and_load(plugin, plugin_server_addr)
             } catch (error) {
                 errors.push(`${plugin}: ${format_error(error)}`)
             }

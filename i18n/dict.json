@@ -7232,8 +7232,8 @@
     "已上传文件": {
         "en": "Uploaded files"
     },
-    "支持图片、PDF、DOCX、PPTX、XLS/XLSX 及文本文件（如 TXT、LOG、MD、CSV、TSV、XML）": {
-        "en": "Supports images, PDF, DOCX, PPTX, XLS/XLSX, and text files such as TXT, LOG, MD, CSV, TSV, and XML"
+    "支持图片、PDF、DOCX、PPTX、XLSX 及文本文件（如 TXT、LOG、MD、CSV、TSV、XML）": {
+        "en": "Supports images, PDF, DOCX, PPTX, XLSX, and text files such as TXT, LOG, MD, CSV, TSV, and XML"
     },
     "当前模型图片大小上限：{{image_size}}；单次文件数量上限：{{file_count}}": {
         "en": "Current model image size limit: {{image_size}}; file count limit per message: {{file_count}}"

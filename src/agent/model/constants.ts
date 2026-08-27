@@ -6,6 +6,9 @@ export const ENABLE_ATTACHMENTS = true
 /** 用户组级别赋权总开关 */
 export const ENABLE_AGENT_GROUP_AUTH = true
 
+/** 使用 DOC_PLUGIN_SOURCE 调试 AI 所需插件的下载地址 */
+export const ENABLE_DOC_PLUGIN_SOURCE = true
+
 /** 最大工具调用轮次，防止无限循环 */
 export const MAX_TOOL_TURNS = 200
 

@@ -1,7 +1,7 @@
 import { t } from '@i18n'
 import type { ChatModel } from '@/agent/model.ts'
 import type { ChatCompletionOptions } from '@/agent/tool_call_adapters.ts'
-import type { ChatCompletionStreamResult, IChatFileContentPart, IMessage, IMessageAttachment } from '@/agent/model/types.ts'
+import type { ChatCompletionStreamResult, IMessage, IMessageAttachment } from '@/agent/model/types.ts'
 import { get_reasoning_text, parse_sse_event, to_stream_text } from '@/agent/model/helpers.ts'
 import { is_no_available_llm_config_error, no_available_llm_config_message } from '@/agent/model/agent.ts'
 
@@ -17,15 +17,12 @@ export function get_agent_bus_error_message (payload: any, fallback: string) {
 
 
 export function get_message_attachments (options: ChatCompletionOptions): IMessageAttachment[] {
+    if (options.message_attachments)
+        return options.message_attachments
     return (options.content || [ ]).flatMap(part => {
-        if (part.type !== 'file' && part.type !== 'attachment')
+        if (part.type !== 'attachment')
             return [ ]
-        const file_part = part as IChatFileContentPart
-        return [{
-            attachmentId: 'fileId' in file_part ? file_part.fileId : file_part.attachmentId,
-            filename: file_part.filename,
-            mimeType: file_part.mimeType,
-        }]
+        return [{ attachmentId: part.attachmentId }]
     })
 }
 

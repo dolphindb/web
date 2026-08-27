@@ -66,7 +66,7 @@ export function use_session_attachments ({
         set_attachments_error('')
         try {
             const result = await chat.attachment.list_attachments(target_session_id)
-            set_attachments(result.items.filter(attachment => attachment.status !== 'deleted'))
+            set_attachments(result.items.filter(attachment => attachment.uploadStatus !== 'DELETED'))
         } catch (error) {
             set_attachments_error(error instanceof Error ? error.message : String(error))
         } finally {
@@ -89,7 +89,7 @@ export function use_session_attachments ({
                     filename: file.name,
                     file,
                     mimeType: file.type || undefined,
-                    metadata: { source: 'web-chat' },
+                    extra: JSON.stringify({ source: 'web-chat' }),
                 }))
             set_attachments(current => [
                 ...uploaded,

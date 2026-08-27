@@ -220,7 +220,7 @@ export function WorkspaceSidebar ({
                                         >
                                             <PaperClipOutlined />
                                             <span className='ai-workspace-file-name' title={attachment.filename}>{attachment.filename}</span>
-                                            <Text type='secondary' className='ai-workspace-file-size'>{format_file_size(attachment.sizeBytes)}</Text>
+                                            <Text type='secondary' className='ai-workspace-file-size'>{format_file_size(attachment.byteSize)}</Text>
                                         </button>
                                         <Popconfirm
                                             title={t('确定删除该文件？')}

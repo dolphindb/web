@@ -1,6 +1,6 @@
-import { sha256 as compute_sha256 } from 'js-sha256'
 import { t } from '@i18n'
 import type { ChatModel } from '@/agent/model.ts'
+import { prepare_file_upload, upload_file_parts } from './multipart-upload.ts'
 import type {
     IKnowledgeAvailableItem,
     IKnowledgeBaseAgentBinding,
@@ -180,8 +180,7 @@ export class ChatKnowledgeModel {
         const content_type = mode === 'ZIP_IMPORT'
             ? zip_content_types.has(file.type.toLowerCase()) ? file.type : 'application/zip'
             : file.type || 'application/octet-stream'
-        const buffer = await file.arrayBuffer()
-        const sha256 = compute_sha256(buffer)
+        const { buffer, sha256 } = await prepare_file_upload(file)
         
         const init_res: IKnowledgeUploadInfo = await this.chat.agent.api_fetch(
             `/knowledge/base/${encodeURIComponent(knowledge_base_id)}/document/upload/init`,
@@ -200,12 +199,7 @@ export class ChatKnowledgeModel {
         const { uploadId, partSize, partCount } = init_res
         
         try {
-            for (let part_no = 0;  part_no < partCount;  part_no++) {
-                const start = part_no * partSize
-                const end = Math.min(start + partSize, file.size)
-                const part_buffer = buffer.slice(start, end)
-                const part_sha256 = compute_sha256(part_buffer)
-                
+            await upload_file_parts(buffer, partSize, partCount, async (part_no, part, part_sha256) => {
                 await this.chat.agent.api_fetch(
                     `/knowledge/upload/${encodeURIComponent(uploadId)}/part/${part_no}`,
                     {
@@ -214,11 +208,10 @@ export class ChatKnowledgeModel {
                             'Content-Type': 'application/octet-stream',
                             'X-Part-Sha256': part_sha256,
                         },
-                        body: part_buffer,
+                        body: part,
                     }
                 )
-                on_progress?.(Math.round(((part_no + 1) / partCount) * 100))
-            }
+            }, on_progress)
             
             const complete_res = await this.chat.agent.api_fetch(
                 `/knowledge/upload/${encodeURIComponent(uploadId)}/complete`,

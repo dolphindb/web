@@ -30,7 +30,7 @@ export function AttachmentPicker ({
     const [open, set_open] = useState(false)
     const container_ref = useRef<HTMLDivElement>(null)
     const file_input_ref = useRef<HTMLInputElement>(null)
-    const available_attachments = attachments.filter(attachment => attachment.status !== 'deleted')
+    const available_attachments = attachments.filter(attachment => attachment.uploadStatus !== 'DELETED')
     useEffect(() => {
         if (!open)
             return
@@ -63,7 +63,7 @@ export function AttachmentPicker ({
                 <span>{loading ? t('上传中...') : t('上传新文件')}</span>
             </button>
             <div className='ai-attachment-upload-hint'>
-                <div>{t('支持图片、PDF、DOCX、PPTX、XLS/XLSX 及文本文件（如 TXT、LOG、MD、CSV、TSV、XML）')}</div>
+                <div>{t('支持图片、PDF、DOCX、PPTX、XLSX 及文本文件（如 TXT、LOG、MD、CSV、TSV、XML）')}</div>
                 <div>{t('当前模型图片大小上限：{{image_size}}；单次文件数量上限：{{file_count}}', {
                     image_size: max_image_bytes > 0 ? format_file_size(max_image_bytes) : t('不限制'),
                     file_count: max_input_files > 0 ? max_input_files : t('不限制'),
@@ -85,7 +85,7 @@ export function AttachmentPicker ({
                         }}
                     >
                         <span className='ai-attachment-option-name' title={attachment.filename}>{attachment.filename}</span>
-                        <span className='ai-attachment-option-size'>{format_file_size(attachment.sizeBytes)}</span>
+                        <span className='ai-attachment-option-size'>{format_file_size(attachment.byteSize)}</span>
                         {selected_attachment_ids.includes(attachment.attachmentId) && <span aria-hidden='true'>✓</span>}
                     </button>)
                 }

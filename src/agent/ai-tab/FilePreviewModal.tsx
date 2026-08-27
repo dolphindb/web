@@ -312,7 +312,7 @@ export function FilePreviewModal ({
                     mime_type: attachment.mimeType,
                     image_src,
                     extracted_text,
-                    size: attachment.sizeBytes,
+                    size: attachment.byteSize,
                 })
             }
         } catch (err) {
