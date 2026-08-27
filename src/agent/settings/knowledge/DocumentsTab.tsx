@@ -7,7 +7,7 @@ import { model } from '@model'
 import type { IKnowledgeBaseInfo, IKnowledgeDocumentInfo } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 import { required_plugins_model } from '@/agent/model/required-plugins.ts'
-import { format_browser_time } from '@/agent/dolphinx/common.tsx'
+import { format_browser_time, page_total } from '@/agent/dolphinx/common.tsx'
 import { format_byte_size, get_kb_status_color, get_kb_status_label } from './types.ts'
 
 
@@ -17,6 +17,9 @@ const { Dragger } = Upload
 
 export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
     const [docs, set_docs] = useState<IKnowledgeDocumentInfo[]>([ ])
+    const [page, set_page] = useState(1)
+    const [page_size, set_page_size] = useState(10)
+    const [total, set_total] = useState(0)
     const [loading, set_loading] = useState(false)
     const [upload_modal_visible, set_upload_modal_visible] = useState(false)
     const [uploading, set_uploading] = useState(false)
@@ -24,12 +27,25 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
     const [upload_file, set_upload_file] = useState<File | null>(null)
     const [upload_error, set_upload_error] = useState('')
     
-    async function load (silent = false) {
+    async function load (p = page, ps = page_size, silent = false) {
         if (!silent)
             set_loading(true)
         try {
-            const items = await chat_model.knowledge.list_documents(kb.knowledgeBaseId)
+            const offset = (p - 1) * ps
+            const result = await chat_model.knowledge.list_documents(kb.knowledgeBaseId, {
+                offset,
+                limit: ps + 1,
+            })
+            const has_more = result.length > ps
+            const items = result.slice(0, ps)
+            if (items.length === 0 && p > 1) {
+                await load(p - 1, ps, silent)
+                return
+            }
             set_docs(items)
+            set_page(p)
+            set_page_size(ps)
+            set_total(page_total(offset, items.length, has_more))
         } catch {
             if (!silent)
                 model.message?.error(t('加载文档列表失败'))
@@ -40,7 +56,7 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
     }
     
     useEffect(() => {
-        load()
+        load(1, page_size)
     }, [kb.knowledgeBaseId])
     
     async function handle_upload () {
@@ -63,9 +79,9 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
             set_upload_modal_visible(false)
             set_upload_file(null)
             set_upload_progress(0)
-            await load()
+            await load(1, page_size)
             setTimeout(() => {
-                load(true)
+                load(1, page_size, true)
             }, 2000)
         } catch (err: any) {
             set_upload_error(err.message || t('上传失败'))
@@ -79,9 +95,9 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
         try {
             await chat_model.knowledge.delete_document(doc.documentId)
             model.message?.success(t('已提交删除任务'))
-            await load()
+            await load(page, page_size)
             setTimeout(() => {
-                load(true)
+                load(page, page_size, true)
             }, 2000)
         } catch (err: any) {
             model.message?.error(err.message || t('删除失败'))
@@ -95,7 +111,7 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
             </Text>
             <Space size={8}>
                 <Tooltip title={t('刷新')}>
-                    <Button size='small' icon={<ReloadOutlined />} onClick={() => { load() }} />
+                    <Button size='small' icon={<ReloadOutlined />} onClick={() => { load(page, page_size) }} />
                 </Tooltip>
                 <Button
                     type='primary'
@@ -119,7 +135,13 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
             rowKey='documentId'
             loading={loading}
             dataSource={docs}
-            pagination={{ defaultPageSize: 10, showSizeChanger: true }}
+            pagination={{
+                current: page,
+                pageSize: page_size,
+                total,
+                showSizeChanger: true,
+                onChange: (p, ps) => { load(p, ps) },
+            }}
             tableLayout='fixed'
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无文档')} /> }}
             columns={[
