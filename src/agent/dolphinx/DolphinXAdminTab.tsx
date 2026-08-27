@@ -176,7 +176,7 @@ function LlmAccessSection ({ subject_type, subject_id }: { subject_type: AgentAu
     }, [ ])
     
     const visible_configs = useMemo(
-        () => configs.filter(config => config.statusName !== 'DELETED'),
+        () => configs.filter(config => config.capability !== 'embedding' && config.statusName !== 'DELETED'),
         [configs]
     )
     

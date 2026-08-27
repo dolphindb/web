@@ -66,8 +66,8 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
                     error: error instanceof Error ? error.message : String(error),
                 })),
             ])
-            set_bound_llms(llms)
-            set_all_llms(global_llms)
+            set_bound_llms(llms.filter(llm => llm.capability !== 'embedding'))
+            set_all_llms(global_llms.filter(llm => llm.capability !== 'embedding'))
             set_bound_skills(skills)
             set_all_skills(global_skills)
             set_bound_mcp_servers(mcp_bindings)
