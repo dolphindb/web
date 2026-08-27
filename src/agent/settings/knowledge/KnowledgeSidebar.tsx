@@ -1,6 +1,5 @@
-import { useMemo, useState } from 'react'
-import { Empty, Input, Spin, Tag, Tooltip, Typography } from 'antd'
-import { PlusOutlined, ReloadOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons'
+import { Empty, Spin, Tag, Tooltip, Typography } from 'antd'
+import { PlusOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 import type { IKnowledgeBaseInfo } from '@/agent/model/types.ts'
@@ -27,20 +26,7 @@ export function KnowledgeSidebar ({
     on_open_rerank: () => void
     on_refresh: () => void
 }) {
-    const [search_text, set_search_text] = useState('')
-    
     const visible_kbs = knowledge_bases.filter(kb => kb.status !== 'DELETED')
-    
-    const filtered_kbs = useMemo(() => {
-        const query = search_text.trim().toLowerCase()
-        if (!query)
-            return visible_kbs
-        return visible_kbs.filter(kb =>
-            kb.name.toLowerCase().includes(query) ||
-            kb.knowledgeBaseId.toLowerCase().includes(query) ||
-            (kb.description && kb.description.toLowerCase().includes(query))
-        )
-    }, [visible_kbs, search_text])
     
     return <div className='ai-settings-list-sidebar'>
         <div className='ai-settings-list-title'>
@@ -80,23 +66,12 @@ export function KnowledgeSidebar ({
             </div>
         </div>
         
-        {visible_kbs.length > 4 && <div style={{ padding: '0 0 6px' }}>
-            <Input
-                size='small'
-                placeholder={t('搜索知识库...')}
-                prefix={<SearchOutlined style={{ color: 'var(--ant-color-text-secondary)' }} />}
-                value={search_text}
-                onChange={e => { set_search_text(e.target.value) }}
-                allowClear
-            />
-        </div>}
-        
         <div className='ai-settings-list-content rich'>
             {loading && visible_kbs.length === 0
                 ? <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
-                : filtered_kbs.length === 0
+                : visible_kbs.length === 0
                     ? <Empty description={t('暂无知识库')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ padding: 20 }} />
-                    : filtered_kbs.map(kb => {
+                    : visible_kbs.map(kb => {
                         const is_selected = kb.knowledgeBaseId === selected_kb_id
                         return <div
                             key={kb.knowledgeBaseId}
