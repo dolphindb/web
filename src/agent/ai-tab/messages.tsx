@@ -556,8 +556,8 @@ export function AiMessageRow ({
     const reasoning_key = `reasoning-${collapse_key}`
     const has_reasoning = Boolean(msg.reasoning_content)
     const has_content = Boolean(msg.content.trim())
-    const visible_attachments = ENABLE_ATTACHMENTS ? msg.attachments : undefined
-    const has_attachments = Boolean(visible_attachments?.length)
+    const visible_attachments = ENABLE_ATTACHMENTS ? msg.attachments ?? [ ] : [ ]
+    const has_attachments = visible_attachments.length > 0
     const is_reasoning_streaming = has_reasoning && is_last && agent_status === 'thinking' && !has_content
     const [reasoning_active_keys, set_reasoning_active_keys] = useState<string[]>([ ])
     const last_reasoning_msg_id = useRef(msg.msgId)
@@ -645,7 +645,7 @@ export function AiMessageRow ({
             />
             : msg.role === 'user'
                 ? (has_content || has_attachments) && <div className='ai-user-message'>
-                    {visible_attachments?.length && <MessageAttachments
+                    {has_attachments && <MessageAttachments
                         attachments={visible_attachments}
                         on_preview_attachment={on_preview_attachment}
                     />}
