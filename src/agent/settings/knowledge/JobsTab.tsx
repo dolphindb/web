@@ -83,7 +83,7 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无任务')} /> }}
             columns={[
                 {
-                    title: 'Job ID',
+                    title: t('任务 ID'),
                     dataIndex: 'jobId',
                     render: (id: string, record: IKnowledgeJobInfo) => <div style={{ minWidth: 0 }}>
                             <Text strong style={{ fontSize: 12 }} ellipsis={{ tooltip: id }}>{id}</Text>

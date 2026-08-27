@@ -9670,5 +9670,101 @@
     },
     "需要下载插件": {
         "en": "Plugins required"
+    },
+    "源码": {
+        "en": "Source Code"
+    },
+    "无法加载图片预览": {
+        "en": "Failed to load image preview"
+    },
+    "当前显示文档解析提取的文本内容": {
+        "en": "Currently showing text extracted from document parsing"
+    },
+    "该文件格式暂不支持直接预览，可下载后在本地查看": {
+        "en": "This file format does not support preview yet. Please download to view locally."
+    },
+    "附件已删除": {
+        "en": "Attachment deleted"
+    },
+    "删除附件失败": {
+        "en": "Failed to delete attachment"
+    },
+    "确定删除该文件？": {
+        "en": "Are you sure to delete this file?"
+    },
+    "加载预算配置失败": {
+        "en": "Failed to load budget configuration"
+    },
+    "预算结束时间不能早于开始时间": {
+        "en": "Budget end time cannot be earlier than start time"
+    },
+    "请选择模型": {
+        "en": "Please select a model"
+    },
+    "不能重复配置同一个模型": {
+        "en": "Cannot configure the same model repeatedly"
+    },
+    "预算配置已保存": {
+        "en": "Budget configuration saved"
+    },
+    "保存预算配置失败": {
+        "en": "Failed to save budget configuration"
+    },
+    "Token 预算配置": {
+        "en": "Token Budget Configuration"
+    },
+    "0 表示不限制；未配置模型预算时，该模型不单独限制。": {
+        "en": "0 means no limit; when model budget is not configured, the model is not limited individually."
+    },
+    "启用预算限制": {
+        "en": "Enable budget limit"
+    },
+    "Agent 总 Token 上限": {
+        "en": "Agent Total Token Limit"
+    },
+    "预算开始时间": {
+        "en": "Budget Start Time"
+    },
+    "预算结束时间": {
+        "en": "Budget End Time"
+    },
+    "模型 Token 上限": {
+        "en": "Model Token Limit"
+    },
+    "0 表示不限制": {
+        "en": "0 means no limit"
+    },
+    "添加模型预算": {
+        "en": "Add Model Budget"
+    },
+    "剩余 Token": {
+        "en": "Remaining Tokens"
+    },
+    "预算配置": {
+        "en": "Budget Configuration"
+    },
+    "Token 预算": {
+        "en": "Token Budget"
+    },
+    "版本 ID": {
+        "en": "Generation ID"
+    },
+    "命中 {{count}} 条结果_plural": {
+        "en": "Found {{count}} results"
+    },
+    "连接成功，发现 {{count}} 个工具_plural": {
+        "en": "Connected successfully, discovered {{count}} tools"
+    },
+    "共 {{count}} 个可用知识库_plural": {
+        "en": "Total {{count}} available knowledge bases"
+    },
+    "召回 {{count}} 条相关片段_plural": {
+        "en": "Retrieved {{count}} relevant chunks"
+    },
+    "读取成功": {
+        "en": "Read successfully"
+    },
+    "共读取 {{count}} 个片段_plural": {
+        "en": "Total {{count}} chunks read"
     }
 }

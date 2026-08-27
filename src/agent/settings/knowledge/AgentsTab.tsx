@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Empty, Space, Switch, Table, Tag, Tooltip, Typography, message } from 'antd'
+import { Empty, Switch, Table, Tag, Tooltip, Typography } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
+import { model } from '@model'
 import type { IAgentInfo, IKnowledgeBaseAgentBinding, IKnowledgeBaseInfo } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 
@@ -27,7 +28,7 @@ export function AgentsTab ({
             const items = await chat_model.knowledge.list_agent_bindings(kb.knowledgeBaseId)
             set_bindings(items)
         } catch {
-            message.error(t('加载 Agent 绑定列表失败'))
+            model.message?.error(t('加载 Agent 绑定列表失败'))
         } finally {
             set_loading(false)
         }
@@ -45,14 +46,14 @@ export function AgentsTab ({
         try {
             if (checked) {
                 await chat_model.knowledge.bind_agent(kb.knowledgeBaseId, agent_id)
-                message.success(t('已绑定'))
+                model.message?.success(t('已绑定'))
             } else {
                 await chat_model.knowledge.unbind_agent(kb.knowledgeBaseId, agent_id)
-                message.success(t('已解绑'))
+                model.message?.success(t('已解绑'))
             }
             await load()
         } catch (err: any) {
-            message.error(err.message || (checked ? t('绑定失败') : t('解绑失败')))
+            model.message?.error(err.message || (checked ? t('绑定失败') : t('解绑失败')))
         } finally {
             set_operating_agent_id('')
         }
@@ -64,7 +65,7 @@ export function AgentsTab ({
                 {t('绑定后，Agent 可在对话推理时使用该知识库进行知识检索与问答。')}
             </Text>
             <Tooltip title={t('刷新')}>
-                <ReloadOutlined style={{ cursor: 'pointer', padding: 4 }} onClick={load} />
+                <ReloadOutlined style={{ cursor: 'pointer', padding: 4 }} onClick={() => { load() }} />
             </Tooltip>
         </div>
         
@@ -78,7 +79,7 @@ export function AgentsTab ({
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无 Agent')} /> }}
             columns={[
                 {
-                    title: 'Agent',
+                    title: t('Agent 名称'),
                     render: (_: unknown, agent: IAgentInfo) => <div style={{ minWidth: 0 }}>
                             <Text strong title={agent.agentName} style={{ display: 'block', maxWidth: '100%' }} ellipsis>
                                 {agent.agentName}

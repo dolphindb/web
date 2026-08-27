@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Button, Empty, Space, Table, Tag, Tooltip, Typography, message } from 'antd'
+import { Button, Empty, Space, Table, Tag, Tooltip, Typography } from 'antd'
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
+import { model } from '@model'
 import type { IKnowledgeBaseConfig, IKnowledgeBaseInfo, IKnowledgeGenerationInfo, ILlmConfig } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 import { format_browser_time } from '@/agent/dolphinx/common.tsx'
@@ -33,7 +34,7 @@ export function GenerationsTab ({
             const items = await chat_model.knowledge.list_generations(kb.knowledgeBaseId)
             set_generations(items)
         } catch {
-            message.error(t('加载索引版本列表失败'))
+            model.message?.error(t('加载索引版本列表失败'))
         } finally {
             set_loading(false)
         }
@@ -47,7 +48,7 @@ export function GenerationsTab ({
         set_building(true)
         try {
             await chat_model.knowledge.build_index(kb.knowledgeBaseId, config)
-            message.success(t('已触发新索引 Generation 构建任务'))
+            model.message?.success(t('已触发新索引 Generation 构建任务'))
             set_build_modal_visible(false)
             await load()
             on_rebuild_success?.()
@@ -63,7 +64,7 @@ export function GenerationsTab ({
             </Text>
             <Space size={8}>
                 <Tooltip title={t('刷新')}>
-                    <Button size='small' icon={<ReloadOutlined />} onClick={load} />
+                    <Button size='small' icon={<ReloadOutlined />} onClick={() => { load() }} />
                 </Tooltip>
                 <Button
                     type='primary'
@@ -87,7 +88,7 @@ export function GenerationsTab ({
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无索引版本')} /> }}
             columns={[
                 {
-                    title: 'Generation ID',
+                    title: t('版本 ID'),
                     dataIndex: 'generationId',
                     render: (id: string, record: IKnowledgeGenerationInfo) => <div>
                             <Text strong style={{ fontSize: 12 }}>{id}</Text>
