@@ -104,7 +104,7 @@ export function GenerationsTab ({
                 {
                     title: t('触发类型'),
                     dataIndex: 'triggerType',
-                    width: 130,
+                    width: 170,
                     render: (type: string) => {
                         if (type === 'INITIAL_BUILD')
                             return <Tag>{t('初始构建')}</Tag>

@@ -55,6 +55,12 @@ export const DEFAULT_KB_FORM: KnowledgeCreateFormState = {
 }
 
 
+export const VECTOR_INDEX_TYPE_OPTIONS = [
+    { value: 'flat', label: t('Flat (精确搜索)') },
+    { value: 'hnsw', label: t('HNSW (近似图索引)') },
+]
+
+
 export function format_byte_size (bytes?: number): string {
     if (bytes === undefined || bytes === null || !Number.isFinite(bytes))
         return '-'

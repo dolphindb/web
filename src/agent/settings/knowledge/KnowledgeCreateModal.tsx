@@ -4,7 +4,7 @@ import { Form, Input, InputNumber, Modal, Radio, Select, Space, Switch, Typograp
 import { t } from '@i18n'
 import type { ILlmConfig, IKnowledgeBaseRegisterPayload } from '@/agent/model/types.ts'
 import { required_plugins_model } from '@/agent/model/required-plugins.ts'
-import { DEFAULT_KB_FORM, type KnowledgeCreateFormState } from './types.ts'
+import { DEFAULT_KB_FORM, VECTOR_INDEX_TYPE_OPTIONS, type KnowledgeCreateFormState } from './types.ts'
 
 
 const { Text } = Typography
@@ -175,10 +175,7 @@ export function KnowledgeCreateModal ({
                     <Select
                         value={form.indexType}
                         onChange={val => { set_form({ ...form, indexType: val }) }}
-                        options={[
-                            { value: 'flat', label: 'Flat (精确搜索)' },
-                            { value: 'hnsw', label: 'HNSW (近似图索引)' },
-                        ]}
+                        options={VECTOR_INDEX_TYPE_OPTIONS}
                     />
                 </Form.Item>
             </div>

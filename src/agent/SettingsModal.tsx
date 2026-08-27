@@ -80,7 +80,7 @@ function SettingNavItem ({ item, active, collapsed, on_click }: { item: SettingI
         onClick={on_click}
     >
         <span className='ai-settings-nav-icon' aria-hidden='true'>{item.icon}</span>
-        <span className='ai-settings-nav-label'>{item.label}</span>
+        <Text className='ai-settings-nav-label' ellipsis={{ tooltip: item.label }}>{item.label}</Text>
     </button>
     return collapsed
         ? <Tooltip title={item.label} placement='right' mouseEnterDelay={0}>{button}</Tooltip>

@@ -9557,6 +9557,12 @@
     "知识库删除": {
         "en": "Knowledge base deletion"
     },
+    "Flat (精确搜索)": {
+        "en": "Flat (exact search)"
+    },
+    "HNSW (近似图索引)": {
+        "en": "HNSW (approximate graph index)"
+    },
     "中文 (chinese)": {
         "en": "Chinese"
     },

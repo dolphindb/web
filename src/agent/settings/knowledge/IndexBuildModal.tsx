@@ -3,6 +3,7 @@ import { Form, InputNumber, Modal, Radio, Select, Switch, Typography, message } 
 
 import { t } from '@i18n'
 import type { IKnowledgeBaseConfig, ILlmConfig } from '@/agent/model/types.ts'
+import { VECTOR_INDEX_TYPE_OPTIONS } from './types.ts'
 
 
 const { Text } = Typography
@@ -169,10 +170,7 @@ export function IndexBuildModal ({
                         <Select
                             value={index_type}
                             onChange={set_index_type}
-                            options={[
-                                { value: 'flat', label: 'Flat (精确搜索)' },
-                                { value: 'hnsw', label: 'HNSW (近似图索引)' },
-                            ]}
+                            options={VECTOR_INDEX_TYPE_OPTIONS}
                         />
                     </Form.Item>
                 </div>

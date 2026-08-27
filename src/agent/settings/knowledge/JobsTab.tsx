@@ -95,7 +95,7 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                 {
                     title: t('类型'),
                     dataIndex: 'jobType',
-                    width: 120,
+                    width: 180,
                     render: (type: string) => <Tag color='blue'>{get_job_type_label(type)}</Tag>,
                 },
                 {
