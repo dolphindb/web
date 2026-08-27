@@ -1,6 +1,8 @@
+import type { DdbEvalOptions } from 'dolphindb/browser.js'
 import { t } from '@i18n'
 import { model } from '@model'
 import type { ChatModel } from '@/agent/model.ts'
+import { chat_shared_model } from './shared.ts'
 import type { ScriptResult, ToolContext } from '@/agent/scripts/types.ts'
 import { build_web_assembly_config } from '@/agent/prompt.ts'
 import {
@@ -146,7 +148,12 @@ export class ChatRuntimeModel {
     }
     
     is_ddb_connected () {
-        return Boolean(model.ddb?.connected)
+        return chat_shared_model.is_ddb_connected()
+    }
+    
+    /** 执行 DolphinDB 脚本，委托全局 chat_shared_model 执行 */
+    async eval_ddb (script: string, options?: DdbEvalOptions): Promise<any> {
+        return chat_shared_model.eval_ddb(script, options)
     }
     
     clear_context_compaction_status () {

@@ -17,8 +17,9 @@ import { ChatSkillModel } from './model/skill.ts'
 import { ChatMcpModel } from './model/mcp.ts'
 import { ChatAttachmentModel } from './model/attachment.ts'
 import { ChatKnowledgeModel } from './model/knowledge.ts'
+import { chat_shared_model } from './model/shared.ts'
 import type { IAgentInfo, IAgentStatusEvent, IScriptExecutionApproval, ISession, IMessage, IToolLoopControl, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
-export { chat_shared_model } from './model/shared.ts'
+export { chat_shared_model }
 
 // 初始化工具注册表
 init_scripts()
@@ -43,6 +44,7 @@ export class ChatModel extends Model<ChatModel> {
     readonly attachment = new ChatAttachmentModel(this)
     readonly knowledge = new ChatKnowledgeModel(this)
     
+    _ddb_connection_failed = false
     
     agent_id = ''
     
@@ -175,6 +177,8 @@ export let chat_model = new ChatModel()
 export function clear_chat_agent_state () {
     for (const chat of new Set([chat_model, ...chat_model_instances.values()])) {
         chat.agent.set_active_agent('', [ ])
+        chat._ddb_connection_failed = false
         chat.set({ can_manage_agents: false, last_agent_load_error: '' })
     }
+    chat_shared_model.disconnect_ddb()
 }

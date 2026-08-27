@@ -1,7 +1,9 @@
+import { t } from '@i18n'
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import {
     normalize_script_args,
     format_ddb_eval_result_info,
+    is_ddb_connection_error,
     tool_result_json,
     uint8_to_base64,
 } from './helpers.ts'
@@ -85,6 +87,7 @@ export const show_config: ScriptConfig = {
                 },
             }
         } catch (error) {
+            const is_conn = is_ddb_connection_error(error)
             return {
                 next_loop: true,
                 save_message: {
@@ -95,8 +98,12 @@ export const show_config: ScriptConfig = {
                     content: tool_result_json({
                         ok: false,
                         tool: type,
-                        error: `show failed: ${error instanceof Error ? error.message : String(error)}`,
-                        hint: '请修正 DolphinDB 查询脚本后再试；如果函数或参数不确定，先查询官方文档，不要反复猜测。',
+                        error: is_conn
+                            ? t('DolphinDB 连接已断开，执行失败。')
+                            : `show failed: ${error instanceof Error ? error.message : String(error)}`,
+                        hint: is_conn
+                            ? t('DolphinDB 连接已断开，无法继续执行脚本。请停止调用任何工具，直接向用户总结已有信息或说明连接断开需要刷新页面。')
+                            : '请修正 DolphinDB 查询脚本后再试；如果函数或参数不确定，先查询官方文档，不要反复猜测。',
                     }),
                 },
             }

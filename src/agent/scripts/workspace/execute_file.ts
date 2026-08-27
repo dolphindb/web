@@ -1,3 +1,4 @@
+import { t } from '@i18n'
 import type { ScriptConfig, ScriptResult } from '@/agent/scripts/types.ts'
 import {
     WORKSPACE_FILE_NAME_RULE,
@@ -10,6 +11,7 @@ import {
     tool_result_json,
     uint8_to_base64,
 } from './helpers.ts'
+import { is_ddb_connection_error } from '@/agent/scripts/helpers.ts'
 
 
 export const execute_file_config: ScriptConfig = {
@@ -69,6 +71,7 @@ export const execute_file_config: ScriptConfig = {
             }
         } catch (error) {
             const result_print = await spill_large_tool_result_print_if_needed(print_messages, type, context)
+            const is_conn = is_ddb_connection_error(error)
             return {
                 next_loop: true,
                 save_message: {
@@ -80,8 +83,12 @@ export const execute_file_config: ScriptConfig = {
                         ok: false,
                         tool: type,
                         ...(result_print.length ? { print: result_print } : { }),
-                        error: `execute_file failed: ${error instanceof Error ? error.message : String(error)}`,
-                        hint: `${result_print.length ? 'print 为脚本报错前已产生的部分诊断输出。' : ''}请修正 DolphinDB 语法或 API 用法后再试；如果函数名或参数不确定，先查询官方文档，不要反复猜测。`,
+                        error: is_conn
+                            ? t('DolphinDB 连接已断开，执行失败。')
+                            : `execute_file failed: ${error instanceof Error ? error.message : String(error)}`,
+                        hint: is_conn
+                            ? t('DolphinDB 连接已断开，无法继续执行脚本。请停止调用任何工具，直接向用户总结已有信息或说明连接断开需要刷新页面。')
+                            : `${result_print.length ? 'print 为脚本报错前已产生的部分诊断输出。' : ''}请修正 DolphinDB 语法或 API 用法后再试；如果函数名或参数不确定，先查询官方文档，不要反复猜测。`,
                     }),
                 },
             }

@@ -25,6 +25,7 @@ export function reset_loop_guard (chat: ChatModel) {
     chat._last_tool_call_failed = false
     chat._consecutive_failed_tool_call_count = 0
     chat._consecutive_ddb_failures = 0
+    chat._ddb_connection_failed = false
     chat._tool_turn_limit = MAX_TOOL_TURNS
 }
 

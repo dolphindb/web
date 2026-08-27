@@ -233,6 +233,16 @@ function is_empty_ddb_result_error (error: unknown): boolean {
 }
 
 
+export function is_ddb_connection_error (error: unknown): boolean {
+    if (!error)
+        return false
+    if (error instanceof Error && (error.name === 'DdbConnectionError' || error.name === 'WebSocketConnectionError'))
+        return true
+    const message = error instanceof Error ? error.message : String(error)
+    return message.includes('WebSocket') || message.includes('Connection') || message.includes('连接已断开')
+}
+
+
 export function format_ddb_eval_result (result: unknown): string {
     return format_ddb_eval_result_info(result).content
 }

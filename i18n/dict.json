@@ -9772,5 +9772,29 @@
     },
     "共读取 {{count}} 个片段_plural": {
         "en": "Total {{count}} chunks read"
+    },
+    "连接已断开": {
+        "en": "Connection Disconnected"
+    },
+    "AI 专属 DolphinDB 连接已断开且重连失败，请刷新页面以恢复连接。": {
+        "en": "The AI dedicated DolphinDB connection was disconnected and reconnection failed. Please refresh the page to restore the connection."
+    },
+    "DolphinDB 连接已断开，工具执行已终止。": {
+        "en": "DolphinDB connection is disconnected, tool execution has been terminated."
+    },
+    "DolphinDB 连接已断开，已停止工具循环。请直接向用户输出回复。": {
+        "en": "DolphinDB connection is disconnected, tool loop has been stopped. Please reply directly to the user."
+    },
+    "DolphinDB 连接已断开，执行失败。": {
+        "en": "DolphinDB connection is disconnected, execution failed."
+    },
+    "DolphinDB 连接已断开，无法继续执行脚本。请停止调用任何工具，直接向用户总结已有信息或说明连接断开需要刷新页面。": {
+        "en": "DolphinDB connection is disconnected and script execution cannot continue. Please stop calling any tools and summarize existing information directly to the user or explain that the connection is lost and the page needs to be refreshed."
+    },
+    "DolphinDB 连接已断开": {
+        "en": "DolphinDB connection is disconnected"
+    },
+    "DolphinDB 连接已断开，请刷新页面。": {
+        "en": "DolphinDB connection is disconnected, please refresh the page."
     }
 }

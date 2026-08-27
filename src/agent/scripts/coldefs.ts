@@ -1,5 +1,7 @@
+import { t } from '@i18n'
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import {
+    is_ddb_connection_error,
     normalize_script_args,
     tool_result_json,
 } from './helpers.ts'
@@ -67,6 +69,7 @@ export const coldefs_config: ScriptConfig = {
                 },
             }
         } catch (error) {
+            const is_conn = is_ddb_connection_error(error)
             return {
                 next_loop: true,
                 save_message: {
@@ -77,8 +80,12 @@ export const coldefs_config: ScriptConfig = {
                     content: tool_result_json({
                         ok: false,
                         tool: type,
-                        error: `coldefs failed: ${error instanceof Error ? error.message : String(error)}`,
-                        hint: '请检查表名/表句柄是否正确；如果不确定 DolphinDB 表引用方式，先查询文档或使用更小的探测脚本。',
+                        error: is_conn
+                            ? t('DolphinDB 连接已断开，执行失败。')
+                            : `coldefs failed: ${error instanceof Error ? error.message : String(error)}`,
+                        hint: is_conn
+                            ? t('DolphinDB 连接已断开，无法继续执行脚本。请停止调用任何工具，直接向用户总结已有信息或说明连接断开需要刷新页面。')
+                            : '请检查表名/表句柄是否正确；如果不确定 DolphinDB 表引用方式，先查询文档或使用更小的探测脚本。',
                     }),
                 },
             }

@@ -4,6 +4,7 @@ import type { ChatModel } from '@/agent/model.ts'
 import { get_script_handler } from '@/agent/scripts/index.ts'
 import type { ScriptResult, ToolContext } from '@/agent/scripts/types.ts'
 import {
+    is_ddb_connection_error,
     normalize_script_args,
     parse_tool_result_json,
     tool_result_json,
@@ -106,6 +107,30 @@ export async function execute_tool_call (
 ): Promise<ToolExecutionResult | null> {
     if (chat.runtime.is_request_inactive(request_seq))
         return null
+    if (chat._ddb_connection_failed) {
+        const content = tool_result_json({
+            ok: false,
+            tool: parsed_call.type,
+            content: '',
+            error: t('DolphinDB 连接已断开，工具执行已终止。'),
+            hint: t('DolphinDB 连接已断开，已停止工具循环。请直接向用户输出回复。'),
+        })
+        chat.set({
+            messages: [...chat.messages, {
+                msgId: `tool_conn_failed_${Date.now()}`,
+                role: 'tool',
+                messageType: 'tool_error',
+                name: parsed_call.type,
+                content,
+            }],
+            agent_status: { status: 'idle' },
+        })
+        return {
+            tool_result_content: content,
+            next_loop: false,
+            stopped: true,
+        }
+    }
     if (parsed_call.type === INVALID_TOOL_CALL_FORMAT) {
         const content = tool_result_json({
             ok: false,
@@ -169,7 +194,15 @@ export async function execute_tool_call (
     }
     // 构建 ToolContext
     const context: ToolContext = {
-        eval: (script, options) => model.ddb.eval(script, { ...options, ai: !script_reviewed }),
+        eval: async (script, options) => {
+            try {
+                return await chat.runtime.eval_ddb(script, { ...options, ai: !script_reviewed })
+            } catch (error) {
+                if (is_ddb_connection_error(error))
+                    chat._ddb_connection_failed = true
+                throw error
+            }
+        },
         api_fetch: (path, options) => chat.agent.api_fetch(path, options),
         agent_id: chat._active_agent_id,
         session_id: chat._active_session_id,
@@ -189,6 +222,9 @@ export async function execute_tool_call (
                 console.log('[debug] handler result:', { next_loop: script_result.next_loop, has_message: !!script_result.save_message, messageType: script_result.save_message?.messageType })
         } catch (e) {
             console.error('[debug] handler threw:', e)
+            const is_conn = is_ddb_connection_error(e)
+            if (is_conn)
+                chat._ddb_connection_failed = true
             script_result = {
                 next_loop: true,
                 save_message: {
@@ -196,7 +232,16 @@ export async function execute_tool_call (
                     role: 'tool',
                     messageType: 'tool_error',
                     name: parsed_call.type,
-                    content: `Tool execution error: ${e instanceof Error ? e.message : String(e)}`,
+                    content: tool_result_json({
+                        ok: false,
+                        tool: parsed_call.type,
+                        error: is_conn
+                            ? t('DolphinDB 连接已断开，执行失败。')
+                            : `Tool execution error: ${e instanceof Error ? e.message : String(e)}`,
+                        hint: is_conn
+                            ? t('DolphinDB 连接已断开，无法继续执行脚本。请停止调用任何工具，直接向用户总结已有信息或说明连接断开需要刷新页面。')
+                            : undefined,
+                    }),
                 },
             }
         }
