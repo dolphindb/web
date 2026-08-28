@@ -10,7 +10,6 @@ import {
     AgentListLayout,
     ellipsis_text,
     format_browser_time,
-    page_total,
     show_error,
     use_agent_options,
     use_user_options,
@@ -47,7 +46,7 @@ export function MemoryJobsSection () {
             load_jobs(1, job_page_size)
     }, [selected_agent_id, kind, status, target_user_id])
     
-    async function load_jobs (page = job_page, page_size = job_page_size, known_total?: number) {
+    async function load_jobs (page = job_page, page_size = job_page_size) {
         if (!selected_agent_id) {
             message.warning(t('请先选择 Agent'))
             return
@@ -61,17 +60,12 @@ export function MemoryJobsSection () {
                 status: status || undefined,
                 targetUserId: target_user_id || undefined,
                 offset,
-                limit: page_size + 1,
+                limit: page_size,
             })
-            const items = result.items.slice(0, page_size)
-            if (items.length === 0 && page > 1) {
-                await load_jobs(page - 1, page_size, (page - 1) * page_size)
-                return
-            }
-            set_jobs(items)
+            set_jobs(result.items)
             set_job_page(page)
             set_job_page_size(page_size)
-            set_job_total(known_total ?? page_total(result.offset ?? offset, items.length, result.items.length > page_size, result.total))
+            set_job_total(result.total)
         } catch (error) {
             show_error(error, t('加载记忆任务失败'))
         } finally {

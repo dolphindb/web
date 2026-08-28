@@ -134,7 +134,8 @@ export class ChatMcpModel {
             items: (result.items || [ ]).map((item: any) => this.chat.mcp._map_server(item)),
             offset: result.offset ?? params.offset ?? 0,
             limit: result.limit ?? params.limit ?? 50,
-            size: result.size ?? 0
+            size: result.size ?? 0,
+            total: result.total,
         }
     }
     
@@ -145,7 +146,7 @@ export class ChatMcpModel {
         for (let offset = 0;  ;  offset += limit) {
             const result = await this.chat.mcp.load_mcp_server_page({ offset, limit })
             items.push(...result.items)
-            if (result.items.length < limit)
+            if (result.items.length < limit || (result.total !== undefined && items.length >= result.total))
                 break
         }
         return items

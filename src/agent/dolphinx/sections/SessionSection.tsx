@@ -13,7 +13,6 @@ import {
     AgentListLayout,
     format_browser_time,
     format_file_size,
-    page_total,
     show_error,
     use_agent_options,
     use_valid_agent_selection,
@@ -46,7 +45,7 @@ export function SessionSection () {
     const title_modal = use_modal()
     use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id, agent_id)
     
-    async function load_sessions (page = session_page, page_size = session_page_size, known_total?: number) {
+    async function load_sessions (page = session_page, page_size = session_page_size) {
         if (!selected_agent_id) {
             message.warning(t('请先选择 Agent'))
             return
@@ -57,18 +56,13 @@ export function SessionSection () {
             const result = await chat_model.session.list_sessions({
                 agentId: selected_agent_id,
                 offset,
-                limit: page_size + 1,
+                limit: page_size,
             })
-            const items = result.items.slice(0, page_size)
-            if (items.length === 0 && page > 1) {
-                await load_sessions(page - 1, page_size, (page - 1) * page_size)
-                return
-            }
-            const stats = await Promise.all(items.map(session => chat_model.session.load_session_workspace_stats(session.sessionId)))
-            set_sessions(items.map((session, index) => stats[index] ? { ...session, ...stats[index] } : session))
+            const stats = await Promise.all(result.items.map(session => chat_model.session.load_session_workspace_stats(session.sessionId)))
+            set_sessions(result.items.map((session, index) => stats[index] ? { ...session, ...stats[index] } : session))
             set_session_page(page)
             set_session_page_size(page_size)
-            set_session_total(known_total ?? page_total(result.offset ?? offset, items.length, result.items.length > page_size, result.total))
+            set_session_total(result.total)
         } catch (error) {
             show_error(error, t('加载会话失败'))
         } finally {

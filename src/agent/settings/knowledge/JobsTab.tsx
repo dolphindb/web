@@ -15,15 +15,26 @@ const { Text } = Typography
 
 export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
     const [jobs, set_jobs] = useState<IKnowledgeJobInfo[]>([ ])
+    const [page, set_page] = useState(1)
+    const [page_size, set_page_size] = useState(10)
+    const [total, set_total] = useState(0)
     const [loading, set_loading] = useState(false)
     const [operating_job_id, set_operating_job_id] = useState('')
     
-    async function load (silent = false) {
+    async function load (p = page, ps = page_size, silent = false) {
         if (!silent)
             set_loading(true)
         try {
-            const items = await chat_model.knowledge.list_jobs({ knowledgeBaseId: kb.knowledgeBaseId })
-            set_jobs(items)
+            const offset = (p - 1) * ps
+            const result = await chat_model.knowledge.list_jobs_page({
+                knowledgeBaseId: kb.knowledgeBaseId,
+                offset,
+                limit: ps,
+            })
+            set_jobs(result.items)
+            set_page(p)
+            set_page_size(ps)
+            set_total(result.total)
         } catch {
             if (!silent)
                 model.message?.error(t('加载后台任务列表失败'))
@@ -34,7 +45,7 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
     }
     
     useEffect(() => {
-        load()
+        load(1, page_size)
     }, [kb.knowledgeBaseId])
     
     async function retry_job (job: IKnowledgeJobInfo) {
@@ -42,7 +53,7 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
         try {
             await chat_model.knowledge.retry_job(job.jobId)
             model.message?.success(t('已触发任务重试'))
-            await load()
+            await load(page, page_size)
         } catch (err: any) {
             model.message?.error(err.message || t('重试任务失败'))
         } finally {
@@ -55,7 +66,7 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
         try {
             await chat_model.knowledge.cancel_job(job.jobId)
             model.message?.success(t('已请求取消任务'))
-            await load()
+            await load(page, page_size)
         } catch (err: any) {
             model.message?.error(err.message || t('取消任务失败'))
         } finally {
@@ -69,7 +80,7 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                 {t('文档导入、分块解析、索引构建和清理等后台异步任务。')}
             </Text>
             <Tooltip title={t('刷新')}>
-                <Button size='small' icon={<ReloadOutlined />} onClick={() => { load() }} />
+                <Button size='small' icon={<ReloadOutlined />} onClick={() => { load(page, page_size) }} />
             </Tooltip>
         </div>
         
@@ -78,7 +89,13 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
             rowKey='jobId'
             loading={loading}
             dataSource={jobs}
-            pagination={{ defaultPageSize: 10, showSizeChanger: true }}
+            pagination={{
+                current: page,
+                pageSize: page_size,
+                total,
+                showSizeChanger: true,
+                onChange: (p, ps) => { load(p, ps) },
+            }}
             tableLayout='fixed'
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无任务')} /> }}
             columns={[

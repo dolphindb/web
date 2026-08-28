@@ -46,6 +46,9 @@ const { Text } = Typography
 
 export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
     const [servers, set_servers] = useState<IMcpServerInfo[]>([ ])
+    const [page, set_page] = useState(1)
+    const [page_size, set_page_size] = useState(20)
+    const [total, set_total] = useState(0)
     const [loading_servers, set_loading_servers] = useState(false)
     const [saving, set_saving] = useState(false)
     const [testing_form, set_testing_form] = useState(false)
@@ -58,21 +61,26 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
     const [server_form] = Form.useForm<ServerFormState>()
     const [test_result, set_test_result] = useState<IMcpServerTestResult | null>(null)
     
-    async function load_servers () {
+    async function load_servers (p = page, ps = page_size) {
         set_loading_servers(true)
         try {
-            set_servers(await chat_model.mcp.load_mcp_servers())
+            const offset = (p - 1) * ps
+            const result = await chat_model.mcp.load_mcp_server_page({ offset, limit: ps })
+            set_servers(result.items)
+            set_page(p)
+            set_page_size(ps)
+            set_total(result.total)
         } finally {
             set_loading_servers(false)
         }
     }
     
     async function refresh () {
-        await load_servers()
+        await load_servers(page, page_size)
     }
     
     useEffect(() => {
-        load_servers()
+        load_servers(1, page_size)
         
         ;(async () => {
             set_has_mcp_exec(
@@ -242,7 +250,13 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                     : <Table<IMcpServerInfo>
                         dataSource={servers}
                         rowKey='mcpServerId'
-                        pagination={false}
+                        pagination={{
+                            current: page,
+                            pageSize: page_size,
+                            total,
+                            showSizeChanger: true,
+                            onChange: (p, ps) => { load_servers(p, ps) },
+                        }}
                         size='middle'
                         tableLayout='fixed'
                         columns={[

@@ -202,6 +202,7 @@ export interface ISessionAttachmentListResult {
     offset: number
     limit: number
     size: number
+    total?: number
 }
 
 
@@ -670,6 +671,7 @@ export interface IMcpServerListResult {
     offset: number
     limit: number
     size: number
+    total?: number
 }
 
 export interface IMcpServerUpsertPayload {

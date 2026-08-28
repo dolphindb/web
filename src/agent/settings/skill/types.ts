@@ -15,10 +15,6 @@ export const DEFAULT_OVERRIDES = {
 export type SkillOverrides = typeof DEFAULT_OVERRIDES
 
 
-export function page_total (offset: number, page_size: number, count: number, has_more: boolean, total?: number) {
-    return total ?? offset + count + (has_more ? 1 : 0)
-}
-
 
 export function skill_description (skill: ISkillInfo) {
     const description = skill.description ? t(skill.description) : t('无描述')

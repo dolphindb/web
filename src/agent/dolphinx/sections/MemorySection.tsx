@@ -146,7 +146,7 @@ export function MemorySection ({ can_manage_memory = false, can_view_public_memo
             const result = await chat_model.memory.search_memory(params)
             const next_items = result.items.map(item => ({ ...item, scopeType: item.scopeType || 'user_personal' as const }))
             set_items(next_items)
-            set_memory_total(result.size ?? next_items.length)
+            set_memory_total(result.total)
         } catch (error) {
             show_error(error, t('加载记忆失败'))
         } finally {

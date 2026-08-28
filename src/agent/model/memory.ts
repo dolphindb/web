@@ -48,19 +48,19 @@ export class ChatMemoryModel {
         limit?: number
         minImportance?: number
         sortBy?: 'RECENCY' | 'IMPORTANCE' | 'TEXT_SEARCH' | 'RANKED'
-    }): Promise<{ items: IMemoryEntry[], size: number, offset?: number, limit?: number }> {
+    }): Promise<{ items: IMemoryEntry[], size: number, offset?: number, limit?: number, total?: number }> {
         const result = await this.chat.agent.api_fetch('/memory/personal/query', {
             method: 'POST',
             body: JSON.stringify(params),
         })
-        return { ...result, items: result.items || [ ] }
+        return { ...result, items: result.items || [ ], total: result.total }
     }
-    async list_memory_by_kind (params: { agentId: string, memoryKind?: IMemoryEntry['memoryKind'], offset?: number, limit?: number }): Promise<{ items: IMemoryEntry[], size: number, offset?: number, limit?: number }> {
+    async list_memory_by_kind (params: { agentId: string, memoryKind?: IMemoryEntry['memoryKind'], offset?: number, limit?: number }): Promise<{ items: IMemoryEntry[], size: number, offset?: number, limit?: number, total?: number }> {
         const result = await this.chat.agent.api_fetch('/memory/personal/query', {
             method: 'POST',
             body: JSON.stringify(params),
         })
-        return { ...result, items: result.items || [ ] }
+        return { ...result, items: result.items || [ ], total: result.total }
     }
     async get_public_memory (agent_id: string): Promise<IPublicMemory> {
         return this.chat.agent.api_fetch(`/memory/public?agentId=${encodeURIComponent(agent_id)}`)

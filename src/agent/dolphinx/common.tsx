@@ -48,10 +48,6 @@ export function optional_nonnegative_number (value: unknown) {
 }
 
 
-export function page_total (offset: number, count: number, has_more: boolean, total?: number) {
-    return total ?? offset + count + (has_more ? 1 : 0)
-}
-
 
 export function show_error (error: unknown, fallback: string) {
     model.message.error(error instanceof Error ? error.message : fallback)

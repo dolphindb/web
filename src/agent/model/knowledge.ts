@@ -36,7 +36,7 @@ export class ChatKnowledgeModel {
             if (limit !== undefined)
                 search.set('limit', String(limit))
             const query = search.toString()
-            const result: { items?: T[] } = await this.chat.agent.api_fetch(`${path}${query ? `?${query}` : ''}`)
+            const result: { items?: T[], total?: number } = await this.chat.agent.api_fetch(`${path}${query ? `?${query}` : ''}`)
             return result.items || [ ]
         }
         
@@ -46,11 +46,12 @@ export class ChatKnowledgeModel {
             const page_search = new URLSearchParams(search)
             page_search.set('offset', String(page_offset))
             page_search.set('limit', String(page_size))
-            const result: { items?: T[] } = await this.chat.agent.api_fetch(`${path}?${page_search}`)
+            const result: { items?: T[], total?: number } = await this.chat.agent.api_fetch(`${path}?${page_search}`)
             const page_items = result.items || [ ]
-            if (!page_items.length)
-                break
             items.push(...page_items)
+            const total = Number(result.total)
+            if (page_items.length < page_size || (Number.isFinite(total) && items.length >= total))
+                break
             page_offset += page_items.length
         }
         return items
@@ -133,6 +134,33 @@ export class ChatKnowledgeModel {
     }
     
     // --- 文档管理 ---
+    
+    async list_documents_page (
+        knowledge_base_id: string,
+        params: { status?: string, fileName?: string, importJobId?: string, offset?: number, limit?: number } = { }
+    ): Promise<{ items: IKnowledgeDocumentInfo[], total?: number, offset?: number, limit?: number }> {
+        const search = new URLSearchParams()
+        if (params.status)
+            search.set('status', params.status)
+        if (params.fileName)
+            search.set('fileName', params.fileName)
+        if (params.importJobId)
+            search.set('importJobId', params.importJobId)
+        if (params.offset !== undefined)
+            search.set('offset', String(params.offset))
+        if (params.limit !== undefined)
+            search.set('limit', String(params.limit))
+        const query = search.toString()
+        const result = await this.chat.agent.api_fetch(
+            `/knowledge/base/${encodeURIComponent(knowledge_base_id)}/document/list${query ? `?${query}` : ''}`
+        )
+        return {
+            items: result.items || [ ],
+            total: result.total,
+            offset: result.offset ?? params.offset,
+            limit: result.limit ?? params.limit,
+        }
+    }
     
     async list_documents (
         knowledge_base_id: string,
@@ -230,6 +258,30 @@ export class ChatKnowledgeModel {
     }
     
     // --- 任务 Job 管理 ---
+    
+    async list_jobs_page (
+        params: { knowledgeBaseId?: string, jobType?: string, status?: string, offset?: number, limit?: number } = { }
+    ): Promise<{ items: IKnowledgeJobInfo[], total?: number, offset?: number, limit?: number }> {
+        const search = new URLSearchParams()
+        if (params.knowledgeBaseId)
+            search.set('knowledgeBaseId', params.knowledgeBaseId)
+        if (params.jobType)
+            search.set('jobType', params.jobType)
+        if (params.status)
+            search.set('status', params.status)
+        if (params.offset !== undefined)
+            search.set('offset', String(params.offset))
+        if (params.limit !== undefined)
+            search.set('limit', String(params.limit))
+        const query = search.toString()
+        const result = await this.chat.agent.api_fetch(`/knowledge/job/list${query ? `?${query}` : ''}`)
+        return {
+            items: result.items || [ ],
+            total: result.total,
+            offset: result.offset ?? params.offset,
+            limit: result.limit ?? params.limit,
+        }
+    }
     
     async list_jobs (params: { knowledgeBaseId?: string, jobType?: string, status?: string, offset?: number, limit?: number } = { }): Promise<IKnowledgeJobInfo[]> {
         const search = new URLSearchParams()

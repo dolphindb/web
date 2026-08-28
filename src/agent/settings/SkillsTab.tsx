@@ -14,7 +14,6 @@ import {
     SkillCreateForm,
     SkillDetailModal,
     decode_skill_file,
-    page_total,
     skill_description,
 } from './skill/index.ts'
 
@@ -42,19 +41,14 @@ export function SkillsTab () {
     const file_request_ref = useRef(0)
     const [overrides, set_overrides] = useState({ ...DEFAULT_OVERRIDES })
     
-    async function load (page = skill_page, page_size = skill_page_size, known_total?: number) {
+    async function load (page = skill_page, page_size = skill_page_size) {
         set_loading(true)
         try {
             const offset = (page - 1) * page_size
-            const result = await chat_model.skill.load_skill_page({ offset, limit: page_size + 1 })
-            const items = result.items.slice(0, page_size)
-            if (items.length === 0 && page > 1) {
-                await load(page - 1, page_size, (page - 1) * page_size)
-                return
-            }
-            set_all_skills(items)
-            set_skill_total(known_total ?? page_total(result.offset, page_size, items.length, result.items.length > page_size, result.total))
-            set_skill_page(Math.floor(result.offset / page_size) + 1)
+            const result = await chat_model.skill.load_skill_page({ offset, limit: page_size })
+            set_all_skills(result.items)
+            set_skill_total(result.total)
+            set_skill_page(page)
             set_skill_page_size(page_size)
         } catch {
             message.error(t('加载技能列表失败'))

@@ -7,7 +7,7 @@ import { model } from '@model'
 import type { IKnowledgeBaseInfo, IKnowledgeDocumentInfo } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 import { required_plugins_model } from '@/agent/model/required-plugins.ts'
-import { format_browser_time, page_total } from '@/agent/dolphinx/common.tsx'
+import { format_browser_time } from '@/agent/dolphinx/common.tsx'
 import { format_byte_size, get_kb_status_color, get_kb_status_label } from './types.ts'
 
 
@@ -32,20 +32,14 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
             set_loading(true)
         try {
             const offset = (p - 1) * ps
-            const result = await chat_model.knowledge.list_documents(kb.knowledgeBaseId, {
+            const result = await chat_model.knowledge.list_documents_page(kb.knowledgeBaseId, {
                 offset,
-                limit: ps + 1,
+                limit: ps,
             })
-            const has_more = result.length > ps
-            const items = result.slice(0, ps)
-            if (items.length === 0 && p > 1) {
-                await load(p - 1, ps, silent)
-                return
-            }
-            set_docs(items)
+            set_docs(result.items)
             set_page(p)
             set_page_size(ps)
-            set_total(page_total(offset, items.length, has_more))
+            set_total(result.total)
         } catch {
             if (!silent)
                 model.message?.error(t('加载文档列表失败'))
