@@ -102,7 +102,11 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                     title: t('状态'),
                     dataIndex: 'status',
                     width: 100,
-                    render: (status: string) => <Tag color={get_kb_status_color(status)}>{get_kb_status_label(status)}</Tag>,
+                    render: (status: string, record: IKnowledgeJobInfo) => <Tooltip title={record.lastError || undefined}>
+                            <Tag color={get_kb_status_color(status)} style={{ cursor: record.lastError ? 'pointer' : 'default' }}>
+                                {get_kb_status_label(status)}
+                            </Tag>
+                        </Tooltip>,
                 },
                 {
                     title: t('阶段'),
