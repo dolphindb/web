@@ -74,7 +74,10 @@ export function RerankConfigModal ({
     return <Modal
         title={t('全局 Rerank 重排配置')}
         open={visible}
-        onCancel={on_close}
+        onCancel={() => {
+            set_error_msg('')
+            on_close()
+        }}
         onOk={handle_save}
         confirmLoading={saving}
         okButtonProps={{ disabled: loading || Boolean(load_error) }}
@@ -96,7 +99,13 @@ export function RerankConfigModal ({
                 : <Form layout='vertical' size='small' style={{ marginTop: 12 }}>
                 <Form.Item label={t('启用全局 Rerank')}>
                     <Space>
-                        <Switch checked={enabled} onChange={set_enabled} />
+                        <Switch
+                            checked={enabled}
+                            onChange={checked => {
+                                set_enabled(checked)
+                                set_error_msg('')
+                            }}
+                        />
                         <Text type='secondary'>
                             {enabled ? t('已启用，知识库检索将对候选 chunk 进行二次重排') : t('已禁用，使用多路召回 RRF 融合结果')}
                         </Text>
@@ -104,11 +113,19 @@ export function RerankConfigModal ({
                 </Form.Item>
                 
                 {enabled && <>
-                    <Form.Item label={t('Rerank 评估模型')} required>
+                    <Form.Item
+                        label={t('Rerank 评估模型')}
+                        required
+                        validateStatus={error_msg && enabled && !chat_configs.some(config => config.llmConfigId === provider_config_id) ? 'error' : undefined}
+                        help={error_msg && enabled && !chat_configs.some(config => config.llmConfigId === provider_config_id) ? error_msg : undefined}
+                    >
                         <Select
                             placeholder={t('选择启用的 Chat 模型配置')}
                             value={provider_config_id || undefined}
-                            onChange={set_provider_config_id}
+                            onChange={val => {
+                                set_provider_config_id(val)
+                                set_error_msg('')
+                            }}
                             options={chat_configs.map(cfg => ({
                                 value: cfg.llmConfigId,
                                 label: [cfg.model, cfg.name, cfg.providerName].filter(Boolean).join(' · '),
@@ -126,8 +143,6 @@ export function RerankConfigModal ({
                         />
                     </Form.Item>
                 </>}
-                
-                {error_msg && <Text type='danger'>{error_msg}</Text>}
                 </Form>
         }
     </Modal>

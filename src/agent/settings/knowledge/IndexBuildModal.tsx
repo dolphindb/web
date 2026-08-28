@@ -1,12 +1,9 @@
 import { useState } from 'react'
-import { Form, InputNumber, Modal, Radio, Select, Switch, Typography, message } from 'antd'
+import { Form, InputNumber, Modal, Radio, Select, Switch, message } from 'antd'
 
 import { t } from '@i18n'
 import type { IKnowledgeBaseConfig, ILlmConfig } from '@/agent/model/types.ts'
 import { VECTOR_INDEX_TYPE_OPTIONS } from './types.ts'
-
-
-const { Text } = Typography
 
 
 export function IndexBuildModal ({
@@ -88,7 +85,10 @@ export function IndexBuildModal ({
     return <Modal
         title={t('构建索引 Generation')}
         open={visible}
-        onCancel={on_close}
+        onCancel={() => {
+            set_error_msg('')
+            on_close()
+        }}
         onOk={handle_submit}
         confirmLoading={loading}
         okText={t('开始构建')}
@@ -99,7 +99,10 @@ export function IndexBuildModal ({
         <div style={{ marginTop: 12 }}>
             <Radio.Group
                 value={use_custom_config}
-                onChange={e => { set_use_custom_config(e.target.value) }}
+                onChange={e => {
+                    set_use_custom_config(e.target.value)
+                    set_error_msg('')
+                }}
                 style={{ marginBottom: 16 }}
             >
                 <Radio value={false}>{t('复用当前索引配置（重新全量索引）')}</Radio>
@@ -107,10 +110,18 @@ export function IndexBuildModal ({
             </Radio.Group>
             
             {use_custom_config && <Form layout='vertical' size='small'>
-                <Form.Item label={t('Embedding 模型')} required>
+                <Form.Item
+                    label={t('Embedding 模型')}
+                    required
+                    validateStatus={error_msg && embedding_source === 'llmConfig' && !llm_config_id ? 'error' : undefined}
+                    help={error_msg && embedding_source === 'llmConfig' && !llm_config_id ? error_msg : undefined}
+                >
                     <Radio.Group
                         value={embedding_source}
-                        onChange={e => { set_embedding_source(e.target.value) }}
+                        onChange={e => {
+                            set_embedding_source(e.target.value)
+                            set_error_msg('')
+                        }}
                         style={{ marginBottom: 8 }}
                     >
                         <Radio value='builtin'>{t('内置 Embedding (granite)')}</Radio>
@@ -119,7 +130,10 @@ export function IndexBuildModal ({
                     {embedding_source === 'llmConfig' && <Select
                         placeholder={t('选择启用的 Embedding 模型配置')}
                         value={llm_config_id || undefined}
-                        onChange={set_llm_config_id}
+                        onChange={val => {
+                            set_llm_config_id(val)
+                            set_error_msg('')
+                        }}
                         options={embedding_configs.map(cfg => ({
                             value: cfg.llmConfigId,
                             label: `${cfg.name} (${cfg.model})`,
@@ -134,16 +148,26 @@ export function IndexBuildModal ({
                             max={4000}
                             value={max_chunk_chars}
                             style={{ width: '100%' }}
-                            onChange={val => { set_max_chunk_chars(val || 1000) }}
+                            onChange={val => {
+                                set_max_chunk_chars(val || 1000)
+                                set_error_msg('')
+                            }}
                         />
                     </Form.Item>
-                    <Form.Item label={t('重叠字数')}>
+                    <Form.Item
+                        label={t('重叠字数')}
+                        validateStatus={error_msg && overlap_chars > max_chunk_chars * 0.25 ? 'error' : undefined}
+                        help={error_msg && overlap_chars > max_chunk_chars * 0.25 ? error_msg : undefined}
+                    >
                         <InputNumber
                             min={0}
                             max={Math.floor(max_chunk_chars * 0.25)}
                             value={overlap_chars}
                             style={{ width: '100%' }}
-                            onChange={val => { set_overlap_chars(val ?? 0) }}
+                            onChange={val => {
+                                set_overlap_chars(val ?? 0)
+                                set_error_msg('')
+                            }}
                         />
                     </Form.Item>
                     <Form.Item label={t('包含标题')}>
@@ -175,8 +199,6 @@ export function IndexBuildModal ({
                     </Form.Item>
                 </div>
             </Form>}
-            
-            {error_msg && <Text type='danger'>{error_msg}</Text>}
         </div>
     </Modal>
 }

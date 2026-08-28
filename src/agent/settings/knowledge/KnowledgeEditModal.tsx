@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Form, Input, Modal, Typography } from 'antd'
+import { Form, Input, Modal } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
 import type { IKnowledgeBaseInfo } from '@/agent/model/types.ts'
-
-
-const { Text } = Typography
 
 
 export function KnowledgeEditModal ({
@@ -59,10 +56,18 @@ export function KnowledgeEditModal ({
         destroyOnHidden
     >
         <Form layout='vertical' size='small' style={{ marginTop: 12 }}>
-            <Form.Item label={t('名称')} required>
+            <Form.Item
+                label={t('名称')}
+                required
+                validateStatus={error_msg ? 'error' : undefined}
+                help={error_msg || undefined}
+            >
                 <Input
                     value={name}
-                    onChange={e => { set_name(e.target.value) }}
+                    onChange={e => {
+                        set_name(e.target.value)
+                        set_error_msg('')
+                    }}
                 />
             </Form.Item>
             <Form.Item label={t('描述')}>
@@ -72,7 +77,6 @@ export function KnowledgeEditModal ({
                     onChange={e => { set_description(e.target.value) }}
                 />
             </Form.Item>
-            {error_msg && <Text type='danger'>{error_msg}</Text>}
         </Form>
     </Modal>
 }
