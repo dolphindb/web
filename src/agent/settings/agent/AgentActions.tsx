@@ -7,13 +7,8 @@ import { chat_model } from '@/agent/model.ts'
 import type { IAgentInfo } from '@/agent/model/types.ts'
 
 
-export function AgentActions ({ agent, is_current, on_refresh }: { agent: IAgentInfo, is_current: boolean, on_refresh: () => void }) {
+export function AgentActions ({ agent, on_refresh }: { agent: IAgentInfo, on_refresh: () => void }) {
     return <Space size={4}>
-        {!is_current && agent.statusName === 'ACTIVE' && <Button
-            size='small'
-            type='primary'
-            onClick={() => { chat_model.agent.select_agent(agent.agentId) }}
-        >{t('设为当前')}</Button>}
         {agent.statusName !== 'ACTIVE' && <Button
             size='small'
             icon={<CheckCircleOutlined />}

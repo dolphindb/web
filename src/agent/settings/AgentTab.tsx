@@ -15,7 +15,7 @@ import {
 
 
 export function AgentTab () {
-    const { agents, agent_id } = chat_model.use(['agents', 'agent_id'])
+    const { agents } = chat_model.use(['agents'])
     
     const [creating, set_creating] = useState(false)
     const [loading, set_loading] = useState(false)
@@ -36,10 +36,8 @@ export function AgentTab () {
     
     useEffect(() => { refresh() }, [ ])
     
-    // 自动选中当前 agent
     useEffect(() => {
-        const current = agents.find(a => a.agentId === agent_id && a.statusName !== 'DELETED')
-        const fallback = current || agents.find(a => a.statusName === 'ACTIVE') || null
+        const fallback = agents.find(a => a.statusName === 'ACTIVE') || null
         if (selected_agent) {
             const updated = agents.find(a => a.agentId === selected_agent.agentId && a.statusName !== 'DELETED')
             if (updated && updated !== selected_agent)
@@ -48,7 +46,7 @@ export function AgentTab () {
                 set_selected_agent(fallback)
         } else if (fallback)
             set_selected_agent(fallback)
-    }, [agents, agent_id])
+    }, [agents])
     
     async function handle_create () {
         if (!form.agentName.trim()) {
@@ -78,7 +76,6 @@ export function AgentTab () {
     return <div className='ai-settings-list-layout' style={{ height: '100%' }}>
         <AgentSidebar
             agents={agents}
-            current_agent_id={agent_id}
             selected_agent={selected_agent}
             creating={creating}
             loading={loading}
@@ -114,7 +111,6 @@ export function AgentTab () {
                     : selected_agent
                         ? <AgentDetailPanel
                             agent={selected_agent}
-                            is_current={selected_agent.agentId === agent_id}
                             on_refresh={refresh}
                         />
                         : <Empty description={t('请选择一个 Agent')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ paddingTop: 100 }} />

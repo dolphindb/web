@@ -11,7 +11,6 @@ const { Paragraph } = Typography
 
 export function AgentSidebar ({
     agents,
-    current_agent_id,
     selected_agent,
     creating,
     loading,
@@ -19,7 +18,6 @@ export function AgentSidebar ({
     on_select_agent,
 }: {
     agents: IAgentInfo[]
-    current_agent_id: string
     selected_agent: IAgentInfo | null
     creating: boolean
     loading: boolean
@@ -28,11 +26,7 @@ export function AgentSidebar ({
 }) {
     const visible_agents = agents
         .filter(a => a.statusName !== 'DELETED')
-        .sort((a, b) =>
-            a.agentId === current_agent_id ? -1 :
-            b.agentId === current_agent_id ? 1 :
-            agent_create_time(b) - agent_create_time(a)
-        )
+        .sort((a, b) => agent_create_time(b) - agent_create_time(a))
     
     return <div className='ai-settings-list-sidebar'>
         <div className='ai-settings-list-title'>
@@ -65,7 +59,6 @@ export function AgentSidebar ({
                                 <Tag color={a.statusName === 'ACTIVE' ? 'green' : 'default'} style={{ fontSize: 11 }}>
                                     {a.statusName === 'ACTIVE' ? t('活跃') : a.statusName}
                                 </Tag>
-                                {a.agentId === current_agent_id && <Tag color='blue' style={{ fontSize: 11 }}>{t('当前')}</Tag>}
                             </div>
                             {a.description && <Paragraph type='secondary' style={{ fontSize: 11, margin: '2px 0 0' }} ellipsis={{ rows: 3, tooltip: a.description }}>
                                 {a.description}

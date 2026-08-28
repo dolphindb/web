@@ -21,7 +21,7 @@ import { get_llm_config_display_name, get_mcp_server_display_name } from './type
 const { Paragraph, Text } = Typography
 
 
-export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IAgentInfo, is_current: boolean, on_refresh: () => void }) {
+export function AgentDetailPanel ({ agent, on_refresh }: { agent: IAgentInfo, on_refresh: () => void }) {
     const [bound_llms, set_bound_llms] = useState<IAgentLlmBinding[]>([ ])
     const [all_llms, set_all_llms] = useState<ILlmConfig[]>([ ])
     const [bound_skills, set_bound_skills] = useState<ISkillBinding[]>([ ])
@@ -75,9 +75,6 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
             set_bound_kbs(knowledge_state.bound_knowledge_bases)
             set_all_kbs(knowledge_state.knowledge_bases)
             set_knowledge_load_error(knowledge_state.error)
-            // 同步刷新工具栏的可选 LLM 下拉列表
-            if (is_current)
-                chat_model.llm.load_selectable_llms(agent.agentId).catch(() => { })
         } catch {
             model.message.error(t('加载绑定信息失败'))
         } finally {
@@ -194,7 +191,7 @@ export function AgentDetailPanel ({ agent, is_current, on_refresh }: { agent: IA
             </div>
             <Space size={6}>
                 <Button size='small' onClick={budget_modal.open}>{t('Token 预算')}</Button>
-                <AgentActions agent={agent} is_current={is_current} on_refresh={on_refresh} />
+                <AgentActions agent={agent} on_refresh={on_refresh} />
             </Space>
         </div>
         <BudgetModal agent_id={agent.agentId} visible={budget_modal.visible} on_close={budget_modal.close} />
