@@ -9796,5 +9796,8 @@
     },
     "DolphinDB 连接已断开，请刷新页面。": {
         "en": "DolphinDB connection is disconnected, please refresh the page."
+    },
+    "DolphinDB 连接已断开，重连失败。": {
+        "en": "DolphinDB connection disconnected, reconnection failed."
     }
 }

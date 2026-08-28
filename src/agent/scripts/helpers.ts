@@ -1,3 +1,6 @@
+import { DdbConnectionError } from 'dolphindb/browser.js'
+import { chat_shared_model } from '@/agent/model/shared.ts'
+
 type ScriptPayloadObject = {
     args?: unknown
     content?: unknown
@@ -236,10 +239,18 @@ function is_empty_ddb_result_error (error: unknown): boolean {
 export function is_ddb_connection_error (error: unknown): boolean {
     if (!error)
         return false
-    if (error instanceof Error && (error.name === 'DdbConnectionError' || error.name === 'WebSocketConnectionError'))
+    if (error instanceof DdbConnectionError || (error instanceof Error && (error.name === 'DdbConnectionError' || error.name === 'WebSocketConnectionError')))
+        return true
+    if (!chat_shared_model.is_ddb_connected())
         return true
     const message = error instanceof Error ? error.message : String(error)
-    return message.includes('WebSocket') || message.includes('Connection') || message.includes('连接已断开')
+    return message.includes('WebSocket') ||
+        message.includes('Connection') ||
+        message.includes('connection') ||
+        message.includes('连接已断开') ||
+        message.includes('Failed to decode base64') ||
+        message.includes('decode base64') ||
+        message.includes('closed')
 }
 
 

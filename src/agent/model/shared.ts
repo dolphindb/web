@@ -68,7 +68,7 @@ export class ChatSharedModel extends Model<ChatSharedModel> {
                         location.reload()
                     },
                 })
-                throw error
+                throw new DdbConnectionError(t('DolphinDB 连接已断开，重连失败。') + ` (${error instanceof Error ? error.message : String(error)})`)
             } finally {
                 this.p_reconnect = null
             }
@@ -91,13 +91,27 @@ export class ChatSharedModel extends Model<ChatSharedModel> {
     
     /** 执行 DolphinDB 脚本，若连接异常则尝试使用 ticket 自动重连一次后重试 */
     async eval_ddb (script: string, options?: DdbEvalOptions): Promise<any> {
-        const ddb = await this.ensure_ddb()
+        let ddb: DDB
+        try {
+            ddb = await this.ensure_ddb()
+        } catch (error) {
+            throw error instanceof DdbConnectionError
+                ? error
+                : new DdbConnectionError(error instanceof Error ? error.message : String(error))
+        }
+        
         try {
             return await ddb.eval(script, options)
         } catch (error) {
             if (error instanceof DdbConnectionError || !ddb.connected) {
-                const new_ddb = await this.reconnect_ddb()
-                return await new_ddb.eval(script, options)
+                try {
+                    const new_ddb = await this.reconnect_ddb()
+                    return await new_ddb.eval(script, options)
+                } catch (reconnect_error) {
+                    throw reconnect_error instanceof DdbConnectionError
+                        ? reconnect_error
+                        : new DdbConnectionError(reconnect_error instanceof Error ? reconnect_error.message : String(reconnect_error))
+                }
             }
             throw error
         }
@@ -106,3 +120,33 @@ export class ChatSharedModel extends Model<ChatSharedModel> {
 
 
 export const chat_shared_model = new ChatSharedModel()
+
+
+// 挂载测试函数到全局 window 上
+if (typeof window !== 'undefined') {
+    const global_window = window as any
+    global_window.chat_shared_model = chat_shared_model
+    
+    /** 测试用：关闭当前 AI DDB WebSocket 连接（保留 Ticket），用于验证下次执行时的自动重连机制 */
+    global_window.disconnect_ai_ddb = () => {
+        if (chat_shared_model.ddb) {
+            try {
+                chat_shared_model.ddb.disconnect()
+            } catch { }
+            chat_shared_model.ddb = null
+        }
+        console.log('[Test] AI DolphinDB 连接已关闭（保留 Ticket: %s），下次调用将自动尝试重连。', chat_shared_model.ddb_ticket)
+    }
+    
+    /** 测试用：彻底关闭 AI DDB 连接并损坏 Ticket，使重连必然失败，用于验证断线弹窗和 Agent Loop 强中断机制 */
+    global_window.destroy_ai_ddb = () => {
+        if (chat_shared_model.ddb) {
+            try {
+                chat_shared_model.ddb.disconnect()
+            } catch { }
+            chat_shared_model.ddb = null
+        }
+        chat_shared_model.ddb_ticket = 'INVALID_DESTROYED_TICKET_FOR_TEST'
+        console.log('[Test] AI DolphinDB 连接已彻底关闭并损坏 Ticket，重连将失败，用于验证断线弹窗与 Agent Loop 强中断。')
+    }
+}
