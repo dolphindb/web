@@ -9701,8 +9701,8 @@
     "加载预算配置失败": {
         "en": "Failed to load budget configuration"
     },
-    "预算结束时间不能早于开始时间": {
-        "en": "Budget end time cannot be earlier than start time"
+    "用量统计结束时间不能早于开始时间": {
+        "en": "Usage statistics end time cannot be earlier than start time"
     },
     "请选择模型": {
         "en": "Please select a model"
@@ -9728,11 +9728,11 @@
     "Agent 总 Token 上限": {
         "en": "Agent Total Token Limit"
     },
-    "预算开始时间": {
-        "en": "Budget Start Time"
+    "用量统计开始时间": {
+        "en": "Usage Statistics Start Time"
     },
-    "预算结束时间": {
-        "en": "Budget End Time"
+    "用量统计结束时间": {
+        "en": "Usage Statistics End Time"
     },
     "模型 Token 上限": {
         "en": "Model Token Limit"

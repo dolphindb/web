@@ -84,7 +84,7 @@ export function BudgetModal ({
     
     async function save_budget () {
         if (start_time && end_time && end_time.isBefore(start_time)) {
-            message.error(t('预算结束时间不能早于开始时间'))
+            message.error(t('用量统计结束时间不能早于开始时间'))
             return
         }
         const models = model_budgets.map(item => item.model.trim())
@@ -141,10 +141,10 @@ export function BudgetModal ({
                 <InputNumber min={0} precision={0} value={max_tokens} onChange={value => { set_max_tokens(value ?? 0) }} />
             </Form.Item>
             <div className='ai-budget-window-grid'>
-                <Form.Item label={t('预算开始时间')}>
+                <Form.Item label={t('用量统计开始时间')}>
                     <DatePicker showTime value={start_time} onChange={set_start_time} />
                 </Form.Item>
-                <Form.Item label={t('预算结束时间')}>
+                <Form.Item label={t('用量统计结束时间')}>
                     <DatePicker showTime value={end_time} onChange={set_end_time} />
                 </Form.Item>
             </div>
