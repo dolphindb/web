@@ -248,10 +248,21 @@ function KbListRenderer (props: ToolRendererProps) {
 }
 
 
-function KbSearchRenderer (props: ToolRendererProps) {
+function RetrievalSearchRenderer (props: ToolRendererProps) {
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload, is_outcome }) => {
-        const kb_id = get_arg_text(args, 0, ['knowledge_base_id', 'knowledgeBaseId'])
-        const query = get_arg_text(args, 1, ['query']) || (is_object_record(args) ? to_message_text((args as any).query) : '')
+        const is_attachment_search = props.tool_name === 'attachment_search'
+        const kb_id = is_attachment_search ? '' : get_arg_text(args, 0, ['knowledge_base_id', 'knowledgeBaseId'])
+        const query = get_arg_text(args, is_attachment_search ? 0 : 1, ['query'])
+        const normalized_args = normalize_args(args)
+        const first_arg = normalized_args[0]
+        const raw_attachment_ids = !is_attachment_search
+            ? undefined
+            : is_object_record(first_arg)
+                ? first_arg.attachment_ids ?? first_arg.attachmentIds
+                : normalized_args[2]
+        const attachment_ids = Array.isArray(raw_attachment_ids)
+            ? raw_attachment_ids.map(to_message_text).filter(Boolean).join(', ')
+            : to_message_text(raw_attachment_ids)
         const parsed = is_object_record(structured_payload) ? structured_payload : null
         const items = Array.isArray(parsed?.items) ? parsed.items.filter(is_object_record) : [ ]
         const status = to_message_text(parsed?.resultStatus)
@@ -260,6 +271,7 @@ function KbSearchRenderer (props: ToolRendererProps) {
             param_rows: [
                 { label: t('检索词'), value: query || '-' },
                 ...(kb_id ? [{ label: t('知识库'), value: kb_id }] : [ ]),
+                ...(attachment_ids ? [{ label: 'attachmentIds', value: attachment_ids }] : [ ]),
             ],
             result_rows: is_outcome ? [
                 {
@@ -271,7 +283,7 @@ function KbSearchRenderer (props: ToolRendererProps) {
             ] : [ ],
             result_details: compact_sections([
                 items.length ? {
-                    key: 'kb-search-results',
+                    key: 'retrieval-search-results',
                     label: t('查看召回片段'),
                     children: <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {items.map((item, idx) => {
@@ -684,7 +696,8 @@ export const TOOL_RENDERERS: Record<string, (props: ToolRendererProps) => React.
     doc_search: props => <DocSearchRenderer {...props} />,
     doc_read: props => <DocReadRenderer {...props} />,
     kb_list: props => <KbListRenderer {...props} />,
-    kb_search: props => <KbSearchRenderer {...props} />,
+    kb_search: props => <RetrievalSearchRenderer {...props} />,
+    attachment_search: props => <RetrievalSearchRenderer {...props} />,
     kb_read: props => <KbReadRenderer {...props} />,
     vfs_list: props => <VfsListRenderer {...props} />,
     vfs_create: props => <VfsCreateRenderer {...props} />,

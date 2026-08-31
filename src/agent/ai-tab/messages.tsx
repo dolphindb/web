@@ -406,6 +406,8 @@ function get_tool_preview_arg (tool_name: string, args: unknown) {
         return ''
     if (normalized === 'kb_search')
         return get_arg_text(args, 1, ['query']) || get_arg_text(args, 0, ['query'])
+    if (normalized === 'attachment_search')
+        return get_arg_text(args, 0, ['query'])
     if (normalized === 'kb_read')
         return get_arg_text(args, 1, ['chunk_id', 'chunkId']) || get_arg_text(args, 0, ['chunk_id', 'chunkId'])
     if (normalized.startsWith('skill_'))
