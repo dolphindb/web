@@ -57,62 +57,23 @@ function get_skill_name_from_detail (value: unknown) {
 
 
 function get_skill_items (value: unknown): Record<string, unknown>[] {
-    if (!is_record(value) || !Array.isArray(value.items))
+    if (!is_record(value) || !Array.isArray(value.catalog))
         return [ ]
-    return value.items.filter(is_record)
-}
-
-
-async function list_skills_by_name (context: Parameters<ScriptConfig['handler']>[2], skill_name: string) {
-    const matches: Record<string, unknown>[] = [ ]
-    const limit = 100
-    for (let offset = 0;  ;  offset += limit) {
-        const result = await context.api_fetch(`/skill/list?offset=${offset}&limit=${limit}`)
-        const items = get_skill_items(result)
-        matches.push(...items.filter(item => get_skill_name_from_detail(item) === skill_name))
-        const total = is_record(result) ? Number(result.total ?? 0) : 0
-        if (items.length !== limit || Number.isFinite(total) && total > 0 && offset + items.length >= total)
-            break
-    }
-    return matches
-}
-
-
-async function fetch_skill_by_name (context: Parameters<ScriptConfig['handler']>[2], skill_name: string) {
-    const matches = await list_skills_by_name(context, skill_name)
-    if (matches.length > 1) {
-        const candidates = matches
-            .map(item => get_skill_id_from_detail(item))
-            .filter(Boolean)
-            .join(', ')
-        throw new Error(`Multiple skills named "${skill_name}" were found. Please provide skill_id instead.${candidates ? ` Candidates: ${candidates}` : ''}`)
-    }
-    if (matches.length === 1)
-        return matches[0]
-        
-    const result = await context.api_fetch(`/skill/byName/${encodeURIComponent(skill_name)}`)
-    const result_items = get_skill_items(result)
-    if (result_items.length > 1) {
-        const candidates = result_items
-            .map(item => get_skill_id_from_detail(item))
-            .filter(Boolean)
-            .join(', ')
-        throw new Error(`Multiple skills named "${skill_name}" were found. Please provide skill_id instead.${candidates ? ` Candidates: ${candidates}` : ''}`)
-    }
-    return result_items[0] ?? result
+    return value.catalog.filter(is_record)
 }
 
 
 async function fetch_skill_detail (context: Parameters<ScriptConfig['handler']>[2], skill_ref: ReturnType<typeof get_skill_ref>) {
-    if (skill_ref.kind === 'id')
-        return context.api_fetch(`/skill/${encodeURIComponent(skill_ref.value)}`)
-    if (skill_ref.kind === 'name')
-        return fetch_skill_by_name(context, skill_ref.value)
-    try {
-        return await context.api_fetch(`/skill/${encodeURIComponent(skill_ref.value)}`)
-    } catch {
-        return fetch_skill_by_name(context, skill_ref.value)
-    }
+    const catalog = get_skill_items(await context.api_fetch(`/skill/${encodeURIComponent(context.agent_id)}/catalog`))
+    const id_match = catalog.find(item => get_skill_id_from_detail(item) === skill_ref.value)
+    if (skill_ref.kind !== 'name' && id_match)
+        return id_match
+    const matches = catalog.filter(item => get_skill_name_from_detail(item) === skill_ref.value)
+    if (skill_ref.kind === 'id' || matches.length === 0)
+        throw new Error(`Skill "${skill_ref.value}" is not available to the current agent.`)
+    if (matches.length > 1)
+        throw new Error(`Multiple skills named "${skill_ref.value}" were found. Please provide skill_id instead. Candidates: ${matches.map(get_skill_id_from_detail).join(', ')}`)
+    return matches[0]
 }
 
 
@@ -147,26 +108,31 @@ export const skill_read_config: ScriptConfig = {
                         content: 'skill_read requires skill_id or unique skill name.',
                     },
                 }
+            if (!context.agent_id)
+                throw new Error('skill_read requires an active agent.')
                 
             const skill_detail = await fetch_skill_detail(context, skill_ref)
             const skill_id = get_skill_id_from_detail(skill_detail)
             if (!skill_id)
                 throw new Error('skill_read failed to resolve skill_id from skill detail.')
             const encoded_skill_id = encodeURIComponent(skill_id)
+            const agent_query = `agentId=${encodeURIComponent(context.agent_id)}`
             const instruction_detail = is_record(skill_detail) && skill_detail.hasInstruction === false
                 ? null
-                : await context.api_fetch(`/skill/${encoded_skill_id}/instruction`)
-            const files_detail = await context.api_fetch(`/skill/${encoded_skill_id}/files/list`)
+                : await context.api_fetch(`/skill/${encoded_skill_id}/instruction?${agent_query}`)
+            const files_detail = await context.api_fetch(`/skill/${encoded_skill_id}/files/list?${agent_query}`)
             const files = to_file_paths(files_detail)
             const display_files = files.map(file_path => to_skill_display_path(skill_id, file_path))
             const instruction = is_record(instruction_detail) && typeof instruction_detail.instruction === 'string'
                 ? instruction_detail.instruction
                 : ''
+            const detail = is_record(instruction_detail) ? { ...skill_detail, ...instruction_detail } : skill_detail
+            const name = get_skill_name_from_detail(detail)
             const result = {
                 skillId: skill_id,
-                name: get_skill_name_from_detail(skill_detail),
-                displayName: is_record(skill_detail) ? String(skill_detail.displayName ?? skill_detail.display_name ?? '') : '',
-                description: is_record(skill_detail) ? String(skill_detail.description ?? '') : '',
+                name,
+                displayName: String(detail.displayName ?? detail.display_name ?? '') || name,
+                description: String(detail.description ?? ''),
                 instruction,
                 files: display_files,
             }
