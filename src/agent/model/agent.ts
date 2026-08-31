@@ -244,17 +244,17 @@ export class ChatAgentModel {
     }
     async load_agents () {
         try {
-            let result: any
-            let can_manage_agents = true
-            try {
-                result = { items: await this.chat.agent.load_agent_page_items('/agent/list') }
-            } catch (error) {
-                console.warn('Failed to list owned agents, fallback to accessible agents:', error)
-                result = { items: await this.chat.agent.load_agent_page_items('/agent/accessible') }
-                // /agent/list 失败不代表没有管理权限（网络抖动、5xx 同样会走到这里），以 /agent/accessible 返回的 myPermission 为准
-                can_manage_agents = (result.items || [ ]).some((a: any) => a.myPermission === 'AGENT_ADMIN')
-            }
-            const items: IAgentInfo[] = (result.items || [ ]).map((a: any) => this.chat.agent.map_agent(a))
+            const accessible_items = await this.chat.agent.load_agent_page_items('/agent/accessible')
+            const can_manage_agents = model.admin || accessible_items.some((a: any) => a.myPermission === 'AGENT_ADMIN')
+            let result_items = accessible_items
+            // 先通过运行时接口确认权限，普通用户不试探管控接口。
+            if (can_manage_agents)
+                try {
+                    result_items = await this.chat.agent.load_agent_page_items('/agent/list')
+                } catch (error) {
+                    console.warn('Failed to list managed agents, fallback to accessible agents:', error)
+                }
+            const items: IAgentInfo[] = result_items.map((a: any) => this.chat.agent.map_agent(a))
             this.chat.set({ last_agent_load_error: '', can_manage_agents })
             
             // 如果当前运行时 agent_id 仍然有效，继续使用

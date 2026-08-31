@@ -23,6 +23,7 @@ import {
     read_skill_file,
     read_vfs_file,
     reject_oversized_vfs_read,
+    require_agent,
     require_workspace,
     result_message,
     skill_file_paths_from_list,
@@ -53,14 +54,15 @@ export const vfs_list_config: ScriptConfig = {
             if (path && is_skill_path(path)) {
                 const { skill_id, file_path } = parse_skill_scope_path(path)
                 if (!skill_id) {
-                    const result = await context.api_fetch('/skill/list?offset=0&limit=1000')
+                    const result = await context.api_fetch(`/skill/${encodeURIComponent(require_agent(context))}/catalog`)
                     const skills = skill_ids_from_list(result).map(skill_id => `/home/skills/${skill_id}`)
                     return {
                         next_loop: true,
                         save_message: result_message(type, skills.join('\n') || 'No skills found.'),
                     }
                 }
-                const result = await context.api_fetch(`/skill/${encodeURIComponent(skill_id)}/files/list`)
+                const agent_query = `agentId=${encodeURIComponent(require_agent(context))}`
+                const result = await context.api_fetch(`/skill/${encodeURIComponent(skill_id)}/files/list?${agent_query}`)
                 const files = skill_file_paths_from_list(result)
                     .filter(item => !file_path || item === file_path || item.startsWith(`${file_path}/`))
                     .map(item => to_skill_display_path(skill_id, item))
@@ -316,7 +318,7 @@ export const vfs_search_config: ScriptConfig = {
             const result = search_scope.skill_id
                 ? await context.api_fetch(`/skill/${encodeURIComponent(search_scope.skill_id)}/files/search`, {
                     method: 'POST',
-                    body: JSON.stringify(search_scope.body),
+                    body: JSON.stringify({ ...search_scope.body, agentId: require_agent(context) }),
                 })
                 : await context.workspace_store.search_files(require_workspace(context), context.api_fetch, search_scope.body as any)
             return {

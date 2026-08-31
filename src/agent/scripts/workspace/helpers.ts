@@ -76,6 +76,13 @@ export function require_workspace (context: ToolContext) {
 }
 
 
+export function require_agent (context: ToolContext) {
+    if (!context.agent_id)
+        throw new Error('No Agent selected.')
+    return context.agent_id
+}
+
+
 export function require_session (context: ToolContext) {
     if (!context.session_id)
         throw new Error('No session selected.')
@@ -325,7 +332,7 @@ export function get_search_args (content: unknown): VfsSearchArgs {
 
 
 export async function read_skill_file (context: ToolContext, skill_id: string, file_path: string, start_line?: number, end_line?: number) {
-    const search = new URLSearchParams({ filePath: file_path })
+    const search = new URLSearchParams({ agentId: require_agent(context), filePath: file_path })
     if (start_line !== undefined)
         search.set('lineStart', String(start_line))
     if (start_line !== undefined && end_line !== undefined)
@@ -371,9 +378,12 @@ export function skill_file_paths_from_list (result: unknown): string[] {
 
 
 export function skill_ids_from_list (result: unknown): string[] {
-    if (!is_record(result) || !Array.isArray(result.items))
+    if (!is_record(result))
         return [ ]
-    return result.items
+    const items = Array.isArray(result.catalog) ? result.catalog : result.items
+    if (!Array.isArray(items))
+        return [ ]
+    return items
         .map(item => is_record(item) ? String(item.skillId ?? item.skill_id ?? item.id ?? '').trim() : '')
         .filter(Boolean)
 }
