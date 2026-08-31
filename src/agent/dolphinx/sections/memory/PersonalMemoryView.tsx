@@ -1,4 +1,4 @@
-import { Button, Empty, Input, Popconfirm, Select, Space, Switch, Table, Tag, Typography } from 'antd'
+import { Button, Empty, Input, Popconfirm, Select, Space, Switch, Table, Typography } from 'antd'
 
 import { t } from '@i18n'
 import type { IMemoryEntry } from '@/agent/model/types.ts'
@@ -118,7 +118,7 @@ export function PersonalMemoryView ({
                     title: t('主分类'),
                     dataIndex: 'memoryKind',
                     width: 120,
-                    render: (value: IMemoryEntry['memoryKind']) => <Tag title={value} style={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</Tag>,
+                    render: (value: IMemoryEntry['memoryKind']) => memory_kind_options.find(option => option.value === value)?.label || value,
                 },
                 {
                     title: t('标题'),
