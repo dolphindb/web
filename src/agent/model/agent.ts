@@ -96,6 +96,37 @@ function localize_builtin_text (value: string | undefined, config: Record<string
 
 export class ChatAgentModel {
     constructor (private chat: ChatModel) { }
+    private async api_request (path: string, options: RequestInit = { }, retried = false): Promise<Response> {
+        const url = /^https?:\/\//.test(path) ? path : `${this.chat.base_url}${path}`
+        const token = model.agent_bus_ticket.replace(/[\r\n]/g, '')
+        const is_form_data = typeof FormData !== 'undefined' && options.body instanceof FormData
+        const headers: Record<string, string> = {
+            ...(!is_form_data ? { 'Content-Type': 'application/json' } : { }),
+            ...(token ? { Authorization: `Bearer ${token}` } : { }),
+        }
+        // 合并调用方传入的额外 headers
+        if (options.headers)
+            Object.assign(headers, options.headers)
+        const { headers: _ignored, ...rest_options } = options
+        const response = await fetch(url, { ...rest_options, headers })
+        if (response.status === 401) {
+            // ticket 可能已过期，web 的登录还在的话重新申请一个再试一次
+            if (!retried && await model.refresh_agent_bus_ticket())
+                return this.chat.agent.api_request(path, options, true)
+            this.chat.agent.handle_auth_failed()
+            throw new Error('Unauthorized')
+        }
+        if (!response.ok) {
+            const text = await response.text()
+            let parsed: any
+            try { parsed = JSON.parse(text) } catch { parsed = { message: text } }
+            if (response.status === 403)
+                throw new Error(agent_access_denied_message())
+            const message = parsed?.error?.message || parsed?.message || response.statusText
+            throw new Error(is_no_available_llm_config_error(message) ? no_available_llm_config_message() : message)
+        }
+        return response
+    }
     // 响应里的 size 是本页条数而非总数，只能用 total 判断是否取完；max_pages 防止后端忽略 offset 时死循环
     async load_agent_page_items (path: string, limit = 100, max_pages = 20): Promise<any[]> {
         const items: any[] = [ ]
@@ -136,40 +167,7 @@ export class ChatAgentModel {
             this.chat.llm.load_selectable_llms(agent_id)
     }
     async api_fetch (path: string, options: RequestInit = { }, retried = false): Promise<any> {
-        const url = /^https?:\/\//.test(path) ? path : `${this.chat.base_url}${path}`
-        const token = model.agent_bus_ticket.replace(/[\r\n]/g, '')
-        const is_form_data = typeof FormData !== 'undefined' && options.body instanceof FormData
-        const headers: Record<string, string> = {
-            ...(!is_form_data ? { 'Content-Type': 'application/json' } : { }),
-            ...(token ? { Authorization: `Bearer ${token}` } : { }),
-        }
-        
-        // 合并调用方传入的额外 headers
-        if (options.headers)
-            Object.assign(headers, options.headers)
-            
-        const { headers: _ignored, ...rest_options } = options
-        const response = await fetch(url, { ...rest_options, headers })
-        
-        if (response.status === 401) {
-            // ticket 可能已过期，web 的登录还在的话重新申请一个再试一次
-            if (!retried && await model.refresh_agent_bus_ticket())
-                return this.chat.agent.api_fetch(path, options, true)
-            this.chat.agent.handle_auth_failed()
-            throw new Error('Unauthorized')
-        }
-        
-        if (!response.ok) {
-            const text = await response.text()
-            let parsed: any
-            try { parsed = JSON.parse(text) } catch { parsed = { message: text } }
-            
-            if (response.status === 403)
-                throw new Error(agent_access_denied_message())
-                
-            const message = parsed?.error?.message || parsed?.message || response.statusText
-            throw new Error(is_no_available_llm_config_error(message) ? no_available_llm_config_message() : message)
-        }
+        const response = await this.chat.agent.api_request(path, options, retried)
         
         const text = await response.text()
         let result: any
@@ -195,6 +193,9 @@ export class ChatAgentModel {
         if (payload?.code === 'WORKSPACE_REDIRECT' && payload.workspaceBaseUrl && payload.retryPath)
             return this.chat.agent.api_fetch(`${payload.workspaceBaseUrl}${payload.retryPath}`, options)
         return payload
+    }
+    async api_fetch_blob (path: string, options: RequestInit = { }): Promise<Blob> {
+        return (await this.chat.agent.api_request(path, options)).blob()
     }
     handle_auth_failed () {
         console.warn('Agent-bus auth failed, redirecting to login')

@@ -166,12 +166,6 @@ export interface ISessionAttachment {
 }
 
 
-export interface ISessionAttachmentDetail extends ISessionAttachment {
-    data?: unknown
-    extractedText?: unknown
-}
-
-
 export interface ISessionAttachmentUpload {
     filename: string
     file: Blob

@@ -30,10 +30,8 @@ interface IPreviewState {
     filename: string
     preview_type: FilePreviewType
     content: string
-    raw_data?: unknown
-    mime_type?: string
+    file?: Blob
     image_src: string
-    extracted_text?: string
     size?: number
 }
 
@@ -144,65 +142,15 @@ function is_base64 (str: string): boolean {
 }
 
 
-function resolve_image_src (content: string, mime_type?: string, raw_data?: unknown): string {
-    const data = raw_data || content
-    if (typeof data === 'string') {
-        const trimmed = data.trim()
-        if (trimmed.startsWith('data:image/') || trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('blob:'))
-            return trimmed
-        if (trimmed.startsWith('<svg') || trimmed.startsWith('<?xml'))
-            return `data:image/svg+xml;utf8,${encodeURIComponent(trimmed)}`
-        if (is_base64(trimmed))
-            return `data:${mime_type || 'image/png'};base64,${trimmed}`
-    }
-    if (data && typeof data === 'object') {
-        const obj = data as Record<string, unknown>
-        if (typeof obj.url === 'string')
-            return obj.url
-        if (typeof obj.data === 'string')
-            return resolve_image_src('', mime_type, obj.data)
-        if (typeof obj.base64 === 'string')
-            return resolve_image_src('', mime_type, obj.base64)
-    }
+function resolve_image_src (content: string, mime_type?: string): string {
+    const trimmed = content.trim()
+    if (trimmed.startsWith('data:image/') || trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('blob:'))
+        return trimmed
+    if (trimmed.startsWith('<svg') || trimmed.startsWith('<?xml'))
+        return `data:image/svg+xml;utf8,${encodeURIComponent(trimmed)}`
+    if (is_base64(trimmed))
+        return `data:${mime_type || 'image/png'};base64,${trimmed}`
     return ''
-}
-
-
-function attachment_data_to_blob (data: unknown, mime_type = 'application/octet-stream'): Blob {
-    if (data instanceof Blob)
-        return data
-    if (typeof data === 'string') {
-        if (data.startsWith('data:')) {
-            const parts = data.split(',')
-            const meta = parts[0]
-            const raw = parts[1] || ''
-            const mime = meta.match(/:(.*?);/)?.[1] || mime_type
-            if (meta.includes('base64')) {
-                const bin = atob(raw)
-                const bytes = new Uint8Array(bin.length)
-                for (let i = 0;  i < bin.length;  i++)
-                    bytes[i] = bin.charCodeAt(i)
-                return new Blob([bytes], { type: mime })
-            }
-            return new Blob([decodeURIComponent(raw)], { type: mime })
-        }
-        if (is_base64(data)) {
-            try {
-                const bin = atob(data)
-                const bytes = new Uint8Array(bin.length)
-                for (let i = 0;  i < bin.length;  i++)
-                    bytes[i] = bin.charCodeAt(i)
-                return new Blob([bytes], { type: mime_type })
-            } catch {
-                // fallback to raw bytes
-            }
-        }
-        const bytes = new Uint8Array(data.length)
-        for (let i = 0;  i < data.length;  i++)
-            bytes[i] = data.charCodeAt(i) & 0xff
-        return new Blob([bytes], { type: mime_type })
-    }
-    return new Blob([String(data || '')], { type: mime_type })
 }
 
 
@@ -279,7 +227,10 @@ export function FilePreviewModal ({
                     image_src,
                 })
             } else {
-                const attachment = await chat.attachment.get_attachment(session_id, current_target.attachment_id, true)
+                const [attachment, file] = await Promise.all([
+                    chat.attachment.get_attachment(session_id, current_target.attachment_id),
+                    chat.attachment.download_attachment(session_id, current_target.attachment_id),
+                ])
                 if (request_id !== request_ref.current)
                     return
                 if (!attachment) {
@@ -289,29 +240,17 @@ export function FilePreviewModal ({
                 }
                 const filename = attachment.filename || current_target.filename || 'attachment'
                 const preview_type = get_file_preview_type(filename, attachment.mimeType, attachment.kind)
-                const extracted_text = typeof attachment.extractedText === 'string' ? attachment.extractedText : ''
-                const content = extracted_text || (typeof attachment.data === 'string' ? attachment.data : '')
-                let image_src = ''
-                
-                if (preview_type === 'image' && attachment.data) {
-                    if (typeof attachment.data === 'string' && attachment.data.startsWith('data:image/'))
-                        image_src = attachment.data
-                    else if (typeof attachment.data === 'string' && (attachment.data.startsWith('<svg') || attachment.data.startsWith('<?xml')))
-                        image_src = `data:image/svg+xml;utf8,${encodeURIComponent(attachment.data)}`
-                    else {
-                        const blob = attachment_data_to_blob(attachment.data, attachment.mimeType || 'image/png')
-                        image_src = URL.createObjectURL(blob)
-                    }
-                }
+                const content = preview_type === 'code' || preview_type === 'markdown' ? await file.text() : ''
+                if (request_id !== request_ref.current)
+                    return
+                const image_src = preview_type === 'image' ? URL.createObjectURL(file) : ''
                 
                 set_preview_data({
                     filename,
                     preview_type,
                     content,
-                    raw_data: attachment.data,
-                    mime_type: attachment.mimeType,
+                    file,
                     image_src,
-                    extracted_text,
                     size: attachment.byteSize,
                 })
             }
@@ -331,7 +270,7 @@ export function FilePreviewModal ({
         if (!preview_data)
             return
         
-        const { filename, content, raw_data, mime_type, extracted_text } = preview_data
+        const { filename, content, file } = preview_data
         
         if (target?.type === 'workspace') {
             const file_blob = new Blob([content || ''], { type: 'text/plain;charset=utf-8' })
@@ -339,15 +278,8 @@ export function FilePreviewModal ({
             return
         }
         
-        if (raw_data) {
-            const blob = attachment_data_to_blob(raw_data, mime_type)
-            download_blob(blob, filename)
-            return
-        }
-        
-        const text_to_download = content || extracted_text || ''
-        const text_blob = new Blob([text_to_download], { type: mime_type || 'text/plain;charset=utf-8' })
-        download_blob(text_blob, filename)
+        if (file)
+            download_blob(file, filename)
     }
     
     
@@ -407,7 +339,7 @@ export function FilePreviewModal ({
     }, [copied])
     
     
-    const content_text = preview_data?.content || preview_data?.extracted_text || ''
+    const content_text = preview_data?.content || ''
     const is_text_content = Boolean(content_text) || preview_data?.preview_type === 'code' || preview_data?.preview_type === 'markdown'
     const modal_title = preview_data?.filename || (target?.type === 'workspace' ? target.path : target?.filename) || t('文件预览')
     
@@ -488,14 +420,7 @@ export function FilePreviewModal ({
                                         />
                                     </div>
                                 : (preview_data.preview_type === 'code' || content_text)
-                                    ? <>
-                                        {preview_data.extracted_text && preview_data.preview_type === 'other' && <Alert
-                                            type='info'
-                                            showIcon
-                                            className='ai-file-preview-extracted-tip'
-                                            message={t('当前显示文档解析提取的文本内容')}
-                                        />}
-                                        <div className='ai-file-preview-editor'>
+                                    ? <div className='ai-file-preview-editor'>
                                             {get_editor_language(preview_data.filename) === 'dolphindb'
                                                 ? <Editor
                                                     readonly
@@ -522,7 +447,6 @@ export function FilePreviewModal ({
                                                 />
                                             }
                                         </div>
-                                    </>
                                     : <div className='ai-file-preview-empty'>
                                         <FileTextOutlined style={{ fontSize: 48, color: '#bfbfbf' }} />
                                         <Text strong>{preview_data.filename}</Text>

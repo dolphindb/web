@@ -4,7 +4,6 @@ import { prepare_file_upload, upload_file_parts } from './multipart-upload.ts'
 import type {
     ISessionAttachment,
     ISessionAttachmentDeleteResult,
-    ISessionAttachmentDetail,
     ISessionAttachmentListResult,
     ISessionAttachmentUpload,
     ISessionAttachmentUploadInfo,
@@ -76,10 +75,14 @@ export class ChatAttachmentModel {
         const result = await this.chat.agent.api_fetch(`/session/${encodeURIComponent(session_id)}/attachments?${search}`)
         return { ...result, items: result.items || [ ] }
     }
-    async get_attachment (session_id: string, attachment_id: string, include_data = false): Promise<ISessionAttachmentDetail> {
-        const search = include_data ? '?includeData=true' : ''
+    async get_attachment (session_id: string, attachment_id: string): Promise<ISessionAttachment> {
         return this.chat.agent.api_fetch(
-            `/session/${encodeURIComponent(session_id)}/attachments/${encodeURIComponent(attachment_id)}${search}`
+            `/session/${encodeURIComponent(session_id)}/attachments/${encodeURIComponent(attachment_id)}`
+        )
+    }
+    async download_attachment (session_id: string, attachment_id: string): Promise<Blob> {
+        return this.chat.agent.api_fetch_blob(
+            `/session/${encodeURIComponent(session_id)}/attachments/${encodeURIComponent(attachment_id)}/content`
         )
     }
     async delete_attachment (session_id: string, attachment_id: string): Promise<ISessionAttachmentDeleteResult> {
