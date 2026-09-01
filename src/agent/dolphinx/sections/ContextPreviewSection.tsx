@@ -192,7 +192,7 @@ export function ContextPreviewSection () {
             <Table
                 size='small'
                 tableLayout='fixed'
-                pagination={{ defaultPageSize: 8, showSizeChanger: true }}
+                pagination={{ defaultPageSize: 10, showSizeChanger: true }}
                 rowKey={(_, index) => String(index)}
                 dataSource={messages}
                 expandable={{
