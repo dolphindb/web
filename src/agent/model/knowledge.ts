@@ -20,6 +20,21 @@ import type {
     IKnowledgeRetrieveResult,
     IKnowledgeUploadInfo,
 } from './types.ts'
+
+
+export const KNOWLEDGE_UPLOAD_ACCEPT = '.pdf,.docx,.txt,.md,.zip'
+const KNOWLEDGE_UPLOAD_EXTENSIONS = new Set(KNOWLEDGE_UPLOAD_ACCEPT.split(','))
+
+
+export function validate_knowledge_upload_file (file: File) {
+    const extension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase()
+    if (!KNOWLEDGE_UPLOAD_EXTENSIONS.has(extension))
+        throw new Error(t('仅支持上传 PDF、DOCX、TXT、MD 或 ZIP 格式文件'))
+    if (file.size < 1 || file.size > 100 * 1024 * 1024)
+        throw new Error(t('文件大小必须在 1 字节到 100 MiB 之间'))
+}
+
+
 export class ChatKnowledgeModel {
     constructor (private chat: ChatModel) { }
     
@@ -197,12 +212,11 @@ export class ChatKnowledgeModel {
         upload_mode?: 'DOCUMENT' | 'ZIP_IMPORT',
         on_progress?: (percent: number) => void
     ): Promise<{ jobId: string }> {
+        validate_knowledge_upload_file(file)
         const is_zip_file = file.name.toLowerCase().endsWith('.zip')
         const mode = upload_mode || (is_zip_file ? 'ZIP_IMPORT' : 'DOCUMENT')
         if (mode === 'ZIP_IMPORT' && !is_zip_file)
             throw new Error(t('ZIP 导入要求文件名以 .zip 结尾'))
-        if (file.size < 1 || file.size > 100 * 1024 * 1024)
-            throw new Error(t('文件大小必须在 1 字节到 100 MiB 之间'))
             
         const zip_content_types = new Set(['application/zip', 'application/x-zip-compressed'])
         const content_type = mode === 'ZIP_IMPORT'

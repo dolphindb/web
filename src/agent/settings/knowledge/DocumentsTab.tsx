@@ -6,6 +6,7 @@ import { t } from '@i18n'
 import { model } from '@model'
 import type { IKnowledgeBaseInfo, IKnowledgeDocumentInfo } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
+import { KNOWLEDGE_UPLOAD_ACCEPT, validate_knowledge_upload_file } from '@/agent/model/knowledge.ts'
 import { required_plugins_model } from '@/agent/model/required-plugins.ts'
 import { format_browser_time } from '@/agent/dolphinx/common.tsx'
 import { format_byte_size, get_kb_status_color, get_kb_status_label } from './types.ts'
@@ -101,7 +102,7 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
     return <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text type='secondary' style={{ fontSize: 12 }}>
-                {t('支持上传单个 PDF、Word、TXT、Markdown 等文档，或打包为单层 ZIP 批量导入。')}
+                {t('支持上传单个 PDF、DOCX、TXT、MD 文档，或打包为单层 ZIP 批量导入。')}
             </Text>
             <Space size={8}>
                 <Tooltip title={t('刷新')}>
@@ -202,8 +203,16 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
         >
             <div style={{ marginTop: 12 }}>
                 <Dragger
+                    accept={KNOWLEDGE_UPLOAD_ACCEPT}
                     maxCount={1}
                     beforeUpload={file => {
+                        try {
+                            validate_knowledge_upload_file(file)
+                        } catch (err: any) {
+                            set_upload_file(null)
+                            set_upload_error(err.message)
+                            return Upload.LIST_IGNORE
+                        }
                         set_upload_file(file)
                         set_upload_error('')
                         return false
@@ -216,7 +225,7 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                     </p>
                     <p className='ant-upload-text'>{t('点击或将文件拖拽至此处上传')}</p>
                     <p className='ant-upload-hint'>
-                        {t('支持单文件上传（PDF, DOCX, TXT, MD 等，最大 100MB）或 ZIP 压缩包批量导入（ZIP 内所有文件必须在同一层，最大 100MB）。')}
+                        {t('支持单文件上传（PDF、DOCX、TXT、MD，最大 100MB）或 ZIP 压缩包批量导入（ZIP 内所有文件必须在同一层，最大 100MB）。')}
                     </p>
                 </Dragger>
                 

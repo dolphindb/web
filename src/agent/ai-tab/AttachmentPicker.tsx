@@ -13,8 +13,6 @@ export function AttachmentPicker ({
     selected_attachment_ids,
     loading,
     disabled,
-    supports_image,
-    max_image_bytes,
     on_select,
     on_upload,
 }: {
@@ -22,8 +20,6 @@ export function AttachmentPicker ({
     selected_attachment_ids: string[]
     loading: boolean
     disabled: boolean
-    supports_image: boolean
-    max_image_bytes: number
     on_select: (attachment: ISessionAttachment) => void
     on_upload: (files: File[]) => Promise<void>
 }) {
@@ -64,10 +60,6 @@ export function AttachmentPicker ({
             </button>
             <div className='ai-attachment-upload-hint'>
                 <div>{t('支持图片、PDF、DOCX、PPTX、XLSX 及文本文件（如 TXT、LOG、MD、CSV、TSV、XML）')}</div>
-                <div>{t('当前模型支持图片输入：{{supports_image}}；图片大小上限：{{image_size}}', {
-                    supports_image: supports_image ? t('是') : t('否'),
-                    image_size: max_image_bytes > 0 ? format_file_size(max_image_bytes) : t('不限制'),
-                })}</div>
             </div>
             <div className='ai-attachment-popover-title'>{t('已上传文件')}</div>
             <div className='ai-attachment-popover-list'>

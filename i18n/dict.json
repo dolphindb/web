@@ -7238,9 +7238,6 @@
     "支持图片、PDF、DOCX、PPTX、XLSX 及文本文件（如 TXT、LOG、MD、CSV、TSV、XML）": {
         "en": "Supports images, PDF, DOCX, PPTX, XLSX, and text files such as TXT, LOG, MD, CSV, TSV, and XML"
     },
-    "当前模型支持图片输入：{{supports_image}}；图片大小上限：{{image_size}}": {
-        "en": "Current model supports image input: {{supports_image}}; image size limit: {{image_size}}"
-    },
     "不限制": {
         "en": "Unlimited"
     },
@@ -9341,6 +9338,9 @@
     "请选择要上传的文档或 ZIP 压缩包": {
         "en": "Select a document or ZIP archive to upload"
     },
+    "仅支持上传 PDF、DOCX、TXT、MD 或 ZIP 格式文件": {
+        "en": "Only PDF, DOCX, TXT, MD, or ZIP files are supported"
+    },
     "请选择一个活跃 Agent": {
         "en": "Select an active Agent"
     },
@@ -9530,11 +9530,11 @@
     "召回结果": {
         "en": "Retrieved results"
     },
-    "支持单文件上传（PDF, DOCX, TXT, MD 等，最大 100MB）或 ZIP 压缩包批量导入（ZIP 内所有文件必须在同一层，最大 100MB）。": {
-        "en": "Upload one PDF, DOCX, TXT, MD, or similar file up to 100 MB, or import a flat ZIP archive up to 100 MB."
+    "支持单文件上传（PDF、DOCX、TXT、MD，最大 100MB）或 ZIP 压缩包批量导入（ZIP 内所有文件必须在同一层，最大 100MB）。": {
+        "en": "Upload one PDF, DOCX, TXT, or MD file up to 100 MB, or import a flat ZIP archive up to 100 MB."
     },
-    "支持上传单个 PDF、Word、TXT、Markdown 等文档，或打包为单层 ZIP 批量导入。": {
-        "en": "Upload a PDF, Word, TXT, Markdown, or similar document, or import multiple files in a flat ZIP archive."
+    "支持上传单个 PDF、DOCX、TXT、MD 文档，或打包为单层 ZIP 批量导入。": {
+        "en": "Upload a PDF, DOCX, TXT, or MD document, or import multiple files in a flat ZIP archive."
     },
     "知识检索": {
         "en": "Knowledge retrieval"
