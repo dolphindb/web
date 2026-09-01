@@ -119,11 +119,20 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                     title: t('状态'),
                     dataIndex: 'status',
                     width: 100,
-                    render: (status: string, record: IKnowledgeJobInfo) => <Tooltip title={record.lastError || undefined}>
-                            <Tag color={get_kb_status_color(status)} style={{ cursor: record.lastError ? 'pointer' : 'default' }}>
-                                {get_kb_status_label(status)}
-                            </Tag>
-                        </Tooltip>,
+                    render: (status: string, record: IKnowledgeJobInfo) => {
+                        const success_count = record.progress?.successCount
+                        const total_count = record.progress?.totalCount
+                        return <div>
+                            <Tooltip title={record.lastError || undefined}>
+                                <Tag color={get_kb_status_color(status)} style={{ cursor: record.lastError ? 'pointer' : 'default' }}>
+                                    {get_kb_status_label(status)}
+                                </Tag>
+                            </Tooltip>
+                            {record.jobType === 'ZIP_IMPORT' && typeof success_count === 'number' && typeof total_count === 'number' && <Text type='secondary' style={{ display: 'block', fontSize: 11 }}>
+                                {t('成功 {{successCount}}/{{totalCount}}', { successCount: success_count, totalCount: total_count })}
+                            </Text>}
+                        </div>
+                    },
                 },
                 {
                     title: t('阶段'),

@@ -815,7 +815,7 @@ export interface IKnowledgeDocumentInfo {
     importJobId?: string
     sourceRelativePath?: string
     status: 'ACTIVE' | 'DELETING' | 'DELETED' | string
-    parseStatus: 'OK' | 'FAILED' | 'PARSING' | string
+    parseStatus: 'OK' | 'PARTIAL' | 'FAILED' | 'PARSING' | string
     parserVersion?: string
     parserSchemaVersion?: string
     lastError?: string
@@ -880,7 +880,10 @@ export interface IKnowledgeJobInfo {
     maxAttempts?: number
     retryAt?: string | null
     lastError?: string
-    progress?: Record<string, unknown>
+    progress?: Record<string, unknown> & {
+        successCount?: number
+        totalCount?: number
+    }
     allowedActions?: ('CANCEL' | 'RETRY')[]
     createTime?: string
     startTime?: string

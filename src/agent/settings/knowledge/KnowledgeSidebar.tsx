@@ -1,9 +1,8 @@
-import { Empty, Spin, Tag, Tooltip, Typography } from 'antd'
+import { Empty, Spin, Tooltip, Typography } from 'antd'
 import { PlusOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 import type { IKnowledgeBaseInfo } from '@/agent/model/types.ts'
-import { get_kb_status_color, get_kb_status_label } from './types.ts'
 
 
 const { Paragraph } = Typography
@@ -78,7 +77,7 @@ export function KnowledgeSidebar ({
                             className={`ai-settings-list-item rich${is_selected ? ' active' : ''}`}
                             onClick={() => { on_select_kb(kb) }}
                         >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
                                 <span
                                     title={kb.name}
                                     style={{
@@ -93,9 +92,6 @@ export function KnowledgeSidebar ({
                                 >
                                     {kb.name}
                                 </span>
-                                <Tag color={get_kb_status_color(kb.status)} style={{ margin: 0, fontSize: 11, flexShrink: 0 }}>
-                                    {get_kb_status_label(kb.status)}
-                                </Tag>
                             </div>
                             {kb.description && <Paragraph
                                 type='secondary'

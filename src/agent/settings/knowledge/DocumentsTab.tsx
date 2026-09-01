@@ -168,12 +168,6 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                         </Tooltip>,
                 },
                 {
-                    title: t('状态'),
-                    dataIndex: 'status',
-                    width: 100,
-                    render: (status: string) => <Tag color={get_kb_status_color(status)}>{get_kb_status_label(status)}</Tag>,
-                },
-                {
                     title: t('上传时间'),
                     dataIndex: 'createTime',
                     width: 160,

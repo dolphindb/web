@@ -109,6 +109,7 @@ export function get_kb_status_label (status?: string): string {
         case 'PARSING':
             return t('解析中')
         case 'SUCCEEDED':
+        case 'PARTIAL':
         case 'OK':
             return t('成功')
         case 'ERROR':
@@ -136,6 +137,7 @@ export function get_kb_status_color (status?: string): string {
     switch (status) {
         case 'ACTIVE':
         case 'SUCCEEDED':
+        case 'PARTIAL':
         case 'OK':
         case 'READY':
             return 'green'

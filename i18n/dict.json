@@ -5771,6 +5771,9 @@
     "成功": {
         "en": "Successfully"
     },
+    "成功 {{successCount}}/{{totalCount}}": {
+        "en": "{{successCount}}/{{totalCount}} succeeded"
+    },
     "收到巡检计划时间": {
         "en": "Received inspection plan time"
     },
