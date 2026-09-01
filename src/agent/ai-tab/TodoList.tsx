@@ -19,7 +19,7 @@ function TodoStatus ({ checked, running }: { checked: boolean, running: boolean 
 }
 
 
-export function TodoList ({ steps }: { steps: IWorkspaceStep[] }) {
+export function TodoList ({ steps, running }: { steps: IWorkspaceStep[], running: boolean }) {
     const [expanded, set_expanded] = useState(false)
     const active_steps = steps.filter(step => step.active)
     if (!active_steps.length)
@@ -37,7 +37,7 @@ export function TodoList ({ steps }: { steps: IWorkspaceStep[] }) {
             label: <span className={`ai-todo-summary${expanded ? ' expanded' : ''}`}>
                 <Text strong style={{ fontSize: 13 }}>{t('步骤')}</Text>
                 {!expanded && <span className='ai-todo-item'>
-                    <TodoStatus checked={current_step.checked} running={!current_step.checked} />
+                    <TodoStatus checked={current_step.checked} running={running && !current_step.checked} />
                     <Text delete={current_step.checked} type={current_step.checked ? 'secondary' : undefined}>
                         {current_step.step_index + 1}. {current_step.content}
                     </Text>
@@ -49,7 +49,7 @@ export function TodoList ({ steps }: { steps: IWorkspaceStep[] }) {
             children: <div className='ai-todo-items'>
                 {active_steps.map(step =>
                     <span className='ai-todo-item' key={step.id}>
-                        <TodoStatus checked={step.checked} running={step.id === current_step.id && !step.checked} />
+                        <TodoStatus checked={step.checked} running={running && step.id === current_step.id && !step.checked} />
                         <Text delete={step.checked} type={step.checked ? 'secondary' : undefined}>
                             {step.step_index + 1}. {step.content}
                         </Text>

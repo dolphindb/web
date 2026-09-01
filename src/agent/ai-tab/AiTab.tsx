@@ -470,7 +470,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
             }}
             on_preview_file={set_preview_target}
         />}
-        <TodoList steps={visible_steps} />
+        <TodoList steps={visible_steps} running={can_interrupt} />
         
         {/* Messages */}
         <div className='ai-tab-messages' ref={messages_ref} onScroll={handle_message_scroll} onClick={handle_message_click}>
