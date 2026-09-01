@@ -44,7 +44,7 @@ export class ChatModel extends Model<ChatModel> {
     readonly attachment = new ChatAttachmentModel(this)
     readonly knowledge = new ChatKnowledgeModel(this)
     
-    _ddb_connection_failed = false
+    _ddb_connection_error: unknown = null
     
     agent_id = ''
     
@@ -177,7 +177,7 @@ export let chat_model = new ChatModel()
 export function clear_chat_agent_state () {
     for (const chat of new Set([chat_model, ...chat_model_instances.values()])) {
         chat.agent.set_active_agent('', [ ])
-        chat._ddb_connection_failed = false
+        chat._ddb_connection_error = null
         chat.set({ can_manage_agents: false, last_agent_load_error: '' })
     }
     chat_shared_model.disconnect_ddb()

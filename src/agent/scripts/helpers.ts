@@ -1,5 +1,6 @@
 import { DdbConnectionError } from 'dolphindb/browser.js'
-import { chat_shared_model } from '@/agent/model/shared.ts'
+import { t } from '@i18n'
+import { DdbConnectionRecoveredError } from '@/agent/model/shared.ts'
 
 type ScriptPayloadObject = {
     args?: unknown
@@ -236,21 +237,33 @@ function is_empty_ddb_result_error (error: unknown): boolean {
 }
 
 
-export function is_ddb_connection_error (error: unknown): boolean {
+type DdbConnectionErrorKind = 'recovered' | 'fatal'
+
+
+export function get_ddb_connection_error_kind (error: unknown): DdbConnectionErrorKind | null {
     if (!error)
-        return false
+        return null
+    if (error instanceof DdbConnectionRecoveredError || (error instanceof Error && error.name === 'DdbConnectionRecoveredError'))
+        return 'recovered'
     if (error instanceof DdbConnectionError || (error instanceof Error && (error.name === 'DdbConnectionError' || error.name === 'WebSocketConnectionError')))
-        return true
-    if (!chat_shared_model.is_ddb_connected())
-        return true
-    const message = error instanceof Error ? error.message : String(error)
-    return message.includes('WebSocket') ||
-        message.includes('Connection') ||
-        message.includes('connection') ||
-        message.includes('连接已断开') ||
-        message.includes('Failed to decode base64') ||
-        message.includes('decode base64') ||
-        message.includes('closed')
+        return 'fatal'
+    return null
+}
+
+
+export function get_ddb_connection_error_result (error: unknown): Pick<ToolResultEnvelope, 'error' | 'hint'> | null {
+    const kind = get_ddb_connection_error_kind(error)
+    if (!kind)
+        return null
+    return kind === 'recovered'
+        ? {
+            error: t('DolphinDB 连接在执行期间中断，本次执行失败，但连接已自动恢复。'),
+            hint: t('DolphinDB 连接已恢复，但本次脚本可能只执行了部分内容。请停止调用任何工具，直接请用户调整任务并检查代码后重新发起；无需刷新页面。'),
+        }
+        : {
+            error: t('DolphinDB 连接已断开，执行失败。'),
+            hint: t('DolphinDB 连接已断开，无法继续执行脚本。请停止调用任何工具，直接向用户总结已有信息或说明连接断开需要刷新页面。'),
+        }
 }
 
 

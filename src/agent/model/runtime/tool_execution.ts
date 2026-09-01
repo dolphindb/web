@@ -4,7 +4,8 @@ import type { ChatModel } from '@/agent/model.ts'
 import { get_script_handler } from '@/agent/scripts/index.ts'
 import type { ScriptResult, ToolContext } from '@/agent/scripts/types.ts'
 import {
-    is_ddb_connection_error,
+    get_ddb_connection_error_kind,
+    get_ddb_connection_error_result,
     normalize_script_args,
     parse_tool_result_json,
     tool_result_json,
@@ -107,13 +108,13 @@ export async function execute_tool_call (
 ): Promise<ToolExecutionResult | null> {
     if (chat.runtime.is_request_inactive(request_seq))
         return null
-    if (chat._ddb_connection_failed) {
+    if (chat._ddb_connection_error) {
+        const connection_error = get_ddb_connection_error_result(chat._ddb_connection_error)!
         const content = tool_result_json({
             ok: false,
             tool: parsed_call.type,
             content: '',
-            error: t('DolphinDB 连接已断开，工具执行已终止。'),
-            hint: t('DolphinDB 连接已断开，已停止工具循环。请直接向用户输出回复。'),
+            ...connection_error,
         })
         chat.set({
             messages: [...chat.messages, {
@@ -198,8 +199,8 @@ export async function execute_tool_call (
             try {
                 return await chat.runtime.eval_ddb(script, { ...options, ai: !script_reviewed })
             } catch (error) {
-                if (is_ddb_connection_error(error))
-                    chat._ddb_connection_failed = true
+                if (get_ddb_connection_error_kind(error))
+                    chat._ddb_connection_error = error
                 throw error
             }
         },
@@ -222,9 +223,9 @@ export async function execute_tool_call (
                 console.log('[debug] handler result:', { next_loop: script_result.next_loop, has_message: !!script_result.save_message, messageType: script_result.save_message?.messageType })
         } catch (e) {
             console.error('[debug] handler threw:', e)
-            const is_conn = is_ddb_connection_error(e)
-            if (is_conn)
-                chat._ddb_connection_failed = true
+            const connection_error = get_ddb_connection_error_result(e)
+            if (connection_error)
+                chat._ddb_connection_error = e
             script_result = {
                 next_loop: true,
                 save_message: {
@@ -235,12 +236,9 @@ export async function execute_tool_call (
                     content: tool_result_json({
                         ok: false,
                         tool: parsed_call.type,
-                        error: is_conn
-                            ? t('DolphinDB 连接已断开，执行失败。')
-                            : `Tool execution error: ${e instanceof Error ? e.message : String(e)}`,
-                        hint: is_conn
-                            ? t('DolphinDB 连接已断开，无法继续执行脚本。请停止调用任何工具，直接向用户总结已有信息或说明连接断开需要刷新页面。')
-                            : undefined,
+                        ...(connection_error || {
+                            error: `Tool execution error: ${e instanceof Error ? e.message : String(e)}`,
+                        }),
                     }),
                 },
             }

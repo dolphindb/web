@@ -9782,6 +9782,12 @@
     "AI 专属 DolphinDB 连接已断开且重连失败，请刷新页面以恢复连接。": {
         "en": "The AI dedicated DolphinDB connection was disconnected and reconnection failed. Please refresh the page to restore the connection."
     },
+    "DolphinDB 连接在执行期间中断，本次执行失败，但连接已自动恢复。": {
+        "en": "The DolphinDB connection was interrupted during execution. This execution failed, but the connection has been restored automatically."
+    },
+    "DolphinDB 连接已恢复，但本次脚本可能只执行了部分内容。请停止调用任何工具，直接请用户调整任务并检查代码后重新发起；无需刷新页面。": {
+        "en": "The DolphinDB connection has been restored, but the script may have been only partially executed. Stop calling all tools and ask the user to adjust the task, inspect the code, and start again. The page does not need to be refreshed."
+    },
     "DolphinDB 连接已断开，工具执行已终止。": {
         "en": "DolphinDB connection is disconnected, tool execution has been terminated."
     },

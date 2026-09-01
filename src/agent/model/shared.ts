@@ -7,6 +7,12 @@ import { model } from '@model'
 import type { ISelectableLlmInfo } from './types.ts'
 
 
+/** 连接已自动恢复，但中断前脚本是否完整执行未知，本次工具流程必须停止。 */
+export class DdbConnectionRecoveredError extends Error {
+    override name = 'DdbConnectionRecoveredError'
+}
+
+
 export class ChatSharedModel extends Model<ChatSharedModel> {
     selectable_llms_by_agent_id: Record<string, ISelectableLlmInfo[]> = { }
     
@@ -89,7 +95,7 @@ export class ChatSharedModel extends Model<ChatSharedModel> {
         this.ddb_ticket = ''
     }
     
-    /** 执行 DolphinDB 脚本，若连接异常则尝试使用 ticket 自动重连一次后重试 */
+    /** 执行 DolphinDB 脚本；连接中断时仅恢复连接，不自动重跑状态未知的脚本。 */
     async eval_ddb (script: string, options?: DdbEvalOptions): Promise<any> {
         let ddb: DDB
         try {
@@ -104,14 +110,8 @@ export class ChatSharedModel extends Model<ChatSharedModel> {
             return await ddb.eval(script, options)
         } catch (error) {
             if (error instanceof DdbConnectionError || !ddb.connected) {
-                try {
-                    const new_ddb = await this.reconnect_ddb()
-                    return await new_ddb.eval(script, options)
-                } catch (reconnect_error) {
-                    throw reconnect_error instanceof DdbConnectionError
-                        ? reconnect_error
-                        : new DdbConnectionError(reconnect_error instanceof Error ? reconnect_error.message : String(reconnect_error))
-                }
+                await this.reconnect_ddb()
+                throw new DdbConnectionRecoveredError(error instanceof Error ? error.message : String(error))
             }
             throw error
         }
