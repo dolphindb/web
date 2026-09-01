@@ -7946,6 +7946,9 @@
     "重置用户个人记忆": {
         "en": "Reset user personal memory"
     },
+    "重置所选 Agent 下该用户的记忆：": {
+        "en": "Reset this user's memory under the selected Agent:"
+    },
     "移除个人记忆": {
         "en": "Remove personal memory"
     },

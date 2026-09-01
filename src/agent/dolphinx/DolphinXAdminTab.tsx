@@ -391,6 +391,7 @@ function ResetUserMemorySection ({ user_id }: { user_id?: string }) {
             okText={t('重置')}
         >
             <Space direction='vertical' style={{ width: '100%' }}>
+                <Text>{t('重置所选 Agent 下该用户的记忆：')}</Text>
                 <Select style={{ width: '100%' }} placeholder={t('选择 Agent')} value={selected_agent_id || undefined} onChange={set_selected_agent_id} options={options} />
                 <Space>
                     <Switch className='ai-settings-switch-medium' checked={include_memories} onChange={set_include_memories} />
