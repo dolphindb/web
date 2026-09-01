@@ -141,13 +141,6 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                     render: (stage: string) => <Text style={{ fontSize: 12 }}>{stage || '-'}</Text>,
                 },
                 {
-                    title: t('重试次数'),
-                    width: 90,
-                    render: (_: unknown, record: IKnowledgeJobInfo) => <Text type='secondary' style={{ fontSize: 12 }}>
-                            {record.attempt ?? 0}/{record.maxAttempts ?? 3}
-                        </Text>,
-                },
-                {
                     title: t('创建时间'),
                     dataIndex: 'createTime',
                     width: 160,

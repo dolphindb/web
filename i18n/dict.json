@@ -9590,9 +9590,6 @@
     "重建索引": {
         "en": "Rebuild index"
     },
-    "重试次数": {
-        "en": "Attempts"
-    },
     "重试任务": {
         "en": "Retry job"
     },
