@@ -206,8 +206,8 @@ export function LlmConfigTab () {
             embeddingDimension: cfg.embeddingDimension ?? 1536,
             embeddingMetric: (cfg.embeddingMetric as 'euclidean' | 'cosine') || 'euclidean',
             embeddingNormalize: cfg.embeddingMetric === 'cosine' || (cfg.embeddingNormalize ?? false),
+            supportsImage: cfg.supportsImage ?? DEFAULT_CONFIG_FORM.supportsImage,
             maxImageBytes: cfg.maxImageBytes ?? DEFAULT_CONFIG_FORM.maxImageBytes,
-            maxInputFiles: cfg.maxInputFiles ?? DEFAULT_CONFIG_FORM.maxInputFiles,
             maxConcurrency: optional_positive_number(cfg.maxConcurrency),
             rateLimitRPM: optional_positive_number(cfg.rateLimitRPM),
             timeoutMs: optional_positive_number(cfg.timeoutMs),
@@ -247,6 +247,8 @@ export function LlmConfigTab () {
             message.warning(t('embeddingMetric=cosine 时必须勾选归一化'))
             return
         }
+        const extra = { ...normalize_json_object(configs.find(config => config.llmConfigId === editing_config_id)?.extra) }
+        delete extra.maxInputFiles
         
         const payload: any = {
             name: config_form.name.trim(),
@@ -256,9 +258,9 @@ export function LlmConfigTab () {
             contextWindow: config_form.contextWindow ?? null,
             ...(ENABLE_ATTACHMENTS ? {
                 extra: JSON.stringify({
-                    ...normalize_json_object(configs.find(config => config.llmConfigId === editing_config_id)?.extra),
+                    ...extra,
+                    supportsImage: config_form.supportsImage,
                     maxImageBytes: config_form.maxImageBytes,
-                    maxInputFiles: config_form.maxInputFiles,
                 }),
             } : { }),
             maxConcurrency: config_form.maxConcurrency ?? null,

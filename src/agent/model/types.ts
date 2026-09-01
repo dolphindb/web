@@ -254,8 +254,8 @@ export interface ILlmConfig {
     requestPath: string
     defaultParams?: Record<string, unknown>
     contextWindow?: number | null
+    supportsImage?: boolean
     maxImageBytes?: number
-    maxInputFiles?: number
     maxConcurrency?: number | null
     rateLimitRPM?: number | null
     timeoutMs?: number | null

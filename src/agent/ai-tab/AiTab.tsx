@@ -635,8 +635,8 @@ export function AiTab ({ session_id }: { session_id: string }) {
                             selected_attachment_ids={selected_attachments.map(attachment => attachment.attachmentId)}
                             loading={attachments_loading}
                             disabled={disable_input || can_interrupt}
+                            supports_image={current_llm?.supportsImage === true}
                             max_image_bytes={Number(current_llm?.maxImageBytes) || 0}
-                            max_input_files={Number(current_llm?.maxInputFiles) || 0}
                             on_select={attachment => { set_selected_attachments(current => [...current, attachment]) }}
                             on_upload={files => upload_attachments(files)}
                         />}

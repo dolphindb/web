@@ -89,6 +89,14 @@ export function ConfigEditModal ({
             </div>
             {ENABLE_ATTACHMENTS && !is_embedding_form && <>
                 <div>
+                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('支持图片输入')}</div>
+                    <Switch
+                        className='ai-settings-switch-medium'
+                        checked={config_form.supportsImage}
+                        onChange={checked => { set_config_form({ ...config_form, supportsImage: checked }) }}
+                    />
+                </div>
+                <div>
                     <div style={{ marginBottom: 4, fontSize: 13 }}>{t('图片大小上限（字节，0 表示不限制）')}</div>
                     <InputNumber
                         style={{ width: '100%' }}
@@ -97,16 +105,6 @@ export function ConfigEditModal ({
                         min={0}
                         precision={0}
                         step={1024 * 1024}
-                    />
-                </div>
-                <div>
-                    <div style={{ marginBottom: 4, fontSize: 13 }}>{t('最大输入文件数（0 表示不限制）')}</div>
-                    <InputNumber
-                        style={{ width: '100%' }}
-                        value={config_form.maxInputFiles}
-                        onChange={val => { set_config_form({ ...config_form, maxInputFiles: val ?? 0 }) }}
-                        min={0}
-                        precision={0}
                     />
                 </div>
             </>}

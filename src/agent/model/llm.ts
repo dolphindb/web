@@ -40,8 +40,8 @@ export class ChatLlmModel {
             defaultParams: item.defaultParams,
             contextWindow: item.contextWindow,
             ...(ENABLE_ATTACHMENTS ? {
+                supportsImage: extra?.supportsImage as boolean | undefined,
                 maxImageBytes: extra?.maxImageBytes as number | undefined,
-                maxInputFiles: extra?.maxInputFiles as number | undefined,
             } : { }),
             maxConcurrency: optional_positive_number(item.maxConcurrency),
             rateLimitRPM: optional_positive_number(item.rateLimitRPM),
