@@ -6,7 +6,6 @@ import { model } from '@model'
 import type { IAgentInfo, IKnowledgeBaseInfo, ILlmConfig } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 import { DocumentsTab } from './DocumentsTab.tsx'
-import { AgentsTab } from './AgentsTab.tsx'
 import { GenerationsTab } from './GenerationsTab.tsx'
 import { JobsTab } from './JobsTab.tsx'
 import { KnowledgeActions } from './KnowledgeActions.tsx'
@@ -93,11 +92,6 @@ export function KnowledgeDetailPanel ({
                     key: 'documents',
                     label: t('文档管理'),
                     children: <DocumentsTab kb={kb} />,
-                },
-                {
-                    key: 'agents',
-                    label: t('Agent 绑定'),
-                    children: <AgentsTab kb={kb} agents={agents} />,
                 },
                 {
                     key: 'generations',
