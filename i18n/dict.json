@@ -10006,5 +10006,11 @@
     },
     "英文忽略大小写": {
         "en": "Case-insensitive English"
+    },
+    "部分失败": {
+        "en": "Partial Failure"
+    },
+    "成功 {{success}}/{{total}}": {
+        "en": "{{success}}/{{total}} succeeded"
     }
 }

@@ -865,6 +865,26 @@ export interface IKnowledgeUploadInfo {
 export type KnowledgeJobType = 'INDEX_BUILD' | 'DOCUMENT_IMPORT' | 'ZIP_IMPORT' | 'DOCUMENT_DELETE' | 'KNOWLEDGE_BASE_DELETE' | 'INDEX_CLEANUP'
 export type KnowledgeJobStatus = 'PENDING' | 'RUNNING' | 'RETRY_WAIT' | 'CANCEL_REQUESTED' | 'CANCELLED' | 'SUCCEEDED' | 'FAILED'
 
+export interface IKnowledgeJobFailureItem {
+    entryOrdinal?: number
+    path?: string
+    errorCode?: string
+    message?: string
+}
+
+export interface IKnowledgeJobProgress {
+    entryCount?: number
+    importedCount?: number
+    skippedCount?: number
+    failedCount?: number
+    pendingCount?: number
+    currentEntryPath?: string
+    failureSummary?: IKnowledgeJobFailureItem[]
+    successCount?: number
+    totalCount?: number
+    [key: string]: unknown
+}
+
 export interface IKnowledgeJobInfo {
     jobId: string
     jobType: KnowledgeJobType
@@ -880,10 +900,7 @@ export interface IKnowledgeJobInfo {
     maxAttempts?: number
     retryAt?: string | null
     lastError?: string
-    progress?: Record<string, unknown> & {
-        successCount?: number
-        totalCount?: number
-    }
+    progress?: IKnowledgeJobProgress
     allowedActions?: ('CANCEL' | 'RETRY')[]
     createTime?: string
     startTime?: string

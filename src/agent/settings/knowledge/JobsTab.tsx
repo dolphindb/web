@@ -118,18 +118,36 @@ export function JobsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                 {
                     title: t('状态'),
                     dataIndex: 'status',
-                    width: 100,
+                    width: 120,
                     render: (status: string, record: IKnowledgeJobInfo) => {
-                        const success_count = record.progress?.successCount
-                        const total_count = record.progress?.totalCount
+                        const is_zip = record.jobType === 'ZIP_IMPORT'
+                        const imported_count = record.progress?.importedCount ?? record.progress?.successCount
+                        const entry_count = record.progress?.entryCount ?? record.progress?.totalCount
+                        const is_partial_failure = is_zip && status === 'FAILED' && typeof imported_count === 'number' && imported_count > 0
+                        
+                        let tag_color = get_kb_status_color(status)
+                        let tag_label = get_kb_status_label(status)
+                        
+                        if (is_partial_failure) {
+                            tag_color = 'warning'
+                            tag_label = t('部分失败')
+                        }
+                        
+                        const failure_items = record.progress?.failureSummary || [ ]
+                        const tooltip_lines = [
+                            record.lastError,
+                            ...failure_items.map(f => f.path ? `${f.path}: ${f.message || f.errorCode || ''}` : f.message),
+                        ].filter(Boolean)
+                        const tooltip_content = tooltip_lines.length > 0 ? tooltip_lines.join('\n') : undefined
+                        
                         return <div>
-                            <Tooltip title={record.lastError || undefined}>
-                                <Tag color={get_kb_status_color(status)} style={{ cursor: record.lastError ? 'pointer' : 'default' }}>
-                                    {get_kb_status_label(status)}
+                            <Tooltip title={tooltip_content ? <span style={{ whiteSpace: 'pre-wrap' }}>{tooltip_content}</span> : undefined}>
+                                <Tag color={tag_color} style={{ cursor: tooltip_content ? 'pointer' : 'default', margin: 0 }}>
+                                    {tag_label}
                                 </Tag>
                             </Tooltip>
-                            {record.jobType === 'ZIP_IMPORT' && typeof success_count === 'number' && typeof total_count === 'number' && <Text type='secondary' style={{ display: 'block', fontSize: 11 }}>
-                                {t('成功 {{successCount}}/{{totalCount}}', { successCount: success_count, totalCount: total_count })}
+                            {is_zip && typeof imported_count === 'number' && typeof entry_count === 'number' && <Text type='secondary' style={{ display: 'block', fontSize: 11, marginTop: 2 }}>
+                                {t('成功 {{success}}/{{total}}', { success: imported_count, total: entry_count })}
                             </Text>}
                         </div>
                     },
