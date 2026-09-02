@@ -137,14 +137,12 @@ export function RetrievalTestModal ({
                     {result.retrievalId && <Text type='secondary' style={{ fontSize: 11 }}>retrievalId: {result.retrievalId}</Text>}
                 </div>
                 
-                {diagnostic && <Card size='small' title={t('检索诊断')} style={{ marginBottom: 12, background: 'var(--ant-color-fill-quaternary)' }}>
-                    {diagnostic.degradationReason && <Alert
-                        type='warning'
-                        showIcon
-                        message={t('检索发生降级')}
-                        description={diagnostic.degradationReason}
-                        style={{ marginBottom: 12 }}
-                    />}
+                {diagnostic && <Card
+                    size='small'
+                    title={t('检索诊断')}
+                    extra={diagnostic.degradationReason ? <Tag color='warning' style={{ margin: 0 }}>{t('已降级')}</Tag> : null}
+                    style={{ marginBottom: 12, background: 'var(--ant-color-fill-quaternary)' }}
+                >
                     <Descriptions size='small' column={3}>
                         <Descriptions.Item label={t('文本候选数')}>{diagnostic.textCandidateCount ?? '-'}</Descriptions.Item>
                         <Descriptions.Item label={t('向量候选数')}>{diagnostic.vectorCandidateCount ?? '-'}</Descriptions.Item>
@@ -161,6 +159,17 @@ export function RetrievalTestModal ({
                             {`${diagnostic.rerankLatencyMs} ms`}
                         </Descriptions.Item>}
                     </Descriptions>
+                    {diagnostic.degradationReason && <div style={{
+                        marginTop: 8,
+                        paddingTop: 8,
+                        borderTop: '1px dashed var(--ant-color-border-secondary)',
+                        fontSize: 12,
+                        lineHeight: 1.5,
+                        wordBreak: 'break-word',
+                    }}>
+                        <Text type='secondary' style={{ marginRight: 6 }}>{t('降级原因')}：</Text>
+                        <Text type='warning'>{diagnostic.degradationReason}</Text>
+                    </div>}
                 </Card>}
                 
                 <div style={{ maxHeight: 380, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>

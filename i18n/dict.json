@@ -9970,5 +9970,11 @@
     },
     "Rerank 耗时": {
         "en": "Rerank latency"
+    },
+    "已降级": {
+        "en": "Degraded"
+    },
+    "降级原因": {
+        "en": "Degradation reason"
     }
 }
