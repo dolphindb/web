@@ -96,7 +96,7 @@ export function KnowledgeDetailPanel ({
                 {
                     key: 'generations',
                     label: t('索引版本'),
-                    children: <GenerationsTab kb={kb} embedding_configs={embedding_configs} on_rebuild_success={on_refresh} />,
+                    children: <GenerationsTab kb={kb} />,
                 },
                 {
                     key: 'jobs',

@@ -1,32 +1,23 @@
 import { useEffect, useState } from 'react'
-import { Button, Empty, Space, Table, Tag, Tooltip, Typography } from 'antd'
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
+import { Button, Empty, Table, Tag, Tooltip, Typography } from 'antd'
+import { ReloadOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 import { model } from '@model'
-import type { IKnowledgeBaseConfig, IKnowledgeBaseInfo, IKnowledgeGenerationInfo, ILlmConfig } from '@/agent/model/types.ts'
+import type { IKnowledgeBaseInfo, IKnowledgeGenerationInfo } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 import { format_browser_time } from '@/agent/dolphinx/common.tsx'
 import { get_kb_status_color, get_kb_status_label } from './types.ts'
-import { IndexBuildModal } from './IndexBuildModal.tsx'
 
 
 const { Text } = Typography
 
 
-export function GenerationsTab ({
-    kb,
-    embedding_configs,
-    on_rebuild_success,
-}: {
+export function GenerationsTab ({ kb }: {
     kb: IKnowledgeBaseInfo
-    embedding_configs: ILlmConfig[]
-    on_rebuild_success?: () => void
 }) {
     const [generations, set_generations] = useState<IKnowledgeGenerationInfo[]>([ ])
     const [loading, set_loading] = useState(false)
-    const [build_modal_visible, set_build_modal_visible] = useState(false)
-    const [building, set_building] = useState(false)
     
     async function load () {
         set_loading(true)
@@ -44,38 +35,14 @@ export function GenerationsTab ({
         load()
     }, [kb.knowledgeBaseId])
     
-    async function handle_build_index (config?: IKnowledgeBaseConfig) {
-        set_building(true)
-        try {
-            await chat_model.knowledge.build_index(kb.knowledgeBaseId, config)
-            model.message?.success(t('已触发新索引 Generation 构建任务'))
-            set_build_modal_visible(false)
-            await load()
-            on_rebuild_success?.()
-        } finally {
-            set_building(false)
-        }
-    }
-    
     return <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text type='secondary' style={{ fontSize: 12 }}>
                 {t('知识库的物理索引版本（Generation）。修改参数或重建时会生成新版本并异步激活。')}
             </Text>
-            <Space size={8}>
-                <Tooltip title={t('刷新')}>
-                    <Button size='small' icon={<ReloadOutlined />} onClick={() => { load() }} />
-                </Tooltip>
-                <Button
-                    type='primary'
-                    size='small'
-                    icon={<PlusOutlined />}
-                    disabled={kb.status !== 'ACTIVE'}
-                    onClick={() => { set_build_modal_visible(true) }}
-                >
-                    {t('构建新索引')}
-                </Button>
-            </Space>
+            <Tooltip title={t('刷新')}>
+                <Button size='small' icon={<ReloadOutlined />} onClick={() => { load() }} />
+            </Tooltip>
         </div>
         
         <Table
@@ -143,14 +110,6 @@ export function GenerationsTab ({
                     render: (time: string) => <Text type='secondary' style={{ fontSize: 12 }}>{format_browser_time(time)}</Text>,
                 },
             ]}
-        />
-        
-        <IndexBuildModal
-            visible={build_modal_visible}
-            embedding_configs={embedding_configs}
-            loading={building}
-            on_close={() => { set_build_modal_visible(false) }}
-            on_submit={handle_build_index}
         />
     </div>
 }
