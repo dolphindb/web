@@ -346,10 +346,6 @@ export class ChatKnowledgeModel {
         })
     }
     
-    async get_retrieval_diagnostic (retrieval_id: string): Promise<IKnowledgeRetrievalDiagnostic> {
-        return this.chat.agent.api_fetch(`/knowledge/retrieval/${encodeURIComponent(retrieval_id)}`)
-    }
-    
     // --- 运行时接口（面向 Agent Loop / 工具调用） ---
     
     async get_available_knowledge_bases (params: { sessionId?: string, agentId?: string } = { }): Promise<IKnowledgeAvailableItem[]> {

@@ -69,13 +69,7 @@ export function RetrievalTestModal ({
                 topK: top_k,
             })
             set_result(res)
-            
-            if (res.retrievalId) 
-                try {
-                    const diag = await chat_model.knowledge.get_retrieval_diagnostic(res.retrievalId)
-                    set_diagnostic(diag)
-                } catch { }
-            
+            set_diagnostic(res.diagnostics || null)
         } catch (err: any) {
             message.error(err.message || t('检索测试失败'))
         } finally {
@@ -144,13 +138,28 @@ export function RetrievalTestModal ({
                 </div>
                 
                 {diagnostic && <Card size='small' title={t('检索诊断')} style={{ marginBottom: 12, background: 'var(--ant-color-fill-quaternary)' }}>
+                    {diagnostic.degradationReason && <Alert
+                        type='warning'
+                        showIcon
+                        message={t('检索发生降级')}
+                        description={diagnostic.degradationReason}
+                        style={{ marginBottom: 12 }}
+                    />}
                     <Descriptions size='small' column={3}>
                         <Descriptions.Item label={t('文本候选数')}>{diagnostic.textCandidateCount ?? '-'}</Descriptions.Item>
                         <Descriptions.Item label={t('向量候选数')}>{diagnostic.vectorCandidateCount ?? '-'}</Descriptions.Item>
                         <Descriptions.Item label={t('融合候选数')}>{diagnostic.fusedCandidateCount ?? '-'}</Descriptions.Item>
                         <Descriptions.Item label={t('文本索引应用')}>{diagnostic.textApplied ? t('是') : t('否')}</Descriptions.Item>
                         <Descriptions.Item label={t('向量索引应用')}>{diagnostic.vectorApplied ? t('是') : t('否')}</Descriptions.Item>
-                        <Descriptions.Item label={t('Rerank 应用')}>{diagnostic.rerankApplied ? t('已应用') : t('未应用')}</Descriptions.Item>
+                        <Descriptions.Item label={t('Rerank 应用')}>
+                            {diagnostic.rerankApplied ? t('已应用') : t('未应用')}
+                        </Descriptions.Item>
+                        {diagnostic.totalLatencyMs !== undefined && <Descriptions.Item label={t('总耗时')}>
+                            {`${diagnostic.totalLatencyMs} ms`}
+                        </Descriptions.Item>}
+                        {diagnostic.rerankLatencyMs !== undefined && <Descriptions.Item label={t('Rerank 耗时')}>
+                            {`${diagnostic.rerankLatencyMs} ms`}
+                        </Descriptions.Item>}
                     </Descriptions>
                 </Card>}
                 

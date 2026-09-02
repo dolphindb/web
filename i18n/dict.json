@@ -9961,5 +9961,14 @@
     },
     "Agent“{{name}}”": {
         "en": "Agent \"{{name}}\""
+    },
+    "检索发生降级": {
+        "en": "Retrieval degraded"
+    },
+    "总耗时": {
+        "en": "Total latency"
+    },
+    "Rerank 耗时": {
+        "en": "Rerank latency"
     }
 }

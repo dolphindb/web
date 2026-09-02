@@ -933,6 +933,7 @@ export interface IKnowledgeRetrieveResult {
     retrievalId?: string
     resultStatus: 'OK' | 'NO_RELEVANT_EVIDENCE' | string
     items: IKnowledgeChunkItem[]
+    diagnostics?: IKnowledgeRetrievalDiagnostic
 }
 
 export interface IKnowledgeReadResult {
@@ -942,7 +943,7 @@ export interface IKnowledgeReadResult {
 }
 
 export interface IKnowledgeRetrievalDiagnostic {
-    retrievalId: string
+    retrievalId?: string
     knowledgeBaseId?: string
     generationId?: string
     agentId?: string
@@ -960,7 +961,12 @@ export interface IKnowledgeRetrievalDiagnostic {
     rerankApplied?: boolean
     degradationReason?: string
     resultStatus?: string
+    rerankLatencyMs?: number
+    totalLatencyMs?: number
+    rerankJudgments?: unknown[]
+    returnedChunkIds?: string[]
     diagnostics?: Record<string, unknown>
     createTime?: string
     finishTime?: string
 }
+
