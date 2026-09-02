@@ -9823,5 +9823,143 @@
     },
     "撤销修改": {
         "en": "Revert changes"
+    },
+    "当前模型已被知识库「全局重排」引用，请先在知识库管理中关闭重排或切换其他模型。": {
+        "en": "This model is currently referenced by Knowledge Base Global Rerank. Please disable rerank or switch to another model in Knowledge Base Management first."
+    },
+    "当前模型已被知识库「全局向量」引用，请先在知识库管理中解除关联或切换其他模型。": {
+        "en": "This model is currently referenced by Knowledge Base Global Embedding. Please unbind it or switch to another model in Knowledge Base Management first."
+    },
+    "当前模型仍被 {{count}} 个 Agent（如「{{name}}」）绑定，请先在 Agent 管理中解绑或切换模型。": {
+        "en": "This model is still bound to {{count}} Agent (such as \"{{name}}\"). Please unbind or switch models in Agent Management first."
+    },
+    "当前模型仍被 {{count}} 个 Agent（如「{{name}}」）绑定，请先在 Agent 管理中解绑或切换模型。_plural": {
+        "en": "This model is still bound to {{count}} Agents (such as \"{{name}}\"). Please unbind or switch models in Agent Management first."
+    },
+    "当前模型仍被 {{count}} 个 Agent 绑定，请先在 Agent 管理中解绑或切换模型。": {
+        "en": "This model is still bound to {{count}} Agent. Please unbind or switch models in Agent Management first."
+    },
+    "当前模型仍被 {{count}} 个 Agent 绑定，请先在 Agent 管理中解绑或切换模型。_plural": {
+        "en": "This model is still bound to {{count}} Agents. Please unbind or switch models in Agent Management first."
+    },
+    "当前模型已被 Agent「{{name}}」绑定，请先在 Agent 管理中解绑或切换模型。": {
+        "en": "This model is bound to Agent \"{{name}}\". Please unbind or switch models in Agent Management first."
+    },
+    "当前模型已被 Agent 绑定，请先在 Agent 管理中解绑或切换模型。": {
+        "en": "This model is bound to an Agent. Please unbind or switch models in Agent Management first."
+    },
+    "当前技能仍被 {{count}} 个 Agent（如「{{name}}」）绑定，请先在 Agent 管理中解绑。": {
+        "en": "This skill is still bound to {{count}} Agent (such as \"{{name}}\"). Please unbind it in Agent Management first."
+    },
+    "当前技能仍被 {{count}} 个 Agent（如「{{name}}」）绑定，请先在 Agent 管理中解绑。_plural": {
+        "en": "This skill is still bound to {{count}} Agents (such as \"{{name}}\"). Please unbind it in Agent Management first."
+    },
+    "当前技能仍被 {{count}} 个 Agent 绑定，请先在 Agent 管理中解绑。": {
+        "en": "This skill is still bound to {{count}} Agent. Please unbind it in Agent Management first."
+    },
+    "当前技能仍被 {{count}} 个 Agent 绑定，请先在 Agent 管理中解绑。_plural": {
+        "en": "This skill is still bound to {{count}} Agents. Please unbind it in Agent Management first."
+    },
+    "当前技能已被 Agent「{{name}}」绑定，请先在 Agent 管理中解绑。": {
+        "en": "This skill is bound to Agent \"{{name}}\". Please unbind it in Agent Management first."
+    },
+    "当前技能已被 Agent 绑定，请先在 Agent 管理中解绑。": {
+        "en": "This skill is bound to an Agent. Please unbind it in Agent Management first."
+    },
+    "当前模型已被 Agent「{{name}}」的记忆配置引用，请先在记忆管理中修改配置。": {
+        "en": "This model is referenced by the memory configuration of Agent \"{{name}}\". Please update the configuration in Memory Management first."
+    },
+    "当前模型已被 Agent 记忆配置引用，请先在记忆管理中修改配置。": {
+        "en": "This model is referenced by Agent memory configuration. Please update the configuration in Memory Management first."
+    },
+    "当前模型已被 Agent「{{name}}」引用，请先在 Agent 管理中解绑或切换模型。": {
+        "en": "This model is referenced by Agent \"{{name}}\". Please unbind or switch models in Agent Management first."
+    },
+    "当前模型已被关联的 Agent 引用，请先在 Agent 管理中解绑或切换模型。": {
+        "en": "This model is referenced by an associated Agent. Please unbind or switch models in Agent Management first."
+    },
+    "当前技能已被 Agent「{{name}}」引用，请先在 Agent 管理中解绑。": {
+        "en": "This skill is referenced by Agent \"{{name}}\". Please unbind it in Agent Management first."
+    },
+    "当前技能已被关联的 Agent 引用，请先在 Agent 管理中解绑。": {
+        "en": "This skill is referenced by an associated Agent. Please unbind it in Agent Management first."
+    },
+    "Agent「{{name}}」": {
+        "en": "Agent \"{{name}}\""
+    },
+    "相关 Agent": {
+        "en": "Related Agent"
+    },
+    "当前模型已被知识库全局重排引用，请先在知识库管理中关闭重排或切换其他模型。": {
+        "en": "This model is currently referenced by Knowledge Base Global Rerank. Please disable rerank or switch to another model in Knowledge Base Management first."
+    },
+    "当前模型已被知识库全局向量引用，请先在知识库管理中解除关联或切换其他模型。": {
+        "en": "This model is currently referenced by Knowledge Base Global Embedding. Please unbind it or switch to another model in Knowledge Base Management first."
+    },
+    "当前模型仍被 {{count}} 个 Agent（如 {{name}}）绑定，请先在 Agent 管理中解绑或切换模型。": {
+        "en": "This model is still bound to {{count}} Agent (such as {{name}}). Please unbind or switch models in Agent Management first."
+    },
+    "当前模型仍被 {{count}} 个 Agent（如 {{name}}）绑定，请先在 Agent 管理中解绑或切换模型。_plural": {
+        "en": "This model is still bound to {{count}} Agents (such as {{name}}). Please unbind or switch models in Agent Management first."
+    },
+    "当前模型已被 Agent {{name}} 绑定，请先在 Agent 管理中解绑或切换模型。": {
+        "en": "This model is bound to Agent {{name}}. Please unbind or switch models in Agent Management first."
+    },
+    "当前技能仍被 {{count}} 个 Agent（如 {{name}}）绑定，请先在 Agent 管理中解绑。": {
+        "en": "This skill is still bound to {{count}} Agent (such as {{name}}). Please unbind it in Agent Management first."
+    },
+    "当前技能仍被 {{count}} 个 Agent（如 {{name}}）绑定，请先在 Agent 管理中解绑。_plural": {
+        "en": "This skill is still bound to {{count}} Agents (such as {{name}}). Please unbind it in Agent Management first."
+    },
+    "当前技能已被 Agent {{name}} 绑定，请先在 Agent 管理中解绑。": {
+        "en": "This skill is bound to Agent {{name}}. Please unbind it in Agent Management first."
+    },
+    "当前模型已被 Agent {{name}} 的记忆配置引用，请先在记忆管理中修改配置。": {
+        "en": "This model is referenced by the memory configuration of Agent {{name}}. Please update the configuration in Memory Management first."
+    },
+    "当前模型已被 Agent {{name}} 引用，请先在 Agent 管理中解绑或切换模型。": {
+        "en": "This model is referenced by Agent {{name}}. Please unbind or switch models in Agent Management first."
+    },
+    "当前技能已被 Agent {{name}} 引用，请先在 Agent 管理中解绑。": {
+        "en": "This skill is referenced by Agent {{name}}. Please unbind it in Agent Management first."
+    },
+    "Agent {{name}}": {
+        "en": "Agent {{name}}"
+    },
+    "当前模型已被知识库“全局重排”引用，请先在知识库管理中关闭重排或切换其他模型。": {
+        "en": "This model is currently referenced by Knowledge Base \"Global Rerank\". Please disable rerank or switch to another model in Knowledge Base Management first."
+    },
+    "当前模型已被知识库“全局向量”引用，请先在知识库管理中解除关联或切换其他模型。": {
+        "en": "This model is currently referenced by Knowledge Base \"Global Embedding\". Please unbind it or switch to another model in Knowledge Base Management first."
+    },
+    "当前模型仍被 {{count}} 个 Agent（如“{{name}}”）绑定，请先在 Agent 管理中解绑或切换模型。": {
+        "en": "This model is still bound to {{count}} Agent (such as \"{{name}}\"). Please unbind or switch models in Agent Management first."
+    },
+    "当前模型仍被 {{count}} 个 Agent（如“{{name}}”）绑定，请先在 Agent 管理中解绑或切换模型。_plural": {
+        "en": "This model is still bound to {{count}} Agents (such as \"{{name}}\"). Please unbind or switch models in Agent Management first."
+    },
+    "当前模型已被 Agent“{{name}}”绑定，请先在 Agent 管理中解绑或切换模型。": {
+        "en": "This model is bound to Agent \"{{name}}\". Please unbind or switch models in Agent Management first."
+    },
+    "当前技能仍被 {{count}} 个 Agent（如“{{name}}”）绑定，请先在 Agent 管理中解绑。": {
+        "en": "This skill is still bound to {{count}} Agent (such as \"{{name}}\"). Please unbind it in Agent Management first."
+    },
+    "当前技能仍被 {{count}} 个 Agent（如“{{name}}”）绑定，请先在 Agent 管理中解绑。_plural": {
+        "en": "This skill is still bound to {{count}} Agents (such as \"{{name}}\"). Please unbind it in Agent Management first."
+    },
+    "当前技能已被 Agent“{{name}}”绑定，请先在 Agent 管理中解绑。": {
+        "en": "This skill is bound to Agent \"{{name}}\". Please unbind it in Agent Management first."
+    },
+    "当前模型已被 Agent“{{name}}”的记忆配置引用，请先在记忆管理中修改配置。": {
+        "en": "This model is referenced by the memory configuration of Agent \"{{name}}\". Please update the configuration in Memory Management first."
+    },
+    "当前模型已被 Agent“{{name}}”引用，请先在 Agent 管理中解绑或切换模型。": {
+        "en": "This model is referenced by Agent \"{{name}}\". Please unbind or switch models in Agent Management first."
+    },
+    "当前技能已被 Agent“{{name}}”引用，请先在 Agent 管理中解绑。": {
+        "en": "This skill is referenced by Agent \"{{name}}\". Please unbind it in Agent Management first."
+    },
+    "Agent“{{name}}”": {
+        "en": "Agent \"{{name}}\""
     }
 }

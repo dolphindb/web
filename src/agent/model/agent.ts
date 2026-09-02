@@ -3,7 +3,7 @@ import { model } from '@model'
 import type { ChatModel } from '@/agent/model.ts'
 
 import type { AgentAuthSubjectType, IAccessInfo, IAgentInfo } from './types.ts'
-import { get_auth_subject_parameter } from './helpers.ts'
+import { format_agent_bus_error, get_auth_subject_parameter } from './helpers.ts'
 import { chat_shared_model } from './shared.ts'
 
 export function agent_access_denied_message () {
@@ -122,7 +122,8 @@ export class ChatAgentModel {
             try { parsed = JSON.parse(text) } catch { parsed = { message: text } }
             if (response.status === 403)
                 throw new Error(agent_access_denied_message())
-            const message = parsed?.error?.message || parsed?.message || response.statusText
+            const raw_message = parsed?.error?.message || parsed?.message || response.statusText
+            const message = format_agent_bus_error(raw_message, this.chat.agents)
             throw new Error(is_no_available_llm_config_error(message) ? no_available_llm_config_message() : message)
         }
         return response
