@@ -75,6 +75,7 @@ export function AgentDetailPanel ({ agent, on_refresh }: { agent: IAgentInfo, on
             set_bound_kbs(knowledge_state.bound_knowledge_bases)
             set_all_kbs(knowledge_state.knowledge_bases)
             set_knowledge_load_error(knowledge_state.error)
+            await chat_model.llm.load_selectable_llms(agent.agentId, provider_lookup)
         } catch {
             model.message.error(t('加载绑定信息失败'))
         } finally {

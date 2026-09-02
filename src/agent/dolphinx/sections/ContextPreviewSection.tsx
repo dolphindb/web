@@ -4,7 +4,7 @@ import { Button, Descriptions, Input, Select, Space, Table, message } from 'antd
 
 import { t } from '@i18n'
 
-import { chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
+import { chat_model, get_chat_model } from '@/agent/model.ts'
 import type { ISession } from '@/agent/model/types.ts'
 import { build_web_assembly_config } from '@/agent/prompt.ts'
 import { get_all_tool_definitions } from '@/agent/scripts/index.ts'
@@ -62,16 +62,17 @@ export function ContextPreviewSection () {
         }
         set_loading(true)
         try {
-            const session = sessions.find(item => item.sessionId === selected_session_id)
             const agent = chat_model.agents.find(item => item.agentId === selected_agent_id)
-            const llms = chat_shared_model.selectable_llms_by_agent_id[selected_agent_id] ||
-                await chat_model.llm.load_selectable_llms(selected_agent_id)
+            const { session: current_session, llms } = await chat_model.session.ensure_session_llm_config(selected_session_id)
             const session_chat = get_chat_model(selected_session_id)
             const selected_llm_config_id = session_chat.current_session_id === selected_session_id
                 ? session_chat.selected_llm_config_id
-                : session?.llmConfigId || ''
-            const llm_config_id = chat_model.agent.get_llm_for_tool_call_mode(selected_llm_config_id, llms)?.llmConfigId || ''
-            const use_native_tool_calling = chat_model.agent.should_use_native_tool_calling(llm_config_id, llms)
+                : current_session.llmConfigId || ''
+            const llm_config_id = llms.some(llm => llm.llmConfigId === selected_llm_config_id) ? selected_llm_config_id : ''
+            if (selected_llm_config_id && !llm_config_id && session_chat.current_session_id === selected_session_id)
+                session_chat.set({ selected_llm_config_id: '' })
+            const tool_llm_config_id = chat_model.agent.get_llm_for_tool_call_mode(llm_config_id, llms)?.llmConfigId || ''
+            const use_native_tool_calling = chat_model.agent.should_use_native_tool_calling(tool_llm_config_id, llms)
             const tool_call_adapter = use_native_tool_calling ? native_tool_call_adapter : legacy_json_tool_call_adapter
             const doc_search_enabled = agent?.config?.docSearchEnabled !== false
             const api_fetch = (path: string, options?: RequestInit) => chat_model.agent.api_fetch(path, options)

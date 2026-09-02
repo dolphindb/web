@@ -319,7 +319,22 @@ export class ChatSessionModel {
         })
         return result
     }
+    async ensure_session_llm_config (session_id: string) {
+        let session = this.chat.sessions.find(item => item.sessionId === session_id) || await this.chat.session.get_session(session_id)
+        await this.chat.llm.load_selectable_llms(session.agentId)
+        const llms = this.chat.agent.get_selectable_llms(session.agentId)
+        if (session.llmConfigId && !llms.some(llm => llm.llmConfigId === session.llmConfigId)) {
+            session = await this.chat.session.update_session(session_id, { llmConfigId: '' })
+            if (this.chat.current_session_id === session_id)
+                this.chat.set({
+                    selected_llm_config_id: '',
+                    use_native_tool_calling: this.chat.agent.should_use_native_tool_calling('', llms),
+                })
+        }
+        return { session, llms }
+    }
     async generate_session_summary (session_id: string, params: { instructions?: string, llmConfigId?: string, force?: boolean, metadata?: Record<string, unknown> } = { }): Promise<any> {
+        await this.chat.session.ensure_session_llm_config(session_id)
         return this.chat.agent.api_fetch(`/session/${session_id}/summary`, {
             method: 'POST',
             body: JSON.stringify(params),

@@ -43,7 +43,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
         'messages', 'has_more_messages', 'loading_older_messages', 'buffered_messages', 'agent_status', 'current_session_id', 'latest_ddb_result', 'pending_tool_loop_control', 'pending_script_approval', 'steps',
         'tool_call_limit_enabled', 'can_manage_agents', 'agent_id', 'selected_llm_config_id', 'script_execute_approval_mode',
     ])
-    const { selectable_llms_by_agent_id } = chat_shared_model.use(['selectable_llms_by_agent_id'])
+    chat_shared_model.use(['selectable_llms_by_agent_id'])
     const is_agent_admin = admin || can_manage_agents
     
     const [input_value, set_input_value] = useState(() => {
@@ -315,12 +315,12 @@ export function AiTab ({ session_id }: { session_id: string }) {
             model.message?.warning(t('DolphinDB 连接已断开，无法发送消息'))
             return
         }
-        if (!await chat.agent.ensure_available_llm_config()) {
-            model.message?.warning(no_available_llm_config_message())
-            return
-        }
         const message = input_value.trim()
         try {
+            if (!await chat.agent.ensure_available_llm_config()) {
+                model.message?.warning(no_available_llm_config_message())
+                return
+            }
             if (pending_session) {
                 set_creating_session(true)
                 await ensure_session()
@@ -364,7 +364,7 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const status_text = get_agent_status_text(visible_status)
     const has_virtual = visible_status.status !== 'idle' || visible_buffered.length > 0 || Boolean(visible_loop_control)
     const can_interrupt = current_session_id === session_id && !['idle', 'error'].includes(visible_status.status)
-    const selectable_llms = agent_id ? selectable_llms_by_agent_id[agent_id] || [ ] : [ ]
+    const selectable_llms = agent_id ? chat.agent.get_selectable_llms(agent_id) : [ ]
     const effective_llm_config_id = chat.agent.get_effective_llm_config_id(selected_llm_config_id)
     const current_llm = chat.agent.get_llm_for_tool_call_mode(effective_llm_config_id, selectable_llms)
     const llm_options = selectable_llms.map(llm => ({
@@ -647,7 +647,13 @@ export function AiTab ({ session_id }: { session_id: string }) {
                             popupMatchSelectWidth={280}
                             allowClear
                             disabled={!['idle', 'error'].includes(agent_status.status)}
-                            onChange={(value: string | undefined) => { chat.agent.select_llm_config(value || '') }}
+                            onChange={async (value: string | undefined) => {
+                                try {
+                                    await chat.agent.select_llm_config(value || '')
+                                } catch (error) {
+                                    model.message?.error(error instanceof Error ? error.message : t('设置失败'))
+                                }
+                            }}
                             options={llm_options}
                         />}
                         <Tooltip title={t('DolphinDB 脚本执行审批')}>

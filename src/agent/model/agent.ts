@@ -439,8 +439,9 @@ export class ChatAgentModel {
     async ensure_available_llm_config () {
         if (!this.chat.agent_id)
             return false
-        if (!this.chat.agent.has_available_llm_config())
-            await this.chat.llm.load_selectable_llms()
+        await this.chat.llm.load_selectable_llms()
+        if (this.chat.selected_llm_config_id && !this.chat.agent.get_effective_llm_config_id())
+            await this.chat.agent.select_llm_config('')
         return this.chat.agent.has_available_llm_config()
     }
     get_effective_llm_config_id (llm_config_id = this.chat.selected_llm_config_id) {
@@ -449,9 +450,7 @@ export class ChatAgentModel {
             : ''
     }
     get_turn_llm_config_id () {
-        return this.chat.agent.get_effective_llm_config_id() ||
-            this.chat.agent.get_llm_for_tool_call_mode()?.llmConfigId ||
-            ''
+        return this.chat.agent.get_effective_llm_config_id()
     }
     get_llm_for_tool_call_mode (llm_config_id = this.chat.agent.get_effective_llm_config_id(), llms = this.chat.agent.get_selectable_llms()) {
         if (llm_config_id)
@@ -462,10 +461,13 @@ export class ChatAgentModel {
         const llm = this.chat.agent.get_llm_for_tool_call_mode(llm_config_id, llms)
         return llm?.custom?.tool_call !== false
     }
-    select_llm_config (llm_config_id: string) {
+    async select_llm_config (llm_config_id: string) {
         if (!['idle', 'error'].includes(this.chat.agent_status.status) || this.chat.sse_controller)
             return
         const selected_llm_config_id = this.chat.agent.get_effective_llm_config_id(llm_config_id)
+        // 自动选择时必须同时清除会话级覆盖，否则后端仍会继承旧模型。
+        if (this.chat.current_session_id && !selected_llm_config_id)
+            await this.chat.session.update_session(this.chat.current_session_id, { llmConfigId: selected_llm_config_id })
         this.chat.set({
             selected_llm_config_id,
             use_native_tool_calling: this.chat.agent.should_use_native_tool_calling(selected_llm_config_id),
