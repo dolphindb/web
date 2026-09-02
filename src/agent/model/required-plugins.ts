@@ -25,6 +25,14 @@ function format_error (error: unknown) {
 }
 
 
+function format_plugin_load_error (plugin: string, error: unknown) {
+    const raw_msg = format_error(error)
+    if (/The plugin directory .* doesn't exist/i.test(raw_msg) || /plugin .* doesn't exist/i.test(raw_msg) || /directory .* does not exist/i.test(raw_msg))
+        return t('插件“{{plugin}}”尚未下载，请先点击下方的“下载并加载缺失插件”，或参考手动安装指引。', { plugin })
+    return raw_msg
+}
+
+
 async function get_plugin_server_addr () {
     if (!ENABLE_DOC_PLUGIN_SOURCE)
         return undefined
@@ -109,9 +117,11 @@ class RequiredPluginsModel extends Model<RequiredPluginsModel> {
         this.set({ action: 'load', action_plugin: plugin })
         try {
             await model.ddb.invoke<void>('loadPlugin', [plugin])
-            model.message.success(t('插件 {{plugin}} 加载成功', { plugin }))
+            model.message.success(t('插件“{{plugin}}”加载成功', { plugin }))
         } catch (error) {
-            model.show_error({ title: t('插件操作失败'), body: format_error(error) })
+            console.error('[RequiredPlugins] loadPlugin failed. Raw error:', error)
+            const formatted = format_plugin_load_error(plugin, error)
+            model.show_error({ title: t('插件加载失败'), body: formatted })
         } finally {
             await this.refresh(false)
             this.set({ action: '', action_plugin: '' })
@@ -128,6 +138,7 @@ class RequiredPluginsModel extends Model<RequiredPluginsModel> {
             try {
                 await this._install_and_load(plugin, plugin_server_addr)
             } catch (error) {
+                console.error(`[RequiredPlugins] install_missing failed for ${plugin}. Raw error:`, error)
                 errors.push(`${plugin}: ${format_error(error)}`)
             }
         }

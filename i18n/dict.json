@@ -10012,5 +10012,14 @@
     },
     "成功 {{success}}/{{total}}": {
         "en": "{{success}}/{{total}} succeeded"
+    },
+    "插件“{{plugin}}”尚未下载，请先点击下方的“下载并加载缺失插件”，或参考手动安装指引。": {
+        "en": "Plugin \"{{plugin}}\" is not downloaded yet. Please click \"Download and load missing plugins\" below or refer to manual installation guide."
+    },
+    "插件“{{plugin}}”加载成功": {
+        "en": "Plugin \"{{plugin}}\" loaded successfully"
+    },
+    "插件加载失败": {
+        "en": "Failed to load plugin"
     }
 }
