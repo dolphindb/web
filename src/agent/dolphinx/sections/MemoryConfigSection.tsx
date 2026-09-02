@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Button, InputNumber, Select, Switch, message } from 'antd'
+import { Button, InputNumber, Select, Space, Switch, message } from 'antd'
 
 import { t } from '@i18n'
 
@@ -12,21 +12,32 @@ import {
 } from '@/agent/dolphinx/common.tsx'
 
 
+interface MemoryConfigForm {
+    allowPersonalMemory: boolean
+    memoryLlmConfigId: string
+    memoryEmbeddingConfigId: string
+    publicMemoryTokenLimit?: number
+}
+
+const DEFAULT_FORM: MemoryConfigForm = {
+    allowPersonalMemory: true,
+    memoryLlmConfigId: '',
+    memoryEmbeddingConfigId: '',
+}
+
+
 export function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
-    const [form, set_form] = useState<{
-        allowPersonalMemory: boolean
-        memoryLlmConfigId: string
-        memoryEmbeddingConfigId: string
-        publicMemoryTokenLimit?: number
-    }>({
-        allowPersonalMemory: true,
-        memoryLlmConfigId: '',
-        memoryEmbeddingConfigId: '',
-    })
+    const [form, set_form] = useState<MemoryConfigForm>({ ...DEFAULT_FORM })
+    const [saved_form, set_saved_form] = useState<MemoryConfigForm>({ ...DEFAULT_FORM })
     const [llm_configs, set_llm_configs] = useState<ILlmConfig[]>([ ])
     const [loading, set_loading] = useState(false)
     const chat_llm_configs = llm_configs.filter(config => config.capability !== 'embedding')
     const embedding_llm_configs = llm_configs.filter(config => config.capability === 'embedding')
+    
+    const dirty = form.allowPersonalMemory !== saved_form.allowPersonalMemory
+        || form.memoryLlmConfigId !== saved_form.memoryLlmConfigId
+        || form.memoryEmbeddingConfigId !== saved_form.memoryEmbeddingConfigId
+        || form.publicMemoryTokenLimit !== saved_form.publicMemoryTokenLimit
     
     async function load_config () {
         if (!agent_id)
@@ -38,13 +49,15 @@ export function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
                 chat_model.llm.load_llm_configs(),
             ])
             const config = result.memoryConfig || { }
-            set_llm_configs(configs.filter(item => item.statusName !== 'DELETED'))
-            set_form({
+            const next_form: MemoryConfigForm = {
                 allowPersonalMemory: config.allowPersonalMemory !== false,
                 memoryLlmConfigId: String(config.memoryLlmConfigId || ''),
                 memoryEmbeddingConfigId: String(config.memoryEmbeddingConfigId || ''),
                 publicMemoryTokenLimit: optional_nonnegative_number(config.publicMemoryTokenLimit),
-            })
+            }
+            set_llm_configs(configs.filter(item => item.statusName !== 'DELETED'))
+            set_form(next_form)
+            set_saved_form(next_form)
         } catch (error) {
             show_error(error, t('加载记忆配置失败'))
         } finally {
@@ -65,12 +78,14 @@ export function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
         try {
             const result = await chat_model.memory.update_memory_config(agent_id, memory_config)
             const config = result.memoryConfig || { }
-            set_form({
+            const next_form: MemoryConfigForm = {
                 allowPersonalMemory: config.allowPersonalMemory !== false,
                 memoryLlmConfigId: String(config.memoryLlmConfigId || ''),
                 memoryEmbeddingConfigId: String(config.memoryEmbeddingConfigId || ''),
                 publicMemoryTokenLimit: optional_nonnegative_number(config.publicMemoryTokenLimit),
-            })
+            }
+            set_form(next_form)
+            set_saved_form(next_form)
             message.success(t('保存成功'))
         } catch (error) {
             show_error(error, t('保存记忆配置失败'))
@@ -84,7 +99,7 @@ export function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
             load_config()
     }, [agent_id])
     
-    function number_field (key: keyof typeof form, label: string, placeholder: string) {
+    function number_field (key: keyof MemoryConfigForm, label: string, placeholder: string) {
         return <div>
             <div style={{ marginBottom: 4, fontSize: 13 }}>{label}</div>
             <InputNumber
@@ -138,7 +153,10 @@ export function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
             </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
-            <Button type='primary' loading={loading} onClick={save_config}>{t('保存')}</Button>
+            <Space>
+                {dirty && <Button disabled={loading} onClick={() => { set_form(saved_form) }}>{t('撤销修改')}</Button>}
+                <Button type='primary' loading={loading} disabled={!dirty} onClick={save_config}>{t('保存')}</Button>
+            </Space>
         </div>
     </div>
 }

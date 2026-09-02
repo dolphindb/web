@@ -12,7 +12,6 @@ import { PublicMemoryView } from './memory/index.ts'
 export function PublicMemorySection ({ agent_id }: { agent_id: string }) {
     const [public_memory, set_public_memory] = useState<IPublicMemory | null>(null)
     const [public_content, set_public_content] = useState('')
-    const [public_editing, set_public_editing] = useState(false)
     const [public_loading, set_public_loading] = useState(false)
     const [public_saving, set_public_saving] = useState(false)
     
@@ -25,7 +24,6 @@ export function PublicMemorySection ({ agent_id }: { agent_id: string }) {
         else {
             set_public_memory(null)
             set_public_content('')
-            set_public_editing(false)
         }
     }, [agent_id])
     
@@ -37,7 +35,6 @@ export function PublicMemorySection ({ agent_id }: { agent_id: string }) {
             const memory = await chat_model.memory.get_public_memory(agent_id)
             set_public_memory(memory)
             set_public_content(memory.content || '')
-            set_public_editing(false)
         } catch (error) {
             show_error(error, t('加载公共记忆失败'))
         } finally {
@@ -55,7 +52,6 @@ export function PublicMemorySection ({ agent_id }: { agent_id: string }) {
             const memory = await chat_model.memory.update_public_memory(agent_id, public_content)
             set_public_memory(memory)
             set_public_content(memory.content || '')
-            set_public_editing(false)
             message.success(t('公共记忆已保存'))
         } catch (error) {
             show_error(error, t('保存公共记忆失败'))
@@ -83,8 +79,7 @@ export function PublicMemorySection ({ agent_id }: { agent_id: string }) {
         try {
             const memory = await chat_model.memory.clear_public_memory(agent_id)
             set_public_memory(memory)
-            set_public_content(memory.content || '')
-            set_public_editing(false)
+            set_public_content('')
             message.success(t('已清空'))
         } catch (error) {
             show_error(error, t('清空公共记忆失败'))
@@ -106,43 +101,19 @@ export function PublicMemorySection ({ agent_id }: { agent_id: string }) {
         })
     }
     
-    function open_public_editing () {
+    function handle_reset () {
         set_public_content(saved_public_content)
-        set_public_editing(true)
-    }
-    
-    function cancel_public_editing () {
-        if (!public_dirty) {
-            set_public_content(saved_public_content)
-            set_public_editing(false)
-            return
-        }
-        model.modal.confirm({
-            title: t('放弃未保存修改？'),
-            content: t('当前公共记忆修改尚未保存，放弃后将恢复为上次保存的内容。'),
-            okText: t('放弃修改'),
-            cancelText: t('继续编辑'),
-            okButtonProps: { danger: true },
-            onOk: () => {
-                set_public_content(saved_public_content)
-                set_public_editing(false)
-            },
-        })
     }
     
     return <PublicMemoryView
         public_memory={public_memory}
         public_content={public_content}
         set_public_content={set_public_content}
-        public_editing={public_editing}
-        can_manage_memory
         public_loading={public_loading}
         public_saving={public_saving}
         public_dirty={public_dirty}
-        on_cancel_editing={cancel_public_editing}
+        on_reset={handle_reset}
         on_confirm_clear={confirm_clear_public_memory}
         on_confirm_save={confirm_save_public_memory}
-        on_load_public={load_public_memory}
-        on_open_editing={open_public_editing}
     />
 }

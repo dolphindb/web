@@ -9814,5 +9814,14 @@
     },
     "选择需要管理的 Agent": {
         "en": "Select an Agent to manage"
+    },
+    "请输入公共记忆内容，保存后将注入该 Agent 下所有用户的后续对话上下文...": {
+        "en": "Enter public memory content. Once saved, it will be injected into subsequent conversation context for all users under this Agent..."
+    },
+    "清空公共记忆": {
+        "en": "Clear public memory"
+    },
+    "撤销修改": {
+        "en": "Revert changes"
     }
 }
