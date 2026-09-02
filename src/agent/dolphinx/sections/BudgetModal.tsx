@@ -16,6 +16,12 @@ interface ModelBudgetRow {
 }
 
 
+interface ModelOption {
+    value: string
+    label: string
+}
+
+
 function get_max_tokens (value: number | { maxTokens?: number }) {
     return typeof value === 'number' ? value : value.maxTokens ?? 0
 }
@@ -46,7 +52,7 @@ export function BudgetModal ({
     const [start_time, set_start_time] = useState<Dayjs | null>(null)
     const [end_time, set_end_time] = useState<Dayjs | null>(null)
     const [model_budgets, set_model_budgets] = useState<ModelBudgetRow[]>([ ])
-    const [model_options, set_model_options] = useState<string[]>([ ])
+    const [model_options, set_model_options] = useState<ModelOption[]>([ ])
     const [loading, set_loading] = useState(false)
     
     useEffect(() => {
@@ -56,10 +62,15 @@ export function BudgetModal ({
         set_loading(true)
         Promise.all([
             chat_model.llm.load_llm_budget({ agentId: agent_id }),
-            chat_model.llm.load_agent_llm_bindings(agent_id),
-        ]).then(([result, bindings]) => {
+            chat_model.llm.load_llm_providers(),
+        ]).then(async ([result, providers]) => {
             if (disposed)
                 return
+            const provider_lookup = new Map(providers.map(p => [p.providerId, p]))
+            const bindings = await chat_model.llm.load_agent_llm_bindings(agent_id, provider_lookup)
+            if (disposed)
+                return
+            
             const budget = result.budget
             const models = budget?.models || { }
             set_enabled(Boolean(budget) && budget?.enabled !== false)
@@ -67,11 +78,47 @@ export function BudgetModal ({
             set_start_time(parse_time(budget?.startTime))
             set_end_time(parse_time(budget?.endTime))
             set_model_budgets(Object.entries(models).map(([model, value]) => ({ model, max_tokens: get_max_tokens(value) })))
-            set_model_options([...new Set([
-                ...bindings.map(binding => binding.model).filter(Boolean),
-                ...(result.usage.models || [ ]).map(item => item.model).filter(Boolean),
+            
+            const options: ModelOption[] = [ ]
+            const seen_values = new Set<string>()
+            
+            // 1. 遍历 Agent 绑定的所有模型，生成带 Provider 前缀的丰富选项
+            for (const binding of bindings) {
+                const provider_name = binding.providerName || binding.providerId || binding.adapterType || ''
+                const model_name = binding.name || binding.model
+                const raw_model = binding.model
+                
+                const value = binding.name || binding.model
+                if (!value)
+                    continue
+                
+                const label = [
+                    provider_name ? `${provider_name} / ` : '',
+                    model_name,
+                    raw_model && raw_model !== model_name ? ` (${raw_model})` : '',
+                ].join('')
+                
+                const final_value = seen_values.has(value)
+                    ? (raw_model && !seen_values.has(raw_model) ? raw_model : (binding.llmConfigId || `${value}-${binding.providerId}`))
+                    : value
+                
+                seen_values.add(final_value)
+                options.push({ value: final_value, label })
+            }
+            
+            // 2. 补充已配置或已记录用量但未在当前 bindings 里的历史模型
+            const extra_keys = [
                 ...Object.keys(models),
-            ])])
+                ...(result.usage.models || [ ]).map(item => item.model).filter(Boolean),
+            ]
+            for (const key of extra_keys) {
+                if (!seen_values.has(key)) {
+                    seen_values.add(key)
+                    options.push({ value: key, label: key })
+                }
+            }
+            
+            set_model_options(options)
         }).catch(error => {
             if (!disposed)
                 show_error(error, t('加载预算配置失败'))
@@ -155,7 +202,8 @@ export function BudgetModal ({
                             showSearch
                             value={item.model || undefined}
                             placeholder={t('选择模型')}
-                            options={model_options.map(model => ({ value: model, label: model }))}
+                            options={model_options}
+                            optionFilterProp='label'
                             onChange={model => {
                                 const next = [...model_budgets]
                                 next[index] = { ...item, model }
@@ -176,10 +224,12 @@ export function BudgetModal ({
                         <Button onClick={() => { set_model_budgets(model_budgets.filter((_, i) => i !== index)) }}>{t('删除')}</Button>
                     </div>)}
                     <Button
-                        disabled={model_options.length === model_budgets.length}
+                        disabled={model_options.length === 0 || model_budgets.length >= model_options.length}
                         onClick={() => {
                             const used = new Set(model_budgets.map(item => item.model))
-                            set_model_budgets([...model_budgets, { model: model_options.find(model => !used.has(model)) || '', max_tokens: 0 }])
+                            const available = model_options.find(opt => !used.has(opt.value))
+                            if (available)
+                                set_model_budgets([...model_budgets, { model: available.value, max_tokens: 0 }])
                         }}
                     >
                         {t('添加模型预算')}
