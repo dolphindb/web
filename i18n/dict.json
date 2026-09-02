@@ -9982,5 +9982,29 @@
     },
     "用户组额外模型权限": {
         "en": "Group Additional Model Permissions"
+    },
+    "知识库的历史索引版本记录。修改参数或重建索引时会自动构建新版本并在就绪后激活。": {
+        "en": "Historical index versions of the knowledge base. Modifying parameters or rebuilding will automatically build a new version and activate it once ready."
+    },
+    "字符": {
+        "en": "chars"
+    },
+    "开始重建": {
+        "en": "Start Rebuild"
+    },
+    "复用当前配置重建索引": {
+        "en": "Rebuild index using current configuration"
+    },
+    "修改配置并重建索引": {
+        "en": "Modify configuration and rebuild index"
+    },
+    "分块字符数 (200~4000)": {
+        "en": "Chunk Size in Chars (200~4000)"
+    },
+    "重叠字符数 (≤25%)": {
+        "en": "Overlap Chars (≤25%)"
+    },
+    "英文忽略大小写": {
+        "en": "Case-insensitive English"
     }
 }

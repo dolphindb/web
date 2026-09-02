@@ -133,7 +133,7 @@ export function KnowledgeCreateModal ({
             </Form.Item>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-                <Form.Item label={t('分块大小 (200~4000)')} required>
+                <Form.Item label={t('分块字符数 (200~4000)')} required>
                     <InputNumber
                         min={200}
                         max={4000}
@@ -142,7 +142,7 @@ export function KnowledgeCreateModal ({
                         onChange={val => { set_form({ ...form, maxChunkChars: val || 1000 }) }}
                     />
                 </Form.Item>
-                <Form.Item label={t('重叠字数 (≤25%)')} required>
+                <Form.Item label={t('重叠字符数 (≤25%)')} required>
                     <InputNumber
                         min={0}
                         max={Math.floor(form.maxChunkChars * 0.25)}
@@ -193,7 +193,7 @@ export function KnowledgeCreateModal ({
                         checked={form.lowercase}
                         onChange={checked => { set_form({ ...form, lowercase: checked }) }}
                     />
-                    <span>{t('英文统一小写')}</span>
+                    <span>{t('英文忽略大小写')}</span>
                 </Space>
                 {form.parser === 'english' && <Space>
                     <Switch

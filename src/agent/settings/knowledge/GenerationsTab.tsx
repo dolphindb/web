@@ -38,7 +38,7 @@ export function GenerationsTab ({ kb }: {
     return <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text type='secondary' style={{ fontSize: 12 }}>
-                {t('知识库的物理索引版本（Generation）。修改参数或重建时会生成新版本并异步激活。')}
+                {t('知识库的历史索引版本记录。修改参数或重建索引时会自动构建新版本并在就绪后激活。')}
             </Text>
             <Tooltip title={t('刷新')}>
                 <Button size='small' icon={<ReloadOutlined />} onClick={() => { load() }} />
@@ -97,7 +97,7 @@ export function GenerationsTab ({ kb }: {
                             return '-'
                         const emb = cfg.embeddingRef?.resolvedModel || cfg.embeddingRef?.source || 'builtin'
                         const parser = cfg.textIndex?.parser || 'mixed'
-                        const chunk = cfg.chunking?.maxChunkChars ? `${cfg.chunking.maxChunkChars}字` : ''
+                        const chunk = cfg.chunking?.maxChunkChars ? `${cfg.chunking.maxChunkChars} ${t('字符')}` : ''
                         return <Text type='secondary' style={{ fontSize: 12 }}>
                             {emb} · {parser} · {chunk}
                         </Text>

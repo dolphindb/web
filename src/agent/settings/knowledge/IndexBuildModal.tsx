@@ -83,7 +83,7 @@ export function IndexBuildModal ({
     }
     
     return <Modal
-        title={t('构建索引 Generation')}
+        title={t('重建索引')}
         open={visible}
         onCancel={() => {
             set_error_msg('')
@@ -91,9 +91,9 @@ export function IndexBuildModal ({
         }}
         onOk={handle_submit}
         confirmLoading={loading}
-        okText={t('开始构建')}
+        okText={t('开始重建')}
         cancelText={t('取消')}
-        width={600}
+        width={640}
         destroyOnHidden
     >
         <div style={{ marginTop: 12 }}>
@@ -105,8 +105,8 @@ export function IndexBuildModal ({
                 }}
                 style={{ marginBottom: 16 }}
             >
-                <Radio value={false}>{t('复用当前索引配置（重新全量索引）')}</Radio>
-                <Radio value>{t('自定义新索引配置')}</Radio>
+                <Radio value={false}>{t('复用当前配置重建索引')}</Radio>
+                <Radio value>{t('修改配置并重建索引')}</Radio>
             </Radio.Group>
             
             {use_custom_config && <Form layout='vertical' size='small'>
@@ -142,7 +142,7 @@ export function IndexBuildModal ({
                 </Form.Item>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-                    <Form.Item label={t('分块大小')}>
+                    <Form.Item label={t('分块字符数 (200~4000)')} required>
                         <InputNumber
                             min={200}
                             max={4000}
@@ -155,7 +155,8 @@ export function IndexBuildModal ({
                         />
                     </Form.Item>
                     <Form.Item
-                        label={t('重叠字数')}
+                        label={t('重叠字符数 (≤25%)')}
+                        required
                         validateStatus={error_msg && overlap_chars > max_chunk_chars * 0.25 ? 'error' : undefined}
                         help={error_msg && overlap_chars > max_chunk_chars * 0.25 ? error_msg : undefined}
                     >
@@ -197,6 +198,21 @@ export function IndexBuildModal ({
                             options={VECTOR_INDEX_TYPE_OPTIONS}
                         />
                     </Form.Item>
+                </div>
+                
+                <div style={{ display: 'flex', gap: 16, marginTop: 4 }}>
+                    {parser === 'chinese' && <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Switch checked={full} onChange={set_full} />
+                        <span>{t('中文全模式分词')}</span>
+                    </div>}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Switch checked={lowercase} onChange={set_lowercase} />
+                        <span>{t('英文忽略大小写')}</span>
+                    </div>
+                    {parser === 'english' && <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Switch checked={stem} onChange={set_stem} />
+                        <span>{t('英文词干提取')}</span>
+                    </div>}
                 </div>
             </Form>}
         </div>
