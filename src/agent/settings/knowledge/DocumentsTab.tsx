@@ -143,14 +143,9 @@ export function DocumentsTab ({ kb }: { kb: IKnowledgeBaseInfo }) {
                 {
                     title: t('文件名'),
                     dataIndex: 'fileName',
-                    render: (fileName: string, record: IKnowledgeDocumentInfo) => <div style={{ minWidth: 0 }}>
-                            <Text strong title={fileName} style={{ display: 'block', maxWidth: '100%' }} ellipsis>
-                                {fileName}
-                            </Text>
-                            {record.sourceRelativePath && <Text type='secondary' style={{ fontSize: 11 }}>
-                                {record.sourceRelativePath}
-                            </Text>}
-                        </div>,
+                    render: (fileName: string) => <Text strong title={fileName} style={{ display: 'block', maxWidth: '100%' }} ellipsis>
+                            {fileName}
+                        </Text>,
                 },
                 {
                     title: t('大小'),
