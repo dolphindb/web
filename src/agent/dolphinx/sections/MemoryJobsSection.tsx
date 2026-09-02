@@ -1,19 +1,16 @@
 import { useEffect, useState } from 'react'
 
-import { Button, Empty, Input, Modal, Select, Space, Table, message } from 'antd'
+import { Button, Input, Modal, Select, Space, Table, message } from 'antd'
 
 import { t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
 import type { IMemoryJob } from '@/agent/model/types.ts'
 import {
-    AgentListLayout,
     ellipsis_text,
     format_browser_time,
     show_error,
-    use_agent_options,
     use_user_options,
-    use_valid_agent_selection,
 } from '@/agent/dolphinx/common.tsx'
 
 
@@ -21,14 +18,12 @@ const memory_job_kind_options = ['memory_stage1', 'memory_phase2', 'memory_deriv
 const memory_job_status_options = ['running', 'done', 'pending', 'error', 'failed'].map(value => ({ value, label: value }))
 
 
-export function MemoryJobsSection () {
-    const { options } = use_agent_options()
+export function MemoryJobsSection ({ agent_id }: { agent_id: string }) {
     const user_options = use_user_options()
     const memory_job_user_options = user_options.some(user => user.value === 'admin')
         ? user_options
         : [{ value: 'admin', label: 'admin' }, ...user_options]
     
-    const [selected_agent_id, set_selected_agent_id] = useState('')
     const [kind, set_kind] = useState('')
     const [status, set_status] = useState('')
     const [target_user_id, set_target_user_id] = useState('')
@@ -39,15 +34,18 @@ export function MemoryJobsSection () {
     const [job_detail, set_job_detail] = useState<IMemoryJob | null>(null)
     const [job_detail_loading_key, set_job_detail_loading_key] = useState('')
     const [loading, set_loading] = useState(false)
-    use_valid_agent_selection(options, selected_agent_id, set_selected_agent_id)
     
     useEffect(() => {
-        if (selected_agent_id)
+        if (agent_id)
             load_jobs(1, job_page_size)
-    }, [selected_agent_id, kind, status, target_user_id])
+        else {
+            set_jobs([ ])
+            set_job_total(0)
+        }
+    }, [agent_id, kind, status, target_user_id])
     
     async function load_jobs (page = job_page, page_size = job_page_size) {
-        if (!selected_agent_id) {
+        if (!agent_id) {
             message.warning(t('请先选择 Agent'))
             return
         }
@@ -55,7 +53,7 @@ export function MemoryJobsSection () {
         try {
             const offset = (page - 1) * page_size
             const result = await chat_model.memory.list_memory_jobs({
-                agentId: selected_agent_id,
+                agentId: agent_id,
                 kind: kind || undefined,
                 status: status || undefined,
                 targetUserId: target_user_id || undefined,
@@ -74,11 +72,11 @@ export function MemoryJobsSection () {
     }
     
     async function retry_job (job: IMemoryJob) {
-        if (!selected_agent_id)
+        if (!agent_id)
             return
         set_loading(true)
         try {
-            await chat_model.memory.retry_memory_job(selected_agent_id, job.kind, job.jobKey)
+            await chat_model.memory.retry_memory_job(agent_id, job.kind, job.jobKey)
             message.success(t('记忆任务重试次数已重置'))
             await load_jobs(job_page)
         } catch (error) {
@@ -89,12 +87,12 @@ export function MemoryJobsSection () {
     }
     
     async function open_job_detail (job: IMemoryJob) {
-        if (!selected_agent_id)
+        if (!agent_id)
             return
         const key = `${job.kind}:${job.jobKey}`
         set_job_detail_loading_key(key)
         try {
-            set_job_detail(await chat_model.memory.get_memory_job(selected_agent_id, job.kind, job.jobKey))
+            set_job_detail(await chat_model.memory.get_memory_job(agent_id, job.kind, job.jobKey))
         } catch (error) {
             show_error(error, t('加载记忆任务详情失败'))
         } finally {
@@ -102,13 +100,7 @@ export function MemoryJobsSection () {
         }
     }
     
-    return <AgentListLayout
-        detail_title={t('记忆任务')}
-        list_subtitle={t('选择需要查看记忆任务的 Agent')}
-        options={options}
-        selected_agent_id={selected_agent_id}
-        set_selected_agent_id={set_selected_agent_id}
-    >
+    return <>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <Select allowClear showSearch style={{ width: 180 }} placeholder={t('任务类型')} value={kind || undefined} onChange={value => { set_kind(value || '') }} options={memory_job_kind_options} />
             <Select allowClear showSearch style={{ width: 140 }} placeholder={t('任务状态')} value={status || undefined} onChange={value => { set_status(value || '') }} options={memory_job_status_options} />
@@ -184,5 +176,5 @@ export function MemoryJobsSection () {
                 {job_detail.extra && <Input.TextArea value={job_detail.extra} rows={4} readOnly />}
             </Space>}
         </Modal>
-    </AgentListLayout>
+    </>
 }

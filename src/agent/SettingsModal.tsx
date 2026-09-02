@@ -21,8 +21,7 @@ import { REQUIRED_FILE_PLUGINS, required_plugins_model } from './model/required-
 import {
     ContextPreviewSection,
     GroupPermissionTab,
-    MemoryConfigManagementSection,
-    MemoryJobsSection,
+    MemoryManagementSection,
     MemorySection,
     SessionSection,
     UsageSection,
@@ -348,10 +347,9 @@ export function SettingsModal () {
         {
             title: t('记忆管理'),
             items: [
-                { key: 'memory', label: t('记忆'), icon: <Database />, content: <MemorySection can_manage_memory={can_manage_agent} can_view_public_memory /> },
+                { key: 'memory', label: t('记忆'), icon: <Database />, content: <MemorySection /> },
                 ...can_manage_agent ? [
-                    { key: 'memory_config', label: t('记忆配置'), icon: <SlidersHorizontal />, content: <MemoryConfigManagementSection /> },
-                    { key: 'memory_jobs', label: t('记忆任务'), icon: <ListTodo />, content: <MemoryJobsSection /> },
+                    { key: 'memory_management', label: t('记忆管理'), icon: <SlidersHorizontal />, content: <MemoryManagementSection /> },
                 ] : [ ],
             ],
         },

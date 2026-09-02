@@ -60,7 +60,7 @@ export function PersonalMemoryView ({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 12 }}>
             <Space wrap>
                 <Switch className='ai-settings-switch-medium' checked={memory_enabled} loading={settings_loading} disabled={!selected_agent_id} onChange={on_toggle_enabled} />
-                <span>{t('启用记忆')}</span>
+                <span>{t('启用个人记忆')}</span>
             </Space>
             <Space wrap>
                 <Text type='secondary'>{t('共 {{count}} 条', { count: memory_total })}</Text>

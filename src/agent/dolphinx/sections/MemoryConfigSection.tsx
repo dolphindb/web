@@ -7,10 +7,8 @@ import { t } from '@i18n'
 import { chat_model } from '@/agent/model.ts'
 import type { ILlmConfig } from '@/agent/model/types.ts'
 import {
-    AgentListLayout,
     optional_nonnegative_number,
     show_error,
-    use_agent_options,
 } from '@/agent/dolphinx/common.tsx'
 
 
@@ -31,6 +29,8 @@ export function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
     const embedding_llm_configs = llm_configs.filter(config => config.capability === 'embedding')
     
     async function load_config () {
+        if (!agent_id)
+            return
         set_loading(true)
         try {
             const [result, configs] = await Promise.all([
@@ -53,6 +53,8 @@ export function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
     }
     
     async function save_config () {
+        if (!agent_id)
+            return
         const memory_config = {
             allowPersonalMemory: form.allowPersonalMemory,
             memoryLlmConfigId: form.memoryLlmConfigId || null,
@@ -77,7 +79,10 @@ export function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
         }
     }
     
-    useEffect(() => { load_config() }, [agent_id])
+    useEffect(() => {
+        if (agent_id)
+            load_config()
+    }, [agent_id])
     
     function number_field (key: keyof typeof form, label: string, placeholder: string) {
         return <div>
@@ -136,13 +141,4 @@ export function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
             <Button type='primary' loading={loading} onClick={save_config}>{t('保存')}</Button>
         </div>
     </div>
-}
-
-
-export function MemoryConfigManagementSection () {
-    const { options } = use_agent_options()
-    const [selected_agent_id, set_selected_agent_id] = useState('')
-    return <AgentListLayout detail_title={t('记忆配置')} list_subtitle={t('选择需要配置记忆的 Agent')} options={options} selected_agent_id={selected_agent_id} set_selected_agent_id={set_selected_agent_id}>
-        <MemoryConfigSection agent_id={selected_agent_id} />
-    </AgentListLayout>
 }

@@ -1,7 +1,6 @@
 export {
     ContextPreviewSection,
-    MemoryConfigManagementSection,
-    MemoryJobsSection,
+    MemoryManagementSection,
     MemorySection,
     SessionSection,
     UsageSection,

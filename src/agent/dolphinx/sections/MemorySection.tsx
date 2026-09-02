@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { Tabs, message } from 'antd'
+import { message } from 'antd'
 
 import { t } from '@i18n'
-import { model } from '@model'
 
 import { chat_model } from '@/agent/model.ts'
-import type { IMemoryEntry, IMemoryStats, IPublicMemory, ISession } from '@/agent/model/types.ts'
+import type { IMemoryEntry, ISession } from '@/agent/model/types.ts'
 import {
     AgentListLayout,
     show_error,
@@ -17,18 +16,12 @@ import {
     MemoryDetailModal,
     MemoryEditModal,
     MemoryForgetModal,
-    MemoryStatsBar,
-    type MemoryViewType,
     PersonalMemoryView,
-    PublicMemoryView,
 } from './memory/index.ts'
 
 
-export function MemorySection ({ can_manage_memory = false, can_view_public_memory = false }: { can_manage_memory?: boolean, can_view_public_memory?: boolean }) {
+export function MemorySection () {
     const { options } = use_agent_options()
-    const [view_type, set_view_type] = useState<MemoryViewType>('user_personal')
-    const personal_memory = view_type === 'user_personal'
-    
     const [selected_agent_id, set_selected_agent_id] = useState('')
     const [memory_kind, set_memory_kind] = useState<IMemoryEntry['memoryKind'] | ''>('')
     const [query, set_query] = useState('')
@@ -43,52 +36,24 @@ export function MemorySection ({ can_manage_memory = false, can_view_public_memo
     const [form_title, set_form_title] = useState('')
     const [form_content, set_form_content] = useState('')
     const [form_importance, set_form_importance] = useState(0.5)
-    const [public_memory, set_public_memory] = useState<IPublicMemory | null>(null)
-    const [public_content, set_public_content] = useState('')
-    const [public_editing, set_public_editing] = useState(false)
     const [loading, set_loading] = useState(false)
-    const [public_loading, set_public_loading] = useState(false)
-    const [public_saving, set_public_saving] = useState(false)
     const [settings_loading, set_settings_loading] = useState(false)
     const [forget_sessions, set_forget_sessions] = useState<ISession[]>([ ])
     const [forget_session_id, set_forget_session_id] = useState('')
     const [forget_loading, set_forget_loading] = useState(false)
-    const [memory_stats, set_memory_stats] = useState<IMemoryStats | null>(null)
-    const [stats_loading, set_stats_loading] = useState(false)
     const memory_modal = use_modal()
     const forget_modal = use_modal()
     const has_memory_query = Boolean(query.trim())
-    const saved_public_content = public_memory?.content || ''
-    const public_dirty = public_content !== saved_public_content
     
     useEffect(() => {
         if (selected_agent_id) {
-            if (personal_memory) {
-                load_memory_settings()
-                search_memory()
-            } else
-                load_public_memory()
-            if (can_manage_memory)
-                load_memory_stats()
+            load_memory_settings()
+            search_memory()
         } else {
             set_items([ ])
             set_memory_total(0)
-            set_memory_stats(null)
-            set_public_memory(null)
-            set_public_content('')
-            set_public_editing(false)
         }
-    }, [selected_agent_id, personal_memory, can_manage_memory])
-    
-    useEffect(() => {
-        if (!can_view_public_memory && view_type === 'public_memory')
-            set_view_type('user_personal')
-    }, [can_view_public_memory, view_type])
-    
-    useEffect(() => {
-        if (!can_manage_memory && public_editing)
-            set_public_editing(false)
-    }, [can_manage_memory, public_editing])
+    }, [selected_agent_id])
     
     useEffect(() => {
         if (!has_memory_query && sort_by === 'TEXT_SEARCH')
@@ -154,113 +119,6 @@ export function MemorySection ({ can_manage_memory = false, can_view_public_memo
         }
     }
     
-    async function load_public_memory () {
-        if (!selected_agent_id)
-            return
-        set_public_loading(true)
-        try {
-            const memory = await chat_model.memory.get_public_memory(selected_agent_id)
-            set_public_memory(memory)
-            set_public_content(memory.content || '')
-            set_public_editing(false)
-        } catch (error) {
-            show_error(error, t('加载公共记忆失败'))
-        } finally {
-            set_public_loading(false)
-        }
-    }
-    
-    async function do_save_public_memory () {
-        if (!can_manage_memory)
-            return
-        if (!selected_agent_id) {
-            message.warning(t('请先选择 Agent'))
-            return
-        }
-        set_public_saving(true)
-        try {
-            const memory = await chat_model.memory.update_public_memory(selected_agent_id, public_content)
-            set_public_memory(memory)
-            set_public_content(memory.content || '')
-            set_public_editing(false)
-            message.success(t('公共记忆已保存'))
-        } catch (error) {
-            show_error(error, t('保存公共记忆失败'))
-        } finally {
-            set_public_saving(false)
-        }
-    }
-    
-    function confirm_save_public_memory () {
-        if (!can_manage_memory || !selected_agent_id || !public_dirty)
-            return
-        model.modal.confirm({
-            title: t('确认保存公共记忆？'),
-            content: t('公共记忆会注入该 Agent 下所有用户的后续对话上下文，修改后可能影响所有用户的回答结果。确定保存？'),
-            okText: t('确认保存'),
-            cancelText: t('取消'),
-            onOk: do_save_public_memory,
-        })
-    }
-    
-    async function do_clear_public_memory () {
-        if (!can_manage_memory)
-            return
-        if (!selected_agent_id)
-            return
-        set_public_saving(true)
-        try {
-            const memory = await chat_model.memory.clear_public_memory(selected_agent_id)
-            set_public_memory(memory)
-            set_public_content(memory.content || '')
-            set_public_editing(false)
-            message.success(t('已清空'))
-        } catch (error) {
-            show_error(error, t('清空公共记忆失败'))
-        } finally {
-            set_public_saving(false)
-        }
-    }
-    
-    function confirm_clear_public_memory () {
-        if (!can_manage_memory || !selected_agent_id)
-            return
-        model.modal.confirm({
-            title: t('确认清空公共记忆？'),
-            content: t('清空公共记忆会影响该 Agent 下所有用户的后续对话上下文。该操作会移除当前公共记忆内容，确定清空？'),
-            okText: t('确认清空'),
-            cancelText: t('取消'),
-            okButtonProps: { danger: true },
-            onOk: do_clear_public_memory,
-        })
-    }
-    
-    function open_public_editing () {
-        if (!can_manage_memory)
-            return
-        set_public_content(saved_public_content)
-        set_public_editing(true)
-    }
-    
-    function cancel_public_editing () {
-        if (!public_dirty) {
-            set_public_content(saved_public_content)
-            set_public_editing(false)
-            return
-        }
-        model.modal.confirm({
-            title: t('放弃未保存修改？'),
-            content: t('当前公共记忆修改尚未保存，放弃后将恢复为上次保存的内容。'),
-            okText: t('放弃修改'),
-            cancelText: t('继续编辑'),
-            okButtonProps: { danger: true },
-            onOk: () => {
-                set_public_content(saved_public_content)
-                set_public_editing(false)
-            },
-        })
-    }
-    
     async function save_memory () {
         if (!selected_agent_id || !form_content.trim()) {
             message.warning(t('请填写记忆内容'))
@@ -286,7 +144,6 @@ export function MemorySection ({ can_manage_memory = false, can_view_public_memo
             set_form_title('')
             set_form_content('')
             await search_memory()
-            await load_memory_stats()
         } catch (error) {
             show_error(error, t('保存记忆失败'))
         }
@@ -330,7 +187,6 @@ export function MemorySection ({ can_manage_memory = false, can_view_public_memo
             await chat_model.memory.delete_memory(item.memoryId)
             message.success(t('删除成功'))
             await search_memory()
-            await load_memory_stats()
         } catch (error) {
             show_error(error, t('删除记忆失败'))
         }
@@ -370,80 +226,33 @@ export function MemorySection ({ can_manage_memory = false, can_view_public_memo
         }
     }
     
-    async function load_memory_stats () {
-        if (!selected_agent_id || !can_manage_memory)
-            return
-        set_stats_loading(true)
-        try {
-            set_memory_stats(await chat_model.memory.load_memory_stats(selected_agent_id))
-        } catch (error) {
-            show_error(error, t('加载记忆统计失败'))
-        } finally {
-            set_stats_loading(false)
-        }
-    }
-    
     return <>
         <AgentListLayout detail_title={t('记忆')} list_subtitle={t('选择需要查看记忆的 Agent')} options={options} selected_agent_id={selected_agent_id} set_selected_agent_id={set_selected_agent_id}>
-            {can_manage_memory && <MemoryStatsBar memory_stats={memory_stats} stats_loading={stats_loading} />}
-            <Tabs
-                activeKey={view_type}
-                onChange={key => {
-                    set_view_type(key as MemoryViewType)
-                    set_items([ ])
-                    set_memory_total(0)
+            <PersonalMemoryView
+                selected_agent_id={selected_agent_id}
+                memory_enabled={memory_enabled}
+                settings_loading={settings_loading}
+                memory_total={memory_total}
+                forget_loading={forget_loading}
+                loading={loading}
+                sort_by={sort_by}
+                memory_kind={memory_kind}
+                query={query}
+                items={items}
+                detail_loading_id={detail_loading_id}
+                on_toggle_enabled={set_personal_memory_enabled}
+                on_open_forget={open_forget_modal}
+                on_refresh={search_memory}
+                on_open_create={open_create_memory}
+                on_change_sort={value => {
+                    set_sort_by(value)
+                    search_memory(value)
                 }}
-                items={[
-                    {
-                        key: 'user_personal',
-                        label: t('个人'),
-                        children: <PersonalMemoryView
-                            selected_agent_id={selected_agent_id}
-                            memory_enabled={memory_enabled}
-                            settings_loading={settings_loading}
-                            memory_total={memory_total}
-                            forget_loading={forget_loading}
-                            loading={loading}
-                            sort_by={sort_by}
-                            memory_kind={memory_kind}
-                            query={query}
-                            items={items}
-                            detail_loading_id={detail_loading_id}
-                            on_toggle_enabled={set_personal_memory_enabled}
-                            on_open_forget={open_forget_modal}
-                            on_refresh={search_memory}
-                            on_open_create={open_create_memory}
-                            on_change_sort={value => {
-                                set_sort_by(value)
-                                search_memory(value)
-                            }}
-                            on_change_kind={value => { set_memory_kind((value || '') as IMemoryEntry['memoryKind'] | '') }}
-                            on_change_query={set_query}
-                            on_open_detail={open_memory_detail}
-                            on_open_edit={open_edit_memory}
-                            on_delete={delete_memory}
-                        />,
-                    },
-                    ...can_view_public_memory ? [{
-                        key: 'public_memory',
-                        label: t('公共'),
-                        children: <PublicMemoryView
-                            public_memory={public_memory}
-                            public_content={public_content}
-                            set_public_content={set_public_content}
-                            public_editing={public_editing}
-                            can_manage_memory={can_manage_memory}
-                            public_loading={public_loading}
-                            public_saving={public_saving}
-                            public_dirty={public_dirty}
-                            on_cancel_editing={cancel_public_editing}
-                            on_confirm_clear={confirm_clear_public_memory}
-                            on_confirm_save={confirm_save_public_memory}
-                            on_load_public={load_public_memory}
-                            on_open_editing={open_public_editing}
-                        />,
-                    }] : [ ],
-                ]}
+                on_change_kind={value => { set_memory_kind((value || '') as IMemoryEntry['memoryKind'] | '') }}
+                on_change_query={set_query}
+                on_open_detail={open_memory_detail}
+                on_open_edit={open_edit_memory}
+                on_delete={delete_memory}
             />
         </AgentListLayout>
         <MemoryEditModal

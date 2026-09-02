@@ -2,8 +2,9 @@ export {
     SessionSection,
     MemorySection,
     MemoryConfigSection,
-    MemoryConfigManagementSection,
+    MemoryManagementSection,
     MemoryJobsSection,
+    PublicMemorySection,
     ContextPreviewSection,
     UsageSection,
 } from './sections/index.ts'

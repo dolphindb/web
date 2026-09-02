@@ -9808,5 +9808,11 @@
     },
     "DolphinDB 连接已断开，重连失败。": {
         "en": "DolphinDB connection disconnected, reconnection failed."
+    },
+    "启用个人记忆": {
+        "en": "Enable personal memory"
+    },
+    "选择需要管理的 Agent": {
+        "en": "Select an Agent to manage"
     }
 }
