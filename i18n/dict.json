@@ -9976,5 +9976,11 @@
     },
     "降级原因": {
         "en": "Degradation reason"
+    },
+    "额外模型权限": {
+        "en": "Additional Model Permissions"
+    },
+    "用户组额外模型权限": {
+        "en": "Group Additional Model Permissions"
     }
 }

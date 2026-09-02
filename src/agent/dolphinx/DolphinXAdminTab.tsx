@@ -203,7 +203,7 @@ function LlmAccessSection ({ subject_type, subject_id }: { subject_type: AgentAu
         message.success(t('已撤销'))
     }
     
-    return <Section title={subject_type === 'USER' ? t('用户模型权限') : t('用户组模型权限')}>
+    return <Section title={subject_type === 'USER' ? t('额外模型权限') : t('用户组额外模型权限')}>
         <Table
             size='small'
             rowKey='llmConfigId'
