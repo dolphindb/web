@@ -14,8 +14,7 @@ import type {
     IKnowledgeGenerationListResult,
     IKnowledgeJobInfo,
     IKnowledgeReadResult,
-    IKnowledgeRerankConfig,
-    IKnowledgeRerankConfigInput,
+    IKnowledgeRetrievalConfig,
     IKnowledgeRetrievalDiagnostic,
     IKnowledgeRetrieveResult,
     IKnowledgeUploadInfo,
@@ -324,22 +323,15 @@ export class ChatKnowledgeModel {
         })
     }
     
-    // --- 全局 Rerank 配置 ---
-    
-    async get_rerank_config (): Promise<IKnowledgeRerankConfig> {
-        return this.chat.agent.api_fetch('/knowledge/rerank/config')
-    }
-    
-    async update_rerank_config (config: IKnowledgeRerankConfigInput): Promise<IKnowledgeRerankConfig> {
-        return this.chat.agent.api_fetch('/knowledge/rerank/config', {
-            method: 'PUT',
-            body: JSON.stringify(config),
-        })
-    }
-    
     // --- 检索测试与诊断 ---
     
-    async test_retrieval (payload: { agentId?: string, sessionId?: string, knowledgeBaseId: string, query: string, topK?: number }): Promise<IKnowledgeRetrieveResult> {
+    async test_retrieval (payload: {
+        agentId?: string
+        sessionId?: string
+        knowledgeBaseId: string
+        query: string
+        retrievalConfig?: Partial<IKnowledgeRetrievalConfig>
+    }): Promise<IKnowledgeRetrieveResult> {
         return this.chat.agent.api_fetch('/knowledge/retrieve/test', {
             method: 'POST',
             body: JSON.stringify(payload),
@@ -361,7 +353,7 @@ export class ChatKnowledgeModel {
         return result?.items || [ ]
     }
     
-    async retrieve (params: { sessionId?: string, agentId?: string, knowledgeBaseId: string, query: string, topK?: number }): Promise<IKnowledgeRetrieveResult> {
+    async retrieve (params: { sessionId?: string, agentId?: string, knowledgeBaseId: string, query: string }): Promise<IKnowledgeRetrieveResult> {
         return this.chat.agent.api_fetch('/knowledge/retrieve', {
             method: 'POST',
             body: JSON.stringify(params),

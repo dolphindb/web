@@ -3,7 +3,7 @@ import { Tabs, Typography } from 'antd'
 
 import { t } from '@i18n'
 import { model } from '@model'
-import type { IAgentInfo, IKnowledgeBaseInfo, ILlmConfig } from '@/agent/model/types.ts'
+import type { IAgentInfo, IKnowledgeBaseInfo, IKnowledgeRetrievalConfig, ILlmConfig } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
 import { DocumentsTab } from './DocumentsTab.tsx'
 import { GenerationsTab } from './GenerationsTab.tsx'
@@ -20,12 +20,14 @@ const { Text, Paragraph } = Typography
 export function KnowledgeDetailPanel ({
     kb,
     embedding_configs,
+    chat_configs,
     agents,
     on_refresh,
     on_deleted,
 }: {
     kb: IKnowledgeBaseInfo
     embedding_configs: ILlmConfig[]
+    chat_configs: ILlmConfig[]
     agents: IAgentInfo[]
     on_refresh: () => void
     on_deleted: () => void
@@ -38,10 +40,14 @@ export function KnowledgeDetailPanel ({
     const [building_index, set_building_index] = useState(false)
     const [deleting_kb, set_deleting_kb] = useState(false)
     
-    async function handle_edit_submit (name: string, description: string) {
+    async function handle_edit_submit (name: string, description: string, retrieval_config: IKnowledgeRetrievalConfig) {
         set_saving_edit(true)
         try {
-            await chat_model.knowledge.update_knowledge_base(kb.knowledgeBaseId, { name, description })
+            await chat_model.knowledge.update_knowledge_base(kb.knowledgeBaseId, {
+                name,
+                description,
+                retrievalConfig: retrieval_config,
+            })
             model.message.success(t('保存成功'))
             on_refresh()
         } finally {
@@ -77,7 +83,7 @@ export function KnowledgeDetailPanel ({
                 kb={kb}
                 deleting={deleting_kb}
                 on_test={() => { set_test_modal_visible(true) }}
-                on_edit={() => { set_edit_modal_visible(true) }}
+                on_settings={() => { set_edit_modal_visible(true) }}
                 on_rebuild={() => { set_build_modal_visible(true) }}
                 on_delete={handle_delete}
             />
@@ -109,6 +115,7 @@ export function KnowledgeDetailPanel ({
         <KnowledgeEditModal
             visible={edit_modal_visible}
             kb={kb}
+            chat_configs={chat_configs}
             loading={saving_edit}
             on_close={() => { set_edit_modal_visible(false) }}
             on_submit={handle_edit_submit}
@@ -136,6 +143,7 @@ export function KnowledgeDetailPanel ({
             visible={test_modal_visible}
             kb={kb}
             agents={agents}
+            chat_configs={chat_configs}
             on_close={() => { set_test_modal_visible(false) }}
         />
     </div>

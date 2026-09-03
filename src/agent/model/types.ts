@@ -741,6 +741,13 @@ export interface IKnowledgeBaseConfig {
     vectorIndex: IKnowledgeBaseVectorIndexConfig
 }
 
+export interface IKnowledgeRetrievalConfig {
+    topK: number
+    candidateCount: number
+    rerankEnabled: boolean
+    rerankProviderConfigId?: string
+}
+
 export type KnowledgeBaseStatus = 'INITIALIZING' | 'ACTIVE' | 'ERROR' | 'DELETING' | 'DELETED'
 
 export interface IKnowledgeBaseInfo {
@@ -749,6 +756,7 @@ export interface IKnowledgeBaseInfo {
     description?: string
     status: KnowledgeBaseStatus
     activeGenerationId?: string
+    retrievalConfig?: IKnowledgeRetrievalConfig
     createUserId?: string
     createTime?: string
     updateTime?: string
@@ -758,11 +766,13 @@ export interface IKnowledgeBaseRegisterPayload {
     name: string
     description: string
     config: IKnowledgeBaseConfig
+    retrievalConfig?: IKnowledgeRetrievalConfig
 }
 
 export interface IKnowledgeBaseUpdatePayload {
     name?: string
     description?: string
+    retrievalConfig?: IKnowledgeRetrievalConfig
 }
 
 export interface IKnowledgeBaseListResult {

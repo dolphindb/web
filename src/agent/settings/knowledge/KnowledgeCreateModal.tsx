@@ -13,12 +13,14 @@ const { Text } = Typography
 export function KnowledgeCreateModal ({
     visible,
     embedding_configs,
+    chat_configs,
     loading,
     on_close,
     on_submit,
 }: {
     visible: boolean
     embedding_configs: ILlmConfig[]
+    chat_configs: ILlmConfig[]
     loading: boolean
     on_close: () => void
     on_submit: (payload: IKnowledgeBaseRegisterPayload) => Promise<void>
@@ -26,13 +28,29 @@ export function KnowledgeCreateModal ({
     const [form, set_form] = useState<KnowledgeCreateFormState>({ ...DEFAULT_KB_FORM })
     const [error_msg, set_error_msg] = useState('')
     
+    function handle_top_k_change (val: number | null) {
+        const new_top_k = val || 8
+        const min_candidate = Math.max(new_top_k, 20)
+        set_form(prev => ({
+            ...prev,
+            topK: new_top_k,
+            candidateCount: prev.candidateCount < min_candidate ? min_candidate : prev.candidateCount,
+        }))
+        set_error_msg('')
+    }
+    
     async function handle_submit () {
         if (!form.name.trim()) {
             set_error_msg(t('请输入知识库名称'))
             return
         }
-        if (!form.description.trim()) {
-            set_error_msg(t('请输入知识库描述'))
+        if (form.rerankEnabled && !form.rerankProviderConfigId) {
+            set_error_msg(t('启用 Rerank 时必须选择评估模型'))
+            return
+        }
+        const min_candidate = Math.max(form.topK, 20)
+        if (form.candidateCount < min_candidate || form.candidateCount > 50) {
+            set_error_msg(t('初步召回候选数必须在 {{min}} 到 50 之间', { min: min_candidate }))
             return
         }
         if (form.embeddingSource === 'llmConfig' && !form.llmConfigId) {
@@ -48,6 +66,12 @@ export function KnowledgeCreateModal ({
         const payload: IKnowledgeBaseRegisterPayload = {
             name: form.name.trim(),
             description: form.description.trim(),
+            retrievalConfig: {
+                topK: form.topK,
+                candidateCount: form.candidateCount,
+                rerankEnabled: form.rerankEnabled,
+                rerankProviderConfigId: form.rerankEnabled ? form.rerankProviderConfigId : '',
+            },
             config: {
                 embeddingRef: {
                     source: form.embeddingSource,
@@ -79,6 +103,8 @@ export function KnowledgeCreateModal ({
         }
     }
     
+    const min_candidate_count = Math.max(form.topK, 20)
+    
     return <Modal
         title={t('创建知识库')}
         open={visible}
@@ -101,13 +127,77 @@ export function KnowledgeCreateModal ({
                     onChange={e => { set_form({ ...form, name: e.target.value }) }}
                 />
             </Form.Item>
-            <Form.Item label={t('描述')} required>
+            <Form.Item label={t('描述')}>
                 <Input.TextArea
                     rows={2}
                     placeholder={t('描述该知识库覆盖的范围和内容')}
                     value={form.description}
                     onChange={e => { set_form({ ...form, description: e.target.value }) }}
                 />
+            </Form.Item>
+            
+            <div style={{ fontWeight: 500, marginBottom: 8, marginTop: 16 }}>{t('检索设置')}</div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <Form.Item
+                    label={t('初步召回候选数 ({{min}}~50)', { min: min_candidate_count })}
+                    extra={<span style={{ fontSize: 12 }}>{t('初步检索出的候选片段数，供重排筛选，推荐 30')}</span>}
+                    required
+                >
+                    <InputNumber
+                        min={min_candidate_count}
+                        max={50}
+                        value={form.candidateCount}
+                        onChange={val => {
+                            set_form({ ...form, candidateCount: val || min_candidate_count })
+                            set_error_msg('')
+                        }}
+                        style={{ width: '100%' }}
+                    />
+                </Form.Item>
+                <Form.Item
+                    label={t('最终返回条目 (Top K: 1~20)')}
+                    extra={<span style={{ fontSize: 12 }}>{t('最终返回给 Agent 的片段数，推荐 8')}</span>}
+                    required
+                >
+                    <InputNumber
+                        min={1}
+                        max={20}
+                        value={form.topK}
+                        onChange={handle_top_k_change}
+                        style={{ width: '100%' }}
+                    />
+                </Form.Item>
+            </div>
+            
+            <Form.Item label={t('启用 Rerank')}>
+                <Space direction='vertical' style={{ width: '100%' }}>
+                    <Space>
+                        <Switch
+                            checked={form.rerankEnabled}
+                            onChange={checked => {
+                                set_form({ ...form, rerankEnabled: checked })
+                                set_error_msg('')
+                            }}
+                        />
+                        <Text type='secondary'>
+                            {form.rerankEnabled ? t('已启用，检索将对融合候选进行二次重排') : t('已禁用，使用多路召回 RRF 融合结果')}
+                        </Text>
+                    </Space>
+                    {form.rerankEnabled && <Select
+                        placeholder={t('选择启用的 Chat 评估模型')}
+                        value={form.rerankProviderConfigId || undefined}
+                        onChange={val => {
+                            set_form({ ...form, rerankProviderConfigId: val })
+                            set_error_msg('')
+                        }}
+                        options={chat_configs.map(cfg => ({
+                            value: cfg.llmConfigId,
+                            label: [cfg.model, cfg.name, cfg.providerName].filter(Boolean).join(' · '),
+                        }))}
+                        style={{ width: '100%', marginTop: 6 }}
+                    />}
+                </Space>
             </Form.Item>
             
             <div style={{ fontWeight: 500, marginBottom: 8, marginTop: 16 }}>{t('向量与索引配置')}</div>

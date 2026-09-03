@@ -10024,5 +10024,68 @@
     },
     "插件加载失败": {
         "en": "Failed to load plugin"
+    },
+    "启用 Rerank 时必须选择评估模型": {
+        "en": "An evaluation model must be selected when Rerank is enabled"
+    },
+    "初步召回候选数必须在 {{min}} 到 50 之间": {
+        "en": "Candidate count must be between {{min}} and 50"
+    },
+    "检索与 Rerank 配置": {
+        "en": "Retrieval & Rerank Configuration"
+    },
+    "最终返回条目 (Top K: 1~20)": {
+        "en": "Returned Chunks (Top K: 1~20)"
+    },
+    "初步召回候选数 ({{min}}~50)": {
+        "en": "Candidate Count ({{min}}~50)"
+    },
+    "启用 Rerank": {
+        "en": "Enable Rerank"
+    },
+    "已启用，检索将对融合候选进行二次重排": {
+        "en": "Enabled; retrieval will perform secondary reranking on fused candidates"
+    },
+    "选择启用的 Chat 评估模型": {
+        "en": "Select an active Chat evaluation model"
+    },
+    "知识库设置": {
+        "en": "Knowledge Base Settings"
+    },
+    "启用 Rerank 时请选择评估模型": {
+        "en": "Please select an evaluation model when Rerank is enabled"
+    },
+    "以下检索设置仅对本次测试生效，不会修改知识库本身的配置": {
+        "en": "The following retrieval settings apply to this test only and will not modify the knowledge base configuration"
+    },
+    "恢复知识库设置": {
+        "en": "Restore KB Settings"
+    },
+    "当前检索启用 Rerank": {
+        "en": "Enable Rerank for Current Retrieval"
+    },
+    "实际 Top K": {
+        "en": "Actual Top K"
+    },
+    "实际候选窗口": {
+        "en": "Actual Candidate Count"
+    },
+    "本次检索设置": {
+        "en": "Current Retrieval Settings"
+    },
+    "检索设置": {
+        "en": "Retrieval Settings"
+    },
+    "召回及融合候选窗口，推荐 30": {
+        "en": "Recall & fusion candidate window, recommended: 30"
+    },
+    "最终返回 Agent 的片段上限，推荐 8": {
+        "en": "Maximum chunks returned to Agent, recommended: 8"
+    },
+    "初步检索出的候选片段数，供重排筛选，推荐 30": {
+        "en": "Number of preliminary candidate chunks for reranking and filtering; recommended: 30"
+    },
+    "最终返回给 Agent 的片段数，推荐 8": {
+        "en": "Number of chunks returned to the Agent; recommended: 8"
     }
 }

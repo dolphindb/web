@@ -1,6 +1,13 @@
 import { t } from '@i18n'
-import type { IKnowledgeBaseConfig } from '@/agent/model/types.ts'
+import type { IKnowledgeBaseConfig, IKnowledgeRetrievalConfig } from '@/agent/model/types.ts'
 
+
+export const DEFAULT_RETRIEVAL_CONFIG: IKnowledgeRetrievalConfig = {
+    topK: 8,
+    candidateCount: 30,
+    rerankEnabled: false,
+    rerankProviderConfigId: '',
+}
 
 export const DEFAULT_KB_CONFIG: IKnowledgeBaseConfig = {
     embeddingRef: {
@@ -26,6 +33,10 @@ export const DEFAULT_KB_CONFIG: IKnowledgeBaseConfig = {
 export interface KnowledgeCreateFormState {
     name: string
     description: string
+    topK: number
+    candidateCount: number
+    rerankEnabled: boolean
+    rerankProviderConfigId: string
     embeddingSource: 'builtin' | 'llmConfig'
     llmConfigId: string
     maxChunkChars: number
@@ -42,6 +53,10 @@ export interface KnowledgeCreateFormState {
 export const DEFAULT_KB_FORM: KnowledgeCreateFormState = {
     name: '',
     description: '',
+    topK: 8,
+    candidateCount: 30,
+    rerankEnabled: false,
+    rerankProviderConfigId: '',
     embeddingSource: 'builtin',
     llmConfigId: '',
     maxChunkChars: 1000,

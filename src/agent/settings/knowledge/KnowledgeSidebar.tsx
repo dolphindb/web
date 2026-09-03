@@ -1,5 +1,5 @@
 import { Empty, Spin, Tooltip, Typography } from 'antd'
-import { PlusOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons'
+import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 import type { IKnowledgeBaseInfo } from '@/agent/model/types.ts'
@@ -14,7 +14,6 @@ export function KnowledgeSidebar ({
     loading,
     on_select_kb,
     on_create_kb,
-    on_open_rerank,
     on_refresh,
 }: {
     knowledge_bases: IKnowledgeBaseInfo[]
@@ -22,7 +21,6 @@ export function KnowledgeSidebar ({
     loading: boolean
     on_select_kb: (kb: IKnowledgeBaseInfo) => void
     on_create_kb: () => void
-    on_open_rerank: () => void
     on_refresh: () => void
 }) {
     const visible_kbs = knowledge_bases.filter(kb => kb.status !== 'DELETED')
@@ -40,16 +38,6 @@ export function KnowledgeSidebar ({
                         onClick={on_refresh}
                     >
                         <ReloadOutlined spin={loading} />
-                    </button>
-                </Tooltip>
-                <Tooltip title={t('全局 Rerank')}>
-                    <button
-                        type='button'
-                        className='ai-settings-list-title-action'
-                        aria-label={t('全局 Rerank')}
-                        onClick={on_open_rerank}
-                    >
-                        <SettingOutlined />
                     </button>
                 </Tooltip>
                 <Tooltip title={t('新建知识库')}>

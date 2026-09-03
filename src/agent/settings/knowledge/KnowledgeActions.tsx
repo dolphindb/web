@@ -1,5 +1,5 @@
 import { Button, Popconfirm, Space } from 'antd'
-import { DeleteOutlined, EditOutlined, SyncOutlined, ThunderboltOutlined } from '@ant-design/icons'
+import { DeleteOutlined, SettingOutlined, SyncOutlined, ThunderboltOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 import type { IKnowledgeBaseInfo } from '@/agent/model/types.ts'
@@ -9,14 +9,14 @@ export function KnowledgeActions ({
     kb,
     deleting,
     on_test,
-    on_edit,
+    on_settings,
     on_rebuild,
     on_delete,
 }: {
     kb: IKnowledgeBaseInfo
     deleting: boolean
     on_test: () => void
-    on_edit: () => void
+    on_settings: () => void
     on_rebuild: () => void
     on_delete: () => void
 }) {
@@ -31,10 +31,10 @@ export function KnowledgeActions ({
         </Button>
         <Button
             size='small'
-            icon={<EditOutlined />}
-            onClick={on_edit}
+            icon={<SettingOutlined />}
+            onClick={on_settings}
         >
-            {t('编辑')}
+            {t('设置')}
         </Button>
         <Button
             size='small'

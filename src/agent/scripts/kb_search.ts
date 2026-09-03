@@ -4,18 +4,6 @@ import type { ScriptConfig, ScriptResult } from './types.ts'
 import { normalize_script_args } from './helpers.ts'
 
 
-function parse_positive_number (value: unknown, fallback: number, min = 1, max = 20): number {
-    if (typeof value === 'number' && Number.isFinite(value))
-        return Math.max(min, Math.min(max, Math.trunc(value)))
-    if (typeof value === 'string' && value.trim()) {
-        const parsed = Number(value)
-        if (Number.isFinite(parsed))
-            return Math.max(min, Math.min(max, Math.trunc(parsed)))
-    }
-    return fallback
-}
-
-
 export const kb_search_config: ScriptConfig = {
     function: 'kb_search',
     definition: {
@@ -28,7 +16,6 @@ export const kb_search_config: ScriptConfig = {
                 properties: {
                     knowledge_base_id: { type: 'string', description: '知识库 ID（可从 kb_list 获取）' },
                     query: { type: 'string', description: '检索查询词或问题' },
-                    top_k: { type: 'number', description: '可选，返回候选片段上限（1～20，默认 8）' },
                 },
                 required: ['knowledge_base_id', 'query'],
             },
@@ -45,12 +32,6 @@ export const kb_search_config: ScriptConfig = {
             const query = String(
                 parsed_obj?.query ?? (parsed_obj ? '' : args[1]) ?? ''
             ).trim()
-            const top_k = parse_positive_number(
-                parsed_obj?.top_k ?? parsed_obj?.topK ?? args[2],
-                8,
-                1,
-                20
-            )
             
             if (!knowledge_base_id)
                 return {
@@ -83,7 +64,6 @@ export const kb_search_config: ScriptConfig = {
                     ...(context.agent_id ? { agentId: context.agent_id } : { }),
                     knowledgeBaseId: knowledge_base_id,
                     query,
-                    topK: top_k,
                 }),
             })
             

@@ -9,7 +9,6 @@ import {
     KnowledgeCreateModal,
     KnowledgeDetailPanel,
     KnowledgeSidebar,
-    RerankConfigModal,
 } from './knowledge/index.ts'
 
 
@@ -23,7 +22,6 @@ export function KnowledgeTab () {
     
     const [create_modal_visible, set_create_modal_visible] = useState(false)
     const [creating_kb, set_creating_kb] = useState(false)
-    const [rerank_modal_visible, set_rerank_modal_visible] = useState(false)
     
     async function load () {
         set_loading(true)
@@ -72,7 +70,6 @@ export function KnowledgeTab () {
             loading={loading}
             on_select_kb={kb => { set_selected_kb_id(kb.knowledgeBaseId) }}
             on_create_kb={() => { set_create_modal_visible(true) }}
-            on_open_rerank={() => { set_rerank_modal_visible(true) }}
             on_refresh={load}
         />
         
@@ -87,6 +84,7 @@ export function KnowledgeTab () {
                     ? <KnowledgeDetailPanel
                         kb={selected_kb}
                         embedding_configs={embedding_configs}
+                        chat_configs={chat_configs}
                         agents={agents}
                         on_refresh={load}
                         on_deleted={() => {
@@ -106,6 +104,7 @@ export function KnowledgeTab () {
         <KnowledgeCreateModal
             visible={create_modal_visible}
             embedding_configs={embedding_configs}
+            chat_configs={chat_configs}
             loading={creating_kb}
             on_close={() => { set_create_modal_visible(false) }}
             on_submit={async payload => {
@@ -121,12 +120,6 @@ export function KnowledgeTab () {
                     set_creating_kb(false)
                 }
             }}
-        />
-        
-        <RerankConfigModal
-            visible={rerank_modal_visible}
-            chat_configs={chat_configs}
-            on_close={() => { set_rerank_modal_visible(false) }}
         />
     </div>
 }
