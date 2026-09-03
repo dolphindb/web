@@ -59,7 +59,7 @@ export function AttachmentPicker ({
                 <span>{loading ? t('上传中...') : t('上传新文件')}</span>
             </button>
             <div className='ai-attachment-upload-hint'>
-                <div>{t('支持图片、PDF、DOCX、PPTX、XLSX 及文本文件（如 TXT、LOG、MD、CSV、TSV、XML）')}</div>
+                <div>{t('支持图片、PDF、DOCX、PPTX、XLSX 及文本文件（如 TXT、LOG、MD、CSV、TSV）')}</div>
             </div>
             <div className='ai-attachment-popover-title'>{t('已上传文件')}</div>
             <div className='ai-attachment-popover-list'>

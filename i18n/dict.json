@@ -7235,8 +7235,11 @@
     "已上传文件": {
         "en": "Uploaded files"
     },
-    "支持图片、PDF、DOCX、PPTX、XLSX 及文本文件（如 TXT、LOG、MD、CSV、TSV、XML）": {
-        "en": "Supports images, PDF, DOCX, PPTX, XLSX, and text files such as TXT, LOG, MD, CSV, TSV, and XML"
+    "支持图片、PDF、DOCX、PPTX、XLSX 及文本文件（如 TXT、LOG、MD、CSV、TSV）": {
+        "en": "Supports images, PDF, DOCX, PPTX, XLSX, and text files such as TXT, LOG, MD, CSV, and TSV"
+    },
+    "不支持该文件格式": {
+        "en": "Unsupported file format"
     },
     "不限制": {
         "en": "Unlimited"

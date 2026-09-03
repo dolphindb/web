@@ -1,3 +1,4 @@
+import { t } from '@i18n'
 import type { ChatModel } from '@/agent/model.ts'
 
 import { prepare_file_upload, upload_file_parts } from './multipart-upload.ts'
@@ -11,12 +12,36 @@ import type {
 } from './types.ts'
 
 
-export const SESSION_ATTACHMENT_ACCEPT = '.png,.jpg,.jpeg,.webp,.gif,.pdf,.docx,.pptx,.xlsx,.txt,.text,.log,.md,.csv,.tsv,.xml,image/*,text/*,application/xml'
+export const SESSION_ATTACHMENT_EXTENSIONS = new Set([
+    '.png', '.jpg', '.jpeg', '.webp', '.gif',
+    '.pdf', '.docx', '.pptx', '.xlsx',
+    '.txt', '.text', '.log', '.md', '.csv', '.tsv',
+])
+
+export const SESSION_ATTACHMENT_ACCEPT = `${Array.from(SESSION_ATTACHMENT_EXTENSIONS).join(',')},image/*`
+
+
+export function is_supported_session_attachment (file: { name: string, type?: string }) {
+    const extension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase()
+    if (SESSION_ATTACHMENT_EXTENSIONS.has(extension))
+        return true
+    if (file.type?.startsWith('image/'))
+        return true
+    return false
+}
+
+
+export function validate_session_attachment_file (file: File) {
+    if (!is_supported_session_attachment(file))
+        throw new Error(t('不支持该文件格式'))
+}
 
 
 export class ChatAttachmentModel {
     constructor (private chat: ChatModel) { }
     async upload_attachment (session_id: string, params: ISessionAttachmentUpload): Promise<ISessionAttachment> {
+        if (!is_supported_session_attachment({ name: params.filename, type: params.mimeType || params.file.type }))
+            throw new Error(t('不支持该文件格式'))
         const { buffer, sha256 } = await prepare_file_upload(params.file)
         const upload = await this.init_attachment_upload(session_id, {
             filename: params.filename,

@@ -6,6 +6,7 @@ import { bind_chat_model_session } from '@/agent/model.ts'
 import type { ChatModel } from '@/agent/model.ts'
 import type { ISessionAttachment } from '@/agent/model/types.ts'
 import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
+import { validate_session_attachment_file } from '@/agent/model/attachment.ts'
 import { required_plugins_model } from '@/agent/model/required-plugins.ts'
 import { is_pending_ai_chat_id, shell } from '@/shell/model.ts'
 
@@ -77,6 +78,15 @@ export function use_session_attachments ({
     async function upload_attachments (files: File[], select_after_upload = true) {
         if (!ENABLE_ATTACHMENTS || !files.length || creating_session || attachments_loading)
             return
+        for (const file of files)
+            try {
+                validate_session_attachment_file(file)
+            } catch (err) {
+                const message = err instanceof Error ? err.message : String(err)
+                set_attachments_error(message)
+                model.message?.error(message)
+                return
+            }
         set_attachments_loading(true)
         set_attachments_error('')
         let created: Awaited<ReturnType<typeof create_session>> | null = null
