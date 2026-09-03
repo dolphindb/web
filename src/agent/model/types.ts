@@ -525,6 +525,7 @@ export interface ISkillFileContent {
 
 
 export interface ILlmModelUsage {
+    llmConfigId?: string
     model: string
     promptTokens?: number
     completionTokens?: number

@@ -38,7 +38,7 @@ type ModelUsageKey = 'requestCount' | 'promptTokens' | 'completionTokens' | 'tot
 function get_model_rows (parent_key: string, status?: ILlmBudgetStatus, agent_id?: string) {
     const models = get_model_usage(status?.usage)
     return models.length ? models.map((modelUsage, index) => ({
-        key: `${parent_key}-${modelUsage.model}-${index}`,
+        key: `${parent_key}-${modelUsage.llmConfigId || modelUsage.model}-${index}`,
         agentId: agent_id || status?.agentId,
         status,
         modelUsage,
@@ -50,32 +50,33 @@ function render_model_cell (row: UsageRow, bindings_map: Record<string, IAgentLl
     if (!row.modelUsage)
         return '-'
     const raw_model = row.modelUsage.model
+    const config_id = row.modelUsage.llmConfigId
     const agent_id = row.agentId || row.status?.agentId
     const bindings = (agent_id && bindings_map[agent_id]) || [ ]
-    const matched = bindings.filter(b => b.model === raw_model)
-    const providers = Array.from(new Set(matched.map(b => b.providerName || b.providerId || b.adapterType).filter(Boolean)))
-    const configs = matched.map(b => b.name).filter(Boolean)
     
-    if (providers.length === 0)
-        return <span>{raw_model}</span>
-    
-    if (providers.length > 1) {
-        // 不同提供商相同模型名称：清晰标出所有提供商，并提供 Tooltip 显示具体渠道
-        return <Tooltip title={t('此模型关联不同提供商：{{providers}}（配置：{{configs}}）', {
-            providers: providers.join(', '),
-            configs: configs.join(', '),
-        })}>
-            <Space size={4} wrap>
-                <span>{raw_model}</span>
-                {providers.map(p => <Tag key={p} color='blue' style={{ fontSize: 11, margin: 0 }}>{p}</Tag>)}
-            </Space>
-        </Tooltip>
+    // 优先通过唯一的 llmConfigId 匹配对应的模型配置
+    const binding = config_id ? bindings.find(b => b.llmConfigId === config_id) : undefined
+    if (binding) {
+        const provider_name = binding.providerName || binding.providerId || binding.adapterType || ''
+        const config_name = binding.name?.trim()
+        return <Space size={4}>
+            <span>{raw_model}</span>
+            {provider_name && <Tag color='blue' style={{ fontSize: 11, margin: 0 }}>{provider_name}</Tag>}
+            {config_name && config_name !== raw_model && <Tag color='default' style={{ fontSize: 11, margin: 0 }}>{config_name}</Tag>}
+        </Space>
     }
     
-    return <Space size={4}>
-        <span>{raw_model}</span>
-        <Tag color='default' style={{ fontSize: 11, margin: 0 }}>{providers[0]}</Tag>
-    </Space>
+    // 若未通过 llmConfigId 匹配到，按模型名查找
+    const matched = bindings.filter(b => b.model === raw_model)
+    const providers = Array.from(new Set(matched.map(b => b.providerName || b.providerId || b.adapterType).filter(Boolean)))
+    if (providers.length === 1) {
+        return <Space size={4}>
+            <span>{raw_model}</span>
+            <Tag color='default' style={{ fontSize: 11, margin: 0 }}>{providers[0]}</Tag>
+        </Space>
+    }
+    
+    return <span>{raw_model}</span>
 }
 
 
@@ -89,8 +90,11 @@ function get_usage_value (row: UsageRow, total_key: UsageTotalKey, model_key: Mo
 
 
 function get_remaining_tokens (row: UsageRow) {
-    if (row.modelUsage)
-        return row.status?.remainingTokensByModel?.[row.modelUsage.model]
+    if (row.modelUsage) {
+        const config_id = row.modelUsage.llmConfigId
+        return (config_id && row.status?.remainingTokensByModel?.[config_id])
+            ?? row.status?.remainingTokensByModel?.[row.modelUsage.model]
+    }
     if (row.statusName && row.statusName !== 'ACTIVE')
         return undefined
     return row.status?.remainingTokens

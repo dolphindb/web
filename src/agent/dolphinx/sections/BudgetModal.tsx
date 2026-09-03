@@ -67,54 +67,33 @@ export function BudgetModal ({
             set_max_tokens(budget?.maxTokens ?? 0)
             set_model_budgets(Object.entries(models).map(([model, value]) => ({ model, max_tokens: get_max_tokens(value) })))
             
-            // 按实际模型名 (model) 聚合 bindings，保证传给后端的 key 始终为实际模型名，同时在 label 中区分不同提供商
-            const model_meta_map = new Map<string, { providerNames: Set<string>, configNames: Set<string> }>()
-            for (const binding of bindings) {
-                const raw_model = binding.model?.trim()
-                if (!raw_model)
-                    continue
-                const provider_name = binding.providerName || binding.providerId || binding.adapterType || ''
-                const config_name = binding.name?.trim()
-                let meta = model_meta_map.get(raw_model)
-                if (!meta) {
-                    meta = { providerNames: new Set(), configNames: new Set() }
-                    model_meta_map.set(raw_model, meta)
-                }
-                if (provider_name)
-                    meta.providerNames.add(provider_name)
-                if (config_name && config_name !== raw_model)
-                    meta.configNames.add(config_name)
-            }
-            
+            // 选项按绑定的每个 LLM 配置 (llmConfigId) 独立列出，确保不同提供商（即使底层模型名相同）也能分别设置预算
             const options: ModelOption[] = [ ]
-            const seen_models = new Set<string>()
-            for (const [raw_model, meta] of model_meta_map) {
-                seen_models.add(raw_model)
-                const providers_arr = Array.from(meta.providerNames)
-                const configs_arr = Array.from(meta.configNames)
+            const seen_keys = new Set<string>()
+            for (const binding of bindings) {
+                const key = binding.llmConfigId || binding.model
+                if (!key)
+                    continue
+                seen_keys.add(key)
+                const provider_name = binding.providerName || binding.providerId || binding.adapterType || ''
+                const raw_model = binding.model || ''
+                const config_name = binding.name?.trim()
                 
-                let label: string
-                if (providers_arr.length > 1) {
-                    // 不同提供商相同模型名称：清楚注明包含的所有提供商
-                    label = `${providers_arr.join(', ')} / ${raw_model}`
-                } else if (providers_arr.length === 1) {
-                    const extra_config = configs_arr.length === 1 ? ` (${configs_arr[0]})` : ''
-                    label = `${providers_arr[0]} / ${raw_model}${extra_config}`
-                } else {
-                    label = raw_model
-                }
-                options.push({ value: raw_model, label })
+                let label = ''
+                if (provider_name)
+                    label = `${provider_name} / ${raw_model}`
+                else
+                    label = raw_model || key
+                if (config_name && config_name !== raw_model)
+                    label += ` (${config_name})`
+                options.push({ value: key, label })
             }
             
-            // 补充已配置预算或历史用量中的其他模型
-            const extra_keys = [
-                ...Object.keys(models),
-                ...(usage_result?.models || [ ]).map(item => item.model).filter(Boolean),
-            ]
-            for (const key of extra_keys) {
+            // 补充已配置预算中存在但不在当前 bindings 中的历史配置
+            for (const key of Object.keys(models)) {
                 const trimmed = key.trim()
-                if (trimmed && !seen_models.has(trimmed)) {
-                    seen_models.add(trimmed)
+                if (trimmed && !seen_keys.has(trimmed)) {
+                    seen_keys.add(trimmed)
                     options.push({ value: trimmed, label: trimmed })
                 }
             }
