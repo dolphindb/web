@@ -243,6 +243,7 @@ export function WorkspaceSidebar ({
                                             <Button
                                                 type='text'
                                                 size='small'
+                                                danger
                                                 className='ai-workspace-file-action'
                                                 icon={<DeleteOutlined />}
                                                 aria-label={t('删除文件')}

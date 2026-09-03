@@ -607,13 +607,14 @@
                             gap: 6px
                             cursor: pointer
                             text-align: left
-                            color: #333
+                            color: var(--ant-color-text)
 
                             &:hover
                                 background: var(--ant-color-fill-tertiary)
 
-                            .anticon
-                                color: #8c8c8c
+                            > .anticon,
+                            .ai-workspace-file-main > .anticon
+                                color: var(--ant-color-text-tertiary)
                                 flex-shrink: 0
 
                         .ai-workspace-file-main
@@ -642,15 +643,10 @@
                             font-size: 12px
 
                         .ai-workspace-file-action
-                            color: #8c8c8c
-                            padding: 0 !important
-                            height: 22px !important
-                            width: 22px !important
+                            padding: 0
+                            height: 22px
+                            width: 22px
                             flex-shrink: 0
-
-                            &:hover
-                                color: #ff4d4f !important
-                                background: rgba(255, 77, 79, 0.1) !important
 
                         .ai-session-attachment-file
                             cursor: pointer

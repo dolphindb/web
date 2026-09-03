@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { Alert, Button, DatePicker, Form, InputNumber, Modal, Select, Switch, message } from 'antd'
+import { DeleteOutlined } from '@ant-design/icons'
 import dayjs, { type Dayjs } from 'dayjs'
 
 import { t } from '@i18n'
@@ -221,7 +222,14 @@ export function BudgetModal ({
                                 set_model_budgets(next)
                             }}
                         />
-                        <Button onClick={() => { set_model_budgets(model_budgets.filter((_, i) => i !== index)) }}>{t('删除')}</Button>
+                        <Button
+                            type='text'
+                            danger
+                            icon={<DeleteOutlined />}
+                            aria-label={t('删除')}
+                            title={t('删除')}
+                            onClick={() => { set_model_budgets(model_budgets.filter((_, i) => i !== index)) }}
+                        />
                     </div>)}
                     <Button
                         disabled={model_options.length === 0 || model_budgets.length >= model_options.length}
