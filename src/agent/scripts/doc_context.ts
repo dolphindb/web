@@ -1,3 +1,5 @@
+import { language } from '@i18n'
+
 type DocProvider = 'official' | 'dolphinmind'
 
 export type DocCandidate = {
@@ -366,8 +368,9 @@ function html_to_text (html: string): { title: string, content: string } {
 function trim_doc_content (content: string): { content: string, truncated: boolean } {
     if (content.length <= DOC_READ_MAX_CHARS)
         return { content, truncated: false }
+    const suffix = language === 'en' ? '\n\n[Content is too long and has been truncated]' : '\n\n[内容过长，已截断]'
     return {
-        content: `${content.slice(0, Math.max(0, DOC_READ_MAX_CHARS - 24)).trimEnd()}\n\n[内容过长，已截断]`,
+        content: `${content.slice(0, Math.max(0, DOC_READ_MAX_CHARS - suffix.length)).trimEnd()}${suffix}`,
         truncated: true,
     }
 }

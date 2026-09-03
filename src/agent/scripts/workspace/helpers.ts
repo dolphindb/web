@@ -1,3 +1,4 @@
+import { language } from '@i18n'
 import { pickBy } from 'lodash'
 
 import type { IMessage } from '@/agent/model/types.ts'
@@ -161,8 +162,12 @@ export function reject_oversized_vfs_read (type: string, result: unknown): Scrip
                 ok: false,
                 tool: type,
                 ...(Number.isInteger(line_count) ? { lineCount: line_count } : { }),
-                error: `文件共 ${Number.isInteger(line_count) ? line_count : '未知'} 行；本次读取内容过大（${content.length} 字符），未放入模型上下文。`,
-                hint: '请缩小 startLine 和 endLine 的范围后重试，或先用 vfs_search 定位相关内容。',
+                error: language === 'en'
+                    ? `File has ${Number.isInteger(line_count) ? line_count : 'unknown'} lines; reading content is too large (${content.length} characters) and was omitted from the model context.`
+                    : `文件共 ${Number.isInteger(line_count) ? line_count : '未知'} 行；本次读取内容过大（${content.length} 字符），未放入模型上下文。`,
+                hint: language === 'en'
+                    ? 'Please narrow the startLine and endLine range and try again, or use vfs_search to locate relevant content first.'
+                    : '请缩小 startLine 和 endLine 的范围后重试，或先用 vfs_search 定位相关内容。',
             }),
         },
     }

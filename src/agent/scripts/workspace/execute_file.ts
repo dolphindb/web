@@ -1,3 +1,4 @@
+import { language } from '@i18n'
 import { get_ddb_connection_error_result } from '@/agent/scripts/helpers.ts'
 import type { ScriptConfig, ScriptResult } from '@/agent/scripts/types.ts'
 
@@ -85,7 +86,9 @@ export const execute_file_config: ScriptConfig = {
                         ...(result_print.length ? { print: result_print } : { }),
                         ...(connection_error || {
                             error: `execute_file failed: ${error instanceof Error ? error.message : String(error)}`,
-                            hint: `${result_print.length ? 'print 为脚本报错前已产生的部分诊断输出。' : ''}请修正 DolphinDB 语法或 API 用法后再试；如果函数名或参数不确定，先查询官方文档，不要反复猜测。`,
+                            hint: language === 'en'
+                                ? `${result_print.length ? 'print contains partial diagnostic output before the script failed. ' : ''}Please fix the DolphinDB syntax or API usage and try again; if unsure about function names or parameters, consult official documentation first.`
+                                : `${result_print.length ? 'print 为脚本报错前已产生的部分诊断输出。' : ''}请修正 DolphinDB 语法或 API 用法后再试；如果函数名或参数不确定，先查询官方文档，不要反复猜测。`,
                         }),
                     }),
                 },

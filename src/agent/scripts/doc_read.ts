@@ -1,3 +1,4 @@
+import { language } from '@i18n'
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import { normalize_script_args } from './helpers.ts'
 import { clean_doc_read_response, get_doc_reference } from './doc_context.ts'
@@ -44,7 +45,9 @@ export const doc_read_config: ScriptConfig = {
                         role: 'tool',
                         messageType: 'tool_error',
                         name: type,
-                        content: 'doc_read id 已失效，请重新调用 doc_search 获取候选文档 id。',
+                        content: language === 'en'
+                            ? 'The doc_read id has expired or is invalid. Please call doc_search again to obtain a valid candidate document id.'
+                            : 'doc_read id 已失效，请重新调用 doc_search 获取候选文档 id。',
                     },
                 }
             

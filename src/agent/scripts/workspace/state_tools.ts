@@ -1,3 +1,4 @@
+import { language } from '@i18n'
 import type { ScriptConfig, ScriptResult } from '@/agent/scripts/types.ts'
 import {
     error_result,
@@ -26,10 +27,12 @@ export const workspace_state_read_config: ScriptConfig = {
             const workspace = await context.workspace_store.get_workspace(require_workspace(context), context.api_fetch)
             return {
                 next_loop: true,
-                save_message: result_message(type, workspace?.current_state || '暂无状态记录'),
+                save_message: result_message(type, workspace?.current_state || (language === 'en' ? 'No state recorded.' : '暂无状态记录')),
             }
         } catch (error) {
-            return error_result(type, `workspace_state_read 执行失败：${error instanceof Error ? error.message : String(error)}`)
+            return error_result(type, language === 'en'
+                ? `workspace_state_read failed: ${error instanceof Error ? error.message : String(error)}`
+                : `workspace_state_read 执行失败：${error instanceof Error ? error.message : String(error)}`)
         }
     },
 }
@@ -77,11 +80,15 @@ export const workspace_state_update_config: ScriptConfig = {
                 next_loop: true,
                 save_message: result_message(
                     type,
-                    `工作区状态已更新。workspaceId=${require_workspace(context)}，更新方式=${update_mode}，beforeLen=${current_state.length}，afterLen=${updated_state.length}。`
+                    language === 'en'
+                        ? `Workspace state updated. workspaceId=${require_workspace(context)}, updateMode=${update_mode}, beforeLen=${current_state.length}, afterLen=${updated_state.length}.`
+                        : `工作区状态已更新。workspaceId=${require_workspace(context)}，更新方式=${update_mode}，beforeLen=${current_state.length}，afterLen=${updated_state.length}。`
                 ),
             }
         } catch (error) {
-            return error_result(type, `workspace_state_update 执行失败：${error instanceof Error ? error.message : String(error)}`)
+            return error_result(type, language === 'en'
+                ? `workspace_state_update failed: ${error instanceof Error ? error.message : String(error)}`
+                : `workspace_state_update 执行失败：${error instanceof Error ? error.message : String(error)}`)
         }
     },
 }

@@ -1,3 +1,4 @@
+import { language } from '@i18n'
 import { TOOL_RESULT_SPILL_THRESHOLD_CHARS } from '@/agent/scripts/helpers.ts'
 import type { ToolContext } from '@/agent/scripts/types.ts'
 
@@ -16,7 +17,17 @@ function hash_string (value: string) {
 
 
 function build_reference (original_chars: number, file: string, preview: string) {
-    return [
+    return language === 'en' ? [
+        '<persisted-output>',
+        `Tool output is too large (${original_chars} characters). The full output has been saved to the current workspace file: ${file}`,
+        '',
+        'Do not read the entire file at once. Use vfs_search to locate relevant text, or use vfs_read with startLine and endLine to read specific line ranges.',
+        'If sequential reading is necessary, read at most 200 lines at a time.',
+        '',
+        'Preview:',
+        preview,
+        '</persisted-output>',
+    ].join('\n') : [
         '<persisted-output>',
         `工具结果过大：${original_chars} 字符。完整输出已保存到当前工作区文件：${file}`,
         '',
@@ -31,7 +42,15 @@ function build_reference (original_chars: number, file: string, preview: string)
 
 
 function build_failed_reference (original_chars: number, error: unknown, preview: string) {
-    return [
+    return language === 'en' ? [
+        '<persisted-output>',
+        `Tool output is too large (${original_chars} characters), but failed to save to workspace: ${error instanceof Error ? error.message : String(error)}`,
+        'Only the preview below is retained.',
+        '',
+        'Preview:',
+        preview,
+        '</persisted-output>',
+    ].join('\n') : [
         '<persisted-output>',
         `工具结果过大：${original_chars} 字符，但保存到工作区失败：${error instanceof Error ? error.message : String(error)}`,
         '当前只保留下方预览内容。',

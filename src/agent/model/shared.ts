@@ -122,31 +122,4 @@ export class ChatSharedModel extends Model<ChatSharedModel> {
 export const chat_shared_model = new ChatSharedModel()
 
 
-// 挂载测试函数到全局 window 上
-if (typeof window !== 'undefined') {
-    const global_window = window as any
-    global_window.chat_shared_model = chat_shared_model
-    
-    /** 测试用：关闭当前 AI DDB WebSocket 连接（保留 Ticket），用于验证下次执行时的自动重连机制 */
-    global_window.disconnect_ai_ddb = () => {
-        if (chat_shared_model.ddb) {
-            try {
-                chat_shared_model.ddb.disconnect()
-            } catch { }
-            chat_shared_model.ddb = null
-        }
-        console.log('[Test] AI DolphinDB 连接已关闭（保留 Ticket: %s），下次调用将自动尝试重连。', chat_shared_model.ddb_ticket)
-    }
-    
-    /** 测试用：彻底关闭 AI DDB 连接并损坏 Ticket，使重连必然失败，用于验证断线弹窗和 Agent Loop 强中断机制 */
-    global_window.destroy_ai_ddb = () => {
-        if (chat_shared_model.ddb) {
-            try {
-                chat_shared_model.ddb.disconnect()
-            } catch { }
-            chat_shared_model.ddb = null
-        }
-        chat_shared_model.ddb_ticket = 'INVALID_DESTROYED_TICKET_FOR_TEST'
-        console.log('[Test] AI DolphinDB 连接已彻底关闭并损坏 Ticket，重连将失败，用于验证断线弹窗与 Agent Loop 强中断。')
-    }
-}
+

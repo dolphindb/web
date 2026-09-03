@@ -1,3 +1,10 @@
+import { language } from '@i18n'
+
+
+export function get_ddb_docs_base_url () {
+    return language === 'zh' ? 'https://docs.dolphindb.cn' : 'https://docs.dolphindb.com'
+}
+
 export const DDB_DOCS_BASE_URL = 'https://docs.dolphindb.cn'
 
 const DOCS_HOSTS = new Set(['docs.dolphindb.cn', 'docs.dolphindb.com'])
@@ -20,7 +27,7 @@ export function resolve_dolphindb_doc_url (raw_url: string): string {
         }
         
         const normalized_path = text.startsWith('/') ? text : `/${text}`
-        return new URL(normalized_path, DDB_DOCS_BASE_URL).toString()
+        return new URL(normalized_path, get_ddb_docs_base_url()).toString()
     } catch {
         return ''
     }
