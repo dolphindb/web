@@ -3,13 +3,17 @@ import './RequiredPluginsModal.sass'
 import { Alert, Button, Modal, Spin, Tag, Typography } from 'antd'
 import { DownloadOutlined, ReloadOutlined } from '@ant-design/icons'
 
-import { t } from '@i18n'
+import { t, language } from '@i18n'
 import { REQUIRED_FILE_PLUGINS, required_plugins_model } from './model/required-plugins.ts'
 
 
 const { Link, Text } = Typography
 
-const OFFLINE_INSTALL_DOC = 'https://docs.dolphindb.cn/zh/plugins/plg_mkt_inst.html'
+function get_offline_install_doc () {
+    return language === 'zh'
+        ? 'https://docs.dolphindb.cn/zh/plugins/plg_mkt_inst.html'
+        : 'https://docs.dolphindb.com/en/Functions/i/installPlugin.html'
+}
 
 
 export function RequiredPluginsModal () {
@@ -90,7 +94,7 @@ export function RequiredPluginsModal () {
                     >{t('下载并加载缺失插件')}</Button>
                 </div>
                 <Text type='secondary'>
-                    {t('如果无法自动下载插件，请')} <Link href={OFFLINE_INSTALL_DOC} target='_blank' rel='noreferrer'>{t('查看手动安装指引')}</Link>
+                    {t('如果无法自动下载插件，请')} <Link href={get_offline_install_doc()} target='_blank' rel='noreferrer'>{t('查看手动安装指引')}</Link>
                 </Text>
             </section>
         </div>
