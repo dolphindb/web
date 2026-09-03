@@ -231,7 +231,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
             <div className='ai-settings-detail-title'>{t('MCP 管理')}</div>
         </div>
         <div className='ai-settings-detail-body'>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div className='ai-settings-mcp-toolbar'>
                 <Text type='secondary' style={{ fontSize: 12 }}>
                     {t('管理 MCP Server。每个 Server 可以提供一组外部工具。')}
                 </Text>
@@ -244,10 +244,11 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                     </Button>}
                 </Space>
             </div>
-            <Spin spinning={loading_servers}>
+            <Spin spinning={loading_servers} className='ai-settings-mcp-spin'>
                 {servers.length === 0 && !loading_servers
                     ? <Empty description={t('暂无 MCP Server 配置')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ padding: 40 }} />
                     : <Table<IMcpServerInfo>
+                        className='ai-settings-mcp-table'
                         dataSource={servers}
                         rowKey='mcpServerId'
                         pagination={{
@@ -259,6 +260,7 @@ export function McpTab ({ can_manage_mcp }: { can_manage_mcp: boolean }) {
                         }}
                         size='middle'
                         tableLayout='fixed'
+                        scroll={{ y: '100%', x: 960 }}
                         columns={[
                             {
                                 title: t('名称'),
