@@ -550,8 +550,6 @@ export interface ILlmUsageStats {
 export interface ILlmBudgetConfig {
     enabled?: boolean
     maxTokens?: number
-    startTime?: string | number
-    endTime?: string | number
     models?: Record<string, number | { maxTokens?: number }>
 }
 
@@ -560,7 +558,7 @@ export interface ILlmBudgetStatus {
     agentId: string
     userId?: string
     budget?: ILlmBudgetConfig
-    usage: ILlmUsageStats
+    usage?: ILlmUsageStats
     remainingTokens?: number
     remainingTokensByModel?: Record<string, number>
 }

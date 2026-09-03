@@ -10087,5 +10087,8 @@
     },
     "最终返回给 Agent 的片段数，推荐 8": {
         "en": "Number of chunks returned to the Agent; recommended: 8"
+    },
+    "此模型关联不同提供商：{{providers}}（配置：{{configs}}）": {
+        "en": "This model is associated with multiple providers: {{providers}} (configs: {{configs}})"
     }
 }

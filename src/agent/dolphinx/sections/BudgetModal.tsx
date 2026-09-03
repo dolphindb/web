@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 
-import { Alert, Button, DatePicker, Form, InputNumber, Modal, Select, Switch, message } from 'antd'
+import { Alert, Button, Form, InputNumber, Modal, Select, Switch, message } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
-import dayjs, { type Dayjs } from 'dayjs'
 
 import { t } from '@i18n'
 
@@ -28,15 +27,6 @@ function get_max_tokens (value: number | { maxTokens?: number }) {
 }
 
 
-function parse_time (value?: string | number) {
-    if (value === undefined)
-        return null
-    // DolphinDB timestamp 字符串使用点分隔日期，先转换为 dayjs 可稳定解析的格式。
-    const time = dayjs(typeof value === 'string' ? value.replace(/^(\d{4})\.(\d{2})\.(\d{2})T/, '$1-$2-$3T') : value)
-    return time.isValid() ? time : null
-}
-
-
 export function BudgetModal ({
     agent_id,
     visible,
@@ -50,8 +40,6 @@ export function BudgetModal ({
 }) {
     const [enabled, set_enabled] = useState(false)
     const [max_tokens, set_max_tokens] = useState(0)
-    const [start_time, set_start_time] = useState<Dayjs | null>(null)
-    const [end_time, set_end_time] = useState<Dayjs | null>(null)
     const [model_budgets, set_model_budgets] = useState<ModelBudgetRow[]>([ ])
     const [model_options, set_model_options] = useState<ModelOption[]>([ ])
     const [loading, set_loading] = useState(false)
@@ -63,8 +51,9 @@ export function BudgetModal ({
         set_loading(true)
         Promise.all([
             chat_model.llm.load_llm_budget({ agentId: agent_id }),
+            chat_model.llm.load_llm_usage({ agentId: agent_id }).catch(() => undefined),
             chat_model.llm.load_llm_providers(),
-        ]).then(async ([result, providers]) => {
+        ]).then(async ([budget_result, usage_result, providers]) => {
             if (disposed)
                 return
             const provider_lookup = new Map(providers.map(p => [p.providerId, p]))
@@ -72,50 +61,61 @@ export function BudgetModal ({
             if (disposed)
                 return
             
-            const budget = result.budget
+            const budget = budget_result.budget
             const models = budget?.models || { }
             set_enabled(Boolean(budget) && budget?.enabled !== false)
             set_max_tokens(budget?.maxTokens ?? 0)
-            set_start_time(parse_time(budget?.startTime))
-            set_end_time(parse_time(budget?.endTime))
             set_model_budgets(Object.entries(models).map(([model, value]) => ({ model, max_tokens: get_max_tokens(value) })))
             
-            const options: ModelOption[] = [ ]
-            const seen_values = new Set<string>()
-            
-            // 1. 遍历 Agent 绑定的所有模型，生成带 Provider 前缀的丰富选项
+            // 按实际模型名 (model) 聚合 bindings，保证传给后端的 key 始终为实际模型名，同时在 label 中区分不同提供商
+            const model_meta_map = new Map<string, { providerNames: Set<string>, configNames: Set<string> }>()
             for (const binding of bindings) {
-                const provider_name = binding.providerName || binding.providerId || binding.adapterType || ''
-                const model_name = binding.name || binding.model
-                const raw_model = binding.model
-                
-                const value = binding.name || binding.model
-                if (!value)
+                const raw_model = binding.model?.trim()
+                if (!raw_model)
                     continue
-                
-                const label = [
-                    provider_name ? `${provider_name} / ` : '',
-                    model_name,
-                    raw_model && raw_model !== model_name ? ` (${raw_model})` : '',
-                ].join('')
-                
-                const final_value = seen_values.has(value)
-                    ? (raw_model && !seen_values.has(raw_model) ? raw_model : (binding.llmConfigId || `${value}-${binding.providerId}`))
-                    : value
-                
-                seen_values.add(final_value)
-                options.push({ value: final_value, label })
+                const provider_name = binding.providerName || binding.providerId || binding.adapterType || ''
+                const config_name = binding.name?.trim()
+                let meta = model_meta_map.get(raw_model)
+                if (!meta) {
+                    meta = { providerNames: new Set(), configNames: new Set() }
+                    model_meta_map.set(raw_model, meta)
+                }
+                if (provider_name)
+                    meta.providerNames.add(provider_name)
+                if (config_name && config_name !== raw_model)
+                    meta.configNames.add(config_name)
             }
             
-            // 2. 补充已配置或已记录用量但未在当前 bindings 里的历史模型
+            const options: ModelOption[] = [ ]
+            const seen_models = new Set<string>()
+            for (const [raw_model, meta] of model_meta_map) {
+                seen_models.add(raw_model)
+                const providers_arr = Array.from(meta.providerNames)
+                const configs_arr = Array.from(meta.configNames)
+                
+                let label: string
+                if (providers_arr.length > 1) {
+                    // 不同提供商相同模型名称：清楚注明包含的所有提供商
+                    label = `${providers_arr.join(', ')} / ${raw_model}`
+                } else if (providers_arr.length === 1) {
+                    const extra_config = configs_arr.length === 1 ? ` (${configs_arr[0]})` : ''
+                    label = `${providers_arr[0]} / ${raw_model}${extra_config}`
+                } else {
+                    label = raw_model
+                }
+                options.push({ value: raw_model, label })
+            }
+            
+            // 补充已配置预算或历史用量中的其他模型
             const extra_keys = [
                 ...Object.keys(models),
-                ...(result.usage.models || [ ]).map(item => item.model).filter(Boolean),
+                ...(usage_result?.models || [ ]).map(item => item.model).filter(Boolean),
             ]
             for (const key of extra_keys) {
-                if (!seen_values.has(key)) {
-                    seen_values.add(key)
-                    options.push({ value: key, label: key })
+                const trimmed = key.trim()
+                if (trimmed && !seen_models.has(trimmed)) {
+                    seen_models.add(trimmed)
+                    options.push({ value: trimmed, label: trimmed })
                 }
             }
             
@@ -131,10 +131,6 @@ export function BudgetModal ({
     }, [visible, agent_id])
     
     async function save_budget () {
-        if (start_time && end_time && end_time.isBefore(start_time)) {
-            message.error(t('用量统计结束时间不能早于开始时间'))
-            return
-        }
         const models = model_budgets.map(item => item.model.trim())
         if (models.some(model => !model)) {
             message.error(t('请选择模型'))
@@ -147,8 +143,6 @@ export function BudgetModal ({
         const budget: ILlmBudgetConfig = {
             enabled,
             maxTokens: max_tokens,
-            ...(start_time ? { startTime: start_time.valueOf() } : { }),
-            ...(end_time ? { endTime: end_time.valueOf() } : { }),
             models: Object.fromEntries(model_budgets.map(item => [item.model, { maxTokens: item.max_tokens }])),
         }
         set_loading(true)
@@ -188,14 +182,6 @@ export function BudgetModal ({
             <Form.Item label={t('Agent 总 Token 上限')}>
                 <InputNumber min={0} precision={0} value={max_tokens} onChange={value => { set_max_tokens(value ?? 0) }} />
             </Form.Item>
-            <div className='ai-budget-window-grid'>
-                <Form.Item label={t('用量统计开始时间')}>
-                    <DatePicker showTime value={start_time} onChange={set_start_time} />
-                </Form.Item>
-                <Form.Item label={t('用量统计结束时间')}>
-                    <DatePicker showTime value={end_time} onChange={set_end_time} />
-                </Form.Item>
-            </div>
             <Form.Item label={t('模型 Token 上限')}>
                 <div className='ai-budget-model-list'>
                     {model_budgets.map((item, index) => <div className='ai-budget-model-row' key={`${item.model}-${index}`}>
