@@ -1,10 +1,26 @@
 import { Model } from 'react-object-model'
-import { DDB, DdbConnectionError, type DdbEvalOptions } from 'dolphindb/browser.js'
+import { DDB, DdbConnectionError, SqlStandard, type DdbEvalOptions } from 'dolphindb/browser.js'
+import { delay } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
 import { model } from '@model'
 
 import type { ISelectableLlmInfo } from './types.ts'
+
+
+const MAX_DDB_RECONNECT_ATTEMPTS = 3
+const DDB_RECONNECT_BASE_DELAY = 1000
+
+
+// 临时调试代码，重连机制验证完成后删除所有 agent_ddb_debug_window 相关代码。
+interface AgentDdbDebugWindow extends Window {
+    force_agent_ddb_reconnect_failure?: boolean
+    disconnect_agent_ddb?: () => void
+    disconnect_agent_ddb_and_force_reconnect_failure?: () => void
+}
+
+
+const agent_ddb_debug_window = window as AgentDdbDebugWindow
 
 
 /** 连接已自动恢复，但中断前脚本是否完整执行未知，本次工具流程必须停止。 */
@@ -41,7 +57,7 @@ export class ChatSharedModel extends Model<ChatSharedModel> {
         return this.reconnect_ddb()
     }
     
-    /** 使用保存的 ticket 独立重建连接（不调用 model.ddb 重新申请 ticket） */
+    /** 使用保存的 ticket 独立重建连接（不调用 model.ddb 重新申请），失败时指数退避重试 3 次 */
     async reconnect_ddb (): Promise<DDB> {
         if (this.p_reconnect)
             return this.p_reconnect
@@ -54,17 +70,30 @@ export class ChatSharedModel extends Model<ChatSharedModel> {
                 this.ddb = null
             }
             
+            let last_error: unknown
             try {
-                const ddb = new DDB(model.ddb.url, {
-                    ticket: this.ddb_ticket,
-                    autologin: true,
-                    sql: model.sql,
-                    verbose: model.verbose,
-                })
-                await ddb.connect()
-                this.ddb = ddb
-                return ddb
-            } catch (error) {
+                for (let attempt = 0;  attempt < MAX_DDB_RECONNECT_ATTEMPTS;  attempt++) {
+                    console.log(`[Agent DDB] 第 ${attempt + 1}/${MAX_DDB_RECONNECT_ATTEMPTS} 次重连`)
+                    let ddb: DDB | null = null
+                    try {
+                        if (agent_ddb_debug_window.force_agent_ddb_reconnect_failure)
+                            throw new Error('Forced Agent DDB reconnect failure for debugging.')
+                        ddb = new DDB(model.ddb.url, {
+                            ticket: this.ddb_ticket,
+                            autologin: true,
+                            sql: SqlStandard.DolphinDB,
+                            verbose: model.verbose,
+                        })
+                        await ddb.connect()
+                        this.ddb = ddb
+                        return ddb
+                    } catch (error) {
+                        ddb?.disconnect()
+                        last_error = error
+                        if (attempt + 1 < MAX_DDB_RECONNECT_ATTEMPTS)
+                            await delay(DDB_RECONNECT_BASE_DELAY * 2**attempt)
+                    }
+                }
                 this.ddb = null
                 model.modal.warning({
                     title: t('DolphinDB 连接已断开'),
@@ -74,7 +103,7 @@ export class ChatSharedModel extends Model<ChatSharedModel> {
                         location.reload()
                     },
                 })
-                throw new DdbConnectionError(t('DolphinDB 连接已断开，重连失败。') + ` (${error instanceof Error ? error.message : String(error)})`)
+                throw new DdbConnectionError(t('DolphinDB 连接已断开，重连失败。') + ` (${last_error instanceof Error ? last_error.message : String(last_error)})`)
             } finally {
                 this.p_reconnect = null
             }
@@ -122,4 +151,13 @@ export class ChatSharedModel extends Model<ChatSharedModel> {
 export const chat_shared_model = new ChatSharedModel()
 
 
+// 临时调试函数，重连机制验证完成后删除。
+agent_ddb_debug_window.disconnect_agent_ddb = () => {
+    chat_shared_model.ddb?.disconnect()
+}
 
+
+agent_ddb_debug_window.disconnect_agent_ddb_and_force_reconnect_failure = () => {
+    agent_ddb_debug_window.force_agent_ddb_reconnect_failure = true
+    chat_shared_model.ddb?.disconnect()
+}
