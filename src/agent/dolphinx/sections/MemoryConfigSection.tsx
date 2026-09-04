@@ -6,6 +6,7 @@ import { t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
 import type { ILlmConfig } from '@/agent/model/types.ts'
+import { format_model_label } from '@/agent/model/helpers.ts'
 import {
     optional_nonnegative_number,
     show_error,
@@ -27,10 +28,11 @@ const DEFAULT_FORM: MemoryConfigForm = {
 
 
 export function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
+    const { llm_configs: all_configs } = chat_model.use(['llm_configs'])
     const [form, set_form] = useState<MemoryConfigForm>({ ...DEFAULT_FORM })
     const [saved_form, set_saved_form] = useState<MemoryConfigForm>({ ...DEFAULT_FORM })
-    const [llm_configs, set_llm_configs] = useState<ILlmConfig[]>([ ])
     const [loading, set_loading] = useState(false)
+    const llm_configs = all_configs.filter(item => item.statusName !== 'DELETED')
     const chat_llm_configs = llm_configs.filter(config => config.capability !== 'embedding')
     const embedding_llm_configs = llm_configs.filter(config => config.capability === 'embedding')
     
@@ -44,9 +46,9 @@ export function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
             return
         set_loading(true)
         try {
-            const [result, configs] = await Promise.all([
+            const [result] = await Promise.all([
                 chat_model.memory.get_memory_config(agent_id),
-                chat_model.llm.load_llm_configs(),
+                chat_model.llm.ensure_llm_configs(),
             ])
             const config = result.memoryConfig || { }
             const next_form: MemoryConfigForm = {
@@ -55,7 +57,6 @@ export function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
                 memoryEmbeddingConfigId: String(config.memoryEmbeddingConfigId || ''),
                 publicMemoryTokenLimit: optional_nonnegative_number(config.publicMemoryTokenLimit),
             }
-            set_llm_configs(configs.filter(item => item.statusName !== 'DELETED'))
             set_form(next_form)
             set_saved_form(next_form)
         } catch (error) {
@@ -130,7 +131,7 @@ export function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
                         placeholder={t('使用 Agent 默认模型')}
                         options={chat_llm_configs.map(config => ({
                             value: config.llmConfigId,
-                            label: config.name || config.llmConfigId,
+                            label: format_model_label(config),
                         }))}
                     />
                 </div>
@@ -145,7 +146,7 @@ export function MemoryConfigSection ({ agent_id }: { agent_id: string }) {
                         placeholder={t('不使用向量召回')}
                         options={embedding_llm_configs.map(config => ({
                             value: config.llmConfigId,
-                            label: config.name || config.llmConfigId,
+                            label: format_model_label(config),
                         }))}
                     />
                 </div>

@@ -22,8 +22,9 @@ const { Paragraph, Text } = Typography
 
 
 export function AgentDetailPanel ({ agent, on_refresh }: { agent: IAgentInfo, on_refresh: () => void }) {
+    const { llm_configs: global_llm_configs } = chat_model.use(['llm_configs'])
+    const all_llms = global_llm_configs.filter(llm => llm.capability !== 'embedding' && llm.statusName !== 'DELETED')
     const [bound_llms, set_bound_llms] = useState<IAgentLlmBinding[]>([ ])
-    const [all_llms, set_all_llms] = useState<ILlmConfig[]>([ ])
     const [bound_skills, set_bound_skills] = useState<ISkillBinding[]>([ ])
     const [all_skills, set_all_skills] = useState<ISkillInfo[]>([ ])
     const [bound_mcp_servers, set_bound_mcp_servers] = useState<IMcpBindingInfo[]>([ ])
@@ -47,11 +48,9 @@ export function AgentDetailPanel ({ agent, on_refresh }: { agent: IAgentInfo, on
         if (show_loading)
             set_loading(true)
         try {
-            const providers = await chat_model.llm.load_llm_providers()
-            const provider_lookup = new Map(providers.map(provider => [provider.providerId, provider]))
-            const [llms, global_llms, skills, global_skills, mcp_bindings, mcp_servers, knowledge_state] = await Promise.all([
-                chat_model.llm.load_agent_llm_bindings(agent.agentId, provider_lookup),
-                chat_model.llm.load_llm_configs(provider_lookup),
+            const [llms, _configs, skills, global_skills, mcp_bindings, mcp_servers, knowledge_state] = await Promise.all([
+                chat_model.llm.load_agent_llm_bindings(agent.agentId),
+                chat_model.llm.ensure_llm_configs(true),
                 chat_model.skill.load_skill_bindings(agent.agentId),
                 chat_model.skill.load_skills(),
                 chat_model.mcp.load_agent_mcp_bindings(agent.agentId),
@@ -67,7 +66,6 @@ export function AgentDetailPanel ({ agent, on_refresh }: { agent: IAgentInfo, on
                 })),
             ])
             set_bound_llms(llms.filter(llm => llm.capability !== 'embedding'))
-            set_all_llms(global_llms.filter(llm => llm.capability !== 'embedding'))
             set_bound_skills(skills)
             set_all_skills(global_skills)
             set_bound_mcp_servers(mcp_bindings)
@@ -75,7 +73,7 @@ export function AgentDetailPanel ({ agent, on_refresh }: { agent: IAgentInfo, on
             set_bound_kbs(knowledge_state.bound_knowledge_bases)
             set_all_kbs(knowledge_state.knowledge_bases)
             set_knowledge_load_error(knowledge_state.error)
-            await chat_model.llm.load_selectable_llms(agent.agentId, provider_lookup)
+            await chat_model.llm.load_selectable_llms(agent.agentId)
         } catch {
             model.message.error(t('加载绑定信息失败'))
         } finally {

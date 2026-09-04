@@ -4,7 +4,7 @@ import { Form, Input, InputNumber, Modal, Radio, Select, Space, Switch, Typograp
 import { t } from '@i18n'
 import type { ILlmConfig, IKnowledgeBaseRegisterPayload } from '@/agent/model/types.ts'
 import { required_plugins_model } from '@/agent/model/required-plugins.ts'
-import { DEFAULT_KB_FORM, VECTOR_INDEX_TYPE_OPTIONS, type KnowledgeCreateFormState } from './types.ts'
+import { DEFAULT_KB_FORM, VECTOR_INDEX_TYPE_OPTIONS, format_model_label, type KnowledgeCreateFormState } from './types.ts'
 
 
 const { Text } = Typography
@@ -193,7 +193,7 @@ export function KnowledgeCreateModal ({
                         }}
                         options={chat_configs.map(cfg => ({
                             value: cfg.llmConfigId,
-                            label: [cfg.model, cfg.name, cfg.providerName].filter(Boolean).join(' · '),
+                            label: format_model_label(cfg),
                         }))}
                         style={{ width: '100%', marginTop: 6 }}
                     />}
@@ -217,7 +217,7 @@ export function KnowledgeCreateModal ({
                     onChange={val => { set_form({ ...form, llmConfigId: val }) }}
                     options={embedding_configs.map(cfg => ({
                         value: cfg.llmConfigId,
-                        label: `${cfg.name} (${cfg.model})`,
+                        label: format_model_label(cfg),
                     }))}
                 />}
             </Form.Item>

@@ -8,6 +8,7 @@ import { t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
 import type { IAgentLlmBinding, ILlmBudgetStatus, ILlmModelUsage, ILlmProvider } from '@/agent/model/types.ts'
+import { format_model_label, format_provider_model } from '@/agent/model/helpers.ts'
 import {
     AgentListLayout,
     show_error,
@@ -56,27 +57,25 @@ function render_model_cell (row: UsageRow, bindings_map: Record<string, IAgentLl
     
     // 优先通过唯一的 llmConfigId 匹配对应的模型配置
     const binding = config_id ? bindings.find(b => b.llmConfigId === config_id) : undefined
-    if (binding) {
-        const provider_name = binding.providerName || binding.providerId || binding.adapterType || ''
-        const config_name = binding.name?.trim()
-        return <Space size={4}>
-            <span>{raw_model}</span>
-            {provider_name && <Tag color='blue' style={{ fontSize: 11, margin: 0 }}>{provider_name}</Tag>}
-            {config_name && config_name !== raw_model && <Tag color='default' style={{ fontSize: 11, margin: 0 }}>{config_name}</Tag>}
-        </Space>
+    let label = ''
+    if (binding)
+        label = format_model_label(binding, raw_model)
+    else {
+        // 若未通过 llmConfigId 匹配到，按模型名查找
+        const matched = bindings.filter(b => b.model === raw_model)
+        const providers = Array.from(new Set(matched.map(b => b.providerName || b.adapterType).filter(Boolean)))
+        if (providers.length === 1)
+            label = format_provider_model(providers[0], raw_model)
+        else
+            label = raw_model
     }
     
-    // 若未通过 llmConfigId 匹配到，按模型名查找
-    const matched = bindings.filter(b => b.model === raw_model)
-    const providers = Array.from(new Set(matched.map(b => b.providerName || b.providerId || b.adapterType).filter(Boolean)))
-    if (providers.length === 1) {
-        return <Space size={4}>
-            <span>{raw_model}</span>
-            <Tag color='default' style={{ fontSize: 11, margin: 0 }}>{providers[0]}</Tag>
-        </Space>
-    }
+    if (!label)
+        return '-'
     
-    return <span>{raw_model}</span>
+    return <Tooltip title={label}>
+        <span>{label}</span>
+    </Tooltip>
 }
 
 
@@ -160,7 +159,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
         const entries: [string, ILlmBudgetStatus][] = [ ]
         let has_error = false
         try {
-            const providers: ILlmProvider[] = await chat_model.llm.load_llm_providers().catch(() => [ ])
+            const providers: ILlmProvider[] = await chat_model.llm.ensure_llm_providers().catch(() => [ ])
             const provider_lookup = new Map<string, ILlmProvider>(providers.map(p => [p.providerId, p]))
             
             for (const [index, agent] of options.entries()) {
@@ -221,7 +220,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
         set_loading_usage(true)
         try {
             // 加载当前选定 Agent 的模型绑定信息，以便在子行区分不同提供商
-            const providers_p: Promise<ILlmProvider[]> = chat_model.llm.load_llm_providers().catch(() => [ ])
+            const providers_p: Promise<ILlmProvider[]> = chat_model.llm.ensure_llm_providers().catch(() => [ ])
             const entries_p = Promise.all(usage_user_options.map(async user => [
                 user.value,
                 await load_usage_status({
@@ -300,7 +299,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                         {
                             title: t('模型'),
                             render: (_: unknown, row) => render_model_cell(row, bindings_map),
-                            ellipsis: true,
+                            ellipsis: { showTitle: false },
                         },
                         {
                             title: t('请求次数'),
@@ -383,7 +382,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                 {
                     title: t('模型'),
                     render: (_: unknown, row) => render_model_cell(row, bindings_map),
-                    ellipsis: true,
+                    ellipsis: { showTitle: false },
                 },
                 {
                     title: t('请求次数'),

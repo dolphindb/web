@@ -13,37 +13,34 @@ import {
 
 
 export function KnowledgeTab () {
+    const { llm_providers: providers, llm_configs } = chat_model.use(['llm_providers', 'llm_configs'])
     const [knowledge_bases, set_knowledge_bases] = useState<IKnowledgeBaseInfo[]>([ ])
     const [selected_kb_id, set_selected_kb_id] = useState('')
     const [loading, set_loading] = useState(false)
     const [agents, set_agents] = useState<IAgentInfo[]>([ ])
-    const [embedding_configs, set_embedding_configs] = useState<ILlmConfig[]>([ ])
-    const [chat_configs, set_chat_configs] = useState<ILlmConfig[]>([ ])
     
     const [create_modal_visible, set_create_modal_visible] = useState(false)
     const [creating_kb, set_creating_kb] = useState(false)
     
+    const provider_map = new Map<string, ILlmProvider>(providers.map(p => [p.providerId, p] as const))
+    const active_configs = llm_configs.filter(config => {
+        const provider = provider_map.get(config.providerId)
+        return Boolean(provider) && config.enabled !== false && config.statusName !== 'DELETED' &&
+            provider?.enabled !== false && provider?.statusName !== 'DELETED'
+    })
+    const embedding_configs = active_configs.filter(c => c.capability === 'embedding')
+    const chat_configs = active_configs.filter(c => !c.capability || c.capability === 'chat')
+    
     async function load () {
         set_loading(true)
         try {
-            const [kbs, providers, all_agents] = await Promise.all([
+            const [kbs, all_agents] = await Promise.all([
                 chat_model.knowledge.list_knowledge_bases(),
-                chat_model.llm.load_llm_providers().catch(() => [ ]),
                 chat_model.agent.load_agents().then(() => chat_model.agents).catch(() => [ ]),
+                chat_model.llm.ensure_llm_configs(true),
             ])
-            const provider_map = new Map<string, ILlmProvider>(providers.map(p => [p.providerId, p] as const))
-            const all_configs = await chat_model.llm.load_llm_configs(provider_map).catch(() => [ ])
-            const active_configs = all_configs.filter(config => {
-                const provider = provider_map.get(config.providerId)
-                return Boolean(provider) && config.enabled !== false && config.statusName !== 'DELETED' &&
-                    provider?.enabled !== false && provider?.statusName !== 'DELETED'
-            })
-            
             set_knowledge_bases(kbs)
             set_agents(all_agents)
-            set_embedding_configs(active_configs.filter(c => c.capability === 'embedding'))
-            set_chat_configs(active_configs.filter(c => !c.capability || c.capability === 'chat'))
-            
         } catch {
             model.message.error(t('加载知识库列表失败'))
         } finally {

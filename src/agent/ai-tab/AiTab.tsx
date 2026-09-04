@@ -10,6 +10,7 @@ import { copy } from '@utils'
 import { chat_model, chat_shared_model, get_chat_model } from '@/agent/model.ts'
 import type { IChatContentPart, ScriptExecuteApprovalMode } from '@/agent/model/types.ts'
 import { no_active_agent_message, no_available_llm_config_message } from '@/agent/model/agent.ts'
+import { format_model_label } from '@/agent/model/helpers.ts'
 import { ENABLE_ATTACHMENTS } from '@/agent/model/constants.ts'
 import { required_plugins_model } from '@/agent/model/required-plugins.ts'
 import { parse_ddb_obj_from_content_object } from '@/agent/utils/ddb-object.ts'
@@ -367,10 +368,13 @@ export function AiTab ({ session_id }: { session_id: string }) {
     const selectable_llms = agent_id ? chat.agent.get_selectable_llms(agent_id) : [ ]
     const effective_llm_config_id = chat.agent.get_effective_llm_config_id(selected_llm_config_id)
     const current_llm = chat.agent.get_llm_for_tool_call_mode(effective_llm_config_id, selectable_llms)
-    const llm_options = selectable_llms.map(llm => ({
-        value: llm.llmConfigId,
-        label: llm.isAgentDefault ? `${llm.name} (${t('默认')})` : llm.name,
-    }))
+    const llm_options = selectable_llms.map(llm => {
+        const display_name = format_model_label(llm)
+        return {
+            value: llm.llmConfigId,
+            label: llm.isAgentDefault ? `${display_name} (${t('默认')})` : display_name,
+        }
+    })
     const llm_config_unavailable = Boolean(agent_id && !selectable_llms.some(llm =>
         llm.capability !== 'embedding' && llm.enabled !== false && llm.statusName !== 'DELETED'
     ))

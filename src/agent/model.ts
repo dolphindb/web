@@ -18,7 +18,7 @@ import { ChatMcpModel } from './model/mcp.ts'
 import { ChatAttachmentModel } from './model/attachment.ts'
 import { ChatKnowledgeModel } from './model/knowledge.ts'
 import { chat_shared_model } from './model/shared.ts'
-import type { IAgentInfo, IAgentStatusEvent, IScriptExecutionApproval, ISession, IMessage, IToolLoopControl, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
+import type { IAgentInfo, IAgentStatusEvent, ILlmConfig, ILlmProvider, IScriptExecutionApproval, ISession, IMessage, IToolLoopControl, ScriptExecuteApprovalDecision, ScriptExecuteApprovalMode } from './model/types.ts'
 export { chat_shared_model }
 
 // 初始化工具注册表
@@ -53,6 +53,12 @@ export class ChatModel extends Model<ChatModel> {
     last_agent_load_error = ''
     
     can_manage_agents = false
+    
+    /** 全局 LLM 提供商列表 */
+    llm_providers: ILlmProvider[] = [ ]
+    
+    /** 全局 LLM 模型配置列表（已关联 providerName） */
+    llm_configs: ILlmConfig[] = [ ]
     
     sessions: ISession[] = [ ]
     
@@ -178,7 +184,7 @@ export function clear_chat_agent_state () {
     for (const chat of new Set([chat_model, ...chat_model_instances.values()])) {
         chat.agent.set_active_agent('', [ ])
         chat._ddb_connection_error = null
-        chat.set({ can_manage_agents: false, last_agent_load_error: '' })
+        chat.set({ can_manage_agents: false, last_agent_load_error: '', llm_providers: [ ], llm_configs: [ ] })
     }
     chat_shared_model.disconnect_ddb()
 }

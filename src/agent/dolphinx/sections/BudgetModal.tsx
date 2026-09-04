@@ -7,6 +7,7 @@ import { t } from '@i18n'
 
 import { chat_model } from '@/agent/model.ts'
 import type { ILlmBudgetConfig } from '@/agent/model/types.ts'
+import { format_model_label } from '@/agent/model/helpers.ts'
 import { show_error } from '@/agent/dolphinx/common.tsx'
 
 
@@ -52,12 +53,8 @@ export function BudgetModal ({
         Promise.all([
             chat_model.llm.load_llm_budget({ agentId: agent_id }),
             chat_model.llm.load_llm_usage({ agentId: agent_id }).catch(() => undefined),
-            chat_model.llm.load_llm_providers(),
-        ]).then(async ([budget_result, usage_result, providers]) => {
-            if (disposed)
-                return
-            const provider_lookup = new Map(providers.map(p => [p.providerId, p]))
-            const bindings = await chat_model.llm.load_agent_llm_bindings(agent_id, provider_lookup)
+            chat_model.llm.load_agent_llm_bindings(agent_id),
+        ]).then(([budget_result, usage_result, bindings]) => {
             if (disposed)
                 return
             
@@ -75,17 +72,7 @@ export function BudgetModal ({
                 if (!key)
                     continue
                 seen_keys.add(key)
-                const provider_name = binding.providerName || binding.providerId || binding.adapterType || ''
-                const raw_model = binding.model || ''
-                const config_name = binding.name?.trim()
-                
-                let label = ''
-                if (provider_name)
-                    label = `${provider_name} / ${raw_model}`
-                else
-                    label = raw_model || key
-                if (config_name && config_name !== raw_model)
-                    label += ` (${config_name})`
+                const label = format_model_label(binding, binding.model) || key
                 options.push({ value: key, label })
             }
             

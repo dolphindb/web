@@ -4,6 +4,7 @@ import { Form, Input, InputNumber, Modal, Select, Space, Switch, Typography } fr
 import { t } from '@i18n'
 import { model } from '@model'
 import type { IKnowledgeBaseInfo, IKnowledgeRetrievalConfig, ILlmConfig } from '@/agent/model/types.ts'
+import { format_model_label } from './types.ts'
 
 
 const { Text } = Typography
@@ -180,7 +181,7 @@ export function KnowledgeEditModal ({
                         }}
                         options={chat_configs.map(cfg => ({
                             value: cfg.llmConfigId,
-                            label: [cfg.model, cfg.name, cfg.providerName].filter(Boolean).join(' · '),
+                            label: format_model_label(cfg),
                         }))}
                         style={{ width: '100%', marginTop: 6 }}
                     />}

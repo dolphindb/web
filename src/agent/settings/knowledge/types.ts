@@ -1,5 +1,6 @@
 import { t } from '@i18n'
-import type { IKnowledgeBaseConfig, IKnowledgeRetrievalConfig } from '@/agent/model/types.ts'
+import type { IKnowledgeBaseConfig, IKnowledgeRetrievalConfig, ILlmConfig } from '@/agent/model/types.ts'
+
 
 
 export const DEFAULT_RETRIEVAL_CONFIG: IKnowledgeRetrievalConfig = {
@@ -178,3 +179,7 @@ export function get_kb_status_color (status?: string): string {
             return 'default'
     }
 }
+
+
+export { format_model_label, format_model_label as format_chat_config_label } from '@/agent/model/helpers.ts'
+

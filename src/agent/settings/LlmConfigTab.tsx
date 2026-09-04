@@ -28,8 +28,10 @@ function refresh_current_agent_llms () {
 
 
 export function LlmConfigTab () {
-    const [providers, set_providers] = useState<ILlmProvider[]>([ ])
-    const [configs, set_configs] = useState<ILlmConfig[]>([ ])
+    const { llm_providers: all_providers, llm_configs: all_configs } = chat_model.use(['llm_providers', 'llm_configs'])
+    const providers = all_providers.filter(p => p.statusName !== 'DELETED')
+    const configs = all_configs.filter(c => c.statusName !== 'DELETED')
+    
     const [selected_provider_id, set_selected_provider_id] = useState('')
     const [provider_mode, set_provider_mode] = useState<'idle' | 'create' | 'edit'>('idle')
     const [provider_form, set_provider_form] = useState({ ...DEFAULT_PROVIDER_FORM })
@@ -44,24 +46,13 @@ export function LlmConfigTab () {
     const [provider_error, set_provider_error] = useState('')
     const [config_error, set_config_error] = useState('')
     
-    async function load () {
+    async function load (force = false) {
         set_loading(true)
         try {
-            const [ps, cs] = await Promise.all([
-                chat_model.llm.load_llm_providers(),
-                chat_model.llm.load_llm_configs(),
+            await Promise.all([
+                chat_model.llm.ensure_llm_providers(force),
+                chat_model.llm.ensure_llm_configs(force),
             ])
-            const visible_providers = ps.filter(p => p.statusName !== 'DELETED')
-            const lookup = new Map(visible_providers.map(p => [p.providerId, p]))
-            const enriched = cs
-                .filter(c => c.statusName !== 'DELETED')
-                .map(c => ({
-                    ...c,
-                    providerName: c.providerName || lookup.get(c.providerId)?.name,
-                    adapterType: c.adapterType || lookup.get(c.providerId)?.adapterType,
-                }))
-            set_providers(visible_providers)
-            set_configs(enriched)
         } catch {
             message.error(t('加载模型配置失败'))
         } finally {
@@ -69,7 +60,7 @@ export function LlmConfigTab () {
         }
     }
     
-    useEffect(() => { load() }, [ ])
+    useEffect(() => { load(true) }, [ ])
     
     const selected_provider = providers.find(p => p.providerId === selected_provider_id)
     const provider_configs = configs.filter(c => c.providerId === selected_provider_id)
@@ -81,7 +72,7 @@ export function LlmConfigTab () {
         set_provider_error('')
     }
     
-    function open_edit_provider (p: ILlmProvider) {
+    async function open_edit_provider (p: ILlmProvider) {
         set_selected_provider_id(p.providerId)
         set_provider_mode('edit')
         set_provider_form({
@@ -91,6 +82,20 @@ export function LlmConfigTab () {
             apiKey: p.apiKey || '',
         })
         set_provider_error('')
+        try {
+            const [fresh_providers] = await Promise.all([
+                chat_model.llm.ensure_llm_providers(true),
+                chat_model.llm.ensure_llm_configs(true),
+            ])
+            const fresh = fresh_providers.find(item => item.providerId === p.providerId)
+            if (fresh)
+                set_provider_form({
+                    name: fresh.name,
+                    adapterType: fresh.adapterType || 'deepseek',
+                    baseUrl: fresh.baseUrl,
+                    apiKey: fresh.apiKey || '',
+                })
+        } catch { }
     }
     
     async function save_provider () {

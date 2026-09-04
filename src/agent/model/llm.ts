@@ -68,13 +68,65 @@ export class ChatLlmModel {
             statusName: get_status_name(item),
         }
     }
-    async load_llm_providers (): Promise<ILlmProvider[]> {
-        try {
-            return (await this.chat.llm.load_page_items('/llm/provider/list')).map((item: any) => this.chat.llm._map_llm_provider(item))
-        } catch {
-            return [ ]
-        }
+    _p_load_providers: Promise<ILlmProvider[]> | null = null
+    _p_load_configs: Promise<ILlmConfig[]> | null = null
+
+    /**
+     * 获取全局 LLM 提供商列表。
+     * 遵循“如果有就直接取，没有再发网络请求”的缓存原则，并做并发去重保护。
+     */
+    async ensure_llm_providers (force = false): Promise<ILlmProvider[]> {
+        if (!force && this.chat.llm_providers.length > 0)
+            return this.chat.llm_providers
+        if (this._p_load_providers)
+            return this._p_load_providers
+        const p = (async () => {
+            try {
+                const items = (await this.chat.llm.load_page_items('/llm/provider/list')).map((item: any) => this.chat.llm._map_llm_provider(item))
+                this.chat.set({ llm_providers: items })
+                return items
+            } catch (error) {
+                console.error('Failed to load LLM providers:', error)
+                return this.chat.llm_providers
+            } finally {
+                this._p_load_providers = null
+            }
+        })()
+        this._p_load_providers = p
+        return p
     }
+
+    /**
+     * 获取全局 LLM 模型配置列表（已关联 providerName）。
+     * 遵循“如果有就直接取，没有再发网络请求”的缓存原则，并做并发去重保护。
+     */
+    async ensure_llm_configs (force = false): Promise<ILlmConfig[]> {
+        if (!force && this.chat.llm_configs.length > 0)
+            return this.chat.llm_configs
+        if (this._p_load_configs)
+            return this._p_load_configs
+        const p = (async () => {
+            try {
+                const providers = await this.chat.llm.ensure_llm_providers(force)
+                const provider_lookup = new Map(providers.map(p => [p.providerId, p] as const))
+                const items = (await this.chat.llm.load_page_items('/llm/config/list')).map((item: any) => this.chat.llm._map_llm_config(item, provider_lookup))
+                this.chat.set({ llm_configs: items })
+                return items
+            } catch (error) {
+                console.error('Failed to load LLM configs:', error)
+                return this.chat.llm_configs
+            } finally {
+                this._p_load_configs = null
+            }
+        })()
+        this._p_load_configs = p
+        return p
+    }
+
+    async load_llm_providers (force = false): Promise<ILlmProvider[]> {
+        return this.chat.llm.ensure_llm_providers(force)
+    }
+
     async register_llm_provider (provider: {
         name: string
         adapterType: string
@@ -83,56 +135,86 @@ export class ChatLlmModel {
         enabled?: boolean
         extra?: string
     }): Promise<ILlmProvider> {
-        return this.chat.agent.api_fetch('/llm/provider/register', {
+        const result = await this.chat.agent.api_fetch('/llm/provider/register', {
             method: 'POST',
             body: JSON.stringify(provider),
         })
+        await this.chat.llm.ensure_llm_providers(true)
+        await this.chat.llm.ensure_llm_configs(true)
+        return result
     }
+
     async update_llm_provider (provider_id: string, updates: Record<string, any>): Promise<void> {
         await this.chat.agent.api_fetch(`/llm/provider/${provider_id}`, {
             method: 'PUT',
             body: JSON.stringify(updates),
         })
+        await this.chat.llm.ensure_llm_providers(true)
+        await this.chat.llm.ensure_llm_configs(true)
     }
+
     async disable_llm_provider (provider_id: string): Promise<void> {
         await this.chat.llm.update_llm_provider(provider_id, { enabled: false })
     }
+
     async enable_llm_provider (provider_id: string): Promise<void> {
         await this.chat.llm.update_llm_provider(provider_id, { enabled: true })
     }
+
     async delete_llm_provider (provider_id: string): Promise<void> {
         await this.chat.agent.api_fetch(`/llm/provider/${provider_id}`, { method: 'DELETE' })
+        await this.chat.llm.ensure_llm_providers(true)
+        await this.chat.llm.ensure_llm_configs(true)
     }
-    async load_llm_configs (provider_lookup?: Map<string, ILlmProvider>): Promise<ILlmConfig[]> {
+
+    async load_llm_configs (provider_lookup?: Map<string, ILlmProvider>, force = false): Promise<ILlmConfig[]> {
+        if (!provider_lookup)
+            return this.chat.llm.ensure_llm_configs(force)
         try {
-            return (await this.chat.llm.load_page_items('/llm/config/list')).map((item: any) => this.chat.llm._map_llm_config(item, provider_lookup))
+            const items = (await this.chat.llm.load_page_items('/llm/config/list')).map((item: any) => this.chat.llm._map_llm_config(item, provider_lookup))
+            this.chat.set({ llm_configs: items })
+            return items
         } catch {
-            return [ ]
+            return this.chat.llm_configs
         }
     }
+
     async register_llm_config (config: ILlmConfigInput): Promise<ILlmConfig> {
-        return this.chat.agent.api_fetch('/llm/config/register', {
+        const result = await this.chat.agent.api_fetch('/llm/config/register', {
             method: 'POST',
             body: JSON.stringify(config),
         })
+        await this.chat.llm.ensure_llm_configs(true)
+        return result
     }
+
     async update_llm_config (llm_config_id: string, updates: Partial<ILlmConfigInput>): Promise<void> {
         await this.chat.agent.api_fetch(`/llm/config/${llm_config_id}`, {
             method: 'PUT',
             body: JSON.stringify(updates),
         })
+        await this.chat.llm.ensure_llm_configs(true)
     }
+
     async disable_llm_config (llm_config_id: string): Promise<void> {
         await this.chat.llm.update_llm_config(llm_config_id, { enabled: false })
     }
+
     async enable_llm_config (llm_config_id: string): Promise<void> {
         await this.chat.llm.update_llm_config(llm_config_id, { enabled: true })
     }
+
     async delete_llm_config (llm_config_id: string): Promise<void> {
         await this.chat.agent.api_fetch(`/llm/config/${llm_config_id}`, { method: 'DELETE' })
+        await this.chat.llm.ensure_llm_configs(true)
     }
+
     async load_agent_llm_bindings (agent_id: string, provider_lookup?: Map<string, ILlmProvider>): Promise<IAgentLlmBinding[]> {
         try {
+            if (!provider_lookup) {
+                const providers = await this.chat.llm.ensure_llm_providers()
+                provider_lookup = new Map(providers.map(p => [p.providerId, p] as const))
+            }
             const result = await this.chat.agent.api_fetch(`/agent/${encodeURIComponent(agent_id)}/llm/list`)
             return (result.items || [ ]).map((item: any) => ({
                 ...this.chat.llm._map_llm_config(item, provider_lookup),
@@ -230,6 +312,10 @@ export class ChatLlmModel {
         if (!aid)
             return [ ]
         try {
+            if (!provider_lookup) {
+                const providers = await this.chat.llm.load_llm_providers().catch(() => [ ])
+                provider_lookup = new Map(providers.map(p => [p.providerId, p] as const))
+            }
             const page_items = await this.chat.llm.load_page_items(`/agent/${aid}/llm/selectable`)
             const items: ISelectableLlmInfo[] = page_items.map((item: any) => ({
                 ...this.chat.llm._map_llm_config(item, provider_lookup),

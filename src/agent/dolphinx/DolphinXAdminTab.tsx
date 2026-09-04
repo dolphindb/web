@@ -164,15 +164,12 @@ function AgentAccessSection ({ subject_type, subject_id }: { subject_type: Agent
 
 
 function LlmAccessSection ({ subject_type, subject_id }: { subject_type: AgentAuthSubjectType, subject_id: string }) {
-    const [configs, set_configs] = useState<ILlmConfig[]>([ ])
+    const { llm_configs: configs } = chat_model.use(['llm_configs'])
     const [items, set_items] = useState<IUserLlmAccessInfo[]>([ ])
     const load_error = subject_type === 'USER' ? t('加载用户 LLM 授权失败') : t('加载用户组 LLM 授权失败')
     
     useEffect(() => {
-        chat_model.llm.load_llm_providers()
-            .then(providers => chat_model.llm.load_llm_configs(new Map(providers.map(provider => [provider.providerId, provider]))))
-            .then(set_configs)
-            .catch(error => { show_error(error, t('加载模型配置失败')) })
+        chat_model.llm.ensure_llm_configs().catch(error => { show_error(error, t('加载模型配置失败')) })
     }, [ ])
     
     const visible_configs = useMemo(

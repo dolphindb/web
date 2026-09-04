@@ -224,3 +224,40 @@ export function parse_sse_event (raw_event: string): { event: string, data: stri
     
     return { event, data: data_lines.join('\n') }
 }
+
+
+/**
+ * 格式化提供商与模型名称为“提供商/模型”，如 openrouter/deepseek-v4-pro
+ */
+export function format_provider_model (provider?: string, model?: string): string {
+    const p = provider?.trim() || ''
+    const m = model?.trim() || ''
+    if (!p)
+        return m
+    if (!m)
+        return p
+    // 若模型名本身已以 provider/ 开头，避免重复前缀
+    if (m.toLowerCase().startsWith(`${p.toLowerCase()}/`))
+        return m
+    return `${p}/${m}`
+}
+
+
+/**
+ * 统一格式化模型展示标签为“提供商/模型”，如 openrouter/deepseek-v4-pro
+ */
+export function format_model_label (item?: {
+    providerName?: string
+    providerId?: string
+    adapterType?: string
+    model?: string
+    name?: string
+    llmConfigId?: string
+} | null, fallback_model?: string): string {
+    if (!item)
+        return fallback_model || ''
+    const provider = item.providerName || item.adapterType || ''
+    const model = item.model || fallback_model || item.name || item.llmConfigId || ''
+    return format_provider_model(provider, model)
+}
+

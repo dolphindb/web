@@ -5,6 +5,7 @@ import { InfoCircleOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/
 import { t } from '@i18n'
 import type { IAgentInfo, IKnowledgeBaseInfo, IKnowledgeRetrievalDiagnostic, IKnowledgeRetrieveResult, ILlmConfig } from '@/agent/model/types.ts'
 import { chat_model } from '@/agent/model.ts'
+import { format_model_label } from './types.ts'
 
 
 const { Text, Paragraph } = Typography
@@ -215,7 +216,7 @@ export function RetrievalTestModal ({
                                 onChange={set_rerank_provider_config_id}
                                 options={chat_configs.map(cfg => ({
                                     value: cfg.llmConfigId,
-                                    label: [cfg.model, cfg.name, cfg.providerName].filter(Boolean).join(' · '),
+                                    label: format_model_label(cfg),
                                 }))}
                                 style={{ width: '100%', marginTop: 6 }}
                             />}

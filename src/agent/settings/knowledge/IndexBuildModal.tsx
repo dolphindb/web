@@ -3,7 +3,7 @@ import { Form, InputNumber, Modal, Radio, Select, Switch, message } from 'antd'
 
 import { t } from '@i18n'
 import type { IKnowledgeBaseConfig, ILlmConfig } from '@/agent/model/types.ts'
-import { VECTOR_INDEX_TYPE_OPTIONS } from './types.ts'
+import { VECTOR_INDEX_TYPE_OPTIONS, format_model_label } from './types.ts'
 
 
 export function IndexBuildModal ({
@@ -136,7 +136,7 @@ export function IndexBuildModal ({
                         }}
                         options={embedding_configs.map(cfg => ({
                             value: cfg.llmConfigId,
-                            label: `${cfg.name} (${cfg.model})`,
+                            label: format_model_label(cfg),
                         }))}
                     />}
                 </Form.Item>

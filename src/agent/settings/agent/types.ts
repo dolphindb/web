@@ -1,4 +1,5 @@
 import type { IAgentInfo, ILlmConfig, IMcpServerInfo } from '@/agent/model/types.ts'
+import { format_model_label } from '@/agent/model/helpers.ts'
 
 
 export const DEFAULT_AGENT_FORM = {
@@ -14,8 +15,7 @@ export type AgentFormData = typeof DEFAULT_AGENT_FORM
 
 
 export function get_llm_config_display_name (llm: ILlmConfig) {
-    const provider_name = llm.providerName || llm.providerId || llm.adapterType || '-'
-    return `${provider_name} / ${llm.name}`
+    return format_model_label(llm)
 }
 
 
