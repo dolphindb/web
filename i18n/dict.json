@@ -10090,5 +10090,10 @@
     },
     "此模型关联不同提供商：{{providers}}（配置：{{configs}}）": {
         "en": "This model is associated with multiple providers: {{providers}} (configs: {{configs}})"
+    },
+    "Rerank 由 LLM 执行且对响应速度敏感，建议选用低延迟模型，如需进一步提速亦可关闭深度思考。Rerank 与 Agent 的任务特性不同，建议配置为不同的模型。": {
+        "en": "Rerank is executed by LLM and sensitive to response latency. It is recommended to choose a low-latency model, and deep thinking can also be disabled for further speedup. Because Rerank and Agent have different task characteristics, it is recommended to configure them with different models.",
+        "ja": "RerankはLLMによって実行され、レイテンシに敏感です。低遅延モデルの選択を推奨します。さらに高速化が必要な場合はディープシンキングを無効化することも可能です。RerankとAgentはタスク特性が異なるため、別々のモデルを設定することを推奨します。",
+        "ko": "Rerank는 LLM으로 실행되며 지연 시간에 민감합니다. 지연 시간이 짧은 모델을 선택하는 것이 좋으며, 추가적인 속도 향상이 필요한 경우 딥 씽킹을 비활성화할 수도 있습니다. Rerank와 Agent는 작업 특성이 다르므로 서로 다른 모델을 구성하는 것을 권장합니다."
     }
 }

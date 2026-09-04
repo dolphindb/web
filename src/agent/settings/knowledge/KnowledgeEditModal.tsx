@@ -172,19 +172,24 @@ export function KnowledgeEditModal ({
                             {rerank_enabled ? t('已启用，检索将对融合候选进行二次重排') : t('已禁用，使用多路召回 RRF 融合结果')}
                         </Text>
                     </Space>
-                    {rerank_enabled && <Select
-                        placeholder={t('选择启用的 Chat 评估模型')}
-                        value={rerank_provider_config_id || undefined}
-                        onChange={val => {
-                            set_rerank_provider_config_id(val)
-                            set_error_msg('')
-                        }}
-                        options={chat_configs.map(cfg => ({
-                            value: cfg.llmConfigId,
-                            label: format_model_label(cfg),
-                        }))}
-                        style={{ width: '100%', marginTop: 6 }}
-                    />}
+                    {rerank_enabled && <>
+                        <Select
+                            placeholder={t('选择启用的 Chat 评估模型')}
+                            value={rerank_provider_config_id || undefined}
+                            onChange={val => {
+                                set_rerank_provider_config_id(val)
+                                set_error_msg('')
+                            }}
+                            options={chat_configs.map(cfg => ({
+                                value: cfg.llmConfigId,
+                                label: format_model_label(cfg),
+                            }))}
+                            style={{ width: '100%', marginTop: 6 }}
+                        />
+                        <div style={{ fontSize: 12, color: 'var(--text-color-secondary, #8c8c8c)', marginTop: 4, lineHeight: '18px' }}>
+                            {t('Rerank 由 LLM 执行且对响应速度敏感，建议选用低延迟模型，如需进一步提速亦可关闭深度思考。Rerank 与 Agent 的任务特性不同，建议配置为不同的模型。')}
+                        </div>
+                    </>}
                 </Space>
             </Form.Item>
             
