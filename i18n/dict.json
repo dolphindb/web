@@ -10095,5 +10095,14 @@
         "en": "Rerank is executed by LLM and sensitive to response latency. It is recommended to choose a low-latency model, and deep thinking can also be disabled for further speedup. Because Rerank and Agent have different task characteristics, it is recommended to configure them with different models.",
         "ja": "RerankはLLMによって実行され、レイテンシに敏感です。低遅延モデルの選択を推奨します。さらに高速化が必要な場合はディープシンキングを無効化することも可能です。RerankとAgentはタスク特性が異なるため、別々のモデルを設定することを推奨します。",
         "ko": "Rerank는 LLM으로 실행되며 지연 시간에 민감합니다. 지연 시간이 짧은 모델을 선택하는 것이 좋으며, 추가적인 속도 향상이 필요한 경우 딥 씽킹을 비활성화할 수도 있습니다. Rerank와 Agent는 작업 특성이 다르므로 서로 다른 모델을 구성하는 것을 권장합니다."
+    },
+    "用量限制在服务商返回 Token 用量时可用。": {
+        "en": "Usage limits are available when the provider returns token usage."
+    },
+    "用量消耗在服务商返回 Token 用量时可用。": {
+        "en": "Usage consumption is available when the provider returns token usage."
+    },
+    "用量统计在服务商返回 Token 用量时可用。": {
+        "en": "Usage statistics are available when the provider returns token usage."
     }
 }

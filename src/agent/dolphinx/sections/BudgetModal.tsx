@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
-import { Alert, Button, Form, InputNumber, Modal, Select, Switch, message } from 'antd'
-import { DeleteOutlined } from '@ant-design/icons'
+import { Button, Form, InputNumber, Modal, Select, Switch, message } from 'antd'
+import { DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 
@@ -135,12 +135,13 @@ export function BudgetModal ({
         width={640}
         destroyOnHidden
     >
-        <Alert
-            className='ai-budget-tip'
-            type='info'
-            showIcon
-            message={t('0 表示不限制；未配置模型预算时，该模型不单独限制。')}
-        />
+        <div className='ai-budget-tip'>
+            <InfoCircleOutlined className='ai-budget-tip-icon' />
+            <div>
+                <div>{t('0 表示不限制；未配置模型预算时，该模型不单独限制。')}</div>
+                <div>{t('用量限制在服务商返回 Token 用量时可用。')}</div>
+            </div>
+        </div>
         <Form layout='vertical'>
             <Form.Item label={t('启用预算限制')}>
                 <Switch className='ai-settings-switch-medium' checked={enabled} onChange={set_enabled} />

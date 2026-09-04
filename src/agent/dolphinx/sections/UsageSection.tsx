@@ -258,6 +258,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
                     />
                     <Button loading={loading_usage} onClick={load_usage}>{t('刷新')}</Button>
                 </div>
+                <div className='ai-usage-tip'>{t('用量消耗在服务商返回 Token 用量时可用。')}</div>
                 <Table<UsageRow>
                     className='ai-usage-table'
                     size='small'
@@ -343,6 +344,7 @@ export function UsageSection ({ admin = false }: { admin?: boolean }) {
             <Button loading={loading_usage} onClick={load_admin_usage}>{t('刷新')}</Button>
         </Space>}
     >
+        <div className='ai-usage-tip'>{t('用量统计在服务商返回 Token 用量时可用。')}</div>
         <Table<UsageRow>
             className='ai-usage-table'
             size='small'
