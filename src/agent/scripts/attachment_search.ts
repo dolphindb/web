@@ -4,18 +4,6 @@ import type { ScriptConfig, ScriptResult } from './types.ts'
 import { normalize_script_args } from './helpers.ts'
 
 
-function parse_top_k (value: unknown) {
-    if (typeof value === 'number' && Number.isFinite(value))
-        return Math.max(1, Math.min(20, Math.trunc(value)))
-    if (typeof value === 'string' && value.trim()) {
-        const parsed = Number(value)
-        if (Number.isFinite(parsed))
-            return Math.max(1, Math.min(20, Math.trunc(parsed)))
-    }
-    return 8
-}
-
-
 function parse_attachment_ids (value: unknown) {
     return (Array.isArray(value) ? value : typeof value === 'string' ? value.split(',') : [ ])
         .map(id => String(id).trim())
@@ -34,7 +22,6 @@ export const attachment_search_config: ScriptConfig = {
                 type: 'object',
                 properties: {
                     query: { type: 'string', description: '检索查询词或问题' },
-                    top_k: { type: 'number', description: '可选，返回候选片段上限（1～20，默认 8）' },
                     attachment_ids: {
                         type: 'array',
                         description: '可选，限定检索的附件 ID；省略或为空时检索当前会话下全部可检索附件',
@@ -49,11 +36,11 @@ export const attachment_search_config: ScriptConfig = {
         try {
             const parsed_obj = normalize_json_object(content)
             const args = normalize_script_args(content)
-            const query = String(parsed_obj?.query ?? args[0] ?? '').trim()
-            const top_k = parse_top_k(parsed_obj?.top_k ?? parsed_obj?.topK ?? args[1])
-            const attachment_ids = parse_attachment_ids(
-                parsed_obj?.attachment_ids ?? parsed_obj?.attachmentIds ?? args[2]
+            const query = String(parsed_obj?.query ?? (parsed_obj ? '' : args[0]) ?? '').trim()
+            const raw_attachment_ids = parsed_obj?.attachment_ids ?? parsed_obj?.attachmentIds ?? (
+                parsed_obj ? undefined : args[1]
             )
+            const attachment_ids = parse_attachment_ids(raw_attachment_ids)
             
             if (!context.session_id)
                 return {
@@ -85,7 +72,6 @@ export const attachment_search_config: ScriptConfig = {
                     method: 'POST',
                     body: JSON.stringify({
                         query,
-                        topK: top_k,
                         ...(attachment_ids.length ? { attachmentIds: attachment_ids } : { }),
                     }),
                 }

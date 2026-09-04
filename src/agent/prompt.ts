@@ -57,13 +57,13 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = is_english ? {
     },
     kb_search: {
         summary: 'Search for relevant evidence/chunks and sources within a specified knowledge base.',
-        args_desc: 'Object arguments supported: knowledge_base_id (required, string), query (required, string), top_k (optional, 1-20, default 8). Or array: ["<knowledgeBaseId>", "<query>", "8"].',
-        args_hint: '{"tool_call":"kb_search","args":{"knowledge_base_id":"kb_xxx","query":"deployment check","top_k":8}}',
+        args_desc: 'Object arguments supported: knowledge_base_id (required, string), query (required, string). Or array: ["<knowledgeBaseId>", "<query>"].',
+        args_hint: '{"tool_call":"kb_search","args":{"knowledge_base_id":"kb_xxx","query":"deployment check"}}',
     },
     attachment_search: {
         summary: 'Search ready attachments in the current session for relevant evidence/chunks and sources.',
-        args_desc: 'Object arguments supported: query (required, string), top_k (optional, 1-20, default 8), attachment_ids (optional string array; omit to search all ready attachments). Or array: ["<query>", "8", ["doc_xxx"]].',
-        args_hint: '{"tool_call":"attachment_search","args":{"query":"main conclusions","top_k":8,"attachment_ids":["doc_xxx"]}}',
+        args_desc: 'Object arguments supported: query (required, string), attachment_ids (optional string array; omit to search all ready attachments). Or array: ["<query>", ["doc_xxx"]].',
+        args_hint: '{"tool_call":"attachment_search","args":{"query":"main conclusions","attachment_ids":["doc_xxx"]}}',
     },
     kb_read: {
         summary: 'Read a target chunk and optional adjacent chunks before/after it to expand context into continuous text (returns startChunkId and endChunkId for further pagination).',
@@ -171,13 +171,13 @@ const TOOL_PROMPT_DOCS: Record<string, ToolPromptDoc> = is_english ? {
     },
     kb_search: {
         summary: '在指定的知识库中检索相关知识片段（chunks）与出处来源。',
-        args_desc: '支持对象参数：knowledge_base_id（必填, 知识库 ID）, query（必填, 检索词）, top_k（可选, 1～20, 默认 8）。或数组参数：["<knowledgeBaseId>", "<query>", "8"]。',
-        args_hint: '{"tool_call":"kb_search","args":{"knowledge_base_id":"kb_xxx","query":"部署检查","top_k":8}}',
+        args_desc: '支持对象参数：knowledge_base_id（必填, 知识库 ID）, query（必填, 检索词）。或数组参数：["<knowledgeBaseId>", "<query>"]。',
+        args_hint: '{"tool_call":"kb_search","args":{"knowledge_base_id":"kb_xxx","query":"部署检查"}}',
     },
     attachment_search: {
         summary: '在当前会话已就绪的附件中检索相关知识片段（chunks）与出处来源。',
-        args_desc: '支持对象参数：query（必填, 检索词）, top_k（可选, 1～20, 默认 8）, attachment_ids（可选字符串数组；省略时检索全部就绪附件）。或数组参数：["<query>", "8", ["doc_xxx"]]。',
-        args_hint: '{"tool_call":"attachment_search","args":{"query":"主要结论","top_k":8,"attachment_ids":["doc_xxx"]}}',
+        args_desc: '支持对象参数：query（必填, 检索词）, attachment_ids（可选字符串数组；省略时检索全部就绪附件）。或数组参数：["<query>", ["doc_xxx"]]。',
+        args_hint: '{"tool_call":"attachment_search","args":{"query":"主要结论","attachment_ids":["doc_xxx"]}}',
     },
     kb_read: {
         summary: '读取指定 chunk 片段的正文以及前后相邻 chunk 并拼接为连贯上下文（返回 startChunkId 与 endChunkId 用于继续翻页）。',

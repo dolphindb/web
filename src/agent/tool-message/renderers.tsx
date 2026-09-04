@@ -259,7 +259,7 @@ function RetrievalSearchRenderer (props: ToolRendererProps) {
             ? undefined
             : is_object_record(first_arg)
                 ? first_arg.attachment_ids ?? first_arg.attachmentIds
-                : normalized_args[2]
+                : normalized_args[1]
         const attachment_ids = Array.isArray(raw_attachment_ids)
             ? raw_attachment_ids.map(to_message_text).filter(Boolean).join(', ')
             : to_message_text(raw_attachment_ids)
