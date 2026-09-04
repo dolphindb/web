@@ -12,17 +12,6 @@ const MAX_DDB_RECONNECT_ATTEMPTS = 3
 const DDB_RECONNECT_BASE_DELAY = 1000
 
 
-// 临时调试代码，重连机制验证完成后删除所有 agent_ddb_debug_window 相关代码。
-interface AgentDdbDebugWindow extends Window {
-    force_agent_ddb_reconnect_failure?: boolean
-    disconnect_agent_ddb?: () => void
-    disconnect_agent_ddb_and_force_reconnect_failure?: () => void
-}
-
-
-const agent_ddb_debug_window = window as AgentDdbDebugWindow
-
-
 /** 连接已自动恢复，但中断前脚本是否完整执行未知，本次工具流程必须停止。 */
 export class DdbConnectionRecoveredError extends Error {
     override name = 'DdbConnectionRecoveredError'
@@ -74,21 +63,18 @@ export class ChatSharedModel extends Model<ChatSharedModel> {
             try {
                 for (let attempt = 0;  attempt < MAX_DDB_RECONNECT_ATTEMPTS;  attempt++) {
                     console.log(`[Agent DDB] 第 ${attempt + 1}/${MAX_DDB_RECONNECT_ATTEMPTS} 次重连`)
-                    let ddb: DDB | null = null
+                    const ddb = new DDB(model.ddb.url, {
+                        ticket: this.ddb_ticket,
+                        autologin: true,
+                        sql: SqlStandard.DolphinDB,
+                        verbose: model.verbose,
+                    })
                     try {
-                        if (agent_ddb_debug_window.force_agent_ddb_reconnect_failure)
-                            throw new Error('Forced Agent DDB reconnect failure for debugging.')
-                        ddb = new DDB(model.ddb.url, {
-                            ticket: this.ddb_ticket,
-                            autologin: true,
-                            sql: SqlStandard.DolphinDB,
-                            verbose: model.verbose,
-                        })
                         await ddb.connect()
                         this.ddb = ddb
                         return ddb
                     } catch (error) {
-                        ddb?.disconnect()
+                        ddb.disconnect()
                         last_error = error
                         if (attempt + 1 < MAX_DDB_RECONNECT_ATTEMPTS)
                             await delay(DDB_RECONNECT_BASE_DELAY * 2**attempt)
@@ -149,15 +135,3 @@ export class ChatSharedModel extends Model<ChatSharedModel> {
 
 
 export const chat_shared_model = new ChatSharedModel()
-
-
-// 临时调试函数，重连机制验证完成后删除。
-agent_ddb_debug_window.disconnect_agent_ddb = () => {
-    chat_shared_model.ddb?.disconnect()
-}
-
-
-agent_ddb_debug_window.disconnect_agent_ddb_and_force_reconnect_failure = () => {
-    agent_ddb_debug_window.force_agent_ddb_reconnect_failure = true
-    chat_shared_model.ddb?.disconnect()
-}
