@@ -141,7 +141,7 @@ export function IndexBuildModal ({
                     />}
                 </Form.Item>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 0.8fr', gap: 12 }}>
                     <Form.Item label={t('分块字符数 (200~4000)')} required>
                         <InputNumber
                             min={200}
