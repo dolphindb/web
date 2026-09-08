@@ -22,7 +22,7 @@ export type DocReference = {
 
 const RERANK_RECALL_LIMIT = 30
 const SUMMARY_CHARS = 220
-const DOC_READ_MAX_CHARS = 12000
+const DOC_READ_MAX_CHARS = 50000
 const MAX_DOC_REF_SESSIONS = 20
 const MAX_DOC_REFS_PER_SESSION = 100
 
