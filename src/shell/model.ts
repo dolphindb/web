@@ -1057,10 +1057,14 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
-    bind_ai_tab_session (old_chat_id: string, session_id: string, name?: string) {
-        const tab = this.tabs.find(t => t.chat_id === old_chat_id)
+    bind_ai_tab_session (old_chat_id: string, session_id: string, name?: string, tab_index?: number) {
+        const tab = this.tabs.find(t => tab_index === undefined ? t.chat_id === old_chat_id : t.index === tab_index)
         if (!tab)
             return
+        // 标签页可以切换会话，清除旧映射，避免旧会话的异步更新覆盖当前标题。
+        for (const [chat_id, index] of this.ai_session_tab_indices)
+            if (index === tab.index)
+                this.ai_session_tab_indices.delete(chat_id)
         tab.chat_id = session_id
         this.ai_session_tab_indices.set(session_id, tab.index)
         if (name)

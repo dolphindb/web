@@ -1,0 +1,119 @@
+.ai-session-switcher-trigger
+    cursor: pointer
+    padding: 4px 8px
+    border-radius: 6px
+
+    &:hover, &:focus-visible
+        background: var(--ant-color-fill-tertiary)
+
+.ai-session-switcher
+    width: 600px
+    max-width: calc(100vw - 24px)
+    padding: 6px
+    border: 1px solid var(--ant-color-border-secondary)
+    border-radius: 12px
+    background: var(--ant-color-bg-elevated)
+    box-shadow: var(--ant-box-shadow-secondary)
+    color: var(--ant-color-text)
+
+    .ai-session-switcher-search-bar
+        display: flex
+        align-items: center
+        border-bottom: 1px solid var(--ant-color-border-secondary)
+
+    .ai-session-switcher-back
+        padding: 6px
+        border: none
+        border-radius: 6px
+        background: transparent
+        color: var(--ant-color-text-secondary)
+        cursor: pointer
+
+        &:hover
+            background: var(--ant-color-fill-tertiary)
+            color: var(--ant-color-text)
+
+        &:focus-visible
+            outline: 2px solid var(--ant-color-primary-border)
+            outline-offset: -2px
+
+    .ai-session-switcher-search
+        padding: 6px 8px 10px
+        border-radius: 0
+        font-size: 13px
+
+        &:focus-visible, &:has(input:focus-visible)
+            outline: none
+            box-shadow: none
+
+        .ant-input-prefix
+            margin-right: 8px
+            color: var(--ant-color-text-tertiary)
+
+    .ai-session-switcher-body
+        display: flex
+        margin-top: 6px
+
+    .ai-session-switcher-agents
+        flex: 0 0 160px
+        padding-right: 6px
+        border-right: 1px solid var(--ant-color-border-secondary)
+        margin-right: 6px
+
+    .ai-session-switcher-sessions
+        flex: 1
+        min-width: 0
+
+    .ai-session-switcher-list
+        min-height: 48px
+        // 每条会话高 30px，超过 10 条后在列表内滚动。
+        max-height: 300px
+        overflow-y: auto
+
+        button
+            display: flex
+            align-items: center
+            gap: 12px
+            width: 100%
+            padding: 5px 10px
+            border: none
+            border-radius: 6px
+            background: transparent
+            color: inherit
+            text-align: left
+            font: inherit
+            font-size: 14px
+            line-height: 20px
+            cursor: pointer
+
+            &:hover
+                background: var(--ant-color-fill-tertiary)
+
+            &:focus-visible
+                outline: 2px solid var(--ant-color-primary-border)
+                outline-offset: -2px
+
+            &.active
+                background: var(--ant-color-primary-bg)
+                color: var(--ant-color-primary)
+                font-weight: 500
+
+                .ai-session-switcher-time
+                    color: inherit
+
+    .ai-session-switcher-name
+        flex: 1
+        min-width: 0
+        overflow: hidden
+        text-overflow: ellipsis
+        white-space: nowrap
+
+    .ai-session-switcher-time
+        flex-shrink: 0
+        color: var(--ant-color-text-tertiary)
+        font-size: 12px
+
+    .ai-session-switcher-empty
+        padding: 20px 8px
+        text-align: center
+        color: var(--ant-color-text-tertiary)

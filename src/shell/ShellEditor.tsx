@@ -13,6 +13,7 @@ import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 
 import { chat_model, get_chat_model, release_chat_model } from '@/agent/model.ts'
 import { AiTab } from '@/agent/ai-tab/AiTab.tsx'
+import { SessionSwitcher } from '@/agent/ai-tab/SessionSwitcher.tsx'
 import { needs_builtin_init_action } from '@/agent/builtin-init.ts'
 
 import { is_pending_ai_chat_id, shell } from './model.ts'
@@ -102,7 +103,7 @@ export function ShellEditor ({ collapser }) {
         const { tabs, itab } = shell
         
         function remove_tab () {
-            if (tab.chat_id)
+            if (tab.chat_id && !tabs.some(item => item.index !== tabId && item.chat_id === tab.chat_id))
                 release_chat_model(tab.chat_id)
             const index = tabs.findIndex(t => t.index === tabId)
             const new_tabs = tabs.filter(t => t.index !== tabId)
@@ -613,9 +614,7 @@ function AiToolbar ({
                 onBlur={commit_title}
                 onPressEnter={commit_title}
             />
-            : <div className='ai-toolbar-title' title={title} onDoubleClick={() => { set_editing_title(true) }}>
-                {title}
-            </div>}
+            : <SessionSwitcher key={session_id} session_id={session_id} title={title} on_rename={() => { set_editing_title(true) }} />}
         <div className='ai-toolbar-actions'>
             {node_type !== NodeType.controller && node_type !== NodeType.data && <Tooltip title={t('AI 设置')}>
                 <div
