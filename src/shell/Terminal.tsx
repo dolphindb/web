@@ -16,6 +16,7 @@ import type { DdbMessage } from 'dolphindb/browser.js'
 import { t } from '@i18n'
 
 import { model } from '@model'
+import { chat_shared_model } from '@/agent/model/shared.ts'
 
 import { shell } from './model.ts'
 
@@ -100,6 +101,7 @@ export function Terminal () {
             
             
             model.ddb.listeners.push(printer)
+            chat_shared_model.listeners.push(printer)
             
             // 删去这句话，首次点击会失效
             rterminal.current.children[0]?.dispatchEvent(new Event('mousedown'))
@@ -118,6 +120,7 @@ export function Terminal () {
         
         return () => {
             model.ddb.listeners = model.ddb.listeners.filter(handler => handler !== printer)
+            chat_shared_model.listeners = chat_shared_model.listeners.filter(handler => handler !== printer)
             
             window.removeEventListener('resize', on_resize)
         }

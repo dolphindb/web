@@ -1,5 +1,5 @@
 import { Model } from 'react-object-model'
-import { DDB, DdbConnectionError, SqlStandard, type DdbEvalOptions } from 'dolphindb/browser.js'
+import { DDB, DdbConnectionError, SqlStandard, type DdbEvalOptions, type DdbMessage } from 'dolphindb/browser.js'
 import { delay } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
@@ -28,6 +28,9 @@ export class ChatSharedModel extends Model<ChatSharedModel> {
     ddb_ticket = ''
     
     p_reconnect: Promise<DDB> | null = null
+    
+    /** DdbMessage listeners，供外部模块（如 Shell Terminal）监听 AI 执行的输出 */
+    listeners: ((message: DdbMessage, ddb: DDB) => void)[] = [ ]
     
     is_ddb_connected () {
         return Boolean(this.ddb?.connected || model.ddb?.connected)
@@ -68,6 +71,10 @@ export class ChatSharedModel extends Model<ChatSharedModel> {
                         autologin: true,
                         sql: SqlStandard.DolphinDB,
                         verbose: model.verbose,
+                    })
+                    ddb.listeners.push((message, ddb_instance) => {
+                        for (const listener of this.listeners)
+                            listener(message, ddb_instance)
                     })
                     try {
                         await ddb.connect()
