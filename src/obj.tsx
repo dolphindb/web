@@ -1790,7 +1790,8 @@ function Chart ({
             const n = 
                 charttype === DdbChartType.line && multi_y_axes || 
                 charttype === DdbChartType.kline ||
-                charttype === DdbChartType.surface ? 
+                charttype === DdbChartType.surface ||
+                charttype === DdbChartType.box ? 
                     rows
                 :
                     rows * cols
@@ -1840,6 +1841,16 @@ function Chart ({
                         data_[j] = dataobj
                         
                     }
+                    break
+                
+                case DdbChartType.box:
+                    // 每行是一个箱体, 各列依次为 min、Q1、median、Q3、max
+                    for (let j = 0;  j < rows;  j++)
+                        data_[j] = {
+                            row: row_labels[j],
+                            value: seq(cols, i => to_chart_data(data[i * rows + j], datatype))
+                        }
+                    
                     break
                 
                 case DdbChartType.surface:
@@ -2291,6 +2302,40 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                         data: data.map(d => d.vol)
                     } as echarts.BarSeriesOption] : [ ]
                 ]
+            }
+            
+        case DdbChartType.box:
+            return {
+                ...base,
+                legend: null,
+                tooltip: {
+                    trigger: 'item',
+                    formatter ({ value, name }: any) {
+                        return `<b>${name}</b><br/>` +
+                            `max: ${value[4]}<br/>` +
+                            `Q3: ${value[3]}<br/>` +
+                            `median: ${value[2]}<br/>` +
+                            `Q1: ${value[1]}<br/>` +
+                            `min: ${value[0]}`
+                    }
+                },
+                xAxis: {
+                    ...axis_style,
+                    type: 'category',
+                    name: titles.x_axis,
+                    data: data.map(d => d.row),
+                },
+                yAxis: {
+                    ...axis_style,
+                    type: 'value',
+                    name: titles.y_axis,
+                    scale: auto_scale_y_axes,
+                } as echarts.EChartsOption['yAxis'],
+                series: [{
+                    name: titles.chart,
+                    type: 'boxplot',
+                    data: data.select('value')
+                }]
             }
             
         default:
