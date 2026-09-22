@@ -17,7 +17,7 @@ const options = [
         value: 'Asia/Shanghai',
         label: 'Asia/Shanghai',
     },
-    ... Intl.supportedValuesOf('timeZone')
+    ... (Intl.supportedValuesOf?.('timeZone') ?? [ ])
         .filter(tz => tz !== 'Asia/Shanghai')
         .map(tz => ({ value: tz, label: tz }))
 ]
