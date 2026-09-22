@@ -55,6 +55,8 @@ const views = {
     [DdbForm.tensor]: Tensor,
 }
 
+const primary_color = '#6774bd' as const
+
 
 export type Context = 'page' | 'webview' | 'window' | 'embed' | 'dashboard'
 
@@ -1919,7 +1921,7 @@ function Chart ({
                 assets_root={assets_root}
             />
         :
-            <EChartsComponent option={get_chart_option(config)} />
+            <EChartsComponent option={get_chart_option(config, dark)} />
         }
         
         {(ctx === 'page' || ctx === 'embed') && <>
@@ -1945,7 +1947,7 @@ function Chart ({
 let foreground_color: string
 
 
-function get_chart_option (config: ChartConfig): echarts.EChartsOption {
+function get_chart_option (config: ChartConfig, dark: boolean): echarts.EChartsOption {
     const { charttype, data, titles, stacking, multi_y_axes, auto_scale_y_axes, col_labels, bin_count } = config
     
     foreground_color ??= window.getComputedStyle(document.documentElement)
@@ -2312,18 +2314,18 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                     trigger: 'item',
                     formatter ({ value, name }: any) {
                         return `<b>${name}</b><br/>` +
-                            `max: ${value[4]}<br/>` +
-                            `Q3: ${value[3]}<br/>` +
-                            `median: ${value[2]}<br/>` +
-                            `Q1: ${value[1]}<br/>` +
-                            `min: ${value[0]}`
+                            `max: ${value[5]}<br/>` +
+                            `Q3: ${value[4]}<br/>` +
+                            `median: ${value[3]}<br/>` +
+                            `Q1: ${value[2]}<br/>` +
+                            `min: ${value[1]}`
                     }
                 },
                 xAxis: {
                     ...axis_style,
                     type: 'category',
                     name: titles.x_axis,
-                    data: data.map(d => d.row),
+                    data: data.select('row'),
                 },
                 yAxis: {
                     ...axis_style,
@@ -2334,7 +2336,15 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                 series: [{
                     name: titles.chart,
                     type: 'boxplot',
-                    data: data.select('value')
+                    data: data.select('value'),
+                    // 箱体配色, 适配 light / dark 模式
+                    itemStyle: {
+                        // 箱体填充色, 半透明主题色
+                        color: dark ? `${primary_color}45` : `${primary_color}30`,
+                        // 箱体边框、须线、中位线颜色
+                        borderColor: dark ? '#8d96cd' : primary_color,
+                        borderWidth: 1,
+                    },
                 }]
             }
             
