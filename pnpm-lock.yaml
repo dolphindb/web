@@ -60,8 +60,8 @@ importers:
         specifier: ^1.11.23
         version: 1.11.23
       dolphindb:
-        specifier: ^3.1.57
-        version: 3.1.57(supports-color@7.2.0)(typescript@7.0.2)
+        specifier: ^3.1.58
+        version: 3.1.58(supports-color@7.2.0)(typescript@7.0.2)
       echarts:
         specifier: ^6.1.0
         version: 6.1.0
@@ -1977,8 +1977,8 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  dolphindb@3.1.57:
-    resolution: {integrity: sha512-3awSYdqX3PXq3TQABckWT2jFMx3JZG1T99x0MqxSHMsl1v4vlNlFmLAkokMfvGt3LH5YWOtPhxicllO594DTHw==}
+  dolphindb@3.1.58:
+    resolution: {integrity: sha512-fNGCTFrKxP03w0oWCRJpiQtU2dtLRx2iOl0SACYrErCC2P+FrU++/tazjGjHIyavh13AO6kGBBgZllKU+xDKIQ==}
 
   dom-serializer@2.0.0:
     resolution: {integrity: sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==}
@@ -5676,7 +5676,7 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dolphindb@3.1.57(supports-color@7.2.0)(typescript@7.0.2):
+  dolphindb@3.1.58(supports-color@7.2.0)(typescript@7.0.2):
     dependencies:
       dayjs: 1.11.23
       ipaddr.js: 2.5.0

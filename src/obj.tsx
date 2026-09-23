@@ -1712,6 +1712,11 @@ export interface ChartConfig {
     bin_count: DdbChartValue['bin_count']
     bin_start: DdbChartValue['bin_start']
     bin_end: DdbChartValue['bin_end']
+    /** 箱线图离群点, 每项为 { series: 序列编号 (对应 data 的行号), value: 离群点值 } */
+    outliers: {
+        series: number
+        value: number
+    }[]
     font?: string
 }
 
@@ -1740,6 +1745,7 @@ function Chart ({
         bin_count: null as DdbChartValue['bin_count'],
         bin_start: null as DdbChartValue['bin_start'],
         bin_end: null as DdbChartValue['bin_end'],
+        outliers: [ ],
         font
     })
     
@@ -1757,6 +1763,7 @@ function Chart ({
                     type: charttype,
                     stacking,
                     extras,
+                    outliers,
                     data: {
                         rows,
                         cols,
@@ -1799,6 +1806,16 @@ function Chart ({
                     rows * cols
             
             let data_ = new Array(n)
+            
+            // 箱线图离群点: N×2 矩阵, 底层列优先存储, 前 N 个元素为序列编号, 后 N 个为离群点值
+            // 注意: 行数 N 取 outliers.rows (DdbObj 上的维度信息), outliers.value.rows 是行标签向量 (DdbVectorObj)
+            const outlier_points = outliers?.rows ?
+                seq(outliers.rows, i => ({
+                    series: to_chart_data(outliers.value.data[i], outliers.type),
+                    value: to_chart_data(outliers.value.data[outliers.rows + i], outliers.type)
+                }))
+            :
+                [ ]
             
             switch (charttype) {
                 case DdbChartType.line:
@@ -1846,7 +1863,7 @@ function Chart ({
                     break
                 
                 case DdbChartType.box:
-                    // 每行是一个箱体, 各列依次为 min、Q1、median、Q3、max
+                    // 每行是一个箱体, 各列依次为 [下须, Q1, median, Q3, 上须], 首尾为须端点
                     for (let j = 0;  j < rows;  j++)
                         data_[j] = {
                             row: row_labels[j],
@@ -1899,6 +1916,7 @@ function Chart ({
                 bin_count,
                 bin_start,
                 bin_end,
+                outliers: outlier_points,
             })
         })()
     }, [obj, objref])
@@ -1948,7 +1966,10 @@ let foreground_color: string
 
 
 function get_chart_option (config: ChartConfig, dark: boolean): echarts.EChartsOption {
-    const { charttype, data, titles, stacking, multi_y_axes, auto_scale_y_axes, col_labels, bin_count } = config
+    const {
+        charttype, data, titles, stacking, multi_y_axes,
+        auto_scale_y_axes, col_labels, bin_count, outliers
+    } = config
     
     foreground_color ??= window.getComputedStyle(document.documentElement)
         .getPropertyValue('--vscode-editor-foreground')
@@ -2312,7 +2333,11 @@ function get_chart_option (config: ChartConfig, dark: boolean): echarts.EChartsO
                 legend: null,
                 tooltip: {
                     trigger: 'item',
-                    formatter ({ value, name }: any) {
+                    formatter ({ seriesType, value, name }: any) {
+                        // 离群点 tooltip 显示对应序列名称和数值
+                        if (seriesType === 'scatter')
+                            return `<b>${name}</b><br/>${t('离群点')}: ${value[1]}`
+                        
                         return `<b>${name}</b><br/>` +
                             `max: ${value[5]}<br/>` +
                             `Q3: ${value[4]}<br/>` +
@@ -2333,19 +2358,39 @@ function get_chart_option (config: ChartConfig, dark: boolean): echarts.EChartsO
                     name: titles.y_axis,
                     scale: auto_scale_y_axes,
                 } as echarts.EChartsOption['yAxis'],
-                series: [{
-                    name: titles.chart,
-                    type: 'boxplot',
-                    data: data.select('value'),
-                    // 箱体配色, 适配 light / dark 模式
-                    itemStyle: {
-                        // 箱体填充色, 半透明主题色
-                        color: dark ? `${primary_color}45` : `${primary_color}30`,
-                        // 箱体边框、须线、中位线颜色
-                        borderColor: dark ? '#8d96cd' : primary_color,
-                        borderWidth: 1,
+                series: [
+                    {
+                        name: titles.chart,
+                        type: 'boxplot',
+                        data: data.select('value'),
+                        // 箱体配色, 适配 light / dark 模式
+                        itemStyle: {
+                            // 箱体填充色, 半透明主题色
+                            color: dark ? `${primary_color}45` : `${primary_color}30`,
+                            // 箱体边框、须线、中位线颜色
+                            borderColor: dark ? '#8d96cd' : primary_color,
+                            borderWidth: 1,
+                        },
                     },
-                }]
+                    
+                    // 离群点绘制为散点系列, 与箱体共用坐标轴, x 为序列编号 (箱体在 x 轴类目中的位置)
+                    ... outliers.length ? [{
+                        name: 'outliers',
+                        type: 'scatter',
+                        symbolSize: 6,
+                        data: outliers.map(({ series, value }) => ({
+                            // 显示对应箱体的序列名称
+                            name: data[series]?.row,
+                            value: [series, value]
+                        })),
+                        itemStyle: {
+                            // 空心圆点, 配色与箱体边框一致
+                            color: 'transparent',
+                            borderColor: dark ? '#8d96cd' : primary_color,
+                            borderWidth: 1,
+                        },
+                    } satisfies echarts.ScatterSeriesOption] : [ ]
+                ]
             }
             
         default:

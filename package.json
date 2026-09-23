@@ -45,7 +45,7 @@
         "client-zip": "^2.5.0",
         "copy-to-clipboard": "^4.0.2",
         "dayjs": "^1.11.23",
-        "dolphindb": "^3.1.57",
+        "dolphindb": "^3.1.58",
         "echarts": "^6.1.0",
         "filenamify": "^7.0.2",
         "gridstack": "^13.2.0",
