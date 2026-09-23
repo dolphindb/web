@@ -156,7 +156,9 @@ export let sgraph = new StreamingGraph()
 
 export const get_subscription_stats_funcdef = 
     'def get_subscription_stats (name) {\n' +
-    '    stat = pnodeRun(def (): getStreamingStat().subWorkers, getDataNodes())\n' +
+    '    // 只对状态正常 (state == 1) 的数据节点取数，避免有节点宕机时 pnodeRun 整体抛出 DataNodeNotAvail\n' +
+    '    live_nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0 and state == 1\n' +
+    '    stat = pnodeRun(def (): getStreamingStat().subWorkers, live_nodes)\n' +
     '    sub = getOrcaStreamTaskSubscriptionMeta(name)\n' +
     '    return select * from sub, stat where strFind(stat.topic, sub.tableName + "/" + sub.actionName) != -1 order by taskId\n' +
     '}\n'
@@ -164,7 +166,9 @@ export const get_subscription_stats_funcdef =
 export const get_publish_stats_fundef = 
     'def get_publish_stats (name) {\n' +
     '    tableNames = select distinct tableName from getOrcaStreamTaskSubscriptionMeta(name)\n' +
-    '    conns = pnodeRun(def (): getStreamingStat().pubConns, getDataNodes())\n' +
+    '    // 只对状态正常 (state == 1) 的数据节点取数，避免有节点宕机时 pnodeRun 整体抛出 DataNodeNotAvail\n' +
+    '    live_nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0 and state == 1\n' +
+    '    conns = pnodeRun(def (): getStreamingStat().pubConns, live_nodes)\n' +
     '    \n' +
     '    return select * from tableNames, conns where strFind(conns.tables,  tableNames.tableName) != -1\n' +
     '}\n'
