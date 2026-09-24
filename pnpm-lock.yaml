@@ -169,8 +169,8 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
       xshell-lint:
-        specifier: file:///T:/t/pnpm/xshell-lint-1.0.4.tgz
-        version: file:../../../t/pnpm/xshell-lint-1.0.4.tgz(supports-color@7.2.0)(typescript@6.0.3)
+        specifier: ^1.0.4
+        version: 1.0.4(supports-color@7.2.0)(typescript@6.0.3)
 
 packages:
 
@@ -2935,9 +2935,8 @@ packages:
     resolution: {integrity: sha512-Hl0ZOAs672vg+06kfujwRhoS6/jehvULrlFkuF2dRu6pHgA8U06h3xqNIqNNU1LTXPcedxByAR4GS6pwQK0mgA==}
     engines: {node: '>=20'}
 
-  xshell-lint@file:../../../t/pnpm/xshell-lint-1.0.4.tgz:
-    resolution: {integrity: sha512-LWLXgYcXD8kUKqMl3YRdrdAfysf5QDQjycK18glUrqsKENEtDKyM/Wcuxi4F8oFtM/6LsbQqxH0RE7MeZKC+4Q==, tarball: file:../../../t/pnpm/xshell-lint-1.0.4.tgz}
-    version: 1.0.4
+  xshell-lint@1.0.4:
+    resolution: {integrity: sha512-LWLXgYcXD8kUKqMl3YRdrdAfysf5QDQjycK18glUrqsKENEtDKyM/Wcuxi4F8oFtM/6LsbQqxH0RE7MeZKC+4Q==}
 
   xshell@1.4.61:
     resolution: {integrity: sha512-ldQ/qW7Ty2KnbZNrO6VxRUS0awe5YKMLk97u1kW9IJ5/FY1OeKoLzQGLkSUQkjEi6jfuMZ7FYXrrbQtEERQATA==}
@@ -6418,7 +6417,7 @@ snapshots:
       is-wsl: 3.1.0
       powershell-utils: 0.1.0
 
-  xshell-lint@file:../../../t/pnpm/xshell-lint-1.0.4.tgz(supports-color@7.2.0)(typescript@6.0.3):
+  xshell-lint@1.0.4(supports-color@7.2.0)(typescript@6.0.3):
     dependencies:
       '@stylistic/eslint-plugin': 5.10.0(eslint@10.11.0(supports-color@7.2.0))
       '@typescript-eslint/eslint-plugin': 8.70.1(@typescript-eslint/parser@8.70.1(eslint@10.11.0(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3))(eslint@10.11.0(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3)
