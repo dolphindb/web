@@ -9,7 +9,7 @@ import { delay, load_script } from 'xshell/utils.browser.js'
 import { dark_background } from '@theme'
 
 
-let Plotly: typeof import('plotly.js-dist-min')
+let Plotly: typeof import('plotly.js-dist-min').default
 
 
 export function Surface ({
@@ -85,6 +85,10 @@ function bigint2number (x: any) {
 }
 
 
+/** plotly 未单独导出 scene 坐标轴类型，通过索引访问从 Scene 上获取 */
+type SceneAxis = NonNullable<Plotly.Scene['xaxis'] | Plotly.Scene['yaxis'] | Plotly.Scene['zaxis']>
+
+
 function get_layout (
     { width, height }: { width: number, height: number },
     options: SurfaceOptions
@@ -112,7 +116,7 @@ function get_layout (
                 return [axis, {
                     title: { text: options[axis] || a },
                     gridcolor: '#888888'
-                } satisfies Partial<Plotly.SceneAxis>]
+                } satisfies Partial<SceneAxis>]
             })),
         
         margin: {
