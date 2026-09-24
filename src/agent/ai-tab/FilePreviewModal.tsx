@@ -294,12 +294,10 @@ export function FilePreviewModal ({
     }, [session_id, target?.type, (target as any)?.path, (target as any)?.attachment_id])
     
     
-    useEffect(() => {
-        return () => {
+    useEffect(() => () => {
             if (preview_data?.image_src?.startsWith('blob:'))
                 URL.revokeObjectURL(preview_data.image_src)
-        }
-    }, [preview_data?.image_src])
+        }, [preview_data?.image_src])
     
     
     useEffect(() => {

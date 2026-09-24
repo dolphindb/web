@@ -55,15 +55,15 @@ class RequiredPluginsModel extends Model<RequiredPluginsModel> {
     action = ''
     installing_all = false
     _request_id = 0
-
+    
     is_loaded (plugin: RequiredFilePlugin) {
         return this.loaded_plugins.some(item => item.plugin === plugin)
     }
-
+    
     get all_loaded () {
         return REQUIRED_FILE_PLUGINS.every(plugin => this.is_loaded(plugin))
     }
-
+    
     async refresh (show_error = true) {
         const request_id = ++this._request_id
         this.set({ checking: true, check_error: '' })
@@ -85,18 +85,18 @@ class RequiredPluginsModel extends Model<RequiredPluginsModel> {
                 this.set({ checking: false })
         }
     }
-
+    
     async open (error?: unknown) {
         this.set({ visible: true })
         if (error !== undefined)
             model.show_error({ title: t('相关操作失败'), body: format_error(error) })
         await this.refresh(false)
     }
-
+    
     close () {
         this.set({ visible: false })
     }
-
+    
     async ensure_loaded () {
         const checked = await this.refresh()
         if (checked && this.all_loaded)
@@ -104,7 +104,7 @@ class RequiredPluginsModel extends Model<RequiredPluginsModel> {
         this.set({ visible: true })
         return false
     }
-
+    
     async _install_and_load (plugin: RequiredFilePlugin, plugin_server_addr?: string) {
         const plugin_path = await model.ddb.invoke<string>('installPlugin', plugin_server_addr
             ? [plugin, undefined, plugin_server_addr]
@@ -112,7 +112,7 @@ class RequiredPluginsModel extends Model<RequiredPluginsModel> {
         )
         await model.ddb.invoke<void>('loadPlugin', [plugin_path])
     }
-
+    
     async load (plugin: RequiredFilePlugin) {
         this.set({ action: 'load', action_plugin: plugin })
         try {
@@ -127,7 +127,7 @@ class RequiredPluginsModel extends Model<RequiredPluginsModel> {
             this.set({ action: '', action_plugin: '' })
         }
     }
-
+    
     async install_missing () {
         const missing_plugins = REQUIRED_FILE_PLUGINS.filter(plugin => !this.is_loaded(plugin))
         const errors: string[] = [ ]

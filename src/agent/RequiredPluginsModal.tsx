@@ -27,7 +27,7 @@ export function RequiredPluginsModal () {
         loaded_plugins.some(item => item.plugin === plugin)
     )
     const operating = installing_all || Boolean(action_plugin)
-
+    
     return <Modal
         open={visible}
         title={t('AI 文件与知识库插件')}
@@ -43,9 +43,9 @@ export function RequiredPluginsModal () {
             <Text type='secondary'>
                 {t('AI 对话附件和知识库功能需要加载以下两个插件。')}
             </Text>
-
+            
             {all_loaded && <Alert type='success' showIcon message={t('所需插件均已加载')} />}
-
+            
             <div className='ai-required-plugins-header'>
                 <Text strong>{t('当前插件加载情况')}</Text>
                 <Button
@@ -81,7 +81,7 @@ export function RequiredPluginsModal () {
                     })}
                 </div>
             </Spin>
-
+            
             <section className='ai-required-plugin-section'>
                 <Text strong>{t('自动下载')}</Text>
                 <div className='ai-required-plugin-actions'>

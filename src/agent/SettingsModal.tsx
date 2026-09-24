@@ -305,7 +305,7 @@ export function SettingsModal () {
             })
         return () => { disposed = true }
     }, [settings_visible, admin])
-
+    
     useEffect(() => {
         if (settings_visible && active_setting_key === 'knowledge')
             required_plugins_model.refresh()
