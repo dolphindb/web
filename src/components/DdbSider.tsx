@@ -9,6 +9,7 @@ import {
 
 import { noop } from 'xshell/prototype.browser.js'
 import { filter_values } from 'xshell/utils.browser.js'
+import { storage } from 'xshell/storage.js'
 
 import { language, t } from '@i18n'
 
@@ -85,6 +86,11 @@ export function DdbSider () {
     
     const { menus } = config.use(['menus'])
     
+    // 当前登录用户的 ticket，用于自定义菜单 url 中的 {ticket} 模板参数
+    const ticket = useMemo(
+        () => logined ? storage.getstr(storage_keys.ticket) : '',
+        [logined, username])
+    
     const [factor_platform, set_factor_platform] = useState(false)
     
     const factor_href = useMemo(
@@ -92,7 +98,7 @@ export function DdbSider () {
             `${model.assets_root}starfish/index.html?` +
             new URLSearchParams(filter_values({
                 logined: Number(logined).toString(),
-                token: localStorage.getItem(storage_keys.ticket)
+                token: storage.getstr(storage_keys.ticket)
             })).toString(),
         [logined, hostname, port])
     
@@ -262,7 +268,7 @@ export function DdbSider () {
                     key: `custom-menu-${index}`,
                     title,
                     icon: <AppstoreOutlined className='icon-menu' />,
-                    label: <Link target='_blank' href={url}>{title}</Link>
+                    label: <Link target='_blank' href={url.replaceAll('{ticket}', ticket)}>{title}</Link>
                 })),
                 
                 admin && !iot && {

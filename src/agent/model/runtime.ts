@@ -1,8 +1,8 @@
 import type { DdbEvalOptions } from 'dolphindb/browser.js'
+
 import { t } from '@i18n'
 import { model } from '@model'
 import type { ChatModel } from '@/agent/model.ts'
-import { chat_shared_model } from './shared.ts'
 import type { ScriptResult, ToolContext } from '@/agent/scripts/types.ts'
 import { build_web_assembly_config } from '@/agent/prompt.ts'
 import {
@@ -13,6 +13,8 @@ import {
     type ToolCallContinuation,
 } from '@/agent/tool_call_adapters.ts'
 import type { ParsedToolCall } from '@/agent/tool_call_parser.ts'
+
+import { chat_shared_model } from './shared.ts'
 import type {
     ChatCompletionStreamResult,
     IMessage,

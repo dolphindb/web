@@ -536,7 +536,7 @@ export class DdbModel extends Model<DdbModel> {
         }
         if (this.agent_bus_ticket_refresh)
             return this.agent_bus_ticket_refresh
-
+            
         const username = this.username
         // 并发 401 共用同一次 ticket 申请，避免重复占用 DolphinDB 会话。
         const refresh = (async () => {

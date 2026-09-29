@@ -1,12 +1,10 @@
 // 用法: node.exe commands.ts dev 或 build 或 test
 
-import type { Context } from 'koa'
-
 import {
     ramdisk, noprint, fdclear, Remote, set_inspect_options, fdelete, fread, crc32, fexists, fwrite, fappend, flist
 } from 'xshell'
 import { Git, type GitVersionInfo } from 'xshell/git.js'
-import { Server } from 'xshell/server.js'
+import { Server, type Context, type Request } from 'xshell/server.js'
 import { setup_vscode_settings, process_stdin } from 'xshell/development.js'
 import { build_htmls, copy_assets, rolldown, type HtmlConfig, type HtmlsConfig } from 'xshell/builder.js'
 
@@ -94,29 +92,23 @@ async function dev (preview = false) {
                 path === '/favicon.ico' || 
                 path === '/vendors/monaco-editor/min-maps/vs/loader.js.map' ||
                 path === '/quill.snow.css.map'
-            ) {
-                response.status = 404
-                return true
-            }
+            )
+                return
             
             if (path === '/api/recompile') {
-                response.status = 200
-                
                 await recompile()
                 
-                return true
+                return response.set_ok()
             }
             
             if (path === '/api/exit') {
-                response.status = 200
-                
                 setTimeout(async () => {
                     await stop()
                     
                     process.exit()
                 }, 200)
                 
-                return true
+                return response.set_ok()
             }
             
             return this.try_send(

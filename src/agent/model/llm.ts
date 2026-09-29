@@ -70,11 +70,9 @@ export class ChatLlmModel {
     }
     _p_load_providers: Promise<ILlmProvider[]> | null = null
     _p_load_configs: Promise<ILlmConfig[]> | null = null
-
-    /**
-     * 获取全局 LLM 提供商列表。
-     * 遵循“如果有就直接取，没有再发网络请求”的缓存原则，并做并发去重保护。
-     */
+    
+    /** 获取全局 LLM 提供商列表。
+        遵循“如果有就直接取，没有再发网络请求”的缓存原则，并做并发去重保护。 */
     async ensure_llm_providers (force = false): Promise<ILlmProvider[]> {
         if (!force && this.chat.llm_providers.length > 0)
             return this.chat.llm_providers
@@ -95,11 +93,9 @@ export class ChatLlmModel {
         this._p_load_providers = p
         return p
     }
-
-    /**
-     * 获取全局 LLM 模型配置列表（已关联 providerName）。
-     * 遵循“如果有就直接取，没有再发网络请求”的缓存原则，并做并发去重保护。
-     */
+    
+    /** 获取全局 LLM 模型配置列表（已关联 providerName）。
+        遵循“如果有就直接取，没有再发网络请求”的缓存原则，并做并发去重保护。 */
     async ensure_llm_configs (force = false): Promise<ILlmConfig[]> {
         if (!force && this.chat.llm_configs.length > 0)
             return this.chat.llm_configs
@@ -122,11 +118,11 @@ export class ChatLlmModel {
         this._p_load_configs = p
         return p
     }
-
+    
     async load_llm_providers (force = false): Promise<ILlmProvider[]> {
         return this.chat.llm.ensure_llm_providers(force)
     }
-
+    
     async register_llm_provider (provider: {
         name: string
         adapterType: string
@@ -143,7 +139,7 @@ export class ChatLlmModel {
         await this.chat.llm.ensure_llm_configs(true)
         return result
     }
-
+    
     async update_llm_provider (provider_id: string, updates: Record<string, any>): Promise<void> {
         await this.chat.agent.api_fetch(`/llm/provider/${provider_id}`, {
             method: 'PUT',
@@ -152,21 +148,21 @@ export class ChatLlmModel {
         await this.chat.llm.ensure_llm_providers(true)
         await this.chat.llm.ensure_llm_configs(true)
     }
-
+    
     async disable_llm_provider (provider_id: string): Promise<void> {
         await this.chat.llm.update_llm_provider(provider_id, { enabled: false })
     }
-
+    
     async enable_llm_provider (provider_id: string): Promise<void> {
         await this.chat.llm.update_llm_provider(provider_id, { enabled: true })
     }
-
+    
     async delete_llm_provider (provider_id: string): Promise<void> {
         await this.chat.agent.api_fetch(`/llm/provider/${provider_id}`, { method: 'DELETE' })
         await this.chat.llm.ensure_llm_providers(true)
         await this.chat.llm.ensure_llm_configs(true)
     }
-
+    
     async load_llm_configs (provider_lookup?: Map<string, ILlmProvider>, force = false): Promise<ILlmConfig[]> {
         if (!provider_lookup)
             return this.chat.llm.ensure_llm_configs(force)
@@ -178,7 +174,7 @@ export class ChatLlmModel {
             return this.chat.llm_configs
         }
     }
-
+    
     async register_llm_config (config: ILlmConfigInput): Promise<ILlmConfig> {
         const result = await this.chat.agent.api_fetch('/llm/config/register', {
             method: 'POST',
@@ -187,7 +183,7 @@ export class ChatLlmModel {
         await this.chat.llm.ensure_llm_configs(true)
         return result
     }
-
+    
     async update_llm_config (llm_config_id: string, updates: Partial<ILlmConfigInput>): Promise<void> {
         await this.chat.agent.api_fetch(`/llm/config/${llm_config_id}`, {
             method: 'PUT',
@@ -195,20 +191,20 @@ export class ChatLlmModel {
         })
         await this.chat.llm.ensure_llm_configs(true)
     }
-
+    
     async disable_llm_config (llm_config_id: string): Promise<void> {
         await this.chat.llm.update_llm_config(llm_config_id, { enabled: false })
     }
-
+    
     async enable_llm_config (llm_config_id: string): Promise<void> {
         await this.chat.llm.update_llm_config(llm_config_id, { enabled: true })
     }
-
+    
     async delete_llm_config (llm_config_id: string): Promise<void> {
         await this.chat.agent.api_fetch(`/llm/config/${llm_config_id}`, { method: 'DELETE' })
         await this.chat.llm.ensure_llm_configs(true)
     }
-
+    
     async load_agent_llm_bindings (agent_id: string, provider_lookup?: Map<string, ILlmProvider>): Promise<IAgentLlmBinding[]> {
         try {
             if (!provider_lookup) {

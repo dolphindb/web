@@ -1,6 +1,6 @@
-import { language } from '@i18n'
 import { pickBy } from 'lodash'
 
+import { language } from '@i18n'
 import type { IMessage } from '@/agent/model/types.ts'
 import { normalize_json_object, parse_json_string } from '@/agent/model/helpers.ts'
 import type { IWorkspaceSearchOptions } from '@/agent/workspace.ts'
@@ -8,7 +8,6 @@ import {
     spill_large_tool_result_content_if_needed,
     spill_large_tool_result_print_if_needed,
 } from '@/agent/tool_result_spill.ts'
-
 import type { ScriptResult, ToolContext } from '@/agent/scripts/types.ts'
 import {
     TOOL_RESULT_SPILL_THRESHOLD_CHARS,
