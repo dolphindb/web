@@ -38,7 +38,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     const { variable_cols, with_search_btn, search_btn_label, variable_form_label_col } = widget.config ?? { }
     
     return <div
-        style={widget.type === WidgetChartType.CONFIGURATION || WidgetChartType.SURFACE
+        style={widget.type === WidgetChartType.CONFIGURATION || widget.type === WidgetChartType.SURFACE
             ? undefined
             : { padding: get_padding_style(widget.config?.padding) }}
         className={cn('graph-item-wrapper', {
