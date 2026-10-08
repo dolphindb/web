@@ -86,8 +86,13 @@ export class ChatRuntimeModel {
         resolve_script_execution_approval(this.chat, decision)
     }
     
-    async request_script_execution_approval (tool_name: string, script: string, message_id: string): Promise<ScriptExecuteApprovalDecision> {
-        return request_script_execution_approval(this.chat, tool_name, script, message_id)
+    async request_script_execution_approval (
+        tool_name: string,
+        script: string,
+        message_id: string,
+        reason?: string
+    ): Promise<ScriptExecuteApprovalDecision> {
+        return request_script_execution_approval(this.chat, tool_name, script, message_id, reason)
     }
     
     clear_pending_script_approval (decision: ScriptExecuteApprovalDecision = 'deny') {

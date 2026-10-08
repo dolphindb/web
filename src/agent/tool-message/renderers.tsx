@@ -38,8 +38,8 @@ const { Text } = Typography
 function ExecuteLikeRenderer (props: ToolRendererProps) {
     const { args, chat, message, structured_payload, collapse_key_suffix, tool_name } = props
     const { pending_script_approval } = chat.use(['pending_script_approval'])
-    const script = get_arg_text(args, 0, ['script'])
     const is_waiting_approval = pending_script_approval?.messageId === message.msgId
+    const script = get_arg_text(args, 0, ['script']) || (is_waiting_approval ? pending_script_approval?.script : '') || ''
     
     if (!props.is_outcome)
         return <div style={STACK_STYLE}>

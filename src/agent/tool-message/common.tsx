@@ -347,7 +347,10 @@ export function create_rerun_button (tool_name: string, script: string) {
 
 
 export function ScriptApprovalActions ({ chat }: { chat: ChatModel }) {
+    const { pending_script_approval } = chat.use(['pending_script_approval'])
+    const is_rejected_interception = Boolean(pending_script_approval?.reason)
     const auto_approval_warning = t('默认允许 Agent 在此会话执行脚本。AI 模型可能会出错。')
+    
     return <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -355,16 +358,22 @@ export function ScriptApprovalActions ({ chat }: { chat: ChatModel }) {
         gap: 8,
         marginTop: 8,
         padding: '8px 10px',
-        border: '1px solid #faad14',
+        border: `1px solid ${is_rejected_interception ? '#ff7875' : '#faad14'}`,
         borderRadius: 6,
-        background: '#fffbe6',
+        background: is_rejected_interception ? '#fff2f0' : '#fffbe6',
     }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <Text type='secondary' style={{ fontSize: 12 }}>
-                {t('等待允许执行此 DolphinDB 脚本')}
+            <Text
+                strong={is_rejected_interception}
+                type={is_rejected_interception ? undefined : 'secondary'}
+                style={{ fontSize: 12, color: is_rejected_interception ? '#cf1322' : undefined }}
+            >
+                {is_rejected_interception
+                    ? t('检测到破坏性操作被 AI Script 拦截，需审批后使用普通连接执行')
+                    : t('等待允许执行此 DolphinDB 脚本')}
             </Text>
             <Text type='secondary' style={{ fontSize: 12 }}>
-                {t('AI模型可能会出错，因此请仔细检查输出内容。')}
+                {pending_script_approval?.reason || t('AI模型可能会出错，因此请仔细检查输出内容。')}
             </Text>
         </div>
         <Space size={6}>
@@ -375,14 +384,14 @@ export function ScriptApprovalActions ({ chat }: { chat: ChatModel }) {
             >
                 {t('不允许')}
             </Button>
-            <Tooltip title={auto_approval_warning}>
+            {!is_rejected_interception && <Tooltip title={auto_approval_warning}>
                 <Button
                     size='small'
                     onClick={() => { chat.runtime.resolve_script_execution_approval('allow_session') }}
                 >
                     {t('允许且此会话默认允许')}
                 </Button>
-            </Tooltip>
+            </Tooltip>}
             <Button
                 size='small'
                 type='primary'

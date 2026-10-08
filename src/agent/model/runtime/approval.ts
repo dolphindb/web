@@ -39,24 +39,32 @@ export function resolve_script_execution_approval (chat: ChatModel, decision: Sc
 }
 
 
-export async function request_script_execution_approval (chat: ChatModel, tool_name: string, script: string, message_id: string): Promise<ScriptExecuteApprovalDecision> {
+export async function request_script_execution_approval (
+    chat: ChatModel,
+    tool_name: string,
+    script: string,
+    message_id: string,
+    reason?: string
+): Promise<ScriptExecuteApprovalDecision> {
     const session_id = chat._active_session_id
-    if (get_session_script_execute_approval_mode(chat, session_id) === 'auto')
+    if (!reason && get_session_script_execute_approval_mode(chat, session_id) === 'auto')
         return 'allow'
     
     return new Promise(resolve => {
-        const approval: IScriptExecutionApproval = {
-            id: `script_approval_${Date.now()}`,
-            sessionId: session_id,
-            messageId: message_id,
-            toolName: tool_name,
-            script,
-        }
-        
         chat._script_approval_resolver = resolve
         chat.set({
-            pending_script_approval: approval,
-            agent_status: { status: 'tool_running', message: t('等待 DolphinDB 脚本执行审批...') },
+            pending_script_approval: {
+                id: `script_approval_${Date.now()}`,
+                sessionId: session_id,
+                messageId: message_id,
+                toolName: tool_name,
+                script,
+                reason,
+            },
+            agent_status: {
+                status: 'tool_running',
+                message: reason ? t('检测到破坏性操作被拦截，等待审批...') : t('等待 DolphinDB 脚本执行审批...'),
+            },
         })
     })
 }

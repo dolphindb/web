@@ -84,6 +84,7 @@ export interface IScriptExecutionApproval {
     messageId: string
     toolName: string
     script: string
+    reason?: string
 }
 
 

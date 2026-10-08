@@ -166,7 +166,7 @@ export async function execute_tool_call (
     const script = handler && SCRIPT_APPROVAL_TOOLS.has(parsed_call.type)
         ? normalize_script_args(parsed_call.payload)[0] || ''
         : ''
-    const script_reviewed = Boolean(script) && chat.runtime.get_session_script_execute_approval_mode(chat._active_session_id) !== 'auto'
+    let script_reviewed = Boolean(script) && chat.runtime.get_session_script_execute_approval_mode(chat._active_session_id) !== 'auto'
     if (script) {
         const decision = await chat.runtime.request_script_execution_approval(parsed_call.type, script, tool_call_msg_id)
         if (chat.runtime.is_request_inactive(request_seq))
@@ -195,12 +195,33 @@ export async function execute_tool_call (
     }
     // 构建 ToolContext
     const context: ToolContext = {
-        eval: async (script, options) => {
+        eval: async (script_to_eval, options) => {
             try {
-                return await chat.runtime.eval_ddb(script, { ...options, ai: !script_reviewed })
+                return await chat.runtime.eval_ddb(script_to_eval, { ...options, ai: !script_reviewed })
             } catch (error) {
-                if (get_ddb_connection_error_kind(error))
+                if (get_ddb_connection_error_kind(error)) {
                     chat._ddb_connection_error = error
+                    throw error
+                }
+                
+                const message = error instanceof Error ? error.message : String(error)
+                if (message.includes('AIScript rejected')) {
+                    const decision = await chat.runtime.request_script_execution_approval(
+                        parsed_call.type,
+                        script_to_eval,
+                        tool_call_msg_id,
+                        message
+                    )
+                    if (chat.runtime.is_request_inactive(request_seq))
+                        throw error
+                    if (decision === 'deny')
+                        throw new Error(t('用户未允许执行 DolphinDB 脚本。'))
+                    
+                    chat.set({ agent_status: { status: 'tool_running' } })
+                    script_reviewed = true
+                    return await chat.runtime.eval_ddb(script_to_eval, { ...options, ai: false })
+                }
+                
                 throw error
             }
         },
