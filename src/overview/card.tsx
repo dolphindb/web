@@ -395,15 +395,19 @@ function InfoItem ({
 }
 
 function NodeSite ({ node }: { node: DdbNode }) {
-    const { host, port, mode, publicName } = node
+    const { host, port, mode, publicName: public_name } = node
     const private_host = `${host}:${port}`
-    const private_link = model.get_url(host, port, { queries: { view: null } })
+    // 节点通过 /dolphindb/nodes/{节点名}/ 路径访问，浏览器无法直接访问节点的 host:port，改用对应节点的路径跳转
+    const private_link = model.subpath_mode
+        ? model.get_node_url(node, { queries: { view: null } })
+        : model.get_url(host, port, { queries: { view: null } })
     let public_hosts = [ ]
     let public_link = [ ]
     
-    if (publicName) {
-        public_hosts = publicName.split(/,|;/).map(hostname => `${hostname}:${port}`)
-        public_link = publicName.split(/,|;/).map(hostname => 
+    // nginx 代理多节点模式下，publicName 对应的 host:port 同样无法直接访问，且跳转路径相同，不再重复展示
+    if (public_name && !model.subpath_mode) {
+        public_hosts = public_name.split(/,|;/).map(hostname => `${hostname}:${port}`)
+        public_link = public_name.split(/,|;/).map(hostname => 
             model.get_url(
                 hostname, 
                 port,
