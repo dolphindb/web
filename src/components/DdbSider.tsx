@@ -268,7 +268,7 @@ export function DdbSider () {
                     key: `custom-menu-${index}`,
                     title,
                     icon: <AppstoreOutlined className='icon-menu' />,
-                    label: <Link target='_blank' href={url.replaceAll('{ticket}', ticket)}>{title}</Link>
+                    label: <Link target='_blank' href={url.replaceAll('{ticket}', encodeURIComponent(ticket))}>{title}</Link>
                 })),
                 
                 admin && !iot && {
