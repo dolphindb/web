@@ -154,7 +154,7 @@ export function WebMenusConfig () {
                 </Form.Item>
                 
                 <Form.Item name='url' className='field-url' label={t('链接地址')} {...required}>
-                    <Input placeholder={t('请输入链接地址，如 /xxx/xxx 或 https://dolphindb.cn')} />
+                    <Input placeholder={t('请输入链接地址，如 /xxx/xxx 或 https://dolphindb.cn，url 中的 {ticket} 会替换为当前登录用户的 ticket')} />
                 </Form.Item>
                 
                 <Form.Item>

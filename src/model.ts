@@ -66,6 +66,9 @@ export class DdbModel extends Model<DdbModel> {
     /** 静态资源的根路径 */
     assets_root = '/'
     
+    /** 是否将多个 dolphindb 节点代理到同一个域名下，以 /dolphindb/nodes/{节点名}/ 格式的路径访问 */
+    subpath_mode = false
+    
     /** 启用详细日志，包括执行的代码和运行代码返回的变量 */
     verbose = false
     
@@ -208,8 +211,12 @@ export class DdbModel extends Model<DdbModel> {
         
         const { pathname } = location
         
-        // 确定 assets_root
-        if (pathname.startsWith(subpath))
+        // 确定 assets_root，支持 /dolphindb/nodes/{节点名}/ 格式的路径
+        const subpath_node = /^\/dolphindb\/nodes\/[^/]+\//.exec(pathname)?.[0]
+        
+        if (subpath_node)
+            this.assets_root = subpath_node
+        else if (pathname.startsWith(subpath))
             this.assets_root = subpath
         else if (this.test)
             for (const web_path of ['/web/', '/main/'])
@@ -217,6 +224,8 @@ export class DdbModel extends Model<DdbModel> {
                     this.assets_root = web_path
                     break
                 }
+        
+        this.subpath_mode = Boolean(subpath_node)
         
         this.autologin = params.get('autologin') !== '0'
         
@@ -269,7 +278,7 @@ export class DdbModel extends Model<DdbModel> {
                 (port ? `:${port}` : '') +
                 
                 // 检测 ddb 是否通过 nginx 代理，部署在子路径下
-                (pathname.startsWith(subpath) ? subpath : ''),
+                (subpath_node ?? (pathname.startsWith(subpath) ? subpath : '')),
             {
                 autologin: false,
                 verbose: this.verbose,
@@ -536,7 +545,7 @@ export class DdbModel extends Model<DdbModel> {
         }
         if (this.agent_bus_ticket_refresh)
             return this.agent_bus_ticket_refresh
-
+            
         const username = this.username
         // 并发 401 共用同一次 ticket 申请，避免重复占用 DolphinDB 会话。
         const refresh = (async () => {
@@ -1193,7 +1202,19 @@ export class DdbModel extends Model<DdbModel> {
     
     
     /** 获取 node 最优跳转 url */
-    get_node_url (node: DdbNode, options?: GetUrlOptions ) {
+    get_node_url (node: DdbNode, options?: GetUrlOptions) {
+        // 节点通过 /dolphindb/nodes/{节点名}/ 路径访问，浏览器无法直接访问节点的 host:port
+        if (this.subpath_mode) {
+            const pathname = options?.pathname ?? location.pathname
+            
+            return this.get_url(this.hostname, Number(this.port), {
+                ...options,
+                // 替换路径中的节点名，保留 pathname 相对于 assets_root 的部分，如 overview/、login/
+                pathname: `/dolphindb/nodes/${node.name}/` +
+                    (pathname.startsWith(this.assets_root) ? pathname.slice(this.assets_root.length) : ''),
+            })
+        }
+        
         return this.get_url(
             this.find_node_closest_hostname(node), 
             node.port, 
@@ -1334,6 +1355,10 @@ export const envs = [
     {
         label: '测试单机.剑波',
         value: '192.168.0.54:8848'
+    },
+    {
+        label: '测试单机.美艳',
+        value: '192.168.0.114:8900'
     },
     {
         label: 'ai.孙薇',

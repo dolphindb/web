@@ -121,13 +121,13 @@ export function WorkspaceSidebar ({
         if (should_refresh_files)
             refresh_files({ silent: !visible })
     }, [messages, current_session_id, session_id, visible])
-
+    
     const has_content = files.length > 0 || (ENABLE_ATTACHMENTS && attachments.length > 0)
     useEffect(() => {
         if (!has_content)
             set_visible(false)
     }, [has_content])
-
+    
     if (!has_content)
         return null
     

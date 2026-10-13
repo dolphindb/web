@@ -4,10 +4,8 @@ import type { AgentAuthSubjectType, IAgentInfo } from './types.ts'
 import { ENABLE_AGENT_GROUP_AUTH } from './constants.ts'
 
 
-/**
- * 将 Agent Bus 后端返回的原始错误信息（特别是 BUS_CONFLICT / 关联引用类报错）转换为用户友好的错误提示。
- * 要求：将 agentId 替换为 Agent 名称，如果找不到名称则不直接暴露 Agent ID。
- */
+/** 将 Agent Bus 后端返回的原始错误信息（特别是 BUS_CONFLICT / 关联引用类报错）转换为用户友好的错误提示。
+    要求：将 agentId 替换为 Agent 名称，如果找不到名称则不直接暴露 Agent ID。 */
 export function format_agent_bus_error (raw_message: string, agents: IAgentInfo[] = [ ]): string {
     if (!raw_message || typeof raw_message !== 'string')
         return raw_message
@@ -22,9 +20,9 @@ export function format_agent_bus_error (raw_message: string, agents: IAgentInfo[
     
     // 3. 模型被 Agent 绑定 / 引用：如 "llm config is still bound to 1 agent(s)..." 或 "llm config is still referenced by..."
     if (/llm\s*(?:config\s*)?is\s*still\s*(?:bound|referenced)/i.test(raw_message)) {
-        const count_match = raw_message.match(/bound\s*to\s*(\d+)\s*agent/i)
+        const count_match = /bound\s*to\s*(\d+)\s*agent/i.exec(raw_message)
         const count = count_match ? Number(count_match[1]) || 1 : 1
-        const agent_id_match = raw_message.match(/agentId=([^\s,;]+)/i) || raw_message.match(/subjectType=AGENT,\s*subjectId=([^\s,;]+)/i)
+        const agent_id_match = (/agentId=([^\s,;]+)/i.exec(raw_message)) || (/subjectType=AGENT,\s*subjectId=([^\s,;]+)/i.exec(raw_message))
         const sample_agent_id = agent_id_match ? agent_id_match[1] : ''
         const sample_agent_name = sample_agent_id ? agents.find(a => a.agentId === sample_agent_id)?.agentName : ''
         
@@ -39,9 +37,9 @@ export function format_agent_bus_error (raw_message: string, agents: IAgentInfo[
     
     // 4. 技能被 Agent 绑定 / 引用：如 "skill is still bound to 1 agent(s)..." 或 "skill is still referenced by skill access: ..."
     if (/skill\s*is\s*still\s*(?:bound|referenced)/i.test(raw_message)) {
-        const count_match = raw_message.match(/bound\s*to\s*(\d+)\s*agent/i)
+        const count_match = /bound\s*to\s*(\d+)\s*agent/i.exec(raw_message)
         const count = count_match ? Number(count_match[1]) || 1 : 1
-        const agent_id_match = raw_message.match(/agentId=([^\s,;]+)/i) || raw_message.match(/subjectType=AGENT,\s*subjectId=([^\s,;]+)/i)
+        const agent_id_match = (/agentId=([^\s,;]+)/i.exec(raw_message)) || (/subjectType=AGENT,\s*subjectId=([^\s,;]+)/i.exec(raw_message))
         const sample_agent_id = agent_id_match ? agent_id_match[1] : ''
         const sample_agent_name = sample_agent_id ? agents.find(a => a.agentId === sample_agent_id)?.agentName : ''
         
@@ -56,7 +54,7 @@ export function format_agent_bus_error (raw_message: string, agents: IAgentInfo[
     
     // 5. 记忆配置引用模型：如 "... referenced by memory ... agentId=agent_xxx"
     if (/MEMORY_CONFIG_REFERENCED|referenced by memory/i.test(raw_message)) {
-        const agent_id_match = raw_message.match(/agentId=([^\s,;]+)/i)
+        const agent_id_match = /agentId=([^\s,;]+)/i.exec(raw_message)
         const agent_name = agent_id_match ? agents.find(a => a.agentId === agent_id_match[1])?.agentName : ''
         return agent_name
             ? t('当前模型已被 Agent“{{name}}”的记忆配置引用，请先在记忆管理中修改配置。', { name: agent_name })
@@ -65,7 +63,7 @@ export function format_agent_bus_error (raw_message: string, agents: IAgentInfo[
     
     // 6. 其他 LLM_CONFIG_REFERENCED 或 SKILL_REFERENCED
     if (/LLM_CONFIG_REFERENCED/i.test(raw_message)) {
-        const agent_id_match = raw_message.match(/agentId=([^\s,;]+)/i)
+        const agent_id_match = /agentId=([^\s,;]+)/i.exec(raw_message)
         const agent_name = agent_id_match ? agents.find(a => a.agentId === agent_id_match[1])?.agentName : ''
         return agent_name
             ? t('当前模型已被 Agent“{{name}}”引用，请先在 Agent 管理中解绑或切换模型。', { name: agent_name })
@@ -73,7 +71,7 @@ export function format_agent_bus_error (raw_message: string, agents: IAgentInfo[
     }
     
     if (/SKILL_REFERENCED/i.test(raw_message)) {
-        const agent_id_match = raw_message.match(/agentId=([^\s,;]+)/i)
+        const agent_id_match = /agentId=([^\s,;]+)/i.exec(raw_message)
         const agent_name = agent_id_match ? agents.find(a => a.agentId === agent_id_match[1])?.agentName : ''
         return agent_name
             ? t('当前技能已被 Agent“{{name}}”引用，请先在 Agent 管理中解绑。', { name: agent_name })
@@ -226,9 +224,7 @@ export function parse_sse_event (raw_event: string): { event: string, data: stri
 }
 
 
-/**
- * 格式化提供商与模型名称为“提供商/模型”，如 openrouter/deepseek-v4-pro
- */
+/** 格式化提供商与模型名称为“提供商/模型”，如 openrouter/deepseek-v4-pro */
 export function format_provider_model (provider?: string, model?: string): string {
     const p = provider?.trim() || ''
     const m = model?.trim() || ''
@@ -243,9 +239,7 @@ export function format_provider_model (provider?: string, model?: string): strin
 }
 
 
-/**
- * 统一格式化模型展示标签为“提供商/模型”，如 openrouter/deepseek-v4-pro
- */
+/** 统一格式化模型展示标签为“提供商/模型”，如 openrouter/deepseek-v4-pro */
 export function format_model_label (item?: {
     providerName?: string
     providerId?: string

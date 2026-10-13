@@ -10113,5 +10113,8 @@
     },
     "用量统计在服务商返回 Token 用量时可用。": {
         "en": "Usage statistics are available when the provider returns token usage."
+    },
+    "离群点": {
+        "en": "Outliers"
     }
 }

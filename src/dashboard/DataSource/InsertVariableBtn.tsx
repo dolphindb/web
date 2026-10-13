@@ -25,7 +25,7 @@ export function InsertVariableBtn (props: IProps) {
             key: item.id
         })), [variable_infos, on_insert])
     
-    return !!variable_infos?.length && <Dropdown trigger={['hover']} menu={{ items }} overlayClassName='variable-dropdown'>
+    return !!variable_infos?.length && <Dropdown trigger={['hover']} menu={{ items }} classNames={{ root: 'variable-dropdown' }}>
         <Button onMouseDown={e => { e.preventDefault() }} {...others} icon={<PlusSquareOutlined />}>{t('插入变量')}</Button>
     </Dropdown>
     

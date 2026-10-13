@@ -449,7 +449,7 @@ export function UserPermissionTab () {
 export function GroupPermissionTab () {
     const [group_options, set_group_options] = useState<{ value: string, label: string }[]>([ ])
     const [selected_group_id, set_selected_group_id] = useState('')
-
+    
     useEffect(() => {
         if (!ENABLE_AGENT_GROUP_AUTH)
             return
@@ -457,7 +457,7 @@ export function GroupPermissionTab () {
             .then(groups => { set_group_options(groups.map((group: string) => ({ value: group, label: group }))) })
             .catch(error => { show_error(error, t('加载用户组失败')) })
     }, [ ])
-
+    
     return <SettingsListLayout
         title={t('用户组权限')}
         list_subtitle={t('选择需要管理的用户组')}

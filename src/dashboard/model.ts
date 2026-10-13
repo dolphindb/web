@@ -135,7 +135,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 console.log('dp', dp)        
                 return false
             },
-            float: true,
+            mode: 'float',
             column: this.maxcols,
             row: 0,
             margin: 0,
