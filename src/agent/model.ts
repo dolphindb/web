@@ -137,7 +137,7 @@ export class ChatModel extends Model<ChatModel> {
         const protocol = location.protocol
         const hostname = model.hostname || location.hostname
         const port = model.port || location.port
-        return `${protocol}//${hostname}${port ? ':' + port : ''}/agent-bus/v1`
+        return `${protocol}//${hostname}${port ? ':' + port : ''}${model.assets_root}agent-bus/v1`
     }
 }
 
