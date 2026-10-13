@@ -66,6 +66,9 @@ export class DdbModel extends Model<DdbModel> {
     /** 静态资源的根路径 */
     assets_root = '/'
     
+    /** DolphinDB 服务的代理路径前缀，直连时为空，与静态资源路径区分 */
+    proxy_root = ''
+
     /** 是否将多个 dolphindb 节点代理到同一个域名下，以 /dolphindb/nodes/{节点名}/ 格式的路径访问 */
     subpath_mode = false
     
@@ -211,8 +214,9 @@ export class DdbModel extends Model<DdbModel> {
         
         const { pathname } = location
         
-        // 确定 assets_root，支持 /dolphindb/nodes/{节点名}/ 格式的路径
+        // 确定代理前缀和 assets_root，支持 /dolphindb/nodes/{节点名}/ 格式的路径
         const subpath_node = /^\/dolphindb\/nodes\/[^/]+\//.exec(pathname)?.[0]
+        this.proxy_root = subpath_node ?? (pathname.startsWith(subpath) ? subpath : '')
         
         if (subpath_node)
             this.assets_root = subpath_node
@@ -278,7 +282,7 @@ export class DdbModel extends Model<DdbModel> {
                 (port ? `:${port}` : '') +
                 
                 // 检测 ddb 是否通过 nginx 代理，部署在子路径下
-                (subpath_node ?? (pathname.startsWith(subpath) ? subpath : '')),
+                this.proxy_root,
             {
                 autologin: false,
                 verbose: this.verbose,
