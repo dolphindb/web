@@ -10116,5 +10116,8 @@
     },
     "离群点": {
         "en": "Outliers"
+    },
+    "请输入链接地址，如 /xxx/xxx 或 https://dolphindb.cn，url 中的 {ticket} 会替换为当前登录用户的 ticket": {
+        "en": "Please enter the link address, such as /xxx/xxx or https://dolphindb.cn. The {ticket} in the URL will be replaced with the ticket of the currently logged-in user."
     }
 }
