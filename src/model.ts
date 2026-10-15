@@ -766,8 +766,6 @@ export class DdbModel extends Model<DdbModel> {
         } else
             admin ??= this.admin
         
-        this.set({ logined, username, admin })
-        
         if (logined) {
             this.ddb.ticket = ticket ||= await this.get_ticket()
             
@@ -775,6 +773,9 @@ export class DdbModel extends Model<DdbModel> {
             localStorage.setItem(storage_keys.ticket, ticket)
         } else
             this.clear_login_auth()
+        
+        // 放到 get_ticket 后面确保此时 ticket 已经获取到
+        this.set({ logined, username, admin })
         
         // 切换用户时，之前的 agent 状态和 ticket 都不再有效
         if (user_changed && logined)
