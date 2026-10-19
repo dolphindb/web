@@ -66,11 +66,13 @@ export async function spill_large_tool_result_content_if_needed (
     content: string,
     tool_type: string,
     context: ToolContext,
+    max_chars = TOOL_RESULT_SPILL_THRESHOLD_CHARS,
+    preview_chars = TOOL_RESULT_PREVIEW_CHARS,
 ) {
-    if (content.length <= TOOL_RESULT_SPILL_THRESHOLD_CHARS)
+    if (content.length <= max_chars)
         return content
     
-    const preview = content.slice(0, TOOL_RESULT_PREVIEW_CHARS)
+    const preview = content.slice(0, preview_chars)
     const file = `tool_result_${tool_type}_${hash_string(`${tool_type}:${content}`)}.txt`
     
     try {

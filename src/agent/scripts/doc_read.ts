@@ -1,7 +1,12 @@
 import { language } from '@i18n'
+import { spill_large_tool_result_content_if_needed } from '@/agent/tool_result_spill.ts'
 import type { ScriptConfig, ScriptResult } from './types.ts'
 import { normalize_script_args } from './helpers.ts'
 import { clean_doc_read_response, get_doc_reference } from './doc_context.ts'
+
+
+const DOC_READ_SPILL_THRESHOLD_CHARS = 30000
+const DOC_READ_PREVIEW_CHARS = 12000
 
 
 export const doc_read_config: ScriptConfig = {
@@ -64,6 +69,9 @@ export const doc_read_config: ScriptConfig = {
                 }),
             })
             const cleaned = clean_doc_read_response(result, reference)
+            cleaned.content = await spill_large_tool_result_content_if_needed(
+                cleaned.content, type, context, DOC_READ_SPILL_THRESHOLD_CHARS, DOC_READ_PREVIEW_CHARS,
+            )
             
             return {
                 next_loop: true,

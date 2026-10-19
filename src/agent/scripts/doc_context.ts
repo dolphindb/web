@@ -1,5 +1,3 @@
-import { language } from '@i18n'
-
 type DocProvider = 'official' | 'dolphinmind'
 
 export type DocCandidate = {
@@ -22,7 +20,6 @@ export type DocReference = {
 
 const RERANK_RECALL_LIMIT = 30
 const SUMMARY_CHARS = 220
-const DOC_READ_MAX_CHARS = 50000
 const MAX_DOC_REF_SESSIONS = 20
 const MAX_DOC_REFS_PER_SESSION = 100
 
@@ -365,16 +362,6 @@ function html_to_text (html: string): { title: string, content: string } {
     }
 }
 
-function trim_doc_content (content: string): { content: string, truncated: boolean } {
-    if (content.length <= DOC_READ_MAX_CHARS)
-        return { content, truncated: false }
-    const suffix = language === 'en' ? '\n\n[Content is too long and has been truncated]' : '\n\n[内容过长，已截断]'
-    return {
-        content: `${content.slice(0, Math.max(0, DOC_READ_MAX_CHARS - suffix.length)).trimEnd()}${suffix}`,
-        truncated: true,
-    }
-}
-
 export function clean_doc_read_response (response: unknown, reference: DocReference) {
     const record = as_record(response)
     const raw_content = string_value(record.content || reference.fallbackContent || '')
@@ -385,11 +372,10 @@ export function clean_doc_read_response (response: unknown, reference: DocRefere
         ? html_to_text(raw_content)
         : { title: '', content: raw_content.replace(/\r\n/g, '\n').trim() }
     const title = normalize_space(extracted.title || string_value(record.title) || reference.title)
-    const trimmed = trim_doc_content(extracted.content)
     
     return {
         title,
-        content: trimmed.content,
-        truncated: trimmed.truncated || body_truncated,
+        content: extracted.content,
+        truncated: body_truncated,
     }
 }
