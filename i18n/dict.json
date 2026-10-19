@@ -8147,8 +8147,8 @@
     "检测到破坏性操作被拦截，等待审批...": {
         "en": "Destructive operation intercepted, waiting for approval..."
     },
-    "检测到破坏性操作被 AI Script 拦截，需审批后使用普通连接执行": {
-        "en": "Destructive operation intercepted by AI Script, approval required to execute via normal connection"
+    "脚本执行被安全机制拦截，审批后继续执行": {
+        "en": "Script execution was blocked by a safety mechanism. Approve to continue."
     },
     "重复工具调用已跳过": {
         "en": "Skipped repeated tool call"
