@@ -6,7 +6,6 @@ import type { ScriptResult, ToolContext } from '@/agent/scripts/types.ts'
 import {
     get_ddb_connection_error_kind,
     get_ddb_connection_error_result,
-    normalize_script_args,
     parse_tool_result_json,
     tool_result_json,
 } from '@/agent/scripts/helpers.ts'
@@ -163,39 +162,23 @@ export async function execute_tool_call (
     const handler = get_script_handler(parsed_call.type)
     if (model.verbose)
         console.log('[debug] handler found:', !!handler, 'for type:', parsed_call.type)
-    const script = handler && SCRIPT_APPROVAL_TOOLS.has(parsed_call.type)
-        ? normalize_script_args(parsed_call.payload)[0] || ''
-        : ''
-    let script_reviewed = Boolean(script) && chat.runtime.get_session_script_execute_approval_mode(chat._active_session_id) !== 'auto'
-    if (script) {
-        const decision = await chat.runtime.request_script_execution_approval(parsed_call.type, script, tool_call_msg_id)
-        if (chat.runtime.is_request_inactive(request_seq))
-            return null
-        if (decision === 'deny') {
-            const content = tool_result_json({
-                ok: false,
-                tool: parsed_call.type,
-                denied: true,
-                content: '',
-                error: t('用户未允许执行 DolphinDB 脚本。'),
-            })
-            chat.set({
-                messages: [...chat.messages, {
-                    msgId: `tool_denied_${Date.now()}`,
-                    role: 'tool',
-                    messageType: 'tool_error',
-                    name: parsed_call.type,
-                    content,
-                    tool_call_id: parsed_call.id || undefined,
-                }],
-            })
-            return { tool_result_content: content, next_loop: true }
-        }
-        chat.set({ agent_status: { status: 'tool_running' } })
-    }
+    let script_denied = false
     // 构建 ToolContext
     const context: ToolContext = {
         eval: async (script_to_eval, options) => {
+            if (chat.runtime.is_request_inactive(request_seq))
+                throw new Error('Tool execution interrupted.')
+            // 在拿到实际执行内容后审批，execute_file 的参数只是路径。
+            // coldefs、testsql 不预先审批，无论会话模式都先走 AI Script。
+            const script_reviewed = SCRIPT_APPROVAL_TOOLS.has(parsed_call.type) &&
+                chat.runtime.get_session_script_execute_approval_mode(chat._active_session_id) !== 'auto'
+            if (script_reviewed) {
+                const decision = await chat.runtime.request_script_execution_approval(parsed_call.type, script_to_eval, tool_call_msg_id)
+                script_denied = decision === 'deny'
+                if (chat.runtime.is_request_inactive(request_seq) || script_denied)
+                    throw new Error(t('用户未允许执行 DolphinDB 脚本。'))
+                chat.set({ agent_status: { status: 'tool_running' } })
+            }
             try {
                 return await chat.runtime.eval_ddb(script_to_eval, { ...options, ai: !script_reviewed })
             } catch (error) {
@@ -205,7 +188,9 @@ export async function execute_tool_call (
                 }
                 
                 const message = error instanceof Error ? error.message : String(error)
-                if (message.includes('AIScript rejected')) {
+                // 匹配 AI Script 禁止危险操作的报错，语法等其他错误直接回填给模型。
+                const is_dangerous_operation = /AIScript rejected.*dangerous .* is not allowed/s.test(message)
+                if (!script_reviewed && is_dangerous_operation) {
                     const decision = await chat.runtime.request_script_execution_approval(
                         parsed_call.type,
                         script_to_eval,
@@ -214,12 +199,12 @@ export async function execute_tool_call (
                     )
                     if (chat.runtime.is_request_inactive(request_seq))
                         throw error
-                    if (decision === 'deny')
+                    script_denied = decision === 'deny'
+                    if (script_denied)
                         throw new Error(t('用户未允许执行 DolphinDB 脚本。'))
                     
                     chat.set({ agent_status: { status: 'tool_running' } })
-                    script_reviewed = true
-                    return await chat.runtime.eval_ddb(script_to_eval, { ...options, ai: false })
+                    return chat.runtime.eval_ddb(script_to_eval, { ...options, ai: false })
                 }
                 
                 throw error
@@ -269,6 +254,27 @@ export async function execute_tool_call (
     
     if (chat.runtime.is_request_inactive(request_seq))
         return null
+        
+    if (script_denied) {
+        const content = tool_result_json({
+            ok: false,
+            tool: parsed_call.type,
+            denied: true,
+            content: '',
+            error: t('用户未允许执行 DolphinDB 脚本。'),
+        })
+        chat.set({
+            messages: [...chat.messages, {
+                msgId: `tool_denied_${Date.now()}`,
+                role: 'tool',
+                messageType: 'tool_error',
+                name: parsed_call.type,
+                content,
+                tool_call_id: parsed_call.id || undefined,
+            }],
+        })
+        return { tool_result_content: content, next_loop: true }
+    }
     
     let stop_loop = false
     if (script_result.save_message) {
