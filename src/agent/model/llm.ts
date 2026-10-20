@@ -62,6 +62,7 @@ export class ChatLlmModel {
             adapterType: item.adapterType || '',
             baseUrl: item.baseUrl || '',
             apiKey: item.apiKey,
+            headers: item.headers || { },
             extra: item.extra,
             enabled: get_enabled(item),
             status: get_status(item),
@@ -128,6 +129,7 @@ export class ChatLlmModel {
         adapterType: string
         baseUrl: string
         apiKey?: string | null
+        headers?: Record<string, string>
         enabled?: boolean
         extra?: string
     }): Promise<ILlmProvider> {

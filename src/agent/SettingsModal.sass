@@ -466,6 +466,23 @@
     &.ant-switch-checked .ant-switch-handle
         inset-inline-start: calc(100% - 18px)
 
+.ai-provider-headers
+    grid-column: 1 / -1
+
+    .ai-provider-headers-title
+        margin-bottom: 4px
+        font-size: 13px
+
+    .ai-provider-header-row
+        display: grid
+        grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto
+        gap: 8px
+        margin-bottom: 8px
+
+    .ai-provider-headers-info
+        margin-left: 4px
+        color: var(--ant-color-text-secondary)
+
 .ai-settings-pane
     position: relative
     flex: 1

@@ -22,6 +22,7 @@ export const DEFAULT_PROVIDER_FORM = {
     adapterType: 'deepseek',
     baseUrl: '',
     apiKey: '',
+    headers: [ ] as { name: string, value: string }[],
 }
 
 

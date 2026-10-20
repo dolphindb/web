@@ -231,6 +231,7 @@ export interface ILlmProvider {
     adapterType: string
     baseUrl: string
     apiKey?: string
+    headers?: Record<string, string>
     extra?: string
     enabled: boolean
     status: number

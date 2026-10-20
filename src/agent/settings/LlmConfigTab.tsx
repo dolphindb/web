@@ -80,6 +80,7 @@ export function LlmConfigTab () {
             adapterType: p.adapterType || 'deepseek',
             baseUrl: p.baseUrl,
             apiKey: p.apiKey || '',
+            headers: Object.entries(p.headers || { }).map(([name, value]) => ({ name, value })),
         })
         set_provider_error('')
         try {
@@ -94,6 +95,7 @@ export function LlmConfigTab () {
                     adapterType: fresh.adapterType || 'deepseek',
                     baseUrl: fresh.baseUrl,
                     apiKey: fresh.apiKey || '',
+                    headers: Object.entries(fresh.headers || { }).map(([name, value]) => ({ name, value })),
                 })
         } catch { }
     }
@@ -108,6 +110,16 @@ export function LlmConfigTab () {
             return
         }
         set_provider_error('')
+        const header_names = provider_form.headers.map(header => header.name.trim().toLowerCase())
+        if (header_names.some(name => !name)) {
+            set_provider_error(t('请输入 Header 名称'))
+            return
+        }
+        if (new Set(header_names).size !== header_names.length) {
+            set_provider_error(t('Header 名称不能重复（不区分大小写）'))
+            return
+        }
+        const headers = Object.fromEntries(provider_form.headers.map(({ name, value }) => [name.trim(), value]))
         set_saving_provider(true)
         try {
             if (provider_mode === 'create') {
@@ -116,6 +128,7 @@ export function LlmConfigTab () {
                     adapterType: provider_form.adapterType,
                     baseUrl: provider_form.baseUrl.trim(),
                     apiKey: provider_form.apiKey || null,
+                    headers,
                     enabled: true,
                 })
                 message.success(t('创建成功'))
@@ -127,6 +140,7 @@ export function LlmConfigTab () {
                     name: provider_form.name.trim(),
                     adapterType: provider_form.adapterType,
                     baseUrl: provider_form.baseUrl.trim(),
+                    headers,
                 }
                 if (provider_form.apiKey !== (selected_provider?.apiKey || ''))
                     payload.apiKey = provider_form.apiKey || null

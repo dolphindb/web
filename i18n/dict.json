@@ -8336,6 +8336,30 @@
     "{{field}} JSON 格式错误": {
         "en": "{{field}} JSON format error"
     },
+    "自定义 HTTP Header": {
+        "en": "Custom HTTP Headers"
+    },
+    "Header 名称": {
+        "en": "Header name"
+    },
+    "Header 值": {
+        "en": "Header value"
+    },
+    "添加 Header": {
+        "en": "Add header"
+    },
+    "删除 Header": {
+        "en": "Delete header"
+    },
+    "请输入 Header 名称": {
+        "en": "Please enter a header name"
+    },
+    "Header 名称不能重复（不区分大小写）": {
+        "en": "Header names must be unique (case-insensitive)"
+    },
+    "DolphinX 调用外部 AI API 时添加的请求头，同名时覆盖。": {
+        "en": "Headers added when DolphinX calls external AI APIs. Matching names are overridden."
+    },
     "请输入 Provider 名称": {
         "en": "Please enter a Provider name"
     },
