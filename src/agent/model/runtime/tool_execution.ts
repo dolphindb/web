@@ -188,9 +188,9 @@ export async function execute_tool_call (
                 }
                 
                 const message = error instanceof Error ? error.message : String(error)
-                // 匹配 AI Script 禁止危险操作的报错，语法等其他错误直接回填给模型。
-                const is_dangerous_operation = /AIScript rejected.*dangerous .* is not allowed/s.test(message)
-                if (!script_reviewed && is_dangerous_operation) {
+                // 后端仅对安全策略拒绝使用此错误前缀，其他错误直接回填给模型。
+                const is_safety_rejection = message.startsWith('AIScript rejected')
+                if (!script_reviewed && is_safety_rejection) {
                     const decision = await chat.runtime.request_script_execution_approval(
                         parsed_call.type,
                         script_to_eval,
