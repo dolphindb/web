@@ -80,6 +80,10 @@ function ExecuteLikeRenderer (props: ToolRendererProps) {
 
 
 function ColdefsRenderer (props: ToolRendererProps) {
+    const { pending_script_approval } = props.chat.use(['pending_script_approval'])
+    if (!props.is_outcome && pending_script_approval?.messageId === props.message.msgId)
+        return <ExecuteLikeRenderer {...props} args={{ script: pending_script_approval.script }} />
+    
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
         const table_handle = get_arg_text(args, 0, ['table'])
         const parsed = is_object_record(structured_payload) ? structured_payload : null
@@ -102,6 +106,10 @@ function ColdefsRenderer (props: ToolRendererProps) {
 
 
 function TestsqlRenderer (props: ToolRendererProps) {
+    const { pending_script_approval } = props.chat.use(['pending_script_approval'])
+    if (!props.is_outcome && pending_script_approval?.messageId === props.message.msgId)
+        return <ExecuteLikeRenderer {...props} args={{ script: pending_script_approval.script }} />
+    
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload }) => {
         const table_handle = get_arg_text(args, 0, ['table'])
         const summary = get_table_like_summary(structured_payload)
@@ -478,6 +486,16 @@ function VfsDeleteRenderer (props: ToolRendererProps) {
 
 
 function ExecuteFileRenderer (props: ToolRendererProps) {
+    const { pending_script_approval } = props.chat.use(['pending_script_approval'])
+    if (!props.is_outcome && pending_script_approval?.messageId === props.message.msgId)
+        return <>
+            <SummaryBox
+                rows={[{ label: t('脚本'), value: get_named_arg_text(props.args) || '-' }]}
+                collapse_key_prefix={`${props.collapse_key_suffix}-path`}
+            />
+            <ExecuteLikeRenderer {...props} args={{ script: pending_script_approval.script }} />
+        </>
+        
     return <ParamResultSection props={props} build_data={({ args, message, structured_payload, tool_name, is_outcome }) => {
         const path = get_named_arg_text(args)
         const outcome = is_outcome ? render_outcome_detail(message, structured_payload) : null

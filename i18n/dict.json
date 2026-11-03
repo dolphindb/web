@@ -8147,8 +8147,8 @@
     "检测到破坏性操作被拦截，等待审批...": {
         "en": "Destructive operation intercepted, waiting for approval..."
     },
-    "检测到破坏性操作被 AI Script 拦截，需审批后使用普通连接执行": {
-        "en": "Destructive operation intercepted by AI Script, approval required to execute via normal connection"
+    "脚本执行被安全机制拦截，审批后继续执行": {
+        "en": "Script execution was blocked by a safety mechanism. Approve to continue."
     },
     "重复工具调用已跳过": {
         "en": "Skipped repeated tool call"
@@ -8335,6 +8335,30 @@
     },
     "{{field}} JSON 格式错误": {
         "en": "{{field}} JSON format error"
+    },
+    "自定义 HTTP Header": {
+        "en": "Custom HTTP Headers"
+    },
+    "Header 名称": {
+        "en": "Header name"
+    },
+    "Header 值": {
+        "en": "Header value"
+    },
+    "添加 Header": {
+        "en": "Add header"
+    },
+    "删除 Header": {
+        "en": "Delete header"
+    },
+    "请输入 Header 名称": {
+        "en": "Please enter a header name"
+    },
+    "Header 名称不能重复（不区分大小写）": {
+        "en": "Header names must be unique (case-insensitive)"
+    },
+    "DolphinX 调用外部 AI API 时添加的请求头，同名时覆盖。": {
+        "en": "Headers added when DolphinX calls external AI APIs. Matching names are overridden."
     },
     "请输入 Provider 名称": {
         "en": "Please enter a Provider name"

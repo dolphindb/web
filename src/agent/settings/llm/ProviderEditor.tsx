@@ -7,6 +7,7 @@ import { t } from '@i18n'
 import type { ILlmProvider } from '@/agent/model/types.ts'
 import { form_error_alert, required_label } from '@/agent/settings/common.tsx'
 import { ADAPTER_TYPE_OPTIONS, type ProviderFormData } from './types.ts'
+import { ProviderHeaders } from './ProviderHeaders.tsx'
 
 
 const base_url_placeholders: Record<string, string> = {
@@ -88,6 +89,10 @@ export function ProviderEditor ({
                                 placeholder='sk-...'
                             />
                         </div>
+                        <ProviderHeaders
+                            headers={provider_form.headers}
+                            on_change={headers => { set_provider_form({ ...provider_form, headers }) }}
+                        />
                     </div>
                     <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
                         {provider_mode === 'edit' && selected_provider?.enabled !== false && <Popconfirm

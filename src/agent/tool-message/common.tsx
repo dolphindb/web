@@ -369,7 +369,7 @@ export function ScriptApprovalActions ({ chat }: { chat: ChatModel }) {
                 style={{ fontSize: 12, color: is_rejected_interception ? '#cf1322' : undefined }}
             >
                 {is_rejected_interception
-                    ? t('检测到破坏性操作被 AI Script 拦截，需审批后使用普通连接执行')
+                    ? t('脚本执行被安全机制拦截，审批后继续执行')
                     : t('等待允许执行此 DolphinDB 脚本')}
             </Text>
             <Text type='secondary' style={{ fontSize: 12 }}>

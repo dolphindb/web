@@ -19,6 +19,7 @@ export function set_script_execute_approval_mode (chat: ChatModel, mode: ScriptE
     
     if (
         mode === 'auto' &&
+        !chat.pending_script_approval?.reason &&
         chat.pending_script_approval?.sessionId === session_id &&
         chat._script_approval_resolver
     )
