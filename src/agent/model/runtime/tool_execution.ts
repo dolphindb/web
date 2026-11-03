@@ -219,7 +219,7 @@ export async function execute_tool_call (
                     
                     chat.set({ agent_status: { status: 'tool_running' } })
                     script_reviewed = true
-                    return await chat.runtime.eval_ddb(script_to_eval, { ...options, ai: false })
+                    return chat.runtime.eval_ddb(script_to_eval, { ...options, ai: false })
                 }
                 
                 throw error

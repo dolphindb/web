@@ -7,7 +7,7 @@ import _dict from './dict.json'
 const i18n = new I18N(_dict)
 
 // 未知语言默认为英文
-if (!I18N.LANGUAGE_REGEXP.test(Intl.DateTimeFormat().resolvedOptions().locale.slice(0, 2)))
+if (!I18N.language_regexp.test(Intl.DateTimeFormat().resolvedOptions().locale.slice(0, 2)))
     i18n.language = i18n_api.language = i18n_xsh.language = 'en'
 
 const { t, language } = i18n
